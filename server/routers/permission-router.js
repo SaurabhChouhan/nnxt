@@ -19,7 +19,6 @@ permissionRouter.put('/', async ctx => {
     return await PermissionModel.editPermission(ctx.request.body)
 })
 permissionRouter.del('/:id', async ctx => {
-    console.log("Inside delete of permission")
     return await PermissionModel.deletePermission(ctx.params.id)
 })
 

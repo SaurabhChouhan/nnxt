@@ -80,7 +80,7 @@ roleSchema.statics.updateAddedPermission = async (permissionInput) => {
     return rolePermissionUpdate
 }
 roleSchema.statics.deleteAddedPermission = async (permissionID) => {
-    let rolePermissionDelete = await RoleModel.updateMany({'permissions._id': permissionID}, {$pull: {"permissions": {_id: permissionID}}}, {multi: true})
+    let rolePermissionDelete = await RoleModel.updateMany({'permissions._id': permissionID}, {$pull: {"permissions": {_id: permissionID}}}, {multi: true}).exec()
     return rolePermissionDelete
 }
 const RoleModel = mongoose.model("Role", roleSchema)

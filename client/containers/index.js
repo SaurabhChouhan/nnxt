@@ -1,4 +1,6 @@
 export {default as LoginFormContainer} from './forms/LoginFormContainer'
+export {default as RegistrationFormContainer} from './forms/RegistrationFormContainer'
+
 export {default as PermissionFormContainer} from './forms/PermissionFormContainer'
 export {default as RoleFormContainer} from './forms/RoleFormContainer'
 export {default as PermissionListContainer} from './lists/PermissionListContainer'
