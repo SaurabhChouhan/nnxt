@@ -63,9 +63,8 @@ publicRouter.get('/execute', async ctx => {
     //return await UserModel.findOneAndUpdate({email:'schouhan@aripratech.com'}, {$set:{'firstName':'Ekaksh'}}, {new:true})
 
 
-
     return await UserModel.aggregate({
-        $match: {email:'schouhan@aripratech.com'}
+        $match: {email: 'appuser@test.com'}
     }, {
         $unwind: {
             path: "$roles"
@@ -78,18 +77,32 @@ publicRouter.get('/execute', async ctx => {
             as: 'roles'
         }
     }, {
+        $unwind: {path: "$roles"}
+    }, {
+        $project: {
+            email: 1,
+            firstName: 1,
+            lastName: 1,
+            roles: {
+                name: 1,
+                permissions: {
+                    $filter: {
+                        input: "$roles.permissions",
+                        as: "permission",
+                        cond: {$eq: ['$$permission.enabled', true]}
+                    }
+                }
+            }
+        }
+    }, {
         $group: {
             _id: "$_id",
             email: {$first: "$email"},
             firstName: {$first: "$firstName"},
             lastName: {$first: "$lastName"},
-            roles: {$push: {$arrayElemAt: ["$roles", 0]}}
-            //roles: {"$roles", 0]}}
+            roles: {$push: "$roles"}
         }
     }).exec()
-
-
-
 })
 
 export default publicRouter
