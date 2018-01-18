@@ -1,0 +1,31 @@
+{
+  "presets": [],
+  "plugins": [],
+  "env": {
+    "server": {
+      "presets": [
+        "react",
+        "es2015"
+      ],
+      "plugins": [
+        [
+          "css-modules-transform",
+          {
+            "generateScopedName": "[hash:8]",
+            "extensions": [
+              ".scss"
+            ]
+          }
+        ]
+      ]
+    },
+    "client": {
+      "presets": [
+        "es2015",
+        "react",
+        "stage-2"
+      ],
+      "plugins": []
+    }
+  }
+}

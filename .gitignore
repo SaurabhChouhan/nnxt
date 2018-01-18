@@ -1,0 +1,10 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+node_modules/
+public/js/bundle.js.gz
+public/js/bundle.js
+public/js/bundle.js.map
+.babel_cache/
+.idea/
+server/public/js/bundle.js
+server/public/js/bundle.js.gz
+combined.log
