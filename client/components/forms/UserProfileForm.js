@@ -18,42 +18,37 @@ class UserProfileForm extends Component {
     render() {
         const {handleSubmit, pristine, reset, submitting, addUser, editUser, changeCredentials} = this.props;
 
-        return [
-            <h2 key="userProfileFormHeading">This is user profile page</h2>,
-            <div className="row">
-                <div className="col-md-6">
-                    <form key="userProfileForm" onSubmit={this.props.handleSubmit}>
-                        <div className={"col-md-12"}>
-                            <input type="submit" value="SAVE" className="btn squareButton"
-                                   disabled={pristine || submitting}/>
-                            <button onClick={() => this.props.reset()} type="button" className="btn squareButton"
-                                    disabled={pristine || submitting}>RESET
-                            </button>
-                        </div>
-                        <div className={"col-md-12"}>
-                            <h4>User Info</h4>
-                            <Field name="firstName" label="First Name:" component={renderField} validate={[required]}
-                                   type="text"/>
-                            <Field name="lastName" label="Last Name:" component={renderField} validate={[required]}
-                                   type="text"/>
-                            <Field
-                                name="roles"
-                                component={renderMultiselect}
-                                label="Roles:"
-                                disabled={true}
-                                data={this.props.roles} valueField="_id" textField="name"/>
-                            <Field name="email" label="Email:" validate={[required, email]} component={renderField}
-                                   type="email"/>
-                            <Field name="password" label="Password:" validate={[required, passwordLength]}
-                                   component={renderField} type="password"/>
-                            <Field name="confirmPassword" label="Confirm Password:"
-                                   validate={[required, passwordLength, passwordMatch]} component={renderField}
-                                   type="password"/>
-                        </div>
-                    </form>
-                </div>
+        return <div className="row">
+            <div className="col-md-6">
+                <form key="userProfileForm" onSubmit={this.props.handleSubmit}>
+
+                    <div className={"col-md-12"}>
+                        <Field name="firstName" label="First Name:" component={renderField} validate={[required]}
+                               type="text"/>
+                        <Field name="lastName" label="Last Name:" component={renderField} validate={[required]}
+                               type="text"/>
+                        <Field name="email" label="Email:" validate={[required, email]} component={renderField}
+                               type="email"/>
+                        <Field name="password" label="Password:" validate={[passwordLength]}
+                               component={renderField} type="password"/>
+                        <Field name="confirmPassword" label="Confirm Password:"
+                               validate={[passwordLength, passwordMatch]} component={renderField}
+                               type="password"/>
+                    </div>
+                    <div className={"col-md-12"}>
+                        <input type="submit" value="SAVE" className="btn btn-default btn-submit addBtn"
+                               disabled={pristine || submitting}/>
+
+                        <button onClick={() => this.props.reset()} type="button"
+                                className="btn btn-default btn-submit addBtn"
+                                style={{'marginLeft': '5px'}}
+                                disabled={pristine || submitting}>RESET
+                        </button>
+                    </div>
+                </form>
             </div>
-        ]
+        </div>
+
     }
 }
 

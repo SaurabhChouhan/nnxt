@@ -21,3 +21,11 @@ export const isAdmin = (ctx) => {
     }
     return false
 }
+
+export const isAppUser = (ctx) => {
+    if (ctx.isAuthenticated()) {
+        if (ctx.state.user && Array.isArray(ctx.state.user.roles) && ctx.state.user.roles.findIndex(r => r.name == ROLE_APP_USER) != -1)
+            return true
+    }
+    return false
+}

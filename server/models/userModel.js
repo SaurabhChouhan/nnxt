@@ -4,19 +4,20 @@ import _ from 'lodash'
 import * as ErrorCodes from '../errorcodes'
 import AppError from '../AppError'
 import logger from '../logger'
+import {HTTP_BAD_REQUEST} from "../errorcodes";
 
 mongoose.Promise = global.Promise
 
 let userSchema = mongoose.Schema({
-            firstName: {type: String, required: true},
-            lastName: String,
-            email: {type: String, required: true},
-            password: {type: String, required: true},
-            roles: [{
-                _id: mongoose.Schema.ObjectId,
-                name: {type: String, required: true}
-            }],
-            isDeleted: {type: Boolean, default: false}
+    firstName: {type: String, required: true},
+    lastName: String,
+    email: {type: String, required: true},
+    password: {type: String, required: true},
+    roles: [{
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String, required: true}
+    }],
+    isDeleted: {type: Boolean, default: false}
 })
 
 
@@ -40,9 +41,13 @@ userSchema.statics.verifyUser = async (email, password) => {
         throw new Error("User's email must be passed to verify user")
     if (_.isEmpty(password))
         throw new Error("User's password must be passed to verify user")
+    let user = await UserModel.findOne({email: email}).lean()
+    // verify password
+    let result = await bcrypt.compare(password, user.password)
 
-    console.log("finding user with email")
-    //let user = await UserModel.findOne({email: email}).lean()
+    console.log("bcrypt result is ", result)
+    if (!result)
+        return false
 
     try {
         let users = await UserModel.aggregate({
@@ -66,6 +71,7 @@ userSchema.statics.verifyUser = async (email, password) => {
                 firstName: 1,
                 lastName: 1,
                 roles: {
+                    _id:1,
                     name: 1,
                     permissions: {
                         $filter: {
@@ -82,6 +88,7 @@ userSchema.statics.verifyUser = async (email, password) => {
                 email: {$first: "$email"},
                 firstName: {$first: "$firstName"},
                 lastName: {$first: "$lastName"},
+                password: {$first: "$password"},
                 roles: {$push: "$roles"}
             }
         }).exec()
@@ -103,8 +110,6 @@ userSchema.statics.verifyUser = async (email, password) => {
             }
 
             user.permissions = [...permissionSet]
-
-            //user.permissions = []
 
             return user
         } else {
@@ -137,11 +142,21 @@ userSchema.statics.editUser = async userObj => {
     }
 
     if (userObj.password) {
-        // clear password as we will not change password in this call
-        delete userObj['password']
+        console.log("password is changed")
+        // this means password is changed
+        if (userObj.confirmPassword && userObj.password == userObj.confirmPassword) {
+            console.log("plain password is [" + userObj.password + "]")
+            userObj.password = await bcrypt.hash(userObj.password, 10)
+            console.log("encrypted password is ", userObj.password)
+
+        } else {
+            throw new AppError("Password/Confirm password not matched ", ErrorCodes.PASSWORD_NOT_MATCHED, HTTP_BAD_REQUEST)
+        }
     }
 
-    return await UserModel.findByIdAndUpdate(userObj._id, {$set: userObj}, {new: true}).exec()
+    let user = await UserModel.findByIdAndUpdate(userObj._id, {$set: userObj}, {new: true}).exec()
+    user.password = undefined
+    return user
 
 }
 
