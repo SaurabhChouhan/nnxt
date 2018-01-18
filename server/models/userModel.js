@@ -42,11 +42,11 @@ userSchema.statics.verifyUser = async (email, password) => {
         throw new Error("User's password must be passed to verify user")
 
     console.log("finding user with email")
-    let user = await UserModel.findOne({email: email}).lean()
+    //let user = await UserModel.findOne({email: email}).lean()
 
     try {
         let users = await UserModel.aggregate({
-            $match: {'email': email}
+            $match: {email: email}
         }, {
             $unwind: {
                 path: "$roles"

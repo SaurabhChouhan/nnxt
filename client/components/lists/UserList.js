@@ -58,9 +58,10 @@ class UserList extends Component {
                         this.dialog = el
                     }}/>
 
-                    {(this.props.loggedInUser.isSuperAdmin) ?
-                        <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showUserForm()}>Create
-                            User</button> : <div style={{height: '10px'}}></div>}
+                    <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showUserForm()}>
+                        Create
+                        User
+                    </button>
 
                     <BootstrapTable options={this.options} data={this.props.users} striped={true}
                                     hoveNr={true}>

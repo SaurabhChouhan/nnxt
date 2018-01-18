@@ -25,7 +25,6 @@ export const userReducer = (state = initialState, action) => {
             return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.userID)})
         case ADD_LOGIN_USER:
             if (action.user) {
-
                 let isSuperAdmin = false
                 let isAdmin = false
                 let isAppUser = false

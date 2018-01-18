@@ -48,7 +48,7 @@ class RoleList extends Component {
 
     formatPermissions(permissions, row, enumObject, rowIndex) {
         if (Array.isArray(permissions) && permissions.length > 0)
-            return _.join(permissions.map(p => p.name))
+            return _.join(permissions.map(p => p.name), ', ')
         return ''
 
     }
