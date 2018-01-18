@@ -11,7 +11,8 @@ import confFile from './config'
 import co from 'co'
 import mongoose from 'mongoose'
 import {userRouter} from "./routers"
-import {UserModel, RoleModel} from "./models"
+import {UserModel, RoleModel, PermissionModel} from "./models"
+import {addInitialData} from "./utils/setupdata"
 import {
     PROD_ENV,
     DEV_ENV,
@@ -43,63 +44,10 @@ co(async () => {
     }
 
     if (conf.server.setupData) {
-
-        if (!await RoleModel.exists(ROLE_ADMIN)) {
-            await RoleModel.saveRole({
-                name: ROLE_ADMIN
-            })
-        }
-
-        if (!await RoleModel.exists(ROLE_SUPER_ADMIN)) {
-            await RoleModel.saveRole({
-                name: ROLE_SUPER_ADMIN
-            })
-        }
-
-        if (!await RoleModel.exists(ROLE_APP_USER)) {
-            await RoleModel.saveRole({
-                name: ROLE_APP_USER
-            })
-        }
-
-        if (!await UserModel.exists(ADMIN_EMAIL)) {
-            let adminRole = await RoleModel.findOne({name: ROLE_ADMIN})
-
-            // create user
-            await UserModel.saveUser({
-                email: ADMIN_EMAIL,
-                firstName: "App",
-                lastName: "Admin",
-                roles: [adminRole],
-                password: "admin"
-            })
-        }
-
-        if (!await UserModel.exists(SUPER_ADMIN_EMAIL)) {
-
-            let superAdminRole = await RoleModel.findOne({name: ROLE_SUPER_ADMIN})
-            // create user
-            await UserModel.saveUser({
-                email: SUPER_ADMIN_EMAIL,
-                firstName: "Super",
-                lastName: "Admin",
-                roles: [superAdminRole],
-                password: "admin"
-            })
-        }
-
-        if (!await UserModel.exists(APP_USER_EMAIL)) {
-            let appUserRole = await RoleModel.findOne({name: ROLE_APP_USER})
-            // create user
-            await UserModel.saveUser({
-                email: APP_USER_EMAIL,
-                firstName: "App",
-                lastName: "User",
-                roles: [appUserRole],
-                password: "appuser"
-            })
-        }
+        await addInitialData()
     }
+
+    console.log("after add initial data")
 
 
     let app = new Koa()

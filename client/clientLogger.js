@@ -17,7 +17,8 @@ ERROR - error log statements would be printed
 */
 
 export const TABS_CHANGE_TAB = 'Tabs->changeTab():'
-export const TABS_LIFE_CYCLE = 'Tabs->lc()'
+export const TABS_LIFE_CYCLE = 'Tabs->lc():'
+export const TABS_RENDER = 'Tabs->render():'
 
 export const USER_FORM_RENDER = 'UserForm->render():'
 
@@ -31,7 +32,7 @@ export const PERMISSION_THUNK = 'Permission->thunk():'
 
 export const USER_PROFILE_FORM_CONNECT = 'UserProfileForm->connect():'
 
-let traceCodes = [TABS_LIFE_CYCLE, TABS_CHANGE_TAB]
+let traceCodes = [TABS_LIFE_CYCLE, TABS_CHANGE_TAB, TABS_RENDER]
 let logLevel = DEBUG_LEVEL
 
 if (process.env.NODE_ENV == PROD_ENV) {

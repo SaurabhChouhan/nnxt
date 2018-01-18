@@ -23,6 +23,8 @@ import {
     ADMIN_ROLE_FORM,
     ADMIN_ROLE_LIST
 } from "../componentConsts"
+
+import {MANAGE_PERMISSIONS, MANAGE_ROLES, EDIT_PROFILE, LIST_USERS, EDIT_ROLE_PERMISSIONS} from "../../clientconstants"
 import {showComponentHideOthers} from "../../actions/appAction"
 import {
     PermissionListContainer,
@@ -54,8 +56,12 @@ class Tabs extends Component {
         this.changeTab = this.changeTab.bind(this)
         this.tabData = []
 
+        let permissions = this.props.loggedInUser.permissions
 
-        if (this.props && this.props.loggedInUser && this.props.loggedInUser.isAppUser) {
+        console.log("permissions ", permissions)
+
+
+        if (permissions.includes(EDIT_PROFILE)) {
             this.tabData.push({
                 name: USER_PROFILE_TAB, url: "/profile",
                 render: (props) => {
@@ -66,7 +72,7 @@ class Tabs extends Component {
             })
         }
 
-        if (this.props && this.props.loggedInUser && this.props.loggedInUser.isSuperAdmin) {
+        if (permissions.includes(MANAGE_PERMISSIONS)) {
             this.tabData.push({
                 name: PERMISSION_TAB, url: "/permission",
                 render: (props) => {
@@ -77,7 +83,7 @@ class Tabs extends Component {
                 }
             })
         }
-        if (this.props && this.props.loggedInUser && this.props.loggedInUser.isSuperAdmin) {
+        if (permissions.includes(MANAGE_ROLES)) {
             this.tabData.push({
                 name: ROLE_TAB, url: "/role",
                 render: (props) => {
@@ -88,7 +94,9 @@ class Tabs extends Component {
                 }
             })
         }
-        if (this.props && this.props.loggedInUser && this.props.loggedInUser.isAdmin) {
+
+        /*
+        if (permissions.includes(LIST_USERS)) {
             this.tabData.push({
                 name: ADMIN_USER_TAB, displayName: "Users", url: "/admin-user",
                 render: (props) => {
@@ -99,7 +107,9 @@ class Tabs extends Component {
                 }
             })
         }
-        if (this.props && this.props.loggedInUser && this.props.loggedInUser.isSuperAdmin) {
+        */
+
+        if (permissions.includes(LIST_USERS)) {
             this.tabData.push({
                 name: USER_TAB, url: "/users",
                 render: (props) => {
@@ -111,7 +121,7 @@ class Tabs extends Component {
             })
         }
 
-        if (this.props && this.props.loggedInUser && this.props.loggedInUser.isAdmin) {
+        if (permissions.includes(EDIT_ROLE_PERMISSIONS)) {
             this.tabData.push({
                 name: ADMIN_PERMISSION_TAB,
                 url: "/admin-permission",
@@ -176,6 +186,7 @@ class Tabs extends Component {
     }
 
     render() {
+        logger.debug(logger.TABS_RENDER, this.props)
         return <div>
             <Loader type="square-spin" active={this.props.showLoader}/>
             <ul className="nav nav-tabs">

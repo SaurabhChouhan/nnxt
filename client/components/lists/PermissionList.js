@@ -45,7 +45,7 @@ class PermissionList extends Component {
     render() {
         return (
             <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-6">
                     <Dialog ref={(el) => {
                         this.dialog = el
                     }}/>
