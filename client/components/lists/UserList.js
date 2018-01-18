@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import Dialog from 'react-bootstrap-dialog'
 import {NotificationManager} from 'react-notifications'
-import {ROLE_ADMIN} from "../../clientconstants"
+import {ROLE_ADMIN, CREATE_USER, EDIT_USER, DELETE_USER} from "../../clientconstants"
 
 class UserList extends Component {
 
@@ -58,10 +58,12 @@ class UserList extends Component {
                         this.dialog = el
                     }}/>
 
+                    {this.props.loggedInUser.permissions.includes(CREATE_USER) &&
                     <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showUserForm()}>
                         Create
                         User
                     </button>
+                    }
 
                     <BootstrapTable options={this.options} data={this.props.users} striped={true}
                                     hoveNr={true}>
@@ -72,11 +74,13 @@ class UserList extends Component {
                         <TableHeaderColumn width="26%" dataField="roles"
                                            dataFormat={this.formatRole}>Roles</TableHeaderColumn>
                         <TableHeaderColumn width="22%" dataField="email">Email</TableHeaderColumn>
+                        {this.props.loggedInUser.permissions.includes(EDIT_USER) &&
                         <TableHeaderColumn width="8%" dataField='button' dataFormat={this.editCellButton.bind(this)}><i
-                            className="fa fa-pencil"></i></TableHeaderColumn>
+                            className="fa fa-pencil"></i></TableHeaderColumn>}
+                        {this.props.loggedInUser.permissions.includes(DELETE_USER) &&
                         <TableHeaderColumn width="5%" dataField='button'
                                            dataFormat={this.deleteCellButton.bind(this)}><i className="fa fa-trash"></i>
-                        </TableHeaderColumn>
+                        </TableHeaderColumn>}
 
                     </BootstrapTable>
                 </div>

@@ -159,6 +159,7 @@ class Tabs extends Component {
                 store.dispatch(showComponentHideOthers(USER_PROFILE_FORM))
                 break;
             case PERMISSION_TAB:
+                store.dispatch(getAllRolesFromServer())
                 store.dispatch(getAllPermissionsFromServer())
                 store.dispatch(showComponentHideOthers(PERMISSION_LIST))
                 break
@@ -171,12 +172,8 @@ class Tabs extends Component {
                 store.dispatch(getAllUsersFromServer())
                 store.dispatch(showComponentHideOthers(USER_LIST))
                 break
-            case ADMIN_USER_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(getAllUsersFromServer())
-                store.dispatch(showComponentHideOthers(ADMIN_USER_LIST))
-                break
             case ADMIN_PERMISSION_TAB:
+                store.dispatch(getAllRolesFromServer())
                 store.dispatch(showComponentHideOthers(ADMIN_ROLE_LIST))
                 break
         }

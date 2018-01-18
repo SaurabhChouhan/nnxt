@@ -53,6 +53,24 @@ export const addInitialData = async () => {
         })
     }
 
+    if (!await PermissionModel.exists(CREATE_USER)) {
+        await PermissionModel.savePermission({
+            name: CREATE_USER
+        })
+    }
+
+    if (!await PermissionModel.exists(EDIT_USER)) {
+        await PermissionModel.savePermission({
+            name: EDIT_USER
+        })
+    }
+
+    if (!await PermissionModel.exists(DELETE_USER)) {
+        await PermissionModel.savePermission({
+            name: DELETE_USER
+        })
+    }
+
     /**
      * Super admin can manage users/permissions and roles
      */
@@ -98,6 +116,28 @@ export const addInitialData = async () => {
             editRolePermissions.enabled = true
             permissions.push(editRolePermissions)
         }
+
+        let createUserPermissions = await PermissionModel.findOne({name: CREATE_USER}).lean()
+        if (createUserPermissions) {
+            createUserPermissions.configurable = true
+            createUserPermissions.enabled = true
+            permissions.push(createUserPermissions)
+        }
+
+        let editUserPermissions = await PermissionModel.findOne({name: EDIT_USER}).lean()
+        if (editUserPermissions) {
+            editUserPermissions.configurable = true
+            editUserPermissions.enabled = true
+            permissions.push(editUserPermissions)
+        }
+
+        let deleteUserPermissions = await PermissionModel.findOne({name: DELETE_USER}).lean()
+        if (deleteUserPermissions) {
+            deleteUserPermissions.configurable = true
+            deleteUserPermissions.enabled = true
+            permissions.push(deleteUserPermissions)
+        }
+
 
         await RoleModel.saveRole({
             name: ROLE_ADMIN,
