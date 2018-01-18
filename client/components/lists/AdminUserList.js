@@ -18,9 +18,7 @@ class AdminUserList extends Component {
     }
 
     onClickUserEditSelected(cell, row, rowIndex) {
-        console.log("EDITOPTION IS CLICKED", row)
         this.props.showAdminUserEditForm(row);
-        console.log("EDITOPTION IS DONE FROM USERLIST", row)
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
@@ -36,7 +34,6 @@ class AdminUserList extends Component {
             body: "Remove Permission",
             actions: [
                 Dialog.DefaultAction('Remove', () => {
-                    console.log("DELETION ", row._id)
                     this.props.deleteAdminUser(row._id)
                 }, 'btn-custom'),
                 Dialog.DefaultAction('Close', () => {
@@ -67,7 +64,8 @@ class AdminUserList extends Component {
                 }}/>
 
                 {//(this.props.loggedInUser.isSuperAdmin) ?
-                    <button className="btn btn-default btn-submit" onClick={() => this.props.showAdminUserForm()}>Create User</button>
+                    <button className="btn btn-default btn-submit" onClick={() => this.props.showAdminUserForm()}>Create
+                        User</button>
                     //: <div style={{height: '10px'}}></div>
                 }
 

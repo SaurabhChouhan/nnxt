@@ -6,7 +6,7 @@ import {connect} from 'react-redux'
 import * as logger from '../../clientLogger'
 
 const passwordMatch = (value, values) => {
-    //console.log("pm ", value, values)
+
     return (value != values.password) ? `Should match password value` : undefined
 }
 
@@ -14,6 +14,7 @@ class UserForm extends Component {
     constructor(props) {
         super(props);
     }
+
     render() {
         logger.debug(logger.USER_FORM_RENDER, 'props', this.props)
         const {_id, changeCredentials} = this.props;
@@ -76,8 +77,6 @@ UserForm = connect(
     state => {
         const {_id, changeCredentials} = selector(state, '_id', 'changeCredentials')
         const selectedRoles = selector(state, 'roles')
-        console.log("ID OBTAINED  IN SELECTOR", _id)
-        console.log("changeCredentials in USERFORM", changeCredentials)
         return {
             _id,
             changeCredentials,

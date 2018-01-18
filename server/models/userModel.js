@@ -16,58 +16,6 @@ let userSchema = mongoose.Schema({
                 _id: mongoose.Schema.ObjectId,
                 name: {type: String, required: true}
             }],
-            phoneContact: {
-                home: String,
-                work: String,
-                cell: String,
-                other: String
-            },
-            badgeInformation: {
-                badge: String,
-                issue: Date,
-                expiration: Date
-            },
-            emailContact: {
-                other: String,
-                work2: String,
-                work: String
-            },
-            employeeAddress: {
-                address: String,
-                cityStateZip: String,
-                addressCont: String
-            },
-            airportPreference: {
-                airport1: String,
-                airport2: String,
-                airport3: String
-            },
-            accountNumbers: {
-                tsaPreCheckNumber: String,
-                marriotRewardNumber: String,
-                deltaSkymilesNumber: String,
-                unitedExplorerClubNumber: String,
-                southwestRapidRewardsNumber: String,
-                advantageNumber: String,
-                emeroldClubNumber: String,
-                enterprisePlusNumber: String
-            },
-            resetPassword: {
-                oldPassword: String,
-                newPassword: String,
-                confirmPassword: String
-            },
-            emergencyContact: {
-                otherEmail: String,
-                work2Email: String,
-                workEmail: String,
-                other: String,
-                cell: String,
-                work: String,
-                home: String,
-                relation: String,
-                name: String
-            },
             isDeleted: {type: Boolean, default: false}
 })
 
@@ -111,17 +59,54 @@ userSchema.statics.verifyUser = async (email, password) => {
                 as: 'roles'
             }
         }, {
+            $unwind: {path: "$roles"}
+        }, {
+            $project: {
+                email: 1,
+                firstName: 1,
+                lastName: 1,
+                roles: {
+                    name: 1,
+                    permissions: {
+                        $filter: {
+                            input: "$roles.permissions",
+                            as: "permission",
+                            cond: {$eq: ['$$permission.enabled', true]}
+                        }
+                    }
+                }
+            }
+        }, {
             $group: {
                 _id: "$_id",
                 email: {$first: "$email"},
                 firstName: {$first: "$firstName"},
                 lastName: {$first: "$lastName"},
-                roles: {$push: {$arrayElemAt: ["$roles", 0]}}
+                roles: {$push: "$roles"}
             }
         }).exec()
 
         if (Array.isArray(users) && users.length > 0) {
-            return users[0]
+            let user = users[0]
+            // Need to send combined permissions of all roles
+
+            let permissionSet = new Set()
+
+            if (!_.isEmpty(user.roles)) {
+                user.roles.forEach(r => {
+                    if (!_.isEmpty(r.permissions)) {
+                        r.permissions.filter(p => p.enabled).forEach(p => {
+                            permissionSet.add(p.name)
+                        })
+                    }
+                })
+            }
+
+            user.permissions = [...permissionSet]
+
+            //user.permissions = []
+
+            return user
         } else {
             return false
         }

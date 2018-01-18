@@ -43,7 +43,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
     },
     showRoleList: () => dispatch(showComponentHideOthers(ROLE_LIST)),
-editPermission: (permission, idx) => {
+    editPermission: (permission, idx) => {
         dispatch(change('role', 'selectedPermission', permission))
         dispatch(initialize('role-permission', permission))
         dispatch(change('role-permission', 'selectedIdx', idx))
@@ -53,7 +53,6 @@ editPermission: (permission, idx) => {
 
 const mapStateToProps = (state, ownProps) => {
     let syncErrors = getFormSyncErrors('role')(state)
-    console.log('syncErrors found as ', syncErrors)
     let permissionsAdded = selector(state, 'permissions')
     let selectedPermission = selector(state, 'selectedPermission')
     let permissionOptions = state.permission.all
@@ -61,13 +60,13 @@ const mapStateToProps = (state, ownProps) => {
         permissionOptions = permissionOptions.filter(p => permissionsAdded.findIndex(p1 => p1._id == p._id) == -1)
     }
 
-    if(selectedPermission){
+    if (selectedPermission) {
         // Add this selected permission with permission options this is done while editing permission
         permissionOptions = [selectedPermission, ...permissionOptions]
     }
 
     return {
-        permissions:state.permission.all,
+        permissions: state.permission.all,
         permissionOptions,
         permissionFormValues: selector(state, 'permission', 'configurable', 'enabled'),
         permissionsAdded,

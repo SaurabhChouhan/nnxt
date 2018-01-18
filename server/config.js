@@ -9,7 +9,7 @@ const config = {
             setupData: true
         },
         production: {
-            port: 3000,
+            port: 8080,
             setupData: false
         }
     },

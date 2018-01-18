@@ -15,6 +15,7 @@ class Header extends Component {
                 </div>
                 <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <div className="navbar-right">
+
                         {this.props.loggedInUser ?
                             <span className="pull-right user-icon">
                                 <div className="dropdown" key={'1'}>
@@ -29,7 +30,8 @@ class Header extends Component {
                                                 </li>
                                             </ul>
                                 </div>
-                            </span> : undefined
+                            </span> :  <Link onClick={this.props.handleClick}
+                                             to={'/register'}><i className="fa fa-users"></i>Register</Link>
                         }
                     </div>
                 </div>
