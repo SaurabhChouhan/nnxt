@@ -100,7 +100,6 @@ export const editPermissionOnServer = (formInput) => {
 
 export const deletePermissionOnServer = (PermissionId) => {
     return function (dispatch, getState) {
-        console.log("Received delete request for Permission in Permission action", PermissionId)
         return fetch('/api/permissions/' + PermissionId,
             {
                 method: "delete",

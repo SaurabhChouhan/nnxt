@@ -8,67 +8,15 @@ import logger from '../logger'
 mongoose.Promise = global.Promise
 
 let userSchema = mongoose.Schema({
-    firstName: {type: String, required: true},
-    lastName: String,
-    email: {type: String, required: true},
-    password: {type: String, required: true},
-    roles: [{
-        _id: mongoose.Schema.ObjectId,
-        name: {type: String, required: true}
-    }],
-    phoneContact: {
-        home: String,
-        work: String,
-        cell: String,
-        other: String
-    },
-    badgeInformation: {
-        badge: String,
-        issue: Date,
-        expiration: Date
-    },
-    emailContact: {
-        other: String,
-        work2: String,
-        work: String
-    },
-    employeeAddress: {
-        address: String,
-        cityStateZip: String,
-        addressCont: String
-    },
-    airportPreference: {
-        airport1: String,
-        airport2: String,
-        airport3: String
-    },
-    accountNumbers: {
-        tsaPreCheckNumber: String,
-        marriotRewardNumber: String,
-        deltaSkymilesNumber: String,
-        unitedExplorerClubNumber: String,
-        southwestRapidRewardsNumber: String,
-        advantageNumber: String,
-        emeroldClubNumber: String,
-        enterprisePlusNumber: String
-    },
-    resetPassword: {
-        oldPassword: String,
-        newPassword: String,
-        confirmPassword: String
-    },
-    emergencyContact: {
-        otherEmail: String,
-        work2Email: String,
-        workEmail: String,
-        other: String,
-        cell: String,
-        work: String,
-        home: String,
-        relation: String,
-        name: String
-    },
-    isDeleted: {type: Boolean, default: false}
+            firstName: {type: String, required: true},
+            lastName: String,
+            email: {type: String, required: true},
+            password: {type: String, required: true},
+            roles: [{
+                _id: mongoose.Schema.ObjectId,
+                name: {type: String, required: true}
+            }],
+            isDeleted: {type: Boolean, default: false}
 })
 
 

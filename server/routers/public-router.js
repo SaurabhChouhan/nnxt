@@ -1,9 +1,10 @@
 import Router from 'koa-router'
 import passport from 'koa-passport'
 import logger from '../logger'
-import {UserModel} from "../models"
+import {UserModel, RoleModel} from "../models"
 import AppError from '../AppError'
 import {LOGIN_FAILED} from '../errorcodes'
+import {ROLE_APP_USER} from '../serverconstants'
 
 
 /**
@@ -36,7 +37,14 @@ publicRouter.post('/login', async (ctx, next) => {
 })
 
 publicRouter.post('/register', async ctx => {
-        return await UserModel.saveUser(ctx.request.body)
+        let user = ctx.request.body
+        let modifiedRole = {}
+        let role = await RoleModel.find({name: ROLE_APP_USER}).lean()
+        modifiedRole.name = role[0].name
+        modifiedRole._id = role[0]._id
+        user.roles = [modifiedRole]
+
+        return await UserModel.saveUser(user)
     }
 )
 

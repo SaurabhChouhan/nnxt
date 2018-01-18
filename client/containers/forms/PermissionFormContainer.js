@@ -6,13 +6,12 @@ import {PERMISSION_LIST} from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        console.log("values ", values)
         if (!values._id)
             return dispatch(addPermissionOnServer(values))
         else
             return dispatch(editPermissionOnServer(values))
     },
-    showPermissionList:()=>dispatch(showComponentHideOthers(PERMISSION_LIST))
+    showPermissionList: () => dispatch(showComponentHideOthers(PERMISSION_LIST))
 })
 
 const mapStateToProps = (state, ownProps) => ({})
