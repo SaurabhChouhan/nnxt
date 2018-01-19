@@ -26,8 +26,6 @@ import {
 
 export const addInitialData = async () => {
 
-    console.log("Adding initial data")
-
     if (!await PermissionModel.exists(MANAGE_PERMISSIONS)) {
         await PermissionModel.savePermission({
             name: MANAGE_PERMISSIONS
@@ -151,6 +149,7 @@ export const addInitialData = async () => {
     }
 
 
+    /*
     if (!await RoleModel.exists(ROLE_APP_USER)) {
         let permissions = []
         let editProfile = await PermissionModel.findOne({name: EDIT_PROFILE}).lean()
@@ -164,6 +163,7 @@ export const addInitialData = async () => {
             permissions: permissions
         })
     }
+    */
 
     if (!await UserModel.exists(ADMIN_EMAIL)) {
         let adminRole = await RoleModel.findOne({name: ROLE_ADMIN}).lean()
@@ -191,6 +191,7 @@ export const addInitialData = async () => {
         })
     }
 
+    /*
     if (!await UserModel.exists(APP_USER_EMAIL)) {
         let appUserRole = await RoleModel.findOne({name: ROLE_APP_USER}).lean()
         // create user
@@ -202,8 +203,7 @@ export const addInitialData = async () => {
             password: "appuser"
         })
     }
-
-    console.log("Added initial data")
+    */
 
 }
 
@@ -213,38 +213,46 @@ export const addNNXTData = async () => {
 
 const addRolesPermissions = async () => {
 
+    let editProfile = await PermissionModel.findOne({name: EDIT_PROFILE}).lean()
+    let permissions = []
+    if (editProfile) {
+        editProfile.configurable = true
+        editProfile.enabled = true
+        permissions.push(editProfile)
+    }
+
     if (!await RoleModel.exists(ROLE_ESTIMATOR)) {
         await RoleModel.saveRole({
             name: ROLE_ESTIMATOR,
-            permissions: []
+            permissions: permissions
         })
     }
 
     if (!await RoleModel.exists(ROLE_NEGOTIATOR)) {
         await RoleModel.saveRole({
             name: ROLE_NEGOTIATOR,
-            permissions: []
+            permissions: permissions
         })
     }
 
     if (!await RoleModel.exists(ROLE_MANAGER)) {
         await RoleModel.saveRole({
             name: ROLE_MANAGER,
-            permissions: []
+            permissions: permissions
         })
     }
 
     if (!await RoleModel.exists(ROLE_LEADER)) {
         await RoleModel.saveRole({
             name: ROLE_LEADER,
-            permissions: []
+            permissions: permissions
         })
     }
 
     if (!await RoleModel.exists(ROLE_DEVELOPER)) {
         await RoleModel.saveRole({
             name: ROLE_DEVELOPER,
-            permissions: []
+            permissions: permissions
         })
     }
 
