@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import {Route, Redirect} from 'react-router-dom'
 import {NotificationContainer} from 'react-notifications'
-import {AdminHomeContainer,
+import {
+    AdminHomeContainer,
     SuperAdminHomeContainer,
     AppHomeContainer,
     LoginFormContainer,
@@ -20,7 +21,7 @@ class AppRouter extends Component {
                             return <Redirect to="/super-admin"/>
                         else if (this.props.loggedInUser.isAdmin)
                             return <Redirect to="/admin"/>
-                        else if (this.props.loggedInUser.isAppUser)
+                        else
                             return <Redirect to="/app-home"/>
 
                     }

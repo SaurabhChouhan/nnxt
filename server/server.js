@@ -47,14 +47,13 @@ co(async () => {
     }
 
     if (conf.server.dropDatabase) {
+        logger.warn("DROP DATABASE CONFIGURATION IS ON!!! PLEASE RESET IF DON'T INTEND TO DROP DATABASE IN NEXT SERVER START")
         try {
             let names = await connection.db.listCollections().toArray()
-            console.log(names)
             try {
                 let dropPromises = await names.forEach(n => connection.dropDatabase(conf.mongo.dbname))
-                console.log(dropPromises)
             } catch (error) {
-                console.log("drop promise error ", error)
+                logger.error(error)
             }
 
             //let dropCollection = connection.db.dropCollection()
@@ -67,6 +66,7 @@ co(async () => {
 
 
     if (conf.server.setupData) {
+        logger.info("SETUP DATA CONFIGURATION IS ON! In case you don't want to run setup instructions please set that config to false")
         await addInitialData()
         await addNNXTData()
     }
