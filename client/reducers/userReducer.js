@@ -47,7 +47,7 @@ export const userReducer = (state = initialState, action) => {
         case LOGIN_FAILED:
             return Object.assign({}, state, {
                 isAuthenticated: false,
-                loginError: user.error
+                loginError: action.error
             })
 
         default:

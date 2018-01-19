@@ -7,8 +7,9 @@ export const addLoginUser = (user) => ({
     user: user
 })
 
-export const loginFailed = () => ({
-    type: LOGIN_FAILED
+export const loginFailed = (error) => ({
+    type: LOGIN_FAILED,
+    error: error
 })
 
 export const addAllUsers = (users) => ({

@@ -8,7 +8,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        errorMsg: state.user.error
+        errorMsg: state.user.loginError
     }
 }
 
