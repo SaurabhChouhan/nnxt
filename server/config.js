@@ -2,19 +2,23 @@ const config = {
     server: {
         default: {
             port: 3000,
-            setupData: true
+            setupData: true,
+            dropDatabase: false
         },
         development: {
             port: 3000,
-            setupData: true
+            setupData: true,
+            dropDatabase:true
         },
         production: {
             port: 8080,
-            setupData: false
+            setupData: false,
+            dropDatabase:false
         }
     },
     mongo: {
         default: {
+            dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
             useMongoClient: true
         },

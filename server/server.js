@@ -28,13 +28,16 @@ import logger from './logger'
 import {apiRouter, pageRouter} from "./routers"
 import {HTTP_SERVER_ERROR} from "./errorcodes"
 
+
 // Initializing configuration first and then starting application
 co(async () => {
     let conf = await noConfig({config: confFile})
 
+    mongoose.Promise = global.Promise
+    let connection;
     try {
-        mongoose.Promise = global.Promise
-        await mongoose.connect(conf.mongo.url, {
+
+        connection = await mongoose.connect(conf.mongo.url, {
             "useMongoClient": conf.mongo.useMongoClient
         })
         logger.info("Connection to database Successful!")
@@ -46,8 +49,24 @@ co(async () => {
     if (conf.server.setupData) {
         await addInitialData()
     }
+    if (conf.server.dropDatabase) {
+        try {
+            let names = await connection.db.listCollections().toArray()
+            console.log(names)
+            try {
+                let dropPromises = await names.forEach(n => connection.dropDatabase(conf.mongo.dbname))
+                console.log(dropPromises)
+            } catch (error) {
+                console.log("drop promise error ", error)
+            }
 
-    console.log("after add initial data")
+            //let dropCollection = connection.db.dropCollection()
+
+        } catch (error) {
+            logger.error("Error dropping collections ", error)
+            return
+        }
+    }
 
 
     let app = new Koa()
