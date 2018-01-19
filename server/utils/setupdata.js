@@ -14,6 +14,11 @@ import {
     ROLE_SUPER_ADMIN,
     ROLE_ADMIN,
     ROLE_APP_USER,
+    ROLE_ESTIMATOR,
+    ROLE_NEGOTIATOR,
+    ROLE_MANAGER,
+    ROLE_LEADER,
+    ROLE_DEVELOPER,
     APP_USER_EMAIL,
     SUPER_ADMIN_EMAIL,
     ADMIN_EMAIL
@@ -199,5 +204,48 @@ export const addInitialData = async () => {
     }
 
     console.log("Added initial data")
+
+}
+
+export const addNNXTData = async () => {
+    await addRolesPermissions()
+}
+
+const addRolesPermissions = async () => {
+
+    if (!await RoleModel.exists(ROLE_ESTIMATOR)) {
+        await RoleModel.saveRole({
+            name: ROLE_ESTIMATOR,
+            permissions: []
+        })
+    }
+
+    if (!await RoleModel.exists(ROLE_NEGOTIATOR)) {
+        await RoleModel.saveRole({
+            name: ROLE_NEGOTIATOR,
+            permissions: []
+        })
+    }
+
+    if (!await RoleModel.exists(ROLE_MANAGER)) {
+        await RoleModel.saveRole({
+            name: ROLE_MANAGER,
+            permissions: []
+        })
+    }
+
+    if (!await RoleModel.exists(ROLE_LEADER)) {
+        await RoleModel.saveRole({
+            name: ROLE_LEADER,
+            permissions: []
+        })
+    }
+
+    if (!await RoleModel.exists(ROLE_DEVELOPER)) {
+        await RoleModel.saveRole({
+            name: ROLE_DEVELOPER,
+            permissions: []
+        })
+    }
 
 }

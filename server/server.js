@@ -12,7 +12,7 @@ import co from 'co'
 import mongoose from 'mongoose'
 import {userRouter} from "./routers"
 import {UserModel, RoleModel, PermissionModel} from "./models"
-import {addInitialData} from "./utils/setupdata"
+import {addInitialData, addNNXTData} from "./utils/setupdata"
 import {
     PROD_ENV,
     DEV_ENV,
@@ -46,9 +46,6 @@ co(async () => {
         return
     }
 
-    if (conf.server.setupData) {
-        await addInitialData()
-    }
     if (conf.server.dropDatabase) {
         try {
             let names = await connection.db.listCollections().toArray()
@@ -69,6 +66,10 @@ co(async () => {
     }
 
 
+    if (conf.server.setupData) {
+        await addInitialData()
+        await addNNXTData()
+    }
     let app = new Koa()
 
     app.use(cookie())
