@@ -131,7 +131,8 @@ co(async () => {
             ctx.body = ctx.body = {
                 success: false,
                 code: err.code,
-                message: err.message
+                message: err.message,
+                errors: err.errors
             }
             ctx.app.emit('error', err, ctx);
         }
