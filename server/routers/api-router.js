@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {publicRouter, userRouter, permissionRouter, roleRouter} from "./"
+import {publicRouter, userRouter, permissionRouter, roleRouter, clientRouter} from "./"
 import {isAuthenticated, isAdmin, isSuperAdmin} from "../utils"
 import AppError from '../AppError'
 import {ACCESS_DENIED} from "../errorcodes"
@@ -24,6 +24,6 @@ apiRouter.use(async (ctx, next) => {
     } else {
         throw new AppError("Access Denied", ACCESS_DENIED, 403)
     }
-}, userRouter.routes(), permissionRouter.routes(), roleRouter.routes())
+}, userRouter.routes(), permissionRouter.routes(), roleRouter.routes(), clientRouter.routes())
 
 export default apiRouter
