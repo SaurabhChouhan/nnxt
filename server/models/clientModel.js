@@ -9,14 +9,15 @@ let clientSchema = mongoose.Schema({
         type: String, required: [true, 'Client name is required']
     },
     email: String,
-    country: String
+    country: String,
+    isDeleted: {type: Boolean, default: false}
 })
 
 
 clientSchema.statics.saveClient = async clientInput => {
 
-    if(await ClientModel.exists(clientInput.name)){
-        throw new AppError("Client with name ["+clientInput.name+"] already exists", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
+    if (await ClientModel.exists(clientInput.name)) {
+        throw new AppError("Client with name [" + clientInput.name + "] already exists", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
     }
 
     return await ClientModel.create(clientInput)

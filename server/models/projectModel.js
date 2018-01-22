@@ -12,7 +12,8 @@ let projectSchema = mongoose.Schema({
     client: {
         _id: mongoose.Schema.ObjectId,
         name: String
-    }
+    },
+    isDeleted: {type: Boolean, default: false}
 })
 
 projectSchema.statics.saveProject = async projectInput => {
@@ -20,8 +21,8 @@ projectSchema.statics.saveProject = async projectInput => {
         throw new AppError("Project with name [" + projectInput.name + "] already exists under this client", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
 
     let client = await ClientModel.findById(projectInput.client._id)
-    if(!client)
-        throw new AppError("No such client" , ErrorCodes.NOT_FOUND, ErrorCodes.HTTP_BAD_REQUEST)
+    if (!client)
+        throw new AppError("No such client", ErrorCodes.NOT_FOUND, ErrorCodes.HTTP_BAD_REQUEST)
 
     projectInput.client = client
     return await ProjectModel.create(projectInput)
