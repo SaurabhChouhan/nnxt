@@ -5,11 +5,21 @@ import _ from 'lodash'
 /**
  * Required string rule
  */
+
+/*
+t.String.getValidationErrorMessage = (value, path, context) => {
+    if (!value)
+        return path.join("/") + ' is Required'
+}
+*/
+
 export let RequiredString = t.refinement(t.String, s => _.trim(s).length > 0)
+/*
 RequiredString.getValidationErrorMessage = (value, path, context) => {
     if (!value || _.trim(value).length == 0)
         return path.join("/") + ' is Required'
 }
+*/
 
 class ValidationError extends Error {
     constructor(message, errors) {

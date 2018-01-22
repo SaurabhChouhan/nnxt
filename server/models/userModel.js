@@ -23,13 +23,13 @@ let userSchema = mongoose.Schema({
 
 userSchema.statics.saveUser = async usrObj => {
     if (!usrObj.email)
-        throw new Error("User's email must be passed to save user")
+        throw new AppError("User's email must be passed to save user", ErrorCodes.BAD_ARGUMENTS, ErrorCodes.HTTP_BAD_REQUEST)
     if (!usrObj.password)
-        throw new Error("User's password must be passed to save user")
+        throw new AppError("User's password must be passed to save user", ErrorCodes.BAD_ARGUMENTS, ErrorCodes.HTTP_BAD_REQUEST)
 
     let count = await UserModel.count({email: usrObj.email})
     if (count !== 0)
-        throw new Error("Email already registered with another user")
+        throw new AppError("Email already registered with another user", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
 
     usrObj.password = await bcrypt.hash(usrObj.password, 10)
     return await UserModel.create(usrObj)
@@ -71,7 +71,7 @@ userSchema.statics.verifyUser = async (email, password) => {
                 firstName: 1,
                 lastName: 1,
                 roles: {
-                    _id:1,
+                    _id: 1,
                     name: 1,
                     permissions: {
                         $filter: {
@@ -172,7 +172,7 @@ userSchema.statics.updateAddedRole = async (roleInput) => {
 
 userSchema.statics.exists = async email => {
     if (!email)
-        return false
+        throw new AppError("UserModel->exists() method needs non-null email parameter", ErrorCodes.BAD_ARGUMENTS)
     let count = await UserModel.count({'email': email})
     if (count > 0)
         return true
