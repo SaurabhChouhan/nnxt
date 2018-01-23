@@ -1,11 +1,15 @@
 import {connect} from 'react-redux'
 import {RoleForm} from "../../components"
-import {loginUserOnServer, addRoleOnServer, editRoleOnServer, showComponentHideOthers} from "../../actions"
 import {formValueSelector, getFormSyncErrors, reset} from 'redux-form'
-import {ADMIN_USER_LIST, ROLE_LIST} from "../../components/componentConsts"
+import {ROLE_LIST} from "../../components/componentConsts"
 import {ALREADY_EXISTS} from "../../../server/errorcodes"
 import {SubmissionError, initialize, change} from 'redux-form'
 import {NotificationManager} from 'react-notifications'
+import {
+    addRoleOnServer,
+    editRoleOnServer,
+    showComponentHideOthers
+} from "../../actions"
 
 
 let selector = formValueSelector('role')
