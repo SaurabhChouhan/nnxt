@@ -165,33 +165,6 @@ export const loginUserOnServer = (formInput) => {
         )
     }
 }
-export const registerUserOnServer = (formInput) => {
-    return function (dispatch, getState) {
-        return fetch('/api/register',
-            {
-                method: "post",
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
-            }
-        ).then(
-            response => {
-                return response.json()
-            }
-        ).then(json => {
-                if (json.success) {
-                    dispatch(addLoginUser(json.data))
-                } else {
-                    dispatch(loginFailed(json.message))
-                }
-                return json
-            }
-        )
-    }
-}
 
 export function showUserInfo() {
     return function (dispatch, getState) {

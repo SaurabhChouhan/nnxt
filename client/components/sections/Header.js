@@ -30,8 +30,7 @@ class Header extends Component {
                                                 </li>
                                             </ul>
                                 </div>
-                            </span> :  <Link onClick={this.props.handleClick}
-                                             to={'/register'}><i className="fa fa-users"></i>Register</Link>
+                            </span> : null
                         }
                     </div>
                 </div>

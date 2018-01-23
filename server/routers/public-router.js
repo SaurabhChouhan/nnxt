@@ -36,18 +36,6 @@ publicRouter.post('/login', async (ctx, next) => {
     return ctx.loggedInUser
 })
 
-publicRouter.post('/register', async ctx => {
-        let user = ctx.request.body
-        let modifiedRole = {}
-        let role = await RoleModel.find({name: ROLE_APP_USER}).lean()
-        modifiedRole.name = role[0].name
-        modifiedRole._id = role[0]._id
-        user.roles = [modifiedRole]
-
-        return await UserModel.saveUser(user)
-    }
-)
-
 publicRouter.get('/execute', async ctx => {
     console.log("execute query")
     /*
