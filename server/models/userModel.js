@@ -3,8 +3,7 @@ import bcrypt from 'bcrypt'
 import _ from 'lodash'
 import * as ErrorCodes from '../errorcodes'
 import AppError from '../AppError'
-import logger from '../logger'
-import {HTTP_BAD_REQUEST} from "../errorcodes";
+
 
 mongoose.Promise = global.Promise
 
@@ -131,9 +130,6 @@ userSchema.statics.editUser = async userObj => {
 
     /* See if email is changed, if yes then see if email is already associated with another user */
 
-    console.log("stored ", storedUser.email)
-    console.log("user obj ", userObj.email)
-
     if (storedUser.email != userObj.email) {
         let count = await UserModel.count({_id: {'$ne': mongoose.Schema.ObjectId(userObj._id)}, 'email': userObj.email})
         if (count != 0) {
@@ -150,7 +146,7 @@ userSchema.statics.editUser = async userObj => {
             console.log("encrypted password is ", userObj.password)
 
         } else {
-            throw new AppError("Password/Confirm password not matched ", ErrorCodes.PASSWORD_NOT_MATCHED, HTTP_BAD_REQUEST)
+            throw new AppError("Password/Confirm password not matched ", ErrorCodes.PASSWORD_NOT_MATCHED, ErrorCodes.HTTP_BAD_REQUEST)
         }
     }
 
@@ -163,7 +159,7 @@ userSchema.statics.editUser = async userObj => {
 
 userSchema.statics.updateAddedRole = async (roleInput) => {
     if (!roleInput)
-        throw new AppError("Identifier required for Update", IDENTIFIER_MISSING, HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for Update", ErrorCodes.IDENTIFIER_MISSING, ErrorCodes.HTTP_BAD_REQUEST)
     let userRoleUpdate
     userRoleUpdate = await UserModel.update({'roles._id': roleInput._id}, {$set: {roleInput}}, {multi: true}).exec()
     return userRoleUpdate
@@ -182,14 +178,14 @@ userSchema.statics.exists = async email => {
 
 userSchema.statics.deleteUser = async (userID) => {
     if (!userID)
-        throw new AppError("Identifier required for delete", IDENTIFIER_MISSING, HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for delete", ErrorCodes.IDENTIFIER_MISSING, ErrorCodes.HTTP_BAD_REQUEST)
     return await UserModel.findByIdAndRemove(userID).exec()
 }
 
 
 userSchema.statics.deleteAddedRole = async (roleID) => {
     if (!roleID)
-        throw new AppError("Identifier required for delete", IDENTIFIER_MISSING, HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for delete", ErrorCodes.IDENTIFIER_MISSING, ErrorCodes.HTTP_BAD_REQUEST)
     let userRoleDelete = await UserModel.updateMany({'roles._id': roleID}, {$pull: {"roles": {_id: roleID}}}, {multi: true})
     return userRoleDelete
 }
