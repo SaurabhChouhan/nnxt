@@ -1,6 +1,6 @@
 import React from 'react'
 import Router from 'koa-router'
-import {isSuperAdmin, isAdmin} from "../utils";
+import {isSuperAdmin, isAdmin, isAuthenticated} from "../utils";
 import {createStore, applyMiddleware} from 'redux'
 import reducers from '../../client/reducers'
 import {StaticRouter} from 'react-router-dom'
@@ -88,5 +88,36 @@ pageRouter.use(function (ctx, next) {
         ctx.redirect('/')
     }
 })
+
+pageRouter.get('/app-home', async ctx => {
+
+    if (!isAuthenticated(ctx))
+        return ctx.redirect('/')
+
+    //let permissions = await PermissionModel.getAll()
+
+    let store = createStore(reducers)
+    store.dispatch(addLoginUser(ctx.state.user))
+    store.dispatch(addSSRFlag())
+    //store.dispatch(addAllPermissions(permissions))
+    const initialState = store.getState()
+    const context = {}
+
+    const html = ReactDomServer.renderToString(
+        <Provider store={store}>
+            <StaticRouter location={ctx.url} context={context}>
+                <AppRouterContainer/>
+            </StaticRouter>
+        </Provider>
+    )
+
+
+    return ctx.render("home", {
+        html: '',
+        preloadedState: JSON.stringify(initialState).replace(/</g, '\\u003c')
+    })
+
+})
+
 
 export default pageRouter
