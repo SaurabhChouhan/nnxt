@@ -2,7 +2,11 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {UserModel} from '../models'
 import {
-    ALREADY_EXISTS, IDENTIFIER_MISSING, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, UNEXPECTED_ERROR,
+    ALREADY_EXISTS,
+    IDENTIFIER_MISSING,
+    HTTP_BAD_REQUEST,
+    HTTP_FORBIDDEN,
+    UNEXPECTED_ERROR,
     HTTP_SERVER_ERROR
 } from "../errorcodes"
 import {ROLE_SUPER_ADMIN} from "../serverconstants"
