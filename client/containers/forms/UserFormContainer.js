@@ -30,7 +30,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             )
         }
         else {
-            dispatch(editUserOnServer(values)).then((json) => {
+            return dispatch(editUserOnServer(values)).then((json) => {
                     if (json.success) {
                         dispatch(showComponentHideOthers(USER_LIST))
                         NotificationManager.success('User Updated Successful');
@@ -43,7 +43,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                         else if (json.code && json.code == PASSWORD_NOT_MATCHED) {
                             throw new SubmissionError({password: 'Password not matched'})
                         }
-                        else   throw new SubmissionError(json.errors)
+                        else throw new SubmissionError(json.errors)
                     }
                 }
             )
