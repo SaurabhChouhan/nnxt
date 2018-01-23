@@ -28,7 +28,11 @@ permissionSchema.statics.savePermission = async permissionInput => {
 
 permissionSchema.statics.editPermission = async permissionInput => {
     let permission = await PermissionModel.findById(permissionInput._id)
-
+    let count = await PermissionModel.count({'name': permissionInput.name,'_id':{$ne:permission._id}})
+    if (count > 0)
+    {
+        throw new AppError("Permission [" + permissionInput.name + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+    }
     if (permission) {
         permission.name = permissionInput.name
         let roleUpdate = await RoleModel.updateAddedPermission(permissionInput)
