@@ -61,6 +61,10 @@ roleSchema.statics.saveRole = async (roleInput) => {
 roleSchema.statics.editRole = async (roleInput) => {
     if (!roleInput._id)
         throw new AppError("Identifier required for edit", IDENTIFIER_MISSING, HTTP_BAD_REQUEST)
+    let count = await RoleModel.count({'name': roleInput.name, '_id': {$ne: roleInput._id}})
+    if (count > 0) {
+        throw new AppError("Role [" + roleInput.name + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+    }
     let userUpdate = await UserModel.updateAddedRole(roleInput)
     await RoleModel.replaceOne({_id: roleInput._id}, roleInput)
     return roleInput
