@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import _ from 'lodash'
 import * as ErrorCodes from '../errorcodes'
 import AppError from '../AppError'
