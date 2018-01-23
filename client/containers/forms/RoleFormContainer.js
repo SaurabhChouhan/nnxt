@@ -26,7 +26,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     NotificationManager.error("Role addition failed")
                     if (response.code && response.code == ALREADY_EXISTS) {
                         // role already exists throw SubmissionError to show appropriate error
-                        throw new SubmissionError({'role': 'Role already exists'})
+                        throw new SubmissionError({name: 'Role already exists'})
                     }
                 }
             })
@@ -38,6 +38,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     dispatch(showComponentHideOthers(ROLE_LIST))
                 } else {
                     NotificationManager.error("Role edit failed")
+                    throw new SubmissionError({name: 'Role already exists'})
                 }
             })
         }
