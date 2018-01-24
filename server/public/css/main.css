@@ -67,9 +67,18 @@ img {
     margin-bottom:10px
 }
 
+.no-gutter > [class*='col-md-9']{
+    padding-right:0;
+    padding-left:0;
+}
+
+.container-fluid {
+    padding-left:0;
+    padding-right:0;
+}
+
 .sidebar-wrapper {
     float:left;
-    width:250px;
     background:#1e202c;
 }
 .web_logo {
@@ -80,16 +89,13 @@ img {
     max-width: 57% !important;
 }
 .sidebar {
-    position: fixed;
     background-color: #303440;
     height: 100%;
     padding: 0;
-    width: 250px;
     padding-left: 50px;
     padding-top: 5px;
 }
 .sidebarSideSection {
-    position: fixed;
     height: 100%;
     float: left;
     background: #343946f2;

@@ -1,12 +1,13 @@
 import React from 'react'
 import {SidebarSideSection} from "./"
+import {Link} from 'react-router-dom'
 
 const SidebarSection = (props) => <section class="sidebar">
     <div class="clearfix">
         <div class="sidebarContent">
             <div class="col-md-12 pad">
                 <ul class="list-unstyled">
-                    <li><a href="">Repository</a></li>
+                    <li><Link to="/app-home/client">Client</Link></li>
                     <li class="Expandlist"><a href="">Estimations</a>
                         <ul class="Expandedlist">
                             <li><a href="#">Create New</a> </li>
