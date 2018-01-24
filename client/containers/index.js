@@ -12,7 +12,7 @@ export {default as AdminUserListContainer} from './lists/AdminUserListContainer'
 export {default as UserProfileFormContainer} from './forms/UserProfileFormContainer'
 export {default as AdminRoleFormContainer} from './forms/AdminRoleFormContainer'
 export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
-
+export {default as ClientFormContainer} from './forms/ClientFormContainer'
 
 export {default as TabSectionContainer} from './sections/TabSectionContainer'
 

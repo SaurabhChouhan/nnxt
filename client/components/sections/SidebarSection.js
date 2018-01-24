@@ -2,14 +2,14 @@ import React from 'react'
 import {SidebarSideSection} from "./"
 import {Link} from 'react-router-dom'
 
-const SidebarSection = (props) => <section class="sidebar">
-    <div class="clearfix">
-        <div class="sidebarContent">
-            <div class="col-md-12 pad">
-                <ul class="list-unstyled">
+const SidebarSection = (props) => <section className="sidebar">
+    <div className="clearfix">
+        <div className="sidebarContent">
+            <div className="col-md-12 pad">
+                <ul className="list-unstyled">
                     <li><Link to="/app-home/client">Client</Link></li>
-                    <li class="Expandlist"><a href="">Estimations</a>
-                        <ul class="Expandedlist">
+                    <li className="Expandlist"><a href="">Estimations</a>
+                        <ul className="Expandedlist">
                             <li><a href="#">Create New</a> </li>
                             <li><a href="#">History</a> </li>
                             <li><a href="#">Edit</a> </li>

@@ -3,6 +3,7 @@ export {default as RegistrationForm} from './forms/RegistrationForm'
 
 
 export {default as PermissionForm} from './forms/PermissionForm'
+export {default as ClientForm} from './forms/ClientForm'
 export {default as RoleForm} from './forms/RoleForm'
 export {default as PermissionList} from './lists/PermissionList'
 export {default as RoleList} from './lists/RoleList'

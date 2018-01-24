@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
 import {renderText, renderTextArea} from './fields'
 import {required} from "./validation"
-import {ROLE_ADMIN} from "../../clientconstants"
 
 class PermissionForm extends Component {
 

@@ -30,9 +30,16 @@ export const PERMISSION_LIST_LIFECYCLE = 'PermissionList->lc():'
 export const PERMISSION_LIST_CONNECT = 'PermissionList->connect():'
 export const PERMISSION_THUNK = 'Permission->thunk():'
 
+export const CLIENT_FORM_RENDER = 'ClientForm->render():'
+export const CLIENT_FORM_CONNECT = 'ClientForm->connect():'
+
+export const CONTENT_MAIN_RENDER = 'ContentMain->render():'
+export const CONTENT_MAIN_LIFECYCLE = 'ContentMain->lc():'
+
 export const USER_PROFILE_FORM_CONNECT = 'UserProfileForm->connect():'
 
-let traceCodes = [TABS_LIFE_CYCLE, TABS_CHANGE_TAB, TABS_RENDER]
+//let traceCodes = [TABS_LIFE_CYCLE, TABS_CHANGE_TAB, TABS_RENDER]
+let traceCodes = undefined
 let logLevel = DEBUG_LEVEL
 
 if (process.env.NODE_ENV == PROD_ENV) {
