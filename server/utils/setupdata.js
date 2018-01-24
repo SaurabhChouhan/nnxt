@@ -256,4 +256,16 @@ const addRolesPermissions = async () => {
         })
     }
 
+
+    let estimatorRole = await RoleModel.findOne({name: ROLE_ESTIMATOR}).lean()
+    // create estimator user
+    if (!await UserModel.exists('estimator1@test.com')) {
+        await UserModel.saveUser({
+            email: 'estimator1@test.com',
+            firstName: "Estimator",
+            lastName: "One",
+            roles: [estimatorRole],
+            password: "estimator"
+        })
+    }
 }
