@@ -27,7 +27,7 @@ const config = {
             useMongoClient: true
         },
         gaurav: {
-            url: 'mongodb://gaurav:gaurav@ds151207.mlab.com:51207/koa-react',
+            url: 'mongodb://gaurav1:gaurav1@ds213338.mlab.com:13338/nnxt-gaurav',
             useMongoClient: true
         }
     }
