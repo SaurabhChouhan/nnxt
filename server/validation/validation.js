@@ -13,7 +13,9 @@ t.String.getValidationErrorMessage = (value, path, context) => {
 }
 */
 
-export let RequiredString = t.refinement(t.String, s => _.trim(s).length > 0)
+export {default as generateSchema} from './generateSchema'
+
+export let RequiredString = t.refinement(t.String, s => _.trim(s).length > 0, "String")
 /*
 RequiredString.getValidationErrorMessage = (value, path, context) => {
     if (!value || _.trim(value).length == 0)

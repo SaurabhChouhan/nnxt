@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {validate, estimationInitiationStruct} from "../validation"
 import {ProjectModel, UserModel} from "./index"
 import {
     ROLE_ESTIMATOR,
@@ -67,9 +66,7 @@ let estimationSchema = mongoose.Schema({
  * @param estimationInput
  */
 estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
-    validate(estimationInput, estimationInitiationStruct)
     // enhance estimation input as per requirement
-
     if (!negotiator)
         throw new AppError('Negotiator not found', NOT_FOUND, HTTP_BAD_REQUEST)
 

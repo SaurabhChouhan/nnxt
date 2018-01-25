@@ -19,7 +19,11 @@ apiRouter.use(publicRouter.routes())
 
 apiRouter.use(async (ctx, next) => {
     console.log("ctx.user.state", ctx.state.user)
-    if (isAuthenticated(ctx)) {
+    if (ctx.request.query && typeof(ctx.request.query.schema)!= 'undefined') {
+        // User is requesting schema for this API
+        ctx.schemaRequested = true
+        return await next()
+    } else if (isAuthenticated(ctx)) {
         return await next()
     } else {
         throw new AppError("Access Denied", ACCESS_DENIED, 403)

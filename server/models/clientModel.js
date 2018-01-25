@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as ErrorCodes from '../errorcodes'
-import {validate, clientAdditionStruct} from "../validation"
 
 mongoose.Promise = global.Promise
 
@@ -16,7 +15,6 @@ let clientSchema = mongoose.Schema({
 
 
 clientSchema.statics.saveClient = async clientInput => {
-    validate(clientInput, clientAdditionStruct)
     if (await ClientModel.exists(clientInput.name)) {
         throw new AppError("Client with name [" + clientInput.name + "] already exists", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
     }
