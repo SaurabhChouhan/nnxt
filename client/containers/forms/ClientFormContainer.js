@@ -1,10 +1,11 @@
 import {connect} from 'react-redux'
 import {ClientForm} from "../../components"
 import * as logger from '../../clientLogger'
+import {addClientOnServer} from "../../actions"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        logger.debug(logger.CLIENT_FORM_CONNECT, "onSubmit: values ", values)
+        return dispatch(addClientOnServer(values))
     }
 })
 

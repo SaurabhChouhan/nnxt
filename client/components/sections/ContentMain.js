@@ -17,7 +17,7 @@ class ContentMain extends Component {
             url: "/",
             render: (props) => {
                 return <ContentSection>
-                    
+
                 </ContentSection>
             }
         })

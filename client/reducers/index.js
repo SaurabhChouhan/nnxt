@@ -4,12 +4,14 @@ import userReducer from './userReducer'
 import appReducer from './appReducer'
 import permissionReducer from './permissionReducer'
 import roleReducer from './roleReducer'
+import clientReducer from './clientReducer'
 
 const reducers = combineReducers({
     form: formReducer, // Redux form state
     user: userReducer,
     app:appReducer,
     permission:permissionReducer,
-    role:roleReducer
+    role:roleReducer,
+    client:clientReducer
 })
 export default reducers
