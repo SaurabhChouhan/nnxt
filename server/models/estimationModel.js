@@ -1,13 +1,28 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as ErrorCodes from '../errorcodes'
+import {
+    STATUS_APPROVED,
+    STATUS_CHANGE_REQUESTED,
+    STATUS_ESTIMATION_REQUESTED,
+    STATUS_INITIATED,
+    STATUS_PROJECT_AWARDED,
+    STATUS_REOPENED,
+    STATUS_REVIEW_REQUESTED
+} from "../serverconstants"
 
 mongoose.Promise = global.Promise
 
 let estimationSchema = mongoose.Schema({
-    status: {type: String, enum: ['requested', 'estimated', 'correction-needed', 'approved', 'corrected']},
+    status: {
+        type: String,
+        required: true,
+        enum: [STATUS_INITIATED, STATUS_ESTIMATION_REQUESTED, STATUS_REVIEW_REQUESTED, STATUS_CHANGE_REQUESTED, STATUS_APPROVED, STATUS_REOPENED, STATUS_PROJECT_AWARDED]
+    },
     technologies: [String],
-    owner: {type: String, enum: ['estimator', 'negotiator', 'rejected']},
+    description: String,
+    created: Date,
+    updated: Date,
     estimator: {
         _id: mongoose.Schema.ObjectId,
         name: String
@@ -28,13 +43,16 @@ let estimationSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: String
     },
-    notes: [
-        {
-            name: {type: String, required: true},
-            note: {type: String, required: true},
-            date: {type: Date, default: Date.now()}
-        }
-    ]
+    notes: [{
+        name: {type: String, required: true},
+        note: {type: String, required: true},
+        date: {type: Date, default: Date.now()}
+    }],
+    statusHistory: [{
+        name: String,
+        status: String,
+        date: Date
+    }]
 })
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
