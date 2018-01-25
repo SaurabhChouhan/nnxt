@@ -43,6 +43,7 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",
     "tcomb": "^3.2.24",
+    "tcomb-doc": "^0.5.2",
     "tcomb-validation": "^3.4.1",
     "winston": "^3.0.0-rc1"
   },
