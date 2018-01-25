@@ -1,5 +1,5 @@
 import t from 'tcomb-validation'
-import {API_VALIDATION_FAILED, HTTP_BAD_REQUEST} from "../../errorcodes"
+import {API_VALIDATION_FAILED, HTTP_BAD_REQUEST} from "../errorcodes"
 import _ from 'lodash'
 
 /**
@@ -44,3 +44,15 @@ export const validate = (input, rule) => {
     return
 }
 
+
+
+/*
+,
+    notes: t.maybe(t.list(
+        t.struct({
+            name: RequiredString,
+            note: RequiredString
+        }))
+    )
+
+ */

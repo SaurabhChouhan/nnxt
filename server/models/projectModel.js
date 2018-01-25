@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {ClientModel} from "./"
 import * as ErrorCodes from '../errorcodes'
+import {projectAdditionStruct, validate} from "../validation"
 
 mongoose.Promise = global.Promise
 
@@ -17,6 +18,7 @@ let projectSchema = mongoose.Schema({
 })
 
 projectSchema.statics.saveProject = async projectInput => {
+    validate(projectInput, projectAdditionStruct)
     if (await ProjectModel.exists(projectInput.name, projectInput.client._id))
         throw new AppError("Project with name [" + projectInput.name + "] already exists under this client", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
 
@@ -28,7 +30,6 @@ projectSchema.statics.saveProject = async projectInput => {
     return await ProjectModel.create(projectInput)
 }
 
-
 projectSchema.statics.exists = async (name, clientId) => {
     if (!name || !clientId)
         throw new AppError("ProjectModel->exists() method needs non-null name/clientId parameter", ErrorCodes.BAD_ARGUMENTS)
@@ -37,7 +38,6 @@ projectSchema.statics.exists = async (name, clientId) => {
         return true
     return false
 }
-
 
 const ProjectModel = mongoose.model("Project", projectSchema)
 export default ProjectModel

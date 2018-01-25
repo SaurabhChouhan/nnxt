@@ -1,6 +1,6 @@
 import Router from 'koa-router'
 import {ClientModel} from "../models"
-import {clientAdd, validate} from "./validation"
+import {clientAdditionStruct, validate} from "../validation"
 
 
 let clientRouter = new Router({
@@ -8,7 +8,6 @@ let clientRouter = new Router({
 })
 
 clientRouter.post('/', async ctx => {
-    validate(ctx.request.body, clientAdd)
     return await ClientModel.saveClient(ctx.request.body)
 })
 

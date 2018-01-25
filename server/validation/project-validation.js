@@ -1,7 +1,7 @@
-import {RequiredString, validate} from "./"
+import {RequiredString, validate} from "./index"
 import t from 'tcomb-validation'
 
-export let projectAdd = t.struct({
+export let projectAdditionStruct = t.struct({
     name: RequiredString,
     client: t.struct({
         _id: RequiredString

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as ErrorCodes from '../errorcodes'
+import {validate, estimationInitiationStruct} from "../validation"
 import {
     STATUS_APPROVED,
     STATUS_CHANGE_REQUESTED,
@@ -54,6 +55,19 @@ let estimationSchema = mongoose.Schema({
         date: Date
     }]
 })
+
+
+/**
+ * Estimation request is initiated by Negotiator
+ * @param estimationInput
+ */
+estimationSchema.statics.initiate = (estimationInput) => {
+    validate(estimationInput, estimationInitiationStruct)
+
+
+
+    return true
+}
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel
