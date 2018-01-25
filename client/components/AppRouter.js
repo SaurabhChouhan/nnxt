@@ -5,11 +5,8 @@ import {
     AdminHomeContainer,
     SuperAdminHomeContainer,
     AppHomeContainer,
-    LoginFormContainer,
     HomeContainer,
-    RegistrationFormContainer
 } from '../containers'
-import {ROLE_SUPER_ADMIN} from "../../server/serverconstants"
 
 class AppRouter extends Component {
     render() {
@@ -32,13 +29,6 @@ class AppRouter extends Component {
                 }/>,
                 <Route key="super_admin_route" path="/super-admin" render={(props) => {
                     return <SuperAdminHomeContainer/>
-                }
-                }/>,
-                <Route key="register-form" path="/register" render={(props) => {
-                    if (this.props.isAuthenticated && this.props.loggedInUser) {
-                        return <Redirect to="/"/>
-                    }
-                    return <RegistrationFormContainer/>
                 }
                 }/>,
                 <Route key="admin_route" path="/admin" render={(props) => {

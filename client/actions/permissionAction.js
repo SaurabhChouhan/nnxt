@@ -4,11 +4,6 @@ import {
     EDIT_PERMISSION,
     DELETE_PERMISSION,
 } from "./actionConsts"
-import {PERMISSION_LIST} from "../components/componentConsts"
-import {showComponentHideOthers} from "./appAction"
-import {NotificationManager} from 'react-notifications'
-import {SubmissionError} from 'redux-form'
-import {ALREADY_EXISTS} from "../../server/errorcodes"
 import * as logger from '../clientLogger'
 
 
@@ -52,12 +47,6 @@ export const addPermissionOnServer = (formInput) => {
         ).then(json => {
                 if (json.success) {
                     dispatch(addPermission(json.data))
-                    dispatch(showComponentHideOthers(PERMISSION_LIST))
-                    NotificationManager.success('Permission Added Successfully')
-                } else {
-                    NotificationManager.error('Permission Not Added!')
-                    if (json.code == ALREADY_EXISTS)
-                        throw new SubmissionError({name: "Permission Already Exists"})
                 }
                 return json
             }
@@ -85,12 +74,6 @@ export const editPermissionOnServer = (formInput) => {
         ).then(json => {
                 if (json.success) {
                     dispatch(editPermission((json.data)))
-                    dispatch(showComponentHideOthers(PERMISSION_LIST))
-                    NotificationManager.success('Permission Edited Successfully')
-                } else {
-                    NotificationManager.error('Permission Edit Failed!')
-                    if (json.code == ALREADY_EXISTS)
-                        throw new SubmissionError({name: "Permission Already Exists"})
                 }
                 return json
             }

@@ -1,5 +1,4 @@
 export {default as LoginForm} from './forms/LoginForm'
-export {default as RegistrationForm} from './forms/RegistrationForm'
 
 
 export {default as PermissionForm} from './forms/PermissionForm'

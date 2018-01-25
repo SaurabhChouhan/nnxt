@@ -1,5 +1,10 @@
-import {NotificationManager} from 'react-notifications'
-import {ADD_ROLE, ADD_ROLES, EDIT_ROLE, DELETE_ROLE, ADMIN_EDITING_ROLE} from "./actionConsts"
+import {
+    ADD_ROLE,
+    ADD_ROLES,
+    EDIT_ROLE,
+    DELETE_ROLE,
+    ADMIN_EDITING_ROLE
+} from "./actionConsts"
 
 export const addAllRoles = (roles) => ({
         type: ADD_ROLES,

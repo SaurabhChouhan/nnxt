@@ -7,7 +7,7 @@ let projectRouter = new Router({
     prefix: "projects"
 })
 
-projectRouter.post("/", async ctx=>{
+projectRouter.post("/", async ctx => {
     validate(ctx.request.body, projectAdd)
     return await ProjectModel.saveProject(ctx.request.body)
 })

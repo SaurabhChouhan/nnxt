@@ -1,11 +1,15 @@
 import {connect} from 'react-redux'
 import {RoleForm} from "../../components"
-import {loginUserOnServer, addRoleOnServer, editRoleOnServer, showComponentHideOthers} from "../../actions"
 import {formValueSelector, getFormSyncErrors, reset} from 'redux-form'
-import {ADMIN_USER_LIST, ROLE_LIST} from "../../components/componentConsts"
+import {ROLE_LIST} from "../../components/componentConsts"
 import {ALREADY_EXISTS} from "../../../server/errorcodes"
 import {SubmissionError, initialize, change} from 'redux-form'
 import {NotificationManager} from 'react-notifications'
+import {
+    addRoleOnServer,
+    editRoleOnServer,
+    showComponentHideOthers
+} from "../../actions"
 
 
 let selector = formValueSelector('role')
@@ -26,7 +30,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     NotificationManager.error("Role addition failed")
                     if (response.code && response.code == ALREADY_EXISTS) {
                         // role already exists throw SubmissionError to show appropriate error
-                        throw new SubmissionError({'role': 'Role already exists'})
+                        throw new SubmissionError({name: 'Role already exists'})
                     }
                 }
             })
@@ -38,6 +42,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     dispatch(showComponentHideOthers(ROLE_LIST))
                 } else {
                     NotificationManager.error("Role edit failed")
+                    throw new SubmissionError({name: 'Role already exists'})
                 }
             })
         }
