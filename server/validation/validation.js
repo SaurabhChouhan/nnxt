@@ -20,11 +20,16 @@ export let RequiredString = t.refinement(t.String, s => _.trim(s).length > 0, "S
 
 export let ObjectId = t.refinement(t.String, s => mongoose.Types.ObjectId.isValid(s), "ObjectID")
 
+t.Nil.getValidationErrorMessage = (value, path, context) => {
+    if (value != null && value != undefined)
+        return "Unexpected field: This field is not allowed"
+}
+
 t.String.getValidationErrorMessage = (value, path, context) => {
-    if(!value)
+    if (!value)
         return "Field is required"
-    else if(typeof(value) != 'string')
-        return "Value ["+value+"] not a valid string"
+    else if (typeof(value) != 'string')
+        return "Value [" + value + "] not a valid string"
 }
 
 RequiredString.getValidationErrorMessage = (value, path, context) => {
@@ -33,7 +38,7 @@ RequiredString.getValidationErrorMessage = (value, path, context) => {
 }
 
 ObjectId.getValidationErrorMessage = (value, path, context) => {
-    return "Value ["+value+"] is not a valid Mongo Object ID"
+    return "Value [" + value + "] is not a valid Mongo Object ID"
 }
 
 
@@ -59,7 +64,6 @@ export const validate = (input, rule) => {
     }
     return
 }
-
 
 
 /*

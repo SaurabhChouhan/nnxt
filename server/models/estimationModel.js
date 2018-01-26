@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {ProjectModel, UserModel} from "./index"
+import {ProjectModel, UserModel, RepositoryModel} from "./index"
 import {
     ROLE_ESTIMATOR, ROLE_NEGOTIATOR,
     STATUS_APPROVED,

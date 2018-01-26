@@ -11,7 +11,7 @@ import {
 } from "../serverconstants"
 import {validate, estimationEstimatorAddTaskStruct} from "../validation"
 import {userHasRole} from "../utils"
-import {EstimationModel} from "./"
+import {EstimationModel, RepositoryModel} from "./"
 import {INVALID_USER, NOT_FOUND, HTTP_BAD_REQUEST} from "../errorcodes"
 
 mongoose.Promise = global.Promise
@@ -69,12 +69,40 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         // TODO: Need to find feature from {EstimationFeature} and add validation
     }
 
+    let repositoryTask = undefined
+
     if (taskInput.repo && taskInput.repo._id) {
         // task is added from repository
-        // TODO: Need to find task from {Repository} and add validation
-    } else {
-        // TODO: Need to save this task to {Repository} and add identifier here
+        // find if task actually exists there
+        repositoryTask = await RepositoryModel.findById(taskInput.repo._id)
+        if (!repositoryTask)
+            throw new AppError('Task not part of repository', NOT_FOUND, HTTP_BAD_REQUEST)
+
+        // as this task was found in repository, this means that this is already part of repository
         taskInput.repo = {
+            addedFromThisEstimation: false,
+            _id: repositoryTask._id
+        }
+    } else {
+        /**
+         * As no repo id is sent, this means that this is a new task, hence save this task into repository
+         * @type {{addedFromThisEstimation: boolean}}
+         */
+
+        repositoryTask = await RepositoryModel.addTask({
+            name: taskInput.name,
+            description: taskInput.description,
+            estimation: {
+                _id: estimation._id.toString()
+            },
+            feature: taskInput.feature,
+            createdBy: estimator,
+            technologies: taskInput.technologies,
+            tags: taskInput.tags
+        }, estimator)
+
+        taskInput.repo = {
+            _id: repositoryTask._id,
             addedFromThisEstimation: true
         }
     }
@@ -82,8 +110,10 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     // create estimator section
 
     let estimatorSection = {}
-    estimatorSection.name = taskInput.name
-    estimatorSection.description = taskInput.description
+    /* Name/description would always match repository name description */
+
+    estimatorSection.name = repositoryTask.name
+    estimatorSection.description = repositoryTask.description
     estimatorSection.estimatedHours = taskInput.estimatedHours
 
     taskInput.status = STATUS_PENDING

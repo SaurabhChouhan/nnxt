@@ -2,6 +2,7 @@ import {RequiredString, ObjectId, validate} from "./index"
 import t from 'tcomb-validation'
 
 export const estimationInitiationStruct = t.struct({
+    _id: t.Nil,
     description: RequiredString,
     estimator: t.struct({
         _id: ObjectId
@@ -9,12 +10,17 @@ export const estimationInitiationStruct = t.struct({
     project: t.struct({
         _id: ObjectId
     }),
-    technologies: t.maybe(t.list(t.String))
+    technologies: t.maybe(t.list(t.String)),
+    notes: t.Nil,
+    release: t.Nil,
+    isDeleted: t.Nil,
+    isArchived: t.Nil
 })
 
 export const estimationEstimatorAddTaskStruct = t.struct({
-    name: RequiredString,
-    description: RequiredString,
+    _id: t.Nil,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
     estimatedHours: t.Number,
     estimation: t.struct({
         _id: ObjectId
