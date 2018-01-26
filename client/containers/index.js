@@ -13,6 +13,8 @@ export {default as UserProfileFormContainer} from './forms/UserProfileFormContai
 export {default as AdminRoleFormContainer} from './forms/AdminRoleFormContainer'
 export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
 export {default as ClientFormContainer} from './forms/ClientFormContainer'
+export {default as EstimationListContainer} from './lists/EstimationListContainer'
+
 
 export {default as TabSectionContainer} from './sections/TabSectionContainer'
 

@@ -5,13 +5,15 @@ import appReducer from './appReducer'
 import permissionReducer from './permissionReducer'
 import roleReducer from './roleReducer'
 import clientReducer from './clientReducer'
+import estimationReducer from './estimationReducer'
 
 const reducers = combineReducers({
     form: formReducer, // Redux form state
     user: userReducer,
-    app:appReducer,
-    permission:permissionReducer,
-    role:roleReducer,
-    client:clientReducer
+    app: appReducer,
+    permission: permissionReducer,
+    role: roleReducer,
+    client: clientReducer,
+    estimation: estimationReducer
 })
 export default reducers

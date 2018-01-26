@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
-import {ClientFormContainer} from "../../containers"
+import {ClientFormContainer, EstimationListContainer} from "../../containers"
 import {PERMISSION_FORM} from "../componentConsts"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -28,6 +28,15 @@ class ContentMain extends Component {
             render: (props) => {
                 return <ContentSection>
                     <ClientFormContainer/>
+                </ContentSection>
+            }
+        })
+
+        routes.push({
+            url: "/estimation",
+            render: (props) => {
+                return <ContentSection>
+                    <EstimationListContainer/>
                 </ContentSection>
             }
         })
