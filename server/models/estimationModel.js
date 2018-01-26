@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {ProjectModel, UserModel} from "./index"
 import {
-    ROLE_ESTIMATOR,
+    ROLE_ESTIMATOR, ROLE_NEGOTIATOR,
     STATUS_APPROVED,
     STATUS_CHANGE_REQUESTED,
     STATUS_ESTIMATION_REQUESTED,
@@ -13,7 +13,7 @@ import {
 } from "../serverconstants"
 import {NOT_FOUND, INVALID_USER, HTTP_BAD_REQUEST} from "../errorcodes"
 import {userHasRole} from "../utils"
-import {validate, generateSchema, estimationInitiationStruct} from "../validation"
+import {validate, generateSchema, estimationInitiationStruct, estimationEstimatorAddTaskStruct} from "../validation"
 
 mongoose.Promise = global.Promise
 
@@ -58,9 +58,15 @@ let estimationSchema = mongoose.Schema({
         name: String,
         status: String,
         date: {type: Date, default: Date.now()}
-    }]
+    }],
+    isDeleted: {type: Boolean, default: false},
+    isArchived: {type: Boolean, default: false}
 })
 
+
+estimationSchema.statics.getAllActive = async () => {
+    return await EstimationModel.find({isArchived: false, isDeleted: false})
+}
 
 /**
  * Estimation request is initiated by Negotiator
@@ -72,8 +78,8 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     validate(estimationInput, estimationInitiationStruct)
 
     // enhance estimation input as per requirement
-    if (!negotiator)
-        throw new AppError('Negotiator not found', NOT_FOUND, HTTP_BAD_REQUEST)
+    if (!negotiator || !userHasRole(negotiator, ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', INVALID_USER, HTTP_BAD_REQUEST)
 
     let project = await ProjectModel.findById(estimationInput.project._id)
     if (!project)
@@ -98,6 +104,7 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     }]
     return await EstimationModel.create(estimationInput)
 }
+
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel
