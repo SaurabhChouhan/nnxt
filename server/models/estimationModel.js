@@ -13,6 +13,7 @@ import {
 } from "../serverconstants"
 import {NOT_FOUND, INVALID_USER, HTTP_BAD_REQUEST} from "../errorcodes"
 import {userHasRole} from "../utils"
+import {validate, generateSchema, estimationInitiationStruct} from "../validation"
 
 mongoose.Promise = global.Promise
 
@@ -66,6 +67,10 @@ let estimationSchema = mongoose.Schema({
  * @param estimationInput
  */
 estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
+
+    // validate input
+    validate(estimationInput, estimationInitiationStruct)
+
     // enhance estimation input as per requirement
     if (!negotiator)
         throw new AppError('Negotiator not found', NOT_FOUND, HTTP_BAD_REQUEST)

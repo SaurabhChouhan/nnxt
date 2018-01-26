@@ -19,7 +19,6 @@ estimationRouter.post('/initiate', async ctx => {
     if (!hasRole(ctx, ROLE_NEGOTIATOR))
         throw new AppError("Only users with role [Negotiator] can initiate estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
 
-    validate(ctx.request.body, estimationInitiationStruct)
     return EstimationModel.initiate(ctx.request.body, ctx.state.user)
 })
 
