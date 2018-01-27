@@ -39,12 +39,13 @@ function recurse(type, required) {
             //var props = {required: required};
             var props = {}
             for (var k in type.meta.props) {
-                props[k] = recurse(type.meta.props[k]);
+                if (type.meta.props[k].meta.name != 'Nil')
+                    props[k] = recurse(type.meta.props[k]);
             }
             return props
         case 'list' :
             return [recurse(type.meta.type)]
-            //return [Object.assign(recurse(type.meta.type), {required:required})]
+        //return [Object.assign(recurse(type.meta.type), {required:required})]
         case 'tuple' :
         case 'intersection' :
             return {

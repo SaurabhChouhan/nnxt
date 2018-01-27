@@ -1,5 +1,6 @@
 import {Modal, ModalHeader, ModalTitle, ModalBody} from 'react-bootstrap'
 import React from 'react'
+import {EstimationInitiateFormContainer} from "../../containers"
 
 const EstimationInitiateDialog = (props) => {
     return <Modal show={props.show} onHide={props.close}>
@@ -7,7 +8,9 @@ const EstimationInitiateDialog = (props) => {
             <h3 className="">Initiate Estimation</h3>
         </ModalHeader>
         <ModalBody>
-            <p>This is modal body</p>
+            <p>
+                <EstimationInitiateFormContainer/>
+            </p>
         </ModalBody>
     </Modal>
 }
