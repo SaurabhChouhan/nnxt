@@ -13,6 +13,7 @@ export const USER_FORM = "USER_FORM"
 export const ADMIN_USER_FORM = "ADMIN_USER_FORM"
 export const USER_PROFILE_FORM = "USER_PROFILE_FORM"
 export const ADMIN_ROLE_FORM = "ADMIN_ROLE_FORM"
+export const CLIENT_FORM = "CLIENT_FORM"
 
 // lists
 export const PERMISSION_LIST = "PERMISSION_LIST"

@@ -238,3 +238,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 .Expandedlist li:hover {
     background-color: #283E4B;
 }
+
+.content-section {
+    margin-top:20px;
+}

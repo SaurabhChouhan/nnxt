@@ -30,7 +30,7 @@ class ContentMain extends Component {
             url: "/client",
             render: (props) => {
                 return <ContentSection>
-                    <ClientFormContainer/>
+                    <ClientFormContainer name={COC.CLIENT_FORM}/>
                 </ContentSection>
             }
         })
