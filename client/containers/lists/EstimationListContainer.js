@@ -2,6 +2,7 @@ import {connect} from 'react-redux'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {EstimationList} from "../../components"
+import * as logger from '../../clientLogger'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showEstimationInitiateForm: () => {
@@ -9,8 +10,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getAllProjectsFromServer())
         dispatch(A.getAllUsersFromServer())
         dispatch(A.showComponent(COC.ESTIMATION_INITIATE_DIALOG))
-
-
+    },
+    estimationSelected: (estimation) => {
+        logger.debug(logger.ESTIMATION_LIST_CONNECT, "estimation:", estimation)
+        dispatch(A.showComponentHideOthers(COC.ESTIMATION_DETAIL_PAGE))
+        dispatch(A.selectEstimation(estimation))
     }
 })
 

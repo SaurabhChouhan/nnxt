@@ -15,6 +15,7 @@ export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
 export {default as ClientFormContainer} from './forms/ClientFormContainer'
 export {default as EstimationListContainer} from './lists/EstimationListContainer'
 export {default as EstimationInitiateFormContainer} from './forms/EstimationInitiateFormContainer'
+export {default as EstimationDetailContainer} from './pages/EstimationDetailContainer'
 
 
 export {default as TabSectionContainer} from './sections/TabSectionContainer'

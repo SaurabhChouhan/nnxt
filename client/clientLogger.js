@@ -39,6 +39,8 @@ export const CONTENT_MAIN_LIFECYCLE = 'ContentMain->lc():'
 export const USER_PROFILE_FORM_CONNECT = 'UserProfileForm->connect():'
 export const ESTIMATION_INITIATE_FORM_SUBMIT = 'EstimationInitiateForm->submit():'
 
+export const ESTIMATION_LIST_CONNECT = "EstimationList->connect():"
+
 //let traceCodes = [TABS_LIFE_CYCLE, TABS_CHANGE_TAB, TABS_RENDER]
 let traceCodes = undefined
 let logLevel = DEBUG_LEVEL

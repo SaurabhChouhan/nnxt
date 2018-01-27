@@ -121,9 +121,11 @@ userSchema.statics.verifyUser = async (email, password) => {
             // Need to send combined permissions of all roles
 
             let permissionSet = new Set()
+            let roleSet = new Set()
 
             if (!_.isEmpty(user.roles)) {
                 user.roles.forEach(r => {
+                    roleSet.add(r.name)
                     if (!_.isEmpty(r.permissions)) {
                         r.permissions.filter(p => p.enabled).forEach(p => {
                             permissionSet.add(p.name)
@@ -133,6 +135,7 @@ userSchema.statics.verifyUser = async (email, password) => {
             }
 
             user.permissions = [...permissionSet]
+            user.roleNames = [...roleSet]
 
             return user
         } else {

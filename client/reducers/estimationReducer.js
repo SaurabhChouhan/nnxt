@@ -1,4 +1,5 @@
 import {ADD_ESTIMATIONS, ADD_ESTIMATION} from "../actions/actionConsts"
+import * as AC from '../actions/actionConsts'
 
 let initialState = {
     all: [],
@@ -7,10 +8,12 @@ let initialState = {
 
 const estimationReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_ESTIMATIONS:
+        case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})
-        case ADD_ESTIMATION:
+        case AC.ADD_ESTIMATION:
             return Object.assign({}, state, {all: [...state.all, action.estimation]})
+        case AC.SELECT_ESTIMATION:
+            return Object.assign({}, state, {selected: action.estimation})
         default:
             return state
     }

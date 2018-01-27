@@ -15,5 +15,6 @@ export {default as AdminUserForm} from './forms/AdminUserForm'
 export {default as AdminRoleForm} from './forms/AdminRoleForm'
 export {default as AdminRoleList} from './lists/AdminRoleList'
 export {default as EstimationInitiateForm} from './forms/EstimationInitiateForm'
+export {default as EstimationDetail} from './pages/EstimationDetail'
 
 export {default as EstimationInitiateDialog} from './dialogs/EstimationInitiateDialog'

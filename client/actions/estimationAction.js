@@ -1,13 +1,18 @@
-import {ADD_ESTIMATIONS, ADD_ESTIMATION, DELETE_ESTIMATION, UPDATE_ESTIMATION} from "./actionConsts"
+import * as AC from './actionConsts'
 
 
 export const addEstimations = (estimations) => ({
-    type: ADD_ESTIMATIONS,
+    type: AC.ADD_ESTIMATIONS,
     estimations: estimations
 })
 
 export const addEstimation = (estimation) => ({
-    type: ADD_ESTIMATION,
+    type: AC.ADD_ESTIMATION,
+    estimation: estimation
+})
+
+export const selectEstimation = (estimation) => ({
+    type: AC.SELECT_ESTIMATION,
     estimation: estimation
 })
 

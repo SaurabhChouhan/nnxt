@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
-import {ClientFormContainer, EstimationListContainer} from "../../containers"
+import {ClientFormContainer, EstimationListContainer, EstimationDetailContainer} from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
 import {EstimationInitiateDialog} from "../"
@@ -46,6 +46,16 @@ class ContentMain extends Component {
                         }
                     }/>
                     <EstimationListContainer name={COC.ESTIMATION_LIST}/>
+                </ContentSection>
+            }
+        })
+
+        routes.push({
+            url: "/estimation-detail",
+            render: (props) => {
+                console.log("estimation detail props ", props)
+                return <ContentSection>
+                    <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
                 </ContentSection>
             }
         })

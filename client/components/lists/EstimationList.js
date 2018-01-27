@@ -1,17 +1,20 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
+import {withRouter} from 'react-router-dom'
 
 class EstimationList extends Component {
 
     constructor(props) {
         super(props);
         this.options = {
-            onRowClick: this.onRowClick
+            onRowClick: this.onRowClick.bind(this)
         }
     }
 
     onRowClick(row) {
-        console.log("row clicked ", row)
+        this.props.history.push("/app-home/estimation-detail")
+        this.props.estimationSelected(row)
+
     }
 
     formatProject(project) {
@@ -59,4 +62,4 @@ class EstimationList extends Component {
     }
 }
 
-export default EstimationList
+export default withRouter(EstimationList)
