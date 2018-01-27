@@ -20,8 +20,8 @@ let LoginForm = (props) => {
                            validate={[required]}/>
                 </div>
             </div>
-            <div className="modal-footer">
-                <button type="submit" className="btn btn-custom">Submit</button>
+            <div className="login-footer" style={{background: '#E7E7E7'}}>
+                <button type="submit" className="btn btn-custom login-btn">Submit</button>
             </div>
         </div>
     </Form>

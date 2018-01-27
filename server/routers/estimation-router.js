@@ -12,7 +12,7 @@ let estimationRouter = new Router({
 })
 
 estimationRouter.get("/", async ctx => {
-    return await EstimationModel.getAllActive()
+    return await EstimationModel.getAllActive(ctx.state.user)
 })
 
 estimationRouter.post('/initiate', async ctx => {

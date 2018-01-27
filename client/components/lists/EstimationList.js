@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
+import * as SC from '../../../server/serverconstants'
 
 class EstimationList extends Component {
 
@@ -39,10 +40,10 @@ class EstimationList extends Component {
         return (
             <div key="estimation_list" className="row">
                 <div className="col-md-10">
-
+                    {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
                     <button className="btn btn-default btn-submit addBtn"
                             onClick={() => this.props.showEstimationInitiateForm()}>Initiate Estimation
-                    </button>
+                    </button>}
 
                     <BootstrapTable options={this.options} data={this.props.estimations}
                                     striped={true}

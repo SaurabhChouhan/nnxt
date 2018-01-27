@@ -57,8 +57,34 @@ let estimationSchema = mongoose.Schema({
 })
 
 
-estimationSchema.statics.getAllActive = async () => {
-    return await EstimationModel.find({isArchived: false, isDeleted: false})
+estimationSchema.statics.getAllActive = async (user) => {
+    let estimations = []
+    if (userHasRole(user, SC.ROLE_ESTIMATOR)) {
+
+        console.log("user has estimator role")
+        // Estimator would only see those estimations that don't have initiated status and this user is estimator
+        let estimatorEstimations = await EstimationModel.find({
+            isArchived: false,
+            isDeleted: false,
+            "estimator._id": user._id,
+            status: {$ne: SC.STATUS_INITIATED}
+        })
+
+        estimations = [...estimatorEstimations]
+
+    }
+
+    if (userHasRole(user, SC.ROLE_NEGOTIATOR)) {
+        console.log("user has negotiator role")
+        // Negotiator would only see all estimations where he is negotiator
+        let negotiatorEstimations = await EstimationModel.find({
+            isArchived: false,
+            isDeleted: false,
+            "negotiator._id": user._id
+        })
+        estimations = [...estimations, ...negotiatorEstimations]
+    }
+    return estimations
 }
 
 /**
@@ -106,8 +132,8 @@ estimationSchema.statics.request = async (estimationID, negotiator) => {
     if (estimation.negotiator._id != negotiator._id)
         throw new AppError('This estimation has different negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if(estimation.status != SC.STATUS_INITIATED)
-        throw new AppError('Only estimations with status ['+STATUS_INITIATED+"] can be requested", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if (estimation.status != SC.STATUS_INITIATED)
+        throw new AppError('Only estimations with status [' + STATUS_INITIATED + "] can be requested", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     estimation.status = SC.STATUS_ESTIMATION_REQUESTED
     estimation.statusHistory.push({
