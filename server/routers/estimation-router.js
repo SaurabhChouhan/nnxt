@@ -26,6 +26,13 @@ estimationRouter.post('/initiate', async ctx => {
     return EstimationModel.initiate(ctx.request.body, ctx.state.user)
 })
 
+estimationRouter.put('/request/:estimationID', async ctx => {
+    if (!hasRole(ctx, ROLE_NEGOTIATOR))
+        throw new AppError("Only users with role [" + ROLE_NEGOTIATOR + "] can request estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
+})
+
+
 /**
  * Add a new task to estimation
  */

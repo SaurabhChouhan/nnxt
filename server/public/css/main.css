@@ -56,27 +56,35 @@ img {
 
 
 .modal-header {
-    padding: 0 !important;
-    border-bottom: 0px solid #e5e5e5 !important;
-    background: #e7e7e7 !important;
-    padding-bottom: 0px !important;
-    padding-left: 5% !important;
-    padding-right: 5% !important;
+    padding: 5px !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+    background:white !important;
+    float:left;
+    width:100%;
 }
 
+.modal-footer {
+    padding: 5px !important;
+    border-top: 1px solid #e5e5e5 !important;
+    background:white !important;
+    float:left;
+    width:100%;
+}
+
+.main-footer {
+    padding: 5px !important;
+    border-top: 1px solid #e5e5e5 !important;
+
+}
 
 .modal-body {
     position: relative;
     float: left;
     padding: 15px;
-    background: #e7e7e7 !important;
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
-}
-
-.modal-body, .modal-footer {
-    float:left;
+    min-height: 100px;
     width:100%;
+    background: #e7e7e7 !important;
+    padding-bottom: 0px !important;
 }
 
 .validation-error {

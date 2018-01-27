@@ -11,6 +11,12 @@ export const addEstimation = (estimation) => ({
     estimation: estimation
 })
 
+export const editEstimation = (estimation) => ({
+    type: AC.EDIT_ESTIMATION,
+    estimation: estimation
+})
+
+
 export const selectEstimation = (estimation) => ({
     type: AC.SELECT_ESTIMATION,
     estimation: estimation
@@ -60,3 +66,27 @@ export const initiateEstimationOnServer = (formInput) => {
             })
     }
 }
+
+export const requestEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/request/'+estimationID, {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+

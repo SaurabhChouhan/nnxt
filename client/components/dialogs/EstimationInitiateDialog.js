@@ -5,7 +5,7 @@ import {EstimationInitiateFormContainer} from "../../containers"
 const EstimationInitiateDialog = (props) => {
     return <Modal show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
-            <h3 className="">Initiate Estimation</h3>
+            <h3>Initiate Estimation</h3>
         </ModalHeader>
         <ModalBody>
             <p>

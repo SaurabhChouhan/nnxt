@@ -12,6 +12,8 @@ const estimationReducer = (state = initialState, action) => {
             return Object.assign({}, state, {all: action.estimations})
         case AC.ADD_ESTIMATION:
             return Object.assign({}, state, {all: [...state.all, action.estimation]})
+        case AC.EDIT_ESTIMATION:
+            return Object.assign({}, state, {all: state.all.map(item => item._id == action.estimation._id ? action.estimation : item)})
         case AC.SELECT_ESTIMATION:
             return Object.assign({}, state, {selected: action.estimation})
         default:

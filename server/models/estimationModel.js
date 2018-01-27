@@ -98,6 +98,25 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     return await EstimationModel.create(estimationInput)
 }
 
+estimationSchema.statics.request = async (estimationID, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('This estimation has different negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if(estimation.status != SC.STATUS_INITIATED)
+        throw new AppError('Only estimations with status ['+STATUS_INITIATED+"] can be requested", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    estimation.status = SC.STATUS_ESTIMATION_REQUESTED
+    estimation.statusHistory.push({
+        name: estimation.negotiator.firstName,
+        status: SC.STATUS_ESTIMATION_REQUESTED
+    })
+    return await estimation.save()
+}
+
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel

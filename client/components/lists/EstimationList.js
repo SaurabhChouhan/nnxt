@@ -52,7 +52,8 @@ class EstimationList extends Component {
                                            dataFormat={this.formatProject.bind(this)}>Project</TableHeaderColumn>
                         <TableHeaderColumn dataField='client'
                                            dataFormat={this.formatClient.bind(this)}>Client</TableHeaderColumn>
-                        <TableHeaderColumn width="20%" dataField='button'
+                        <TableHeaderColumn dataField='status'>Status</TableHeaderColumn>
+                        <TableHeaderColumn width="10%" dataField='button'
                                            dataFormat={this.viewButton.bind(this)}></TableHeaderColumn>
 
                     </BootstrapTable>
