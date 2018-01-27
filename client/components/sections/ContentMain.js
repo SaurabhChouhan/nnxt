@@ -2,9 +2,12 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
 import {ClientFormContainer, EstimationListContainer} from "../../containers"
-import {PERMISSION_FORM} from "../componentConsts"
+import * as COC from '../componentConsts'
+import * as A from '../../actions'
+import {EstimationInitiateDialog} from "../"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
+import {connect} from 'react-redux'
 
 class ContentMain extends Component {
     constructor(props) {
@@ -35,8 +38,14 @@ class ContentMain extends Component {
         routes.push({
             url: "/estimation",
             render: (props) => {
+                console.log("estimation props ", props)
                 return <ContentSection>
-                    <EstimationListContainer/>
+                    <EstimationInitiateDialog name={COC.ESTIMATION_INITIATE_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
+                        }
+                    }/>
+                    <EstimationListContainer name={COC.ESTIMATION_LIST}/>
                 </ContentSection>
             }
         })
@@ -51,20 +60,18 @@ class ContentMain extends Component {
         return <div>
             {
                 this.state.routes.length > 0 &&
-                <Route key={"admin_idx_route"} exact path={this.props.match.url} render={this.state.routes[0].render}/>
+                <Route key={"app_home_route"} dispatch={this.props.dispatch} exact path={this.props.match.url}
+                       render={this.state.routes[0].render}/>
             }
             {
-                this.state.routes.map((route, idx) => <Route key={"approute" + idx}
+                this.state.routes.map((route, idx) => <Route key={"app_route" + idx}
+                                                             dispatch={this.props.dispatch}
                                                              path={this.props.match.url + route.url}
                                                              render={route.render}/>)
 
             }
         </div>
     }
-}
-
-ContentMain.contextTypes = {
-    store: PropTypes.object
 }
 
 export default ContentMain

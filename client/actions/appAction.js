@@ -1,28 +1,33 @@
-import {SHOW_COMPONENT, HIDE_COMPONENT, SHOW_LOADER, HIDE_LOADER, ADD_SSR_FLAG, CLEAR_SSR_FLAG} from "./actionConsts"
+import * as AC from './actionConsts'
 
 export const showComponentHideOthers = name => ({
-    type: SHOW_COMPONENT,
+    type: AC.SHOW_COMPONENT_HIDE_OTHER,
+    name: name
+})
+
+export const showComponent = name => ({
+    type: AC.SHOW_COMPONENT,
     name: name
 })
 
 export const hideComponent = name => ({
-    type: HIDE_COMPONENT,
+    type: AC.HIDE_COMPONENT,
     name: name
 })
 
 export const addSSRFlag = () => ({
-    type: ADD_SSR_FLAG
+    type: AC.ADD_SSR_FLAG
 })
 
 export const clearSSRFlag = () => ({
-    type: CLEAR_SSR_FLAG
+    type: AC.CLEAR_SSR_FLAG
 })
 
 
 export const showLoader = () => ({
-    type: SHOW_LOADER
+    type: AC.SHOW_LOADER
 })
 
 export const hideLoader = () => ({
-    type: HIDE_LOADER
+    type: AC.HIDE_LOADER
 })

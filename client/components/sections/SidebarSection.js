@@ -2,7 +2,9 @@ import React from 'react'
 import {SidebarSideSection} from "./"
 import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
-import {getAllEstimationsFromServer} from "../../actions/estimationAction"
+
+import * as A from '../../actions'
+import * as COC from '../componentConsts'
 
 const SidebarSection = (props) => <section className="sidebar">
     <div className="clearfix">
@@ -11,7 +13,9 @@ const SidebarSection = (props) => <section className="sidebar">
                 <ul className="list-unstyled">
                     <li><Link to="/app-home/client">Client</Link></li>
                     <li><Link to="/app-home/estimation" onClick={() => {
-                        props.dispatch(getAllEstimationsFromServer())
+                        props.dispatch(A.getAllEstimationsFromServer())
+                        props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
+
                     }}>Estimation</Link></li>
                     {/*
                     <li className="Expandlist"><a href="">Estimations</a>

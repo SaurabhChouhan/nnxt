@@ -14,4 +14,8 @@ projectRouter.post("/", async ctx => {
     return await ProjectModel.saveProject(ctx.request.body)
 })
 
+projectRouter.get("/", async ctx => {
+    return await ProjectModel.getAllActive(ctx.state.user)
+})
+
 export default projectRouter

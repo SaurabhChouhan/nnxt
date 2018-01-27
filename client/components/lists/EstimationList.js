@@ -1,7 +1,5 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
-import Dialog from 'react-bootstrap-dialog'
-import _ from 'lodash'
 
 class EstimationList extends Component {
 
@@ -17,27 +15,25 @@ class EstimationList extends Component {
     }
 
     formatProject(project) {
-        if(project)
+        if (project)
             return project.name
         return ''
     }
 
     formatClient(client) {
-        if(client)
+        if (client)
             return client.name
         return ''
     }
 
     render() {
         return (
-            <div className="row">
+            <div key="estimation_list" className="row">
                 <div className="col-md-10">
-                    <Dialog ref={(el) => {
-                        this.dialog = el
-                    }}/>
 
                     <button className="btn btn-default btn-submit addBtn"
-                            onClick={() => this.props.showRoleForm()}>Add Estimations</button>
+                            onClick={() => this.props.showEstimationInitiateForm()}>Initiate Estimation
+                    </button>
 
                     <BootstrapTable options={this.options} data={this.props.estimations}
                                     striped={true}

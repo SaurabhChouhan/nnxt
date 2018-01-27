@@ -1,8 +1,7 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderText, renderTextArea} from './fields'
+import {renderText} from './fields'
 import {required} from "./validation"
-import {ROLE_ADMIN} from "../../clientconstants"
 import * as logger from '../../clientLogger'
 
 let ClientForm = (props) => {

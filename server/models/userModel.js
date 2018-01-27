@@ -1,8 +1,10 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import _ from 'lodash'
-import * as ErrorCodes from '../errorcodes'
+import * as EC from '../errorcodes'
+import * as SC from '../serverconstants'
 import AppError from '../AppError'
+import {userHasRole} from "../utils"
 
 
 mongoose.Promise = global.Promise
@@ -20,15 +22,37 @@ let userSchema = mongoose.Schema({
 })
 
 
+userSchema.statics.getAllActive = async (loggedInUser) => {
+    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR)) {
+        // Negotiator can see estimators (Estimation Initiate), developers, leaders (company cost approximations)
+        return await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_ESTIMATOR, SC.ROLE_DEVELOPER, SC.ROLE_LEADER]
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+    } else if (userHasRole(loggedInUser, SC.ROLE_ADMIN)) {
+        // Admin would be able to see all users except super admin
+        return await UserModel.find({"roles.name": {$ne: SC.ROLE_SUPER_ADMIN}, isDeleted: false}, {password: 0}).exec()
+    } else if (userHasRole(loggedInUser, SC.ROLE_SUPER_ADMIN)) {
+        // Super admin would be able to see all the users
+        return await UserModel.find({isDeleted: false}, {password: 0})
+    }
+    else {
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+}
+
+
 userSchema.statics.saveUser = async usrObj => {
     if (!usrObj.email)
-        throw new AppError("User's email must be passed to save user", ErrorCodes.BAD_ARGUMENTS, ErrorCodes.HTTP_BAD_REQUEST)
+        throw new AppError("User's email must be passed to save user", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     if (!usrObj.password)
-        throw new AppError("User's password must be passed to save user", ErrorCodes.BAD_ARGUMENTS, ErrorCodes.HTTP_BAD_REQUEST)
+        throw new AppError("User's password must be passed to save user", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
     let count = await UserModel.count({email: usrObj.email})
     if (count !== 0)
-        throw new AppError("Email already registered with another user", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
+        throw new AppError("Email already registered with another user", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
     usrObj.password = await bcrypt.hash(usrObj.password, 10)
     return await UserModel.create(usrObj)
@@ -133,7 +157,7 @@ userSchema.statics.editUser = async userObj => {
     if (storedUser.email != userObj.email) {
         let count = await UserModel.count({_id: {'$ne': mongoose.Schema.ObjectId(userObj._id)}, 'email': userObj.email})
         if (count != 0) {
-            throw new AppError("Email already used ", ErrorCodes.EMAIL_ALREADY_USED)
+            throw new AppError("Email already used ", EC.EMAIL_ALREADY_USED)
         }
     }
 
@@ -146,7 +170,7 @@ userSchema.statics.editUser = async userObj => {
             console.log("encrypted password is ", userObj.password)
 
         } else {
-            throw new AppError("Password/Confirm password not matched ", ErrorCodes.PASSWORD_NOT_MATCHED, ErrorCodes.HTTP_BAD_REQUEST)
+            throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
         }
     }
 
@@ -159,7 +183,7 @@ userSchema.statics.editUser = async userObj => {
 
 userSchema.statics.updateAddedRole = async (roleInput) => {
     if (!roleInput)
-        throw new AppError("Identifier required for Update", ErrorCodes.IDENTIFIER_MISSING, ErrorCodes.HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for Update", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     let userRoleUpdate
     userRoleUpdate = await UserModel.update({'roles._id': roleInput._id}, {$set: {roleInput}}, {multi: true}).exec()
     return userRoleUpdate
@@ -168,7 +192,7 @@ userSchema.statics.updateAddedRole = async (roleInput) => {
 
 userSchema.statics.exists = async email => {
     if (!email)
-        throw new AppError("UserModel->exists() method needs non-null email parameter", ErrorCodes.BAD_ARGUMENTS)
+        throw new AppError("UserModel->exists() method needs non-null email parameter", EC.BAD_ARGUMENTS)
     let count = await UserModel.count({'email': email})
     if (count > 0)
         return true
@@ -178,14 +202,14 @@ userSchema.statics.exists = async email => {
 
 userSchema.statics.deleteUser = async (userID) => {
     if (!userID)
-        throw new AppError("Identifier required for delete", ErrorCodes.IDENTIFIER_MISSING, ErrorCodes.HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     return await UserModel.findByIdAndRemove(userID).exec()
 }
 
 
 userSchema.statics.deleteAddedRole = async (roleID) => {
     if (!roleID)
-        throw new AppError("Identifier required for delete", ErrorCodes.IDENTIFIER_MISSING, ErrorCodes.HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     let userRoleDelete = await UserModel.updateMany({'roles._id': roleID}, {$pull: {"roles": {_id: roleID}}}, {multi: true})
     return userRoleDelete
 }
