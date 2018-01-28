@@ -7,7 +7,17 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
+        values.estimatedHours = Number(values.estimatedHours)
         logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
+        dispatch(A.addTaskToEstimationOnServer(values)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Task Added")
+                // hide dialog
+                dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
+            } else {
+                NotificationManager.success("Task Addition Failed")
+            }
+        })
     }
 })
 

@@ -15,6 +15,10 @@ estimationRouter.get("/", async ctx => {
     return await EstimationModel.getAllActive(ctx.state.user)
 })
 
+estimationRouter.get("/:estimationID", async ctx => {
+    return await EstimationModel.getById(ctx.params.estimationID)
+})
+
 estimationRouter.post('/initiate', async ctx => {
     // Return expected schema
     if (ctx.schemaRequested)

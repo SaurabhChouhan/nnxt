@@ -10,7 +10,7 @@ let EstimationTaskForm = (props) => {
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
-            <Field name="estimation._id" component="input" value={estimation._id} type="hidden"/>
+            <Field name="estimation._id" component="input" type="hidden"/>
 
             <div className="col-md-6">
                 <Field name="name" component={renderText} label={"Task Name:"} validate={[required]}/>

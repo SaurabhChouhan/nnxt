@@ -5,10 +5,17 @@ import * as A from '../../actions'
 import {NotificationManager} from 'react-notifications'
 import * as EC from '../../../server/errorcodes'
 import * as COC from '../../components/componentConsts'
+import {initialize} from 'redux-form'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showAddTaskForm: (estimationID) => {
+    showAddTaskForm: (estimation) => {
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
+        // initialize
+        dispatch(initialize('estimation-task', {
+            estimation: {
+                _id: estimation._id
+            }
+        }))
     },
     sendEstimationRequest: (estimation) => {
         dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {

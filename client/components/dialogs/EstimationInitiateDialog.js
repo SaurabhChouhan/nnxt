@@ -8,9 +8,7 @@ const EstimationInitiateDialog = (props) => {
             <h3>Initiate Estimation</h3>
         </ModalHeader>
         <ModalBody>
-            <p>
-                <EstimationInitiateFormContainer/>
-            </p>
+            <EstimationInitiateFormContainer/>
         </ModalBody>
     </Modal>
 }

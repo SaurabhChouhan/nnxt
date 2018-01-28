@@ -68,6 +68,13 @@ estimationSchema.statics.getAllActive = async (user) => {
             isDeleted: false,
             "estimator._id": user._id,
             status: {$ne: SC.STATUS_INITIATED}
+        }, {
+            description: 1,
+            project: 1,
+            client: 1,
+            technologies: 1,
+            estimator: 1,
+            negotiator: 1
         })
 
         estimations = [...estimatorEstimations]
@@ -81,10 +88,48 @@ estimationSchema.statics.getAllActive = async (user) => {
             isArchived: false,
             isDeleted: false,
             "negotiator._id": user._id
+        }, {
+            description: 1,
+            project: 1,
+            client: 1,
+            technologies: 1,
+            estimator: 1,
+            negotiator: 1
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
     return estimations
+}
+
+estimationSchema.statics.getById = async estimationID => {
+
+    console.log("finding estimation with id ", estimationID)
+    //return await EstimationModel.findById(estimationID)
+    // this API would return more details about selected estimation
+    let estimations = await EstimationModel.aggregate({
+        $match: {
+            _id: mongoose.Types.ObjectId(estimationID)
+        },
+    }, {
+        $lookup: {
+            from: 'estimationtasks',
+            localField: '_id',
+            foreignField: 'estimation._id',
+            as: 'tasks'
+        }
+    }, {
+        $lookup: {
+            from: 'estimationfeatures',
+            localField: '_id',
+            foreignField: 'estimation._id',
+            as: 'features'
+        }
+    }).exec()
+
+    if (Array.isArray(estimations) && estimations.length > 0) {
+        return estimations[0]
+    }
+
 }
 
 /**

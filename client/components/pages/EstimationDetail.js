@@ -24,6 +24,18 @@ class EstimationDetail extends Component {
         this.props.sendEstimationRequest(this.props.estimation)
     }
 
+    formatName(estimatorSecion) {
+        if (estimatorSecion)
+            return estimatorSecion.name
+        return ''
+    }
+
+    formatDescription(estimatorSecion) {
+        if (estimatorSecion)
+            return estimatorSecion.description
+        return ''
+    }
+
     render() {
         const {estimation} = this.props
         return <div>
@@ -34,10 +46,10 @@ class EstimationDetail extends Component {
             }
             <div className="row">
                 <div className="col-md-1">Project:</div>
-                <div className="col-md-1">{estimation.project.name}</div>
+                <div className="col-md-1">{estimation.project?estimation.project.name:''}</div>
 
                 <div className="col-md-1">Client:</div>
-                <div className="col-md-1">{estimation.client.name}</div>
+                <div className="col-md-1">{estimation.client?estimation.client.name:''}</div>
 
                 <div className="col-md-1 col-md-offset-2">Status:</div>
                 <div className="col-md-3">{estimation.status}</div>
@@ -47,7 +59,7 @@ class EstimationDetail extends Component {
                     {
                         this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
                         <button className="btn btn-default btn-submit addBtn"
-                                onClick={() => this.props.showAddTaskForm()}>Add Task
+                                onClick={() => this.props.showAddTaskForm(estimation)}>Add Task
                         </button>
                     }
                     {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
@@ -63,8 +75,8 @@ class EstimationDetail extends Component {
                                     striped={true}
                                     hover={true}>
                         <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                        <TableHeaderColumn dataField='name'>Task Name</TableHeaderColumn>
-                        <TableHeaderColumn dataField='description'>Task Description</TableHeaderColumn>
+                        <TableHeaderColumn dataField='estimator' dataFormat={this.formatName}>Task Name</TableHeaderColumn>
+                        <TableHeaderColumn dataField='estimator' dataFormat={this.formatDescription}>Task Description</TableHeaderColumn>
                     </BootstrapTable>
                 </div>
             </div>

@@ -22,6 +22,12 @@ export const selectEstimation = (estimation) => ({
     estimation: estimation
 })
 
+export const addEstimationTask = (task) => ({
+        type: AC.ADD_ESTIMATION_TASK,
+        task: task
+    }
+)
+
 export const getAllEstimationsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/estimations', {
@@ -69,7 +75,7 @@ export const initiateEstimationOnServer = (formInput) => {
 
 export const requestEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request/'+estimationID, {
+        return fetch('/api/estimations/request/' + estimationID, {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -89,4 +95,50 @@ export const requestEstimationOnServer = (estimationID) => {
             })
     }
 }
+
+export const addTaskToEstimationOnServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/task', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const getEstimationFromServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/'+estimationID, {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(selectEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
 
