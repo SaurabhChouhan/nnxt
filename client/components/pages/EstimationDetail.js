@@ -10,8 +10,7 @@ class EstimationDetail extends Component {
         super(props)
 
         this.state = {
-            showEstimationRequestDialog: false,
-            showAddTaskDialog: false
+            showEstimationRequestDialog: false
         }
     }
 
@@ -30,7 +29,8 @@ class EstimationDetail extends Component {
         return <div>
             {this.state.showEstimationRequestDialog &&
             <ConfirmationDialog show={true} onConfirm={this.onConfirmEstimationRequest.bind(this)}
-                                title="Estimation Request" onClose={this.onClose.bind(this)} body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
+                                title="Estimation Request" onClose={this.onClose.bind(this)}
+                                body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
             }
             <div className="row">
                 <div className="col-md-1">Project:</div>
@@ -47,7 +47,7 @@ class EstimationDetail extends Component {
                     {
                         this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
                         <button className="btn btn-default btn-submit addBtn"
-                                onClick={() => this.setState({showAddTaskDialog: true})}>Add Task
+                                onClick={() => this.props.showAddTaskForm()}>Add Task
                         </button>
                     }
                     {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&

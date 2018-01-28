@@ -4,7 +4,7 @@ import ContentSection from './ContentSection'
 import {ClientFormContainer, EstimationListContainer, EstimationDetailContainer} from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
-import {EstimationInitiateDialog} from "../"
+import {EstimationInitiateDialog, EstimationTaskDialog} from "../"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
 import {connect} from 'react-redux'
@@ -55,6 +55,11 @@ class ContentMain extends Component {
             render: (props) => {
                 console.log("estimation detail props ", props)
                 return <ContentSection>
+                    <EstimationTaskDialog name={COC.ESTIMATION_TASK_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
+                        }
+                    }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
                 </ContentSection>
             }

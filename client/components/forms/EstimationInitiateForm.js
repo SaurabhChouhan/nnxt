@@ -5,7 +5,7 @@ import {renderText, renderTextArea, renderSelect, renderMultiselect} from './fie
 import * as logger from '../../clientLogger'
 
 let EstimationInitiateForm = (props) => {
-    logger.debug(logger.CLIENT_FORM_RENDER, props)
+    logger.debug(logger.ESTIMATION_INITIATE_FORM_RENDER, props)
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">

@@ -38,6 +38,10 @@ export const CONTENT_MAIN_LIFECYCLE = 'ContentMain->lc():'
 
 export const USER_PROFILE_FORM_CONNECT = 'UserProfileForm->connect():'
 export const ESTIMATION_INITIATE_FORM_SUBMIT = 'EstimationInitiateForm->submit():'
+export const ESTIMATION_INITIATE_FORM_RENDER = 'EstimationInitiateForm->render():'
+
+export const ESTIMATION_TASK_FORM_SUBMIT = 'EstimationTaskForm->submit():'
+export const ESTIMATION_TASK_FORM_RENDER = 'EstimationTaskForm->render():'
 
 export const ESTIMATION_LIST_CONNECT = "EstimationList->connect():"
 

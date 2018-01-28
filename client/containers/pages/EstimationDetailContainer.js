@@ -4,10 +4,11 @@ import {EstimationDetail} from "../../components"
 import * as A from '../../actions'
 import {NotificationManager} from 'react-notifications'
 import * as EC from '../../../server/errorcodes'
+import * as COC from '../../components/componentConsts'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showAddTaskForm: (estimationID) => {
-
+        dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
     },
     sendEstimationRequest: (estimation) => {
         dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
