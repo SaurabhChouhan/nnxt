@@ -1,4 +1,4 @@
-import {RoleModel, PermissionModel, UserModel} from "../models"
+import {RoleModel, PermissionModel, UserModel, ClientModel, ProjectModel} from "../models"
 import {
     MANAGE_PERMISSIONS,
     MANAGE_ROLES,
@@ -209,6 +209,9 @@ export const addInitialData = async () => {
 
 export const addNNXTData = async () => {
     await addRolesPermissions()
+    await addNNXTUsers()
+    await addClients()
+    await addProjects()
 }
 
 const addRolesPermissions = async () => {
@@ -255,15 +258,36 @@ const addRolesPermissions = async () => {
             permissions: permissions
         })
     }
+}
 
-
+const addNNXTUsers = async () => {
     let estimatorRole = await RoleModel.findOne({name: ROLE_ESTIMATOR}).lean()
     // create estimator user
     if (!await UserModel.exists('estimator1@test.com')) {
         await UserModel.saveUser({
             email: 'estimator1@test.com',
-            firstName: "Estimator",
+            firstName: "Estimator-1",
             lastName: "One",
+            roles: [estimatorRole],
+            password: "estimator"
+        })
+    }
+
+    if (!await UserModel.exists('estimator2@test.com')) {
+        await UserModel.saveUser({
+            email: 'estimator2@test.com',
+            firstName: "Estimator-2",
+            lastName: "Two",
+            roles: [estimatorRole],
+            password: "estimator"
+        })
+    }
+
+    if (!await UserModel.exists('estimator3@test.com')) {
+        await UserModel.saveUser({
+            email: 'estimator3@test.com',
+            firstName: "Estimator-3",
+            lastName: "Three",
             roles: [estimatorRole],
             password: "estimator"
         })
@@ -274,10 +298,107 @@ const addRolesPermissions = async () => {
     if (!await UserModel.exists('negotiator1@test.com')) {
         await UserModel.saveUser({
             email: 'negotiator1@test.com',
-            firstName: "Negotiator",
+            firstName: "Negotiator-1",
             lastName: "One",
             roles: [negotiatorRole],
             password: "negotiator"
         })
     }
+
+    if (!await UserModel.exists('negotiator2@test.com')) {
+        await UserModel.saveUser({
+            email: 'negotiator2@test.com',
+            firstName: "Negotiator-2",
+            lastName: "Two",
+            roles: [negotiatorRole],
+            password: "negotiator"
+        })
+    }
+
+    if (!await UserModel.exists('negotiator3@test.com')) {
+        await UserModel.saveUser({
+            email: 'negotiator3@test.com',
+            firstName: "Negotiator-3",
+            lastName: "Three",
+            roles: [negotiatorRole],
+            password: "negotiator"
+        })
+    }
+}
+
+const addClients = async () => {
+    if (!await ClientModel.exists('Zaib')) {
+        await ClientModel.saveClient({
+            name: 'Zaib'
+        })
+    }
+
+    if (!await ClientModel.exists('Mike')) {
+        await ClientModel.saveClient({
+            name: 'Mike'
+        })
+    }
+
+    if (!await ClientModel.exists('Dean')) {
+        await ClientModel.saveClient({
+            name: 'Dean'
+        })
+    }
+}
+
+const addProjects = async () => {
+    let zaib = await ClientModel.findOne({name: 'Zaib'})
+
+    if (zaib) {
+        if (!await ProjectModel.exists('WFSM', zaib._id)) {
+            await ProjectModel.saveProject({
+                name: 'WFSM',
+                client: zaib
+            })
+        }
+
+        if (!await ProjectModel.exists('Catalog', zaib._id)) {
+            await ProjectModel.saveProject({
+                name: 'Catalog',
+                client: zaib
+            })
+        }
+
+        if (!await ProjectModel.exists('WiFi Survey', zaib._id)) {
+            await ProjectModel.saveProject({
+                name: 'WiFi Survay',
+                client: zaib
+            })
+        }
+    }
+
+    let mike = await ClientModel.findOne({name: 'Mike'})
+
+    if (mike) {
+        if (!await ProjectModel.exists('LumaBooth', mike._id)) {
+            await ProjectModel.saveProject({
+                name: 'LumaBooth',
+                client: mike
+            })
+        }
+
+        if (!await ProjectModel.exists('FotoShare', mike._id)) {
+            await ProjectModel.saveProject({
+                name: 'Catalog',
+                client: mike
+            })
+        }
+    }
+
+    let dean = await ClientModel.findOne({name: 'Dean'})
+
+    if (dean) {
+        if (!await ProjectModel.exists('Casebrief', dean._id)) {
+            await ProjectModel.saveProject({
+                name: 'Casebrief',
+                client: dean
+            })
+        }
+    }
+
 }

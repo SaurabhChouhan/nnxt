@@ -10,7 +10,8 @@ let clientSchema = mongoose.Schema({
     },
     email: String,
     country: String,
-    isDeleted: {type: Boolean, default: false}
+    isDeleted: {type: Boolean, default: false},
+    isArchived: {type: Boolean, default: false}
 })
 
 
