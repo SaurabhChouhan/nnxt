@@ -64,7 +64,7 @@ class EstimationDetail extends Component {
                     }
                     {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
                     <button className="btn btn-default btn-submit addBtn"
-                            onClick={() => this.setState({showEstimationRequestDialog: true})}>Send to Estimator
+                            onClick={() => this.setState({showEstimationRequestDialog: true})}>Request Estimation
                     </button>
                     }
                 </div>
