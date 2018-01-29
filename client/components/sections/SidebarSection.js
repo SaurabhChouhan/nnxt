@@ -14,6 +14,10 @@ const SidebarSection = (props) => <section className="sidebar">
                     <li><Link to="/app-home/client" onClick={() => {
                         props.dispatch(A.showComponentHideOthers(COC.CLIENT_FORM))
                     }}>Client</Link></li>
+                    <li><Link to="/app-home/projects" onClick={() => {
+                        props.dispatch(A.getAllProjectsFromServer())
+                        props.dispatch(A.showComponentHideOthers(COC.PROJECT_LIST))
+                    }}>Projects</Link></li>
                     <li><Link to="/app-home/estimation" onClick={() => {
                         props.dispatch(A.getAllEstimationsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))

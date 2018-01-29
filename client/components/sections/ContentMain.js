@@ -1,10 +1,10 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
-import {ClientFormContainer, EstimationListContainer, EstimationDetailContainer} from "../../containers"
+import {ClientFormContainer, EstimationListContainer, EstimationDetailContainer, ProjectListContainer} from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
-import {EstimationInitiateDialog, EstimationTaskDialog} from "../"
+import {EstimationInitiateDialog, EstimationTaskDialog, ProjectFormDialog} from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
 import {connect} from 'react-redux'
@@ -32,6 +32,24 @@ class ContentMain extends Component {
                 return <ContentSection>
                     <ClientFormContainer name={COC.CLIENT_FORM}/>
                 </ContentSection>
+            }
+        })
+        routes.push({
+            url: "/projects",
+            render: (props) => {
+
+                console.log("estimation props ", props)
+                return <ContentSection>
+                    <ProjectFormDialog name={COC.PROJECT_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG))
+                        }
+                    }/>
+                    <ProjectListContainer name={COC.PROJECT_LIST}/>
+                </ContentSection>
+
+
+
             }
         })
 

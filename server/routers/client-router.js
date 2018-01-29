@@ -15,5 +15,9 @@ clientRouter.post('/', async ctx => {
     return await ClientModel.saveClient(ctx.request.body)
 })
 
+clientRouter.get('/', async ctx => {
+    return await ClientModel.getAllActive()
+})
+
 
 export default clientRouter
