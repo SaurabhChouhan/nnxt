@@ -14,6 +14,9 @@ let clientSchema = mongoose.Schema({
     isArchived: {type: Boolean, default: false}
 })
 
+clientSchema.statics.getAllActive = async () => {
+    return await ClientModel.find({isDeleted:false, isArchived:false})
+}
 
 clientSchema.statics.saveClient = async clientInput => {
     if (await ClientModel.exists(clientInput.name)) {

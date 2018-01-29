@@ -1,13 +1,17 @@
-import {ADD_PROJECTS, ADD_PROJECT, UPDATE_PROJECT, DELETE_PROJECT} from "./actionConsts"
+import * as AC from "./actionConsts"
+import * as EC from "../../server/errorcodes"
+import {NotificationManager} from "react-notifications"
+import {SubmissionError} from 'redux-form'
+
 
 
 export const addProjects = (projects) => ({
-    type: ADD_PROJECTS,
+    type: AC.ADD_PROJECTS,
     projects: projects
 })
 
 export const addProject = (project) => ({
-    type: ADD_PROJECT,
+    type: AC.ADD_PROJECT,
     project: project
 })
 
@@ -29,5 +33,33 @@ export const getAllProjectsFromServer = () => {
                     dispatch(addProjects(json.data))
                 }
             })
+    }
+}
+
+export const addProjectOnServer = (formInput) => {
+    return function (dispatch, getState) {
+        return fetch('/api/projects',
+            {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addProject(json.data))
+
+
+                }
+                return json
+            }
+        )
     }
 }

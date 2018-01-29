@@ -7,7 +7,7 @@ import ProjectList from "../../components/lists/ProjectList";
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showProjectCreationForm: () => {
         console.log("show Project init form caled")
-        dispatch(A.getAllProjectsFromServer())
+        dispatch(A.getAllClientsFromServer())
         dispatch(A.showComponent(COC.PROJECT_FORM_DIALOG))
     },
 
