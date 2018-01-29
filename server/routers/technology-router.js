@@ -13,4 +13,12 @@ technologyRouter.post("/", async ctx => {
     return await TechnologyModel.saveTechnology(ctx.request.body)
 })
 
+technologyRouter.get("/", async ctx => {
+    return await TechnologyModel.getAllActive()
+})
+
+technologyRouter.delete("/:id", async ctx => {
+    return await TechnologyModel.delete(ctx.params.id)
+})
+
 export default technologyRouter

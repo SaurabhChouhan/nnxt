@@ -9,12 +9,21 @@ let technologySchema = mongoose.Schema({
 })
 
 
+technologySchema.statics.getAllActive = async () => {
+    return await TechnologyModel.find({})
+}
+
 technologySchema.statics.saveTechnology = async (technologyInput) => {
     validate(technologyInput, technologyAdditionStruct)
     if (await TechnologyModel.exists(technologyInput.name)) {
         throw new AppError("Technology with name [" + technologyInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
     return await TechnologyModel.create(technologyInput)
+}
+
+technologySchema.statics.delete = async (id)=> {
+    let response = await TechnologyModel.findById(id).remove()
+    return response
 }
 
 
