@@ -14,10 +14,20 @@ const config = {
             port: 8080,
             setupData: false,
             dropDatabase:false
+        },
+        kamlesh: {
+            port: 3002,
+            setupData: false,
+            dropDatabase:false
         }
     },
     mongo: {
         default: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        kamlesh: {
             dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
             useMongoClient: true
