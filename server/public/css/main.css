@@ -56,6 +56,7 @@ img {
     border-bottom: 1px solid #e5e5e5 !important;
     background: #1E202C;
     float: left;
+    position: relative;
     width: 100%;
     color: #fff;
     text-align: center;
@@ -83,10 +84,6 @@ img {
     width: 100%;
     background: #FFFFFF;
     padding-bottom: 0px !important;
-}
-.modal-header .close {
-    opacity: .5 !important;
-    color: #fff !important;
 }
 .form-control, .rw-widget-container {
     border-radius: 0;
@@ -517,6 +514,22 @@ span.tag.new {
     border: 2px solid #FF534F;
     margin-bottom: 10px;
     transition: 0.8s;
+}
+.estimationModal .ModalSideLabel {
+    background: #56f9ff;
+    position: absolute;
+    width: 10px;
+    padding: 0;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+.estimationModal .ModalHeading h3 {
+    color: #56f9ff;
+}
+.estimationModal .modal-header .close {
+    opacity: 1 !important;
+    color: #56f9ff !important;
 }
 
 /* Estimator list css */
