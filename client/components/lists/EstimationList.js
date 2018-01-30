@@ -121,7 +121,7 @@ class EstimationList extends Component {
                                         onClick={() => this.props.showEstimationInitiateForm()}>Initiate Estimation
                                 </button>}
                             </div>
-                        </div>3
+                        </div>
                     </div>
                     <div className="estimation">
                         <BootstrapTable options={this.options} data={this.props.estimations}
