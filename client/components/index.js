@@ -26,6 +26,9 @@ export {default as EstimationInitiateDialog} from './dialogs/EstimationInitiateD
 export {default as ProjectFormDialog} from './dialogs/ProjectFormDialog'
 export {default as ProjectForm} from './forms/ProjectForm'
 
+export {default as ClientFormDialog} from './dialogs/ClientFormDialog'
+
 //technology RelatedForm
 export {default as TechnologyFormDialog} from './dialogs/TechnologyFormDialog'
 export {default as TechnologyForm} from './forms/TechnologyForm'
+export {default as TechnologyList} from './lists/TechnologyList'

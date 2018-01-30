@@ -53,12 +53,6 @@ export const addClientOnServer = (formInput) => {
         ).then(json => {
                 if (json.success) {
                     dispatch(addClient(json.data))
-                    NotificationManager.success('Client Added Successfully')
-
-                } else {
-                    NotificationManager.error('Client Not Added!')
-                    if (json.code == ALREADY_EXISTS)
-                        throw new SubmissionError({name: "Client Already Exists"})
                 }
                 return json
             }

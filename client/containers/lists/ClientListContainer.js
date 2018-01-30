@@ -2,12 +2,12 @@ import * as A from "../../actions";
 import * as COC from "../../components/componentConsts";
 import * as logger from "../../clientLogger";
 import {connect} from "react-redux";
-import {TechnologyList} from "../../components";
+import ClientList from "../../components/lists/ClientList";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showTechnologyAdditionForm: () => {
-        logger.debug(logger.TECHNOLOGY_FORM_CONNECT, "onSubmit:values:")
-        dispatch(A.showComponent(COC.TECHNOLOGY_FORM_DIALOG))
+    showClientCreationForm: () => {
+        console.log("show client init form caled")
+        dispatch(A.showComponent(COC.CLIENT_FORM_DIALOG))
     },
 
 })
@@ -15,13 +15,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => {
     return {
         loggedInUser: state.user.loggedIn,
-        technologies: state.technology.all
+        clients: state.client.all
     }
 }
 
-const TechnologyListContainer = connect(
+const ClientListContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(TechnologyList)
+)(ClientList)
 
-export default TechnologyListContainer
+export default ClientListContainer

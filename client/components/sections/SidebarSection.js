@@ -12,7 +12,8 @@ const SidebarSection = (props) => <section className="sidebar">
             <div className="col-md-12 pad">
                 <ul className="list-unstyled">
                     <li><Link to="/app-home/client" onClick={() => {
-                        props.dispatch(A.showComponentHideOthers(COC.CLIENT_FORM))
+                        props.dispatch(A.getAllClientsFromServer())
+                        props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))
                     }}>Client</Link></li>
                     <li><Link to="/app-home/projects" onClick={() => {
                         props.dispatch(A.getAllProjectsFromServer())

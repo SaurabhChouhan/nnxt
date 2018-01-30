@@ -1,4 +1,4 @@
-import {ADD_TECHNOLOGY, ADD_TECHNOLOGIES} from "../actions/actionConsts"
+import * as AC from '../actions/actionConsts'
 
 let initialState = {
     all: [],
@@ -7,9 +7,9 @@ let initialState = {
 
 let technologyReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_TECHNOLOGIES:
+        case AC.ADD_TECHNOLOGIES:
             return Object.assign({}, state, {all: action.technologies})
-        case ADD_TECHNOLOGY:
+        case AC.ADD_TECHNOLOGY:
             return Object.assign({}, state, {all: [...state.all, action.technology]})
         default:
             return state

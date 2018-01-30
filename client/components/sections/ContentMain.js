@@ -6,11 +6,18 @@ import {
     EstimationListContainer,
     EstimationDetailContainer,
     ProjectListContainer,
-    TechnologyListContainer
+    TechnologyListContainer,
+    ClientListContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
-import {EstimationInitiateDialog, EstimationTaskDialog, ProjectFormDialog, TechnologyFormDialog} from "../index"
+import {
+    EstimationInitiateDialog,
+    EstimationTaskDialog,
+    ProjectFormDialog,
+    TechnologyFormDialog,
+    ClientFormDialog
+} from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
 import {connect} from 'react-redux'
@@ -35,16 +42,21 @@ class ContentMain extends Component {
         routes.push({
             url: "/client",
             render: (props) => {
+                logger.debug(logger.CLIENT_FORM_CONNECT, "onSubmit: props:", props)
                 return <ContentSection>
-                    <ClientFormContainer name={COC.CLIENT_FORM}/>
+                    <ClientFormDialog name={COC.CLIENT_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.CLIENT_FORM_DIALOG))
+                        }
+                    }/>
+                    <ClientListContainer name={COC.CLIENT_LIST}/>
                 </ContentSection>
             }
         })
         routes.push({
             url: "/projects",
             render: (props) => {
-
-                console.log("project props ", props)
+                logger.debug(logger.PROJECT_FORM_CONNECT, "onSubmit: props:", props)
                 return <ContentSection>
                     <ProjectFormDialog name={COC.PROJECT_FORM_DIALOG} show={true} close={
                         () => {
@@ -61,7 +73,7 @@ class ContentMain extends Component {
             url: "/technology",
             render: (props) => {
 
-                console.log("technology props ", props)
+                logger.debug(logger.TECHNOLOGY_FORM_CONNECT, "onSubmit: props:", props)
                 return <ContentSection>
                     <TechnologyFormDialog name={COC.TECHNOLOGY_FORM_DIALOG} show={true} close={
                         () => {

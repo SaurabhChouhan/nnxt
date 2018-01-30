@@ -5,11 +5,12 @@ import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 import * as EC from "../../../server/errorcodes";
 import {SubmissionError} from "redux-form";
+import * as logger from '../../clientLogger'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        console.log("You are in Technology initiate Form container ", values)
-        dispatch(A.addTechnologyOnServer(values)).then(json=>{
+        logger.debug(logger.TECHNOLOGY_FORM_CONNECT, "onSubmit:values:", values)
+        return dispatch(A.addTechnologyOnServer(values)).then(json => {
             if (json.success) {
                 NotificationManager.success('Technology Added Successfully')
                 dispatch(A.hideComponent(COC.TECHNOLOGY_FORM_DIALOG))
