@@ -10,6 +10,7 @@ import * as A from "../../actions";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
+        logger.debug(logger.CLIENT_FORM_CONNECT, "onSubmit:values:", values)
         return dispatch(addClientOnServer(values)).then(json=>{
             if (json.success) {
                 NotificationManager.success('Client Added Successfully')

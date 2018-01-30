@@ -2,11 +2,11 @@ import * as A from "../../actions";
 import * as COC from "../../components/componentConsts";
 import * as logger from "../../clientLogger";
 import {connect} from "react-redux";
-import ClientList from "../../components/lists/ClientList";
+import {ClientList} from "../../components";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showClientCreationForm: () => {
-        console.log("show client init form caled")
+
         dispatch(A.showComponent(COC.CLIENT_FORM_DIALOG))
     },
 

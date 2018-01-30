@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
 import {
-    ClientFormContainer,
     EstimationListContainer,
     EstimationDetailContainer,
     ProjectListContainer,
