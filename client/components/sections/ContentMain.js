@@ -1,10 +1,16 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
-import {ClientFormContainer, EstimationListContainer, EstimationDetailContainer, ProjectListContainer} from "../../containers"
+import {
+    ClientFormContainer,
+    EstimationListContainer,
+    EstimationDetailContainer,
+    ProjectListContainer,
+    TechnologyListContainer
+} from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
-import {EstimationInitiateDialog, EstimationTaskDialog, ProjectFormDialog} from "../index"
+import {EstimationInitiateDialog, EstimationTaskDialog, ProjectFormDialog, TechnologyFormDialog} from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
 import {connect} from 'react-redux'
@@ -38,7 +44,7 @@ class ContentMain extends Component {
             url: "/projects",
             render: (props) => {
 
-                console.log("estimation props ", props)
+                console.log("project props ", props)
                 return <ContentSection>
                     <ProjectFormDialog name={COC.PROJECT_FORM_DIALOG} show={true} close={
                         () => {
@@ -48,6 +54,22 @@ class ContentMain extends Component {
                     <ProjectListContainer name={COC.PROJECT_LIST}/>
                 </ContentSection>
 
+
+            }
+        })
+        routes.push({
+            url: "/technology",
+            render: (props) => {
+
+                console.log("technology props ", props)
+                return <ContentSection>
+                    <TechnologyFormDialog name={COC.TECHNOLOGY_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.TECHNOLOGY_FORM_DIALOG))
+                        }
+                    }/>
+                    <TechnologyListContainer name={COC.TECHNOLOGIES_LIST}/>
+                </ContentSection>
 
 
             }
