@@ -49,7 +49,7 @@ estimationRouter.post('/task', async ctx => {
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
-        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
