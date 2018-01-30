@@ -32,6 +32,11 @@ const config = {
             url: 'mongodb://gaurav1:gaurav1@ds213338.mlab.com:13338/nnxt-gaurav',
             useMongoClient: true
         }
+        pogras: {
+            dbname: 'nnxt-pogras',
+            url: 'mongodb://mpogra:mpogra@ds117848.mlab.com:17848/nnxt-pogras',
+            useMongoClient: true
+        }
     }
 }
 
