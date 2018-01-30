@@ -41,7 +41,7 @@ class ContentMain extends Component {
         routes.push({
             url: "/client",
             render: (props) => {
-                logger.debug(logger.CLIENT_FORM_CONNECT, "onSubmit: props:", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/client: props:", props)
                 return <ContentSection>
                     <ClientFormDialog name={COC.CLIENT_FORM_DIALOG} show={true} close={
                         () => {
@@ -55,7 +55,7 @@ class ContentMain extends Component {
         routes.push({
             url: "/projects",
             render: (props) => {
-                logger.debug(logger.PROJECT_FORM_CONNECT, "onSubmit: props:", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/projects: props:", props)
                 return <ContentSection>
                     <ProjectFormDialog name={COC.PROJECT_FORM_DIALOG} show={true} close={
                         () => {
@@ -72,7 +72,7 @@ class ContentMain extends Component {
             url: "/technology",
             render: (props) => {
 
-                logger.debug(logger.TECHNOLOGY_FORM_CONNECT, "onSubmit: props:", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/technology: props:", props)
                 return <ContentSection>
                     <TechnologyFormDialog name={COC.TECHNOLOGY_FORM_DIALOG} show={true} close={
                         () => {
@@ -89,7 +89,7 @@ class ContentMain extends Component {
         routes.push({
             url: "/estimation",
             render: (props) => {
-                console.log("estimation props ", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/estimation: props:", props)
                 return <ContentSection>
                     <EstimationInitiateDialog name={COC.ESTIMATION_INITIATE_DIALOG} show={true} close={
                         () => {
@@ -104,7 +104,7 @@ class ContentMain extends Component {
         routes.push({
             url: "/estimation-detail",
             render: (props) => {
-                console.log("estimation detail props ", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/estimation-detail: props:", props)
                 return <ContentSection>
                     <EstimationTaskDialog name={COC.ESTIMATION_TASK_DIALOG} show={true} close={
                         () => {
