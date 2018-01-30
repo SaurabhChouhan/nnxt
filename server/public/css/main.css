@@ -54,9 +54,11 @@ img {
 .modal-header {
     padding: 5px !important;
     border-bottom: 1px solid #e5e5e5 !important;
-    background: white !important;
+    background: #1E202C;
     float: left;
     width: 100%;
+    color: #fff;
+    text-align: center;
 }
 
 .modal-footer {
@@ -79,16 +81,21 @@ img {
     padding: 15px;
     min-height: 100px;
     width: 100%;
-    background: #e7e7e7 !important;
+    background: #FFFFFF;
     padding-bottom: 0px !important;
+}
+.modal-header .close {
+    opacity: .5 !important;
+    color: #fff !important;
+}
+.form-control, .rw-widget-container {
+    border-radius: 0;
+    border: 1px solid #C7CACD;
+    background: #F0F0F2;
 }
 
 .validation-error {
     color: red
-}
-
-.addBtn {
-    margin-bottom: 10px
 }
 
 .no-gutter > [class*='col-md-9'] {
@@ -110,12 +117,15 @@ img {
     margin-bottom: 10px;
     margin-right: 10px;
 }
-button.customBtn {
+button.customBtn, button.customBtn:focus {
     background: #FF534F;
     color: #fff;
-    padding: 1% 7%;
+    padding: 0.5% 7%;
     font-size: 20px;
     border: 2px solid #FF534F;
+    margin-bottom: 10px;
+    transition: 0.8s;
+    border-radius:0;
 }
 button.customBtn:hover {
     background:none;
@@ -293,10 +303,6 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 
 }
 
-.search{
-    margin-top: 10px;
-
-}
 .feature {
     border: 2px solid #D4D5D8;
     margin-top: 5px;
@@ -334,7 +340,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     width:100%;
 }
 .search{
-    margin-top: 5px;
+    margin-top: 15px;
     display: inline-block;
     float: left;
     width:100%;
@@ -343,12 +349,20 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 .searchBtn {
     background: #FF534F;
     color: #fff;
-    padding: 0.2% 2%;
+    padding: 1.1% 2%;
     font-size: 20px;
     position: absolute;
-    border: 2px solid #FF534F;
     right: 0;
     top: 0;
+    transition: 0.8s;
+}
+.searchBtn:hover {
+    background: none;
+    color: #FF534F;
+    border:1px solid #FF534F;
+}
+.search i{
+    font-size: 20px;
 }
 .estimation table th{
     background-color: #303440;
@@ -411,12 +425,6 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 .backarrow b{
     font-size: 20px;
     padding: 18px;
-}
-.search i{
-    color:#F65A4F;
-    font-size: 20px;
-    margin-top: 10px;
-
 }
 .dropdownoption{
     margin-top: 5px;
@@ -497,4 +505,63 @@ span.tag.new {
     position: absolute;
     left: 50%;
     top: 7%;
+}
+
+/* initiate estimation form */
+
+.initiatEstimation button.customBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 2% 25%;
+    font-size: 20px;
+    border: 2px solid #FF534F;
+    margin-bottom: 10px;
+    transition: 0.8s;
+}
+
+/* Estimator list css */
+
+.estimationListUser div{
+    background-color: #1CCBD0;
+    width: auto;
+    height: 30px;
+    position: relative;
+    padding: 5px;
+    text-align: center;
+    color: #fff;
+}
+.estimation .table-bordered>thead>tr>th:nth-child(1) {
+    border-right: 1px solid #303440 !important;
+}
+.estimation table tbody tr {
+    cursor: pointer;
+}
+/* estimation td row background color */
+
+td.erRowColor {
+    background: #00FF3D;
+}
+td.inRowColor {
+    background: #4F7E5A;
+}
+td.penRowColor {
+    background: #02BCCB;
+}
+td.appRowColor {
+    background: #2A2C43;
+}
+td.rrRowColor {
+    background: #DFD30D;
+}
+td.crRowColor {
+    background: #3F2A1D;
+}
+td.roRowColor {
+    background: #FD9974;
+}
+td.paRowColor {
+    background: #4C7A3A;
+}
+td.rejRowColor {
+    background: #ED4D52;
 }

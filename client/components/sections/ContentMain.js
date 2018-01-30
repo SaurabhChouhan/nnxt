@@ -17,16 +17,6 @@ class ContentMain extends Component {
         let routes = []
 
         routes.push({
-            url: "/",
-            render: (props) => {
-                return <ContentSection>
-
-                </ContentSection>
-            }
-        })
-
-
-        routes.push({
             url: "/client",
             render: (props) => {
                 return <ContentSection>
