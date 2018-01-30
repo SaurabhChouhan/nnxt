@@ -5,6 +5,7 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
+import {addUserOnServer} from "../../client/actions";
 
 
 mongoose.Promise = global.Promise
@@ -18,7 +19,15 @@ let userSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: true}
     }],
-    isDeleted: {type: Boolean, default: false}
+    isDeleted: {type: Boolean, default: false},
+    phone:String,
+    address:String,
+    employeeCode:{type:String, require:[true, "Unique Employee Code is required."]},
+    designation:{type:String, require:[true, "Employee designation is required."]},
+    dateJoined:{type:String,require:[true, "Employee Joining date is required"]},
+    dateResigned:{type:String,require:false},
+    lastWorkingDay:Date
+
 })
 
 
@@ -46,15 +55,23 @@ userSchema.statics.getAllActive = async (loggedInUser) => {
 
 userSchema.statics.saveUser = async usrObj => {
     if (!usrObj.email)
-        throw new AppError("User's email must be passed to save user", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Email must be passed to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     if (!usrObj.password)
-        throw new AppError("User's password must be passed to save user", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Password must be passed to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
     let count = await UserModel.count({email: usrObj.email})
     if (count !== 0)
-        throw new AppError("Email already registered with another user", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Email already registered with another employee", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
     usrObj.password = await bcrypt.hash(usrObj.password, 10)
+    let totalUsers = await UserModel.count()
+    usrObj.employeeCode = "AIPL-"+(totalUsers+1)
+    if (_.isEmpty(usrObj.dateJoined))
+        throw new AppError("Joining date is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    //usrObj.dateJoined = Date.now();//assuming joining date is same as created date for now
+    if (_.isEmpty(usrObj.designation))
+        throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
     return await UserModel.create(usrObj)
 }
 
