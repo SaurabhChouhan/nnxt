@@ -19,6 +19,11 @@ const config = {
             port: 3000,
             setupData: false,
             dropDatabase:false
+        },
+        praveen: {
+            port: 3002,
+            setupData: false,
+            dropDatabase: false
         }
     },
     mongo: {
@@ -40,6 +45,11 @@ const config = {
         murtaza: {
             dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        praveen: {
+            dbname: 'nnxt',
+            url: "mongodb://praveen:praveen@ds119078.mlab.com:19078/nnxt",
             useMongoClient: true
         }
     }

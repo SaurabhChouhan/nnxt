@@ -29,7 +29,14 @@ let EstimationInitiateForm = (props) => {
                 <Field name="description" component={renderTextArea} label="Description:"/>
             </div>
         </div>
-        <button type="submit" className="btn btn-submit">Submit</button>
+        <div className="row initiatEstimation">
+            <div className="col-md-6 text-center">
+                <button type="submit" className="btn customBtn">Submit</button>
+            </div>
+            <div className="col-md-6 text-center">
+                <button type="submit" className="btn customBtn">Reset</button>
+            </div>
+        </div>
     </form>
 }
 
