@@ -26,8 +26,8 @@ let userSchema = mongoose.Schema({
     designation:{type:String, require:[true, "Employee designation is required."]},
     dateJoined:{type:String,require:[true, "Employee Joining date is required"]},
     dateResigned:{type:String,require:false},
-    lastWorkingDay:Date
-
+    lastWorkingDay:Date,
+    deviceUniqueID:String
 })
 
 
