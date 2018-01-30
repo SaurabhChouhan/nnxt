@@ -14,7 +14,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 // hide dialog
                 dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
             } else {
-                <NotificationManager className="error"/>("Estimation Initiation Failed")
+                NotificationManager.error("Estimation Initiation Failed")
             }
         })
 
