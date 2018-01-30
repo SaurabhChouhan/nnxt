@@ -19,9 +19,13 @@ export {default as EstimationDetailContainer} from './pages/EstimationDetailCont
 export {default as EstimationTaskFormContainer} from './forms/EstimationTaskFormContainer'
 
 //Projects
-//export {default as ProjectFormContainer} from './forms/ProjectFormContainer'
 export {default as ProjectListContainer} from './lists/ProjectListContainer'
 export {default as ProjectFormContainer} from './forms/ProjectFormContainer'
+//technology
+export {default as TechnologyListContainer} from './lists/TechnologyListContainer'
+export {default as TechnologyFormContainer} from './forms/TechnologyFormContainer'
+//Client
+export {default as ClientListContainer} from './lists/ClientListContainer'
 
 export {default as TabSectionContainer} from './sections/TabSectionContainer'
 

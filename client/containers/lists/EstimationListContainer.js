@@ -9,6 +9,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         console.log("show estimation init form caled")
         dispatch(A.getAllProjectsFromServer())
         dispatch(A.getAllUsersFromServer())
+        dispatch(A.getAllTechnologiesFromServer())
         dispatch(A.showComponent(COC.ESTIMATION_INITIATE_DIALOG))
     },
     estimationSelected: (estimation) => {

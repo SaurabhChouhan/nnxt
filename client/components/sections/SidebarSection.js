@@ -12,12 +12,17 @@ const SidebarSection = (props) => <section className="sidebar">
             <div className="col-md-12 pad">
                 <ul className="list-unstyled">
                     <li><Link to="/app-home/client" onClick={() => {
-                        props.dispatch(A.showComponentHideOthers(COC.CLIENT_FORM))
+                        props.dispatch(A.getAllClientsFromServer())
+                        props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))
                     }}>Client</Link></li>
                     <li><Link to="/app-home/projects" onClick={() => {
                         props.dispatch(A.getAllProjectsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.PROJECT_LIST))
                     }}>Projects</Link></li>
+                    <li><Link to="/app-home/technology" onClick={() => {
+                        props.dispatch(A.getAllTechnologiesFromServer())
+                        props.dispatch(A.showComponentHideOthers(COC.TECHNOLOGIES_LIST))
+                    }}>Technology</Link></li>
                     <li><Link to="/app-home/estimation" onClick={() => {
                         props.dispatch(A.getAllEstimationsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))

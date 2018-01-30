@@ -20,7 +20,7 @@ let EstimationInitiateForm = (props) => {
         <div className="row">
             <div className="col-md-6">
                 <Field name="technologies" component={renderMultiselect} label="technologies:"
-                       data={props.technologies}/>
+                       data={props.technologies} />
             </div>
         </div>
 

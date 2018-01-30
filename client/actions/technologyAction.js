@@ -1,20 +1,18 @@
-import * as AC from "./actionConsts"
+import * as AC from "./actionConsts";
 
-
-
-export const addClient = (client) => ({
-    type: AC.ADD_CLIENT,
-    client: client
-})
-export const addClients = (clients) => ({
-    type: AC.ADD_CLIENTS,
-    clients: clients
+export const addTechnologies = (technologies) => ({
+    type: AC.ADD_TECHNOLOGIES,
+    technologies: technologies
 })
 
+export const addTechnology = (technology) => ({
+    type: AC.ADD_TECHNOLOGY,
+    technology: technology
+})
 
-export const getAllClientsFromServer = () => {
+export const getAllTechnologiesFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/clients', {
+        return fetch('/api/technologies', {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -27,19 +25,20 @@ export const getAllClientsFromServer = () => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addClients(json.data))
+                    dispatch(addTechnologies(json.data))
                 }
             })
     }
 }
-export const addClientOnServer = (formInput) => {
+
+export const addTechnologyOnServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/clients',
+        return fetch('/api/technologies',
             {
                 method: "post",
                 credentials: "include",
                 headers: {
-                    'Accept': 'application/json, text/plain, */*',
+                    'Accept': 'application/json, text/plain',
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formInput)
@@ -50,7 +49,9 @@ export const addClientOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addClient(json.data))
+                    dispatch(addTechnology(json.data))
+
+
                 }
                 return json
             }
