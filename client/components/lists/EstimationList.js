@@ -3,17 +3,6 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import _ from 'lodash'
-import {
-    STATUS_ESTIMATION_REQUESTED,
-    STATUS_INITIATED,
-    STATUS_APPROVED,
-    STATUS_CHANGE_REQUESTED,
-    STATUS_PENDING,
-    STATUS_PROJECT_AWARDED,
-    STATUS_REJECTED,
-    STATUS_REOPENED,
-    STATUS_REVIEW_REQUESTED
-} from "../../../server/serverconstants";
 
 class EstimationList extends Component {
 
@@ -37,23 +26,23 @@ class EstimationList extends Component {
     }
 
     columnClassStatusFormat(status) {
-        if (status == STATUS_ESTIMATION_REQUESTED)
+        if (status == SC.STATUS_ESTIMATION_REQUESTED)
             return 'erRowColor'
-        if (status == STATUS_INITIATED)
+        if (status == SC.STATUS_INITIATED)
             return 'inRowColor'
-        if (status == STATUS_PENDING)
+        if (status == SC.STATUS_PENDING)
             return 'penRowColor'
-        if (status == STATUS_APPROVED)
+        if (status == SC.STATUS_APPROVED)
             return 'appRowColor'
-        if (status == STATUS_REVIEW_REQUESTED)
+        if (status == SC.STATUS_REVIEW_REQUESTED)
             return 'rrRowColor'
-        if (status == STATUS_CHANGE_REQUESTED)
+        if (status == SC.STATUS_CHANGE_REQUESTED)
             return 'crRowColor'
-        if (status == STATUS_REOPENED)
+        if (status == SC.STATUS_REOPENED)
             return 'roRowColor'
-        if (status == STATUS_PROJECT_AWARDED)
+        if (status == SC.STATUS_PROJECT_AWARDED)
             return 'paRowColor'
-        if (status == STATUS_REJECTED)
+        if (status == SC.STATUS_REJECTED)
             return 'rejRowColor'
         return ''
     }
@@ -132,7 +121,7 @@ class EstimationList extends Component {
                                         onClick={() => this.props.showEstimationInitiateForm()}>Initiate Estimation
                                 </button>}
                             </div>
-                        </div>
+                        </div>3
                     </div>
                     <div className="estimation">
                         <BootstrapTable options={this.options} data={this.props.estimations}
