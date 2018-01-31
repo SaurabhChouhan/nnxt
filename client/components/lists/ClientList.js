@@ -12,22 +12,35 @@ class ClientList extends Component {
 
     render() {
         return (
-            <div key="client_list" className="row">
-                <div className="col-md-10">
-                    <button className="btn btn-default btn-submit addBtn"
-                            onClick={() => this.props.showClientCreationForm()}>Create Client
-                    </button>
-
-                    <BootstrapTable options={this.options} data={this.props.clients}
-                                    striped={true}
-                                    hover={true}>
-                        <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                        <TableHeaderColumn dataField='name'>Client Name</TableHeaderColumn>
+            <div key="client_list" className="clearfix">
 
 
-                    </BootstrapTable>
+                <div className="col-md-12">
+                    <div className="col-md-12 pad">
+
+                        <div className="col-md-12">
+                            <button className="btn customBtn"
+                                    onClick={() => this.props.showClientCreationForm()}>Create Client
+                            </button>
+
+                            <div className="client">
+
+                                <BootstrapTable options={this.options} data={this.props.clients}
+                                                striped={true}
+                                                hover={true}>
+                                    <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
+                                    <TableHeaderColumn dataField='name'>Client Name</TableHeaderColumn>
+
+
+                                </BootstrapTable>
+                            </div>
+
+                        </div>
+
+                    </div>
                 </div>
             </div>
+
         )
     }
 }

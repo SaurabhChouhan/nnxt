@@ -5,6 +5,7 @@ import * as SC from "../serverconstants"
 import {validate, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct} from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel} from "./"
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -13,6 +14,7 @@ let estimationTaskSchema = mongoose.Schema({
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     initiallyEstimated: {type: Boolean, required: true},
+    isDeleted: {type: Boolean, default: false},
     created: Date,
     updated: Date,
     estimation: {
@@ -30,14 +32,20 @@ let estimationTaskSchema = mongoose.Schema({
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false}
+        removalRequested: {type: Boolean, default: false},
+        changedInThisIteration: {type: Boolean, default: false},
+        isMovedToFeature: {type: Boolean, default: false},
+        isMovedOutOfFeature: {type: Boolean, default: false}
     },
     negotiator: {
         name: {type: String},
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false}
+        removalRequested: {type: Boolean, default: false},
+        changedInThisIteration: {type: Boolean, default: false},
+        isMovedToFeature: {type: Boolean, default: false},
+        isMovedOutOfFeature: {type: Boolean, default: false}
     },
     technologies: [String],
     tags: [String],
@@ -55,6 +63,9 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     let estimation = await EstimationModel.findById(taskInput.estimation._id)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes[SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only add task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
@@ -114,6 +125,19 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     taskInput.initiallyEstimated = true
 
     taskInput.estimator = estimatorSection
+    /**
+     * Add name of logged in user against notes
+     */
+
+    if (!_.isEmpty(taskInput.notes)) {
+        taskInput.notes = taskInput.notes.map(n => {
+            n.name = estimator.fullName
+            return n
+        })
+    }
+
+    console.log("task input ", taskInput)
+
     return await EstimationTaskModel.create(taskInput)
 
 }
