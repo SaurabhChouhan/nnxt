@@ -11,11 +11,16 @@ let ProjectForm=(props)=> {
             <div className="col-md-4">
                 <Field name="name" placeholder={"Name of project"} component={renderText}
                        label={"Project Name:"} validate={[required]}/>
+
                 <Field name="client._id" component={renderSelect} label={"Client :"} options={props.clients}
                        validate={[required]}/>
+
+                <button type="submit" className="btn customBtn"> Submit </button>
+
             </div>
+
         </div>
-        <button type="submit" className="btn btn-submit">Submit</button>
+
     </form>
 }
 

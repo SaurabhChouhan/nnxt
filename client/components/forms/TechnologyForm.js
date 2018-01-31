@@ -13,9 +13,11 @@ let TechnologyForm=(props)=> {
                 <Field name="name" placeholder={"Name of Technology"} component={renderText}
                        label={"Technology Name:"} validate={[required]}/>
 
+
+                <button type="submit" className="btn customBtn">Submit</button>
             </div>
         </div>
-        <button type="submit" className="btn btn-submit">Submit</button>
+
     </form>
 }
 
