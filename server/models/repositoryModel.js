@@ -49,5 +49,10 @@ repositorySchema.statics.addTask = async (taskInput, user) => {
 
 }
 
+repositorySchema.statics.get = async () => {
+    /*Currently api return all repository task/features with out any filters, filter will be apply in next.*/
+    return await RepositoryModel.find({})
+}
+
 const RepositoryModel = mongoose.model("Repository", repositorySchema)
 export default RepositoryModel
