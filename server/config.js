@@ -2,7 +2,7 @@ const config = {
     server: {
         default: {
             port: 3000,
-            setupData: false,
+            setupData: true,
             dropDatabase: false
         },
         development: {
@@ -23,6 +23,10 @@ const config = {
         praveen: {
             port: 3002,
             setupData: false,
+            dropDatabase: false
+        }, anup: {
+            port: 3000,
+            setupData: true,
             dropDatabase: false
         }
     },
@@ -50,6 +54,11 @@ const config = {
         praveen: {
             dbname: 'nnxt',
             url: "mongodb://praveen:praveen@ds119078.mlab.com:19078/nnxt",
+            useMongoClient: true
+        },
+        anup: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
             useMongoClient: true
         }
     }
