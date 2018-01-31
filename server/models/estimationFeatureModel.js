@@ -6,6 +6,7 @@ import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel} from "./"
 import * as EC from "../errorcodes"
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -14,6 +15,7 @@ let estimationFeatureSchema = mongoose.Schema({
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     initiallyEstimated: {type: Boolean, required: true},
+    isDeleted: {type: Boolean, default: false},
     created: Date,
     updated: Date,
     estimation: {
@@ -28,14 +30,16 @@ let estimationFeatureSchema = mongoose.Schema({
         description: {type: String, required: true},
         estimatedHours: {type: Number, required: true},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false}
+        removalRequested: {type: Boolean, default: false},
+        isChangedInThisIteration: {type: Boolean, default: false}
     },
     negotiator: {
         name: {type: String},
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false}
+        removalRequested: {type: Boolean, default: false},
+        isChangedInThisIteration: {type: Boolean, default: false}
     },
     technologies: [String],
     tags: [String],
@@ -106,12 +110,18 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     featureInput.addedInThisIteration = true
     featureInput.owner = SC.OWNER_ESTIMATOR
     featureInput.initiallyEstimated = true
-
     featureInput.estimator = estimatorSection
+
+    if (!_.isEmpty(featureInput.notes)) {
+        featureInput.notes = featureInput.notes.map(n => {
+            n.name = estimator.fullName
+            return n
+        })
+    }
+
     return await EstimationFeatureModel.create(featureInput)
 
 }
-
 
 
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)

@@ -35,7 +35,6 @@ export const estimationEstimatorAddTaskStruct = t.struct({
     tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
-            name: t.String,
             note: t.String
         })
         )
@@ -57,7 +56,6 @@ export const estimationEstimatorAddFeatureStruct = t.struct({
     tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
-            name: t.String,
             note: t.String
         })
         )

@@ -13,7 +13,7 @@ import {validate, estimationEstimatorAddTaskStruct} from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel} from "./"
 import {INVALID_USER, NOT_FOUND, HTTP_BAD_REQUEST} from "../errorcodes"
-
+import _ from 'lodash'
 mongoose.Promise = global.Promise
 
 let estimationTaskSchema = mongoose.Schema({
@@ -21,6 +21,7 @@ let estimationTaskSchema = mongoose.Schema({
     owner: {type: String, enum: [OWNER_ESTIMATOR, OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     initiallyEstimated: {type: Boolean, required: true},
+    isDeleted:{type:Boolean, default:false},
     created: Date,
     updated: Date,
     estimation: {
@@ -34,18 +35,24 @@ let estimationTaskSchema = mongoose.Schema({
         addedFromThisEstimation: {type: Boolean, required: true}
     },
     estimator: {
-        name: {type: String, required: true},
-        description: {type: String, required: true},
-        estimatedHours: {type: Number, required: true},
+        name: {type: String},
+        description: {type: String},
+        estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false}
+        removalRequested: {type: Boolean, default: false},
+        changedInThisIteration: {type: Boolean, default: false},
+        isMovedToFeature: {type: Boolean, default: false},
+        isMovedOutOfFeature: {type: Boolean, default: false}
     },
     negotiator: {
         name: {type: String},
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false}
+        removalRequested: {type: Boolean, default: false},
+        changedInThisIteration: {type: Boolean, default: false},
+        isMovedToFeature: {type: Boolean, default: false},
+        isMovedOutOfFeature: {type: Boolean, default: false}
     },
     technologies: [String],
     tags: [String],
@@ -122,6 +129,19 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     taskInput.initiallyEstimated = true
 
     taskInput.estimator = estimatorSection
+    /**
+     * Add name of logged in user against notes
+     */
+
+    if(!_.isEmpty(taskInput.notes)){
+        taskInput.notes = taskInput.notes.map(n=> {
+            n.name = estimator.fullName
+            return n
+        })
+    }
+
+    console.log("task input ", taskInput)
+
     return await EstimationTaskModel.create(taskInput)
 
 }
