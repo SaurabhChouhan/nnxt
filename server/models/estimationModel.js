@@ -55,6 +55,8 @@ let estimationSchema = mongoose.Schema({
     isDeleted: {type: Boolean, default: false},
     isArchived: {type: Boolean, default: false},
     canHardDelete: {type: Boolean, default: true}
+}, {
+    usePushEach: true
 })
 
 
@@ -76,7 +78,7 @@ estimationSchema.statics.getAllActive = async (user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status:1
+            status: 1
         })
 
         estimations = [...estimatorEstimations]
@@ -97,7 +99,7 @@ estimationSchema.statics.getAllActive = async (user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status:1
+            status: 1
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
