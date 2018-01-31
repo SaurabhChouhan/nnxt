@@ -56,12 +56,9 @@ class EstimationDetail extends Component {
             </div>
             <div className="clearfix" style={{marginTop: 10}}>
                 <div className="col-md-3">
-                    {
-                        this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
                         <button className="btn btn-default btn-submit addBtn"
                                 onClick={() => this.props.showAddTaskForm(estimation)}>Add Task
                         </button>
-                    }
                     {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
                     <button className="btn btn-default btn-submit addBtn"
                             onClick={() => this.setState({showEstimationRequestDialog: true})}>Request Estimation
