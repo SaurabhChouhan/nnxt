@@ -2,23 +2,16 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as ErrorCodes from '../errorcodes'
 import {validate, estimationEstimatorAddFeatureStruct} from "../validation"
-import {
-    OWNER_ESTIMATOR,
-    OWNER_NEGOTIATOR,
-    STATUS_APPROVED,
-    STATUS_PENDING,
-    ROLE_ESTIMATOR,
-    ROLE_NEGOTIATOR
-} from "../serverconstants"
+import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel} from "./"
-import {INVALID_USER, NOT_FOUND, HTTP_BAD_REQUEST} from "../errorcodes"
+import * as EC from "../errorcodes"
 
 mongoose.Promise = global.Promise
 
 let estimationFeatureSchema = mongoose.Schema({
-    status: {type: String, enum: [STATUS_APPROVED, STATUS_PENDING], required: true, default: STATUS_PENDING},
-    owner: {type: String, enum: [OWNER_ESTIMATOR, OWNER_NEGOTIATOR], required: true},
+    status: {type: String, enum: [SC.STATUS_APPROVED, SC.STATUS_PENDING], required: true, default: SC.STATUS_PENDING},
+    owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     initiallyEstimated: {type: Boolean, required: true},
     created: Date,
@@ -54,27 +47,27 @@ let estimationFeatureSchema = mongoose.Schema({
 })
 
 
-estimationFeatureSchema.statics.addFeatureByEstimator = async (taskInput, estimator) => {
-    validate(taskInput, estimationEstimatorAddFeatureStruct)
-    if (!estimator || !userHasRole(estimator, ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', INVALID_USER, HTTP_BAD_REQUEST)
-    let estimation = await EstimationModel.findById(taskInput.estimation._id)
+estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, estimator) => {
+    validate(featureInput, estimationEstimatorAddFeatureStruct)
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    let estimation = await EstimationModel.findById(featureInput.estimation._id)
     if (!estimation)
-        throw new AppError('Estimation not found', NOT_FOUND, HTTP_BAD_REQUEST)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let repositoryTask = undefined
+    let repositoryFeature = undefined
 
-    if (taskInput.repo && taskInput.repo._id) {
+    if (featureInput.repo && featureInput.repo._id) {
         // Feature is added from repository
         // find if Feature actually exists there
-        repositoryTask = await RepositoryModel.findById(taskInput.repo._id)
-        if (!repositoryTask)
-            throw new AppError('Feature not part of repository', NOT_FOUND, HTTP_BAD_REQUEST)
+        repositoryFeature = await RepositoryModel.findById(featureInput.repo._id)
+        if (!repositoryFeature)
+            throw new AppError('Feature not part of repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         // as this feature was found in repository, this means that this is already part of repository
-        taskInput.repo = {
+        featureInput.repo = {
             addedFromThisEstimation: false,
-            _id: repositoryTask._id
+            _id: repositoryFeature._id
         }
     } else {
         /**
@@ -82,19 +75,19 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (taskInput, estima
          * @type {{addedFromThisEstimation: boolean}}
          */
 
-        repositoryTask = await RepositoryModel.addFeature({
-            name: taskInput.name,
-            description: taskInput.description,
+        repositoryFeature = await RepositoryModel.addFeature({
+            name: featureInput.name,
+            description: featureInput.description,
             estimation: {
                 _id: estimation._id.toString()
             },
             createdBy: estimator,
-            technologies: taskInput.technologies,
-            tags: taskInput.tags
+            technologies: featureInput.technologies,
+            tags: featureInput.tags
         }, estimator)
 
-        taskInput.repo = {
-            _id: repositoryTask._id,
+        featureInput.repo = {
+            _id: repositoryFeature._id,
             addedFromThisEstimation: true
         }
     }
@@ -102,19 +95,20 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (taskInput, estima
     // create estimator section
 
     let estimatorSection = {}
+    let defaultEstimatedHoursForFeature = 0;
     /* Name/description would always match repository name description */
 
-    estimatorSection.name = repositoryTask.name
-    estimatorSection.description = repositoryTask.description
-    estimatorSection.estimatedHours = taskInput.estimatedHours
+    estimatorSection.name = repositoryFeature.name
+    estimatorSection.description = repositoryFeature.description
+    estimatorSection.estimatedHours = defaultEstimatedHoursForFeature
 
-    taskInput.status = STATUS_PENDING
-    taskInput.addedInThisIteration = true
-    taskInput.owner = OWNER_ESTIMATOR
-    taskInput.initiallyEstimated = true
+    featureInput.status = SC.STATUS_PENDING
+    featureInput.addedInThisIteration = true
+    featureInput.owner = SC.OWNER_ESTIMATOR
+    featureInput.initiallyEstimated = true
 
-    taskInput.estimator = estimatorSection
-    return await EstimationFeatureModel.create(taskInput)
+    featureInput.estimator = estimatorSection
+    return await EstimationFeatureModel.create(featureInput)
 
 }
 

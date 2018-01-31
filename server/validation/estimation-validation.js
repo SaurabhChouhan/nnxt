@@ -47,7 +47,6 @@ export const estimationEstimatorAddFeatureStruct = t.struct({
     _id: t.Nil,
     name: t.maybe(RequiredString),
     description: t.maybe(RequiredString),
-    estimatedHours: t.Number,
     estimation: t.struct({
         _id: ObjectId
     }),
