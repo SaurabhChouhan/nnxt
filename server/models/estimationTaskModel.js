@@ -64,7 +64,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes[SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only add task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (taskInput.feature && taskInput.feature._id) {
@@ -135,9 +135,6 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
             return n
         })
     }
-
-    console.log("task input ", taskInput)
-
     return await EstimationTaskModel.create(taskInput)
 
 }
@@ -146,10 +143,12 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     validate(taskInput, estimationNegotiatorAddTaskStruct)
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await EstimationModel.findById(taskInput.estimation._id)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
@@ -207,8 +206,15 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     taskInput.addedInThisIteration = true
     taskInput.owner = SC.OWNER_NEGOTIATOR
     taskInput.initiallyEstimated = true
-
     taskInput.negotiator = negotiatorSection
+
+    if (!_.isEmpty(taskInput.notes)) {
+        taskInput.notes = taskInput.notes.map(n => {
+            n.name = negotiator.fullName
+            return n
+        })
+    }
+
     return await EstimationTaskModel.create(taskInput)
 }
 
