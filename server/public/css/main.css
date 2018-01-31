@@ -29,7 +29,7 @@ img {
 .pad {
     padding: 0 !important;
 }
-#login {
+/*#login {
     position: absolute;
     top: 37%;
     left: 48%;
@@ -41,7 +41,7 @@ img {
     background: #F5F0EC;
     box-shadow: 2px 2px 4px #bcb6b0;
     border-radius: 5px;
-}
+}*/
 
 .navbar-brand {
     padding: 0 !important;
@@ -577,4 +577,115 @@ td.paRowColor {
 }
 td.rejRowColor {
     background: #ED4D52;
+}
+
+.loginform {
+    padding: 165px;
+    background-color: #F0F0F2;
+    height: 850px;
+    float: right;
+}
+.loginform label{
+    color: #9CA6A8;
+    font-weight: normal;
+
+}
+.loginform  input{
+    width: 107%;
+    padding: 28px 28px;
+    margin: 8px -15px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin-top: 0px;
+    margin-bottom: 15px;
+}
+.loginform button{
+    background-color: #FF534F;
+    color: #F9FDF3;
+    width: 100%;
+    padding: 20px 20px;
+    margin: 50px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+.loginform a{
+    color: #FF534F;
+    float:right;
+}
+.loginform header {
+    margin-top:-98px;
+    font-size: 28px;
+    padding: 1em;
+    clear: left;
+    text-align: center;
+    font-family: initial;
+
+}
+.loginform footer{
+    color:#848C90;
+    font-size: 17px;
+    padding: 1em;
+    clear: left;
+    text-align: center;
+    margin-top: 100px;
+}
+.loginform header span{
+    color:#FF534F;
+}
+.loginform p{
+    margin-bottom: 70px;
+    font-size: 18px;
+    margin-top: -14px;
+    color: #ADB6B9;
+    font-family: normal;
+}
+.signupoption{
+    text-align: center;
+    margin-left: 64px;
+    font-size: 18px;
+    font-weight: normal;
+}
+.signupoption a{
+    position: relative;
+    margin-right: 165px;
+}
+.login_img {
+    background-image: url(../images/login_page_bg.jpg);
+    position: fixed;
+    left: 0;
+    height: 100%;
+    background-size: cover;
+}
+.login_img h1{
+    color: #ECE9ED;
+    margin: 181px 105px;
+    font-family: normal;
+    letter-spacing: 8px;
+    font-size: 32px;
+
+}
+.login_img p{
+    color:#C5C7C9;
+    font-size: 20px;
+    text-align: center;
+    padding-left: 22px;
+    padding-right: 22px;
+    padding-top: 70px;
+    font-style: normal;
+
+    /*margin: 180px 138px;*/
+}
+.textcentered{
+    position: absolute;
+
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+
+}
+.loginsection{
+    padding-left: 0;
+    padding-right: 0;
 }
