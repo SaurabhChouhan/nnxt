@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {ProjectModel, UserModel, RepositoryModel} from "./index"
-
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
