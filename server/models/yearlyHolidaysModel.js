@@ -1,11 +1,10 @@
 import mongoose from 'mongoose'
-import bcrypt from 'bcryptjs'
 import _ from 'lodash'
 import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
-import UserModel from "./userModel";
+
 
 mongoose.Promise = global.Promise
 
