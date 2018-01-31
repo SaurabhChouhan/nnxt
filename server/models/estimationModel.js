@@ -53,7 +53,8 @@ let estimationSchema = mongoose.Schema({
         date: {type: Date, default: Date.now()}
     }],
     isDeleted: {type: Boolean, default: false},
-    isArchived: {type: Boolean, default: false}
+    isArchived: {type: Boolean, default: false},
+    canHardDelete: {type: Boolean, default: true}
 })
 
 
