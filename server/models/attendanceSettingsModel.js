@@ -10,6 +10,6 @@ let attendanceSettingsSchema = mongoose.Schema({
     dayEndTime:{type:String, default:"22:00"}
 
 })
-
+/*I am hoping that default add / update / delete of super will work here */
 const AttendanceSettingsModel = mongoose.model("attendancesettings", attendanceSettingsSchema)
 export default AttendanceSettingsModel
