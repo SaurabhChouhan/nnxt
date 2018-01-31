@@ -23,5 +23,8 @@ export const repositoryAddTaskStruct = t.struct({
 
 export const repositorySearchStruct = t.struct({
     _id: t.Nil,
-
+    page_no:t.Number,
+    technologies: t.maybe(t.list(t.String)),
+    filters: t.maybe(t.list(t.String)),
+    search_text: t.maybe(t.String)
 })

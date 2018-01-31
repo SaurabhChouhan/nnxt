@@ -9,6 +9,8 @@ let repositoryRouter = new Router({
 
 
 repositoryRouter.get("/search", async ctx => {
+    if (ctx.schemaRequested)
+        return generateSchema(repositorySearchStruct)
     return "not implemented"
 })
 
