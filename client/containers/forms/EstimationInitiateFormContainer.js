@@ -14,7 +14,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 // hide dialog
                 dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
             } else {
-                NotificationManager.success("Estimation Initiation Failed")
+                NotificationManager.error("Estimation Initiation Failed")
             }
         })
 
@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
     estimators: state.user.all,
     projects: state.project.all,
-    technologies: ['React', 'Koa', 'Android', 'iOS', 'Mac']
+    technologies: state.technology.all.map(t=> t.name)
 })
 
 const EstimationInitiateFormContainer = connect(

@@ -8,8 +8,8 @@ import thunkMiddleware from 'redux-thunk'
 import logger from 'redux-logger'
 import reducers from './reducers'
 
-//let store = createStore(reducers, __PRELOADED_STATE__, applyMiddleware(thunkMiddleware, logger))
-let store = createStore(reducers, __PRELOADED_STATE__, applyMiddleware(thunkMiddleware))
+let store = createStore(reducers, __PRELOADED_STATE__, applyMiddleware(thunkMiddleware, logger))
+//let store = createStore(reducers, __PRELOADED_STATE__, applyMiddleware(thunkMiddleware))
 const App = props =>
     <Provider store={store}>
         <BrowserRouter>
