@@ -1,11 +1,11 @@
 import Router from 'koa-router'
-import {EstimationModel, EstimationTaskModel} from "../models"
+import {EstimationModel, EstimationTaskModel,EstimationFeatureModel} from "../models"
 import {hasRole} from "../utils"
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
-import {estimationInitiationStruct, estimationEstimatorAddTaskStruct, validate, generateSchema} from "../validation"
+import {estimationInitiationStruct, estimationEstimatorAddTaskStruct,estimationEstimatorAddFeatureStruct, validate, generateSchema} from "../validation"
 
 let estimationRouter = new Router({
     prefix: "estimations"
@@ -40,7 +40,7 @@ estimationRouter.put('/request/:estimationID', async ctx => {
 /**
  * Add a new task to estimation
  */
-estimationRouter.post('/task', async ctx => {
+estimationRouter.post('/tasks', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorAddTaskStruct)
@@ -49,9 +49,25 @@ estimationRouter.post('/task', async ctx => {
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
-        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can initiate estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
+
+/**
+ * Add a new task to estimation
+ */
+estimationRouter.post('/features', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorAddFeatureStruct)
+        return await EstimationFeatureModel.addFeatureByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 
 export default estimationRouter

@@ -8,7 +8,7 @@ const EstimationTaskDialog = (props) => {
             <h3>Add Task to Estimation</h3>
         </ModalHeader>
         <ModalBody>
-                <EstimationTaskFormContainer/>
+            <EstimationTaskFormContainer/>
         </ModalBody>
     </Modal>
 }
