@@ -137,6 +137,16 @@ userSchema.statics.verifyUser = async (email, password) => {
             user.permissions = [...permissionSet]
             user.roleNames = [...roleSet]
 
+
+            if (user.firstName && user.lastName)
+                user.fullName = user.firstName + ' ' + user.lastName
+            else if (user.firstName)
+                user.fullName = user.firstName
+            else if (user.lastName)
+                user.fullName = user.lastName
+            else
+                user.fullName = ''
+
             return user
         } else {
             return false
