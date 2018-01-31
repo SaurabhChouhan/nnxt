@@ -15,6 +15,11 @@ const config = {
             setupData: false,
             dropDatabase:false
         },
+        kamlesh: {
+            port: 3002,
+            setupData: false,
+            dropDatabase:false
+        },
         murtaza: {
             port: 3000,
             setupData: false,
@@ -32,6 +37,11 @@ const config = {
     },
     mongo: {
         default: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        kamlesh: {
             dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
             useMongoClient: true
