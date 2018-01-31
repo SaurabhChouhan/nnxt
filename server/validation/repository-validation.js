@@ -20,3 +20,8 @@ export const repositoryAddTaskStruct = t.struct({
     tags: t.maybe(t.list(t.String)),
     tasks: t.Nil
 })
+
+export const repositorySearchStruct = t.struct({
+    _id: t.Nil,
+
+})

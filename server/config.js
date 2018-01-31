@@ -26,7 +26,7 @@ const config = {
             dropDatabase: false
         }, anup: {
             port: 3000,
-            setupData: true,
+            setupData: false,
             dropDatabase: false
         }
     },
