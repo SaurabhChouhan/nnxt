@@ -40,7 +40,7 @@ estimationRouter.put('/request/:estimationID', async ctx => {
 /**
  * Add a new task to estimation
  */
-estimationRouter.post('/task', async ctx => {
+estimationRouter.post('/tasks', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorAddTaskStruct)
@@ -49,7 +49,7 @@ estimationRouter.post('/task', async ctx => {
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
-        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
@@ -57,7 +57,7 @@ estimationRouter.post('/task', async ctx => {
 /**
  * Add a new task to estimation
  */
-estimationRouter.post('/feature', async ctx => {
+estimationRouter.post('/features', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorAddFeatureStruct)
