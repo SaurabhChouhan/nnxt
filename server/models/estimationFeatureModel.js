@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import * as ErrorCodes from '../errorcodes'
 import {validate, estimationEstimatorAddFeatureStruct} from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
@@ -58,6 +57,9 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     let estimation = await EstimationModel.findById(featureInput.estimation._id)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes[SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only add feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let repositoryFeature = undefined
 
