@@ -1,11 +1,11 @@
 import Router from 'koa-router'
 import {EstimationModel, EstimationTaskModel} from "../models"
-import {hasRole} from "../utils"
+import {hasRole,isAuthenticated} from "../utils"
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
-import {estimationInitiationStruct, estimationEstimatorAddTaskStruct, validate, generateSchema} from "../validation"
+import {estimationInitiationStruct, estimationEstimatorAddTaskStruct,estimationNegotiatorAddTaskStruct, validate, generateSchema} from "../validation"
 
 let estimationRouter = new Router({
     prefix: "estimations"
@@ -47,11 +47,23 @@ estimationRouter.post('/task', async ctx => {
         return await EstimationTaskModel.addTaskByEstimator(ctx.request.body, ctx.state.user)
 
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        return "not implemented"
+        if(ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorAddTaskStruct)
+        return await EstimationTaskModel.addTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can initiate estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
+/**
+ * Get all tasks of estimation by ID
+ */
+estimationRouter.get('/task/:estimationID', async ctx => {
+    if(isAuthenticated(ctx)){
+        return await EstimationTaskModel.getAllTaskOfEstimation(ctx.params.estimationID)
+    } else {
+        throw new AppError("Not authenticated user.", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 
 export default estimationRouter
