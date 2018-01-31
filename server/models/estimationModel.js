@@ -56,7 +56,7 @@ let estimationSchema = mongoose.Schema({
     isArchived: {type: Boolean, default: false},
     canHardDelete: {type: Boolean, default: true}
 }, {
-    usePushEach: true
+    usePushEach:true
 })
 
 

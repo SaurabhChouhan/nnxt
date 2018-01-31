@@ -49,6 +49,12 @@ repositorySchema.statics.addTask = async (taskInput, user) => {
 
 }
 
+
+repositorySchema.statics.get = async () => {
+    /*Currently api return all repository task/features with out any filters, filter will be apply in next.*/
+    return await RepositoryModel.find({})
+}
+
 repositorySchema.statics.addFeature = async (taskInput, user) => {
     if (!user || (!userHasRole(user, ROLE_NEGOTIATOR) && !userHasRole(user, ROLE_ESTIMATOR)))
         throw new AppError('Only user with any of the roles [' + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task to repository", INVALID_USER, HTTP_BAD_REQUEST)
@@ -67,7 +73,6 @@ repositorySchema.statics.addFeature = async (taskInput, user) => {
     taskInput.hasHistory = false
     taskInput.createdBy = user
     return await RepositoryModel.create(taskInput)
-
 }
 
 const RepositoryModel = mongoose.model("Repository", repositorySchema)
