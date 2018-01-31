@@ -45,7 +45,14 @@ export const ESTIMATION_TASK_FORM_RENDER = 'EstimationTaskForm->render():'
 
 export const ESTIMATION_LIST_CONNECT = "EstimationList->connect():"
 
-//let traceCodes = [TABS_LIFE_CYCLE, TABS_CHANGE_TAB, TABS_RENDER]
+export const TECHNOLOGY_FORM_RENDER = 'TechnologyForm->render():'
+export const TECHNOLOGY_FORM_CONNECT = 'TechnologyForm->connect():'
+export const TECHNOLOGY_FORM_LIFECYCLE = 'TechnologyForm->lc():'
+
+export const PROJECT_FORM_RENDER = 'ProjectForm->render():'
+export const PROJECT_FORM_CONNECT = 'ProjectForm->connect():'
+
+//let traceCodes = [TECHNOLOGY_FORM_CONNECT]
 let traceCodes = undefined
 let logLevel = DEBUG_LEVEL
 

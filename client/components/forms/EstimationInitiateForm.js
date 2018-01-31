@@ -20,7 +20,7 @@ let EstimationInitiateForm = (props) => {
         <div className="row">
             <div className="col-md-6">
                 <Field name="technologies" component={renderMultiselect} label="technologies:"
-                       data={props.technologies}/>
+                       data={props.technologies} />
             </div>
         </div>
 
@@ -29,7 +29,14 @@ let EstimationInitiateForm = (props) => {
                 <Field name="description" component={renderTextArea} label="Description:"/>
             </div>
         </div>
-        <button type="submit" className="btn btn-submit">Submit</button>
+        <div className="row initiatEstimation">
+            <div className="col-md-6 text-center">
+                <button type="submit" className="btn customBtn">Submit</button>
+            </div>
+            <div className="col-md-6 text-center">
+                <button type="submit" className="btn customBtn">Reset</button>
+            </div>
+        </div>
     </form>
 }
 

@@ -10,7 +10,7 @@ let projectReducer = (state = initialState, action) => {
         case ADD_PROJECTS:
             return Object.assign({}, state, {all: action.projects})
         case ADD_PROJECT:
-            return Object.assign({}, state, {all: [...action.projects, action.project]})
+            return Object.assign({}, state, {all: [...state.all, action.project]})
         default:
             return state
     }

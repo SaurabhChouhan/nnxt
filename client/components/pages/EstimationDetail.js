@@ -44,7 +44,7 @@ class EstimationDetail extends Component {
                                 title="Estimation Request" onClose={this.onClose.bind(this)}
                                 body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
             }
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-1">Project:</div>
                 <div className="col-md-1">{estimation.project?estimation.project.name:''}</div>
 
@@ -54,7 +54,7 @@ class EstimationDetail extends Component {
                 <div className="col-md-1 col-md-offset-2">Status:</div>
                 <div className="col-md-3">{estimation.status}</div>
             </div>
-            <div className="row" style={{marginTop: 10}}>
+            <div className="clearfix" style={{marginTop: 10}}>
                 <div className="col-md-3">
                     {
                         this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
@@ -69,8 +69,8 @@ class EstimationDetail extends Component {
                     }
                 </div>
             </div>
-            <div className="row">
-                <div className="col-md-10">
+            <div className="clearfix">
+                <div className="col-md-12">
                     <BootstrapTable options={this.options} data={estimation.tasks}
                                     striped={true}
                                     hover={true}>

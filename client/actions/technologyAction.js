@@ -1,23 +1,18 @@
-import * as AC from "./actionConsts"
-import * as EC from "../../server/errorcodes"
-import {NotificationManager} from "react-notifications"
-import {SubmissionError} from 'redux-form'
+import * as AC from "./actionConsts";
 
-
-
-export const addProjects = (projects) => ({
-    type: AC.ADD_PROJECTS,
-    projects: projects
+export const addTechnologies = (technologies) => ({
+    type: AC.ADD_TECHNOLOGIES,
+    technologies: technologies
 })
 
-export const addProject = (project) => ({
-    type: AC.ADD_PROJECT,
-    project: project
+export const addTechnology = (technology) => ({
+    type: AC.ADD_TECHNOLOGY,
+    technology: technology
 })
 
-export const getAllProjectsFromServer = () => {
+export const getAllTechnologiesFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/projects', {
+        return fetch('/api/technologies', {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -30,15 +25,15 @@ export const getAllProjectsFromServer = () => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addProjects(json.data))
+                    dispatch(addTechnologies(json.data))
                 }
             })
     }
 }
 
-export const addProjectOnServer = (formInput) => {
+export const addTechnologyOnServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/projects',
+        return fetch('/api/technologies',
             {
                 method: "post",
                 credentials: "include",
@@ -54,7 +49,7 @@ export const addProjectOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addProject(json.data))
+                    dispatch(addTechnology(json.data))
 
 
                 }

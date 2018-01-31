@@ -4,7 +4,7 @@ import {SidebarSection} from './'
 
 const Sidebar = (props) => <div className="sidebar-wrapper">
     <div className="web_logo">
-        <img src={'/images/logo.png'}/>
+        <img src="/images/logo.png"/>
     </div>
     <SidebarSideSection/>
     <SidebarSection/>
