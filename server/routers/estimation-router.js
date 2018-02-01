@@ -5,7 +5,10 @@ import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
-import {estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,validate, generateSchema} from "../validation"
+import {
+    estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,
+    estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct,validate, generateSchema
+} from "../validation"
 
 let estimationRouter = new Router({
     prefix: "estimations"
@@ -67,7 +70,7 @@ estimationRouter.get('/task/:estimationID', async ctx => {
 })
 
 /**
- * Add a new task to estimation
+ * Add a new features to estimation
  */
 estimationRouter.post('/features', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
@@ -78,7 +81,23 @@ estimationRouter.post('/features', async ctx => {
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
-        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+/**
+ * Update a new features to estimation
+ */
+estimationRouter.put('/features', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorUpdateFeatureStruct)
+        return await EstimationFeatureModel.updateFeatureByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 

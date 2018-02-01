@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {validate, estimationEstimatorAddFeatureStruct} from "../validation"
+import {validate, estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct} from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel} from "./"
@@ -58,7 +58,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes[SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only add feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let repositoryFeature = undefined
@@ -122,6 +122,55 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     }
 
     return await EstimationFeatureModel.create(featureInput)
+
+}
+
+
+estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, estimator) => {
+    validate(featureInput, estimationEstimatorUpdateFeatureStruct)
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    let estimation = await EstimationModel.findById(featureInput.estimation._id)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only update feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let estimationFeature = await EstimationFeatureModel.findById(featureInput._id)
+    if(!estimationFeature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimationFeature.repo && estimationFeature.repo._id) {
+        // Feature is added from repository
+        // find if Feature actually exists there
+        let repositoryFeature = await RepositoryModel.findById(estimationFeature.repo._id)
+        if (!repositoryFeature)
+            throw new AppError('Feature not part of repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+        if (_.includes([SC.STATUS_APPROVED], repositoryFeature.status))
+            throw new AppError("Repository feature has status as ["+repositoryFeature.status+"]. Estimator can only update feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+        repositoryFeature.name = featureInput.name
+        repositoryFeature.description = featureInput.description
+        repositoryFeature.technologies = featureInput.technologies
+        repositoryFeature.tags = featureInput.tags
+        await repositoryFeature.save()
+    }
+
+    estimationFeature.technologies = featureInput.technologies
+    estimationFeature.tags = featureInput.tags
+
+    if (!_.isEmpty(featureInput.notes)) {
+        featureInput.notes = featureInput.notes.map(n => {
+            n.name = estimator.fullName
+            return n
+        })
+    }
+    estimationFeature.notes = featureInput.notes
+    estimationFeature.updated = Date.now()
+
+    return await estimationFeature.save()
 
 }
 
