@@ -23,7 +23,7 @@ let projectSchema = mongoose.Schema({
     },
     isDeleted: {type: Boolean, default: false},
     isArchived: {type: Boolean, default: false},
-    canHardDelete:{type: Boolean, default: false}
+    canHardDelete:{type: Boolean, default: true}
 })
 
 projectSchema.statics.getAllActive = async (loggedInUser) => {
