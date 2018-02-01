@@ -28,7 +28,7 @@ attendanceSettingsSchema.statics.getAdminAttendanceSettings = async (loggedInUse
         {
             /**Default settings creation */
             settings = new AttendanceSettingsModel();
-            console.log("getAdminAttendanceSettings 2- ",settings);
+            console.log("creating first time admin attendance settings - ",settings);
             return await AttendanceSettingsModel.create(settings)
 
         }
@@ -45,8 +45,6 @@ attendanceSettingsSchema.updateAdminAttedanceSettings = async (newSettings,logge
         settings.minHalfDayHours = newSettings.minHalfDayHours;
         settings.dayStartTime = newSettings.dayStartTime;
         settings.dayEndTime = newSettings.dayEndTime;
-
-
         return await AttendanceSettingsModel.update(settings);
     }
     else {
