@@ -1,4 +1,6 @@
 import * as AC from "./actionConsts";
+import {DELETE_PERMISSION} from "./actionConsts";
+import {deletePermission} from "./permissionAction";
 
 export const addTechnologies = (technologies) => ({
     type: AC.ADD_TECHNOLOGIES,
@@ -8,6 +10,10 @@ export const addTechnologies = (technologies) => ({
 export const addTechnology = (technology) => ({
     type: AC.ADD_TECHNOLOGY,
     technology: technology
+})
+export const deleteTechnology = (TechnologyID) => ({
+    type: AC.DELETE_TECHNOLOGY,
+    TechnologyID: TechnologyID
 })
 
 export const getAllTechnologiesFromServer = () => {
@@ -52,6 +58,31 @@ export const addTechnologyOnServer = (formInput) => {
                     dispatch(addTechnology(json.data))
 
 
+                }
+                return json
+            }
+        )
+    }
+}
+export const deleteTechnologyOnServer = (TechnologyID) => {
+    return function (dispatch, getState) {
+        return fetch('/api/technologies/' + TechnologyID,
+            {
+                method: "delete",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'ap plication/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(deleteTechnology(TechnologyID))
+                    // clear user form after update is successful
                 }
                 return json
             }

@@ -16,6 +16,7 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))
                     }}>Client</Link></li>
                     <li><Link to="/app-home/projects" onClick={() => {
+                        props.dispatch(A.getAllClientsFromServer())
                         props.dispatch(A.getAllProjectsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.PROJECT_LIST))
                     }}>Projects</Link></li>
