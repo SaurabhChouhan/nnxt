@@ -15,7 +15,8 @@ import {
     EstimationTaskDialog,
     ProjectFormDialog,
     TechnologyFormDialog,
-    ClientFormDialog
+    ClientFormDialog,
+    LeaveRequestFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -103,6 +104,18 @@ class ContentMain extends Component {
                     }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
                 </ContentSection>
+            }
+        })
+        routes.push({
+            url: "/raise_leave",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
+                return <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                    () => {
+                        this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+                    }
+                }/>
+
             }
         })
 

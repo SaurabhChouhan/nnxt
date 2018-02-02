@@ -26,6 +26,9 @@ export {default as TechnologyListContainer} from './lists/TechnologyListContaine
 export {default as TechnologyFormContainer} from './forms/TechnologyFormContainer'
 //Client
 export {default as ClientListContainer} from './lists/ClientListContainer'
+//leave
+export {default as LeaveRequestFormContainer} from './forms/LeaveRequestFormContainer'
+
 
 export {default as TabSectionContainer} from './sections/TabSectionContainer'
 
