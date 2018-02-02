@@ -5,7 +5,7 @@ import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
-import {estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,validate, generateSchema} from "../validation"
+import {estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,estimationNegotiatorAddFeatureStruct,validate, generateSchema} from "../validation"
 
 let estimationRouter = new Router({
     prefix: "estimations"
@@ -67,7 +67,7 @@ estimationRouter.get('/task/:estimationID', async ctx => {
 })
 
 /**
- * Add a new task to estimation
+ * Add a new feature to estimation
  */
 estimationRouter.post('/features', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
@@ -76,7 +76,9 @@ estimationRouter.post('/features', async ctx => {
         return await EstimationFeatureModel.addFeatureByEstimator(ctx.request.body, ctx.state.user)
 
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        return "not implemented"
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorAddFeatureStruct)
+        return await EstimationFeatureModel.addFeatureByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
