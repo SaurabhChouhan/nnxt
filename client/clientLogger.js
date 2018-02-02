@@ -52,8 +52,12 @@ export const TECHNOLOGY_FORM_LIFECYCLE = 'TechnologyForm->lc():'
 export const PROJECT_FORM_RENDER = 'ProjectForm->render():'
 export const PROJECT_FORM_CONNECT = 'ProjectForm->connect():'
 
-//let traceCodes = [TECHNOLOGY_FORM_CONNECT]
-let traceCodes = undefined
+export const ESTIMATION_DETAIL_RENDER = 'EstimationDetail->render():'
+export const ESTIMATION_TASK_RENDER = 'EstimationTask->render():'
+export const ESTIMATION_FEATURE_RENDER = 'EstimationFeature->render():'
+
+let traceCodes = [ESTIMATION_DETAIL_RENDER, ESTIMATION_FEATURE_RENDER, ESTIMATION_TASK_RENDER]
+//let traceCodes = undefined
 let logLevel = DEBUG_LEVEL
 
 if (process.env.NODE_ENV == PROD_ENV) {

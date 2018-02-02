@@ -28,6 +28,11 @@ export const addEstimationTask = (task) => ({
     }
 )
 
+export const estimationTaskDelete = (taskID) => ({
+    type: AC.ESTIMATION_TASK_DELETE,
+    taskID: taskID
+})
+
 export const getAllEstimationsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/estimations', {
@@ -121,7 +126,7 @@ export const addTaskToEstimationOnServer = (task) => {
 
 export const getEstimationFromServer = (estimationID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/'+estimationID, {
+        return fetch('/api/estimations/' + estimationID, {
                 method: 'get',
                 credentials: "include",
                 headers: {

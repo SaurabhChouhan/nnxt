@@ -3,7 +3,9 @@ import * as AC from '../actions/actionConsts'
 
 let initialState = {
     all: [],
-    selected: {}
+    selected: {},
+    tasks: [],
+    features: []
 }
 
 const estimationReducer = (state = initialState, action) => {
@@ -16,6 +18,15 @@ const estimationReducer = (state = initialState, action) => {
                         tasks: Array.isArray(state.selected.tasks) ? [...state.selected.tasks, action.task] : [action.task]
                     })
             })
+        case AC.ESTIMATION_TASK_DELETE:
+            return Object.assign({}, state, {
+                tasks: state.tasks.map(t => {
+                    if (t._id == action.taskID) {
+                        return Object.assign({}, t, {estimator: Object.assign({}, t.estimator, {removalRequested: !t.estimator.removalRequested})})
+                    }
+                    return t
+                })
+            })
         case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})
         case AC.ADD_ESTIMATION:
@@ -23,8 +34,14 @@ const estimationReducer = (state = initialState, action) => {
         case AC.EDIT_ESTIMATION:
             return Object.assign({}, state, {all: state.all.map(item => item._id == action.estimation._id ? action.estimation : item)})
         case AC.SELECT_ESTIMATION:
-            return Object.assign({}, state, {selected: action.estimation})
-
+            return Object.assign({}, state, {
+                selected: Object.assign({}, action.estimation, {
+                    tasks: undefined,
+                    features: undefined
+                }),
+                tasks: [...action.estimation.tasks],
+                features: [...action.estimation.features]
+            })
         default:
             return state
     }

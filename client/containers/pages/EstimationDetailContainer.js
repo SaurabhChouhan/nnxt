@@ -28,6 +28,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     NotificationManager.error("Unknown error occurred")
             }
         })
+    },
+    onTaskDelete: (taskID) => {
+        dispatch(A.estimationTaskDelete(taskID))
     }
 })
 
