@@ -61,8 +61,16 @@ projectSchema.statics.delete = async (id)=> {
 }
 projectSchema.statics.softDelete = async (id)=> {
     let project = await ProjectModel.findById(id)
-    project.isDeleted=true
-    let response = await project.save()
+    let response=undefined
+    if (project.canHardDelete){
+        response = await ProjectModel.findById(id).remove()
+    }
+    else{
+        project = await ProjectModel.findById(id)
+        project.isDeleted=true
+        response = await project.save()
+    }
+
     return response
 }
 projectSchema.statics.editProject = async projectInput => {
