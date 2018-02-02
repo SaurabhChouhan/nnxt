@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {validate, estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct} from "../validation"
+import {validate, estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct,estimationEstimatorMoveToFeatureStruct} from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
-import {EstimationModel, RepositoryModel} from "./"
+import {EstimationModel, RepositoryModel,EstimationTaskModel} from "./"
 import * as EC from "../errorcodes"
 import _ from 'lodash'
 
@@ -174,6 +174,31 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
 
 }
 
+estimationFeatureSchema.statics.moveToFeatureByEstimator = async (featureInput, estimator) => {
+    validate(featureInput, estimationEstimatorMoveToFeatureStruct)
+
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let estimationFeature = await EstimationFeatureModel.findById(featureInput.feature_id)
+    if(!estimationFeature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimationTask = await EstimationTaskModel.findById(featureInput.task_id)
+    if(!estimationTask)
+        throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(estimationFeature.estimation._id)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only update feature(Move to Feature) into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let taskOfEstimation = await EstimationTaskModel.updateTaskMoveToFeatureOfEstimation(featureInput.task_id,featureInput.feature_id,estimation._id)
+    return taskOfEstimation
+
+}
 
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel

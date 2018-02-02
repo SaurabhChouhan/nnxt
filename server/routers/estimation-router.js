@@ -7,7 +7,7 @@ import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
 import {
     estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,
-    estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct,validate, generateSchema
+    estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct,estimationEstimatorMoveToFeatureStruct,validate, generateSchema
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -101,4 +101,19 @@ estimationRouter.put('/features', async ctx => {
     }
 })
 
+/**
+ * Update a move to feature to estimation
+ */
+estimationRouter.put('/move-to-feature', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorMoveToFeatureStruct)
+        return await EstimationFeatureModel.moveToFeatureByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 export default estimationRouter

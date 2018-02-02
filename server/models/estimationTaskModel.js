@@ -4,7 +4,7 @@ import * as EC from '../errorcodes'
 import * as SC from "../serverconstants"
 import {validate, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct} from "../validation"
 import {userHasRole} from "../utils"
-import {EstimationModel, RepositoryModel} from "./"
+import {EstimationModel, RepositoryModel,EstimationFeatureModel} from "./"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -221,6 +221,20 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
 estimationTaskSchema.statics.getAllTaskOfEstimation = async (estimation_id) => {
     let tasksOfEstimation = await EstimationTaskModel.find({"estimation._id":estimation_id});
     return tasksOfEstimation;
+}
+
+estimationTaskSchema.statics.updateTaskMoveToFeatureOfEstimation = async (task_id,feature_id,estimation_id) => {
+    let tasksOfEstimation = await EstimationTaskModel.findById({"_id":task_id,"estimation._id":estimation_id});
+    if(!tasksOfEstimation)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let featureOfEstimation = await EstimationFeatureModel.findById({"_id":feature_id,"estimation._id":estimation_id});
+    if(!featureOfEstimation)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    tasksOfEstimation.feature = featureOfEstimation
+    tasksOfEstimation.updated = Date.now()
+    tasksOfEstimation.estimator.isMovedToFeature = true
+    return await tasksOfEstimation.save();
 }
 
 
