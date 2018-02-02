@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {validate, estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct,estimationEstimatorMoveToFeatureStruct} from "../validation"
+import {validate, estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct,estimationEstimatorMoveToFeatureStruct,estimationEstimatorMoveOutOfFeatureStruct} from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel,EstimationTaskModel} from "./"
@@ -136,12 +136,19 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     if(!estimationFeature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findById(estimationFeature.estimation._id)
+    if (!estimationFeature.addedInThisIteration && !estimationFeature.estimator.changeRequested)
+        throw new AppError('Estimator have not permissions [addedInThisIteration or changeRequested is true] to update this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id":estimationFeature.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only update feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Estimation not found of this estimator', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
 
     if (estimationFeature.repo && estimationFeature.repo._id) {
         featureInput.repo = {
@@ -168,35 +175,11 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
         mergeAllNotes = featureInput.notes
     }
     estimationFeature.notes = mergeAllNotes
+    estimationFeature.estimator.name = featureInput.name
+    estimationFeature.estimator.description = featureInput.description
     estimationFeature.updated = Date.now()
 
     return await estimationFeature.save()
-
-}
-
-estimationFeatureSchema.statics.moveToFeatureByEstimator = async (featureInput, estimator) => {
-    validate(featureInput, estimationEstimatorMoveToFeatureStruct)
-
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let estimationFeature = await EstimationFeatureModel.findById(featureInput.feature_id)
-    if(!estimationFeature)
-        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let estimationTask = await EstimationTaskModel.findById(featureInput.task_id)
-    if(!estimationTask)
-        throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let estimation = await EstimationModel.findById(estimationFeature.estimation._id)
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only update feature(Move to Feature) into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    let taskOfEstimation = await EstimationTaskModel.updateTaskMoveToFeatureOfEstimation(featureInput.task_id,featureInput.feature_id,estimation._id)
-    return taskOfEstimation
 
 }
 
