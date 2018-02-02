@@ -11,9 +11,11 @@ let ClientForm = (props) => {
             <div className="col-md-4">
                 <Field name="name" placeholder={"Name of client"} component={renderText}
                        label={"Client Name:"} validate={[required]}/>
+
+                <button type="submit" className="btn customBtn">Submit</button>
             </div>
         </div>
-        <button type="submit" className="btn btn-submit">Submit</button>
+
     </form>
 }
 
