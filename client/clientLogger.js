@@ -54,6 +54,7 @@ export const PROJECT_FORM_CONNECT = 'ProjectForm->connect():'
 
 export const ESTIMATION_DETAIL_RENDER = 'EstimationDetail->render():'
 export const ESTIMATION_TASK_RENDER = 'EstimationTask->render():'
+export const ESTIMATION_TASK_BUTTONS = 'EstimationTask->buttons:'
 export const ESTIMATION_FEATURE_RENDER = 'EstimationFeature->render():'
 
 let traceCodes = [ESTIMATION_DETAIL_RENDER, ESTIMATION_FEATURE_RENDER, ESTIMATION_TASK_RENDER]

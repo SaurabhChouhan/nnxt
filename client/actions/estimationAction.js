@@ -103,7 +103,7 @@ export const requestEstimationOnServer = (estimationID) => {
 
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/task', {
+        return fetch('/api/estimations/tasks', {
                 method: 'post',
                 credentials: "include",
                 headers: {

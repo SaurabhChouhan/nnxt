@@ -877,3 +877,9 @@ td.rejRowColor {
     padding-left: 0;
     padding-right: 0;
 }
+
+.content-section {
+    display:flex;
+    max-height:600px;
+    overflow-y: scroll;
+}
