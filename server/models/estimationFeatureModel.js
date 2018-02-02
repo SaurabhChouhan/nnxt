@@ -37,8 +37,8 @@ let estimationFeatureSchema = mongoose.Schema({
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false},
-        isChangedInThisIteration: {type: Boolean, default: false}
+        isChangedInThisIteration: {type: Boolean, default: false},
+        grantedChange: {type: Boolean, default: false}
     },
     technologies: [String],
     tags: [String],
