@@ -36,48 +36,182 @@ class EstimationDetail extends Component {
         return ''
     }
 
+
     render() {
         const {estimation} = this.props
         return <div>
-            {this.state.showEstimationRequestDialog &&
-            <ConfirmationDialog show={true} onConfirm={this.onConfirmEstimationRequest.bind(this)}
-                                title="Estimation Request" onClose={this.onClose.bind(this)}
-                                body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
-            }
-            <div className="clearfix">
-                <div className="col-md-1">Project:</div>
-                <div className="col-md-1">{estimation.project?estimation.project.name:''}</div>
-
-                <div className="col-md-1">Client:</div>
-                <div className="col-md-1">{estimation.client?estimation.client.name:''}</div>
-
-                <div className="col-md-1 col-md-offset-2">Status:</div>
-                <div className="col-md-3">{estimation.status}</div>
-            </div>
-            <div className="clearfix" style={{marginTop: 10}}>
-                <div className="col-md-3">
+            <div className="col-md-8 pad">
+                <div className="col-md-12 estimateheader">
+                    <div className="col-md-5 pad">
+                        <div className="backarrow">
+                            <h5>
+                                <a href=""><i
+                                    className="glyphicon glyphicon-arrow-left"></i></a><b>{estimation.project ? estimation.project.name : ''}</b>
+                            </h5>
+                        </div>
+                    </div>
                     {
-                        this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                        <button className="btn btn-default btn-submit addBtn"
-                                onClick={() => this.props.showAddTaskForm(estimation)}>Add Task
-                        </button>
+                        this.state.showEstimationRequestDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmEstimationRequest.bind(this)}
+                                            title="Estimation Request" onClose={this.onClose.bind(this)}
+                                            body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
                     }
-                    {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                    <button className="btn btn-default btn-submit addBtn"
-                            onClick={() => this.setState({showEstimationRequestDialog: true})}>Request Estimation
-                    </button>
-                    }
+                    <div className="col-md-3">
+                        {
+                            this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
+                            <button className="btn customBtn"
+                                    onClick={() => this.props.showAddTaskForm(estimation)}>Add Task
+                            </button>
+                        }
+                        {
+                            this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
+                            <button className="btn customBtn"
+                                    onClick={() => this.setState({showEstimationRequestDialog: true})}>Request Estimation
+                            </button>
+                        }
+                    </div>
+                    <div className="col-md-4 pad">
+                        <div className="estimationfileoption">
+                            <ul className="list-unstyled">
+                                <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
+                                <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
+                                <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-md-12 ">
+                    <div className="col-md-3 pad">
+                        <div className="estimationuser tooltip"><span>C</span>
+                            <p className="tooltiptext">{estimation.client ? estimation.client.name : ''}</p>
+                        </div>
+                        <div className="estimationuser"><span>E</span></div>
+                        <div className="estimationuser"><span>N</span></div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="logo">
+                            <img src="/images/react.png"/>
+                            <img src="/images/mongodb.png"/>
+                            <img src="/images/node.png"/>
+                            <img src="/images/html.png"/>
+                            <img src="/images/java.png"/>
+                        </div>
+                    </div>
+                    <div className="col-md-3 text-right esTime">
+                        <b>8 Hrs</b>
+                        <div className="clock">
+                            <i className="fa fa-clock-o "></i>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-md-12">
+                    <div className="feature">
+                        <div className="col-md-12 pad">
+                            <h4>Feature name</h4>
+                        </div>
+                        <div className="col-md-12 pad">
+                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
+                                has been the industry's standard dummy text ever since the 1500s.</p>
+                        </div>
+                        <div className="col-md-2 col-md-offset-1 pad">
+                            <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                        </div>
+                        <div className="col-md-3 pad">
+                            <h4>Sug. Hrs:</h4> <h4>&nbsp;6</h4>
+                        </div>
+                        <div className="col-md-6 text-right estimationActions pad">
+                            <img src="/images/edit.png"></img>
+                            <img src="/images/delete.png"></img>
+                            <img src="/images/move_outof_feature.png"></img>
+                        </div>
+                        <div className="newFlagStrip">
+                            <img src="/images/new_flag.png"></img>
+                        </div>
+                        <div className="repoFlagStrip">
+                            <img src="/images/repo_flag.png"></img>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+                <div className="col-md-12">
+                    <div className="task">
+                        <div className="col-md-12 pad">
+                            <h4>{this.formatName}</h4>
+                        </div>
+                        <div className="col-md-12 pad">
+                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
+                                has been the industry's standard dummy text ever since the 1500s.</p>
+                        </div>
+                        <div className="col-md-2 col-md-offset-1 pad">
+                            <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                        </div>
+                        <div className="col-md-3 pad">
+                            <h4>Sug. Hrs:</h4> <h4>&nbsp;6</h4>
+                        </div>
+                        <div className="col-md-6 text-right estimationActions pad">
+                            <img src="/images/he_granted_edit.png"></img>
+                            <img src="/images/request_delete.png"></img>
+                            <img src="/images/move_to_feature.png"></img>
+                        </div>
+                        <div className="newFlagStrip">
+                            <img src="/images/new_flag.png"></img>
+                        </div>
+                        <div className="repoFlagStrip">
+                            <img src="/images/repo_flag.png"></img>
+                        </div>
+                    </div>
+                </div>
+                <div className=" col-md-12 estimationfooter">
+                    <div className="col-md-4"><span className="customBtn">Estimation Completed</span></div>
+                    <div className="col-md-8">
+                        <form>
+                            <button type="button" className="btn taskbtn"><i className="fa fa-plus-circle"></i>
+                                Add task
+                            </button>
+                            <button type="button" className="btn featurebtn"><i className="fa fa-plus-circle"></i>
+                                Add feature
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-            <div className="clearfix">
+            <div className="col-md-4 estimationsection">
                 <div className="col-md-12">
-                    <BootstrapTable options={this.options} data={estimation.tasks}
-                                    striped={true}
-                                    hover={true}>
-                        <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                        <TableHeaderColumn dataField='estimator' dataFormat={this.formatName}>Task Name</TableHeaderColumn>
-                        <TableHeaderColumn dataField='estimator' dataFormat={this.formatDescription}>Task Description</TableHeaderColumn>
-                    </BootstrapTable>
+
+                    <div className="col-md-5 repositoryheading">
+                        <h5><b>Repository</b></h5>
+                    </div>
+                    <div className="col-md-3 ">
+                        <div className="search">
+                            <a href=""><i className="glyphicon glyphicon-search"></i></a>
+                        </div>
+                    </div>
+                    <div className="col-md-4 dropdownoption">
+                        <select className="form-control select">
+                            <option value="">All</option>
+                            <option value="">project1</option>
+                            <option value="">project2</option>
+                            <option value="">project3</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="col-md-12 repoSections">
+                    <h5 className="featuretask"><b> Task name 02 Hrs </b></h5>
+                    <p>This will contain task detail</p>
+                    <button type="button" className="btn btn-link">Read More...</button>
+                </div>
+                <div className="col-md-12 repoSections">
+                    <h5><b>Feature name 02 Hrs</b></h5>
+                    <p>This will contain features detail</p>
+                    <button type="button" className="btn btn-link">Read More...</button>
+                </div>
+                <div className="col-md-12 repoSections"><h5><b>Feature name 02 Hrs </b></h5>
+                    <p>This will contain features detail</p>
+                    <button type="button" className="btn btn-link">Read More...</button>
+                </div>
+                <div className="col-md-12 repoSections"><h5 className="featuretask"><b>Task name 02 Hrs </b></h5>
+                    <p>This will contain task detail</p>
+                    <button type="button" className="btn btn-link">Read More...</button>
                 </div>
             </div>
         </div>
