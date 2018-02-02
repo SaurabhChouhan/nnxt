@@ -120,4 +120,20 @@ estimationRouter.put('/move-to-feature', async ctx => {
 })
 
 
+/**
+ * Update a move out of feature to estimation
+ */
+estimationRouter.put('/move-out-of-feature', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorMoveOutOfFeatureStruct)
+        return await EstimationTaskModel.updateTaskMoveOutOfFeatureOfEstimation(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
 export default estimationRouter

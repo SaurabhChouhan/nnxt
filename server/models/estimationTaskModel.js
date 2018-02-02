@@ -2,7 +2,9 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
 import * as SC from "../serverconstants"
-import {validate, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,estimationEstimatorMoveToFeatureStruct} from "../validation"
+import {validate, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,
+    estimationEstimatorMoveToFeatureStruct,estimationEstimatorMoveOutOfFeatureStruct
+} from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel,EstimationFeatureModel} from "./"
 import _ from 'lodash'
@@ -255,6 +257,37 @@ estimationTaskSchema.statics.updateTaskMoveToFeatureOfEstimation = async (featur
     return await tasksOfEstimation.save();
 }
 
+estimationTaskSchema.statics.updateTaskMoveOutOfFeatureOfEstimation = async (featureInput, estimator) => {
+
+    validate(featureInput, estimationEstimatorMoveOutOfFeatureStruct)
+
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let featureOfEstimation = await EstimationFeatureModel.findById(featureInput.feature_id)
+    if(!featureOfEstimation)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let tasksOfEstimation = await EstimationTaskModel.findById(featureInput.task_id)
+    if(!tasksOfEstimation)
+        throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id":featureOfEstimation.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only update feature(Move to Feature) into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Estimator not in this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    tasksOfEstimation.feature = null
+    tasksOfEstimation.updated = Date.now()
+    tasksOfEstimation.estimator.isMovedToFeature = false
+    tasksOfEstimation.estimator.isMovedOutOfFeature = true
+    return await tasksOfEstimation.save();
+}
 
 const EstimationTaskModel = mongoose.model("EstimationTask", estimationTaskSchema)
 export default EstimationTaskModel

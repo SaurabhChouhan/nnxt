@@ -82,7 +82,10 @@ export const estimationEstimatorMoveToFeatureStruct = t.struct({
     feature_id: RequiredString
 })
 
-
+export const estimationEstimatorMoveOutOfFeatureStruct = t.struct({
+    task_id: RequiredString,
+    feature_id: RequiredString
+})
 
 //Estimator Feature Validation Block End
 
