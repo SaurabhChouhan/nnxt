@@ -768,47 +768,51 @@ td.rejRowColor {
     background: #ED4D52;
 }
 .loginform {
-    padding: 165px;
+    padding: 0.5% 10%;
     background-color: #F0F0F2;
-    height: 850px;
-    float: right;
+    position: fixed;
+    right: 0;
+    overflow: scroll;
+    height: 100%;
 }
 .loginform label{
     color: #9CA6A8;
     font-weight: normal;
 
 }
-.loginform  input{
-    width: 107%;
+.loginform input {
+    width: 100%;
     padding: 28px 28px;
-    margin: 8px -15px;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    margin-top: 0px;
     margin-bottom: 15px;
 }
-.loginform button{
+
+.loginform button, .loginform button:focus {
     background-color: #FF534F;
-    color: #F9FDF3;
+    color: #fff;
     width: 100%;
-    padding: 20px 20px;
-    margin: 50px 0;
+    padding: 15px 20px;
+    margin: 25px 0;
+    border: 2px solid #FF534F;
     display: inline-block;
+    font-size: 25px;
     border: 1px solid #ccc;
     box-sizing: border-box;
+    transition: 0.8s;
+}
+
+.loginform button:hover {
+    background: none;
+    color: #FF534F;
+    border: 2px solid #FF534F;
 }
 .loginform a{
     color: #FF534F;
-    float:right;
 }
 .loginform header {
-    margin-top:-98px;
     font-size: 28px;
     padding: 1em;
     clear: left;
     text-align: center;
-    font-family: initial;
 
 }
 .loginform footer{
@@ -822,22 +826,20 @@ td.rejRowColor {
 .loginform header span{
     color:#FF534F;
 }
-.loginform p{
-    margin-bottom: 70px;
+.loginform p {
+    margin-bottom: 5%;
     font-size: 18px;
-    margin-top: -14px;
     color: #ADB6B9;
-    font-family: normal;
 }
 .signupoption{
     text-align: center;
-    margin-left: 64px;
     font-size: 18px;
     font-weight: normal;
+    width:100%;
+    float: left;
 }
 .signupoption a{
     position: relative;
-    margin-right: 165px;
 }
 .login_img {
     background-image: url(../images/login_page_bg.jpg);
@@ -846,17 +848,16 @@ td.rejRowColor {
     height: 100%;
     background-size: cover;
 }
-.login_img h1{
+.login_img h1 {
     color: #ECE9ED;
-    margin: 181px 105px;
-    font-family: normal;
+    margin: 35% 5%;
     letter-spacing: 8px;
     font-size: 32px;
-
+    text-align: center;
 }
 .login_img p{
     color:#C5C7C9;
-    font-size: 20px;
+    font-size: 24px;
     text-align: center;
     padding-left: 22px;
     padding-right: 22px;
