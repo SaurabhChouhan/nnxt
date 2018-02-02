@@ -128,34 +128,26 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
 estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, estimator) => {
     validate(featureInput, estimationEstimatorUpdateFeatureStruct)
+
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-    let estimation = await EstimationModel.findById(featureInput.estimation._id)
+
+    let estimationFeature = await EstimationFeatureModel.findById(featureInput._id)
+    if(!estimationFeature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(estimationFeature.estimation._id)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only update feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let estimationFeature = await EstimationFeatureModel.findById(featureInput._id)
-    if(!estimationFeature)
-        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
     if (estimationFeature.repo && estimationFeature.repo._id) {
-        // Feature is added from repository
-        // find if Feature actually exists there
-        let repositoryFeature = await RepositoryModel.findById(estimationFeature.repo._id)
-        if (!repositoryFeature)
-            throw new AppError('Feature not part of repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-        if (_.includes([SC.STATUS_APPROVED], repositoryFeature.status))
-            throw new AppError("Repository feature has status as ["+repositoryFeature.status+"]. Estimator can only update feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-        repositoryFeature.name = featureInput.name
-        repositoryFeature.description = featureInput.description
-        repositoryFeature.technologies = featureInput.technologies
-        repositoryFeature.tags = featureInput.tags
-        await repositoryFeature.save()
+        featureInput.repo = {
+            _id: estimationFeature.repo._id
+        }
+        let updateFeatureFromRepo = await RepositoryModel.updateFeature(featureInput,estimator)
     }
 
     estimationFeature.technologies = featureInput.technologies
@@ -167,7 +159,15 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
             return n
         })
     }
-    estimationFeature.notes = featureInput.notes
+    let  mergeAllNotes = estimationFeature.notes
+    if (!_.isEmpty(mergeAllNotes)) {
+       featureInput.notes.map(n => {
+            mergeAllNotes.push(n)
+        })
+    }else{
+        mergeAllNotes = featureInput.notes
+    }
+    estimationFeature.notes = mergeAllNotes
     estimationFeature.updated = Date.now()
 
     return await estimationFeature.save()

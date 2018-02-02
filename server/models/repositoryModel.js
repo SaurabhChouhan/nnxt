@@ -81,8 +81,8 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
 
     const repository = await RepositoryModel.findById(featureInput.repo._id)
 
-    if(_.includes([SC.STATUS_APPROVED], repository.status))
-        throw new AppError("Repository has feature status as ["+repository.status+"]. Estimator can only update feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if(!repository)
+        throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     validate(featureInput, repositoryUpdateTaskAndFeatureStruct)
 
