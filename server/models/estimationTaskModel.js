@@ -42,7 +42,7 @@ let estimationTaskSchema = mongoose.Schema({
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false},
+        changeGranted: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
         isMovedOutOfFeature: {type: Boolean, default: false}

@@ -29,6 +29,8 @@ export {default as ProjectForm} from './forms/ProjectForm'
 export {default as ClientFormDialog} from './dialogs/ClientFormDialog'
 export {default as ClientList} from './lists/ClientList'
 
+export {default as EstimationTasks} from './sections/EstimationTasks'
+
 //technology RelatedForm
 export {default as TechnologyFormDialog} from './dialogs/TechnologyFormDialog'
 export {default as TechnologyForm} from './forms/TechnologyForm'
