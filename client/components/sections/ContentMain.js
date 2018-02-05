@@ -15,7 +15,8 @@ import {
     EstimationTaskDialog,
     ProjectFormDialog,
     TechnologyFormDialog,
-    ClientFormDialog
+    ClientFormDialog,
+    EstimationFeatureDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -99,6 +100,11 @@ class ContentMain extends Component {
                     <EstimationTaskDialog name={COC.ESTIMATION_TASK_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
+                        }
+                    }/>
+                    <EstimationFeatureDialog name={COC.ESTIMATION_FEATURE_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
                         }
                     }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>

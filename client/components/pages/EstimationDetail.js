@@ -149,7 +149,9 @@ class EstimationDetail extends Component {
                             <button type="button" className="btn taskbtn"><i className="fa fa-plus-circle"></i>
                                 Add task
                             </button>
-                            <button type="button" className="btn featurebtn"><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn featurebtn"
+                                    onClick={() => this.props.showAddFeatureForm(estimation)}
+                            ><i className="fa fa-plus-circle"></i>
                                 Add feature
                             </button>
                         </form>
