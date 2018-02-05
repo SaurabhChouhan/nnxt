@@ -154,18 +154,18 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!estimationTask)
         throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    if (!estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.estimator.changeRequested)
+        throw new AppError('You are not allowed to update task [ Only task owner must be estimator , addedFromThisEstimation and changeRequested are true ]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findById(estimationTask.estimation._id)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (estimator._id != estimation.estimator._id)
+    if (estimator._id.toString() != estimation.estimator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    if (!estimationTask.addedInThisIteration && !estimationTask.estimator.changeRequested)
-        throw new AppError('Permission denied for update task [Only permission for addedFromThisEstimation and changeRequested is true of estimator]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let isFeature = false
     if (taskInput.feature && taskInput.feature._id) {
