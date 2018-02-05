@@ -7,6 +7,7 @@ export {default as clientRouter} from './client-router'
 export {default as estimationRouter} from './estimation-router'
 export {default as projectRouter} from './project-router'
 export {default as technologyRouter} from './technology-router'
+export {default as leaveRouter} from './leave-router'
 
 // Please export all routers above this router
 export {default as apiRouter} from './api-router'
