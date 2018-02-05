@@ -26,10 +26,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
-    showEditFeatureForm: (feature) => {
+    showEditFeatureForm: (values) => {
         dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
         // initialize
-        dispatch(initialize('estimation-feature',feature))
+        let feature = {}
+        feature.estimation = values.estimation
+        feature._id = values._id
+        feature.name = values.estimator.name
+        feature.description = values.estimator.description
+        dispatch(initialize('estimation-feature', feature))
     },
     sendEstimationRequest: (estimation) => {
         dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
