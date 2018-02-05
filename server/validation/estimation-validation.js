@@ -41,7 +41,7 @@ export const estimationEstimatorAddTaskStruct = t.struct({
     )
 })
 
-
+//Estimator Feature Validation Block Start
 export const estimationEstimatorAddFeatureStruct = t.struct({
     _id: t.Nil,
     name: t.maybe(RequiredString),
@@ -61,6 +61,32 @@ export const estimationEstimatorAddFeatureStruct = t.struct({
         )
     )
 })
+
+export const estimationEstimatorUpdateFeatureStruct = t.struct({
+    _id: ObjectId,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
+    technologies: t.maybe(t.list(t.String)),
+    tags: t.maybe(t.list(t.String)),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    ),
+    repo: t.maybe(t.struct({_id: t.Nil}))
+})
+
+
+export const estimationEstimatorMoveToFeatureStruct = t.struct({
+    task_id: RequiredString,
+    feature_id: RequiredString
+})
+
+
+//Estimator Feature Validation Block End
+
+//Negotiator Feature Validation Block Start
 
 export const estimationNegotiatorAddTaskStruct = t.struct({
     _id: t.Nil,
@@ -85,3 +111,5 @@ export const estimationNegotiatorAddTaskStruct = t.struct({
         )
     )
 })
+
+//Negotiator Feature Validation Block Start

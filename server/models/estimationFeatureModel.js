@@ -1,9 +1,15 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {validate, estimationEstimatorAddFeatureStruct} from "../validation"
+import {
+    validate,
+    estimationEstimatorAddFeatureStruct,
+    estimationEstimatorUpdateFeatureStruct,
+    estimationEstimatorMoveToFeatureStruct,
+    estimationEstimatorMoveOutOfFeatureStruct
+} from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
-import {EstimationModel, RepositoryModel} from "./"
+import {EstimationModel, RepositoryModel, EstimationTaskModel} from "./"
 import * as EC from "../errorcodes"
 import _ from 'lodash'
 
@@ -30,15 +36,15 @@ let estimationFeatureSchema = mongoose.Schema({
         estimatedHours: {type: Number, required: true},
         changeRequested: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
-        isChangedInThisIteration: {type: Boolean, default: false}
+        changedInThisIteration: {type: Boolean, default: false}
     },
     negotiator: {
         name: {type: String},
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false},
-        isChangedInThisIteration: {type: Boolean, default: false}
+        changedInThisIteration: {type: Boolean, default: false},
+        grantedChange: {type: Boolean, default: false}
     },
     technologies: [String],
     tags: [String],
@@ -58,8 +64,8 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes[SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)
-        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only add feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let repositoryFeature = undefined
 
@@ -125,6 +131,76 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
 }
 
+
+estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, estimator) => {
+    validate(featureInput, estimationEstimatorUpdateFeatureStruct)
+
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let estimationFeature = await EstimationFeatureModel.findById(featureInput._id)
+    if (!estimationFeature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /**
+     * Check to see if this task is added by estimator or not
+     */
+    if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.addedInThisIteration && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.grantedChange) {
+        // this means that estimator has added this feature in past iteration and negotiator has not given permission to edit this feature
+        throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    } else if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.grantedChange) {
+        // this means that negotiator is owner of this feature and has not given permission to edit this feature
+        throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
+
+    let estimation = await EstimationModel.findOne({"_id": estimationFeature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('You are not estimator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
+
+    estimationFeature.technologies = featureInput.technologies
+    estimationFeature.tags = featureInput.tags
+
+    if (!_.isEmpty(featureInput.notes)) {
+        featureInput.notes = featureInput.notes.map(n => {
+            n.name = estimator.fullName
+            return n
+        })
+    }
+    let mergeAllNotes = estimationFeature.notes
+    if (!_.isEmpty(mergeAllNotes)) {
+        featureInput.notes.map(n => {
+            mergeAllNotes.push(n)
+        })
+    } else {
+        mergeAllNotes = featureInput.notes
+    }
+    estimationFeature.notes = mergeAllNotes
+    estimationFeature.estimator.name = featureInput.name
+    if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_ESTIMATOR)
+        estimationFeature.estimator.changedInThisIteration = true
+    estimationFeature.estimator.description = featureInput.description
+    estimationFeature.updated = Date.now()
+
+    if (estimationFeature.repo && estimationFeature.repo._id) {
+        await RepositoryModel.updateFeature({
+            _id: estimationFeature.repo._id.toString(),
+            estimation: {
+                _id: estimationFeature.estimation._id.toString()
+            },
+            name: featureInput.name,
+            description: featureInput.description,
+            technologies: featureInput.technologies,
+            tags: featureInput.tags
+        }, estimator)
+    }
+    return await estimationFeature.save()
+}
 
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel
