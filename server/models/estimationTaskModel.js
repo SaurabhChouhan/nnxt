@@ -47,7 +47,7 @@ let estimationTaskSchema = mongoose.Schema({
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
-        removalRequested: {type: Boolean, default: false},
+        changeGranted: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
         isMovedOutOfFeature: {type: Boolean, default: false}
@@ -233,7 +233,7 @@ estimationTaskSchema.statics.moveTaskToFeature = async (featureInput, estimator)
     validate(featureInput, estimationEstimatorMoveToFeatureStruct)
 
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Not an estimator', EC.INVAstimation-LID_USER, EC.HTTP_BAD_REQUEST)
 
     let featureOfEstimation = await EstimationFeatureModel.findById(featureInput.feature_id)
     if (!featureOfEstimation)
