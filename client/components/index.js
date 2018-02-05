@@ -32,6 +32,8 @@ export {default as ClientList} from './lists/ClientList'
 export {default as LeaveRequestFormDialog} from './dialogs/LeaveRequestFormDialog'
 export {default as LeaveRequestForm} from './forms/LeaveRequestForm'
 
+export {default as EstimationTasks} from './sections/EstimationTasks'
+
 //technology RelatedForm
 export {default as TechnologyFormDialog} from './dialogs/TechnologyFormDialog'
 export {default as TechnologyForm} from './forms/TechnologyForm'
