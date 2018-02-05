@@ -19,6 +19,7 @@ class EstimationTask extends React.PureComponent {
              * Negotiator would always be able to edit any task (would be considered as suggestions), first button hence would always be edit
              */
             buttons.push(<img key="edit" src="/images/edit.png"></img>)
+            buttons.push(<img key="delete" src="/images/delete.png"></img>)
         } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
             /**
              * First button show to estimator would always be edit or its variations
@@ -70,7 +71,6 @@ class EstimationTask extends React.PureComponent {
             buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png"></img>)
         }
 
-
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
         return <div className="task">
             <div className="col-md-12 pad">
@@ -89,26 +89,6 @@ class EstimationTask extends React.PureComponent {
             <div className="col-md-6 text-right estimationActions pad">
                 {buttons}
             </div>
-
-            {/*<div className="col-md-6 text-right estimationActions pad">
-                {
-                    task.owner == SC.OWNER_ESTIMATOR && (task.addedInThisIteration &&
-                        [<img key="est_task_edit" src="/images/edit.png"></img>,
-                            <img key="est_task_delete" src="/images/delete.png"
-                                 onClick={() => this.props.onTaskDelete(task._id)}></img>,
-                            <img key="est_task_mvtofeature" src="/images/move_to_feature.png"></img>]
-                        || !task.addedInThisIteration && (
-                            !task.estimator.removalRequested ?
-                                <img key="est_task_delete" src="/images/request_delete.png"
-                                     onClick={() => this.props.onTaskDelete(task._id)}/> :
-                                <img key="est_task_delete" src="/images/requested_delete.png"
-                                     onClick={() => this.props.onTaskDelete(task._id)}/>
-
-                        )
-                    )
-
-                }
-            </div>*/}
 
             {task.addedInThisIteration && <div className="newFlagStrip">
                 <img src="/images/new_flag.png"></img>

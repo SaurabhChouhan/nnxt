@@ -56,7 +56,7 @@ export const ESTIMATION_DETAIL_RENDER = 'EstimationDetail->render():'
 export const ESTIMATION_TASK_RENDER = 'EstimationTask->render():'
 export const ESTIMATION_TASK_BUTTONS = 'EstimationTask->buttons:'
 export const ESTIMATION_FEATURE_RENDER = 'EstimationFeature->render():'
-
+export const ESTIMATION_FEATURE_BUTTONS = 'EstimationFeature->buttons:'
 let traceCodes = [ESTIMATION_DETAIL_RENDER, ESTIMATION_FEATURE_RENDER, ESTIMATION_TASK_RENDER]
 //let traceCodes = undefined
 let logLevel = DEBUG_LEVEL
