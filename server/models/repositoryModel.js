@@ -100,5 +100,22 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
 
 }
 
+repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id,is_feature,taskInput, user) => {
+    if (!user || (!userHasRole(user, ROLE_NEGOTIATOR) && !userHasRole(user, ROLE_ESTIMATOR)))
+        throw new AppError('Only user with any of the roles [' + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task to repository", INVALID_USER, HTTP_BAD_REQUEST)
+
+    let repository = await RepositoryModel.findById(repo_id)
+    if (!repository)
+        throw new AppError('Repository not found', NOT_FOUND, HTTP_BAD_REQUEST)
+
+    repository.name  = taskInput.name
+    repository.description  = taskInput.description
+    repository.technologies  = taskInput.technologies
+    repository.tags  = taskInput.tags
+    repository.isFeature  = is_feature
+
+    return await repository.save()
+}
+
 const RepositoryModel = mongoose.model("Repository", repositorySchema)
 export default RepositoryModel

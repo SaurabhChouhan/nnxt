@@ -7,12 +7,9 @@ import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
 import * as SC from '../serverconstants'
 import {
-    estimationInitiationStruct,
-    estimationEstimatorAddTaskStruct,
-    estimationNegotiatorAddTaskStruct,
-    estimationEstimatorAddFeatureStruct,
-    validate,
-    generateSchema
+    estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,
+    estimationEstimatorUpdateTaskStruct, estimationEstimatorAddFeatureStruct,
+    validate, generateSchema
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -73,6 +70,19 @@ estimationRouter.post('/tasks', async ctx => {
         return await EstimationTaskModel.addTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+/**
+ * Update a new task to estimation
+ */
+estimationRouter.put('/tasks', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorUpdateTaskStruct)
+        return await EstimationTaskModel.updateTaskByEstimator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
