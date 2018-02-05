@@ -43,7 +43,7 @@ class EstimationDetail extends Component {
 
         logger.debug(logger.ESTIMATION_DETAIL_RENDER, this.props)
 
-        const {estimation} = this.props
+        const {estimation,features} = this.props
         return <div>
             <div className="col-md-8 pad">
                 <div className="col-md-12 estimateheader">
@@ -110,34 +110,36 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12">
-                    <div className="feature">
-                        <div className="col-md-12 pad">
-                            <h4>Feature name</h4>
-                        </div>
-                        <div className="col-md-12 pad">
-                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text ever since the 1500s.</p>
-                        </div>
-                        <div className="col-md-2 col-md-offset-1 pad">
-                            <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                        </div>
-                        <div className="col-md-3 pad">
-                            <h4>Sug. Hrs:</h4> <h4>&nbsp;6</h4>
-                        </div>
-                        <div className="col-md-6 text-right estimationActions pad">
-                            <img src="/images/edit.png"></img>
-                            <img src="/images/delete.png"></img>
-                            <img src="/images/move_outof_feature.png"></img>
-                        </div>
-                        <div className="newFlagStrip">
-                            <img src="/images/new_flag.png"></img>
-                        </div>
-                        <div className="repoFlagStrip">
-                            <img src="/images/repo_flag.png"></img>
-                        </div>
-                    </div>
-                </div>
+                {features && Array.isArray(features) && features.length > 0 ?
+                    features.map((feature,idx)=> {
+                   return  <div className="col-md-12">
+                            <div className="feature">
+                                <div className="col-md-12 pad">
+                                    <h4>{feature.estimator.name}</h4>
+                                </div>
+                                <div className="col-md-12 pad">
+                                    <p>{feature.estimator.description}</p>
+                                </div>
+                                <div className="col-md-2 col-md-offset-1 pad">
+                                    <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                                </div>
+                                <div className="col-md-3 pad">
+                                    <h4>Sug. Hrs:</h4> <h4>&nbsp;6</h4>
+                                </div>
+                                <div className="col-md-6 text-right estimationActions pad">
+                                    <img src="/images/edit.png" onClick={()=>this.props.showEditFeatureForm(feature)}></img>
+                                    <img src="/images/delete.png"></img>
+                                    <img src="/images/move_outof_feature.png"></img>
+                                </div>
+                                <div className="newFlagStrip">
+                                    <img src="/images/new_flag.png"></img>
+                                </div>
+                                <div className="repoFlagStrip">
+                                    <img src="/images/repo_flag.png"></img>
+                                </div>
+                            </div>
+                        </div>})
+                     : <label>No feature Added! </label>}
                 <br/>
                 <div className="col-md-12">
                     <EstimationTaskContainer onTaskDelete={this.props.onTaskDelete}/>

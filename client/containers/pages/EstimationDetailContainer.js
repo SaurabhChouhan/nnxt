@@ -26,6 +26,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
+    showEditFeatureForm: (feature) => {
+        dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
+        // initialize
+        dispatch(initialize('estimation-feature',feature))
+    },
     sendEstimationRequest: (estimation) => {
         dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
             if (json.success) {
@@ -46,7 +51,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
-    estimation: state.estimation.selected
+    estimation: state.estimation.selected,
+    features: state.estimation.features
 })
 
 const EstimationDetailContainer = withRouter(connect(
