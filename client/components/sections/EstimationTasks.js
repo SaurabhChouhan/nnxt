@@ -126,7 +126,7 @@ class EstimationTask extends React.PureComponent {
 
 let
     EstimationTasks = (props) =>
-        props.tasks.map(t => <EstimationTask task={t} key={t._id} loggedInUserRole={props.loggedInUserRole}
+        Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t} key={t._id} loggedInUserRole={props.loggedInUserRole}
                                              onTaskDelete={props.onTaskDelete}/>)
 
 export default EstimationTasks

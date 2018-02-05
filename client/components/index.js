@@ -30,6 +30,7 @@ export {default as ClientFormDialog} from './dialogs/ClientFormDialog'
 export {default as ClientList} from './lists/ClientList'
 
 export {default as EstimationTasks} from './sections/EstimationTasks'
+export {default as EstimationFeatures} from './sections/EstimationFeatures'
 
 //technology RelatedForm
 export {default as TechnologyFormDialog} from './dialogs/TechnologyFormDialog'
