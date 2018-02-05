@@ -45,6 +45,10 @@ estimationRouter.get("/:estimationID", async ctx => {
     return estimation
 })
 
+/**
+ * Initiate estimation by Negotiator
+ */
+
 estimationRouter.post('/initiate', async ctx => {
     // Return expected schema
     if (ctx.schemaRequested)
@@ -56,10 +60,21 @@ estimationRouter.post('/initiate', async ctx => {
     return EstimationModel.initiate(ctx.request.body, ctx.state.user)
 })
 
+
+/**
+ * Used for making estimation request by Negotiator
+ */
 estimationRouter.put('/request/:estimationID', async ctx => {
     if (!hasRole(ctx, ROLE_NEGOTIATOR))
         throw new AppError("Only users with role [" + ROLE_NEGOTIATOR + "] can request estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
+})
+
+/**
+ * User by Estimator to request review from Negotiator
+ */
+estimationRouter.put('/review-request/:estimationID', async ctx => {
+    return EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
 })
 
 

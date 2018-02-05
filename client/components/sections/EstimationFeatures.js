@@ -67,10 +67,10 @@ class EstimationFeature extends React.PureComponent {
 
         return <div className="feature">
             <div className="col-md-12 pad">
-                <h4>{feature.estimator.name}</h4>
+                <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
             </div>
             <div className="col-md-12 pad">
-                <p>{feature.estimator.description}</p>
+                <p>{feature.estimator.description ? feature.estimator.name : feature.negotiator.name}</p>
             </div>
             <div className="col-md-2 col-md-offset-1 pad">
                 <h4>Est. Hrs:</h4> <h4>&nbsp;{feature.estimator.estimatedHours}</h4>

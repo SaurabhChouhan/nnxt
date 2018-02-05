@@ -17,13 +17,17 @@ class EstimationDetail extends Component {
     }
 
     onClose() {
-        this.setState({showEstimationRequestDialog: false})
+        this.setState({showEstimationRequestDialog: false, showEstimationReviewDialog: false})
     }
 
     onConfirmEstimationRequest() {
         this.setState({showEstimationRequestDialog: false})
-        console.log("onConfirmationEstimationRequest")
         this.props.sendEstimationRequest(this.props.estimation)
+    }
+
+    onConfirmReviewRequest() {
+        this.setState({showEstimationReviewDialog: false})
+        this.props.sendReviewRequest(this.props.estimation)
     }
 
     formatName(estimatorSecion) {
@@ -61,14 +65,32 @@ class EstimationDetail extends Component {
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
                                             body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
                     }
+
+                    {
+                        this.state.showEstimationReviewDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmReviewRequest.bind(this)}
+                                            title="Estimation Request" onClose={this.onClose.bind(this)}
+                                            body="You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"/>
+                    }
+
+
                     <div className="col-md-3">
                         {
-                            this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
+                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_INITIATED &&
                             <button className="btn customBtn"
                                     onClick={() => this.setState({showEstimationRequestDialog: true})}>Request
                                 Estimation
                             </button>
                         }
+
+                        {
+                            estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && (estimation.status == SC.STATUS_ESTIMATION_REQUESTED || estimation.status == SC.STATUS_CHANGE_REQUESTED) &&
+                            <button className="btn customBtn"
+                                    onClick={() => this.setState({showEstimationReviewDialog: true})}>Request
+                                Review
+                            </button>
+                        }
+
                     </div>
                     <div className="col-md-4 pad">
                         <div className="estimationfileoption">

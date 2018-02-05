@@ -30,9 +30,9 @@ let estimationFeatureSchema = mongoose.Schema({
         addedFromThisEstimation: {type: Boolean, required: true}
     },
     estimator: {
-        name: {type: String, required: true},
-        description: {type: String, required: true},
-        estimatedHours: {type: Number, required: true},
+        name: {type: String},
+        description: {type: String},
+        estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false}
@@ -63,7 +63,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes[SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let repositoryFeature = undefined
