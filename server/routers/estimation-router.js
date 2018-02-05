@@ -5,6 +5,7 @@ import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
+import * as SC from '../serverconstants'
 import {
     estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,
     estimationEstimatorAddFeatureStruct,estimationEstimatorUpdateFeatureStruct,
@@ -21,7 +22,20 @@ estimationRouter.get("/", async ctx => {
 })
 
 estimationRouter.get("/:estimationID", async ctx => {
-    return await EstimationModel.getById(ctx.params.estimationID)
+    let estimation = await EstimationModel.getById(ctx.params.estimationID)
+    if(estimation){
+        // check to see role of logged in user in this estimation
+
+        if(estimation.estimator._id == ctx.state.user._id)
+            estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
+        else if(estimation.negotiator._id == ctx.state.user._id)
+            estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+        else {
+            throw new AppError("Not allowed to see estimation details", ACCESS_DENIED, HTTP_FORBIDDEN)
+        }
+
+    }
+    return estimation
 })
 
 estimationRouter.post('/initiate', async ctx => {
