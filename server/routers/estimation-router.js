@@ -5,7 +5,20 @@ import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
-import {estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,estimationNegotiatorAddFeatureStruct,validate, generateSchema} from "../validation"
+import * as SC from '../serverconstants'
+import {
+    validate,
+    generateSchema,
+    estimationInitiationStruct,
+    estimationEstimatorAddTaskStruct,
+    estimationNegotiatorAddTaskStruct,
+    estimationEstimatorUpdateTaskStruct,
+    estimationEstimatorAddFeatureStruct,
+    estimationEstimatorUpdateFeatureStruct,
+    estimationEstimatorMoveToFeatureStruct,
+    estimationEstimatorMoveOutOfFeatureStruct,
+    estimationNegotiatorAddFeatureStruct
+} from "../validation"
 
 let estimationRouter = new Router({
     prefix: "estimations"
@@ -16,7 +29,20 @@ estimationRouter.get("/", async ctx => {
 })
 
 estimationRouter.get("/:estimationID", async ctx => {
-    return await EstimationModel.getById(ctx.params.estimationID)
+    let estimation = await EstimationModel.getById(ctx.params.estimationID)
+    if (estimation) {
+        // check to see role of logged in user in this estimation
+
+        if (estimation.estimator._id == ctx.state.user._id)
+            estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
+        else if (estimation.negotiator._id == ctx.state.user._id)
+            estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+        else {
+            throw new AppError("Not allowed to see estimation details", ACCESS_DENIED, HTTP_FORBIDDEN)
+        }
+
+    }
+    return estimation
 })
 
 estimationRouter.post('/initiate', async ctx => {
@@ -56,6 +82,19 @@ estimationRouter.post('/tasks', async ctx => {
 })
 
 /**
+ * Update a new task to estimation
+ */
+estimationRouter.put('/tasks', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorUpdateTaskStruct)
+        return await EstimationTaskModel.updateTaskByEstimator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+/**
  * Get all tasks of estimation by ID
  */
 estimationRouter.get('/task/:estimationID', async ctx => {
@@ -80,7 +119,56 @@ estimationRouter.post('/features', async ctx => {
             return generateSchema(estimationNegotiatorAddFeatureStruct)
         return await EstimationFeatureModel.addFeatureByNegotiator(ctx.request.body, ctx.state.user)
     } else {
-        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+/**
+ * Update a new features to estimation
+ */
+estimationRouter.put('/features', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorUpdateFeatureStruct)
+        return await EstimationFeatureModel.updateFeatureByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+/**
+ * Update a move to feature to estimation
+ */
+estimationRouter.put('/move-to-feature', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorMoveToFeatureStruct)
+        return await EstimationTaskModel.moveTaskToFeatureByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+
+/**
+ * Update a move out of feature to estimation
+ */
+estimationRouter.put('/move-out-of-feature', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorMoveOutOfFeatureStruct)
+        return await EstimationTaskModel.moveTaskOutOfFeatureByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
