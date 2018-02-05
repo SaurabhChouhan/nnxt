@@ -1,0 +1,41 @@
+import {reduxForm, Field, Form} from 'redux-form'
+import React from 'react'
+import {required} from './validation'
+import {renderText, renderTextArea} from './fields'
+import * as logger from '../../clientLogger'
+
+let EstimationFeatureForm = (props) => {
+    logger.debug(logger.ESTIMATION_FEATURE_FORM_RENDER, props)
+    const {estimation} = props
+    return <form onSubmit={props.handleSubmit}>
+        <div className="row">
+
+            <Field name="estimation._id" component="input" type="hidden"/>
+
+            <div className="col-md-6">
+                <Field name="name" component={renderText} label={"Feature Name:"} validate={[required]}/>
+            </div>
+
+        </div>
+        <div className="row">
+            <div className="col-md-12">
+                <Field name="description" component={renderTextArea} label="Feature Description:" validate={[required]}/>
+            </div>
+
+        </div>
+        <div className="row initiatEstimation">
+            <div className="col-md-6 text-center">
+                <button type="submit" className="btn customBtn">Submit</button>
+            </div>
+            <div className="col-md-6 text-center">
+                <button type="submit" className="btn customBtn">Reset</button>
+            </div>
+        </div>
+    </form>
+}
+
+EstimationFeatureForm = reduxForm({
+    form: 'estimation-feature'
+})(EstimationFeatureForm)
+
+export default EstimationFeatureForm
