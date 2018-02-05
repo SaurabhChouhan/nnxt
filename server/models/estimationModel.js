@@ -55,20 +55,21 @@ let estimationSchema = mongoose.Schema({
     isArchived: {type: Boolean, default: false},
     canHardDelete: {type: Boolean, default: true}
 }, {
-    usePushEach:true
+    usePushEach: true
 })
 
 
 estimationSchema.statics.getAllActive = async (user) => {
+
+    console.log("user id is ", user._id)
     let estimations = []
     if (userHasRole(user, SC.ROLE_ESTIMATOR)) {
-
         console.log("user has estimator role")
         // Estimator would only see those estimations that don't have initiated status and this user is estimator
         let estimatorEstimations = await EstimationModel.find({
             isArchived: false,
             isDeleted: false,
-            "estimator._id": user._id,
+            "estimator._id": mongoose.Types.ObjectId(user._id),
             status: {$ne: SC.STATUS_INITIATED}
         }, {
             description: 1,
@@ -79,6 +80,8 @@ estimationSchema.statics.getAllActive = async (user) => {
             negotiator: 1,
             status: 1
         })
+
+        console.log("estimator estimations ", estimatorEstimations)
 
         estimations = [...estimatorEstimations]
 
@@ -117,15 +120,40 @@ estimationSchema.statics.getById = async estimationID => {
     }, {
         $lookup: {
             from: 'estimationtasks',
-            localField: '_id',
-            foreignField: 'estimation._id',
+            let: {estimationID: "$_id"},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ["$estimation._id", "$$estimationID"]},
+                            {$eq: [{$ifNull: ["$feature._id", true]}, true]}
+                        ]
+                    }
+                }
+            }],
             as: 'tasks'
         }
     }, {
         $lookup: {
             from: 'estimationfeatures',
-            localField: '_id',
-            foreignField: 'estimation._id',
+            let: {estimationID: "$_id"},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ["$estimation._id", "$$estimationID"]}
+                        ]
+                    }
+                }
+
+            }, {
+                $lookup: {
+                    from: 'estimationtasks',
+                    localField: "_id",
+                    foreignField: "feature._id",
+                    as: "tasks"
+                }
+            }],
             as: 'features'
         }
     }).exec()

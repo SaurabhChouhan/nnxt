@@ -3,7 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import Dialog from 'react-bootstrap-dialog'
 import {ConfirmationDialog} from "../"
-import {EstimationTaskContainer} from "../../containers"
+import {EstimationTasksContainer, EstimationFeaturesContainer} from "../../containers"
 import * as logger from '../../clientLogger'
 
 class EstimationDetail extends Component {
@@ -43,7 +43,7 @@ class EstimationDetail extends Component {
 
         logger.debug(logger.ESTIMATION_DETAIL_RENDER, this.props)
 
-        const {estimation,features} = this.props
+        const {estimation} = this.props
         return <div>
             <div className="col-md-8 pad">
                 <div className="col-md-12 estimateheader">
@@ -110,39 +110,12 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
-                {features && Array.isArray(features) && features.length > 0 ?
-                    features.map((feature,idx)=> {
-                   return  <div className="col-md-12">
-                            <div className="feature">
-                                <div className="col-md-12 pad">
-                                    <h4>{feature.estimator.name}</h4>
-                                </div>
-                                <div className="col-md-12 pad">
-                                    <p>{feature.estimator.description}</p>
-                                </div>
-                                <div className="col-md-2 col-md-offset-1 pad">
-                                    <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                                </div>
-                                <div className="col-md-3 pad">
-                                    <h4>Sug. Hrs:</h4> <h4>&nbsp;6</h4>
-                                </div>
-                                <div className="col-md-6 text-right estimationActions pad">
-                                    <img src="/images/edit.png" onClick={()=>this.props.showEditFeatureForm(feature)}></img>
-                                    <img src="/images/delete.png"></img>
-                                    <img src="/images/move_outof_feature.png"></img>
-                                </div>
-                                <div className="newFlagStrip">
-                                    <img src="/images/new_flag.png"></img>
-                                </div>
-                                <div className="repoFlagStrip">
-                                    <img src="/images/repo_flag.png"></img>
-                                </div>
-                            </div>
-                        </div>})
-                     : <label>No feature Added! </label>}
+                <div className="col-md-12">
+                    <EstimationFeaturesContainer/>
+                </div>
                 <br/>
                 <div className="col-md-12">
-                    <EstimationTaskContainer onTaskDelete={this.props.onTaskDelete}/>
+                    <EstimationTasksContainer/>
                 </div>
                 <div className=" col-md-12 estimationfooter">
                     <div className="col-md-4"><span className="customBtn">Estimation Completed</span></div>

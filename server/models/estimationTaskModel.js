@@ -71,12 +71,21 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('You are not estimator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
+
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
-        // TODO: Need to find feature from {EstimationFeature} and add validation
+        let estimationFeature = await EstimationFeatureModel.findById(taskInput.feature._id)
+
+        console.log("estimator feature found as ", estimationFeature)
+        if (!estimationFeature || estimationFeature.estimation._id.toString() != estimation._id.toString()) {
+            throw new AppError('No such feature in this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        }
     }
 
     let repositoryTask = undefined
