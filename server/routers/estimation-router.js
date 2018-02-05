@@ -1,6 +1,6 @@
 import Router from 'koa-router'
-import {EstimationModel, EstimationTaskModel,EstimationFeatureModel} from "../models"
-import {hasRole,isAuthenticated} from "../utils"
+import {EstimationModel, EstimationTaskModel, EstimationFeatureModel} from "../models"
+import {hasRole, isAuthenticated} from "../utils"
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
@@ -73,7 +73,7 @@ estimationRouter.post('/tasks', async ctx => {
         return await EstimationTaskModel.addTaskByEstimator(ctx.request.body, ctx.state.user)
 
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        if(ctx.schemaRequested)
+        if (ctx.schemaRequested)
             return generateSchema(estimationNegotiatorAddTaskStruct)
         return await EstimationTaskModel.addTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
@@ -89,6 +89,8 @@ estimationRouter.put('/tasks', async ctx => {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorUpdateTaskStruct)
         return await EstimationTaskModel.updateTaskByEstimator(ctx.request.body, ctx.state.user)
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
@@ -98,7 +100,7 @@ estimationRouter.put('/tasks', async ctx => {
  * Get all tasks of estimation by ID
  */
 estimationRouter.get('/task/:estimationID', async ctx => {
-    if(isAuthenticated(ctx)){
+    if (isAuthenticated(ctx)) {
         return await EstimationTaskModel.getAllTaskOfEstimation(ctx.params.estimationID)
     } else {
         throw new AppError("Not authenticated user.", ACCESS_DENIED, HTTP_FORBIDDEN)
