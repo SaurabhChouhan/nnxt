@@ -86,6 +86,24 @@ export const estimationNegotiatorAddTaskStruct = t.struct({
     )
 })
 
+export const estimationEstimatorUpdateTaskStruct = t.struct({
+    _id: RequiredString,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
+    estimatedHours: t.Number,
+    feature: t.maybe(t.struct({
+        _id: ObjectId
+    })),
+    technologies: t.maybe(t.list(t.String)),
+    tags: t.maybe(t.list(t.String)),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    )
+})
+
 export const estimationNegotiatorAddFeatureStruct = t.struct({
     _id: t.Nil,
     name: t.maybe(RequiredString),
@@ -99,9 +117,9 @@ export const estimationNegotiatorAddFeatureStruct = t.struct({
     technologies: t.maybe(t.list(t.String)),
     tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
-            t.struct({
-                note: t.String
-            })
+        t.struct({
+            note: t.String
+        })
         )
     )
 })
