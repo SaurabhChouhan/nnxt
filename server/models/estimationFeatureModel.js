@@ -182,7 +182,7 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     }
     estimationFeature.notes = mergeAllNotes
     estimationFeature.estimator.name = featureInput.name
-    if (!estimationFeature.addedInThisIteration)
+    if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_ESTIMATOR)
         estimationFeature.estimator.changedInThisIteration = true
     estimationFeature.estimator.description = featureInput.description
     estimationFeature.updated = Date.now()

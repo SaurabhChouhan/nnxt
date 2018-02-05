@@ -110,7 +110,7 @@ estimationRouter.put('/move-to-feature', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorMoveToFeatureStruct)
-        return await EstimationTaskModel.updateTaskMoveToFeatureOfEstimation(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskToFeature(ctx.request.body, ctx.state.user)
 
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
