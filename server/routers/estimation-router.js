@@ -7,9 +7,16 @@ import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
 import * as SC from '../serverconstants'
 import {
-    estimationInitiationStruct, estimationEstimatorAddTaskStruct, estimationNegotiatorAddTaskStruct,
-    estimationEstimatorAddFeatureStruct, estimationEstimatorUpdateFeatureStruct,
-    estimationEstimatorMoveToFeatureStruct, generateSchema
+    validate,
+    generateSchema,
+    estimationInitiationStruct,
+    estimationEstimatorAddTaskStruct,
+    estimationNegotiatorAddTaskStruct,
+    estimationEstimatorUpdateTaskStruct,
+    estimationEstimatorAddFeatureStruct,
+    estimationEstimatorUpdateFeatureStruct,
+    estimationEstimatorMoveToFeatureStruct,
+    estimationEstimatorMoveOutOfFeatureStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -74,6 +81,19 @@ estimationRouter.post('/tasks', async ctx => {
 })
 
 /**
+ * Update a new task to estimation
+ */
+estimationRouter.put('/tasks', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorUpdateTaskStruct)
+        return await EstimationTaskModel.updateTaskByEstimator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+/**
  * Get all tasks of estimation by ID
  */
 estimationRouter.get('/task/:estimationID', async ctx => {
@@ -123,7 +143,7 @@ estimationRouter.put('/move-to-feature', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorMoveToFeatureStruct)
-        return await EstimationTaskModel.moveTaskToFeature(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskToFeatureByEstimator(ctx.request.body, ctx.state.user)
 
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
@@ -132,5 +152,21 @@ estimationRouter.put('/move-to-feature', async ctx => {
     }
 })
 
+
+/**
+ * Update a move out of feature to estimation
+ */
+estimationRouter.put('/move-out-of-feature', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorMoveOutOfFeatureStruct)
+        return await EstimationTaskModel.moveTaskOutOfFeatureByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 
 export default estimationRouter
