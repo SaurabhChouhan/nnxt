@@ -105,6 +105,31 @@ export const requestEstimationOnServer = (estimationID) => {
     }
 }
 
+export const requestReviewOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/review-request/' + estimationID, {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks', {

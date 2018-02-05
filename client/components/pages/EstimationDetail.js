@@ -17,13 +17,17 @@ class EstimationDetail extends Component {
     }
 
     onClose() {
-        this.setState({showEstimationRequestDialog: false})
+        this.setState({showEstimationRequestDialog: false, showEstimationReviewDialog: false})
     }
 
     onConfirmEstimationRequest() {
         this.setState({showEstimationRequestDialog: false})
-        console.log("onConfirmationEstimationRequest")
         this.props.sendEstimationRequest(this.props.estimation)
+    }
+
+    onConfirmReviewRequest() {
+        this.setState({showEstimationReviewDialog: false})
+        this.props.sendReviewRequest(this.props.estimation)
     }
 
     formatName(estimatorSecion) {
@@ -61,20 +65,32 @@ class EstimationDetail extends Component {
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
                                             body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
                     }
+
+                    {
+                        this.state.showEstimationReviewDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmReviewRequest.bind(this)}
+                                            title="Estimation Request" onClose={this.onClose.bind(this)}
+                                            body="You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"/>
+                    }
+
+
                     <div className="col-md-3">
                         {
-                            this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                            <button className="btn customBtn"
-                                    onClick={() => this.props.showAddTaskForm(estimation)}>Add Task
-                            </button>
-                        }
-                        {
-                            this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
+                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_INITIATED &&
                             <button className="btn customBtn"
                                     onClick={() => this.setState({showEstimationRequestDialog: true})}>Request
                                 Estimation
                             </button>
                         }
+
+                        {
+                            estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && (estimation.status == SC.STATUS_ESTIMATION_REQUESTED || estimation.status == SC.STATUS_CHANGE_REQUESTED) &&
+                            <button className="btn customBtn"
+                                    onClick={() => this.setState({showEstimationReviewDialog: true})}>Request
+                                Review
+                            </button>
+                        }
+
                     </div>
                     <div className="col-md-4 pad">
                         <div className="estimationfileoption">
@@ -86,6 +102,7 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
+
                 <div className="col-md-12 ">
                     <div className="col-md-3 pad">
                         <div className="estimationuser tooltip"><span>C</span>
@@ -110,18 +127,12 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12">
-                    <EstimationFeaturesContainer/>
-                </div>
-                <br/>
-                <div className="col-md-12">
-                    <EstimationTasksContainer/>
-                </div>
-                <div className=" col-md-12 estimationfooter">
-                    <div className="col-md-4"><span className="customBtn">Estimation Completed</span></div>
-                    <div className="col-md-8">
+                <div className=" col-md-12">
+                    <div className="col-md-8 col-md-offset-4">
                         <form>
-                            <button type="button" className="btn taskbtn"><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn taskbtn"
+                                    onClick={() => this.props.showAddTaskForm(estimation)}><i
+                                className="fa fa-plus-circle"></i>
                                 Add task
                             </button>
                             <button type="button" className="btn featurebtn"
@@ -132,6 +143,14 @@ class EstimationDetail extends Component {
                         </form>
                     </div>
                 </div>
+                <div className="col-md-12">
+                    <EstimationFeaturesContainer/>
+                </div>
+                <br/>
+                <div className="col-md-12">
+                    <EstimationTasksContainer/>
+                </div>
+
             </div>
             <div className="col-md-4 estimationsection">
                 <div className="col-md-12">

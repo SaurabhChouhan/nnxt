@@ -48,6 +48,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+    sendReviewRequest: (estimation) => {
+        dispatch(A.requestReviewOnServer(estimation._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Review requested successfully")
+            } else {
+                if (json.code == EC.INVALID_OPERATION)
+                    NotificationManager.error("Review already requested")
+                else
+                    NotificationManager.error("Unknown error occurred")
+            }
+        })
+    },
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
     }

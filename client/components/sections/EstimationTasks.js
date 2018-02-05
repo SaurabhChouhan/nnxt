@@ -74,10 +74,10 @@ class EstimationTask extends React.PureComponent {
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
         return <div className="task">
             <div className="col-md-12 pad">
-                <h4>{task.estimator.name}</h4>
+                <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
             </div>
             <div className="col-md-12 pad">
-                <p>{task.estimator.description}</p>
+                <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
             </div>
             <div className="col-md-2 col-md-offset-1 pad">
                 <h4>Est. Hrs:</h4> <h4>&nbsp;{task.estimator.estimatedHours}</h4>
@@ -106,7 +106,8 @@ class EstimationTask extends React.PureComponent {
 
 let
     EstimationTasks = (props) =>
-        Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t} key={t._id} loggedInUserRole={props.loggedInUserRole}
-                                             onTaskDelete={props.onTaskDelete}/>)
+        Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t} key={t._id}
+                                                                           loggedInUserRole={props.loggedInUserRole}
+                                                                           onTaskDelete={props.onTaskDelete}/>)
 
 export default EstimationTasks
