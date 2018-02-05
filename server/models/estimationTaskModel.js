@@ -155,9 +155,9 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!estimationTask)
         throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.grantedChange){
+    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.changeGranted){
         throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.grantedChange) {
+    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.changeGranted) {
         throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 

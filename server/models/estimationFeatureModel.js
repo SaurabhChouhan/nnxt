@@ -139,10 +139,10 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     /**
      * Check to see if this task is added by estimator or not
      */
-    if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.addedInThisIteration && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.grantedChange) {
+    if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.addedInThisIteration && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.changeGranted) {
         // this means that estimator has added this feature in past iteration and negotiator has not given permission to edit this feature
         throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.grantedChange) {
+    } else if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.changeGranted) {
         // this means that negotiator is owner of this feature and has not given permission to edit this feature
         throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
