@@ -48,6 +48,7 @@ let estimationTaskSchema = mongoose.Schema({
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
+        grantedChange: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
         isMovedOutOfFeature: {type: Boolean, default: false}
@@ -154,8 +155,11 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!estimationTask)
         throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.estimator.changeRequested)
-        throw new AppError('You are not allowed to update task [ Only task owner must be estimator , addedFromThisEstimation and changeRequested are true ]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.grantedChange){
+        throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.grantedChange) {
+        throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
 
     let estimation = await EstimationModel.findById(estimationTask.estimation._id)
     if (!estimation)
@@ -187,6 +191,10 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
+    if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR)
+        estimationTask.estimator.changedInThisIteration = true
+
+    estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {
         taskInput.notes = taskInput.notes.map(n => {
