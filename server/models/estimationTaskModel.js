@@ -6,6 +6,7 @@ import {
     validate,
     estimationEstimatorAddTaskStruct,
     estimationNegotiatorAddTaskStruct,
+    estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorUpdateTaskStruct
 } from "../validation"
 import {userHasRole} from "../utils"
@@ -48,7 +49,6 @@ let estimationTaskSchema = mongoose.Schema({
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
-        grantedChange: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
         isMovedOutOfFeature: {type: Boolean, default: false}
@@ -71,7 +71,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Estimator can only add task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
@@ -227,7 +227,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Estimation has status as ["+estimation.status+"]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
@@ -298,8 +298,43 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
 }
 
 estimationTaskSchema.statics.getAllTaskOfEstimation = async (estimation_id) => {
-    let tasksOfEstimation = await EstimationTaskModel.find({"estimation._id": estimation_id});
+    let tasksOfEstimation = await EstimationTaskModel.find({"estimation._id":estimation_id});
     return tasksOfEstimation;
+}
+
+estimationTaskSchema.statics.moveTaskToFeature = async (featureInput, estimator) => {
+
+    validate(featureInput, estimationEstimatorMoveToFeatureStruct)
+
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let featureOfEstimation = await EstimationFeatureModel.findById(featureInput.feature_id)
+    if (!featureOfEstimation)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let taskOfEstimation = await EstimationTaskModel.findById(featureInput.task_id)
+    if (!taskOfEstimation)
+        throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": featureOfEstimation.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update feature(Move to Feature) into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    taskOfEstimation.feature = featureOfEstimation
+    taskOfEstimation.updated = Date.now()
+    if (!taskOfEstimation.addedInThisIteration || taskOfEstimation.owner != SC.OWNER_ESTIMATOR)
+        taskOfEstimation.estimator.changedInThisIteration = true
+    taskOfEstimation.estimator.isMovedToFeature = true
+    taskOfEstimation.estimator.isMovedOutOfFeature = false
+
+    return await taskOfEstimation.save();
 }
 
 

@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import {EstimationTaskForm} from "../../components"
+import {EstimationFeatureForm} from "../../components"
 import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
@@ -7,15 +7,14 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        values.estimatedHours = Number(values.estimatedHours)
-        logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
-        dispatch(A.addTaskToEstimationOnServer(values)).then(json => {
+        logger.debug(logger.ESTIMATION_FEATURE_FORM_SUBMIT, "values:", values)
+        dispatch(A.addFeatureToEstimationOnServer(values)).then(json => {
             if (json.success) {
-                NotificationManager.success("Task Added")
+                NotificationManager.success("Feature Added")
                 // hide dialog
-                dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
+                dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
             } else {
-                NotificationManager.error("Task Addition Failed")
+                NotificationManager.error("Feature Addition Failed")
             }
         })
     }
@@ -25,9 +24,9 @@ const mapStateToProps = (state, ownProps) => ({
     estimation: state.estimation.selected
 })
 
-const EstimationTaskFormContainer = connect(
+const EstimationFeatureFormContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(EstimationTaskForm)
+)(EstimationFeatureForm)
 
-export default EstimationTaskFormContainer
+export default EstimationFeatureFormContainer
