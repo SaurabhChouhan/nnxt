@@ -63,12 +63,6 @@ class EstimationDetail extends Component {
                     }
                     <div className="col-md-3">
                         {
-                            this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                            <button className="btn customBtn"
-                                    onClick={() => this.props.showAddTaskForm(estimation)}>Add Task
-                            </button>
-                        }
-                        {
                             this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
                             <button className="btn customBtn"
                                     onClick={() => this.setState({showEstimationRequestDialog: true})}>Request
@@ -86,6 +80,7 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
+
                 <div className="col-md-12 ">
                     <div className="col-md-3 pad">
                         <div className="estimationuser tooltip"><span>C</span>
@@ -110,18 +105,12 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12">
-                    <EstimationFeaturesContainer/>
-                </div>
-                <br/>
-                <div className="col-md-12">
-                    <EstimationTasksContainer/>
-                </div>
-                <div className=" col-md-12 estimationfooter">
-                    <div className="col-md-4"><span className="customBtn">Estimation Completed</span></div>
-                    <div className="col-md-8">
+                <div className=" col-md-12">
+                    <div className="col-md-8 col-md-offset-4">
                         <form>
-                            <button type="button" className="btn taskbtn"><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn taskbtn"
+                                    onClick={() => this.props.showAddTaskForm(estimation)}><i
+                                className="fa fa-plus-circle"></i>
                                 Add task
                             </button>
                             <button type="button" className="btn featurebtn"
@@ -132,6 +121,14 @@ class EstimationDetail extends Component {
                         </form>
                     </div>
                 </div>
+                <div className="col-md-12">
+                    <EstimationFeaturesContainer/>
+                </div>
+                <br/>
+                <div className="col-md-12">
+                    <EstimationTasksContainer/>
+                </div>
+
             </div>
             <div className="col-md-4 estimationsection">
                 <div className="col-md-12">
