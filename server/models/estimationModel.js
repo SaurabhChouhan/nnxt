@@ -120,15 +120,40 @@ estimationSchema.statics.getById = async estimationID => {
     }, {
         $lookup: {
             from: 'estimationtasks',
-            localField: '_id',
-            foreignField: 'estimation._id',
+            let: {estimationID: "$_id"},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ["$estimation._id", "$$estimationID"]},
+                            {$eq: [{$ifNull: ["$feature._id", true]}, true]}
+                        ]
+                    }
+                }
+            }],
             as: 'tasks'
         }
     }, {
         $lookup: {
             from: 'estimationfeatures',
-            localField: '_id',
-            foreignField: 'estimation._id',
+            let: {estimationID: "$_id"},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ["$estimation._id", "$$estimationID"]}
+                        ]
+                    }
+                }
+
+            }, {
+                $lookup: {
+                    from: 'estimationtasks',
+                    localField: "_id",
+                    foreignField: "feature._id",
+                    as: "tasks"
+                }
+            }],
             as: 'features'
         }
     }).exec()
