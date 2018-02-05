@@ -76,20 +76,44 @@ repositorySchema.statics.addFeature = async (featureInput, user) => {
 repositorySchema.statics.updateFeature = async (featureInput, user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
         throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can update feature to repository", EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-    if(!featureInput.repo && !featureInput.repo._id)
-        throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    const repository = await RepositoryModel.findById(featureInput.repo._id)
-
-    if(!repository)
-        throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     validate(featureInput, repositoryUpdateTaskAndFeatureStruct)
+    const repositoryFeature = await RepositoryModel.findById(featureInput._id)
+    if(!repositoryFeature)
+        throw new AppError('Feature not found in Repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    // check to see if estimation from where this feature was added is same a sent in feature
 
-    repository.name = featureInput.name
-    repository.description = featureInput.description
-    repository.technologies = featureInput.technologies
-    repository.tags = featureInput.tags
+    if(featureInput.estimation._id == repositoryFeature.estimation._id){
+        console.log("repository would be changed")
+        repositoryFeature.name = featureInput.name
+        repositoryFeature.description = featureInput.description
+        repositoryFeature.technologies = featureInput.technologies
+        repositoryFeature.tags = featureInput.tags
+        await repositoryFeature.save()
+        return true
+    } else {
+        console.log("No changes in repository as estimation id do not match")
+        return false
+    }
+
+
+
+}
+
+repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id,is_feature,taskInput, user) => {
+    if (!user || (!userHasRole(user, ROLE_NEGOTIATOR) && !userHasRole(user, ROLE_ESTIMATOR)))
+        throw new AppError('Only user with any of the roles [' + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task to repository", INVALID_USER, HTTP_BAD_REQUEST)
+
+    let repository = await RepositoryModel.findById(repo_id)
+    if (!repository)
+        throw new AppError('Repository not found', NOT_FOUND, HTTP_BAD_REQUEST)
+
+    repository.name  = taskInput.name
+    repository.description  = taskInput.description
+    repository.technologies  = taskInput.technologies
+    repository.tags  = taskInput.tags
+    repository.isFeature  = is_feature
+
     return await repository.save()
 }
 

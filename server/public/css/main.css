@@ -223,6 +223,14 @@ button.customBtn:hover {
     max-width: 57% !important;
 }
 
+.user_name {
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+    padding: 10px;
+    box-shadow: -5px -2px 20px #303440;
+}
+
 .sidebar {
     position: fixed;
     background-color: #303440;
