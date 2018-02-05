@@ -25,6 +25,9 @@ export const repositoryUpdateTaskAndFeatureStruct = t.struct({
     _id: RequiredString,
     name: RequiredString,
     description: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+    }),
     technologies: t.maybe(t.list(t.String)),
     tags: t.maybe(t.list(t.String)),
     tasks: t.Nil

@@ -63,7 +63,7 @@ export const estimationEstimatorAddFeatureStruct = t.struct({
 })
 
 export const estimationEstimatorUpdateFeatureStruct = t.struct({
-    _id: RequiredString,
+    _id: ObjectId,
     name: t.maybe(RequiredString),
     description: t.maybe(RequiredString),
     technologies: t.maybe(t.list(t.String)),
@@ -73,7 +73,8 @@ export const estimationEstimatorUpdateFeatureStruct = t.struct({
             note: t.String
         })
         )
-    )
+    ),
+    repo: t.maybe(t.struct({_id: t.Nil}))
 })
 
 
@@ -81,7 +82,6 @@ export const estimationEstimatorMoveToFeatureStruct = t.struct({
     task_id: RequiredString,
     feature_id: RequiredString
 })
-
 
 
 //Estimator Feature Validation Block End
