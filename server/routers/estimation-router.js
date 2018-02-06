@@ -18,7 +18,8 @@ import {
     estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
     estimationNegotiatorAddFeatureStruct,
-    estimationEstimatorRequestEditPermissionToTaskStruct
+    estimationEstimatorRequestEditPermissionToTaskStruct,
+estimationEstimatorRequestRemovalToTaskStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -189,6 +190,24 @@ estimationRouter.put('/move-out-of-feature', async ctx => {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
+
+
+/**
+ * Request removal of task to estimation
+ */
+estimationRouter.put('/request-removal-task', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorRequestRemovalToTaskStruct)
+        return await EstimationTaskModel.requestRemovalTaskByEstimator(ctx.request.body, ctx.state.user)
+
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
 
 
 /**
