@@ -2,6 +2,7 @@ import React from 'react'
 import moment from 'moment';
 import Multiselect from 'react-widgets/lib/Multiselect'
 import DateTimePicker from 'react-widgets/lib/DateTimePicker'
+import _ from 'lodash'
 
 /*
 Form Field components
@@ -75,8 +76,11 @@ export const renderSelect = ({
                 disabled={disabled} readOnly={readOnly}>
             {showNoneOption && <option value="">{noneOptionText}</option>}
             {
-                options && options.map(option =>
-                    <option value={option[valueField]} key={option[valueField]}>{option[displayField]}</option>
+                options && options.map(option => {
+
+                        return <option value={_.get(option, valueField)}
+                                       key={option[valueField]}>{_.get(option, displayField)}</option>
+                    }
                 )
             }
         </select>
