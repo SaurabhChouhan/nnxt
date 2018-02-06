@@ -5,7 +5,9 @@ const mapStateToProps = (state, ownProps) => ({
     tasks: state.estimation.tasks,
     loggedInUserRole: state.estimation.selected.loggedInUserRole
 })
-const mapDispatchToProps = (dispatch, ownProps) => ({})
+const mapDispatchToProps = (dispatch, ownProps) => ({
+    requestEdit:(values)=>console.log("requestEdit",values)
+})
 
 const EstimationTasksContainer = connect(
     mapStateToProps,
