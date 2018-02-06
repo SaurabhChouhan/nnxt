@@ -21,7 +21,26 @@ class EstimationFeature extends React.PureComponent {
              * He would also be able to delete any task
              */
             buttons.push(<img key="edit" src="/images/edit.png"></img>)
-            buttons.push(<img key="delete" src="/images/delete.png"></img>)
+            if (feature.estimator.removalRequested) {
+                // Estimator has requested removal
+                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"></img>)
+            } else {
+                buttons.push(<img key="delete" src="/images/delete.png"></img>)
+            }
+
+            if (feature.estimator.changeRequested) {
+                if (feature.negotiator.changeGranted) {
+                    // estimator has requested change which negotiator has granted
+                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
+                    buttons.push(<img key="granted_edit" src="/images/granted_edit.png"></img>)
+                } else {
+                    // estimator has requested change but negotiator has not granted it till now
+                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
+                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
+                }
+            } else if (feature.negotiator.changeRequested) {
+                buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+            }
         } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
             /**
              * First button show to estimator would always be edit or its variations
@@ -60,11 +79,39 @@ class EstimationFeature extends React.PureComponent {
 
                     if (feature.estimator.removalRequested) {
                         // Estimator has requested removal
-                        buttons.push(<img key="he_requested_edit" src="/images/requested_delete.png"></img>)
+                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
                     } else {
                         // Estimator can request removal
-                        buttons.push(<img key="request_edit" src="/images/request_delete.png"></img>)
+                        buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
                     }
+                }
+            } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
+                if (feature.negotiator.changeRequested) {
+                    logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
+                    // Negotiator has requested change
+                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
+                } else if (feature.estimator.changeRequested) {
+                    if (feature.negotiator.changeGranted) {
+                        // estimator has requested change which negotiator has granted
+                        logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
+                        buttons.push(<img key="granted_edit" src="/images/he_granted_edit.png"></img>)
+                    } else {
+                        // estimator has requested change but negotiator has not granted it till now
+                        logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/not granted, requested_edit')
+                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                    }
+                } else {
+                    // Estimator has not requested change and has no permission to change task either so he can request change
+                    logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'can request edit, request_edit')
+                    buttons.push(<img key="request_edit" src="/images/request_edit.png"></img>)
+                }
+
+                if (feature.estimator.removalRequested) {
+                    // Estimator has requested removal
+                    buttons.push(<img key="requested_delete" src="/images/he_requested_delete.png"></img>)
+                } else {
+                    // Estimator can request removal
+                    buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
                 }
             }
         }
@@ -74,7 +121,7 @@ class EstimationFeature extends React.PureComponent {
                 <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
             </div>
             <div className="col-md-12 pad">
-                <p>{feature.estimator.description ? feature.estimator.name : feature.negotiator.name}</p>
+                <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
             <div className="col-md-2 col-md-offset-1 pad">
                 <h4>Est. Hrs:</h4> <h4>&nbsp;{feature.estimator.estimatedHours}</h4>
