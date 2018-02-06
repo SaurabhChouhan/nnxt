@@ -19,7 +19,12 @@ class EstimationTask extends React.PureComponent {
              * Negotiator would always be able to edit any task (would be considered as suggestions), first button hence would always be edit
              */
             buttons.push(<img key="edit" src="/images/edit.png"></img>)
-            buttons.push(<img key="delete" src="/images/delete.png"></img>)
+            if (task.estimator.removalRequested) {
+                // Estimator has requested removal
+                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"></img>)
+            } else {
+                buttons.push(<img key="delete" src="/images/delete.png"></img>)
+            }
 
             if (task.estimator.changeRequested) {
                 if (task.negotiator.changeGranted) {
@@ -31,6 +36,8 @@ class EstimationTask extends React.PureComponent {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
                     buttons.push(<img key="requested_edit" src="/images/he_requested_edit.png"></img>)
                 }
+            } else if (task.negotiator.changeRequested){
+                buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
             }
 
 
