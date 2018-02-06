@@ -9,8 +9,10 @@ const mapStateToProps = (state, ownProps) => ({
     loggedInUserRole: state.estimation.selected.loggedInUserRole
 })
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    requestTaskEdit: (task) => {
-        dispatch(A.requestForTaskEditPermissionOnServer(task._id)).then(json => {
+    requestTaskEdit: (values) => {
+        let task={}
+        task.task_id = values._id
+        dispatch(A.requestForTaskEditPermissionOnServer(task)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Edit requested successfully")
             } else {

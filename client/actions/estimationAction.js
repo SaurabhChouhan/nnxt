@@ -16,7 +16,7 @@ export const editEstimation = (estimation) => ({
     estimation: estimation
 })
 
-export const requestForTaskEditPermissionOnState = (task) => ({
+export const taskEditRequest = (task) => ({
     type: AC.RQUEST_FOR_TASK_EDIT_PERMISSION,
     task: task
 })
@@ -130,7 +130,7 @@ export const requestForTaskEditPermissionOnServer = (task) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(editEstimation(json.data))
+                    dispatch(taskEditRequest(json.data))
                 }
                 return json
             })
