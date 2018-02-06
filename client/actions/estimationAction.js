@@ -23,10 +23,14 @@ export const selectEstimation = (estimation) => ({
 })
 
 export const addEstimationTask = (task) => ({
-        type: AC.ADD_ESTIMATION_TASK,
-        task: task
-    }
-)
+    type: AC.ADD_ESTIMATION_TASK,
+    task: task
+})
+
+export const addEstimationFeature = (feature) => ({
+    type: AC.ADD_ESTIMATION_FEATURE,
+    feature: feature
+})
 
 export const estimationTaskDelete = (taskID) => ({
     type: AC.ESTIMATION_TASK_DELETE,
@@ -101,6 +105,31 @@ export const requestEstimationOnServer = (estimationID) => {
     }
 }
 
+export const requestReviewOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/review-request/' + estimationID, {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks', {
@@ -118,6 +147,29 @@ export const addTaskToEstimationOnServer = (task) => {
             json => {
                 if (json.success) {
                     dispatch(addEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const addFeatureToEstimationOnServer = (feature) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feature)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimationFeature(json.data))
                 }
                 return json
             })
@@ -147,3 +199,26 @@ export const getEstimationFromServer = (estimationID) => {
 }
 
 
+export const moveTaskIntoFeature = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/move-out-of-feature', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimation(json.data))
+                }
+
+                return json
+            })
+    }
+}
