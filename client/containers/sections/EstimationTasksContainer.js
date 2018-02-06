@@ -10,8 +10,12 @@ const mapStateToProps = (state, ownProps) => ({
 })
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showFeatureSelectionForm: (values) => {
-        let task={}
-        task._id=""
+        let task={
+            "task":{
+                "_id":""
+            }
+        }
+        task.task._id=values
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
     }
