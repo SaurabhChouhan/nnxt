@@ -9,33 +9,33 @@ import {SubmissionError} from "redux-form";
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         console.log("You are in Request initiate Form container ", values)
-            return dispatch(A.addLeaveRequestOnServer(values)).then(json=>{
+             dispatch(A.addLeaveRequestOnServer(values))
+             dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+
+        /*.then(json => {
                 if (json.success) {
-                    NotificationManager.success('Leave Request Added Successfully')
+                    NotificationManager.success('leave Request Added Successfully')
                     dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
 
                 } else {
-                    NotificationManager.error('Leave Request Not Added!')
+                    NotificationManager.error('leave Request Not Added!')
                     if (json.code == EC.ALREADY_EXISTS)
-                        throw new SubmissionError({name: "Leave Request Already Exists"})
+                        throw new SubmissionError({name: "leave Request Already Exists"})
                 }
                 return json
-            })
-
-
+            })*/
 
     }
 })
 
-/*const mapStateToProps = (state, ownProps) => ({
-    leaveFrom: state.client.all,
-    leaveTo: state.project.all,
-    reason: undefined,
+const mapStateToProps = (state, ownProps) => ({
+    leaveRequsts: state.leaveRequest.all,
 
-})*/
+
+})
 
 const LeaveRequestFormCOntainer = connect(
-
+    mapStateToProps,
     mapDispatchToProps
 )(LeaveRequestForm)
 

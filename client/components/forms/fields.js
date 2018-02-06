@@ -1,6 +1,8 @@
 import React from 'react'
+import moment from 'moment';
 import Multiselect from 'react-widgets/lib/Multiselect'
 import DateTimePicker from 'react-widgets/lib/DateTimePicker'
+
 /*
 Form Field components
  */
@@ -192,11 +194,11 @@ export const renderDateTimePickerString = ({
 
     if (value) {
         if (showCalendar && showTime)
-            val = moment(value, CONSTANTS.DATE_TIME_FORMAT).toDate()
+            val = moment(value, 'YYYY-MM-DD').toDate()
         else if (showCalendar)
-            val = moment(value, CONSTANTS.DATE_FORMAT).toDate()
+            val = moment(value,'YYYY-MM-DD').toDate()
         else if (showTime)
-            val = moment(value, CONSTANTS.TIME_FORMAT).toDate()
+            val = moment(value, 'YYYY-MM-DD').toDate()
     }
 
     const parse = event => {
@@ -206,21 +208,21 @@ export const renderDateTimePickerString = ({
                 if (showTime) {
                     if (typeof(event) === 'object' && event.target && event.target.value) {
                         //console.log("renderDateTimePickerString: event.target.value  ", event.target.value)
-                        let v = moment(event.target.value).format(CONSTANTS.DATE_TIME_FORMAT)
+                        let v = moment(event.target.value).format('YYYY-MM-DD')
                         return v
                     } else {
                         //console.log("renderDateTimePickerString: event  ", event)
-                        let v = moment(event).format(CONSTANTS.DATE_TIME_FORMAT)
+                        let v = moment(event).format('YYYY-MM-DD')
                         return v
                     }
                 } else {
                     if (typeof(event) === 'object' && event.target && event.target.value) {
                         //console.log("renderDateTimePickerString: event.target.value  ", event.target.value)
-                        let v = moment(event.target.value).format(CONSTANTS.DATE_FORMAT)
+                        let v = moment(event.target.value).format('YYYY-MM-DD')
                         return v
                     } else {
                         //console.log("renderDateTimePickerString: event  ", event)
-                        let v = moment(event).format(CONSTANTS.DATE_FORMAT)
+                        let v = moment(event).format('YYYY-MM-DD')
                         return v
                     }
                 }
@@ -233,7 +235,7 @@ export const renderDateTimePickerString = ({
                     } else {
                         if (event && event.length == 7)
                             event = '0' + event
-                        let v = moment(event).format(CONSTANTS.TIME_FORMAT)
+                        let v = moment(event).format('YYYY-MM-DD')
                         return v
                     }
                 }

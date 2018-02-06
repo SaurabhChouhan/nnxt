@@ -1,5 +1,4 @@
 import * as AC from '../actions/actionConsts'
-import {DELETE_PERMISSION} from "../actions/actionConsts";
 
 let initialState = {
     all: [],

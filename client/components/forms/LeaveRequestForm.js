@@ -1,7 +1,8 @@
 import {required} from "./validation"
-import {renderDateTimePicker, renderSelect, renderText, renderTextArea} from "./fields"
+import {renderDateTimePicker, renderDateTimePickerString, renderSelect, renderText, renderTextArea} from "./fields"
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
+import moment from 'moment'
 import * as logger from "../../clientLogger";
 
 let LeaveRequestForm = (props) => {
@@ -16,8 +17,8 @@ let LeaveRequestForm = (props) => {
                 <Field name="leave_to" placeholder={"Leave To :"} component={renderText}
                        label={"To :"} validate={[required]}/>
 
-
-                <Field width="80%" name="description"  validate={[required]} component={renderTextArea} label="Description:"/>
+                <Field width="80%" name="description" validate={[required]} component={renderTextArea}
+                       label="Description:"/>
 
                 <button type="submit" className="btn customBtn"> Submit</button>
             </div>
