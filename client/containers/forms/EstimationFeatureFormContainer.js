@@ -7,16 +7,31 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        logger.debug(logger.ESTIMATION_FEATURE_FORM_SUBMIT, "values:", values)
-        dispatch(A.addFeatureToEstimationOnServer(values)).then(json => {
-            if (json.success) {
-                NotificationManager.success("Feature Added")
-                // hide dialog
-                dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
-            } else {
-                NotificationManager.error("Feature Addition Failed")
-            }
-        })
+        if (values._id) {
+            logger.debug(logger.ESTIMATION_FEATURE_FORM_SUBMIT, "values:", values)
+            return dispatch(A.updateFeatureToEstimationOnServer(values)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Feature Updated")
+                    // hide dialog
+                    dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
+                } else {
+                    NotificationManager.error("Feature updation Failed")
+                }
+            })
+        }
+        else {
+            logger.debug(logger.ESTIMATION_FEATURE_FORM_SUBMIT, "values:", values)
+            return dispatch(A.addFeatureToEstimationOnServer(values)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Feature Added")
+                    // hide dialog
+                    dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
+                } else {
+                    NotificationManager.error("Feature Addition Failed")
+                }
+            })
+        }
+
     }
 })
 
