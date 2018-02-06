@@ -22,6 +22,18 @@ class EstimationFeature extends React.PureComponent {
              */
             buttons.push(<img key="edit" src="/images/edit.png"></img>)
             buttons.push(<img key="delete" src="/images/delete.png"></img>)
+
+            if (feature.estimator.changeRequested) {
+                if (feature.negotiator.changeGranted) {
+                    // estimator has requested change which negotiator has granted
+                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
+                    buttons.push(<img key="granted_edit" src="/images/granted_edit.png"></img>)
+                } else {
+                    // estimator has requested change but negotiator has not granted it till now
+                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
+                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
+                }
+            }
         } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
             /**
              * First button show to estimator would always be edit or its variations
@@ -65,6 +77,26 @@ class EstimationFeature extends React.PureComponent {
                         // Estimator can request removal
                         buttons.push(<img key="request_edit" src="/images/request_delete.png"></img>)
                     }
+                }
+            } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
+                if (feature.estimator.changeRequested) {
+                    if (feature.negotiator.changeGranted) {
+                        // estimator has requested change which negotiator has granted
+                        logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
+                        buttons.push(<img key="he_requested_edit" src="/images/he_granted_edit.png"></img>)
+                    } else {
+                        // estimator has requested change but negotiator has not granted it till now
+                        logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
+                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                    }
+                }
+
+                if (feature.estimator.removalRequested) {
+                    // Estimator has requested removal
+                    buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
+                } else {
+                    // Estimator can request removal
+                    buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
                 }
             }
         }
