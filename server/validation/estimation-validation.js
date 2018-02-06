@@ -148,6 +148,9 @@ export const estimationEstimatorMoveOutOfFeatureStruct = t.struct({
     task_id: RequiredString,
     feature_id: RequiredString
 })
+export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
+    task_id: RequiredString
+})
 //Estimator Feature Validation Block End
 
 //Negotiator Feature Validation Block Start
