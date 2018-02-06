@@ -19,6 +19,7 @@ export {default as EstimationDetailContainer} from './pages/EstimationDetailCont
 export {default as EstimationTaskFormContainer} from './forms/EstimationTaskFormContainer'
 export {default as EstimationFeatureFormContainer} from './forms/EstimationFeatureFormContainer'
 export {default as EstimationTasksContainer} from './sections/EstimationTasksContainer'
+export {default as EstimationFeaturesContainer} from './sections/EstimationFeaturesContainer'
 
 //Projects
 export {default as ProjectListContainer} from './lists/ProjectListContainer'
