@@ -383,5 +383,35 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (featureInp
     return await task.save();
 }
 
+
+estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimator) => {
+    //console.log("deleteTaskByEstimator for paramsInput ", paramsInput)
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let task = await EstimationTaskModel.findById(paramsInput.taskID)
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!task.owner == SC.OWNER_ESTIMATOR)
+        throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    if (!task.estimator.removalRequested)
+        throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    if (!task.estimator.changedInThisIteration)
+        throw new AppError('You are not allowed (changedInThisIteration flag) to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    let deleteTaskResponse = await EstimationTaskModel.findById(task._id).remove()
+    return deleteTaskResponse
+}
+
 const EstimationTaskModel = mongoose.model("EstimationTask", estimationTaskSchema)
 export default EstimationTaskModel
