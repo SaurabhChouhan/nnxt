@@ -402,12 +402,9 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
 
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-    let changeRequested = false
-    if(task.estimator.changeRequested)
-        changeRequested = false
-    else
-        changeRequested = true
-    task.estimator.changeRequested = changeRequested
+
+    task.estimator.changeRequested = !task.estimator.changeRequested
+    task.estimator.changedInThisIteration = true
     return await task.save()
     //const  updatedTask = await task.save();
     //return {changeRequested:updatedTask.estimator.changeRequested}
