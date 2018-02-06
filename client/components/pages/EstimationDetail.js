@@ -3,7 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import Dialog from 'react-bootstrap-dialog'
 import {ConfirmationDialog} from "../"
-import {EstimationTaskContainer} from "../../containers"
+import {EstimationTasksContainer, EstimationFeaturesContainer} from "../../containers"
 import * as logger from '../../clientLogger'
 
 class EstimationDetail extends Component {
@@ -17,13 +17,17 @@ class EstimationDetail extends Component {
     }
 
     onClose() {
-        this.setState({showEstimationRequestDialog: false})
+        this.setState({showEstimationRequestDialog: false, showEstimationReviewDialog: false})
     }
 
     onConfirmEstimationRequest() {
         this.setState({showEstimationRequestDialog: false})
-        console.log("onConfirmationEstimationRequest")
         this.props.sendEstimationRequest(this.props.estimation)
+    }
+
+    onConfirmReviewRequest() {
+        this.setState({showEstimationReviewDialog: false})
+        this.props.sendReviewRequest(this.props.estimation)
     }
 
     formatName(estimatorSecion) {
@@ -61,20 +65,32 @@ class EstimationDetail extends Component {
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
                                             body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
                     }
+
+                    {
+                        this.state.showEstimationReviewDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmReviewRequest.bind(this)}
+                                            title="Estimation Request" onClose={this.onClose.bind(this)}
+                                            body="You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"/>
+                    }
+
+
                     <div className="col-md-3">
                         {
-                            this.props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                            <button className="btn customBtn"
-                                    onClick={() => this.props.showAddTaskForm(estimation)}>Add Task
-                            </button>
-                        }
-                        {
-                            this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
+                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_INITIATED &&
                             <button className="btn customBtn"
                                     onClick={() => this.setState({showEstimationRequestDialog: true})}>Request
                                 Estimation
                             </button>
                         }
+
+                        {
+                            estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && (estimation.status == SC.STATUS_ESTIMATION_REQUESTED || estimation.status == SC.STATUS_CHANGE_REQUESTED) &&
+                            <button className="btn customBtn"
+                                    onClick={() => this.setState({showEstimationReviewDialog: true})}>Request
+                                Review
+                            </button>
+                        }
+
                     </div>
                     <div className="col-md-4 pad">
                         <div className="estimationfileoption">
@@ -86,6 +102,7 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
+
                 <div className="col-md-12 ">
                     <div className="col-md-3 pad">
                         <div className="estimationuser tooltip"><span>C</span>
@@ -110,51 +127,30 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12">
-                    <div className="feature">
-                        <div className="col-md-12 pad">
-                            <h4>Feature name</h4>
-                        </div>
-                        <div className="col-md-12 pad">
-                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-                                has been the industry's standard dummy text ever since the 1500s.</p>
-                        </div>
-                        <div className="col-md-2 col-md-offset-1 pad">
-                            <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                        </div>
-                        <div className="col-md-3 pad">
-                            <h4>Sug. Hrs:</h4> <h4>&nbsp;6</h4>
-                        </div>
-                        <div className="col-md-6 text-right estimationActions pad">
-                            <img src="/images/edit.png"></img>
-                            <img src="/images/delete.png"></img>
-                            <img src="/images/move_outof_feature.png"></img>
-                        </div>
-                        <div className="newFlagStrip">
-                            <img src="/images/new_flag.png"></img>
-                        </div>
-                        <div className="repoFlagStrip">
-                            <img src="/images/repo_flag.png"></img>
-                        </div>
-                    </div>
-                </div>
-                <br/>
-                <div className="col-md-12">
-                    <EstimationTaskContainer onTaskDelete={this.props.onTaskDelete}/>
-                </div>
-                <div className=" col-md-12 estimationfooter">
-                    <div className="col-md-4"><span className="customBtn">Estimation Completed</span></div>
-                    <div className="col-md-8">
+                <div className=" col-md-12">
+                    <div className="col-md-8 col-md-offset-4">
                         <form>
-                            <button type="button" className="btn taskbtn"><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn taskbtn"
+                                    onClick={() => this.props.showAddTaskForm(estimation)}><i
+                                className="fa fa-plus-circle"></i>
                                 Add task
                             </button>
-                            <button type="button" className="btn featurebtn"><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn featurebtn"
+                                    onClick={() => this.props.showAddFeatureForm(estimation)}
+                            ><i className="fa fa-plus-circle"></i>
                                 Add feature
                             </button>
                         </form>
                     </div>
                 </div>
+                <div className="col-md-12">
+                    <EstimationFeaturesContainer/>
+                </div>
+                <br/>
+                <div className="col-md-12">
+                    <EstimationTasksContainer/>
+                </div>
+
             </div>
             <div className="col-md-4 estimationsection">
                 <div className="col-md-12">
