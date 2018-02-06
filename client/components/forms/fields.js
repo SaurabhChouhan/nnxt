@@ -12,7 +12,7 @@ export const renderText = ({
                                input,
                                label,
                                readOnly,
-                                type,
+                               type,
                                placeholder,
                                meta: {touched, error, warning}
                            }) =>
@@ -200,7 +200,7 @@ export const renderDateTimePickerString = ({
         if (showCalendar && showTime)
             val = moment(value, 'YYYY-MM-DD').toDate()
         else if (showCalendar)
-            val = moment(value,'YYYY-MM-DD').toDate()
+            val = moment(value, 'YYYY-MM-DD').toDate()
         else if (showTime)
             val = moment(value, 'YYYY-MM-DD').toDate()
     }
@@ -280,7 +280,7 @@ export const renderDateTimePickerString = ({
 
     </div>
 }
-export const renderDateTimePicker = ({ input: { onChange, value }, showTime }) =>
+export const renderDateTimePicker = ({input: {onChange, value}, showTime}) =>
     <DateTimePicker
         onChange={onChange}
         format="DD MMM YYYY"
