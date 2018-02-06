@@ -383,6 +383,60 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (featureInp
     return await task.save();
 }
 
+estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskInput, estimator) => {
+
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let task = await EstimationTaskModel.findById(taskInput.task_id)
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update removal task flag into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    task.estimator.removalRequested = !task.estimator.removalRequested
+    task.estimator.changedInThisIteration = true
+
+   return await task.save();
+
+    //const updatedTask = await task.save();
+    //return {removalRequested:updatedTask.estimator.removalRequested}
+}
+
+
+estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (taskInput, estimator) => {
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let task = await EstimationTaskModel.findById(taskInput.task_id)
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only request edit task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    task.estimator.changeRequested = !task.estimator.changeRequested
+    task.estimator.changedInThisIteration = true
+    return await task.save()
+    //const  updatedTask = await task.save();
+    //return {changeRequested:updatedTask.estimator.changeRequested}
+}
+
 
 estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimator) => {
     //console.log("deleteTaskByEstimator for paramsInput ", paramsInput)
@@ -412,6 +466,7 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
     let deleteTaskResponse = await EstimationTaskModel.findById(task._id).remove()
     return deleteTaskResponse
 }
+
 
 const EstimationTaskModel = mongoose.model("EstimationTask", estimationTaskSchema)
 export default EstimationTaskModel
