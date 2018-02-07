@@ -292,12 +292,14 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     negotiatorSection.name = repositoryTask.name
     negotiatorSection.description = repositoryTask.description
     negotiatorSection.estimatedHours = taskInput.estimatedHours
+    negotiatorSection.changeRequested = true // Add/edit of task by negotiator is considered suggestions. Change requested flag would allow estimator to see those changes
 
     taskInput.status = SC.STATUS_PENDING
     taskInput.addedInThisIteration = true
     taskInput.owner = SC.OWNER_NEGOTIATOR
     taskInput.initiallyEstimated = true
     taskInput.negotiator = negotiatorSection
+
 
     if (!_.isEmpty(taskInput.notes)) {
         taskInput.notes = taskInput.notes.map(n => {

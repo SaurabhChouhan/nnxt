@@ -188,6 +188,7 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     negotiatorSection.name = repositoryFeature.name
     negotiatorSection.description = repositoryFeature.description
     negotiatorSection.estimatedHours = defaultEstimatedHoursForFeature
+    negotiatorSection.changeRequested = true // This will allow estimator to see updated changes as suggestions
 
     featureInput.status = SC.STATUS_PENDING
     featureInput.addedInThisIteration = true
@@ -319,6 +320,7 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_NEGOTIATOR)
         estimationFeature.negotiator.changedInThisIteration = true
     estimationFeature.negotiator.description = featureInput.description
+    estimationFeature.negotiator.changeRequested = true // This will allow estimator to see updated changes as suggestions
     estimationFeature.updated = Date.now()
 
     if (estimationFeature.repo && estimationFeature.repo._id) {
