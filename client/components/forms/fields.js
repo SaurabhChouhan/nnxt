@@ -1,5 +1,9 @@
 import React from 'react'
+import moment from 'moment';
 import Multiselect from 'react-widgets/lib/Multiselect'
+import DateTimePicker from 'react-widgets/lib/DateTimePicker'
+import _ from 'lodash'
+
 /*
 Form Field components
  */
@@ -8,7 +12,7 @@ export const renderText = ({
                                input,
                                label,
                                readOnly,
-                                type,
+                               type,
                                placeholder,
                                meta: {touched, error, warning}
                            }) =>
@@ -72,8 +76,11 @@ export const renderSelect = ({
                 disabled={disabled} readOnly={readOnly}>
             {showNoneOption && <option value="">{noneOptionText}</option>}
             {
-                options && options.map(option =>
-                    <option value={option[valueField]} key={option[valueField]}>{option[displayField]}</option>
+                options && options.map(option => {
+
+                        return <option value={_.get(option, valueField)}
+                                       key={option[valueField]}>{_.get(option, displayField)}</option>
+                    }
                 )
             }
         </select>
@@ -167,4 +174,116 @@ export const renderField = ({
                className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))}/>
     </div>
 
+export const renderDateTimePickerString = ({
+                                               input: {onChange, value, name, onBlur},
+                                               label,
+                                               readOnly,
+                                               timeZone = 'America/New_York',
+                                               dropUp = false,
+                                               info,
+                                               showTime = false,
+                                               showCalendar = true,
+                                               min,
+                                               max,
+                                               type,
+                                               placeholder,
+                                               disabled = false,
+                                               currentDate,
+                                               meta: {touched, error, warning},
+                                               hoverEnabledMsg,
+                                               hoverDisabledMsg
+                                           }) => {
 
+    let val = undefined
+
+    if (value) {
+        if (showCalendar && showTime)
+            val = moment(value, 'YYYY-MM-DD').toDate()
+        else if (showCalendar)
+            val = moment(value, 'YYYY-MM-DD').toDate()
+        else if (showTime)
+            val = moment(value, 'YYYY-MM-DD').toDate()
+    }
+
+    const parse = event => {
+        if (event) {
+            //console.log("renderDateTimePickerString: event ", event)
+            if (showCalendar) {
+                if (showTime) {
+                    if (typeof(event) === 'object' && event.target && event.target.value) {
+                        //console.log("renderDateTimePickerString: event.target.value  ", event.target.value)
+                        let v = moment(event.target.value).format('YYYY-MM-DD')
+                        return v
+                    } else {
+                        //console.log("renderDateTimePickerString: event  ", event)
+                        let v = moment(event).format('YYYY-MM-DD')
+                        return v
+                    }
+                } else {
+                    if (typeof(event) === 'object' && event.target && event.target.value) {
+                        //console.log("renderDateTimePickerString: event.target.value  ", event.target.value)
+                        let v = moment(event.target.value).format('YYYY-MM-DD')
+                        return v
+                    } else {
+                        //console.log("renderDateTimePickerString: event  ", event)
+                        let v = moment(event).format('YYYY-MM-DD')
+                        return v
+                    }
+                }
+            } else {
+                if (showTime) {
+                    if (typeof(event) === 'object' && event.target && event.target.value) {
+                        if (event.target.value.length == 7)
+                            event.target.value = '0' + event.target.value
+                        return event.target.value;
+                    } else {
+                        if (event && event.length == 7)
+                            event = '0' + event
+                        let v = moment(event).format('YYYY-MM-DD')
+                        return v
+                    }
+                }
+            }
+        }
+        return undefined
+    }
+
+    return <div className="form-group" style={{position: "relative"}}>
+        <label htmlFor={name}>{label} {touched &&
+        ((error &&
+            <span className="validation-error">
+            {error}
+          </span>))
+
+        }{(info &&
+            <span className="field-info">
+            {info}
+          </span>)}</label>
+        <DateTimePicker
+            className=" hoverTooltip"
+            min={min}
+            max={max}
+            readOnly={readOnly}
+            disabled={disabled}
+            onChange={event => onChange(parse(event))}
+            onBlue={onBlur}
+            time={showTime}
+            calendar={showCalendar}
+            value={val}
+            dropUp={dropUp}
+            currentDate={currentDate}
+            onKeyPress={event => event.preventDefault()}
+            onKeyDown={event => event.preventDefault()}
+        />
+        {hoverEnabledMsg && <span className="enabledMsg" style={{width: 250}}>{hoverEnabledMsg}</span>}
+        {hoverDisabledMsg && <span className="disabledMsg">{hoverDisabledMsg}</span>}
+
+    </div>
+}
+export const renderDateTimePicker = ({input: {onChange, value}, showTime}) =>
+    <DateTimePicker
+        onChange={onChange}
+        format="DD MMM YYYY"
+        time={showTime}
+        value={!value ? null : new Date(value)}
+    />

@@ -16,6 +16,7 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))
                     }}>Client</Link></li>
                     <li><Link to="/app-home/projects" onClick={() => {
+                        props.dispatch(A.getAllClientsFromServer())
                         props.dispatch(A.getAllProjectsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.PROJECT_LIST))
                     }}>Projects</Link></li>
@@ -28,6 +29,7 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
 
                     }}>Estimation</Link></li>
+                    <li><Link to="/app-home/raise_leave">Raise-leave</Link></li>
                     {/*
                     <li className="Expandlist"><a href="">Estimations</a>
                         <ul className="Expandedlist">

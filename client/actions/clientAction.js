@@ -10,6 +10,15 @@ export const addClients = (clients) => ({
     type: AC.ADD_CLIENTS,
     clients: clients
 })
+export const deleteClient = (clientID) => ({
+    type: AC.DELETE_CLIENT,
+    clientID: clientID
+})
+export const editClient = (client) => ({
+
+    type: AC.UPDATE_CLIENT,
+    client: client
+})
 
 
 export const getAllClientsFromServer = () => {
@@ -57,3 +66,56 @@ export const addClientOnServer = (formInput) => {
         )
     }
 }
+
+export const deleteClientOnServer = (clientID) => {
+    return function (dispatch, getState) {
+        return fetch('/api/clients/' + clientID,
+            {
+                method: "delete",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'ap plication/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(deleteClient(clientID))
+                    // clear user form after update is successful
+                }
+                return json
+            }
+        )
+    }
+}
+export const editClientOnServer = (client) => {
+    return function (dispatch, getState) {
+        return fetch('/api/clients',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(client)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    console.log("Yor are now fatchning jason data",json.data)
+                    dispatch(editClient(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
