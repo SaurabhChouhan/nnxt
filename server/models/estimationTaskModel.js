@@ -457,14 +457,12 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
     if (!task.owner == SC.OWNER_ESTIMATOR)
         throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
-    if (!task.estimator.removalRequested)
+    if (!task.addedInThisIteration)
         throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
-    if (!task.estimator.changedInThisIteration)
-        throw new AppError('You are not allowed (changedInThisIteration flag) to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-    let deleteTaskResponse = await EstimationTaskModel.findById(task._id).remove()
-    return deleteTaskResponse
+    task.isDeleted = true
+    task.updated = Date.now()
+    return await task.save()
 }
 
 
