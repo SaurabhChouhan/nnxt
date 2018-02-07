@@ -23,7 +23,7 @@ class EstimationTask extends React.PureComponent {
                 // Estimator has requested removal
                 buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"></img>)
             } else {
-            buttons.push(<img key="delete" src="/images/delete.png"></img>)
+                buttons.push(<img key="delete" src="/images/delete.png"></img>)
             }
 
             if (task.estimator.changeRequested) {
@@ -36,7 +36,7 @@ class EstimationTask extends React.PureComponent {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
                     buttons.push(<img key="requested_edit" src="/images/he_requested_edit.png"></img>)
                 }
-            } else if (task.negotiator.changeRequested){
+            } else if (task.negotiator.changeRequested) {
                 buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
             }
 
@@ -54,10 +54,10 @@ class EstimationTask extends React.PureComponent {
                     if (task.estimator.removalRequested) {
                         buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
                     } else {
-                    buttons.push(<img key="edit" src="/images/delete.png"></img>)
+                        buttons.push(<img key="edit" src="/images/delete.png"></img>)
                     }
 
-                  } else {
+                } else {
                     if (task.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
                         // Negotiator has requested change
@@ -70,12 +70,14 @@ class EstimationTask extends React.PureComponent {
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png" ></img>)
+                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
                         }
                     } else {
                         // Estimator has not requested change and has no permission to change task either so he can request change
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                        buttons.push(<img key="request_edit" src="/images/request_edit.png" onClick={()=>{this.props.requestTaskEdit(task)}} ></img>)
+                        buttons.push(<img key="request_edit" src="/images/request_edit.png" onClick={() => {
+                            this.props.requestTaskEdit(task)
+                        }}></img>)
                     }
 
                     if (task.estimator.removalRequested) {
@@ -85,6 +87,7 @@ class EstimationTask extends React.PureComponent {
                         // Estimator can request removal
                         buttons.push(<img key="request_edit" src="/images/request_delete.png"></img>)
                     }
+                }
             } else if (task.owner == SC.OWNER_NEGOTIATOR) {
                 if (task.negotiator.changeRequested) {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
