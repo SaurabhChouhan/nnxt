@@ -9,7 +9,8 @@ import {
     estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorUpdateTaskStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct
+    estimationNegotiatorMoveToFeatureStruct,
+    estimationNegotiatorMoveOutOfFeatureStruct
 } from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel, EstimationFeatureModel} from "./"
@@ -370,7 +371,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (featureInp
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update feature(Move to Feature) into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update feature(Move task out of Feature) into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -470,6 +471,40 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (featureInput
     task.negotiator.isMovedToFeature = true
     task.negotiator.isMovedOutOfFeature = false
 
+    return await task.save();
+}
+
+estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (featureInput, negotiator) => {
+
+    validate(featureInput, estimationNegotiatorMoveOutOfFeatureStruct)
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureInput.feature_id)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let task = await EstimationTaskModel.findById(featureInput.task_id)
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update feature(Move task out of feature) into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    task.feature = null
+    task.updated = Date.now()
+    task.negotiator.isMovedToFeature = false
+    task.negotiator.isMovedOutOfFeature = true
+    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
+        task.negotiator.changedInThisIteration = true
     return await task.save();
 }
 
