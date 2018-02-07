@@ -16,7 +16,9 @@ import {
     ProjectFormDialog,
     TechnologyFormDialog,
     ClientFormDialog,
-    EstimationFeatureDialog
+    LeaveRequestFormDialog,
+    EstimationFeatureDialog,
+    MoveTaskInFeatureFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -107,8 +109,26 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
                         }
                     }/>
+                    <MoveTaskInFeatureFormDialog name={COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+                        }
+                    }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
                 </ContentSection>
+            }
+        })
+        routes.push({
+            url: "/raise_leave",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
+                return <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                    () => {
+                        console.log("you are in the raise leave content main ",props)
+                        this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+                    }
+                }/>
+
             }
         })
 

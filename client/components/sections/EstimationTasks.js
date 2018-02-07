@@ -2,10 +2,10 @@ import React from 'react'
 
 import * as SC from "../../../server/serverconstants"
 import * as logger from '../../clientLogger'
+import {Estimation} from "../../containers"
 
 
 class EstimationTask extends React.PureComponent {
-
     render() {
         const {task, loggedInUserRole} = this.props
 
@@ -119,10 +119,12 @@ class EstimationTask extends React.PureComponent {
 
         if (task.feature && task.feature._id) {
             // This task is part of some feature so add move out of feature button
-            buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature.png"></img>)
+            buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature.png" onClick={()=>console.log("move_outof_feature clicked",this)}></img>)
         } else {
             // This task is an individual task so add move to feature button
-            buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png"></img>)
+            buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={()=>{this.props.showFeatureSelectionForm(this.props.task._id);
+              console.log("On click called");
+            }}></img>)
         }
 
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
@@ -162,6 +164,9 @@ let
     EstimationTasks = (props) =>
         Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t} key={t._id}
                                                                            loggedInUserRole={props.loggedInUserRole}
-                                                                           onTaskDelete={props.onTaskDelete}/>)
+                                                                           onTaskDelete={props.onTaskDelete}
+                                                                           showFeatureSelectionForm={props.showFeatureSelectionForm}
+
+        />)
 
 export default EstimationTasks
