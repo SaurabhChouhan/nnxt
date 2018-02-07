@@ -101,12 +101,12 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
 }
 
 repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id,is_feature,taskInput, user) => {
-    if (!user || (!userHasRole(user, ROLE_NEGOTIATOR) && !userHasRole(user, ROLE_ESTIMATOR)))
-        throw new AppError('Only user with any of the roles [' + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task to repository", INVALID_USER, HTTP_BAD_REQUEST)
+    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
+        throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can update task to repository", EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let repository = await RepositoryModel.findById(repo_id)
     if (!repository)
-        throw new AppError('Repository not found', NOT_FOUND, HTTP_BAD_REQUEST)
+        throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     repository.name  = taskInput.name
     repository.description  = taskInput.description
