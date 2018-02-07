@@ -233,4 +233,17 @@ estimationRouter.put('/request-edit-permission', async ctx => {
     }
 })
 
+/**
+ * Delete task to estimation
+ */
+estimationRouter.del('/:estimationID/tasks/:taskID', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        return await EstimationTaskModel.deleteTaskByEstimator(ctx.params, ctx.state.user)
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
 export default estimationRouter
