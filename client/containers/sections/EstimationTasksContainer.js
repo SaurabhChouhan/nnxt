@@ -49,7 +49,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     editTask: (values) => {
-        dispatch(A.showComponentHideOthers(COC.ESTIMATION_TASK_DIALOG))
+        dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
             let task={}
             task._id=values._id
             task.estimation=values.estimation

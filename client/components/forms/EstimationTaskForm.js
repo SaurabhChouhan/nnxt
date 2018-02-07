@@ -1,12 +1,13 @@
-import {reduxForm, Field, Form} from 'redux-form'
+import {reduxForm, Field, formValueSelector} from 'redux-form'
 import React from 'react'
-import {required, email, number} from './validation'
+import {required, number} from './validation'
 import {renderText, renderTextArea, renderSelect, renderMultiselect} from './fields'
 import * as logger from '../../clientLogger'
+import {connect} from "react-redux";
 
 let EstimationTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation} = props
+    const {estimation, _id} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -39,7 +40,7 @@ let EstimationTaskForm = (props) => {
         </div>
         <div className="row initiatEstimation">
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">Submit</button>
+                <button type="submit" className="btn customBtn">{_id ? "Update" : "Submit"}</button>
             </div>
             <div className="col-md-6 text-center">
                 <button type="submit" className="btn customBtn">Reset</button>
@@ -51,5 +52,17 @@ let EstimationTaskForm = (props) => {
 EstimationTaskForm = reduxForm({
     form: 'estimation-task'
 })(EstimationTaskForm)
+
+const selector = formValueSelector('estimation-task')
+
+EstimationTaskForm = connect(
+    state => {
+        const _id = selector(state, '_id')
+        return {
+            _id
+        }
+    }
+)(EstimationTaskForm)
+
 
 export default EstimationTaskForm

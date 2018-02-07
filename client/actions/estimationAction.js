@@ -40,6 +40,11 @@ export const addEstimationTask = (task) => ({
     task: task
 })
 
+export const updateEstimationTask = (task) => ({
+    type: AC.UPDATE_ESTIMATION_TASK,
+    task: task
+})
+
 export const addEstimationFeature = (feature) => ({
     type: AC.ADD_ESTIMATION_FEATURE,
     feature: feature
@@ -233,6 +238,29 @@ export const addTaskToEstimationOnServer = (task) => {
             json => {
                 if (json.success) {
                     dispatch(addEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const updateTaskToEstimationOnServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/tasks', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })
