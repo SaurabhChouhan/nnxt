@@ -174,3 +174,8 @@ export const estimationNegotiatorUpdateFeatureStruct = t.struct({
     ),
     repo: t.maybe(t.struct({_id: t.Nil}))
 })
+
+export const estimationNegotiatorMoveToFeatureStruct = t.struct({
+    task_id: RequiredString,
+    feature_id: RequiredString
+})
