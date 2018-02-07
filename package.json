@@ -7,6 +7,7 @@
     "start.khushboo": "cross-env BABEL_ENV=server NODE_ENV=khushboo nodemon ./server/server.js --exec babel-node",
     "start.kamlesh": "cross-env BABEL_ENV=server NODE_ENV=kamlesh nodemon ./server/server.js --exec babel-node",
     "start.gaurav": "cross-env BABEL_ENV=server NODE_ENV=gaurav nodemon ./server/server.js --exec babel-node",
+    "start.gaurav.local": "cross-env BABEL_ENV=server NODE_ENV=gaurav_local nodemon ./server/server.js --exec babel-node",
     "start.murtaza": "cross-env BABEL_ENV=server NODE_ENV=murtaza nodemon ./server/server.js --exec babel-node",
     "start.praveen": "cross-env BABEL_ENV=server NODE_ENV=praveen nodemon ./server/server.js --exec babel-node",
     "start.anup": "cross-env BABEL_ENV=server NODE_ENV=anup nodemon ./server/server.js --exec babel-node",
