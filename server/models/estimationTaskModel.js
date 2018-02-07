@@ -8,7 +8,8 @@ import {
     estimationNegotiatorAddTaskStruct,
     estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorUpdateTaskStruct,
-    estimationEstimatorMoveOutOfFeatureStruct
+    estimationEstimatorMoveOutOfFeatureStruct,
+    estimationNegotiatorMoveToFeatureStruct
 } from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel, EstimationFeatureModel} from "./"
@@ -435,6 +436,41 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
     return await task.save()
     //const  updatedTask = await task.save();
     //return {changeRequested:updatedTask.estimator.changeRequested}
+}
+
+estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (featureInput, negotiator) => {
+
+    validate(featureInput, estimationNegotiatorMoveToFeatureStruct)
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureInput.feature_id)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let task = await EstimationTaskModel.findById(featureInput.task_id)
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only move task to feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    task.feature = feature
+    task.updated = Date.now()
+    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
+        task.negotiator.changedInThisIteration = true
+    task.negotiator.isMovedToFeature = true
+    task.negotiator.isMovedOutOfFeature = false
+
+    return await task.save();
 }
 
 const EstimationTaskModel = mongoose.model("EstimationTask", estimationTaskSchema)
