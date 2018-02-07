@@ -41,6 +41,23 @@ export const estimationEstimatorAddTaskStruct = t.struct({
     )
 })
 
+export const estimationEstimatorUpdateTaskStruct = t.struct({
+    _id: RequiredString,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
+    estimatedHours: t.Number,
+    feature: t.maybe(t.struct({
+        _id: ObjectId
+    })),
+    technologies: t.maybe(t.list(t.String)),
+    tags: t.maybe(t.list(t.String)),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    )
+})
 
 export const estimationEstimatorAddFeatureStruct = t.struct({
     _id: t.Nil,
@@ -60,6 +77,21 @@ export const estimationEstimatorAddFeatureStruct = t.struct({
         })
         )
     )
+})
+
+export const estimationEstimatorUpdateFeatureStruct = t.struct({
+    _id: ObjectId,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
+    technologies: t.maybe(t.list(t.String)),
+    tags: t.maybe(t.list(t.String)),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    ),
+    repo: t.maybe(t.struct({_id: t.Nil}))
 })
 
 export const estimationNegotiatorAddTaskStruct = t.struct({
@@ -85,3 +117,46 @@ export const estimationNegotiatorAddTaskStruct = t.struct({
         )
     )
 })
+
+export const estimationNegotiatorAddFeatureStruct = t.struct({
+    _id: t.Nil,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
+    estimation: t.struct({
+        _id: ObjectId
+    }),
+    repo: t.maybe(t.struct({
+        _id: ObjectId
+    })),
+    technologies: t.maybe(t.list(t.String)),
+    tags: t.maybe(t.list(t.String)),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    )
+})
+
+
+export const estimationEstimatorMoveToFeatureStruct = t.struct({
+    task_id: RequiredString,
+    feature_id: RequiredString
+})
+
+export const estimationEstimatorMoveOutOfFeatureStruct = t.struct({
+    task_id: RequiredString,
+    feature_id: RequiredString
+})
+
+export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
+    task_id: RequiredString
+})
+
+export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
+    task_id: RequiredString
+})
+//Estimator Feature Validation Block End
+
+//Negotiator Feature Validation Block Start
+

@@ -23,10 +23,24 @@ export const selectEstimation = (estimation) => ({
 })
 
 export const addEstimationTask = (task) => ({
-        type: AC.ADD_ESTIMATION_TASK,
-        task: task
-    }
-)
+    type: AC.ADD_ESTIMATION_TASK,
+    task: task
+})
+
+export const addEstimationFeature = (feature) => ({
+    type: AC.ADD_ESTIMATION_FEATURE,
+    feature: feature
+})
+
+export const updateEstimationFeature = (feature) => ({
+    type: AC.UPDATE_ESTIMATION_FEATURE,
+    feature: feature
+})
+
+export const estimationTaskDelete = (taskID) => ({
+    type: AC.ESTIMATION_TASK_DELETE,
+    taskID: taskID
+})
 
 export const getAllEstimationsFromServer = () => {
     return (dispatch, getState) => {
@@ -96,9 +110,34 @@ export const requestEstimationOnServer = (estimationID) => {
     }
 }
 
+export const requestReviewOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/review-request/' + estimationID, {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/task', {
+        return fetch('/api/estimations/tasks', {
                 method: 'post',
                 credentials: "include",
                 headers: {
@@ -119,9 +158,55 @@ export const addTaskToEstimationOnServer = (task) => {
     }
 }
 
+export const addFeatureToEstimationOnServer = (feature) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feature)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const updateFeatureToEstimationOnServer = (feature) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feature)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
 export const getEstimationFromServer = (estimationID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/'+estimationID, {
+        return fetch('/api/estimations/' + estimationID, {
                 method: 'get',
                 credentials: "include",
                 headers: {

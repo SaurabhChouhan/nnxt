@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 // hide dialog
                 dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
             } else {
-                NotificationManager.success("Task Addition Failed")
+                NotificationManager.error("Task Addition Failed")
             }
         })
     }
