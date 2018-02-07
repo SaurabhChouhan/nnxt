@@ -345,7 +345,6 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (featureInput,
         task.estimator.changedInThisIteration = true
     task.estimator.isMovedToFeature = true
     task.estimator.isMovedOutOfFeature = false
-
     return await task.save();
 }
 

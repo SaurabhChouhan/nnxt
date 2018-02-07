@@ -10,7 +10,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         console.log("You are in move tsk to feature Form container ", values)
 
-        /*return dispatch(A.addProjectOnServer(values)).then(json => {
+        return dispatch(A.moveTaskIntoFeatureOnServer(values))/*.then(json => {
             if (json.success) {
                 NotificationManager.success('Project Added Successfully')
                 dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG))

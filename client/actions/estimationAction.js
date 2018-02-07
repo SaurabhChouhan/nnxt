@@ -1,4 +1,7 @@
 import * as AC from './actionConsts'
+import * as A from "./index";
+import * as COC from "../components/componentConsts";
+import {NotificationManager} from "react-notifications";
 
 
 export const addEstimations = (estimations) => ({
@@ -227,7 +230,36 @@ export const getEstimationFromServer = (estimationID) => {
 }
 
 
-export const moveTaskIntoFeature = (formInput) => {
+export const moveTaskIntoFeatureOnServer = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/move-to-feature', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    NotificationManager.success('Task Moved Successfully')
+                    dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+                    //dispatch(addEstimation(json.data))
+                }
+                else{
+                    NotificationManager.error('Process Failed')
+                }
+
+                return json
+            })
+    }
+}
+
+export const moveTaskOutOfFeatureOnServer = (formInput) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/move-out-of-feature', {
                 method: 'put',
@@ -243,7 +275,12 @@ export const moveTaskIntoFeature = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
+                    NotificationManager.success('Task removed out of feature Successfully')
+                    dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
                     //dispatch(addEstimation(json.data))
+                }
+                else{
+                    NotificationManager.error('Process Failed')
                 }
 
                 return json
