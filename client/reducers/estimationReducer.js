@@ -1,5 +1,4 @@
-import {ADD_ESTIMATIONS, ADD_ESTIMATION} from "../actions/actionConsts"
-import * as AC from '../actions/actionConsts'
+import * as AC from "../actions/actionConsts"
 
 let initialState = {
     all: [],
@@ -34,6 +33,9 @@ const estimationReducer = (state = initialState, action) => {
                     return t
                 })
             })
+        case AC.RQUEST_FOR_TASK_EDIT_PERMISSION:
+            return Object.assign({}, state, {tasks: state.tasks.map(item => item._id == action.task._id ? action.task : item)})
+
         case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})
         case AC.ADD_ESTIMATION:

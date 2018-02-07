@@ -53,6 +53,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
     }
+
+
+
 })
 
 

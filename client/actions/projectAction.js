@@ -1,7 +1,4 @@
 import * as AC from "./actionConsts"
-import * as EC from "../../server/errorcodes"
-import {NotificationManager} from "react-notifications"
-import {SubmissionError} from 'redux-form'
 
 
 
@@ -12,6 +9,15 @@ export const addProjects = (projects) => ({
 
 export const addProject = (project) => ({
     type: AC.ADD_PROJECT,
+    project: project
+})
+export const deleteProject = (projectID) => ({
+    type: AC.DELETE_PROJECT,
+    projectID: projectID
+})
+export const editProject = (project) => ({
+
+    type: AC.EDIT_PROJECT,
     project: project
 })
 
@@ -57,6 +63,57 @@ export const addProjectOnServer = (formInput) => {
                     dispatch(addProject(json.data))
 
 
+                }
+                return json
+            }
+        )
+    }
+}
+export const deleteProjectOnServer = (projectID) => {
+    return function (dispatch, getState) {
+        return fetch('/api/projects/' + projectID,
+            {
+                method: "delete",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'ap plication/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(deleteProject(projectID))
+                    // clear user form after update is successful
+                }
+                return json
+            }
+        )
+    }
+}
+export const editProjectOnServer = (project) => {
+    return function (dispatch, getState) {
+        return fetch('/api/projects',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(project)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    console.log("Yor are now fatchning jason data",json.data)
+                    dispatch(editProject(json.data))
                 }
                 return json
             }

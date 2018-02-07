@@ -297,18 +297,6 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
-    /**
-     * Check to see if this feature updated by negotiator or not
-     */
-    if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.addedInThisIteration && !estimationFeature.estimator.changeRequested && !estimationFeature.estimator.changeGranted) {
-        // this means that negotiator has added this feature in past iteration and estimator has not given permission to edit this feature
-        throw new AppError('Not allowed to update feature as estimator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.estimator.changeRequested && !estimationFeature.estimator.changeGranted) {
-        // this means that estimator is owner of this feature and has not given permission to edit this feature
-        throw new AppError('Not allowed to update feature as estimator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    }
-
-
     estimationFeature.technologies = featureInput.technologies
     estimationFeature.tags = featureInput.tags
 
