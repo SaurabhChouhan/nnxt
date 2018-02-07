@@ -21,9 +21,13 @@ class EstimationTask extends React.PureComponent {
             buttons.push(<img key="edit" src="/images/edit.png"></img>)
             if (task.estimator.removalRequested) {
                 // Estimator has requested removal
-                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png" onClick={()=>{this.props.deleteTaskRequest(task)}} ></img>)
+                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png" onClick={() => {
+                    this.props.deleteTaskRequest(task)
+                }}></img>)
             } else {
-                buttons.push(<img key="delete" src="/images/delete.png" onClick={()=>{this.props.deleteTask(task)}}></img>)
+                buttons.push(<img key="delete" src="/images/delete.png" onClick={() => {
+                    this.props.deleteTask(task)
+                }}></img>)
             }
 
             if (task.estimator.changeRequested) {

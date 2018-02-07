@@ -22,7 +22,7 @@ const estimationReducer = (state = initialState, action) => {
         case AC.UPDATE_ESTIMATION_FEATURE:
             // feature is added to estimation, it would be added against selected estimation
             return Object.assign({}, state, {
-                features:Array.isArray(state.features)? state.features.map(item => item._id == action.feature._id ? action.feature : item ):null
+                features: Array.isArray(state.features) ? state.features.map(item => item._id == action.feature._id ? action.feature : item) : null
             })
         case AC.ESTIMATION_TASK_DELETE:
             return Object.assign({}, state, {
