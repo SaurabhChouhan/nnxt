@@ -21,9 +21,9 @@ export const taskEditRequest = (task) => ({
     task: task
 })
 
-export const deleteTask = (taskId) => ({
+export const deleteTask = (task) => ({
     type: AC.DELETE_TASK,
-    taskId: taskId
+    task: task
 })
 export const taskDeleteRequest = (task) => ({
     type: AC.RQUEST_FOR_TASK_DELETE_PERMISSION,
@@ -151,16 +151,15 @@ export const requestForTaskEditPermissionOnServer = (task) => {
     }
 }
 
-export const deleteTaskOnServer = (task) => {
+export const deleteTaskOnServer = (estimationID,taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/delete-task', {
-                method: 'put',
+        return fetch('/api/estimations/'+estimationID+'/tasks/'+taskID, {
+                method: 'delete',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(task)
+                }
             }
         ).then(
             response => response.json()

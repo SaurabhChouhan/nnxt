@@ -8,6 +8,7 @@ import * as COC from "../../components/componentConsts";
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+
     requestTaskEdit: (values) => {
         let task = {}
         task.task_id = values._id
@@ -22,10 +23,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+
     deleteTask: (values) => {
-        let task = {}
-        task.task_id = values._id
-        return dispatch(A.deleteTaskOnServer(task)).then(json => {
+        return dispatch(A.deleteTaskOnServer(values.estimation._id,values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Deleted successfully")
             }
@@ -34,6 +34,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         })
     },
+
     deleteTaskRequest: (values) => {
         let task = {}
         task.task_id = values._id
@@ -48,6 +49,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+
     editTask: (values) => {
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
         let task = {}
@@ -60,6 +62,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.technologies = values.technologies
         dispatch(initialize("estimation-task", task))
     },
+
     showFeatureSelectionForm: (values) => {
         let task = {
             "task": {

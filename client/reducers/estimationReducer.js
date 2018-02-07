@@ -43,6 +43,9 @@ const estimationReducer = (state = initialState, action) => {
         case AC.RQUEST_FOR_TASK_EDIT_PERMISSION:
             return Object.assign({}, state, {tasks: state.tasks.map(item => item._id == action.task._id ? action.task : item)})
 
+        case AC.DELETE_TASK:
+            return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id )})
+
         case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})
         case AC.ADD_ESTIMATION:
