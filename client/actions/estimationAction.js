@@ -16,6 +16,10 @@ export const editEstimation = (estimation) => ({
     estimation: estimation
 })
 
+export const taskEditRequest = (task) => ({
+    type: AC.RQUEST_FOR_TASK_EDIT_PERMISSION,
+    task: task
+})
 
 export const selectEstimation = (estimation) => ({
     type: AC.SELECT_ESTIMATION,
@@ -104,6 +108,29 @@ export const requestEstimationOnServer = (estimationID) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const requestForTaskEditPermissionOnServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/request-edit-permission', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(taskEditRequest(json.data))
                 }
                 return json
             })
