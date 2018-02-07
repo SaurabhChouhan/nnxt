@@ -13,7 +13,7 @@ const mapStateToProps = (state, ownProps) => ({
 })
 const mapDispatchToProps = (dispatch, ownProps) => ({
     requestTaskEdit: (values) => {
-        let task={}
+        let task = {}
         task.task_id = values._id
         dispatch(A.requestForTaskEditPermissionOnServer(task)).then(json => {
             if (json.success) {
@@ -26,13 +26,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
-showFeatureSelectionForm: (values) => {
-        let task={
-            "task":{
-                "_id":""
+    showFeatureSelectionForm: (values) => {
+        let task = {
+            "task": {
+                "_id": ""
             }
         }
-        task.task._id=values
+        task.task._id = values
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
     }
