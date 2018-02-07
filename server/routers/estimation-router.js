@@ -188,7 +188,6 @@ estimationRouter.put('/move-out-of-feature', async ctx => {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorMoveOutOfFeatureStruct)
         return await EstimationTaskModel.moveTaskOutOfFeatureByEstimator(ctx.request.body, ctx.state.user)
-
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
