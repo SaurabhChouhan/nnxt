@@ -3,13 +3,8 @@ import {EstimationTasks} from "../../components"
 import * as EC from '../../../server/errorcodes'
 import {NotificationManager} from "react-notifications";
 import * as A from "../../actions";
-<<<<<<< HEAD
-import * as COC from '../../components/componentConsts'
 import {initialize, SubmissionError} from 'redux-form'
-=======
 import * as COC from "../../components/componentConsts";
-import {initialize} from "redux-form"
->>>>>>> master
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -27,7 +22,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
-<<<<<<< HEAD
     deleteTask: (values) => {
         let task = {}
         task.task_id = values._id
@@ -56,17 +50,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     editTask: (values) => {
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
-            let task={}
-            task._id=values._id
-            task.estimation=values.estimation
-            task.name=values.estimator.name
-            task.description=values.estimator.description
-            task.estimatedHours=values.estimator.estimatedHours
-            task.feature=values.feature
-            task.technologies=values.technologies
-            dispatch(initialize("estimation-task", task))
-
-=======
+        let task = {}
+        task._id = values._id
+        task.estimation = values.estimation
+        task.name = values.estimator.name
+        task.description = values.estimator.description
+        task.estimatedHours = values.estimator.estimatedHours
+        task.feature = values.feature
+        task.technologies = values.technologies
+        dispatch(initialize("estimation-task", task))
+    },
     showFeatureSelectionForm: (values) => {
         let task = {
             "task": {
@@ -76,7 +69,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.task._id = values
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
->>>>>>> master
+
     }
 
 })
