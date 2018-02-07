@@ -287,12 +287,6 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     if (!estimationFeature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    /**
-     * Check to see if this feature updated by negotiator or not
-     */
-    if (!estimationFeature.owner == SC.OWNER_NEGOTIATOR)
-        throw new AppError('You are not owner of this update feature as estimator', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
     let estimation = await EstimationModel.findOne({"_id": estimationFeature.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
