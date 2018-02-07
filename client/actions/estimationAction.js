@@ -16,6 +16,19 @@ export const editEstimation = (estimation) => ({
     estimation: estimation
 })
 
+export const taskEditRequest = (task) => ({
+    type: AC.RQUEST_FOR_TASK_EDIT_PERMISSION,
+    task: task
+})
+
+export const deleteTask = (task) => ({
+    type: AC.DELETE_TASK,
+    task: task
+})
+export const taskDeleteRequest = (task) => ({
+    type: AC.RQUEST_FOR_TASK_DELETE_PERMISSION,
+    task: task
+})
 
 export const selectEstimation = (estimation) => ({
     type: AC.SELECT_ESTIMATION,
@@ -24,6 +37,11 @@ export const selectEstimation = (estimation) => ({
 
 export const addEstimationTask = (task) => ({
     type: AC.ADD_ESTIMATION_TASK,
+    task: task
+})
+
+export const updateEstimationTask = (task) => ({
+    type: AC.UPDATE_ESTIMATION_TASK,
     task: task
 })
 
@@ -110,6 +128,74 @@ export const requestEstimationOnServer = (estimationID) => {
     }
 }
 
+export const requestForTaskEditPermissionOnServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/request-edit-permission', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(taskEditRequest(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const deleteTaskOnServer = (estimationID,taskID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/'+estimationID+'/tasks/'+taskID, {
+                method: 'delete',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(deleteTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const requestForTaskDeletePermissionOnServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/request-removal-task', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(taskDeleteRequest(json.data))
+                }
+                return json
+            })
+    }
+}
+
 export const requestReviewOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/review-request/' + estimationID, {
@@ -134,7 +220,6 @@ export const requestReviewOnServer = (estimationID) => {
 }
 
 
-
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks', {
@@ -152,6 +237,29 @@ export const addTaskToEstimationOnServer = (task) => {
             json => {
                 if (json.success) {
                     dispatch(addEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const updateTaskToEstimationOnServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/tasks', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })

@@ -18,12 +18,18 @@ class EstimationTask extends React.PureComponent {
             /**
              * Negotiator would always be able to edit any task (would be considered as suggestions), first button hence would always be edit
              */
-            buttons.push(<img key="edit" src="/images/edit.png"></img>)
+            buttons.push(<img key="edit" src="/images/edit.png" onClick={() => {
+                this.props.editTask(task)
+            }}></img>)
             if (task.estimator.removalRequested) {
                 // Estimator has requested removal
-                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"></img>)
+                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png" onClick={() => {
+                    this.props.deleteTaskRequest(task)
+                }}></img>)
             } else {
-                buttons.push(<img key="delete" src="/images/delete.png"></img>)
+                buttons.push(<img key="delete" src="/images/delete.png" onClick={() => {
+                    this.props.deleteTask(task)
+                }}></img>)
             }
 
             if (task.estimator.changeRequested) {
@@ -50,11 +56,15 @@ class EstimationTask extends React.PureComponent {
                 if (task.addedInThisIteration) {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'added in this iteration, edit button')
                     // Estimator would see plain edit button in case he has added task in this iteration
-                    buttons.push(<img key="edit" src="/images/edit.png"></img>)
+                    buttons.push(<img key="edit" src="/images/edit.png" onClick={() => {
+                        this.props.editTask(task)
+                    }}></img>)
                     if (task.estimator.removalRequested) {
                         buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
                     } else {
-                        buttons.push(<img key="edit" src="/images/delete.png"></img>)
+                        buttons.push(<img key="delete" src="/images/delete.png" onClick={() => {
+                            this.props.deleteTask(task)
+                        }}></img>)
                     }
 
                 } else {
@@ -70,12 +80,14 @@ class EstimationTask extends React.PureComponent {
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png" ></img>)
                         }
                     } else {
                         // Estimator has not requested change and has no permission to change task either so he can request change
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                        buttons.push(<img key="request_edit" src="/images/request_edit.png"></img>)
+                        buttons.push(<img key="request_edit" src="/images/request_edit.png" onClick={() => {
+                            this.props.requestTaskEdit(task)
+                        }}></img>)
                     }
 
                     if (task.estimator.removalRequested) {
@@ -83,7 +95,9 @@ class EstimationTask extends React.PureComponent {
                         buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
                     } else {
                         // Estimator can request removal
-                        buttons.push(<img key="request" src="/images/request_delete.png"></img>)
+                        buttons.push(<img key="request_delete" src="/images/request_delete.png" onClick={() => {
+                            this.props.deleteTaskRequest(task)
+                        }}></img>)
                     }
                 }
             } else if (task.owner == SC.OWNER_NEGOTIATOR) {
@@ -104,7 +118,9 @@ class EstimationTask extends React.PureComponent {
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                    buttons.push(<img key="request_edit" src="/images/request_edit.png"></img>)
+                    buttons.push(<img key="request_edit" src="/images/request_edit.png" onClick={() => {
+                        this.props.requestTaskEdit(task)
+                    }}></img>)
                 }
 
                 if (task.estimator.removalRequested) {
@@ -112,18 +128,22 @@ class EstimationTask extends React.PureComponent {
                     buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
                 } else {
                     // Estimator can request removal
-                    buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
+                    buttons.push(<img key="request_delete" src="/images/request_delete.png" onClick={() => {
+                        this.props.deleteTaskRequest(task)
+                    }}></img>)
                 }
             }
         }
 
         if (task.feature && task.feature._id) {
             // This task is part of some feature so add move out of feature button
-            buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature.png" onClick={()=>console.log("move_outof_feature clicked",this)}></img>)
+            buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature.png"
+                              onClick={() => console.log("move_outof_feature clicked", this)}></img>)
         } else {
             // This task is an individual task so add move to feature button
-            buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={()=>{this.props.showFeatureSelectionForm(this.props.task._id);
-              console.log("On click called");
+            buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
+                this.props.showFeatureSelectionForm(this.props.task._id);
+                console.log("On click called");
             }}></img>)
         }
 
@@ -166,7 +186,11 @@ let
                                                                            loggedInUserRole={props.loggedInUserRole}
                                                                            onTaskDelete={props.onTaskDelete}
                                                                            showFeatureSelectionForm={props.showFeatureSelectionForm}
-
-        />)
+                                                                           requestTaskEdit={props.requestTaskEdit}
+                                                                           onTaskDelete={props.onTaskDelete}
+                                                                           deleteTask={props.deleteTask}
+                                                                           editTask={props.editTask}
+                                                                           deleteTaskRequest={props.deleteTaskRequest}
+/>)
 
 export default EstimationTasks
