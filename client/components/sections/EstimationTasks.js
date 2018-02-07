@@ -56,9 +56,11 @@ class EstimationTask extends React.PureComponent {
                     // Estimator would see plain edit button in case he has added task in this iteration
                     buttons.push(<img key="edit" src="/images/edit.png"></img>)
                     if (task.estimator.removalRequested) {
-                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
+                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png" ></img>)
                     } else {
-                        buttons.push(<img key="edit" src="/images/delete.png"></img>)
+                        buttons.push(<img key="delete" src="/images/delete.png" onClick={() => {
+                            this.props.deleteTask(task)
+                        }}></img>)
                     }
 
                 } else {
@@ -89,7 +91,9 @@ class EstimationTask extends React.PureComponent {
                         buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
                     } else {
                         // Estimator can request removal
-                        buttons.push(<img key="request_edit" src="/images/request_delete.png"></img>)
+                        buttons.push(<img key="request_delete" src="/images/request_delete.png" onClick={() => {
+                            this.props.deleteTaskRequest(task)
+                        }}  ></img>)
                     }
                 }
             } else if (task.owner == SC.OWNER_NEGOTIATOR) {
@@ -110,7 +114,9 @@ class EstimationTask extends React.PureComponent {
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                    buttons.push(<img key="request_edit" src="/images/request_edit.png"></img>)
+                    buttons.push(<img key="request_edit" src="/images/request_edit.png" onClick={() => {
+                        this.props.requestTaskEdit(task)
+                    }} ></img>)
                 }
 
                 if (task.estimator.removalRequested) {
@@ -118,7 +124,9 @@ class EstimationTask extends React.PureComponent {
                     buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
                 } else {
                     // Estimator can request removal
-                    buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
+                    buttons.push(<img key="request_delete" src="/images/request_delete.png" onClick={() => {
+                        this.props.deleteTaskRequest(task)
+                    }}  ></img>)
                 }
             }
         }
