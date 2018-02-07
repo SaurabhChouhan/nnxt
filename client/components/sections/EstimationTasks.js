@@ -16,17 +16,27 @@ class EstimationTask extends React.PureComponent {
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
             /**
-             * Negotiator would always be able to edit any task (would be considered as suggestions), first button hence would always be edit
+             * Negotiator would be able to give suggestions about changes in name/description/estimated hours
              */
-            buttons.push(<img key="edit" src="/images/edit.png" onClick={() => {
-                this.props.editTask(task)
-            }}></img>)
-            if (task.estimator.removalRequested) {
-                // Estimator has requested removal
-                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png" onClick={() => {
-                    this.props.deleteTaskRequest(task)
+
+            if (task.negotiator.changeRequested) {
+                // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
+                buttons.push(<img key="suggestion_outgoing" src="/images/suggestion_outgoing.png" onClick={() => {
+                    this.props.editTask(task)
                 }}></img>)
             } else {
+                buttons.push(<img key="suggestion" src="/images/suggestion.png" onClick={() => {
+                    this.props.editTask(task)
+                }}></img>)
+            }
+
+            if (task.estimator.removalRequested) {
+                // Estimator has requested removal, negotiator will directly delete task if he wants to
+                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png" onClick={() => {
+                    this.props.deleteTask(task)
+                }}></img>)
+            } else {
+                // Negotiator can delete any task during its review without getting permission from estimator
                 buttons.push(<img key="delete" src="/images/delete.png" onClick={() => {
                     this.props.deleteTask(task)
                 }}></img>)
@@ -36,14 +46,12 @@ class EstimationTask extends React.PureComponent {
                 if (task.negotiator.changeGranted) {
                     // estimator has requested change which negotiator has granted
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                    buttons.push(<img key="he_requested_edit" src="/images/granted_edit.png"></img>)
+                    buttons.push(<img key="granted_edit" src="/images/granted_edit.png"></img>)
                 } else {
                     // estimator has requested change but negotiator has not granted it till now
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                    buttons.push(<img key="requested_edit" src="/images/he_requested_edit.png"></img>)
+                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
                 }
-            } else if (task.negotiator.changeRequested){
-                buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
             }
 
 
@@ -80,7 +88,7 @@ class EstimationTask extends React.PureComponent {
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png" ></img>)
+                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
                         }
                     } else {
                         // Estimator has not requested change and has no permission to change task either so he can request change
@@ -103,17 +111,23 @@ class EstimationTask extends React.PureComponent {
             } else if (task.owner == SC.OWNER_NEGOTIATOR) {
                 if (task.negotiator.changeRequested) {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
-                    // Negotiator has requested change
-                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
-                } else if (task.estimator.changeRequested) {
+                    /* Negotiator has provided suggestions, clicking this button should show a window that would
+                       allow estimator to see suggestions given by negotiator
+                     */
+                    buttons.push(<img key="suggestion_incoming" src="/images/suggestion_incoming.png"></img>)
+                }
+
+                if (task.estimator.changeRequested) {
                     if (task.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                        buttons.push(<img key="he_requested_edit" src="/images/he_granted_edit.png"></img>)
+                        buttons.push(<img key="he_granted_edit" src="/images/he_granted_edit.png"></img>)
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png" onClick={() => {
+                            this.props.requestTaskEdit(task)
+                        }}></img>)
                     }
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
@@ -187,10 +201,9 @@ let
                                                                            onTaskDelete={props.onTaskDelete}
                                                                            showFeatureSelectionForm={props.showFeatureSelectionForm}
                                                                            requestTaskEdit={props.requestTaskEdit}
-                                                                           onTaskDelete={props.onTaskDelete}
                                                                            deleteTask={props.deleteTask}
                                                                            editTask={props.editTask}
                                                                            deleteTaskRequest={props.deleteTaskRequest}
-/>)
+        />)
 
 export default EstimationTasks

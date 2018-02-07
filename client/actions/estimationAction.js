@@ -17,16 +17,16 @@ export const editEstimation = (estimation) => ({
 })
 
 export const taskEditRequest = (task) => ({
-    type: AC.RQUEST_FOR_TASK_EDIT_PERMISSION,
+    type: AC.REQUEST_FOR_TASK_EDIT_PERMISSION,
     task: task
 })
 
-export const deleteTask = (task) => ({
-    type: AC.DELETE_TASK,
+export const deleteEstimationTask = (task) => ({
+    type: AC.DELETE_ESTIMATION_TASK,
     task: task
 })
 export const taskDeleteRequest = (task) => ({
-    type: AC.RQUEST_FOR_TASK_DELETE_PERMISSION,
+    type: AC.REQUEST_FOR_TASK_DELETE_PERMISSION,
     task: task
 })
 
@@ -130,7 +130,7 @@ export const requestEstimationOnServer = (estimationID) => {
 
 export const requestForTaskEditPermissionOnServer = (task) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-edit-permission', {
+        return fetch('/api/estimations/request-edit-permission-task', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -144,16 +144,17 @@ export const requestForTaskEditPermissionOnServer = (task) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(taskEditRequest(json.data))
+                    // As json.data would contain complete updated task just fire update redux action
+                    dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })
     }
 }
 
-export const deleteTaskOnServer = (estimationID,taskID) => {
+export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/'+estimationID+'/tasks/'+taskID, {
+        return fetch('/api/estimations/' + estimationID + '/tasks/' + taskID, {
                 method: 'delete',
                 credentials: "include",
                 headers: {
@@ -166,7 +167,7 @@ export const deleteTaskOnServer = (estimationID,taskID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(deleteTask(json.data))
+                    dispatch(deleteEstimationTask(json.data))
                 }
                 return json
             })

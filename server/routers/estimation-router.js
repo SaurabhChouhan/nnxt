@@ -221,7 +221,7 @@ estimationRouter.put('/request-removal-task', async ctx => {
  * request Edit/Update permission task/feature by estimator to estimation
  * or cancel this request
  */
-estimationRouter.put('/request-edit-permission', async ctx => {
+estimationRouter.put('/request-edit-permission-task', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorRequestEditPermissionToTaskStruct)
