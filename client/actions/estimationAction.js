@@ -20,6 +20,11 @@ export const taskEditRequest = (task) => ({
     type: AC.RQUEST_FOR_TASK_EDIT_PERMISSION,
     task: task
 })
+
+export const deleteTask = (taskId) => ({
+    type: AC.DELETE_TASK,
+    taskId: taskId
+})
 export const taskDeleteRequest = (task) => ({
     type: AC.RQUEST_FOR_TASK_DELETE_PERMISSION,
     task: task
@@ -141,6 +146,29 @@ export const requestForTaskEditPermissionOnServer = (task) => {
     }
 }
 
+export const deleteTaskOnServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/delete-task', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(deleteTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
 export const requestForTaskDeletePermissionOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/request-removal-task', {
@@ -186,7 +214,6 @@ export const requestReviewOnServer = (estimationID) => {
             })
     }
 }
-
 
 
 export const addTaskToEstimationOnServer = (task) => {

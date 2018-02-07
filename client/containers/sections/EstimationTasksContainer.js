@@ -26,15 +26,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     deleteTask: (values) => {
         let task = {}
         task.task_id = values._id
-        dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
+        dispatch(A.deleteTaskOnServer(task)).then(json => {
             if (json.success) {
-                NotificationManager.success("Task Delete requested successfully")
-            } else {
-                if (json.code == EC.INVALID_OPERATION)
-                    NotificationManager.error("Task Delete already requested")
-                else
-                    NotificationManager.error("Unknown error occurred")
+                NotificationManager.success("Task Deleted successfully")
             }
+            else
+                NotificationManager.error("Task Deletion Failed !")
+
         })
     },
     deleteTaskRequest: (values) => {
