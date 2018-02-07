@@ -13,6 +13,12 @@ const clientReducer = (state = initialState, action) => {
 
         case AC.ADD_CLIENT:
             return Object.assign({}, state, {all: [...state.all, action.client]})
+
+        case AC.DELETE_CLIENT:
+            return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.clientID)})
+
+        case AC.UPDATE_CLIENT:
+            return Object.assign({}, state, {all: state.all.map(item => item._id == action.client._id ? action.client : item)})
         default:
             return state
     }

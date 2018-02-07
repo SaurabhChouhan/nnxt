@@ -1,4 +1,5 @@
 import * as AC from '../actions/actionConsts'
+import {DELETE_PERMISSION} from "../actions/actionConsts";
 
 let initialState = {
     all: [],
@@ -11,6 +12,8 @@ let technologyReducer = (state = initialState, action) => {
             return Object.assign({}, state, {all: action.technologies})
         case AC.ADD_TECHNOLOGY:
             return Object.assign({}, state, {all: [...state.all, action.technology]})
+        case AC.DELETE_TECHNOLOGY:
+            return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.TechnologyID)})
         default:
             return state
     }

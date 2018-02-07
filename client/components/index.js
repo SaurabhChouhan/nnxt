@@ -20,7 +20,6 @@ export {default as ConfirmationDialog} from './dialogs/ConfirmationDialog'
 export {default as EstimationTaskForm} from './forms/EstimationTaskForm'
 export {default as EstimationFeatureForm} from './forms/EstimationFeatureForm'
 
-//EstimationDialog
 export {default as EstimationTaskDialog} from './dialogs/EstimationTaskDialog'
 export {default as EstimationFeatureDialog} from './dialogs/EstimationFeatureDialog'
 export {default as EstimationInitiateDialog} from './dialogs/EstimationInitiateDialog'
