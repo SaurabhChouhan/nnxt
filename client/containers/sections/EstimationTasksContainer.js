@@ -3,8 +3,13 @@ import {EstimationTasks} from "../../components"
 import * as EC from '../../../server/errorcodes'
 import {NotificationManager} from "react-notifications";
 import * as A from "../../actions";
+<<<<<<< HEAD
 import * as COC from '../../components/componentConsts'
 import {initialize, SubmissionError} from 'redux-form'
+=======
+import * as COC from "../../components/componentConsts";
+import {initialize} from "redux-form"
+>>>>>>> master
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -22,6 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+<<<<<<< HEAD
     deleteTask: (values) => {
         let task = {}
         task.task_id = values._id
@@ -60,7 +66,19 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             task.technologies=values.technologies
             dispatch(initialize("estimation-task", task))
 
+=======
+    showFeatureSelectionForm: (values) => {
+        let task = {
+            "task": {
+                "_id": ""
+            }
+        }
+        task.task._id = values
+        dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+        dispatch(initialize("MoveTaskInFeatureForm", task))
+>>>>>>> master
     }
+
 })
 
 

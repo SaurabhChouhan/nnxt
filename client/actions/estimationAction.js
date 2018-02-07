@@ -336,3 +336,26 @@ export const getEstimationFromServer = (estimationID) => {
 }
 
 
+export const moveTaskIntoFeature = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/move-out-of-feature', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    //dispatch(addEstimation(json.data))
+                }
+
+                return json
+            })
+    }
+}
