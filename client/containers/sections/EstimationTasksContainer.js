@@ -14,18 +14,19 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.task_id = values._id
         return dispatch(A.requestForTaskEditPermissionOnServer(task)).then(json => {
             if (json.success) {
-                NotificationManager.success("Task Edit requested successfully")
-            } else {
-                if (json.code == EC.INVALID_OPERATION)
-                    NotificationManager.error("Task Edit already requested")
+
+                if (json.data && json.data.estimator && json.data.estimator.changeRequested)
+                    NotificationManager.success("Edit request on Task raised...")
                 else
-                    NotificationManager.error("Unknown error occurred")
+                    NotificationManager.success("Edit request on Task cleared...")
+            } else {
+                NotificationManager.error("Unknown error occurred")
             }
         })
     },
 
     deleteTask: (values) => {
-        return dispatch(A.deleteTaskOnServer(values.estimation._id,values._id)).then(json => {
+        return dispatch(A.deleteEstimationTaskOnServer(values.estimation._id, values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Deleted successfully")
             }

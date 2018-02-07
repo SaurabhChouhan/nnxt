@@ -16,9 +16,10 @@ const estimationReducer = (state = initialState, action) => {
             })
 
         case AC.UPDATE_ESTIMATION_TASK:
-            // feature is added to estimation, it would be added against selected estimation
             return Object.assign({}, state, {
-                tasks: Array.isArray(state.tasks) ? state.tasks.map(item => item._id == action.task._id ? action.task : item) : null
+                tasks: Array.isArray(state.tasks) ?
+                    state.tasks.map(item => item._id == action.task._id ?
+                        Object.assign({}, action.task) : item) : null
             })
 
         case AC.ADD_ESTIMATION_FEATURE:
@@ -29,23 +30,16 @@ const estimationReducer = (state = initialState, action) => {
         case AC.UPDATE_ESTIMATION_FEATURE:
             // feature is added to estimation, it would be added against selected estimation
             return Object.assign({}, state, {
-                features:Array.isArray(state.features)? state.features.map(item => item._id == action.feature._id ? action.feature : item ):null
-            })
-        case AC.ESTIMATION_TASK_DELETE:
-            return Object.assign({}, state, {
-                tasks: state.tasks.map(t => {
-                    if (t._id == action.taskID) {
-                        return Object.assign({}, t, {estimator: Object.assign({}, t.estimator, {removalRequested: !t.estimator.removalRequested})})
-                    }
-                    return t
-                })
+                features: Array.isArray(state.features) ? state.features.map(item => item._id == action.feature._id ? action.feature : item) : null
             })
 
-        case AC.RQUEST_FOR_TASK_EDIT_PERMISSION:
+        /*
+        case AC.REQUEST_FOR_TASK_EDIT_PERMISSION:
             return Object.assign({}, state, {tasks: state.tasks.map(item => item._id == action.task._id ? action.task : item)})
+            */
 
-        case AC.DELETE_TASK:
-            return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id )})
+        case AC.DELETE_ESTIMATION_TASK:
+            return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id)})
 
         case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})

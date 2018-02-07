@@ -437,8 +437,6 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
     task.estimator.changeRequested = !task.estimator.changeRequested
     task.estimator.changedInThisIteration = true
     return await task.save()
-    //const  updatedTask = await task.save();
-    //return {changeRequested:updatedTask.estimator.changeRequested}
 }
 
 estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (featureInput, negotiator) => {

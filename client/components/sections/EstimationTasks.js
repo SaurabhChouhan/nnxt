@@ -125,7 +125,9 @@ class EstimationTask extends React.PureComponent {
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png" onClick={() => {
+                            this.props.requestTaskEdit(task)
+                        }}></img>)
                     }
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
