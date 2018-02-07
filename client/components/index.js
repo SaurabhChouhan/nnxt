@@ -18,8 +18,11 @@ export {default as EstimationInitiateForm} from './forms/EstimationInitiateForm'
 export {default as EstimationDetail} from './pages/EstimationDetail'
 export {default as ConfirmationDialog} from './dialogs/ConfirmationDialog'
 export {default as EstimationTaskForm} from './forms/EstimationTaskForm'
+export {default as EstimationFeatureForm} from './forms/EstimationFeatureForm'
 
+//EstimationDialog
 export {default as EstimationTaskDialog} from './dialogs/EstimationTaskDialog'
+export {default as EstimationFeatureDialog} from './dialogs/EstimationFeatureDialog'
 export {default as EstimationInitiateDialog} from './dialogs/EstimationInitiateDialog'
 
 //ProjectDialog
@@ -28,6 +31,9 @@ export {default as ProjectForm} from './forms/ProjectForm'
 
 export {default as ClientFormDialog} from './dialogs/ClientFormDialog'
 export {default as ClientList} from './lists/ClientList'
+
+export {default as EstimationTasks} from './sections/EstimationTasks'
+export {default as EstimationFeatures} from './sections/EstimationFeatures'
 
 //technology RelatedForm
 export {default as TechnologyFormDialog} from './dialogs/TechnologyFormDialog'

@@ -1,12 +1,11 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {ProjectModel, UserModel, RepositoryModel} from "./index"
-
+import {ProjectModel, UserModel, RepositoryModel, EstimationTaskModel, EstimationFeatureModel} from "./index"
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
 import {validate, estimationInitiationStruct, estimationEstimatorAddTaskStruct} from "../validation"
-import {STATUS_INITIATED} from "../serverconstants";
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -53,20 +52,24 @@ let estimationSchema = mongoose.Schema({
         date: {type: Date, default: Date.now()}
     }],
     isDeleted: {type: Boolean, default: false},
-    isArchived: {type: Boolean, default: false}
+    isArchived: {type: Boolean, default: false},
+    canHardDelete: {type: Boolean, default: true}
+}, {
+    usePushEach: true
 })
 
 
 estimationSchema.statics.getAllActive = async (user) => {
+
+    console.log("user id is ", user._id)
     let estimations = []
     if (userHasRole(user, SC.ROLE_ESTIMATOR)) {
-
         console.log("user has estimator role")
         // Estimator would only see those estimations that don't have initiated status and this user is estimator
         let estimatorEstimations = await EstimationModel.find({
             isArchived: false,
             isDeleted: false,
-            "estimator._id": user._id,
+            "estimator._id": mongoose.Types.ObjectId(user._id),
             status: {$ne: SC.STATUS_INITIATED}
         }, {
             description: 1,
@@ -75,8 +78,10 @@ estimationSchema.statics.getAllActive = async (user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status:1
+            status: 1
         })
+
+        console.log("estimator estimations ", estimatorEstimations)
 
         estimations = [...estimatorEstimations]
 
@@ -96,7 +101,7 @@ estimationSchema.statics.getAllActive = async (user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status:1
+            status: 1
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
@@ -115,15 +120,40 @@ estimationSchema.statics.getById = async estimationID => {
     }, {
         $lookup: {
             from: 'estimationtasks',
-            localField: '_id',
-            foreignField: 'estimation._id',
+            let: {estimationID: "$_id"},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ["$estimation._id", "$$estimationID"]},
+                            {$eq: [{$ifNull: ["$feature._id", true]}, true]}
+                        ]
+                    }
+                }
+            }],
             as: 'tasks'
         }
     }, {
         $lookup: {
             from: 'estimationfeatures',
-            localField: '_id',
-            foreignField: 'estimation._id',
+            let: {estimationID: "$_id"},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ["$estimation._id", "$$estimationID"]}
+                        ]
+                    }
+                }
+
+            }, {
+                $lookup: {
+                    from: 'estimationtasks',
+                    localField: "_id",
+                    foreignField: "feature._id",
+                    as: "tasks"
+                }
+            }],
             as: 'features'
         }
     }).exec()
@@ -180,7 +210,7 @@ estimationSchema.statics.request = async (estimationID, negotiator) => {
         throw new AppError('This estimation has different negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (estimation.status != SC.STATUS_INITIATED)
-        throw new AppError('Only estimations with status [' + STATUS_INITIATED + "] can be requested", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_INITIATED + "] can be requested", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     estimation.status = SC.STATUS_ESTIMATION_REQUESTED
     estimation.statusHistory.push({
@@ -188,6 +218,46 @@ estimationSchema.statics.request = async (estimationID, negotiator) => {
         status: SC.STATUS_ESTIMATION_REQUESTED
     })
     return await estimation.save()
+}
+
+estimationSchema.statics.requestReview = async (estimationID, estimator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.estimator._id != estimator._id)
+        throw new AppError('Not an estimator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError('Only estimations with status [' + SC.STATUS_ESTIMATION_REQUESTED + "," + SC.STATUS_CHANGE_REQUESTED + "] can be requested for review", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+        "owner": SC.OWNER_NEGOTIATOR
+    }, {$set: {addedInThisIteration: false, "negotiator.changedInThisIteration": false}}, {multi: true})
+
+    await EstimationFeatureModel.update({
+        "estimation._id": estimation._id,
+        "owner": SC.OWNER_NEGOTIATOR
+    }, {$set: {addedInThisIteration: false, "negotiator.changedInThisIteration": false}}, {multi: true})
+
+    return await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
+        $set: {status: SC.STATUS_REVIEW_REQUESTED},
+        $push: {
+            statusHistory: {
+                name: estimator.firstName,
+                status: SC.STATUS_REVIEW_REQUESTED
+            }
+        }
+    }, {
+        new: true
+    })
+
+
 }
 
 

@@ -150,8 +150,6 @@ class EstimationList extends Component {
                                                columnClassName={this.columnClassUserFormat}
                                                dataFormat={this.formatNegotiator.bind(this)}>Negotiator</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle width="10%" dataField='button'
-                                               dataFormat={this.viewButton.bind(this)}></TableHeaderColumn>
                         </BootstrapTable>
                     </div>
                 </div>
