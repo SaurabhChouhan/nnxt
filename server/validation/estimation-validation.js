@@ -160,3 +160,17 @@ export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
 
 //Negotiator Feature Validation Block Start
 
+export const estimationNegotiatorUpdateFeatureStruct = t.struct({
+    _id: ObjectId,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
+    technologies: t.maybe(t.list(t.String)),
+    tags: t.maybe(t.list(t.String)),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    ),
+    repo: t.maybe(t.struct({_id: t.Nil}))
+})

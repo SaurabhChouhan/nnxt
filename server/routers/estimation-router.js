@@ -19,7 +19,8 @@ import {
     estimationEstimatorMoveOutOfFeatureStruct,
     estimationNegotiatorAddFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
-estimationEstimatorRequestRemovalToTaskStruct
+    estimationEstimatorRequestRemovalToTaskStruct,
+    estimationNegotiatorUpdateFeatureStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -152,7 +153,9 @@ estimationRouter.put('/features', async ctx => {
         return await EstimationFeatureModel.updateFeatureByEstimator(ctx.request.body, ctx.state.user)
 
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        return "not implemented"
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorUpdateFeatureStruct)
+        return await EstimationFeatureModel.updateFeatureByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add features into stimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
