@@ -11,6 +11,7 @@ let EstimationTaskForm = (props) => {
         <div className="row">
 
             <Field name="estimation._id" component="input" type="hidden"/>
+            <Field name="_id" component="input" type="hidden"/>
 
             <div className="col-md-6">
                 <Field name="name" component={renderText} label={"Task Name:"} validate={[required]}/>

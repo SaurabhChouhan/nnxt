@@ -49,8 +49,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     editTask: (values) => {
-        dispatch(A.showComponentHideOthers(COC.ESTIMATION_TASK_DIALOG)),
-            dispatch(initialize("estimation-task", values))
+        dispatch(A.showComponentHideOthers(COC.ESTIMATION_TASK_DIALOG))
+            let task={}
+            task._id=values._id
+            task.estimation=values.estimation
+            task.name=values.estimator.name
+            task.description=values.estimator.description
+            task.estimatedHours=values.estimator.estimatedHours
+            task.feature=values.feature
+            task.technologies=values.technologies
+            dispatch(initialize("estimation-task", task))
 
     }
 })
