@@ -22,7 +22,22 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     NotificationManager.error("Unknown error occurred")
             }
         })
-    }
+    },
+    deleteTask: (values) => console.log("task deletion in container"),
+    deleteTaskRequest: (values) => {
+    let task={}
+    task.task_id = values._id
+    dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Task Delete requested successfully")
+        } else {
+            if (json.code == EC.INVALID_OPERATION)
+                NotificationManager.error("Task Delete already requested")
+            else
+                NotificationManager.error("Unknown error occurred")
+        }
+    })
+}
 })
 
 const EstimationTasksContainer = connect(
