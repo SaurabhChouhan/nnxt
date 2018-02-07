@@ -3,6 +3,9 @@ import {EstimationTasks} from "../../components"
 import * as EC from '../../../server/errorcodes'
 import {NotificationManager} from "react-notifications";
 import * as A from "../../actions";
+import * as COC from "../../components/componentConsts";
+import {initialize} from "redux-form"
+
 
 const mapStateToProps = (state, ownProps) => ({
     tasks: state.estimation.tasks,
@@ -22,7 +25,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     NotificationManager.error("Unknown error occurred")
             }
         })
+    },
+showFeatureSelectionForm: (values) => {
+        let task={
+            "task":{
+                "_id":""
+            }
+        }
+        task.task._id=values
+        dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+        dispatch(initialize("MoveTaskInFeatureForm", task))
     }
+
 })
 
 const EstimationTasksContainer = connect(
