@@ -215,7 +215,7 @@ export const moveTaskIntoFeature = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addEstimation(json.data))
+                    //dispatch(addEstimation(json.data))
                 }
 
                 return json
