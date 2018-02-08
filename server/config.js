@@ -2,7 +2,7 @@ const config = {
     server: {
         default: {
             port: 3000,
-            setupData: true,
+            setupData: false,
             dropDatabase: false
         },
         development: {
@@ -48,7 +48,7 @@ const config = {
         },
         khushboo: {
             dbname: 'nnxt',
-            url: 'mongodb://khushboo:khushboo@ds251197.mlab.com:51197/nnxt',
+            url: 'mongodb://192.168.1.55:27017/khushboo_nnxt',
             useMongoClient: true
         },
         gaurav: {
