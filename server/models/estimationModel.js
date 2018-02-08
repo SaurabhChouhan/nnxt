@@ -244,12 +244,20 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
         "owner": SC.OWNER_NEGOTIATOR
-    }, {$set: {addedInThisIteration: false, "negotiator.changedInThisIteration": false}}, {multi: true})
+    }, {$set: {addedInThisIteration: false}}, {multi: true})
+
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeRequested": false}}, {multi: true})
 
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id,
         "owner": SC.OWNER_NEGOTIATOR
-    }, {$set: {addedInThisIteration: false, "negotiator.changedInThisIteration": false}}, {multi: true})
+    }, {$set: {addedInThisIteration: false}}, {multi: true})
+
+    await EstimationFeatureModel.update({
+        "estimation._id": estimation._id
+    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeRequested": false}}, {multi: true})
 
     estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
         $set: {status: SC.STATUS_REVIEW_REQUESTED},

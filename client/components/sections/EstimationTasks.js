@@ -39,21 +39,6 @@ class EstimationTask extends React.PureComponent {
                                              }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
             }
 
-            if (task.estimator.removalRequested) {
-                // Estimator has requested removal, negotiator will directly delete task if he wants to
-                buttons.push(editView ? <img key="he_requested_delete" src="/images/he_requested_delete.png"
-                                             onClick={() => {
-                                                 this.props.deleteTask(task)
-                                             }}/> :
-                    <img key="he_requested_delete" src="/images/he_requested_delete_disable.png"
-                    />)
-            } else {
-                // Negotiator can delete any task during its review without getting permission from estimator
-                buttons.push(editView ? <img key="delete" src="/images/delete.png"
-                                             onClick={() => {
-                                                 this.props.deleteTask(task)
-                                             }}/> : <img key="delete" src="/images/delete_disable.png"/>)
-            }
 
             if (task.estimator.changeRequested) {
                 if (task.negotiator.changeGranted) {
@@ -74,6 +59,23 @@ class EstimationTask extends React.PureComponent {
                         <img key="he_requested_edit" src="/images/he_requested_edit_disable.png"/>)
                 }
             }
+
+            if (task.estimator.removalRequested) {
+                // Estimator has requested removal, negotiator will directly delete task if he wants to
+                buttons.push(editView ? <img key="he_requested_delete" src="/images/he_requested_delete.png"
+                                             onClick={() => {
+                                                 this.props.deleteTask(task)
+                                             }}/> :
+                    <img key="he_requested_delete" src="/images/he_requested_delete_disable.png"
+                    />)
+            } else {
+                // Negotiator can delete any task during its review without getting permission from estimator
+                buttons.push(editView ? <img key="delete" src="/images/delete.png"
+                                             onClick={() => {
+                                                 this.props.deleteTask(task)
+                                             }}/> : <img key="delete" src="/images/delete_disable.png"/>)
+            }
+
 
 
         } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
@@ -253,6 +255,15 @@ class EstimationTask extends React.PureComponent {
             {task.addedInThisIteration && <div className="newFlagStrip">
                 <img src="/images/new_flag.png"></img>
             </div>}
+
+            {loggedInUserRole== SC.ROLE_NEGOTIATOR && task.estimator.changedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/edited_flag.png"></img>
+            </div>}
+
+            {loggedInUserRole== SC.ROLE_ESTIMATOR && task.negotiator.changedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/edited_flag.png"></img>
+            </div>}
+
 
             {!task.repo.addedFromThisEstimation &&
             <div className="repoFlagStrip">

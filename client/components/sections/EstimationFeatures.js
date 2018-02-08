@@ -222,6 +222,14 @@ class EstimationFeature extends React.PureComponent {
                 <img src="/images/new_flag.png"></img>
             </div>}
 
+            {loggedInUserRole== SC.ROLE_NEGOTIATOR && feature.estimator.changedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/edited_flag.png"></img>
+            </div>}
+
+            {loggedInUserRole== SC.ROLE_ESTIMATOR && feature.negotiator.changedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/edited_flag.png"></img>
+            </div>}
+
             {!feature.repo.addedFromThisEstimation &&
             <div className="repoFlagStrip">
                 <img src="/images/repo_flag.png"></img>
