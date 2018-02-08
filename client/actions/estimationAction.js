@@ -28,10 +28,6 @@ export const deleteEstimationTask = (task) => ({
     type: AC.DELETE_ESTIMATION_TASK,
     task: task
 })
-export const taskDeleteRequest = (task) => ({
-    type: AC.REQUEST_FOR_TASK_DELETE_PERMISSION,
-    task: task
-})
 
 export const selectEstimation = (estimation) => ({
     type: AC.SELECT_ESTIMATION,
@@ -197,7 +193,7 @@ export const requestForTaskDeletePermissionOnServer = (task) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(taskDeleteRequest(json.data))
+                    dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })
@@ -389,6 +385,35 @@ export const moveTaskOutOfFeatureOnServer = (formInput) => {
                 }
                 else{
                     NotificationManager.error('Process Failed')
+                }
+
+                return json
+            })
+    }
+}
+
+
+export const grantEditPermissionOfTaskOnServer = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/grant-edit-permission-task', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    NotificationManager.success('Permission Granted Successfully')
+                    dispatch(updateEstimationTask(json.data))
+                }
+                else{
+                    NotificationManager.error('Permission Granted Failed')
                 }
 
                 return json

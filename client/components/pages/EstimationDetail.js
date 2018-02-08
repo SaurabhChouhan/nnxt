@@ -1,9 +1,7 @@
 import React, {Component} from 'react'
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
-import Dialog from 'react-bootstrap-dialog'
 import {ConfirmationDialog} from "../"
-import {EstimationTasksContainer, EstimationFeaturesContainer} from "../../containers"
+import {EstimationFeaturesContainer, EstimationTasksContainer} from "../../containers"
 import * as logger from '../../clientLogger'
 
 class EstimationDetail extends Component {
@@ -127,11 +125,13 @@ class EstimationDetail extends Component {
                         </div>
                     </div>
                 </div>
+
                 <div className=" col-md-12">
                     <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
                     <div className="col-md-6">
-                        {(estimation && estimation.status && (estimation.status == SC.STATUS_INITIATED || estimation.status == SC.STATUS_REVIEW_REQUESTED)) ?
-                        <form>
+                        {(estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
+                            estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+                            && <form>
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showAddTaskForm(estimation)}><i
                                 className="fa fa-plus-circle"></i>
@@ -142,7 +142,7 @@ class EstimationDetail extends Component {
                             ><i className="fa fa-plus-circle"></i>
                                 Add feature
                             </button>
-                            </form> : null}
+                            </form>}
                     </div>
                 </div>
                 <div className="col-md-12">
