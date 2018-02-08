@@ -130,18 +130,19 @@ class EstimationDetail extends Component {
                 <div className=" col-md-12">
                     <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
                     <div className="col-md-6">
-                        {(estimation && estimation.status && (estimation.status==SC.STATUS_INITIATED || estimation.status==SC.STATUS_REVIEW_REQUESTED)) ? <form>
-                            <button type="button" className="btn taskbtn"
-                                    onClick={() => this.props.showAddTaskForm(estimation)}><i
-                                className="fa fa-plus-circle"></i>
-                                Add task
-                            </button>
-                            <button type="button" className="btn featurebtn"
-                                    onClick={() => this.props.showAddFeatureForm(estimation)}
-                            ><i className="fa fa-plus-circle"></i>
-                                Add feature
-                            </button>
-                        </form> : null}
+                        {(estimation && estimation.status && (estimation.status == SC.STATUS_INITIATED || estimation.status == SC.STATUS_REVIEW_REQUESTED)) ?
+                            <form>
+                                <button type="button" className="btn taskbtn"
+                                        onClick={() => this.props.showAddTaskForm(estimation)}><i
+                                    className="fa fa-plus-circle"></i>
+                                    Add task
+                                </button>
+                                <button type="button" className="btn featurebtn"
+                                        onClick={() => this.props.showAddFeatureForm(estimation)}
+                                ><i className="fa fa-plus-circle"></i>
+                                    Add feature
+                                </button>
+                            </form> : null}
                     </div>
                 </div>
                 <div className="col-md-12">
