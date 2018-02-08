@@ -205,6 +205,7 @@ class EstimationTask extends React.PureComponent {
                               }}></img>)
         }
 
+
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
         return <div className="task">
             <div className="col-md-12 pad">
