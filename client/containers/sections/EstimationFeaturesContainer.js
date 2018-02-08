@@ -10,45 +10,33 @@ const mapStateToProps = (state, ownProps) => ({
     loggedInUserRole: state.estimation.selected.loggedInUserRole
 })
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showEditFeatureForm: (values, loggedInUserRole) => {
+    showEditFeatureForm: (values) => {
+        // would always be called by estimator
         dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
         // initialize
         let feature = {}
         feature.estimation = values.estimation
         feature._id = values._id
-        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
-            feature.name = values.estimator.name
-            feature.description = values.estimator.description
-        } else {
-            feature.name = values.negotiator.name
-            feature.description = values.negotiator.description
-        }
-
+        feature.name = values.estimator.name
+        feature.description = values.estimator.description
         dispatch(initialize('estimation-feature', feature))
     },
-    deleteFeature: (values) => {
-        console.log("delete feature", values)
+    showFeatureSuggestionForm: (feature, loggedInUserRole) => {
+        // Can be called by both estimator and negotiator
+
     },
-    requestEditFeature: (values) => {
-        console.log("requestEditFeature", values)
+    deleteFeature: (feature) => {
+        console.log("delete feature", feature)
     },
-    heRequestedEditFeature: (values) => {
-        console.log("heRequestedEditFeature", values)
+    toggleEditRequest: (feature) => {
+        console.log("toggleEditRequest", feature)
     },
-    grantedEditFeature: (values) => {
-        console.log("grantedEditFeature", values)
+    toggleGrantEdit: (feature) => {
+        // Call grant edit API which automatically toggles input
+        console.log("toggleGrantEdit", feature)
     },
-    heGrantedEditFeature: (values) => {
-        console.log("heGrantedEditFeature", values)
-    },
-    requestedEditFeature: (values) => {
-        console.log("requestedEditFeature", values)
-    },
-    requestedDeleteFeature: (values) => {
-        console.log("requestedDeleteFeature", values)
-    },
-    heRequestedDeleteFeature: (values) => {
-        console.log("heRequestedDeleteFeature", values)
+    toggleDeleteRequest: (values) => {
+        console.log("toggleDeleteRequest", values)
     }
 })
 
