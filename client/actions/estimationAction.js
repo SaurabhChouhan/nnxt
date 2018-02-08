@@ -62,6 +62,10 @@ export const estimationTaskDelete = (taskID) => ({
     type: AC.ESTIMATION_TASK_DELETE,
     taskID: taskID
 })
+export const moveTaskInFeature = (task) => ({
+    type: AC.MOVE_TASK_IN_FEATURE,
+    task: task
+})
 
 export const getAllEstimationsFromServer = () => {
     return (dispatch, getState) => {
@@ -355,14 +359,9 @@ export const moveTaskIntoFeatureOnServer = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    NotificationManager.success('Task Moved Successfully')
-                    dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
-                    //dispatch(addEstimation(json.data))
-                }
-                else{
-                    NotificationManager.error('Process Failed')
-                }
+                    dispatch(moveTaskInFeature(json.data))
 
+                }
                 return json
             })
     }

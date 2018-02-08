@@ -8,26 +8,26 @@ import {SubmissionError} from "redux-form";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        console.log("You are in move tsk to feature Form container ", values)
 
-        return dispatch(A.moveTaskIntoFeatureOnServer(values))/*.then(json => {
+        return dispatch(A.moveTaskIntoFeatureOnServer(values)).then(json => {
             if (json.success) {
-                NotificationManager.success('Project Added Successfully')
-                dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG))
+                NotificationManager.success('Task Moved Successfully')
+
+                dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+
 
             } else {
-                NotificationManager.error('Project Not Added!')
-                if (json.code == EC.ALREADY_EXISTS)
-                    throw new SubmissionError({name: "Project Already Exists"})
+                NotificationManager.error('Process Failed')
+
             }
             return json
-        })*/
+        })
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    features: state.estimation.features,
 
+    features: state.estimation.features,
 
 })
 

@@ -68,7 +68,7 @@ class TechnologyList extends Component {
                                                    hidden={true}>ID</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='name'>Technology Name</TableHeaderColumn>
 
-                                <TableHeaderColumn width="30%" dataField='button' dataFormat={this.viewButton.bind(this)} ><i className="fa fa-trash"></i>
+                                <TableHeaderColumn width="30%" dataField='button' dataFormat={this.viewButton.bind(this)} >Delete
                                 </TableHeaderColumn>
 
                             </BootstrapTable>
