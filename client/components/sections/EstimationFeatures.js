@@ -80,8 +80,8 @@ class EstimationFeature extends React.PureComponent {
                                       }}></img>)
                     buttons.push(<img key="delete" src="/images/delete.png"
                                       onClick={() => {
-                        this.props.deleteFeature(feature)
-                    }}></img>)
+                                          this.props.deleteFeature(feature)
+                                      }}></img>)
                 } else {
                     if (feature.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
@@ -119,7 +119,7 @@ class EstimationFeature extends React.PureComponent {
                     } else {
                         // Estimator can request removal
 
-                        buttons.push(<img key="request_edit" src="/images/request_delete.png"></img>)
+                        buttons.push(<img key="request_edit" src="/images/request_edit.png"></img>)
 
                         buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
                     }
