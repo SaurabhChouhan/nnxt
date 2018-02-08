@@ -23,31 +23,45 @@ class EstimationFeature extends React.PureComponent {
 
             if (feature.negotiator.changeRequested) {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
-                buttons.push(<img key="suggestion_outgoing" src="/images/suggestion_outgoing.png" onClick={() => {
+                buttons.push(<img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
+                                  onClick={() => {
 
                 }}></img>)
             } else {
-                buttons.push(<img key="suggestion" src="/images/suggestion.png" onClick={() => {
+                buttons.push(<img key="suggestion" src="/images/suggestion.png"
+                                  onClick={() => {
 
                 }}></img>)
             }
 
             if (feature.estimator.removalRequested) {
                 // Estimator has requested removal
-                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"></img>)
+                buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"
+                                  onClick={() => {
+                                      this.props.heRequestedDeleteFeature()
+                                  }}></img>)
             } else {
-                buttons.push(<img key="delete" src="/images/delete.png"></img>)
+                buttons.push(<img key="delete" src="/images/delete.png"
+                                  onClick={() => {
+                                      this.props.deleteFeature(feature)
+                                  }}></img>)
             }
 
             if (feature.estimator.changeRequested) {
                 if (feature.negotiator.changeGranted) {
                     // estimator has requested change which negotiator has granted
-                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                    buttons.push(<img key="granted_edit" src="/images/granted_edit.png"></img>)
+                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, granted_edit')
+                    buttons.push(<img key="granted_edit" src="/images/granted_edit.png"
+                                      onClick={() => {
+                                          this.props.grantedEditFeature(feature)
+                                      }}></img>)
                 } else {
                     // estimator has requested change but negotiator has not granted it till now
-                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
+                    logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, heRequestedEditFeature')
+                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"
+                                      onClick={() => {
+                                          this.props.heRequestedEditFeature(feature)
+                                      }}></img>)
                 }
             }
 
@@ -60,26 +74,35 @@ class EstimationFeature extends React.PureComponent {
                 if (feature.addedInThisIteration) {
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'added in this iteration, edit button')
                     // Estimator would see plain edit button in case he has added task in this iteration
-                    buttons.push(<img key="edit" src="/images/edit.png" onClick={() => {
-                        this.props.showEditFeatureForm(feature)
+                    buttons.push(<img key="edit" src="/images/edit.png"
+                                      onClick={() => {
+                                          this.props.showEditFeatureForm(feature, loggedInUserRole)
                     }}></img>)
-                    buttons.push(<img key="delete" src="/images/delete.png" onClick={() => {
+                    buttons.push(<img key="delete" src="/images/delete.png"
+                                      onClick={() => {
                         this.props.deleteFeature(feature)
                     }}></img>)
                 } else {
                     if (feature.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
                         // Negotiator has requested change
-                        buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
+                        buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"
+                                          onClick={() => {
+                                              this.props.heRequestedEditFeature(feature)
+                                          }}></img>)
                     } else if (feature.estimator.changeRequested) {
                         if (feature.negotiator.changeGranted) {
                             // estimator has requested change which negotiator has granted
                             logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                            buttons.push(<img key="he_requested_edit" src="/images/he_granted_edit.png"></img>)
+                            buttons.push(<img key="he_granted_edit" src="/images/he_granted_edit.png"
+                                              onClick={() => this.props.heGrantedEditFeature(feature)}></img>)
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
                             logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/not granted, requested_edit')
-                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png"
+                                              onClick={() => {
+                                                  this.props.requestedEditFeature(feature)
+                                              }}></img>)
                         }
                     } else {
                         // Estimator has not requested change and has no permission to change task either so he can request change
@@ -89,18 +112,21 @@ class EstimationFeature extends React.PureComponent {
 
                     if (feature.estimator.removalRequested) {
                         // Estimator has requested removal
-                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
+                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"
+                                          onClick={() => {
+                                              this.props.requestedDeleteFeature()
+                                          }}></img>)
                     } else {
                         // Estimator can request removal
 
-                        buttons.push(<img key="request_edit" src="/images/request_delete.png"></img>)
+                        buttons.push(<img key="request_edit" src="/images/request_edit.png"></img>)
 
                         buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
                     }
                 }
             } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
                 if (feature.negotiator.changeRequested) {
-                    logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
+                    logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'estimator suggestion_incoming change, suggestion_incoming button')
                     /* Negotiator has provided suggestions, clicking this button should show a window that would
                        allow estimator to see suggestions given by negotiator
                      */
@@ -111,22 +137,34 @@ class EstimationFeature extends React.PureComponent {
                     if (feature.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                        buttons.push(<img key="granted_edit" src="/images/he_granted_edit.png"></img>)
+                        buttons.push(<img key="granted_edit" src="/images/he_granted_edit.png"
+                                          onClick={() =>
+                                              this.props.heGrantedEditFeature(feature)
+                                          }></img>)
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/not granted, requested_edit')
-                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                        buttons.push(<img key="requested_edit" src="/images/requested_edit.png"
+                                          onClick={() => {
+                                              this.props.requested_edit()
+                                          }}></img>)
 
                     }
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'can request edit, request_edit')
-                    buttons.push(<img key="request_edit" src="/images/request_edit.png"></img>)
+                    buttons.push(<img key="request_edit" src="/images/request_edit.png"
+                                      onClick={() => {
+                                          this.props.requestEditFeature(feature)
+                                      }}></img>)
                 }
 
                 if (feature.estimator.removalRequested) {
                     // Estimator has requested removal
-                    buttons.push(<img key="requested_delete" src="/images/he_requested_delete.png"></img>)
+                    buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"
+                                      onClick={() => {
+                                          this.props.heRequestedDeleteFeature()
+                                      }}></img>)
                 } else {
                     // Estimator can request removal
                     buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)

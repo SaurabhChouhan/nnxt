@@ -3,23 +3,53 @@ import {EstimationFeatures} from "../../components"
 import * as COC from "../../components/componentConsts";
 import * as A from "../../actions";
 import {initialize} from "redux-form";
+import * as SC from "../../../server/serverconstants"
 
 const mapStateToProps = (state, ownProps) => ({
     features: state.estimation.features,
     loggedInUserRole: state.estimation.selected.loggedInUserRole
 })
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showEditFeatureForm: (values) => {
+    showEditFeatureForm: (values, loggedInUserRole) => {
         dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
         // initialize
         let feature = {}
         feature.estimation = values.estimation
         feature._id = values._id
-        feature.name = values.estimator.name
-        feature.description = values.estimator.description
+        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
+            feature.name = values.estimator.name
+            feature.description = values.estimator.description
+        } else {
+            feature.name = values.negotiator.name
+            feature.description = values.negotiator.description
+        }
+
         dispatch(initialize('estimation-feature', feature))
     },
-    deleteFeature: (values) => {console.log("delete feature",values)}
+    deleteFeature: (values) => {
+        console.log("delete feature", values)
+    },
+    requestEditFeature: (values) => {
+        console.log("requestEditFeature", values)
+    },
+    heRequestedEditFeature: (values) => {
+        console.log("heRequestedEditFeature", values)
+    },
+    grantedEditFeature: (values) => {
+        console.log("grantedEditFeature", values)
+    },
+    heGrantedEditFeature: (values) => {
+        console.log("heGrantedEditFeature", values)
+    },
+    requestedEditFeature: (values) => {
+        console.log("requestedEditFeature", values)
+    },
+    requestedDeleteFeature: (values) => {
+        console.log("requestedDeleteFeature", values)
+    },
+    heRequestedDeleteFeature: (values) => {
+        console.log("heRequestedDeleteFeature", values)
+    }
 })
 
 const EstimationFeaturesContainer = connect(
