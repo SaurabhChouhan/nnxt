@@ -109,7 +109,10 @@ class EstimationTask extends React.PureComponent {
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
+                            buttons.push(<img key="requested_edit" src="/images/requested_edit.png"
+                                              onClick={() => {
+                                                  this.props.requestTaskEdit(task)
+                                              }}></img>)
                         }
                     } else {
                         // Estimator has not requested change and has no permission to change task either so he can request change
@@ -140,7 +143,10 @@ class EstimationTask extends React.PureComponent {
                     /* Negotiator has provided suggestions, clicking this button should show a window that would
                        allow estimator to see suggestions given by negotiator
                      */
-                    buttons.push(<img key="suggestion_incoming" src="/images/suggestion_incoming.png"></img>)
+                    buttons.push(<img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                    onClick={()=>{
+                        this.props.suggestionIncomingTask(task)
+                    }}></img>)
                 }
 
                 if (task.estimator.changeRequested) {
@@ -245,6 +251,7 @@ let
                                                                            heGrantedEditTask={props.heGrantedEditTask}
                                                                            suggestionOutgoingTask={props.suggestionOutgoingTask}
                                                                            grantedEditTask={props.grantedEditTask}
+                                                                           suggestionIncomingTask={props.suggestionIncomingTask}
                                                                            heRequestedEditTask={props.heRequestedEditTask}
                                                                            editTask={props.editTask}
                                                                            suggestTask={props.suggestTask}

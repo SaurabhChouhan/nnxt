@@ -87,6 +87,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     heRequestedEditTask: (values) => console.log("heRequestedEditTask ",values),
     suggestionOutgoingTask: (values) => console.log("suggestionOutgoingTask ",values),
     heRequestedDeleteTask: (values) => console.log("heRequestedDeleteTask ",values),
+    suggestionIncomingTask: (values) => console.log("suggestionIncomingTask ",values),
     requestedDeleteTask: (values) => console.log("requestedDeleteTask ",values),
     heGrantedEditTask: (values) => console.log("heGrantedEditTask ",values)
 
