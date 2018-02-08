@@ -28,10 +28,6 @@ export const deleteEstimationTask = (task) => ({
     type: AC.DELETE_ESTIMATION_TASK,
     task: task
 })
-export const taskDeleteRequest = (task) => ({
-    type: AC.REQUEST_FOR_TASK_DELETE_PERMISSION,
-    task: task
-})
 
 export const selectEstimation = (estimation) => ({
     type: AC.SELECT_ESTIMATION,
@@ -197,7 +193,7 @@ export const requestForTaskDeletePermissionOnServer = (task) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(taskDeleteRequest(json.data))
+                    dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })
