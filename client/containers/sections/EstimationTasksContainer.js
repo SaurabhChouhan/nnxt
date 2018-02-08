@@ -3,7 +3,7 @@ import {EstimationTasks} from "../../components"
 import * as EC from '../../../server/errorcodes'
 import {NotificationManager} from "react-notifications";
 import * as A from "../../actions";
-import {initialize, SubmissionError} from 'redux-form'
+import {initialize} from 'redux-form'
 import * as COC from "../../components/componentConsts";
 import * as SC from "../../../server/serverconstants"
 
