@@ -88,8 +88,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
     },
-    suggestTask: (values) => console.log("suggestion Form",values),
-    grantedEditTask: (values) => console.log("grantedEditTask ",values),
+    grantedEditTask: (values) => {
+        let task = {}
+        task.task_id = values._id
+        return dispatch(A.grantEditPermissionOfTaskOnServer(task))
+    },
+    suggestTask: (values) => console.log("suggestion Form", values),
     heRequestedEditTask: (values) => console.log("heRequestedEditTask ",values),
     suggestionOutgoingTask: (values) => console.log("suggestionOutgoingTask ",values),
     heRequestedDeleteTask: (values) => console.log("heRequestedDeleteTask ",values),

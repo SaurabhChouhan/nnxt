@@ -395,3 +395,32 @@ export const moveTaskOutOfFeatureOnServer = (formInput) => {
             })
     }
 }
+
+
+export const grantEditPermissionOfTaskOnServer = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/grant-edit-permission-task', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    NotificationManager.success('Permission Granted Successfully')
+                    dispatch(updateEstimationTask(json.data))
+                }
+                else{
+                    NotificationManager.error('Permission Granted Failed')
+                }
+
+                return json
+            })
+    }
+}
