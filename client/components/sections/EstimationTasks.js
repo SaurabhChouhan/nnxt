@@ -56,7 +56,7 @@ class EstimationTask extends React.PureComponent {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
                     buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"
                                       onClick={() => {
-                                          this.props.heRequestedEdit(task)
+                                          this.props.heRequestedEditTask(task)
                                       }}></img>)
                 }
             }
@@ -90,7 +90,7 @@ class EstimationTask extends React.PureComponent {
                         // Negotiator has requested change
                         buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"
                                           onClick={() => {
-                                              this.props.heRequestedEdit(task)
+                                              this.props.heRequestedEditTask(task)
                                           }}></img>)
                     } else if (task.estimator.changeRequested) {
                         if (task.negotiator.changeGranted) {
@@ -222,7 +222,7 @@ let
                                                                            showFeatureSelectionForm={props.showFeatureSelectionForm}
                                                                            requestTaskEdit={props.requestTaskEdit}
                                                                            deleteTask={props.deleteTask}
-                                                                           heRequestedEdit={props.heRequestedEdit}
+                                                                           heRequestedEditTask={props.heRequestedEditTask}
                                                                            editTask={props.editTask}
                                                                            suggestTask={props.suggestTask}
                                                                            deleteTaskRequest={props.deleteTaskRequest}

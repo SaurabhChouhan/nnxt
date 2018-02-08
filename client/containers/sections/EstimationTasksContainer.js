@@ -83,7 +83,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     },
     suggestTask: (values) => console.log("suggestion Form",values),
-    heRequestedEdit: (values) => console.log("heRequestedEdit Form",values)
+    heRequestedEditTask: (values) => console.log("heRequestedEditTask Form",values)
 
 })
 
