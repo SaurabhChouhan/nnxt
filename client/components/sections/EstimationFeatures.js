@@ -167,9 +167,7 @@ class EstimationFeature extends React.PureComponent {
 
 let
     EstimationFeatures = (props) =>
-        Array.isArray(props.features) && props.features.map(f => <EstimationFeature feature={f} key={f._id}
-                                                                                    showEditFeatureForm={props.showEditFeatureForm}
-                                                                                    deleteFeature={props.deleteFeature}
-                                                                                    loggedInUserRole={props.loggedInUserRole}/>)
+        Array.isArray(props.features) && props.features.map(f => <EstimationFeature feature={f}
+                                                                                    key={f._id} {...props}/>)
 
 export default EstimationFeatures
