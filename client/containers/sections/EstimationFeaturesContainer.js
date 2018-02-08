@@ -28,6 +28,27 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     deleteFeature: (values) => {
         console.log("delete feature", values)
+    },
+    requestEditFeature: (values) => {
+        console.log("requestEditFeature", values)
+    },
+    heRequestedEditFeature: (values) => {
+        console.log("heRequestedEditFeature", values)
+    },
+    grantedEditFeature: (values) => {
+        console.log("grantedEditFeature", values)
+    },
+    heGrantedEditFeature: (values) => {
+        console.log("heGrantedEditFeature", values)
+    },
+    requestedEditFeature: (values) => {
+        console.log("requestedEditFeature", values)
+    },
+    requestedDeleteFeature: (values) => {
+        console.log("requestedDeleteFeature", values)
+    },
+    heRequestedDeleteFeature: (values) => {
+        console.log("heRequestedDeleteFeature", values)
     }
 })
 
