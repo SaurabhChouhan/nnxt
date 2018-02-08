@@ -65,7 +65,7 @@ class EstimationTask extends React.PureComponent {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'added in this iteration, edit button')
                     // Estimator would see plain edit button in case he has added task in this iteration
                     buttons.push(<img key="edit" src="/images/edit.png" onClick={() => {
-                        this.props.editTask(task)
+                        this.props.editTask(task,loggedInUserRole)
                     }}></img>)
                     if (task.estimator.removalRequested) {
                         buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
