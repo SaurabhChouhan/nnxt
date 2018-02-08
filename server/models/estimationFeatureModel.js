@@ -183,18 +183,27 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
 
     let negotiatorSection = {}
     let defaultEstimatedHoursForFeature = 0;
-    /* Name/description would always match repository name description */
 
-    negotiatorSection.name = repositoryFeature.name
-    negotiatorSection.description = repositoryFeature.description
-    negotiatorSection.estimatedHours = defaultEstimatedHoursForFeature
-    negotiatorSection.changeRequested = true // This will allow estimator to see updated changes as suggestions
 
     featureInput.status = SC.STATUS_PENDING
     featureInput.addedInThisIteration = true
     featureInput.owner = SC.OWNER_NEGOTIATOR
     featureInput.initiallyEstimated = true
     featureInput.negotiator = negotiatorSection
+
+    /* Name/description would always match repository name description */
+    // This will allow estimator to see updated changes as suggestions
+    featureInput.negotiator = {
+        name:repositoryFeature.name,
+        description:repositoryFeature.description,
+        estimatedHours:repositoryFeature.estimatedHours,
+        changeRequested:true
+    }
+
+    // Add name into estimator section as well so that move to feature functionality at least show name
+    featureInput.estimator = {
+        name:repositoryFeature.name
+    }
 
     if (!_.isEmpty(featureInput.notes)) {
         featureInput.notes = featureInput.notes.map(n => {
