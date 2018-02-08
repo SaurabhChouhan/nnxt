@@ -61,7 +61,7 @@ class EstimationFeature extends React.PureComponent {
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'added in this iteration, edit button')
                     // Estimator would see plain edit button in case he has added task in this iteration
                     buttons.push(<img key="edit" src="/images/edit.png" onClick={() => {
-                        this.props.showEditFeatureForm(feature)
+                        this.props.showEditFeatureForm(feature, loggedInUserRole)
                     }}></img>)
                     buttons.push(<img key="delete" src="/images/delete.png" onClick={() => {
                         this.props.deleteFeature(feature)
