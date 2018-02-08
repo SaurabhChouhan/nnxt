@@ -243,7 +243,11 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
-        // TODO: Need to find feature from {EstimationFeature} and add validation
+        let estimationFeature = await EstimationFeatureModel.findById(taskInput.feature._id)
+
+        if (!estimationFeature || estimationFeature.estimation._id.toString() != estimation._id.toString()) {
+            throw new AppError('No such feature in this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        }
     }
 
     let repositoryTask = undefined
