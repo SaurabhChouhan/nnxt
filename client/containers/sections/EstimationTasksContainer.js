@@ -56,9 +56,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         let task = {}
         task._id = values._id
         task.estimation = values.estimation
-        task.name = values.estimator.name
-        task.description = values.estimator.description
-        task.estimatedHours = values.estimator.estimatedHours
+       if(false){
+           task.name = values.estimator.name
+           task.description = values.estimator.description
+           task.estimatedHours = values.estimator.estimatedHours
+       }
+       else{
+           task.name = values.negotiator.name
+           task.description = values.negotiator.description
+           task.estimatedHours = values.negotiator.estimatedHours
+       }
         task.feature = values.feature
         task.technologies = values.technologies
         dispatch(initialize("estimation-task", task))
@@ -74,13 +81,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
 
-    }
+    },
+    suggestTask: (values) => console.log("suggestion Form")
 
 })
 
 
 const mapStateToProps = (state, ownProps) => ({
     tasks: state.estimation.tasks,
+    estimation: state.estimation.selected,
     loggedInUserRole: state.estimation.selected.loggedInUserRole
 })
 

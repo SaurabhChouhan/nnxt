@@ -7,7 +7,7 @@ import {Estimation} from "../../containers"
 
 class EstimationTask extends React.PureComponent {
     render() {
-        const {task, loggedInUserRole} = this.props
+        const {task, loggedInUserRole, estimation} = this.props
 
         let buttons = [];
 
@@ -22,11 +22,11 @@ class EstimationTask extends React.PureComponent {
             if (task.negotiator.changeRequested) {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
                 buttons.push(<img key="suggestion_outgoing" src="/images/suggestion_outgoing.png" onClick={() => {
-                    this.props.editTask(task)
+                    console.log("suggestion")
                 }}></img>)
             } else {
                 buttons.push(<img key="suggestion" src="/images/suggestion.png" onClick={() => {
-                    this.props.editTask(task)
+                    this.props.suggestTask(task)
                 }}></img>)
             }
 
@@ -203,6 +203,7 @@ let
                                                                            requestTaskEdit={props.requestTaskEdit}
                                                                            deleteTask={props.deleteTask}
                                                                            editTask={props.editTask}
+                                                                           suggestTask={props.suggestTask}
                                                                            deleteTaskRequest={props.deleteTaskRequest}
         />)
 
