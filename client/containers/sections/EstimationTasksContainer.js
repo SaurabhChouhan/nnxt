@@ -65,14 +65,20 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     showFeatureSelectionForm: (values) => {
-        let task = {
-            "task": {
-                "_id": ""
-            }
-        }
-        task.task._id = values
+
+        let task = {}
+        task.task_id = values._id
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
+    },
+    moveTaskOutOfFeature: (values) => {
+        let task = {}
+        task.task_id = values._id
+        task.feature_id = values.feature._id
+
+        return dispatch(A.moveTaskOutOfFeatureOnServer(values))
+        dispatch(initialize("MoveTaskInFeatureForm", task))
+
 
     }
 
@@ -81,6 +87,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     tasks: state.estimation.tasks,
+    features: state.estimation.features,
     loggedInUserRole: state.estimation.selected.loggedInUserRole
 })
 

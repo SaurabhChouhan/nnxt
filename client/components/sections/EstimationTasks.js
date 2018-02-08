@@ -151,15 +151,15 @@ class EstimationTask extends React.PureComponent {
 
         if (task.feature && task.feature._id) {
             // This task is part of some feature so add move out of feature button
-            buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature.png"
-                              onClick={() => console.log("move_outof_feature clicked", this)}></img>)
+
+            buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature.png" onClick={()=>this.props.moveTaskOutOfFeature(task)}></img>)
         } else {
             // This task is an individual task so add move to feature button
-            buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
-                this.props.showFeatureSelectionForm(this.props.task._id);
-                console.log("On click called");
-            }}></img>)
+            buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={()=>this.props.showFeatureSelectionForm(task)}>
+                </img>)
+
         }
+
 
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
         return <div className="task">

@@ -122,12 +122,13 @@ class ContentMain extends Component {
             url: "/raise_leave",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
-                return <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                return <ContentSection>
+                    <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
                     () => {
-                        console.log("you are in the raise leave content main ",props)
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
                 }/>
+                </ContentSection>
 
             }
         })
