@@ -20,7 +20,18 @@ class EstimationFeature extends React.PureComponent {
              * Negotiator would always be able to edit any task (would be considered as suggestions), first button hence would always be edit
              * He would also be able to delete any task
              */
-            buttons.push(<img key="edit" src="/images/edit.png"></img>)
+
+            if (feature.negotiator.changeRequested) {
+                // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
+                buttons.push(<img key="suggestion_outgoing" src="/images/suggestion_outgoing.png" onClick={() => {
+
+                }}></img>)
+            } else {
+                buttons.push(<img key="suggestion" src="/images/suggestion.png" onClick={() => {
+
+                }}></img>)
+            }
+
             if (feature.estimator.removalRequested) {
                 // Estimator has requested removal
                 buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"></img>)
@@ -38,9 +49,8 @@ class EstimationFeature extends React.PureComponent {
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
                     buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
                 }
-            } else if (feature.negotiator.changeRequested) {
-                buttons.push(<img key="requested_edit" src="/images/requested_edit.png"></img>)
             }
+
         } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
             /**
              * First button show to estimator would always be edit or its variations
@@ -60,7 +70,7 @@ class EstimationFeature extends React.PureComponent {
                     if (feature.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
                         // Negotiator has requested change
-                        buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png" ></img>)
+                        buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
                     } else if (feature.estimator.changeRequested) {
                         if (feature.negotiator.changeGranted) {
                             // estimator has requested change which negotiator has granted
@@ -83,7 +93,7 @@ class EstimationFeature extends React.PureComponent {
                     } else {
                         // Estimator can request removal
 
-                        buttons.push(<img key="request_edit" src="/images/request_delete.png" ></img>)
+                        buttons.push(<img key="request_edit" src="/images/request_delete.png"></img>)
 
                         buttons.push(<img key="request_delete" src="/images/request_delete.png"></img>)
                     }
@@ -91,9 +101,13 @@ class EstimationFeature extends React.PureComponent {
             } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
                 if (feature.negotiator.changeRequested) {
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
-                    // Negotiator has requested change
-                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
-                } else if (feature.estimator.changeRequested) {
+                    /* Negotiator has provided suggestions, clicking this button should show a window that would
+                       allow estimator to see suggestions given by negotiator
+                     */
+                    buttons.push(<img key="suggestion_incoming" src="/images/suggestion_incoming.png"></img>)
+                }
+
+                if (feature.estimator.changeRequested) {
                     if (feature.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')

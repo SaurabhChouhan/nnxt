@@ -1,5 +1,4 @@
-import {ADD_ESTIMATIONS, ADD_ESTIMATION} from "../actions/actionConsts"
-import * as AC from '../actions/actionConsts'
+import * as AC from "../actions/actionConsts"
 
 let initialState = {
     all: [],
@@ -15,6 +14,14 @@ const estimationReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 tasks: Array.isArray(state.tasks) ? [...state.tasks, action.task] : [action.task]
             })
+
+        case AC.UPDATE_ESTIMATION_TASK:
+            return Object.assign({}, state, {
+                tasks: Array.isArray(state.tasks) ?
+                    state.tasks.map(item => item._id == action.task._id ?
+                        Object.assign({}, action.task) : item) : null
+            })
+
         case AC.ADD_ESTIMATION_FEATURE:
             // feature is added to estimation, it would be added against selected estimation
             return Object.assign({}, state, {
@@ -23,23 +30,26 @@ const estimationReducer = (state = initialState, action) => {
         case AC.UPDATE_ESTIMATION_FEATURE:
             // feature is added to estimation, it would be added against selected estimation
             return Object.assign({}, state, {
-                features:Array.isArray(state.features)? state.features.map(item => item._id == action.feature._id ? action.feature : item ):null
+                features: Array.isArray(state.features) ? state.features.map(item => item._id == action.feature._id ? action.feature : item) : null
             })
-        case AC.ESTIMATION_TASK_DELETE:
-            return Object.assign({}, state, {
-                tasks: state.tasks.map(t => {
-                    if (t._id == action.taskID) {
-                        return Object.assign({}, t, {estimator: Object.assign({}, t.estimator, {removalRequested: !t.estimator.removalRequested})})
-                    }
-                    return t
-                })
-            })
+
+        /*
+        case AC.REQUEST_FOR_TASK_EDIT_PERMISSION:
+            return Object.assign({}, state, {tasks: state.tasks.map(item => item._id == action.task._id ? action.task : item)})
+            */
+
+        case AC.DELETE_ESTIMATION_TASK:
+            return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id)})
+
         case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})
         case AC.ADD_ESTIMATION:
             return Object.assign({}, state, {all: [...state.all, action.estimation]})
         case AC.EDIT_ESTIMATION:
-            return Object.assign({}, state, {all: state.all.map(item => item._id == action.estimation._id ? action.estimation : item)})
+            return Object.assign({}, state, {
+                all: state.all.map(item => item._id == action.estimation._id ? action.estimation : item),
+                selected: Object.assign({}, action.estimation)
+            })
         case AC.SELECT_ESTIMATION:
             return Object.assign({}, state, {
                 selected: Object.assign({}, action.estimation, {
