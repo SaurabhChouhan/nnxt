@@ -130,7 +130,7 @@ class EstimationDetail extends Component {
                 <div className=" col-md-12">
                     <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
                     <div className="col-md-6">
-                        <form>
+                        {(estimation && estimation.status && (estimation.status==SC.STATUS_INITIATED || estimation.status==SC.STATUS_REVIEW_REQUESTED)) ? <form>
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showAddTaskForm(estimation)}><i
                                 className="fa fa-plus-circle"></i>
@@ -141,7 +141,7 @@ class EstimationDetail extends Component {
                             ><i className="fa fa-plus-circle"></i>
                                 Add feature
                             </button>
-                        </form>
+                        </form> : null}
                     </div>
                 </div>
                 <div className="col-md-12">
