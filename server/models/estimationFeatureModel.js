@@ -4,7 +4,8 @@ import {
     validate,
     estimationEstimatorAddFeatureStruct,
     estimationNegotiatorAddFeatureStruct,
-    estimationEstimatorUpdateFeatureStruct
+    estimationEstimatorUpdateFeatureStruct,
+    estimationNegotiatorUpdateFeatureStruct
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
@@ -139,7 +140,7 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let repositoryFeature = undefined
 
@@ -182,17 +183,27 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
 
     let negotiatorSection = {}
     let defaultEstimatedHoursForFeature = 0;
-    /* Name/description would always match repository name description */
 
-    negotiatorSection.name = repositoryFeature.name
-    negotiatorSection.description = repositoryFeature.description
-    negotiatorSection.estimatedHours = defaultEstimatedHoursForFeature
 
     featureInput.status = SC.STATUS_PENDING
     featureInput.addedInThisIteration = true
     featureInput.owner = SC.OWNER_NEGOTIATOR
     featureInput.initiallyEstimated = true
     featureInput.negotiator = negotiatorSection
+
+    /* Name/description would always match repository name description */
+    // This will allow estimator to see updated changes as suggestions
+    featureInput.negotiator = {
+        name:repositoryFeature.name,
+        description:repositoryFeature.description,
+        estimatedHours:repositoryFeature.estimatedHours,
+        changeRequested:true
+    }
+
+    // Add name into estimator section as well so that move to feature functionality at least show name
+    featureInput.estimator = {
+        name:repositoryFeature.name
+    }
 
     if (!_.isEmpty(featureInput.notes)) {
         featureInput.notes = featureInput.notes.map(n => {
@@ -276,5 +287,64 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     return await estimationFeature.save()
 }
 
+estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput, negotiator) => {
+    validate(featureInput, estimationNegotiatorUpdateFeatureStruct)
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let estimationFeature = await EstimationFeatureModel.findById(featureInput._id)
+    if (!estimationFeature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": estimationFeature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
+
+    estimationFeature.technologies = featureInput.technologies
+    estimationFeature.tags = featureInput.tags
+
+    if (!_.isEmpty(featureInput.notes)) {
+        featureInput.notes = featureInput.notes.map(n => {
+            n.name = negotiator.fullName
+            return n
+        })
+    }
+    let mergeAllNotes = estimationFeature.notes
+    if (!_.isEmpty(mergeAllNotes)) {
+        featureInput.notes.map(n => {
+            mergeAllNotes.push(n)
+        })
+    } else {
+        mergeAllNotes = featureInput.notes
+    }
+    estimationFeature.notes = mergeAllNotes
+    estimationFeature.negotiator.name = featureInput.name
+    if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_NEGOTIATOR)
+        estimationFeature.negotiator.changedInThisIteration = true
+    estimationFeature.negotiator.description = featureInput.description
+    estimationFeature.negotiator.changeRequested = true // This will allow estimator to see updated changes as suggestions
+    estimationFeature.updated = Date.now()
+
+    if (estimationFeature.repo && estimationFeature.repo._id) {
+        await RepositoryModel.updateFeature({
+            _id: estimationFeature.repo._id.toString(),
+            estimation: {
+                _id: estimationFeature.estimation._id.toString()
+            },
+            name: featureInput.name,
+            description: featureInput.description,
+            technologies: featureInput.technologies,
+            tags: featureInput.tags
+        }, negotiator)
+    }
+    return await estimationFeature.save()
+}
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel

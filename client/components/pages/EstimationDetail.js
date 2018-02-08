@@ -128,7 +128,8 @@ class EstimationDetail extends Component {
                     </div>
                 </div>
                 <div className=" col-md-12">
-                    <div className="col-md-8 col-md-offset-4">
+                    <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
+                    <div className="col-md-6">
                         <form>
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showAddTaskForm(estimation)}><i

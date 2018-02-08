@@ -26,16 +26,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
-    showEditFeatureForm: (values) => {
-        dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
-        // initialize
-        let feature = {}
-        feature.estimation = values.estimation
-        feature._id = values._id
-        feature.name = values.estimator.name
-        feature.description = values.estimator.description
-        dispatch(initialize('estimation-feature', feature))
-    },
     sendEstimationRequest: (estimation) => {
         dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
             if (json.success) {
@@ -63,6 +53,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
     }
+
+
+
 })
 
 
