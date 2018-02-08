@@ -145,11 +145,11 @@ class EstimationDetail extends Component {
                     </div>
                 </div>
                 <div className="col-md-12">
-                    <EstimationFeaturesContainer/>
+                    <EstimationFeaturesContainer estimationStatus={estimation.status}/>
                 </div>
                 <br/>
                 <div className="col-md-12">
-                    <EstimationTasksContainer/>
+                    <EstimationTasksContainer estimationStatus={estimation.status}/>
                 </div>
 
             </div>

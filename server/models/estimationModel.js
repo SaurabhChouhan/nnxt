@@ -198,7 +198,10 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
         status: SC.STATUS_INITIATED
 
     }]
-    return await EstimationModel.create(estimationInput)
+
+    let estimation = await EstimationModel.create(estimationInput)
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 }
 
 estimationSchema.statics.request = async (estimationID, negotiator) => {
@@ -217,7 +220,10 @@ estimationSchema.statics.request = async (estimationID, negotiator) => {
         name: estimation.negotiator.firstName,
         status: SC.STATUS_ESTIMATION_REQUESTED
     })
-    return await estimation.save()
+    await estimation.save()
+    estimation = estimation.toObject()
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 }
 
 estimationSchema.statics.requestReview = async (estimationID, estimator) => {
@@ -245,7 +251,7 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
         "owner": SC.OWNER_NEGOTIATOR
     }, {$set: {addedInThisIteration: false, "negotiator.changedInThisIteration": false}}, {multi: true})
 
-    return await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
+    estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
         $set: {status: SC.STATUS_REVIEW_REQUESTED},
         $push: {
             statusHistory: {
@@ -254,8 +260,11 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
             }
         }
     }, {
-        new: true
+        new: true,
+        lean: true
     })
+    estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
+    return estimation
 
 
 }
