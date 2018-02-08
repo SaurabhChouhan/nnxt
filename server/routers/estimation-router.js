@@ -260,4 +260,5 @@ estimationRouter.put('/grant-edit-permission-task', async ctx => {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
+
 export default estimationRouter

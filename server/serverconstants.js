@@ -29,3 +29,7 @@ export const STATUS_PROJECT_AWARDED = 'project-awarded'
 export const STATUS_REJECTED = 'rejected'
 
 export const TYPE_DEVELOPMENT = 'development'
+
+export const OPERATION_ADDITION = 'addition'
+export const OPERATION_SUBTRACTION = 'subtraction'
+export const OPERATION_SUBTRACTION_AND_ADDITION = 'subtraction-and-addition'
