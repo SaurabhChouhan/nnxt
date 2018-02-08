@@ -8,8 +8,7 @@ import * as COC from "../../components/componentConsts";
 import * as SC from "../../../server/serverconstants"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-
-    requestTaskEdit: (values) => {
+    toggleEditRequest: (values) => {
         let task = {}
         task.task_id = values._id
         return dispatch(A.requestForTaskEditPermissionOnServer(task)).then(json => {
@@ -24,7 +23,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
-
     deleteTask: (values) => {
         return dispatch(A.deleteEstimationTaskOnServer(values.estimation._id, values._id)).then(json => {
             if (json.success) {
@@ -35,8 +33,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         })
     },
-
-    requestDeleteTask: (values) => {
+    toggleDeleteRequest: (values) => {
         let task = {}
         task.task_id = values._id
         return dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
@@ -50,7 +47,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
-
     editTask: (values, loggedInUserRole) => {
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
         let task = {}
@@ -70,9 +66,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.technologies = values.technologies
         dispatch(initialize("estimation-task", task))
     },
-
-    showFeatureSelectionForm: (values) => {
-
+    moveToFeature: (values) => {
         let task = {}
         task.task_id = values._id
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
@@ -86,21 +80,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         return dispatch(A.moveTaskOutOfFeatureOnServer(values))
         dispatch(initialize("MoveTaskInFeatureForm", task))
 
-
     },
-    grantedEditTask: (values) => {
+    toggleGrantEdit: (values) => {
         let task = {}
         task.task_id = values._id
         return dispatch(A.grantEditPermissionOfTaskOnServer(task))
     },
-    suggestTask: (values) => console.log("suggestion Form", values),
-    heRequestedEditTask: (values) => console.log("heRequestedEditTask ",values),
-    suggestionOutgoingTask: (values) => console.log("suggestionOutgoingTask ",values),
-    heRequestedDeleteTask: (values) => console.log("heRequestedDeleteTask ",values),
-    suggestionIncomingTask: (values) => console.log("suggestionIncomingTask ",values),
-    requestedDeleteTask: (values) => console.log("requestedDeleteTask ",values),
-    heGrantedEditTask: (values) => console.log("heGrantedEditTask ",values)
-
+    addTaskSuggestion: (values) => console.log("add task suggestion", values),
+    seeTaskSuggestion: (values) => console.log("seeTaskSuggestion", values),
+    suggestionIncomingTask: (values) => console.log("suggestionIncomingTask ", values)
 })
 
 
