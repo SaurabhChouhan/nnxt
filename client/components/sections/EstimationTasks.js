@@ -36,7 +36,7 @@ class EstimationTask extends React.PureComponent {
                 // Estimator has requested removal, negotiator will directly delete task if he wants to
                 buttons.push(<img key="he_requested_delete" src="/images/he_requested_delete.png"
                                   onClick={() => {
-                                      this.props.deleteTask(task)
+                                      this.props.heRequestedDeleteTask(task)
                                   }}></img>)
             } else {
                 // Negotiator can delete any task during its review without getting permission from estimator
@@ -79,7 +79,10 @@ class EstimationTask extends React.PureComponent {
                                           this.props.editTask(task, loggedInUserRole)
                                       }}></img>)
                     if (task.estimator.removalRequested) {
-                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
+                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"
+                                          onClick={() => {
+                                              this.props.requestedDeleteTask(task)
+                                          }}></img>)
                     } else {
                         buttons.push(<img key="delete" src="/images/delete.png"
                                           onClick={() => {
@@ -119,12 +122,15 @@ class EstimationTask extends React.PureComponent {
 
                     if (task.estimator.removalRequested) {
                         // Estimator has requested removal
-                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
+                        buttons.push(<img key="requested_delete" src="/images/requested_delete.png"
+                                          onClick={() => {
+                                              this.props.requestedDeleteTask(task)
+                                          }}></img>)
                     } else {
                         // Estimator can request removal
                         buttons.push(<img key="request_delete" src="/images/request_delete.png"
                                           onClick={() => {
-                                              this.props.deleteTaskRequest(task)
+                                              this.props.requestDeleteTask(task)
                                           }}></img>)
                     }
                 }
@@ -141,7 +147,10 @@ class EstimationTask extends React.PureComponent {
                     if (task.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                        buttons.push(<img key="he_granted_edit" src="/images/he_granted_edit.png"></img>)
+                        buttons.push(<img key="he_granted_edit" src="/images/he_granted_edit.png"
+                                          onClick={() => {
+                                              this.props.heGrantedEditTask(task)
+                                          }}></img>)
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
@@ -161,12 +170,15 @@ class EstimationTask extends React.PureComponent {
 
                 if (task.estimator.removalRequested) {
                     // Estimator has requested removal
-                    buttons.push(<img key="requested_delete" src="/images/requested_delete.png"></img>)
+                    buttons.push(<img key="requested_delete" src="/images/requested_delete.png"
+                                      onClick={() => {
+                                          this.props.requestedDeleteTask(task)
+                                      }}></img>)
                 } else {
                     // Estimator can request removal
                     buttons.push(<img key="request_delete" src="/images/request_delete.png"
                                       onClick={() => {
-                                          this.props.deleteTaskRequest(task)
+                                          this.props.requestDeleteTask(task)
                                       }}></img>)
                 }
             }
@@ -228,13 +240,15 @@ let
                                                                            showFeatureSelectionForm={props.showFeatureSelectionForm}
                                                                            requestTaskEdit={props.requestTaskEdit}
                                                                            deleteTask={props.deleteTask}
+                                                                           heRequestedDeleteTask={props.heRequestedDeleteTask}
+                                                                           requestedDeleteTask={props.requestedDeleteTask}
                                                                            heGrantedEditTask={props.heGrantedEditTask}
                                                                            suggestionOutgoingTask={props.suggestionOutgoingTask}
                                                                            grantedEditTask={props.grantedEditTask}
                                                                            heRequestedEditTask={props.heRequestedEditTask}
                                                                            editTask={props.editTask}
                                                                            suggestTask={props.suggestTask}
-                                                                           deleteTaskRequest={props.deleteTaskRequest}
+                                                                           requestDeleteTask={props.requestDeleteTask}
         />)
 
 export default EstimationTasks
