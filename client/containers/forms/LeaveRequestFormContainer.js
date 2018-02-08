@@ -29,6 +29,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     leaveRequsts: state.leaveRequest.all,
+    initialValues:{
+        "user._id":state.user.loggedIn._id,
+        "user.firstName":state.user.loggedIn.firstName,
+        "user.lastName":state.user.loggedIn.lastName
+    }
 
 
 })
