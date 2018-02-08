@@ -11,13 +11,20 @@ let LeaveRequestForm = (props) => {
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">
-                <Field name="leave_from" placeholder={"Leave From :"} component={renderText} showTime={false}
+                <Field name="user.user.id" component="input" type="hidden"/>
+                <Field name="user.user.id" component="input" type="hidden"/>
+                <Field name="user.user.id" component="input" type="hidden"/>
+
+                <Field name="leave.from" placeholder={"Leave From :"} component={renderText} showTime={false}
                        label={"From :"} validate={[required]}/>
 
-                <Field name="leave_to" placeholder={"Leave To :"} component={renderText}
+                <Field name="leave.to" placeholder={"Leave To :"} component={renderText}
                        label={"To :"} validate={[required]}/>
 
-                <Field width="80%" name="description" validate={[required]} component={renderTextArea}
+                <Field name="leave.type" placeholder={"type of leave"} component={renderText} showTime={false}
+                       label={"Type :"} validate={[required]}/>
+
+                <Field width="80%" name="leave.description" validate={[required]} component={renderTextArea}
                        label="Description:"/>
 
                 <button type="submit" className="btn customBtn"> Submit</button>
@@ -30,6 +37,7 @@ let LeaveRequestForm = (props) => {
 
 LeaveRequestForm = reduxForm({
     form: 'leave-request'
+
 })(LeaveRequestForm)
 
 export default LeaveRequestForm

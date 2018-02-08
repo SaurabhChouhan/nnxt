@@ -588,10 +588,6 @@ table th {
     margin-top: 5px;
 }
 
-.repositoryheading b {
-    margin-top: 5px;
-    font-size: 20px;
-}
 
 .featuretask b {
     font-size: 17px;
@@ -891,4 +887,130 @@ td.rejRowColor {
     display:flex;
     max-height:600px;
     overflow-y: scroll;
+}
+/* Repository section */
+
+.repositorybtn{
+    margin: -10px;
+    margin-top: 11px;
+}
+.technologytag {
+    min-width: 12%;
+    min-height: 10px;
+    background-color: #303440;
+    float: left;
+    padding: 6px;
+    padding-right: 1px;
+    margin-right: 1%;
+    margin-bottom: 10px;
+}
+.technologytag span {
+    color: #fff;
+    font-size: 18px;
+}
+.technologytag button {
+    float: right;
+    background-color: #303440;
+    padding: 0;
+}
+.technologytag i {
+    float: right;
+    font-size: 6px;
+    color: #ff534f;
+    margin-top: -6px;
+    padding: 2px;
+    background: #fff;
+    border-radius: 50%;
+}
+.repository {
+    width: 100%;
+    min-height: 50px;
+    float: left;
+    box-shadow: 2px 2px 5px #ccccccb8;
+    margin-bottom: 2%;
+}
+.repositoryFeature {
+    background-color: #E3E6ED;
+}
+.repositoryTask {
+    background-color: #F6E5DD;
+}
+.repositoryFeature .RepositoryHeading {
+    border: 1px solid #CBCED5;
+    width: 100%;
+    position: relative;
+    height: 30px;
+    padding: 6px;
+    padding-left: 15px;
+}
+.repositoryTask .RepositoryHeading {
+    border: 1px solid #CBCED5;
+    width: 100%;
+    position: relative;
+    height: 30px;
+    padding: 6px;
+    padding-left: 15px;
+}
+
+.RepositoryHeading i{
+    float: right;
+    color: #FE4744
+}
+.RepositoryHeading {
+    position: relative;
+    height: 48px;
+}
+
+.col-md-12.repositoryHeading {
+    border-bottom: 1px solid #ccc;
+}
+.estimationsection  .technologytag {
+    margin-top: 10px;
+}
+.estimationsection {
+    border-left: 1px solid #182939;
+    height: 660px;
+}
+.repositoryFeatureLable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    background:#6D798A;
+}
+.repositoryTaskLable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    background:#F3B54B;
+}
+.RepositoryHeading h5 {
+    float: left;
+    font-weight: bold;
+    margin: 0;
+}
+.RepositoryHeading h4 {
+    font-size: 25px;
+    font-weight: bold;
+}
+.RepositoryHeading span {
+    padding-right: 5%;
+}
+.repositoryHeading b {
+    margin-top: 5px;
+    font-size: 20px;
+}
+.repository .RepositoryContent {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+.RepositoryContent p{
+    font-size: 16px;
+    font-weight: 600;
+}
+.dropdownoptionRepository{
+    margin-top: 17px;
 }

@@ -3,9 +3,9 @@ import {EstimationTasks} from "../../components"
 import * as EC from '../../../server/errorcodes'
 import {NotificationManager} from "react-notifications";
 import * as A from "../../actions";
-import {initialize, SubmissionError} from 'redux-form'
+import {initialize} from 'redux-form'
 import * as COC from "../../components/componentConsts";
-
+import * as SC from "../../../server/serverconstants"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
 
-    deleteTaskRequest: (values) => {
+    requestDeleteTask: (values) => {
         let task = {}
         task.task_id = values._id
         return dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
@@ -51,37 +51,57 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
 
-    editTask: (values) => {
+    editTask: (values, loggedInUserRole) => {
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
         let task = {}
         task._id = values._id
         task.estimation = values.estimation
-        task.name = values.estimator.name
-        task.description = values.estimator.description
-        task.estimatedHours = values.estimator.estimatedHours
+        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
+            task.name = values.estimator.name
+            task.description = values.estimator.description
+            task.estimatedHours = values.estimator.estimatedHours
+        }
+        else {
+            task.name = values.negotiator.name
+            task.description = values.negotiator.description
+            task.estimatedHours = values.negotiator.estimatedHours
+        }
         task.feature = values.feature
         task.technologies = values.technologies
         dispatch(initialize("estimation-task", task))
     },
 
     showFeatureSelectionForm: (values) => {
-        let task = {
-            "task": {
-                "_id": ""
-            }
-        }
-        task.task._id = values
+
+        let task = {}
+        task.task_id = values._id
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
+    },
+    moveTaskOutOfFeature: (values) => {
+        let task = {}
+        task.task_id = values._id
+        task.feature_id = values.feature._id
 
-    }
+        return dispatch(A.moveTaskOutOfFeatureOnServer(values))
+        dispatch(initialize("MoveTaskInFeatureForm", task))
+
+
+    },
+    suggestTask: (values) => console.log("suggestion Form",values),
+    grantedEditTask: (values) => console.log("grantedEditTask ",values),
+    heRequestedEditTask: (values) => console.log("heRequestedEditTask ",values),
+    suggestionOutgoingTask: (values) => console.log("suggestionOutgoingTask ",values),
+    heRequestedDeleteTask: (values) => console.log("heRequestedDeleteTask ",values),
+    suggestionIncomingTask: (values) => console.log("suggestionIncomingTask ",values),
+    requestedDeleteTask: (values) => console.log("requestedDeleteTask ",values),
+    heGrantedEditTask: (values) => console.log("heGrantedEditTask ",values)
 
 })
 
 
 const mapStateToProps = (state, ownProps) => ({
-    tasks: state.estimation.tasks,
-    loggedInUserRole: state.estimation.selected.loggedInUserRole
+    tasks: state.estimation.tasks
 })
 
 
