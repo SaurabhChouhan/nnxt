@@ -265,6 +265,46 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
     })
     estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
     return estimation
+}
+
+estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can be requested for change", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+        "owner": SC.OWNER_ESTIMATOR
+    }, {$set: {addedInThisIteration: false, "estimator.changedInThisIteration": false}}, {multi: true})
+
+    await EstimationFeatureModel.update({
+        "estimation._id": estimation._id,
+        "owner": SC.OWNER_ESTIMATOR
+    }, {$set: {addedInThisIteration: false, "estimator.changedInThisIteration": false}}, {multi: true})
+
+    estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
+        $set: {status: SC.STATUS_CHANGE_REQUESTED},
+        $push: {
+            statusHistory: {
+                name: negotiator.firstName,
+                status: SC.STATUS_CHANGE_REQUESTED
+            }
+        }
+    }, {
+        new: true,
+        lean: true
+    })
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 
 
 }

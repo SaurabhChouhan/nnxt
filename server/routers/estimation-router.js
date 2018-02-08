@@ -83,6 +83,11 @@ estimationRouter.put('/review-request/:estimationID', async ctx => {
     return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
 })
 
+estimationRouter.put('/change-request/:estimationID', async ctx => {
+    return await EstimationModel.requestChange(ctx.params.estimationID, ctx.state.user)
+})
+
+
 
 /**
  * Add a new task to estimation
