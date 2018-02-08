@@ -15,7 +15,11 @@ class EstimationDetail extends Component {
     }
 
     onClose() {
-        this.setState({showEstimationRequestDialog: false, showEstimationReviewDialog: false})
+        this.setState({
+            showEstimationRequestDialog: false,
+            showEstimationReviewDialog: false,
+            showEstimationChangeDialog: false
+        })
     }
 
     onConfirmEstimationRequest() {
@@ -26,6 +30,16 @@ class EstimationDetail extends Component {
     onConfirmReviewRequest() {
         this.setState({showEstimationReviewDialog: false})
         this.props.sendReviewRequest(this.props.estimation)
+    }
+
+    onConfirmReviewRequest() {
+        this.setState({showEstimationReviewDialog: false})
+        this.props.sendReviewRequest(this.props.estimation)
+    }
+
+    onConfirmChangeRequest() {
+        this.setState({showEstimationChangeDialog: false})
+        this.props.sendChangeRequest(this.props.estimation)
     }
 
     formatName(estimatorSecion) {
@@ -65,6 +79,13 @@ class EstimationDetail extends Component {
                     }
 
                     {
+                        this.state.showEstimationChangeDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmChangeRequest.bind(this)}
+                                            title="Change Request" onClose={this.onClose.bind(this)}
+                                            body="You are about to send 'Change Request' to Estimator of this Estimation. Please confirm!"/>
+                    }
+
+                    {
                         this.state.showEstimationReviewDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmReviewRequest.bind(this)}
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
@@ -78,6 +99,13 @@ class EstimationDetail extends Component {
                             <button className="btn customBtn"
                                     onClick={() => this.setState({showEstimationRequestDialog: true})}>Request
                                 Estimation
+                            </button>
+                        }
+
+                        {
+                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_REVIEW_REQUESTED &&
+                            <button className="btn customBtn"
+                                    onClick={() => this.setState({showEstimationChangeDialog: true})}>Request Change
                             </button>
                         }
 
@@ -131,7 +159,7 @@ class EstimationDetail extends Component {
                     <div className="col-md-6">
                         {(estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
                             estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-                            && <form>
+                        && <form>
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showAddTaskForm(estimation)}><i
                                 className="fa fa-plus-circle"></i>
@@ -142,15 +170,17 @@ class EstimationDetail extends Component {
                             ><i className="fa fa-plus-circle"></i>
                                 Add feature
                             </button>
-                            </form>}
+                        </form>}
                     </div>
                 </div>
                 <div className="col-md-12">
-                    <EstimationFeaturesContainer estimationStatus={estimation.status} loggedInUserRole={estimation.loggedInUserRole}/>
+                    <EstimationFeaturesContainer estimationStatus={estimation.status}
+                                                 loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
                 <br/>
                 <div className="col-md-12">
-                    <EstimationTasksContainer estimationStatus={estimation.status} loggedInUserRole={estimation.loggedInUserRole}/>
+                    <EstimationTasksContainer estimationStatus={estimation.status}
+                                              loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
 
             </div>
@@ -169,7 +199,7 @@ class EstimationDetail extends Component {
                 </div>
                 <div className="col-md-6">
                     <div className="dropdownoption">
-                        <select   className="form-control ">
+                        <select className="form-control ">
                             <option value="">Technology</option>
                             <option value="">project1</option>
                             <option value="">project2</option>
@@ -179,7 +209,7 @@ class EstimationDetail extends Component {
                 </div>
                 <div className="col-md-6">
                     <div className="dropdownoption">
-                        <select   className="form-control ">
+                        <select className="form-control ">
                             <option value="">All</option>
                             <option value="">project1</option>
                             <option value="">project2</option>
@@ -190,17 +220,17 @@ class EstimationDetail extends Component {
                 <div className="col-md-12">
                     <div className="technologytag">
                         <span>android</span>
-                        <button type="button" className="btn "> <i className="glyphicon glyphicon-remove"></i>
+                        <button type="button" className="btn "><i className="glyphicon glyphicon-remove"></i>
                         </button>
                     </div>
                     <div className="technologytag">
                         <span>iOS</span>
-                        <button type="button" className="btn "> <i className="glyphicon glyphicon-remove"></i>
+                        <button type="button" className="btn "><i className="glyphicon glyphicon-remove"></i>
                         </button>
                     </div>
                     <div className="technologytag">
                         <span>Java</span>
-                        <button type="button" className="btn "> <i className="glyphicon glyphicon-remove"></i>
+                        <button type="button" className="btn "><i className="glyphicon glyphicon-remove"></i>
                         </button>
                     </div>
                 </div>
@@ -209,7 +239,8 @@ class EstimationDetail extends Component {
                         <div className="RepositoryHeading">
                             <div className="repositoryFeatureLable">
                             </div>
-                            <h5>Feature</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span className="pull-right">(04 HRS)</span>
+                            <h5>Feature</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span
+                            className="pull-right">(04 HRS)</span>
                         </div>
                         <div className="RepositoryContent">
                             <p>Lorem ipsum dolor sit amet consetutor</p>
@@ -219,12 +250,13 @@ class EstimationDetail extends Component {
                         <div className="RepositoryHeading">
                             <div className="repositoryTaskLable">
                             </div>
-                            <h5>Task</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span className="pull-right">(04 HRS)</span>
-                </div>
+                            <h5>Task</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span
+                            className="pull-right">(04 HRS)</span>
+                        </div>
                         <div className="RepositoryContent">
                             <p>Lorem ipsum dolor sit amet consetutor</p>
-                </div>
-                </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
