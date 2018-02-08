@@ -8,11 +8,11 @@ let repositoryRouter = new Router({
 
 
 repositoryRouter.get("/search", async ctx => {
+        console.log("ctx.params",ctx.query)
+   return "ravi inside"
     // Return expected schema
     if (ctx.schemaRequested)
         return generateSchema(repositorySearchStruct)
-
-
     return await RepositoryModel.get()
 })
 
