@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
 
-    deleteTaskRequest: (values) => {
+    requestDeleteTask: (values) => {
         let task = {}
         task.task_id = values._id
         return dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
@@ -83,7 +83,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     },
     suggestTask: (values) => console.log("suggestion Form",values),
-    heRequestedEditTask: (values) => console.log("heRequestedEditTask Form",values)
+    grantedEditTask: (values) => console.log("grantedEditTask ",values),
+    heRequestedEditTask: (values) => console.log("heRequestedEditTask ",values),
+    suggestionOutgoingTask: (values) => console.log("suggestionOutgoingTask ",values),
+    heRequestedDeleteTask: (values) => console.log("heRequestedDeleteTask ",values),
+    suggestionIncomingTask: (values) => console.log("suggestionIncomingTask ",values),
+    requestedDeleteTask: (values) => console.log("requestedDeleteTask ",values),
+    heGrantedEditTask: (values) => console.log("heGrantedEditTask ",values)
 
 })
 
