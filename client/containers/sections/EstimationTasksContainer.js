@@ -89,9 +89,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state, ownProps) => ({
-    tasks: state.estimation.tasks,
-    estimation: state.estimation.selected,
-    loggedInUserRole: state.estimation.selected.loggedInUserRole
+    tasks: state.estimation.tasks
 })
 
 

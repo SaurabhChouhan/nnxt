@@ -26,12 +26,12 @@ class EstimationFeature extends React.PureComponent {
                 buttons.push(<img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                   onClick={() => {
 
-                                  }}></img>)
+                }}></img>)
             } else {
                 buttons.push(<img key="suggestion" src="/images/suggestion.png"
                                   onClick={() => {
 
-                                  }}></img>)
+                }}></img>)
             }
 
             if (feature.estimator.removalRequested) {
@@ -77,11 +77,11 @@ class EstimationFeature extends React.PureComponent {
                     buttons.push(<img key="edit" src="/images/edit.png"
                                       onClick={() => {
                                           this.props.showEditFeatureForm(feature, loggedInUserRole)
-                                      }}></img>)
+                    }}></img>)
                     buttons.push(<img key="delete" src="/images/delete.png"
                                       onClick={() => {
-                                          this.props.deleteFeature(feature)
-                                      }}></img>)
+                        this.props.deleteFeature(feature)
+                    }}></img>)
                 } else {
                     if (feature.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
@@ -205,16 +205,7 @@ class EstimationFeature extends React.PureComponent {
 
 let
     EstimationFeatures = (props) =>
-        Array.isArray(props.features) && props.features.map(f => <EstimationFeature feature={f} key={f._id}
-                                                                                    showEditFeatureForm={props.showEditFeatureForm}
-                                                                                    deleteFeature={props.deleteFeature}
-                                                                                    requestEditFeature={props.requestEditFeature}
-                                                                                    heRequestedEditFeature={props.heRequestedEditFeature}
-                                                                                    grantedEditFeature={props.grantedEditFeature}
-                                                                                    heGrantedEditFeature={props.heGrantedEditFeature}
-                                                                                    requestedEditFeature={props.requestedEditFeature}
-                                                                                    requestedDeleteFeature={props.requestedDeleteFeature}
-                                                                                    heRequestedDeleteFeature={props.heRequestedDeleteFeature}
-                                                                                    loggedInUserRole={props.loggedInUserRole}/>)
+        Array.isArray(props.features) && props.features.map(f => <EstimationFeature feature={f}
+                                                                                    key={f._id} {...props}/>)
 
 export default EstimationFeatures

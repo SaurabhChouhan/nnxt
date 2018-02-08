@@ -243,7 +243,11 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
-        // TODO: Need to find feature from {EstimationFeature} and add validation
+        let estimationFeature = await EstimationFeatureModel.findById(taskInput.feature._id)
+
+        if (!estimationFeature || estimationFeature.estimation._id.toString() != estimation._id.toString()) {
+            throw new AppError('No such feature in this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        }
     }
 
     let repositoryTask = undefined
@@ -287,19 +291,36 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     // create negotiator section
 
     let negotiatorSection = {}
-    /* Name/description would always match repository name description */
+
 
     negotiatorSection.name = repositoryTask.name
     negotiatorSection.description = repositoryTask.description
     negotiatorSection.estimatedHours = taskInput.estimatedHours
-    negotiatorSection.changeRequested = true // Add/edit of task by negotiator is considered suggestions. Change requested flag would allow estimator to see those changes
+    negotiatorSection.changeRequested = true
+
+
 
     taskInput.status = SC.STATUS_PENDING
     taskInput.addedInThisIteration = true
     taskInput.owner = SC.OWNER_NEGOTIATOR
     taskInput.initiallyEstimated = true
-    taskInput.negotiator = negotiatorSection
 
+
+
+    /* Name/description would always match repository name description
+    * Add/edit of task by negotiator is considered suggestions. Change requested flag would allow estimator to see those changes*/
+
+    taskInput.negotiator = {
+        name:repositoryTask.name,
+        description:repositoryTask.description,
+        estimatedHours:taskInput.estimatedHours,
+        changeRequested:true
+    }
+
+    // Add name into estimator section as well so that move to feature functionality at least show name
+    taskInput.estimator = {
+        name:repositoryTask.name
+    }
 
     if (!_.isEmpty(taskInput.notes)) {
         taskInput.notes = taskInput.notes.map(n => {
@@ -603,5 +624,32 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (featureIn
     return await task.save();
 }
 
+
+estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (taskInput, negotiator) => {
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let task = await EstimationTaskModel.findById(taskInput.task_id)
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+       throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only given grant edit permission to task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
+        task.negotiator.changedInThisIteration = true
+
+    task.negotiator.changeGranted = !task.negotiator.changeGranted
+    task.updated = Date.now()
+    return await task.save();
+}
 const EstimationTaskModel = mongoose.model("EstimationTask", estimationTaskSchema)
 export default EstimationTaskModel
