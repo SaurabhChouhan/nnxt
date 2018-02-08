@@ -63,7 +63,7 @@ estimationRouter.post('/initiate', async ctx => {
     if (!hasRole(ctx, ROLE_NEGOTIATOR))
         throw new AppError("Only users with role [" + ROLE_NEGOTIATOR + "] can initiate estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
 
-    return EstimationModel.initiate(ctx.request.body, ctx.state.user)
+    return await EstimationModel.initiate(ctx.request.body, ctx.state.user)
 })
 
 
@@ -80,7 +80,7 @@ estimationRouter.put('/request/:estimationID', async ctx => {
  * User by Estimator to request review from Negotiator
  */
 estimationRouter.put('/review-request/:estimationID', async ctx => {
-    return EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
+    return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
 })
 
 

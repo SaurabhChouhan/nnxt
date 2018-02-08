@@ -131,17 +131,17 @@ class EstimationDetail extends Component {
                     <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
                     <div className="col-md-6">
                         {(estimation && estimation.status && (estimation.status == SC.STATUS_INITIATED || estimation.status == SC.STATUS_REVIEW_REQUESTED)) ?
-                            <form>
-                                <button type="button" className="btn taskbtn"
-                                        onClick={() => this.props.showAddTaskForm(estimation)}><i
-                                    className="fa fa-plus-circle"></i>
-                                    Add task
-                                </button>
-                                <button type="button" className="btn featurebtn"
-                                        onClick={() => this.props.showAddFeatureForm(estimation)}
-                                ><i className="fa fa-plus-circle"></i>
-                                    Add feature
-                                </button>
+                        <form>
+                            <button type="button" className="btn taskbtn"
+                                    onClick={() => this.props.showAddTaskForm(estimation)}><i
+                                className="fa fa-plus-circle"></i>
+                                Add task
+                            </button>
+                            <button type="button" className="btn featurebtn"
+                                    onClick={() => this.props.showAddFeatureForm(estimation)}
+                            ><i className="fa fa-plus-circle"></i>
+                                Add feature
+                            </button>
                             </form> : null}
                     </div>
                 </div>
@@ -220,11 +220,11 @@ class EstimationDetail extends Component {
                             <div className="repositoryTaskLable">
                             </div>
                             <h5>Task</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span className="pull-right">(04 HRS)</span>
-                        </div>
+                </div>
                         <div className="RepositoryContent">
                             <p>Lorem ipsum dolor sit amet consetutor</p>
-                        </div>
-                    </div>
+                </div>
+                </div>
                 </div>
             </div>
         </div>
