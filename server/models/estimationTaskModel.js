@@ -291,19 +291,36 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     // create negotiator section
 
     let negotiatorSection = {}
-    /* Name/description would always match repository name description */
+
 
     negotiatorSection.name = repositoryTask.name
     negotiatorSection.description = repositoryTask.description
     negotiatorSection.estimatedHours = taskInput.estimatedHours
-    negotiatorSection.changeRequested = true // Add/edit of task by negotiator is considered suggestions. Change requested flag would allow estimator to see those changes
+    negotiatorSection.changeRequested = true
+
+
 
     taskInput.status = SC.STATUS_PENDING
     taskInput.addedInThisIteration = true
     taskInput.owner = SC.OWNER_NEGOTIATOR
     taskInput.initiallyEstimated = true
-    taskInput.negotiator = negotiatorSection
 
+
+
+    /* Name/description would always match repository name description
+    * Add/edit of task by negotiator is considered suggestions. Change requested flag would allow estimator to see those changes*/
+
+    taskInput.negotiator = {
+        name:repositoryTask.name,
+        description:repositoryTask.description,
+        estimatedHours:taskInput.estimatedHours,
+        changeRequested:true
+    }
+
+    // Add name into estimator section as well so that move to feature functionality at least show name
+    taskInput.estimator = {
+        name:repositoryTask.name
+    }
 
     if (!_.isEmpty(taskInput.notes)) {
         taskInput.notes = taskInput.notes.map(n => {
