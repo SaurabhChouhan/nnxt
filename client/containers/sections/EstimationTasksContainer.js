@@ -82,7 +82,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(initialize("MoveTaskInFeatureForm", task))
 
     },
-    suggestTask: (values) => console.log("suggestion Form")
+    suggestTask: (values) => console.log("suggestion Form",values),
+    heRequestedEdit: (values) => console.log("heRequestedEdit Form",values)
 
 })
 

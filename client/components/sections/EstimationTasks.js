@@ -54,7 +54,10 @@ class EstimationTask extends React.PureComponent {
                 } else {
                     // estimator has requested change but negotiator has not granted it till now
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
+                    buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"
+                                      onClick={() => {
+                                          this.props.heRequestedEdit(task)
+                                      }}></img>)
                 }
             }
 
@@ -85,12 +88,15 @@ class EstimationTask extends React.PureComponent {
                     if (task.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
                         // Negotiator has requested change
-                        buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"></img>)
+                        buttons.push(<img key="he_requested_edit" src="/images/he_requested_edit.png"
+                                          onClick={() => {
+                                              this.props.heRequestedEdit(task)
+                                          }}></img>)
                     } else if (task.estimator.changeRequested) {
                         if (task.negotiator.changeGranted) {
                             // estimator has requested change which negotiator has granted
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                            buttons.push(<img key="he_requested_edit" src="/images/he_granted_edit.png"></img>)
+                            buttons.push(<img key="he_granted_edit" src="/images/he_granted_edit.png"></img>)
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
@@ -216,6 +222,7 @@ let
                                                                            showFeatureSelectionForm={props.showFeatureSelectionForm}
                                                                            requestTaskEdit={props.requestTaskEdit}
                                                                            deleteTask={props.deleteTask}
+                                                                           heRequestedEdit={props.heRequestedEdit}
                                                                            editTask={props.editTask}
                                                                            suggestTask={props.suggestTask}
                                                                            deleteTaskRequest={props.deleteTaskRequest}
