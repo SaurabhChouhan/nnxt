@@ -4,6 +4,7 @@ import * as COC from "../../components/componentConsts";
 import * as A from "../../actions";
 import {initialize} from "redux-form";
 import * as SC from "../../../server/serverconstants"
+import {NotificationManager} from "react-notifications";
 
 const mapStateToProps = (state, ownProps) => ({
     features: state.estimation.features,
@@ -27,6 +28,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     deleteFeature: (feature) => {
         console.log("delete feature", feature)
+        return dispatch(A.deleteFeatureByEstimatorOnServer(feature.estimation._id, feature._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Feature Deleted successfully")
+            }
+            else
+                NotificationManager.error("Feature Deletion Failed !")
+
+        })
     },
     toggleEditRequest: (feature) => {
         console.log("toggleEditRequest", feature)
