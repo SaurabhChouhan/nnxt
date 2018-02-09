@@ -373,7 +373,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureInput
         throw new AppError('Feature not approved because feature have invalid conditions [estimator.changeRequested,estimator.removalRequested flag must be false and estimator.name,estimator.description must be not empty]', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
 
     let pendingTaskListOfThisFeature = await EstimationTaskModel.find({"estimation._id":feature.estimation._id,"feature._id" : feature._id,status:{$in:[SC.STATUS_PENDING]}})
-    if(!pendingTaskListOfThisFeature && pendingTaskListOfThisFeature.length>0)
+    if(!pendingTaskListOfThisFeature || pendingTaskListOfThisFeature.length == 0)
         throw new AppError('Feature not approved because feature have any task status pending', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
 
     feature.status = SC.STATUS_APPROVED
