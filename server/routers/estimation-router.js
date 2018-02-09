@@ -26,7 +26,8 @@ import {
     estimationNegotiatorGrantEditPermissionToTaskStruct,
     estimationNegotiatorApproveTaskStruct,
     estimationNegotiatorApproveFeatureStruct,
-    estimationApproveByNegotiatorStruct
+    estimationApproveByNegotiatorStruct,
+    estimationProjectAwardByNegotiatorStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -296,6 +297,16 @@ estimationRouter.put('/approve-estimation', async ctx => {
         return await EstimationModel.approveEstimationByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+estimationRouter.put('/project-award', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationProjectAwardByNegotiatorStruct)
+        return await EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can project award of this estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 export default estimationRouter
