@@ -238,13 +238,19 @@ class EstimationTask extends React.PureComponent {
                 <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
             </div>
             <div className="col-md-3">
-                {task.owner == SC.OWNER_ESTIMATOR && task.addedInThisIteration && <div className="flagStrip">
+                {task.owner == SC.OWNER_ESTIMATOR && <div className="flagStrip">
                     <img src="/images/estimator_new_flag.png" title="Added by Estimator"></img>
                 </div>}
 
-                {task.owner == SC.OWNER_NEGOTIATOR && task.addedInThisIteration && <div className="flagStrip">
+                {task.owner == SC.OWNER_NEGOTIATOR && <div className="flagStrip">
                     <img src="/images/negotiator_new_flag.png" title="Added by Negotiator"></img>
                 </div>}
+
+                {!task.repo.addedFromThisEstimation &&
+                <div className="flagStrip">
+                    <img src="/images/repo_flag.png" title="From Repository"></img>
+                </div>
+                }
 
                 {task.estimator.changedInThisIteration && <div className="flagStrip">
                     <img src="/images/estimator_edit_flag.png" title="Edited by Estimator"></img>
@@ -255,11 +261,7 @@ class EstimationTask extends React.PureComponent {
                 </div>}
 
 
-                {!task.repo.addedFromThisEstimation &&
-                <div className="flagStrip">
-                    <img src="/images/repo_flag.png" title="From Repository"></img>
-                </div>
-                }
+
             </div>
             <div className="col-md-12 short-description">
                 <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
@@ -269,7 +271,8 @@ class EstimationTask extends React.PureComponent {
                 <h4>&nbsp;{task.estimator.estimatedHours} {task.estimator.estimatedHours && 'hrs.'}</h4>
             </div>
             <div className="col-md-3">
-                <h4>Suggested:</h4> <h4>&nbsp;{task.negotiator.estimatedHours} {task.negotiator.estimatedHours && 'hrs.'}</h4>
+                <h4>Suggested:</h4>
+                <h4>&nbsp;{task.negotiator.estimatedHours} {task.negotiator.estimatedHours && 'hrs.'}</h4>
             </div>
 
 
