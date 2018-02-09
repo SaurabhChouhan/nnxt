@@ -29,13 +29,13 @@ class EstimationTask extends React.PureComponent {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
                 buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                              onClick={() => {
-                                                 this.props.addTaskSuggestion(task)
+                                                 this.props.addTaskSuggestion(task,loggedInUserRole)
                                              }}/> :
                     <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
             } else {
                 buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
                                              onClick={() => {
-                                                 this.props.addTaskSuggestion(task)
+                                                 this.props.addTaskSuggestion(task,loggedInUserRole)
                                              }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
             }
 

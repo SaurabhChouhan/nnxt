@@ -86,7 +86,25 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.task_id = values._id
         return dispatch(A.grantEditPermissionOfTaskOnServer(task))
     },
-    addTaskSuggestion: (values) => {
+    addTaskSuggestion: (values,loggedInUserRole) => {
+        let task = {
+            task:{}
+        }
+        task.task._id = values._id
+        task.task.estimation = values.estimation
+        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
+            task.task.name = values.estimator.name
+            task.task.description = values.estimator.description
+            task.task.estimatedHours = values.estimator.estimatedHours
+        }
+        else {
+            task.task.name = values.negotiator.name
+            task.task.description = values.negotiator.description
+            task.task.estimatedHours = values.negotiator.estimatedHours
+        }
+        task.task.feature = values.feature
+        task.task.technologies = values.technologies
+        dispatch(initialize("estimation-suggest-task", task))
         dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
     },
     seeTaskSuggestion: (values) => console.log("seeTaskSuggestion", values),
