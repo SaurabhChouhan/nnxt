@@ -6,6 +6,7 @@ import * as A from "../../actions";
 import {initialize} from 'redux-form'
 import * as COC from "../../components/componentConsts";
 import * as SC from "../../../server/serverconstants"
+import MoveTaskInFeatureForm from "../../components/forms/MoveTaskInFeatureForm";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     toggleEditRequest: (values) => {
@@ -69,6 +70,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     moveToFeature: (values) => {
         let task = {}
         task.task_id = values._id
+
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
     },
@@ -77,8 +79,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.task_id = values._id
         task.feature_id = values.feature._id
 
-        return dispatch(A.moveTaskOutOfFeatureOnServer(values))
-        dispatch(initialize("MoveTaskInFeatureForm", task))
+         dispatch(A.moveTaskOutOfFeatureOnServer(values))
+        //dispatch(initialize("MoveTaskInFeatureForm", task))
 
     },
     toggleGrantEdit: (values) => {

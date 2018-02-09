@@ -220,7 +220,7 @@ class EstimationTask extends React.PureComponent {
             } else {
                 // This task is an individual task so add move to feature button
                 buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
-                    this.props.moveToFeature(this.props.task._id);
+                    this.props.moveToFeature(this.props.task);
                 }}/>)
             }
         } else {
