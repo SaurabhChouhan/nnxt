@@ -252,8 +252,8 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     if (negotiator._id.toString() != estimation.negotiator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let isFeature = false
     if (taskInput.feature && taskInput.feature._id) {
@@ -268,7 +268,7 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
-        let repositoryTask = await RepositoryModel.updateRepoWhenUpdateTask(estimationTask.repo._id, isFeature, taskInput, estimator)
+        let repositoryTask = await RepositoryModel.updateRepoWhenUpdateTask(estimationTask.repo._id, isFeature, taskInput, negotiator)
     }
 
     estimationTask.feature = taskInput.feature
