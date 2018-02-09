@@ -1,11 +1,11 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {
-    validate,
     estimationEstimatorAddFeatureStruct,
-    estimationNegotiatorAddFeatureStruct,
     estimationEstimatorUpdateFeatureStruct,
-    estimationNegotiatorUpdateFeatureStruct
+    estimationNegotiatorAddFeatureStruct,
+    estimationNegotiatorUpdateFeatureStruct,
+    validate
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
