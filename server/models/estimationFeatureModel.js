@@ -338,7 +338,7 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     return await estimationFeature.save()
 }
 
-estimationFeatureSchema.statics.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType = async (featureID,taskNewEstimatedHours,taskExistingEstimatedHours,operationType) => {
+estimationFeatureSchema.statics.updateEstimatedHoursIntoFeatureByCriteria = async (featureID,taskNewEstimatedHours,taskExistingEstimatedHours,operationType) => {
     let isUpdateEstimatedHoursIntoFeature = false
     console.log("-----------update estimated hours into feature info--------------")
     console.log("featureID = ",featureID)
