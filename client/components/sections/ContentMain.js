@@ -18,7 +18,8 @@ import {
     ClientFormDialog,
     LeaveRequestFormDialog,
     EstimationFeatureDialog,
-    MoveTaskInFeatureFormDialog
+    MoveTaskInFeatureFormDialog,
+    EstimationSuggestTaskDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -112,6 +113,11 @@ class ContentMain extends Component {
                     <MoveTaskInFeatureFormDialog name={COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+                        }
+                    }/>
+                    <EstimationSuggestTaskDialog name={COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
                         }
                     }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>

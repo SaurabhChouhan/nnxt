@@ -86,7 +86,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.task_id = values._id
         return dispatch(A.grantEditPermissionOfTaskOnServer(task))
     },
-    addTaskSuggestion: (values) => console.log("add task suggestion", values),
+    addTaskSuggestion: (values) => {
+        dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
+    },
     seeTaskSuggestion: (values) => console.log("seeTaskSuggestion", values),
     suggestionIncomingTask: (values) => console.log("suggestionIncomingTask ", values)
 })
