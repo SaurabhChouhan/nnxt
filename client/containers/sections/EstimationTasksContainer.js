@@ -88,7 +88,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     addTaskSuggestion: (values,loggedInUserRole) => {
         let task = {
-            task:{}
+            loggedInUserRole:loggedInUserRole,
+            task:{},
+            suggest:{}
         }
         task.task._id = values._id
         task.task.estimation = values.estimation
@@ -104,6 +106,19 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
         task.task.feature = values.feature
         task.task.technologies = values.technologies
+        task.suggest.estimation = values.estimation
+        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
+            task.suggest.name = values.estimator.name
+            task.suggest.description = values.estimator.description
+            task.suggest.estimatedHours = values.estimator.estimatedHours
+        }
+        else {
+            task.suggest.name = values.negotiator.name
+            task.suggest.description = values.negotiator.description
+            task.suggest.estimatedHours = values.negotiator.estimatedHours
+        }
+        task.suggest.feature = values.feature
+        task.suggest.technologies = values.technologies
         dispatch(initialize("estimation-suggest-task", task))
         dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
     },
