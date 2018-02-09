@@ -1,16 +1,16 @@
 /* style css NNXT */
 @font-face {
     font-family: 'TwCenMTStd-Light';
-    src: url('../fonts/TwCenMTStd-Light.eot?#iefix') format('embedded-opentype'),  url('../fonts/TwCenMTStd-Light.otf')  format('opentype'),
-    url('../fonts/TwCenMTStd-Light.woff') format('woff'), url('../fonts/TwCenMTStd-Light.ttf')  format('truetype'), url('../fonts/TwCenMTStd-Light.svg#TwCenMTStd-Light') format('svg');
+    src: url('../fonts/TwCenMTStd-Light.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd-Light.otf') format('opentype'),
+    url('../fonts/TwCenMTStd-Light.woff') format('woff'), url('../fonts/TwCenMTStd-Light.ttf') format('truetype'), url('../fonts/TwCenMTStd-Light.svg#TwCenMTStd-Light') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'TwCenMTStd';
-    src: url('../fonts/TwCenMTStd.eot?#iefix') format('embedded-opentype'),  url('../fonts/TwCenMTStd.otf')  format('opentype'),
-    url('../fonts/TwCenMTStd.woff') format('woff'), url('../fonts/TwCenMTStd.ttf')  format('truetype'), url('../fonts/TwCenMTStd.svg#TwCenMTStd') format('svg');
+    src: url('../fonts/TwCenMTStd.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd.otf') format('opentype'),
+    url('../fonts/TwCenMTStd.woff') format('woff'), url('../fonts/TwCenMTStd.ttf') format('truetype'), url('../fonts/TwCenMTStd.svg#TwCenMTStd') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -95,6 +95,7 @@ img {
 .pad {
     padding: 0 !important;
 }
+
 /*#login {
     position: absolute;
     top: 37%;
@@ -397,7 +398,6 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 }
 
 .estimationsection {
-
     border: 1px solid #182939;
 }
 
@@ -414,28 +414,67 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 }
 
 .feature {
-    border: 2px solid #D4D5D8;
-    margin-top: 5px;
-    float: left;
-    width: 100%;
     background: #E3E6ED;
-    box-shadow: 0px 5px 8px #D2D2D2;
-    margin-bottom: 2%;
-    padding: 8px;
-    position: relative;
+}
+
+.feature-expanded {
+    background: #E3E6ED;
+    overflow: scroll;
+    max-height: 500px;
 }
 
 .task {
+    background: #F6E5DD;
+}
+
+.feature, .task, .feature-expanded {
     border: 2px solid #D4D5D8;
     margin-top: 5px;
-    float: left;
     width: 100%;
+    float: left;
     position: relative;
-    background: #F6E5DD;
     box-shadow: 0px 5px 8px #D2D2D2;
     margin-bottom: 2%;
-    padding: 8px;
+    padding-bottom: 10px;
 }
+
+.task div[class^='col-md'], .feature div[class^='col-md'], .feature-expanded div[class^='col-md'] {
+    padding: 0px;
+}
+
+.feature h4, .task h4, .feature-expanded h4 {
+    float: left;
+    margin: 10px 0px 0px 10px;
+    font-weight: bolder;
+}
+
+.feature p, .task p, .feature-expanded p {
+    font-size: 1.3em;
+    margin:5px 0px 20px 10px;
+    line-height: 1.3em;
+    height: 2.6em;
+    overflow: hidden;
+}
+
+.task .short-description:after {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(246, 229, 221) 90%);
+}
+
+.feature .short-description:after {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(227, 230, 237) 90%);
+}
+
+.task .short-description:after, .feature .short-description:after {
+    content: "";
+    text-align: right;
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    width: 50%;
+    height: 1.3em;
+
+}
+
 
 .repoSections {
     border: 2px solid #D4D5D8;
@@ -526,31 +565,22 @@ table th {
     margin-bottom: 1%;
 }
 
-.feature h4, .task h4 {
-    float: left;
-    margin-top: 0;
-    font-weight: bolder;
-}
+.estimationActions {
+    padding: 0px 10px 0px 0px;
 
-.feature p, .task p {
-    font-size: 18px;
-    margin-bottom: 5%;
 }
 
 .estimationActions img {
-    margin-left: 3%;
+    margin-left: 10px;
 }
 
-.newFlagStrip {
-    position: absolute;
-    right: 0;
-    top: 0;
+.estimationActions img:last-child {
+    margin-right: 10px;
 }
 
-.repoFlagStrip {
-    position: absolute;
-    top: 0;
-    right: 0;
+.flagStrip {
+    float: right;
+    margin-left: 4px;
 }
 
 .estimateheader i {
@@ -587,7 +617,6 @@ table th {
 .dropdownoption {
     margin-top: 5px;
 }
-
 
 .featuretask b {
     font-size: 17px;
@@ -771,6 +800,7 @@ td.paRowColor {
 td.rejRowColor {
     background: #ED4D52;
 }
+
 .loginform {
     padding: 0.5% 10%;
     background-color: #F0F0F2;
@@ -779,11 +809,13 @@ td.rejRowColor {
     overflow: scroll;
     height: 100%;
 }
-.loginform label{
+
+.loginform label {
     color: #9CA6A8;
     font-weight: normal;
 
 }
+
 .loginform input {
     width: 100%;
     padding: 28px 28px;
@@ -809,9 +841,11 @@ td.rejRowColor {
     color: #FF534F;
     border: 2px solid #FF534F;
 }
-.loginform a{
+
+.loginform a {
     color: #FF534F;
 }
+
 .loginform header {
     font-size: 28px;
     padding: 1em;
@@ -819,32 +853,38 @@ td.rejRowColor {
     text-align: center;
 
 }
-.loginform footer{
-    color:#848C90;
+
+.loginform footer {
+    color: #848C90;
     font-size: 17px;
     padding: 1em;
     clear: left;
     text-align: center;
     margin-top: 100px;
 }
-.loginform header span{
-    color:#FF534F;
+
+.loginform header span {
+    color: #FF534F;
 }
+
 .loginform p {
     margin-bottom: 5%;
     font-size: 18px;
     color: #ADB6B9;
 }
-.signupoption{
+
+.signupoption {
     text-align: center;
     font-size: 18px;
     font-weight: normal;
-    width:100%;
+    width: 100%;
     float: left;
 }
-.signupoption a{
+
+.signupoption a {
     position: relative;
 }
+
 .login_img {
     background-image: url(../images/login_page_bg.jpg);
     position: fixed;
@@ -852,6 +892,7 @@ td.rejRowColor {
     height: 100%;
     background-size: cover;
 }
+
 .login_img h1 {
     color: #ECE9ED;
     margin: 35% 5%;
@@ -859,8 +900,9 @@ td.rejRowColor {
     font-size: 32px;
     text-align: center;
 }
-.login_img p{
-    color:#C5C7C9;
+
+.login_img p {
+    color: #C5C7C9;
     font-size: 24px;
     text-align: center;
     padding-left: 22px;
@@ -870,7 +912,8 @@ td.rejRowColor {
 
     /*margin: 180px 138px;*/
 }
-.textcentered{
+
+.textcentered {
     position: absolute;
 
     left: 50%;
@@ -878,22 +921,25 @@ td.rejRowColor {
     font-size: 36px;
 
 }
-.loginsection{
+
+.loginsection {
     padding-left: 0;
     padding-right: 0;
 }
 
 .content-section {
-    display:flex;
-    max-height:600px;
+    display: flex;
+    max-height: 600px;
     overflow-y: scroll;
 }
+
 /* Repository section */
 
-.repositorybtn{
+.repositorybtn {
     margin: -10px;
     margin-top: 11px;
 }
+
 .technologytag {
     min-width: 12%;
     min-height: 10px;
@@ -904,15 +950,18 @@ td.rejRowColor {
     margin-right: 1%;
     margin-bottom: 10px;
 }
+
 .technologytag span {
     color: #fff;
     font-size: 18px;
 }
+
 .technologytag button {
     float: right;
     background-color: #303440;
     padding: 0;
 }
+
 .technologytag i {
     float: right;
     font-size: 6px;
@@ -922,6 +971,7 @@ td.rejRowColor {
     background: #fff;
     border-radius: 50%;
 }
+
 .repository {
     width: 100%;
     min-height: 50px;
@@ -929,12 +979,15 @@ td.rejRowColor {
     box-shadow: 2px 2px 5px #ccccccb8;
     margin-bottom: 2%;
 }
+
 .repositoryFeature {
     background-color: #E3E6ED;
 }
+
 .repositoryTask {
     background-color: #F6E5DD;
 }
+
 .repositoryFeature .RepositoryHeading {
     border: 1px solid #CBCED5;
     width: 100%;
@@ -943,6 +996,7 @@ td.rejRowColor {
     padding: 6px;
     padding-left: 15px;
 }
+
 .repositoryTask .RepositoryHeading {
     border: 1px solid #CBCED5;
     width: 100%;
@@ -952,10 +1006,11 @@ td.rejRowColor {
     padding-left: 15px;
 }
 
-.RepositoryHeading i{
+.RepositoryHeading i {
     float: right;
     color: #FE4744
 }
+
 .RepositoryHeading {
     position: relative;
     height: 48px;
@@ -964,53 +1019,64 @@ td.rejRowColor {
 .col-md-12.repositoryHeading {
     border-bottom: 1px solid #ccc;
 }
-.estimationsection  .technologytag {
+
+.estimationsection .technologytag {
     margin-top: 10px;
 }
+
 .estimationsection {
     border-left: 1px solid #182939;
     height: 660px;
 }
+
 .repositoryFeatureLable {
     position: absolute;
     left: 0;
     top: 0;
     height: 100%;
     width: 10px;
-    background:#6D798A;
+    background: #6D798A;
 }
+
 .repositoryTaskLable {
     position: absolute;
     left: 0;
     top: 0;
     height: 100%;
     width: 10px;
-    background:#F3B54B;
+    background: #F3B54B;
 }
+
 .RepositoryHeading h5 {
     float: left;
     font-weight: bold;
     margin: 0;
 }
+
 .RepositoryHeading h4 {
     font-size: 25px;
     font-weight: bold;
 }
+
 .RepositoryHeading span {
     padding-right: 5%;
 }
+
 .repositoryHeading b {
     margin-top: 5px;
     font-size: 20px;
 }
+
 .repository .RepositoryContent {
     padding: 10px;
     border: 1px solid #ccc;
 }
-.RepositoryContent p{
+
+.RepositoryContent p {
     font-size: 16px;
     font-weight: 600;
 }
-.dropdownoptionRepository{
+
+.dropdownoptionRepository {
     margin-top: 17px;
 }

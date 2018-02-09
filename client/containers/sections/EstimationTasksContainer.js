@@ -79,7 +79,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         return dispatch(A.moveTaskOutOfFeatureOnServer(values))
         dispatch(initialize("MoveTaskInFeatureForm", task))
-
     },
     toggleGrantEdit: (values) => {
         let task = {}
