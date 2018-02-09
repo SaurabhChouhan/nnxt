@@ -4,6 +4,12 @@ import {ClientModel} from "./"
 import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import {userHasRole} from "../utils"
+import {HTTP_BAD_REQUEST} from "../errorcodes";
+import {ALREADY_EXISTS} from "../errorcodes";
+import PermissionModel from "./permissionModel";
+import {RoleModel} from "./index";
+import {NOT_FOUND} from "../errorcodes";
+
 
 mongoose.Promise = global.Promise
 
@@ -16,7 +22,8 @@ let projectSchema = mongoose.Schema({
         name: String
     },
     isDeleted: {type: Boolean, default: false},
-    isArchived: {type: Boolean, default: false}
+    isArchived: {type: Boolean, default: false},
+    canHardDelete:{type: Boolean, default: true}
 })
 
 projectSchema.statics.getAllActive = async (loggedInUser) => {
@@ -48,6 +55,42 @@ projectSchema.statics.exists = async (name, clientId) => {
         return true
     return false
 }
+projectSchema.statics.delete = async (id)=> {
+    let response = await ProjectModel.findById(id).remove()
+    return response
+}
+projectSchema.statics.softDelete = async (id)=> {
+    let project = await ProjectModel.findById(id)
+    let response=undefined
+    if (project.canHardDelete){
+        response = await ProjectModel.findById(id).remove()
+    }
+    else{
+        project = await ProjectModel.findById(id)
+        project.isDeleted=true
+        response = await project.save()
+    }
 
-const ProjectModel = mongoose.model("Project", projectSchema)
+    return response
+}
+projectSchema.statics.editProject = async projectInput => {
+    console.log("check the project Input data",projectInput)
+    let project = await ProjectModel.findById(projectInput._id)
+    //let count = await ProjectModel.count({'name': projectInput.name, 'client._id': projectInput.client._id})
+    if (await ProjectModel.exists(projectInput.name, projectInput.client._id))
+    {
+        throw new AppError("Project [" + project.client._id+ "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+    }
+    if (project) {
+        project.name = projectInput.name
+        let client = await ClientModel.findById(projectInput.client._id)
+        if (!client){
+            throw new AppError("Client Not Found", NOT_FOUND, HTTP_BAD_REQUEST)
+        }
+        project.client=client
+        return await project.save()
+    }
+}
+
+const ProjectModel = mongoose.model('Project', projectSchema)
 export default ProjectModel

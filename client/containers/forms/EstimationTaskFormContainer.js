@@ -7,22 +7,39 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        values.estimatedHours = Number(values.estimatedHours)
-        logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
-        dispatch(A.addTaskToEstimationOnServer(values)).then(json => {
-            if (json.success) {
-                NotificationManager.success("Task Added")
-                // hide dialog
-                dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
-            } else {
-                NotificationManager.success("Task Addition Failed")
-            }
-        })
+        if(values._id){
+            values.estimatedHours = Number(values.estimatedHours)
+            logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
+            dispatch(A.updateTaskToEstimationOnServer(values)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Task Updated")
+                    // hide dialog
+                    dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
+                } else {
+                    NotificationManager.error("Task Updation Failed")
+                }
+            })
+        }
+        else{
+            values.estimatedHours = Number(values.estimatedHours)
+            logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
+            dispatch(A.addTaskToEstimationOnServer(values)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Task Added")
+                    // hide dialog
+                    dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
+                } else {
+                    NotificationManager.error("Task Addition Failed")
+                }
+            })
+        }
+
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    estimation: state.estimation.selected
+    estimation: state.estimation.selected,
+    features:state.estimation.features
 })
 
 const EstimationTaskFormContainer = connect(

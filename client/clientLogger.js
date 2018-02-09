@@ -42,11 +42,25 @@ export const ESTIMATION_INITIATE_FORM_RENDER = 'EstimationInitiateForm->render()
 
 export const ESTIMATION_TASK_FORM_SUBMIT = 'EstimationTaskForm->submit():'
 export const ESTIMATION_TASK_FORM_RENDER = 'EstimationTaskForm->render():'
+export const ESTIMATION_FEATURE_FORM_RENDER = 'EstimationFeatureForm->render():'
+export const ESTIMATION_FEATURE_FORM_SUBMIT = 'EstimationFeatureForm->submit():'
 
 export const ESTIMATION_LIST_CONNECT = "EstimationList->connect():"
 
-//let traceCodes = [TABS_LIFE_CYCLE, TABS_CHANGE_TAB, TABS_RENDER]
-let traceCodes = undefined
+export const TECHNOLOGY_FORM_RENDER = 'TechnologyForm->render():'
+export const TECHNOLOGY_FORM_CONNECT = 'TechnologyForm->connect():'
+export const TECHNOLOGY_FORM_LIFECYCLE = 'TechnologyForm->lc():'
+
+export const PROJECT_FORM_RENDER = 'ProjectForm->render():'
+export const PROJECT_FORM_CONNECT = 'ProjectForm->connect():'
+
+export const ESTIMATION_DETAIL_RENDER = 'EstimationDetail->render():'
+export const ESTIMATION_TASK_RENDER = 'EstimationTask->render():'
+export const ESTIMATION_TASK_BUTTONS = 'EstimationTask->buttons:'
+export const ESTIMATION_FEATURE_RENDER = 'EstimationFeature->render():'
+export const ESTIMATION_FEATURE_BUTTONS = 'EstimationFeature->buttons:'
+let traceCodes = [ESTIMATION_DETAIL_RENDER, ESTIMATION_FEATURE_RENDER, ESTIMATION_TASK_RENDER, ESTIMATION_TASK_BUTTONS]
+//let traceCodes = undefined
 let logLevel = DEBUG_LEVEL
 
 if (process.env.NODE_ENV == PROD_ENV) {

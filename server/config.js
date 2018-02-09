@@ -14,6 +14,36 @@ const config = {
             port: 8080,
             setupData: false,
             dropDatabase:false
+        },
+        kamlesh: {
+            port: 3002,
+            setupData: false,
+            dropDatabase: false
+        },
+        murtaza: {
+            port: 3000,
+            setupData: false,
+            dropDatabase: false
+        },
+        praveen: {
+            port: 3002,
+            setupData: false,
+            dropDatabase: false
+        },
+        anup: {
+            port: 3000,
+            setupData: false,
+            dropDatabase: false
+        },
+        gaurav_local: {
+            port: 3000,
+            setupData: false,
+            dropDatabase: false
+        },
+        gaurav: {
+            port: 3000,
+            setupData: false,
+            dropDatabase: false
         }
     },
     mongo: {
@@ -22,9 +52,14 @@ const config = {
             url: 'mongodb://localhost/nnxt',
             useMongoClient: true
         },
+        kamlesh: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
         khushboo: {
             dbname: 'nnxt',
-            url: 'mongodb://khushboo:khushboo@ds251197.mlab.com:51197/nnxt',
+            url: 'mongodb://192.168.1.55:27017/khushboo_nnxt',
             useMongoClient: true
         },
         gaurav: {
@@ -35,6 +70,26 @@ const config = {
         pogras: {
             dbname: 'nnxt-pogras',
             url: 'mongodb://mpogra:mpogra@ds117848.mlab.com:17848/nnxt-pogras',
+            useMongoClient: true
+        },
+        murtaza: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        praveen: {
+            dbname: 'nnxt',
+            url: "mongodb://praveen:praveen@ds119078.mlab.com:19078/nnxt",
+            useMongoClient: true
+        },
+        anup: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        gaurav_local: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
             useMongoClient: true
         }
     }

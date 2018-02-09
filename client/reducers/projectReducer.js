@@ -1,4 +1,5 @@
 import {ADD_PROJECTS, ADD_PROJECT} from "../actions/actionConsts"
+import * as AC from "../actions/actionConsts";
 
 let initialState = {
     all: [],
@@ -7,10 +8,14 @@ let initialState = {
 
 let projectReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_PROJECTS:
+        case AC.ADD_PROJECTS:
             return Object.assign({}, state, {all: action.projects})
-        case ADD_PROJECT:
-            return Object.assign({}, state, {all: [...action.projects, action.project]})
+        case AC.ADD_PROJECT:
+            return Object.assign({}, state, {all: [...state.all, action.project]})
+        case AC.EDIT_PROJECT:
+            return Object.assign({}, state, {all: state.all.map(item => item._id == action.project._id ? action.project : item)})
+        case AC.DELETE_PROJECT:
+            return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.projectID)})
         default:
             return state
     }

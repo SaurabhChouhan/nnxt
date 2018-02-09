@@ -1,23 +1,44 @@
 /* style css NNXT */
-
 @font-face {
     font-family: 'TwCenMTStd-Light';
-    src: url('/fonts/TwCenMTStd-Light.eot?#iefix') format('embedded-opentype'), url('/fonts/TwCenMTStd-Light.otf') format('opentype'),
-    url('/fonts/TwCenMTStd-Light.woff') format('woff'), url('/fonts/TwCenMTStd-Light.ttf') format('truetype'), url('/fonts/TwCenMTStd-Light.svg#TwCenMTStd-Light') format('svg');
+    src: url('../fonts/TwCenMTStd-Light.eot?#iefix') format('embedded-opentype'),  url('../fonts/TwCenMTStd-Light.otf')  format('opentype'),
+    url('../fonts/TwCenMTStd-Light.woff') format('woff'), url('../fonts/TwCenMTStd-Light.ttf')  format('truetype'), url('../fonts/TwCenMTStd-Light.svg#TwCenMTStd-Light') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'TwCenMTStd';
-    src: url('/fonts/TwCenMTStd.eot?#iefix') format('embedded-opentype'), url('/fonts/TwCenMTStd.otf') format('opentype'),
-    url('/fonts/TwCenMTStd.woff') format('woff'), url('/fonts/TwCenMTStd.ttf') format('truetype'), url('/fonts/TwCenMTStd.svg#TwCenMTStd') format('svg');
+    src: url('../fonts/TwCenMTStd.eot?#iefix') format('embedded-opentype'),  url('../fonts/TwCenMTStd.otf')  format('opentype'),
+    url('../fonts/TwCenMTStd.woff') format('woff'), url('../fonts/TwCenMTStd.ttf')  format('truetype'), url('../fonts/TwCenMTStd.svg#TwCenMTStd') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 body {
     font-family: 'TwCenMTStd-Light' !important;
+}
+
+/* scrollbar css */
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 :hover {
@@ -28,6 +49,45 @@ body {
     transition: 0.8s;
 }
 
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #ff534f;
+    color: #ffffff;
+    text-align: center;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 94%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #ff534f transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
 img {
     max-width: 100% !important;
 }
@@ -35,8 +95,7 @@ img {
 .pad {
     padding: 0 !important;
 }
-
-#login {
+/*#login {
     position: absolute;
     top: 37%;
     left: 48%;
@@ -48,7 +107,7 @@ img {
     background: #F5F0EC;
     box-shadow: 2px 2px 4px #bcb6b0;
     border-radius: 5px;
-}
+}*/
 
 .navbar-brand {
     padding: 0 !important;
@@ -61,9 +120,12 @@ img {
 .modal-header {
     padding: 5px !important;
     border-bottom: 1px solid #e5e5e5 !important;
-    background: white !important;
+    background: #1E202C;
     float: left;
+    position: relative;
     width: 100%;
+    color: #fff;
+    text-align: center;
 }
 
 .modal-footer {
@@ -86,16 +148,18 @@ img {
     padding: 15px;
     min-height: 100px;
     width: 100%;
-    background: #e7e7e7 !important;
+    background: #FFFFFF;
     padding-bottom: 0px !important;
+}
+
+.form-control, .rw-widget-container {
+    border-radius: 0;
+    border: 1px solid #C7CACD;
+    background: #F0F0F2;
 }
 
 .validation-error {
     color: red
-}
-
-.addBtn {
-    margin-bottom: 10px
 }
 
 .no-gutter > [class*='col-md-9'] {
@@ -103,13 +167,50 @@ img {
     padding-left: 0;
 }
 
-.container-fluid {
-    padding-left: 0;
-    padding-right: 0;
+.login-footer {
+    padding-top: 10px;
+    float: right;
+    width: 100%;
+}
+
+.login-btn {
+    float: right;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.customBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 0.5% 7%;
+    font-size: 20px;
+    border: 2px solid #FF534F;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    transition: 0.8s;
+    border-radius: 0;
+}
+
+button.customBtn, button.customBtn:focus {
+    background: #FF534F;
+    color: #fff;
+    padding: 0.5% 7%;
+    font-size: 20px;
+    border: 2px solid #FF534F;
+    margin-bottom: 10px;
+    transition: 0.8s;
+    border-radius: 0;
+}
+
+button.customBtn:hover {
+    background: none;
+    color: #FF534F;
+    border: 2px solid #FF534F;
 }
 
 .sidebar-wrapper {
     float: left;
+    width: 20%;
     background: #1e202c;
 }
 
@@ -122,15 +223,26 @@ img {
     max-width: 57% !important;
 }
 
+.user_name {
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+    padding: 10px;
+    box-shadow: -5px -2px 20px #303440;
+}
+
 .sidebar {
+    position: fixed;
     background-color: #303440;
     height: 100%;
     padding: 0;
+    width: 20%;
     padding-left: 50px;
     padding-top: 5px;
 }
 
 .sidebarSideSection {
+    position: fixed;
     height: 100%;
     float: left;
     background: #343946f2;
@@ -147,7 +259,7 @@ img {
 
 .bottom-option {
     position: absolute;
-    bottom: 15%;
+    bottom: 25%;
 }
 
 .bottom-option li {
@@ -276,18 +388,629 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     background-color: #283E4B;
 }
 
-.content-section {
-    margin-top: 20px;
+.rightContent {
+    float: right;
+    position: fixed;
+    right: 0;
+    width: 80%;
+    padding-left: 0;
 }
 
-.login-footer {
-    padding-top: 10px;
-    float: right;
+.estimationsection {
+
+    border: 1px solid #182939;
+}
+
+.featuretask {
+    color: #6FB9FA;
+
+}
+
+.featuresubtask {
+    border: 1px solid #182939;
+    margin-top: 10px;
+    float: right !important;
+
+}
+
+.feature {
+    border: 2px solid #D4D5D8;
+    margin-top: 5px;
+    float: left;
+    width: 100%;
+    background: #E3E6ED;
+    box-shadow: 0px 5px 8px #D2D2D2;
+    margin-bottom: 2%;
+    padding: 8px;
+    position: relative;
+}
+
+.task {
+    border: 2px solid #D4D5D8;
+    margin-top: 5px;
+    float: left;
+    width: 100%;
+    position: relative;
+    background: #F6E5DD;
+    box-shadow: 0px 5px 8px #D2D2D2;
+    margin-bottom: 2%;
+    padding: 8px;
+}
+
+.repoSections {
+    border: 2px solid #D4D5D8;
+    margin-top: 5px;
+    float: left;
     width: 100%;
 }
 
-.login-btn {
+.estimation {
+    border: none;
+    margin-top: 15px;
+    display: inline-block;
+    float: left;
+    width: 100%;
+}
+
+.estimationfooter {
+    padding-top: 5px;
+    border-top: 1px dashed #ccc;
+}
+
+.search {
+    margin-top: 15px;
+    display: inline-block;
+    float: left;
+    width: 100%;
+    position: relative;
+}
+
+.searchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 1.1% 2%;
+    font-size: 20px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: 0.8s;
+}
+
+.searchBtn:hover {
+    background: none;
+    color: #FF534F;
+    border: 1px solid #FF534F;
+}
+
+.search i {
+    font-size: 20px;
+}
+
+table th {
+    background-color: #303440;
+    color: #EAEEF3;
+}
+
+.tablebtn {
+    background-color: #1BCCC7;
+    color: #EAEEF3;
+}
+
+.tblcolor {
+    border: none !important;
+    width: 10px;
+}
+
+.rowparrotcolor {
+    background-color: #00FF3D;
+}
+
+.rowgreencolor {
+    background-color: #4F7E5A;
+}
+
+.rowbluecolor {
+    background-color: #02BCCB;
+}
+
+.rowyellowcolor {
+    background-color: #DFD30D;
+}
+
+.rowbrowncolor {
+    background-color: #2A2C43;
+}
+
+.estimateheader {
+    border-bottom: 1px solid #182939;
+    margin-bottom: 1%;
+}
+
+.feature h4, .task h4 {
+    float: left;
+    margin-top: 0;
+    font-weight: bolder;
+}
+
+.feature p, .task p {
+    font-size: 18px;
+    margin-bottom: 5%;
+}
+
+.estimationActions img {
+    margin-left: 3%;
+}
+
+.newFlagStrip {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.repoFlagStrip {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.estimateheader i {
+    color: #F65A4F;
+
+}
+
+.estimationfileoption {
+    padding-top: 5%;
+}
+
+.estimationfileoption ul {
+    text-align: right;
+}
+
+.estimationfileoption li {
+    display: inline-block;
+    margin-right: 5%;
+}
+
+.estimationfileoption li:nth-last-child(1) {
+    margin: 0;
+}
+
+.estimationfileoption li a {
+    font-size: 18px;
+}
+
+.backarrow b {
+    font-size: 20px;
+    padding: 18px;
+}
+
+.dropdownoption {
+    margin-top: 5px;
+}
+
+
+.featuretask b {
+    font-size: 17px;
+}
+
+span.tag {
+    background-color: #FF534F;
+    color: #E2E5EE;
+    font-size: 12px;
+    margin: 1px;
     float: right;
+    padding: 5px 10px;
+    margin-right: -14.6%;
+}
+
+span.tag.new {
+    background-color: #FF534F;
+    color: #E2E5EE;
+    font-size: 12px;
+    margin: 1px;
+    padding: 5px 10px;
+    margin-right: 4%;
+}
+
+.estimationuser {
+    background-color: #1CCBD0;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    float: left;
+    margin-right: 5%;
     margin-bottom: 10px;
-    margin-right: 10px;
+    opacity: 1;
+    border: 0;
+}
+
+.estimationuser span {
+    position: absolute;
+    left: 30%;
+    top: 20%;
+    color: #fff;
+}
+
+.feature .estimationfileoption li a i, .task .estimationfileoption li a i {
+    background: #ff534f;
+    float: left;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 12px;
+    padding-top: 4px;
+    text-align: center;
+}
+
+.logo {
+    margin-bottom: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+.logo img {
+    height: 30px;
+}
+
+.clock i {
+    font-size: 24px;
+    color: #29CAC8;
+    float: right;
+}
+
+.esTime b {
+    font-size: 15px;
+    float: right;
+    margin-left: 5%;
+    padding-top: 2px;
+}
+
+/* initiate estimation form */
+
+.initiatEstimation button.customBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 2% 25%;
+    font-size: 20px;
+    border: 2px solid #FF534F;
+    margin-bottom: 10px;
+    transition: 0.8s;
+}
+
+.estimationModal .ModalSideLabel {
+    background: #56f9ff;
+    position: absolute;
+    width: 10px;
+    padding: 0;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+.estimationModal .ModalHeading h3 {
+    color: #56f9ff;
+}
+
+.estimationModal .modal-header .close {
+    opacity: 1 !important;
+    color: #56f9ff !important;
+}
+
+/* Estimator list css */
+
+.estimationListUser div {
+    background-color: #1CCBD0;
+    width: auto;
+    height: 30px;
+    position: relative;
+    padding: 5px;
+    text-align: center;
+    color: #fff;
+}
+
+.estimation .table-bordered > thead > tr > th:nth-child(1) {
+    border-right: 1px solid #303440 !important;
+}
+
+.estimation table tbody tr {
+    cursor: pointer;
+}
+
+/* estimation detals pages */
+button.taskbtn {
+    background-color: #fff;
+    color: #F6B841;
+    font-size: 20px;
+    float: right;
+    margin-top: 2px;
+}
+
+button.featurebtn {
+    float: right;
+    font-size: 20px;
+    background-color: #fff;
+    color: #6F7888;
+    margin-top: 2px;
+}
+
+/* estimation td row background color */
+
+td.erRowColor {
+    background: #00FF3D;
+}
+
+td.inRowColor {
+    background: #4F7E5A;
+}
+
+td.penRowColor {
+    background: #02BCCB;
+}
+
+td.appRowColor {
+    background: #2A2C43;
+}
+
+td.rrRowColor {
+    background: #DFD30D;
+}
+
+td.crRowColor {
+    background: #3F2A1D;
+}
+
+td.roRowColor {
+    background: #FD9974;
+}
+
+td.paRowColor {
+    background: #4C7A3A;
+}
+
+td.rejRowColor {
+    background: #ED4D52;
+}
+.loginform {
+    padding: 0.5% 10%;
+    background-color: #F0F0F2;
+    position: fixed;
+    right: 0;
+    overflow: scroll;
+    height: 100%;
+}
+.loginform label{
+    color: #9CA6A8;
+    font-weight: normal;
+
+}
+.loginform input {
+    width: 100%;
+    padding: 28px 28px;
+    margin-bottom: 15px;
+}
+
+.loginform button, .loginform button:focus {
+    background-color: #FF534F;
+    color: #fff;
+    width: 100%;
+    padding: 15px 20px;
+    margin: 25px 0;
+    border: 2px solid #FF534F;
+    display: inline-block;
+    font-size: 25px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    transition: 0.8s;
+}
+
+.loginform button:hover {
+    background: none;
+    color: #FF534F;
+    border: 2px solid #FF534F;
+}
+.loginform a{
+    color: #FF534F;
+}
+.loginform header {
+    font-size: 28px;
+    padding: 1em;
+    clear: left;
+    text-align: center;
+
+}
+.loginform footer{
+    color:#848C90;
+    font-size: 17px;
+    padding: 1em;
+    clear: left;
+    text-align: center;
+    margin-top: 100px;
+}
+.loginform header span{
+    color:#FF534F;
+}
+.loginform p {
+    margin-bottom: 5%;
+    font-size: 18px;
+    color: #ADB6B9;
+}
+.signupoption{
+    text-align: center;
+    font-size: 18px;
+    font-weight: normal;
+    width:100%;
+    float: left;
+}
+.signupoption a{
+    position: relative;
+}
+.login_img {
+    background-image: url(../images/login_page_bg.jpg);
+    position: fixed;
+    left: 0;
+    height: 100%;
+    background-size: cover;
+}
+.login_img h1 {
+    color: #ECE9ED;
+    margin: 35% 5%;
+    letter-spacing: 8px;
+    font-size: 32px;
+    text-align: center;
+}
+.login_img p{
+    color:#C5C7C9;
+    font-size: 24px;
+    text-align: center;
+    padding-left: 22px;
+    padding-right: 22px;
+    padding-top: 70px;
+    font-style: normal;
+
+    /*margin: 180px 138px;*/
+}
+.textcentered{
+    position: absolute;
+
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+
+}
+.loginsection{
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.content-section {
+    display:flex;
+    max-height:600px;
+    overflow-y: scroll;
+}
+/* Repository section */
+
+.repositorybtn{
+    margin: -10px;
+    margin-top: 11px;
+}
+.technologytag {
+    min-width: 12%;
+    min-height: 10px;
+    background-color: #303440;
+    float: left;
+    padding: 6px;
+    padding-right: 1px;
+    margin-right: 1%;
+    margin-bottom: 10px;
+}
+.technologytag span {
+    color: #fff;
+    font-size: 18px;
+}
+.technologytag button {
+    float: right;
+    background-color: #303440;
+    padding: 0;
+}
+.technologytag i {
+    float: right;
+    font-size: 6px;
+    color: #ff534f;
+    margin-top: -6px;
+    padding: 2px;
+    background: #fff;
+    border-radius: 50%;
+}
+.repository {
+    width: 100%;
+    min-height: 50px;
+    float: left;
+    box-shadow: 2px 2px 5px #ccccccb8;
+    margin-bottom: 2%;
+}
+.repositoryFeature {
+    background-color: #E3E6ED;
+}
+.repositoryTask {
+    background-color: #F6E5DD;
+}
+.repositoryFeature .RepositoryHeading {
+    border: 1px solid #CBCED5;
+    width: 100%;
+    position: relative;
+    height: 30px;
+    padding: 6px;
+    padding-left: 15px;
+}
+.repositoryTask .RepositoryHeading {
+    border: 1px solid #CBCED5;
+    width: 100%;
+    position: relative;
+    height: 30px;
+    padding: 6px;
+    padding-left: 15px;
+}
+
+.RepositoryHeading i{
+    float: right;
+    color: #FE4744
+}
+.RepositoryHeading {
+    position: relative;
+    height: 48px;
+}
+
+.col-md-12.repositoryHeading {
+    border-bottom: 1px solid #ccc;
+}
+.estimationsection  .technologytag {
+    margin-top: 10px;
+}
+.estimationsection {
+    border-left: 1px solid #182939;
+    height: 660px;
+}
+.repositoryFeatureLable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    background:#6D798A;
+}
+.repositoryTaskLable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    background:#F3B54B;
+}
+.RepositoryHeading h5 {
+    float: left;
+    font-weight: bold;
+    margin: 0;
+}
+.RepositoryHeading h4 {
+    font-size: 25px;
+    font-weight: bold;
+}
+.RepositoryHeading span {
+    padding-right: 5%;
+}
+.repositoryHeading b {
+    margin-top: 5px;
+    font-size: 20px;
+}
+.repository .RepositoryContent {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+.RepositoryContent p{
+    font-size: 16px;
+    font-weight: 600;
+}
+.dropdownoptionRepository{
+    margin-top: 17px;
 }

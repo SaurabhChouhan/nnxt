@@ -3,9 +3,12 @@ import React from 'react'
 import {EstimationInitiateFormContainer} from "../../containers"
 
 const EstimationInitiateDialog = (props) => {
-    return <Modal show={props.show} onHide={props.close}>
+    return <Modal className="estimationModal" show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
-            <h3>Initiate Estimation</h3>
+            <div className="clearfix ModalHeading">
+                <div className="col-md-1 ModalSideLabel"></div>
+                <h3>Initiate Estimation</h3>
+            </div>
         </ModalHeader>
         <ModalBody>
             <EstimationInitiateFormContainer/>

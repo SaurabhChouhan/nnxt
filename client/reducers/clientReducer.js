@@ -1,4 +1,4 @@
-import {ADD_CLIENT} from "../actions/actionConsts"
+import * as AC from "../actions/actionConsts"
 
 
 let initialState = {
@@ -8,8 +8,17 @@ let initialState = {
 
 const clientReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_CLIENT:
+        case AC.ADD_CLIENTS:
+            return Object.assign({}, state, {all: action.clients})
+
+        case AC.ADD_CLIENT:
             return Object.assign({}, state, {all: [...state.all, action.client]})
+
+        case AC.DELETE_CLIENT:
+            return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.clientID)})
+
+        case AC.UPDATE_CLIENT:
+            return Object.assign({}, state, {all: state.all.map(item => item._id == action.client._id ? action.client : item)})
         default:
             return state
     }

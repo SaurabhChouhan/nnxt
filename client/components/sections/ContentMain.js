@@ -1,10 +1,25 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
-import {ClientFormContainer, EstimationListContainer, EstimationDetailContainer} from "../../containers"
+import {
+    EstimationListContainer,
+    EstimationDetailContainer,
+    ProjectListContainer,
+    TechnologyListContainer,
+    ClientListContainer
+} from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
-import {EstimationInitiateDialog, EstimationTaskDialog} from "../"
+import {
+    EstimationInitiateDialog,
+    EstimationTaskDialog,
+    ProjectFormDialog,
+    TechnologyFormDialog,
+    ClientFormDialog,
+    LeaveRequestFormDialog,
+    EstimationFeatureDialog,
+    MoveTaskInFeatureFormDialog
+} from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
 import {connect} from 'react-redux'
@@ -17,28 +32,57 @@ class ContentMain extends Component {
         let routes = []
 
         routes.push({
-            url: "/",
+            url: "/client",
             render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/client: props:", props)
                 return <ContentSection>
-
+                    <ClientFormDialog name={COC.CLIENT_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.CLIENT_FORM_DIALOG))
+                        }
+                    }/>
+                    <ClientListContainer name={COC.CLIENT_LIST}/>
                 </ContentSection>
             }
         })
-
-
         routes.push({
-            url: "/client",
+            url: "/projects",
             render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/projects: props:", props)
                 return <ContentSection>
-                    <ClientFormContainer name={COC.CLIENT_FORM}/>
+                    <ProjectFormDialog name={COC.PROJECT_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG))
+                        }
+                    }/>
+                    <ProjectListContainer name={COC.PROJECT_LIST}/>
                 </ContentSection>
+
+
+            }
+        })
+        routes.push({
+            url: "/technology",
+            render: (props) => {
+
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/technology: props:", props)
+                return <ContentSection>
+                    <TechnologyFormDialog name={COC.TECHNOLOGY_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.TECHNOLOGY_FORM_DIALOG))
+                        }
+                    }/>
+                    <TechnologyListContainer name={COC.TECHNOLOGIES_LIST}/>
+                </ContentSection>
+
+
             }
         })
 
         routes.push({
             url: "/estimation",
             render: (props) => {
-                console.log("estimation props ", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/estimation: props:", props)
                 return <ContentSection>
                     <EstimationInitiateDialog name={COC.ESTIMATION_INITIATE_DIALOG} show={true} close={
                         () => {
@@ -53,15 +97,39 @@ class ContentMain extends Component {
         routes.push({
             url: "/estimation-detail",
             render: (props) => {
-                console.log("estimation detail props ", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/estimation-detail: props:", props)
                 return <ContentSection>
                     <EstimationTaskDialog name={COC.ESTIMATION_TASK_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
                         }
                     }/>
+                    <EstimationFeatureDialog name={COC.ESTIMATION_FEATURE_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
+                        }
+                    }/>
+                    <MoveTaskInFeatureFormDialog name={COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+                        }
+                    }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
                 </ContentSection>
+            }
+        })
+        routes.push({
+            url: "/raise_leave",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
+                return <ContentSection>
+                    <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                    () => {
+                        this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+                    }
+                }/>
+                </ContentSection>
+
             }
         })
 

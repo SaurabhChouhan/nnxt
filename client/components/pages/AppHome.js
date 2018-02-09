@@ -7,10 +7,8 @@ class AppHome extends Component {
     render() {
         return <div className="container-fluid">
             <div className="row no-gutter">
-                <div className="col-md-3">
-                    <Sidebar/>
-                </div>
-                <div className="col-md-9">
+                    <Sidebar loggedInUser={this.props.loggedInUser}/>
+                <div className="col-md-9 rightContent">
                     <ContentMain {...this.props}/>
 
                 </div>

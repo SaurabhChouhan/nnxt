@@ -17,6 +17,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
+    showAddFeatureForm: (estimation) => {
+        dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
+        // initialize
+        dispatch(initialize('estimation-feature', {
+            estimation: {
+                _id: estimation._id
+            }
+        }))
+    },
     sendEstimationRequest: (estimation) => {
         dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
             if (json.success) {
@@ -28,13 +37,44 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     NotificationManager.error("Unknown error occurred")
             }
         })
+    },
+    sendReviewRequest: (estimation) => {
+        dispatch(A.requestReviewOnServer(estimation._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Review requested successfully")
+            } else {
+                if (json.code == EC.INVALID_OPERATION)
+                    NotificationManager.error("Review already requested")
+                else
+                    NotificationManager.error("Unknown error occurred")
+            }
+        })
+    },
+    sendChangeRequest: (estimation) => {
+        dispatch(A.requestChangeOnServer(estimation._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Review requested successfully")
+            } else {
+                if (json.code == EC.INVALID_OPERATION)
+                    NotificationManager.error("Change already requested")
+                else
+                    NotificationManager.error("Unknown error occurred")
+            }
+        })
+    },
+    onTaskDelete: (taskID) => {
+        dispatch(A.estimationTaskDelete(taskID))
     }
+
+
+
 })
 
 
 const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
-    estimation: state.estimation.selected
+    estimation: state.estimation.selected,
+    features: state.estimation.features
 })
 
 const EstimationDetailContainer = withRouter(connect(

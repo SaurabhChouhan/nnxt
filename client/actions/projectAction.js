@@ -1,13 +1,23 @@
-import {ADD_PROJECTS, ADD_PROJECT, UPDATE_PROJECT, DELETE_PROJECT} from "./actionConsts"
+import * as AC from "./actionConsts"
+
 
 
 export const addProjects = (projects) => ({
-    type: ADD_PROJECTS,
+    type: AC.ADD_PROJECTS,
     projects: projects
 })
 
 export const addProject = (project) => ({
-    type: ADD_PROJECT,
+    type: AC.ADD_PROJECT,
+    project: project
+})
+export const deleteProject = (projectID) => ({
+    type: AC.DELETE_PROJECT,
+    projectID: projectID
+})
+export const editProject = (project) => ({
+
+    type: AC.EDIT_PROJECT,
     project: project
 })
 
@@ -29,5 +39,84 @@ export const getAllProjectsFromServer = () => {
                     dispatch(addProjects(json.data))
                 }
             })
+    }
+}
+
+export const addProjectOnServer = (formInput) => {
+    return function (dispatch, getState) {
+        return fetch('/api/projects',
+            {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addProject(json.data))
+
+
+                }
+                return json
+            }
+        )
+    }
+}
+export const deleteProjectOnServer = (projectID) => {
+    return function (dispatch, getState) {
+        return fetch('/api/projects/' + projectID,
+            {
+                method: "delete",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'ap plication/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(deleteProject(projectID))
+                    // clear user form after update is successful
+                }
+                return json
+            }
+        )
+    }
+}
+export const editProjectOnServer = (project) => {
+    return function (dispatch, getState) {
+        return fetch('/api/projects',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(project)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    console.log("Yor are now fatchning jason data",json.data)
+                    dispatch(editProject(json.data))
+                }
+                return json
+            }
+        )
     }
 }
