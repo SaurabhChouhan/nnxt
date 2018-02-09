@@ -657,6 +657,13 @@ estimationTaskSchema.statics.approveTaskByNegotiator = async (taskInput, negotia
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    if(task.estimator.changeRequested
+        || task.estimator.removalRequested
+        || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+        || _.isEmpty(task.estimator.name)
+        || _.isEmpty(task.estimator.description))
+        throw new AppError('Feature not approved because feature have invalid conditions [estimator.changeRequested,estimator.removalRequested flag must be false and estimator.name,estimator.description must be not empty and estimator.estimatedHours must be greater then 0]', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
+
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
