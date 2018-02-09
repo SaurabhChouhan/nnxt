@@ -252,16 +252,20 @@ class EstimationTask extends React.PureComponent {
                 {buttons}
             </div>
 
-            {task.addedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/new_flag.png"></img>
+            {task.owner == SC.OWNER_ESTIMATOR && task.addedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/estimator_new_flag.png"></img>
             </div>}
 
-            {loggedInUserRole== SC.ROLE_NEGOTIATOR && task.estimator.changedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/edited_flag.png"></img>
+            {task.owner == SC.OWNER_NEGOTIATOR && task.addedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/negotiator_new_flag.png"></img>
             </div>}
 
-            {loggedInUserRole== SC.ROLE_ESTIMATOR && task.negotiator.changedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/edited_flag.png"></img>
+            {task.estimator.changedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/estimator_edit_flag.png"></img>
+            </div>}
+
+            {task.negotiator.changedInThisIteration && <div className="newFlagStrip">
+                <img src="/images/negotiator_edit_flag.png"></img>
             </div>}
 
 
@@ -270,6 +274,11 @@ class EstimationTask extends React.PureComponent {
                 <img src="/images/repo_flag.png"></img>
             </div>
             }
+            {/*
+            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
+            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
+            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
+            */}
         </div>
 
     }
