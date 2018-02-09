@@ -4,10 +4,11 @@ import {number, required} from './validation'
 import {renderMultiselect, renderSelect, renderText, renderTextArea} from './fields'
 import * as logger from '../../clientLogger'
 import {connect} from "react-redux";
+import * as SC from "../../../server/serverconstants"
 
 let EstimationTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation, _id} = props
+    const {estimation, loggedInUserRole} = props
     let isLeftDisable = true, isRightDisable = false;
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-6">
@@ -17,14 +18,14 @@ let EstimationTaskForm = (props) => {
                 <Field name="_id" component="input" type="hidden"/>
 
                 <div className="col-md-6">
-                    <Field name="task.name"
+                    <Field name="readOnly.name"
                            readOnly={isLeftDisable}
                            component={renderText}
                            label={"Task Name:"}
                            validate={isLeftDisable?null:[required]}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="task.estimatedHours"
+                    <Field name="readOnly.estimatedHours"
                            component={renderText}
                            readOnly={isLeftDisable}
                            label={"Estimated Hours:"}
@@ -33,7 +34,7 @@ let EstimationTaskForm = (props) => {
             </div>
             <div className="row">
                 <div className="col-md-12">
-                    <Field name="task.description"
+                    <Field name="readOnly.description"
                            readOnly={isLeftDisable}
                            component={renderTextArea}
                            label="Task Description:"
@@ -43,7 +44,7 @@ let EstimationTaskForm = (props) => {
             </div>
             <div className="row">
                 <div className="col-md-6">
-                    <Field name="task.feature_id"
+                    <Field name="readOnly.feature_id"
                            disabled={isLeftDisable}
                            component={renderSelect}
                            label={"Feature:"}
@@ -51,7 +52,7 @@ let EstimationTaskForm = (props) => {
                            displayField={"estimator.name"}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="task.technologies"
+                    <Field name="readOnly.technologies"
                            disabled={isLeftDisable}
                            component={renderMultiselect}
                            label="technologies:"
@@ -62,12 +63,9 @@ let EstimationTaskForm = (props) => {
         <div className="col-md-6">
             <div className="row">
 
-                <Field name="suggest.estimation._id" component="input" type="hidden"/>
-                <Field name="_id" component="input" type="hidden"/>
-
                 <div className="col-md-6">
                     <Field
-                        name="suggest.name"
+                        name="name"
                         readOnly={isRightDisable}
                         component={renderText}
                         label={"Suggest Name:"}
@@ -76,7 +74,7 @@ let EstimationTaskForm = (props) => {
                 </div>
                 <div className="col-md-6">
                     <Field
-                        name="suggest.estimatedHours"
+                        name="estimatedHours"
                         component={renderText}
                         label={"Estimated Hours:"}
                         validate={isRightDisable?null:[required, number]}
@@ -87,7 +85,7 @@ let EstimationTaskForm = (props) => {
             <div className="row">
                 <div className="col-md-12">
                     <Field
-                        name="suggest.description"
+                        name="description"
                         component={renderTextArea}
                         label="Suggest Description:"
                         validate={isRightDisable?null:[required]}
@@ -99,7 +97,7 @@ let EstimationTaskForm = (props) => {
             <div className="row">
                 <div className="col-md-6">
                     <Field
-                        name="suggest.feature_id"
+                        name="feature_id"
                         component={renderSelect}
                         label={"Feature:"}
                         options={props.features}
@@ -109,7 +107,7 @@ let EstimationTaskForm = (props) => {
                 </div>
                 <div className="col-md-6">
                     <Field
-                        name="suggest.technologies"
+                        name="technologies"
                         component={renderMultiselect}
                         label="technologies:"
                         disabled={isRightDisable}
@@ -120,7 +118,7 @@ let EstimationTaskForm = (props) => {
         </div>
         <div className="row initiatEstimation">
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">{_id ? "Update" : "Submit"}</button>
+                <button type="submit" className="btn customBtn">{loggedInUserRole == SC.ROLE_NEGOTIATOR ? "Suggest" : "Update"}</button>
             </div>
             <div className="col-md-6 text-center">
                 <button type="submit" className="btn customBtn">Reset</button>
@@ -133,13 +131,13 @@ EstimationTaskForm = reduxForm({
     form: 'estimation-suggest-task'
 })(EstimationTaskForm)
 
-const selector = formValueSelector('estimation-task')
+const selector = formValueSelector('estimation-suggest-task')
 
 EstimationTaskForm = connect(
     state => {
-        const _id = selector(state, '_id')
+        const loggedInUserRole = selector(state, 'loggedInUserRole')
         return {
-            _id
+            loggedInUserRole
         }
     }
 )(EstimationTaskForm)

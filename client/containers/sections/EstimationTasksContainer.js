@@ -89,36 +89,32 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     addTaskSuggestion: (values,loggedInUserRole) => {
         let task = {
             loggedInUserRole:loggedInUserRole,
-            task:{},
-            suggest:{}
+            readOnly: {}
         }
-        task.task._id = values._id
-        task.task.estimation = values.estimation
-        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
-            task.task.name = values.estimator.name
-            task.task.description = values.estimator.description
-            task.task.estimatedHours = values.estimator.estimatedHours
+        task._id = values._id
+        task.estimation = values.estimation
+        if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
+            /* Since negotiator is logged in, he would see details of negotiator section in editable form and details of estimator section in read only form  */
+            task.name = values.negotiator.name
+            task.description = values.negotiator.description
+            task.estimatedHours = values.negotiator.estimatedHours
+
+            task.readOnly.name = values.estimator.name
+            task.readOnly.description = values.estimator.description
+            task.readOnly.estimatedHours = values.estimator.estimatedHours
+
+        } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
+            /* Since estimator is logged in, he would see details of  estimator section in editable form  */
+            task.name = values.estimator.name
+            task.description = values.estimator.description
+            task.estimatedHours = values.estimator.estimatedHours
+
+            task.readOnly.name = values.negotiator.name
+            task.readOnly.description = values.negotiator.description
+            task.readOnly.estimatedHours = values.negotiator.estimatedHours
+
         }
-        else {
-            task.task.name = values.negotiator.name
-            task.task.description = values.negotiator.description
-            task.task.estimatedHours = values.negotiator.estimatedHours
-        }
-        task.task.feature = values.feature
-        task.task.technologies = values.technologies
-        task.suggest.estimation = values.estimation
-        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
-            task.suggest.name = values.estimator.name
-            task.suggest.description = values.estimator.description
-            task.suggest.estimatedHours = values.estimator.estimatedHours
-        }
-        else {
-            task.suggest.name = values.negotiator.name
-            task.suggest.description = values.negotiator.description
-            task.suggest.estimatedHours = values.negotiator.estimatedHours
-        }
-        task.suggest.feature = values.feature
-        task.suggest.technologies = values.technologies
+
         dispatch(initialize("estimation-suggest-task", task))
         dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
     },
