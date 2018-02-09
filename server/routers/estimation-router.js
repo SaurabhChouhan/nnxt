@@ -24,7 +24,8 @@ import {
     estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
     estimationNegotiatorGrantEditPermissionToTaskStruct,
-    estimationNegotiatorApproveTaskStruct
+    estimationNegotiatorApproveTaskStruct,
+    estimationNegotiatorApproveFeatureStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -273,8 +274,17 @@ estimationRouter.put('/approve-task', async ctx => {
             return generateSchema(estimationNegotiatorApproveTaskStruct)
         return await EstimationTaskModel.approveTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
-        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
+estimationRouter.put('/approve-feature', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorApproveFeatureStruct)
+        return await EstimationTaskModel.approveFeatureByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve feature into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 export default estimationRouter
