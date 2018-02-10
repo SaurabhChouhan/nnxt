@@ -402,14 +402,14 @@ export const moveTaskOutOfFeatureOnServer = (formInput) => {
             response => response.json()
         ).then(
             json => {
+                /*
                 if (json.success) {
-                    NotificationManager.success('Task removed out of feature Successfully')
-                    dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
-                    //dispatch(addEstimation(json.data))
+                    NotificationManager.success('Task moved out of feature Successfully')
                 }
                 else{
                     NotificationManager.error('Process Failed')
                 }
+                */
 
                 return json
             })
