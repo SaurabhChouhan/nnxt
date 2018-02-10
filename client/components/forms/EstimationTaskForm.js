@@ -24,7 +24,7 @@ let EstimationTaskForm = (props) => {
         </div>
         <div className="row">
             <div className="col-md-12">
-                <Field name="description" component={renderTextArea} label="Task Description:" validate={[required]}/>
+                <Field name="description" component={renderTextArea} label="Task Description:" validate={[required]} rows="10"/>
             </div>
 
         </div>

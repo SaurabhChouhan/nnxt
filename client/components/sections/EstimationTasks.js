@@ -29,13 +29,13 @@ class EstimationTask extends React.PureComponent {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
                 buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                              onClick={() => {
-                                                 this.props.addTaskSuggestion(task,loggedInUserRole)
+                                                 this.props.openTaskSuggestionForm(task,loggedInUserRole)
                                              }}/> :
                     <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
             } else {
                 buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
                                              onClick={() => {
-                                                 this.props.addTaskSuggestion(task,loggedInUserRole)
+                                                 this.props.openTaskSuggestionForm(task,loggedInUserRole)
                                              }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
             }
 
@@ -99,11 +99,11 @@ class EstimationTask extends React.PureComponent {
                     if (task.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
                         // Negotiator has requested change
-                        buttons.push(editView ? <img key="he_requested_edit" src="/images/suggestion_incoming.png"
+                        buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
                                                      onClick={() => {
-                                                         this.props.seeTaskSuggestion(task)
+                                                         this.props.openTaskSuggestionForm(task,loggedInUserRole)
                                                      }}/> :
-                            <img key="he_requested_edit" src="/images/suggestion_incoming_disable.png"/>)
+                            <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
 
                     }
 
@@ -158,7 +158,7 @@ class EstimationTask extends React.PureComponent {
                      */
                     buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
                                                  onClick={() => {
-                                                     this.props.seeTaskSuggestion(task)
+                                                     this.props.openTaskSuggestionForm(task,loggedInUserRole)
                                                  }}/> :
                         <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
                 }

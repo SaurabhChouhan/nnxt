@@ -6,9 +6,9 @@ import * as logger from '../../clientLogger'
 import {connect} from "react-redux";
 import * as SC from "../../../server/serverconstants"
 
-let EstimationTaskForm = (props) => {
+let EstimationSuggestTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation, loggedInUserRole} = props
+    const {estimation, loggedInUserRole, pristine, submitting} = props
     let isLeftDisable = true, isRightDisable = false;
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-6">
@@ -19,27 +19,27 @@ let EstimationTaskForm = (props) => {
 
                 <div className="col-md-6">
                     <Field name="readOnly.name"
-                           readOnly={isLeftDisable}
+                           readOnly={true}
                            component={renderText}
                            label={"Task Name:"}
-                           validate={isLeftDisable?null:[required]}/>
+                    />
                 </div>
                 <div className="col-md-6">
                     <Field name="readOnly.estimatedHours"
                            component={renderText}
-                           readOnly={isLeftDisable}
+                           readOnly={true}
                            label={"Estimated Hours:"}
-                           validate={isLeftDisable?null:[required, number]}/>
+                    />
                 </div>
             </div>
             <div className="row">
                 <div className="col-md-12">
                     <Field name="readOnly.description"
-                           readOnly={isLeftDisable}
+                           readOnly={true}
                            component={renderTextArea}
                            rows="10"
-                           label="Task Description:"
-                           validate={isLeftDisable?null:[required]}/>
+                           label="Description:"
+                    />
                 </div>
 
             </div>
@@ -51,10 +51,9 @@ let EstimationTaskForm = (props) => {
                 <div className="col-md-6">
                     <Field
                         name="name"
-                        readOnly={isRightDisable}
                         component={renderText}
-                        label={"Suggest Name:"}
-                        validate={isRightDisable?null:[required]}
+                        label={"Name:"}
+                        validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
                     />
                 </div>
                 <div className="col-md-6">
@@ -62,8 +61,7 @@ let EstimationTaskForm = (props) => {
                         name="estimatedHours"
                         component={renderText}
                         label={"Estimated Hours:"}
-                        validate={isRightDisable?null:[required, number]}
-                        readOnly={isRightDisable}
+                        validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required, number] : [number]}
                     />
                 </div>
             </div>
@@ -72,10 +70,9 @@ let EstimationTaskForm = (props) => {
                     <Field
                         name="description"
                         component={renderTextArea}
-                        label="Suggest Description:"
+                        label="Description:"
                         rows="10"
-                        validate={isRightDisable?null:[required]}
-                        readOnly={isRightDisable}
+                        validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
                     />
                 </div>
 
@@ -83,29 +80,29 @@ let EstimationTaskForm = (props) => {
         </div>
         <div className="row initiatEstimation">
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">{loggedInUserRole == SC.ROLE_NEGOTIATOR ? "Suggest" : "Update"}</button>
+                <button type="submit" disabled={pristine || submitting} className="btn customBtn">Save</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">Reset</button>
+                <button type="submit" disabled={pristine || submitting} className="btn customBtn">Reset</button>
             </div>
         </div>
     </form>
 }
 
-EstimationTaskForm = reduxForm({
+EstimationSuggestTaskForm = reduxForm({
     form: 'estimation-suggest-task'
-})(EstimationTaskForm)
+})(EstimationSuggestTaskForm)
 
 const selector = formValueSelector('estimation-suggest-task')
 
-EstimationTaskForm = connect(
+EstimationSuggestTaskForm = connect(
     state => {
         const loggedInUserRole = selector(state, 'loggedInUserRole')
         return {
             loggedInUserRole
         }
     }
-)(EstimationTaskForm)
+)(EstimationSuggestTaskForm)
 
 
-export default EstimationTaskForm
+export default EstimationSuggestTaskForm
