@@ -248,7 +248,7 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
 
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
-    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeRequested": false}}, {multi: true})
+    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeSuggested": false}}, {multi: true})
 
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id,
@@ -257,7 +257,7 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
 
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id
-    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeRequested": false}}, {multi: true})
+    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeSuggested": false}}, {multi: true})
 
     estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
         $set: {status: SC.STATUS_REVIEW_REQUESTED},
@@ -296,7 +296,7 @@ estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
 
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
-    }, {$set: {"estimator.changedInThisIteration": false}}, {multi: true})
+    }, {$set: {"estimator.changedInThisIteration": false, "estimator.changedKeyInformation": false}}, {multi: true})
 
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id,
@@ -304,21 +304,23 @@ estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
     await EstimationFeatureModel.update({
-        "estimation._id": estimation._id
-    }, {$set: {"estimator.changedInThisIteration": false}}, {multi: true})
+            "estimation._id": estimation._id
+        }, {$set: {"estimator.changedInThisIteration": false, "estimator.changedKeyInformation": false}}, {multi: true}
+    )
 
-    estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
-        $set: {status: SC.STATUS_CHANGE_REQUESTED},
-        $push: {
-            statusHistory: {
-                name: negotiator.firstName,
-                status: SC.STATUS_CHANGE_REQUESTED
+    estimation = await
+        EstimationModel.findOneAndUpdate({_id: estimation._id}, {
+            $set: {status: SC.STATUS_CHANGE_REQUESTED},
+            $push: {
+                statusHistory: {
+                    name: negotiator.firstName,
+                    status: SC.STATUS_CHANGE_REQUESTED
+                }
             }
-        }
-    }, {
-        new: true,
-        lean: true
-    })
+        }, {
+            new: true,
+            lean: true
+        })
     estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
     return estimation
 
