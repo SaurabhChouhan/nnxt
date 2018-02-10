@@ -35,6 +35,7 @@ let estimationFeatureSchema = mongoose.Schema({
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
+        changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false}
     },
@@ -42,7 +43,7 @@ let estimationFeatureSchema = mongoose.Schema({
         name: {type: String},
         description: {type: String},
         estimatedHours: {type: Number},
-        changeRequested: {type: Boolean, default: false},
+        changeSuggested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
     },
@@ -116,6 +117,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
     featureInput.status = SC.STATUS_PENDING
     featureInput.addedInThisIteration = true
+    featureInput.changedKeyInformation = true
     featureInput.owner = SC.OWNER_ESTIMATOR
     featureInput.initiallyEstimated = true
     featureInput.estimator = estimatorSection
@@ -239,10 +241,10 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     /**
      * Check to see if this task is added by estimator or not
      */
-    if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.addedInThisIteration && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.changeGranted) {
+    if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.addedInThisIteration && !estimationFeature.negotiator.changeSuggested && !estimationFeature.negotiator.changeGranted) {
         // this means that estimator has added this feature in past iteration and negotiator has not given permission to edit this feature
         throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.negotiator.changeRequested && !estimationFeature.negotiator.changeGranted) {
+    } else if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.negotiator.changeSuggested && !estimationFeature.negotiator.changeGranted) {
         // this means that negotiator is owner of this feature and has not given permission to edit this feature
         throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
@@ -267,8 +269,10 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     }
     estimationFeature.notes = mergeAllNotes
     estimationFeature.estimator.name = featureInput.name
-    if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_ESTIMATOR)
+    if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_ESTIMATOR) {
         estimationFeature.estimator.changedInThisIteration = true
+        estimationFeature.estimator.changedKeyInformation = true
+    }
     estimationFeature.estimator.description = featureInput.description
 
     // As estimator has peformed edit, reset changeRequested and grant edit flags
@@ -334,7 +338,7 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_NEGOTIATOR)
         estimationFeature.negotiator.changedInThisIteration = true
     estimationFeature.negotiator.description = featureInput.description
-    estimationFeature.negotiator.changeRequested = true // This will allow estimator to see updated changes as suggestions
+    estimationFeature.negotiator.changeSuggested = true // This will allow estimator to see updated changes as suggestions
     estimationFeature.updated = Date.now()
 
     if (estimationFeature.repo && estimationFeature.repo._id) {

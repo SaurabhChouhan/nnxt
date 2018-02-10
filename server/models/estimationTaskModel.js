@@ -42,6 +42,7 @@ let estimationTaskSchema = mongoose.Schema({
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
+        changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
@@ -51,7 +52,7 @@ let estimationTaskSchema = mongoose.Schema({
         name: {type: String},
         description: {type: String},
         estimatedHours: {type: Number},
-        changeRequested: {type: Boolean, default: false},
+        changeSuggested: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
@@ -142,6 +143,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     taskInput.addedInThisIteration = true
     taskInput.owner = SC.OWNER_ESTIMATOR
     taskInput.initiallyEstimated = true
+    taskInput.changedKeyInformation = true
 
     taskInput.estimator = estimatorSection
     /**
@@ -168,9 +170,9 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!estimationTask)
         throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.changeGranted) {
+    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
         throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.changeGranted) {
+    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
         throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
@@ -204,8 +206,10 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
-    if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR)
+    if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR) {
         estimationTask.estimator.changedInThisIteration = true
+        estimationTask.estimator.changedKeyInformation = true
+    }
 
     // As estimator has peformed edit, reset changeRequested and grant edit flags
     estimationTask.estimator.changeRequested = false
@@ -268,13 +272,13 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_NEGOTIATOR)
         estimationTask.negotiator.changedInThisIteration = true
-    estimationTask.negotiator.changeRequested = true
+    estimationTask.negotiator.changeSuggested = true
 
     estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {
         taskInput.notes = taskInput.notes.map(n => {
-            n.name = estimator.fullName
+            n.name = negotiator.fullName
             return n
         })
     }
@@ -375,7 +379,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         name: repositoryTask.name,
         description: repositoryTask.description,
         estimatedHours: taskInput.estimatedHours,
-        changeRequested: true
+        changeSuggested: true
     }
 
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
