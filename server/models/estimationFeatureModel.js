@@ -9,7 +9,7 @@ import {
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
-import {EstimationModel, RepositoryModel} from "./"
+import {EstimationModel, RepositoryModel, EstimationTaskModel} from "./"
 import * as EC from "../errorcodes"
 import _ from 'lodash'
 
@@ -194,15 +194,15 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     /* Name/description would always match repository name description */
     // This will allow estimator to see updated changes as suggestions
     featureInput.negotiator = {
-        name:repositoryFeature.name,
-        description:repositoryFeature.description,
-        estimatedHours:repositoryFeature.estimatedHours,
-        changeRequested:true
+        name: repositoryFeature.name,
+        description: repositoryFeature.description,
+        estimatedHours: repositoryFeature.estimatedHours,
+        changeRequested: true
     }
 
     // Add name into estimator section as well so that move to feature functionality at least show name
     featureInput.estimator = {
-        name:repositoryFeature.name
+        name: repositoryFeature.name
     }
 
     if (!_.isEmpty(featureInput.notes)) {
@@ -351,5 +351,41 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     }
     return await estimationFeature.save()
 }
+
+estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, negotiator) => {
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureID)
+    if (!feature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
+
+    if (feature.estimator.changeRequested || feature.estimator.removalRequested || _.isEmpty(feature.estimator.name) || _.isEmpty(feature.estimator.description))
+        throw new AppError('Cannot approve feature as either name/description is not not there or there are pending requests from Estimator', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
+
+    let pendingTaskCountOfFeature = await EstimationTaskModel.count({
+        "estimation._id": feature.estimation._id,
+        "feature._id": feature._id,
+        status: {$in: [SC.STATUS_PENDING]}
+    })
+    if (pendingTaskCountOfFeature != 0)
+        throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
+
+    feature.status = SC.STATUS_APPROVED
+    feature.updated = Date.now()
+    return await feature.save()
+}
+
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel

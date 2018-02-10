@@ -88,7 +88,6 @@ estimationRouter.put('/change-request/:estimationID', async ctx => {
 })
 
 
-
 /**
  * Add a new task to estimation
  */
@@ -222,7 +221,6 @@ estimationRouter.put('/request-removal-task', async ctx => {
 })
 
 
-
 /**
  * request Edit/Update permission task/feature by estimator to estimation
  * or cancel this request
@@ -274,4 +272,11 @@ estimationRouter.put('/tasks/:taskID/approve', async ctx => {
     }
 })
 
+estimationRouter.put('/features/:featureID/approve', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return await EstimationTaskModel.approveFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve feature", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 export default estimationRouter
