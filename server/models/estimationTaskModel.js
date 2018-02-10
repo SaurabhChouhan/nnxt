@@ -10,7 +10,8 @@ import {
     estimationEstimatorUpdateTaskStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
     estimationNegotiatorMoveToFeatureStruct,
-    estimationNegotiatorMoveOutOfFeatureStruct
+    estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationNegotiatorUpdateTaskStruct
 } from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel, EstimationFeatureModel} from "./"
@@ -234,20 +235,14 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 }
 
 
-
 estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiator) => {
-    validate(taskInput, estimationEstimatorUpdateTaskStruct)
+    validate(taskInput, estimationNegotiatorUpdateTaskStruct)
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let estimationTask = await EstimationTaskModel.findById(taskInput._id)
     if (!estimationTask)
         throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.addedInThisIteration && !estimationTask.estimator.changeRequested) {
-        throw new AppError('Not allowed to update task as Estimator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.estimator.changeRequested ) {
-        throw new AppError('Not allowed to update task as Estimator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    }
 
     let estimation = await EstimationModel.findById(estimationTask.estimation._id)
     if (!estimation)
@@ -256,23 +251,12 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     if (negotiator._id.toString() != estimation.negotiator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    let isFeature = false
-    if (taskInput.feature && taskInput.feature._id) {
-        let estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
-        if (!estimationFeatureObj)
-            throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-        if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
-            throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        isFeature = true
-    }
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
-        let repositoryTask = await RepositoryModel.updateRepoWhenUpdateTask(estimationTask.repo._id, isFeature, taskInput, estimator)
+        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, isFeature, taskInput, estimator)
     }
 
     estimationTask.feature = taskInput.feature

@@ -23,7 +23,8 @@ import {
     estimationNegotiatorUpdateFeatureStruct,
     estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorGrantEditPermissionToTaskStruct
+    estimationNegotiatorGrantEditPermissionToTaskStruct,
+    estimationNegotiatorUpdateTaskStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -123,6 +124,8 @@ estimationRouter.put('/tasks', async ctx => {
             return generateSchema(estimationEstimatorUpdateTaskStruct)
         return await EstimationTaskModel.updateTaskByEstimator(ctx.request.body, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if(ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorUpdateTaskStruct)
         return await EstimationTaskModel.updateTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
