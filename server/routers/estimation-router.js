@@ -70,7 +70,7 @@ estimationRouter.post('/initiate', async ctx => {
 /**
  * Used for making estimation request by Negotiator
  */
-estimationRouter.put('/request/:estimationID', async ctx => {
+estimationRouter.put('/:estimationID/request', async ctx => {
     if (!hasRole(ctx, ROLE_NEGOTIATOR))
         throw new AppError("Only users with role [" + ROLE_NEGOTIATOR + "] can request estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
@@ -79,15 +79,22 @@ estimationRouter.put('/request/:estimationID', async ctx => {
 /**
  * User by Estimator to request review from Negotiator
  */
-estimationRouter.put('/review-request/:estimationID', async ctx => {
+estimationRouter.put('/:estimationID/review-request', async ctx => {
     return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
 })
 
-estimationRouter.put('/change-request/:estimationID', async ctx => {
+estimationRouter.put('/:estimationID/change-request', async ctx => {
     return await EstimationModel.requestChange(ctx.params.estimationID, ctx.state.user)
 })
 
-
+// Used by negotiator to approve estimation
+estimationRouter.put('/:estimationID/approve', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return await EstimationModel.approveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 
 /**
  * Add a new task to estimation
@@ -222,7 +229,6 @@ estimationRouter.put('/request-removal-task', async ctx => {
 })
 
 
-
 /**
  * request Edit/Update permission task/feature by estimator to estimation
  * or cancel this request
@@ -263,6 +269,31 @@ estimationRouter.put('/grant-edit-permission-task', async ctx => {
         return await EstimationTaskModel.grantEditPermissionOfTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+estimationRouter.put('/tasks/:taskID/approve', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return await EstimationTaskModel.approveTaskByNegotiator(ctx.params.taskID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve task", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+estimationRouter.put('/features/:featureID/approve', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return await EstimationTaskModel.approveFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve feature", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+//soft delete feature by estimation
+estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        return await EstimationFeatureModel.deleteFeatureByEstimator(ctx.params, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "] can delete features from estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 export default estimationRouter
