@@ -13,7 +13,7 @@
     "start.anup": "cross-env BABEL_ENV=server NODE_ENV=anup nodemon ./server/server.js --exec babel-node",
     "client.dev.build": "cross-env BABEL_ENV=client webpack -d -w",
     "client.prod.build": "cross-env BABEL_ENV=client webpack -p",
-    "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node",
+    "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node"
   },
   "dependencies": {
     "babel-preset-stage-2": "^6.24.1",

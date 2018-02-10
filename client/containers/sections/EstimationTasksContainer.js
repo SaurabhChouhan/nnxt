@@ -92,9 +92,38 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.task_id = values._id
         return dispatch(A.grantEditPermissionOfTaskOnServer(task))
     },
-    addTaskSuggestion: (values) => console.log("add task suggestion", values),
-    seeTaskSuggestion: (values) => console.log("seeTaskSuggestion", values),
-    suggestionIncomingTask: (values) => console.log("suggestionIncomingTask ", values)
+    openTaskSuggestionForm: (values, loggedInUserRole) => {
+        let task = {
+            loggedInUserRole:loggedInUserRole,
+            readOnly: {}
+        }
+        task._id = values._id
+        task.estimation = values.estimation
+        if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
+            /* Since negotiator is logged in, he would see details of negotiator section in editable form and details of estimator section in read only form  */
+            task.name = values.negotiator.name
+            task.description = values.negotiator.description
+            task.estimatedHours = values.negotiator.estimatedHours
+
+            task.readOnly.name = values.estimator.name
+            task.readOnly.description = values.estimator.description
+            task.readOnly.estimatedHours = values.estimator.estimatedHours
+
+        } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
+            /* Since estimator is logged in, he would see details of  estimator section in editable form  */
+            task.name = values.estimator.name
+            task.description = values.estimator.description
+            task.estimatedHours = values.estimator.estimatedHours
+
+            task.readOnly.name = values.negotiator.name
+            task.readOnly.description = values.negotiator.description
+            task.readOnly.estimatedHours = values.negotiator.estimatedHours
+
+        }
+
+        dispatch(initialize("estimation-suggest-task", task))
+        dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
+    }
 })
 
 

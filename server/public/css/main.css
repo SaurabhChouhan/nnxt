@@ -454,6 +454,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     line-height: 1.3em;
     height: 2.6em;
     overflow: hidden;
+    white-space: pre-line;
 }
 
 .task .short-description:after {
@@ -1079,4 +1080,8 @@ td.rejRowColor {
 
 .dropdownoptionRepository {
     margin-top: 17px;
+}
+
+.suggestDialog .modal-dialog {
+    width:80%;
 }

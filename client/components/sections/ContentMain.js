@@ -1,28 +1,27 @@
 import React, {Component} from 'react'
-import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
 import {
-    EstimationListContainer,
+    ClientListContainer,
     EstimationDetailContainer,
+    EstimationListContainer,
     ProjectListContainer,
-    TechnologyListContainer,
-    ClientListContainer
+    TechnologyListContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
 import {
-    EstimationInitiateDialog,
-    EstimationTaskDialog,
-    ProjectFormDialog,
-    TechnologyFormDialog,
     ClientFormDialog,
-    LeaveRequestFormDialog,
     EstimationFeatureDialog,
-    MoveTaskInFeatureFormDialog
+    EstimationInitiateDialog,
+    EstimationSuggestTaskDialog,
+    EstimationTaskDialog,
+    LeaveRequestFormDialog,
+    MoveTaskInFeatureFormDialog,
+    ProjectFormDialog,
+    TechnologyFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
-import {connect} from 'react-redux'
 
 class ContentMain extends Component {
     constructor(props) {
@@ -112,6 +111,11 @@ class ContentMain extends Component {
                     <MoveTaskInFeatureFormDialog name={COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
+                        }
+                    }/>
+                    <EstimationSuggestTaskDialog name={COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
                         }
                     }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>

@@ -107,7 +107,7 @@ repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
     if (!repositoryTask)
         throw new AppError('Task not found in repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (taskInput.estimation._id == repositoryFeature.estimation._id) {
+    if (taskInput.estimation._id == repositoryTask.estimation._id) {
         repositoryTask.name = taskInput.name
         repositoryTask.description = taskInput.description
         repositoryTask.technologies = taskInput.technologies

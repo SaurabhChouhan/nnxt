@@ -5,16 +5,16 @@ import * as SC from "../serverconstants"
 import {
     validate,
     estimationEstimatorAddTaskStruct,
-    estimationNegotiatorAddTaskStruct,
-    estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorUpdateTaskStruct,
+    estimationNegotiatorAddTaskStruct,
+    estimationNegotiatorUpdateTaskStruct,
+    estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorUpdateTaskStruct
+    estimationNegotiatorMoveToFeatureStruct
 } from "../validation"
 import {userHasRole} from "../utils"
-import {EstimationModel, RepositoryModel, EstimationFeatureModel} from "./"
+import {EstimationFeatureModel, EstimationModel, RepositoryModel} from "./"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -42,6 +42,7 @@ let estimationTaskSchema = mongoose.Schema({
         description: {type: String},
         estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
+        changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
@@ -51,7 +52,7 @@ let estimationTaskSchema = mongoose.Schema({
         name: {type: String},
         description: {type: String},
         estimatedHours: {type: Number},
-        changeRequested: {type: Boolean, default: false},
+        changeSuggested: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         isMovedToFeature: {type: Boolean, default: false},
@@ -142,6 +143,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     taskInput.addedInThisIteration = true
     taskInput.owner = SC.OWNER_ESTIMATOR
     taskInput.initiallyEstimated = true
+    taskInput.changedKeyInformation = true
 
     taskInput.estimator = estimatorSection
     /**
@@ -168,9 +170,9 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!estimationTask)
         throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.changeGranted) {
+    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
         throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeRequested && !estimationTask.negotiator.changeGranted) {
+    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
         throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
@@ -197,15 +199,17 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
-        let repositoryTask = await RepositoryModel.updateRepoWhenUpdateTask(estimationTask.repo._id, isFeature, taskInput, estimator)
+        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, taskInput, estimator)
     }
 
     estimationTask.feature = taskInput.feature
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
-    if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR)
+    if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR) {
         estimationTask.estimator.changedInThisIteration = true
+        estimationTask.estimator.changedKeyInformation = true
+    }
 
     // As estimator has peformed edit, reset changeRequested and grant edit flags
     estimationTask.estimator.changeRequested = false
@@ -252,12 +256,15 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (estimationTask.repo && estimationTask.repo._id) {
+
+    /*
+    if
+    (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
-        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, isFeature, taskInput, estimator)
-    }
+        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, taskInput, negotiator)
+    }*/
 
     estimationTask.feature = taskInput.feature
     estimationTask.negotiator.name = taskInput.name
@@ -265,12 +272,13 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_NEGOTIATOR)
         estimationTask.negotiator.changedInThisIteration = true
+    estimationTask.negotiator.changeSuggested = true
 
     estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {
         taskInput.notes = taskInput.notes.map(n => {
-            n.name = estimator.fullName
+            n.name = negotiator.fullName
             return n
         })
     }
@@ -371,7 +379,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         name: repositoryTask.name,
         description: repositoryTask.description,
         estimatedHours: taskInput.estimatedHours,
-        changeRequested: true
+        changeSuggested: true
     }
 
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
@@ -599,7 +607,6 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (featureInput
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only move task to feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 

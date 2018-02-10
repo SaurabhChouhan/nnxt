@@ -1,30 +1,29 @@
 import Router from 'koa-router'
-import {EstimationModel, EstimationTaskModel, EstimationFeatureModel} from "../models"
+import {EstimationFeatureModel, EstimationModel, EstimationTaskModel} from "../models"
 import {hasRole, isAuthenticated} from "../utils"
+import * as SC from "../serverconstants";
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
-import * as SC from '../serverconstants'
 import {
-    validate,
     generateSchema,
-    estimationInitiationStruct,
     estimationEstimatorAddTaskStruct,
-    estimationNegotiatorAddTaskStruct,
     estimationEstimatorUpdateTaskStruct,
     estimationEstimatorAddFeatureStruct,
     estimationEstimatorUpdateFeatureStruct,
     estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
-    estimationNegotiatorAddFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
     estimationEstimatorRequestRemovalToTaskStruct,
+    estimationNegotiatorAddTaskStruct,
+    estimationNegotiatorAddFeatureStruct,
+    estimationNegotiatorUpdateTaskStruct,
     estimationNegotiatorUpdateFeatureStruct,
     estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
     estimationNegotiatorGrantEditPermissionToTaskStruct,
-    estimationNegotiatorUpdateTaskStruct
+    estimationInitiationStruct
 } from "../validation"
 
 let estimationRouter = new Router({
