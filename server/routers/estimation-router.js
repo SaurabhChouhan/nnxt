@@ -268,7 +268,7 @@ estimationRouter.put('/tasks/:taskID/approve', async ctx => {
     if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return await EstimationTaskModel.approveTaskByNegotiator(ctx.params.taskID, ctx.state.user)
     } else {
-        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve task", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
 
