@@ -270,6 +270,11 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_ESTIMATOR)
         estimationFeature.estimator.changedInThisIteration = true
     estimationFeature.estimator.description = featureInput.description
+
+    // As estimator has peformed edit, reset changeRequested and grant edit flags
+    estimationFeature.estimator.changeRequested = false
+    estimationFeature.negotiator.changeGranted = false
+
     estimationFeature.updated = Date.now()
 
     if (estimationFeature.repo && estimationFeature.repo._id) {
