@@ -37,28 +37,13 @@ let EstimationTaskForm = (props) => {
                     <Field name="readOnly.description"
                            readOnly={isLeftDisable}
                            component={renderTextArea}
+                           rows="10"
                            label="Task Description:"
                            validate={isLeftDisable?null:[required]}/>
                 </div>
 
             </div>
-            <div className="row">
-                <div className="col-md-6">
-                    <Field name="readOnly.feature_id"
-                           disabled={isLeftDisable}
-                           component={renderSelect}
-                           label={"Feature:"}
-                           options={props.features}
-                           displayField={"estimator.name"}/>
-                </div>
-                <div className="col-md-6">
-                    <Field name="readOnly.technologies"
-                           disabled={isLeftDisable}
-                           component={renderMultiselect}
-                           label="technologies:"
-                           data={estimation.technologies}/>
-                </div>
-            </div>
+
         </div>
         <div className="col-md-6">
             <div className="row">
@@ -88,32 +73,12 @@ let EstimationTaskForm = (props) => {
                         name="description"
                         component={renderTextArea}
                         label="Suggest Description:"
+                        rows="10"
                         validate={isRightDisable?null:[required]}
                         readOnly={isRightDisable}
                     />
                 </div>
 
-            </div>
-            <div className="row">
-                <div className="col-md-6">
-                    <Field
-                        name="feature_id"
-                        component={renderSelect}
-                        label={"Feature:"}
-                        options={props.features}
-                        displayField={"estimator.name"}
-                        disabled={isRightDisable}
-                    />
-                </div>
-                <div className="col-md-6">
-                    <Field
-                        name="technologies"
-                        component={renderMultiselect}
-                        label="technologies:"
-                        disabled={isRightDisable}
-                        data={estimation.technologies}
-                    />
-                </div>
             </div>
         </div>
         <div className="row initiatEstimation">

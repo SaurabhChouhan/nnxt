@@ -256,7 +256,7 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
-        let repositoryTask = await RepositoryModel.updateRepoWhenUpdateTask(estimationTask.repo._id, isFeature, taskInput, negotiator)
+        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, taskInput, negotiator)
     }
 
     estimationTask.feature = taskInput.feature

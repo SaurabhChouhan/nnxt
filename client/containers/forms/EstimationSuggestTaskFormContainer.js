@@ -8,26 +8,26 @@ import * as SC from "../../../server/serverconstants"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        if(values._id){
+        if (values._id) {
             values.estimatedHours = Number(values.estimatedHours)
             logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
             dispatch(A.updateTaskToEstimationOnServer(values)).then(json => {
                 if (json.success) {
                     if (values.loggedInUserRole == SC.ROLE_NEGOTIATOR)
-                        NotificationManager.success("Task Suggested")
+                        NotificationManager.success("Added task suggestion")
                     else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR)
-                        NotificationManager.success("Task Updated")
+                        NotificationManager.success("Updated task")
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
                 } else {
                     if (values.loggedInUserRole == SC.ROLE_NEGOTIATOR)
-                        NotificationManager.error("Task Suggestion Failed")
+                        NotificationManager.error("Suggestions not saved")
                     else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR)
-                        NotificationManager.error("Task Updation Failed")
+                        NotificationManager.error("Task updates failed")
                 }
             })
         }
-        else{
+        else {
             values.estimatedHours = Number(values.estimatedHours)
             logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
             dispatch(A.addTaskToEstimationOnServer(values)).then(json => {
@@ -52,7 +52,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     estimation: state.estimation.selected,
-    features:state.estimation.features
+    features: state.estimation.features
 })
 
 const EstimationSuggestTaskFormContainer = connect(

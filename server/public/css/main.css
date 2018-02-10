@@ -1080,3 +1080,7 @@ td.rejRowColor {
 .dropdownoptionRepository {
     margin-top: 17px;
 }
+
+.suggestDialog .modal-dialog {
+    width:80%;
+}
