@@ -194,15 +194,15 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     /* Name/description would always match repository name description */
     // This will allow estimator to see updated changes as suggestions
     featureInput.negotiator = {
-        name:repositoryFeature.name,
-        description:repositoryFeature.description,
-        estimatedHours:repositoryFeature.estimatedHours,
-        changeRequested:true
+        name: repositoryFeature.name,
+        description: repositoryFeature.description,
+        estimatedHours: repositoryFeature.estimatedHours,
+        changeRequested: true
     }
 
     // Add name into estimator section as well so that move to feature functionality at least show name
     featureInput.estimator = {
-        name:repositoryFeature.name
+        name: repositoryFeature.name
     }
 
     if (!_.isEmpty(featureInput.notes)) {
