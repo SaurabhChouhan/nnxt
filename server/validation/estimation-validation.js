@@ -188,7 +188,3 @@ export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
 export const estimationNegotiatorGrantEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
 })
-
-export const estimationNegotiatorApproveTaskStruct = t.struct({
-    task_id: RequiredString
-})
