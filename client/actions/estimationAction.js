@@ -62,6 +62,10 @@ export const moveTaskInFeature = (task) => ({
     type: AC.MOVE_TASK_IN_FEATURE,
     task: task
 })
+export const deleteEstimationFeature = (feature) => ({
+    type: AC.DELETE_ESTIMATION_FEATURE,
+    feature: feature
+})
 
 export const getAllEstimationsFromServer = () => {
     return (dispatch, getState) => {
@@ -440,6 +444,28 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
                     NotificationManager.error('Permission Granted Failed')
                 }
 
+                return json
+            })
+    }
+}
+
+export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + '/feature/' + featureID, {
+                method: 'delete',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(deleteEstimationFeature(json.data))
+                }
                 return json
             })
     }

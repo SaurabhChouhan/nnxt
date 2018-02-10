@@ -279,4 +279,15 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve feature", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
+
+//soft delete feature by estimation
+estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        return await EstimationFeatureModel.deleteFeatureByEstimator(ctx.params, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR +  "] can delete features from estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+
 export default estimationRouter

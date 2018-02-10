@@ -387,5 +387,33 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     return await feature.save()
 }
 
+
+estimationFeatureSchema.statics.deleteFeatureByEstimator = async (paramsInput, estimator) => {
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(paramsInput.featureID)
+    if (!feature)
+        throw new AppError('feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.estimator._id != estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (feature.owner != SC.OWNER_ESTIMATOR)
+        throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    if (!feature.addedInThisIteration)
+        throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    feature.isDeleted = true
+    feature.estimator.changedInThisIteration = true
+    feature.updated = Date.now()
+    return await feature.save()
+}
+
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel
