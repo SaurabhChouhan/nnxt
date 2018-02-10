@@ -70,7 +70,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     moveToFeature: (values) => {
         let task = {}
         task.task_id = values._id
-
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
     },
@@ -78,10 +77,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         let task = {}
         task.task_id = values._id
         task.feature_id = values.feature._id
+        dispatch(A.moveTaskOutOfFeatureOnServer(values)).then(json=>{
+            if(json.success){
+                NotificationManager.success('Task moved out of feature Successfully')
+            } else {
+                NotificationManager.success('Some error occurred')
+            }
 
-         dispatch(A.moveTaskOutOfFeatureOnServer(values))
+        })
         //dispatch(initialize("MoveTaskInFeatureForm", task))
-
     },
     toggleGrantEdit: (values) => {
         let task = {}
