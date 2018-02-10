@@ -10,7 +10,8 @@ import {
     estimationEstimatorUpdateTaskStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
     estimationNegotiatorMoveToFeatureStruct,
-    estimationNegotiatorMoveOutOfFeatureStruct
+    estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationNegotiatorUpdateTaskStruct
 } from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationModel, RepositoryModel, EstimationFeatureModel} from "./"
@@ -233,6 +234,60 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
 }
 
+
+estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiator) => {
+    validate(taskInput, estimationNegotiatorUpdateTaskStruct)
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let estimationTask = await EstimationTaskModel.findById(taskInput._id)
+    if (!estimationTask)
+        throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(estimationTask.estimation._id)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (negotiator._id.toString() != estimation.negotiator._id.toString())
+        throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (estimationTask.repo && estimationTask.repo._id) {
+        // find repo and update when task is updating
+        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, isFeature, taskInput, estimator)
+    }
+
+    estimationTask.feature = taskInput.feature
+    estimationTask.negotiator.name = taskInput.name
+    estimationTask.negotiator.description = taskInput.description
+    estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
+    if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_NEGOTIATOR)
+        estimationTask.negotiator.changedInThisIteration = true
+
+    estimationTask.updated = Date.now()
+
+    if (!_.isEmpty(taskInput.notes)) {
+        taskInput.notes = taskInput.notes.map(n => {
+            n.name = estimator.fullName
+            return n
+        })
+    }
+
+    let mergeAllNotes = []
+    if (!_.isEmpty(estimationTask.notes)) {
+        mergeAllNotes = estimationTask.notes
+        taskInput.notes.map(n => {
+            mergeAllNotes.push(n)
+        })
+    } else {
+        mergeAllNotes = taskInput.notes
+    }
+    estimationTask.notes = mergeAllNotes
+    return await estimationTask.save()
+
+}
 
 estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator) => {
     validate(taskInput, estimationNegotiatorAddTaskStruct)
