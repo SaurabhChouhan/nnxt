@@ -9,5 +9,6 @@ export {default as projectRouter} from './project-router'
 export {default as technologyRouter} from './technology-router'
 export {default as leaveRouter} from './leave-router'
 export {default as repositoryRouter} from './repository-router'
+export {default as attendanceRouter} from './attendance-router'
 // Please export all routers above this router
 export {default as apiRouter} from './api-router'
