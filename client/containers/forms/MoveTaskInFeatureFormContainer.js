@@ -8,7 +8,6 @@ import {SubmissionError} from "redux-form";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-
         return dispatch(A.moveTaskIntoFeatureOnServer(values)).then(json => {
             if (json.success) {
                 NotificationManager.success('Task Moved Successfully')

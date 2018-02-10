@@ -4,6 +4,134 @@ import * as SC from "../../../server/serverconstants"
 import * as logger from '../../clientLogger'
 import _ from 'lodash'
 
+
+class EstimationFeatureDetail extends React.PureComponent {
+
+    render() {
+        return <div className="feature-expanded">
+            <div className="col-md-12 pad">
+                <h4>Expanded Feature Name</h4>
+            </div>
+            <div className="col-md-12 pad">
+                <p>Expanded Feature Description</p>
+            </div>
+            <div className="col-md-2 col-md-offset-1 pad">
+                <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+            </div>
+            <div className="col-md-3 pad">
+                <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
+            </div>
+            <div className="col-md-6 text-right estimationActions pad">
+                <img key="granted_edit" src="/images/he_granted_edit.png"/>
+                <img key="granted_edit" src="/images/he_granted_edit.png"/>
+                <img key="granted_edit" src="/images/he_granted_edit.png"/>
+
+            </div>
+            <div className="newFlagStrip">
+                <img src="/images/new_flag.png"></img>
+            </div>
+            <div className="repoFlagStrip">
+                <img src="/images/repo_flag.png"></img>
+            </div>
+            <div className="col-md-11 col-md-offset-1">
+                <div className="task">
+                    <div className="col-md-12 pad">
+                        <h4>Expanded Task Name</h4>
+                    </div>
+                    <div className="col-md-12 pad">
+                        <p>Expanded Task Description</p>
+                    </div>
+                    <div className="col-md-2 col-md-offset-1 pad">
+                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-3 pad">
+                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-6 text-right estimationActions pad">
+
+                    </div>
+                    <div className="newFlagStrip">
+                        <img src="/images/new_flag.png"></img>
+                    </div>
+                    <div className="repoFlagStrip">
+                        <img src="/images/repo_flag.png"></img>
+                    </div>
+                </div>
+                <div className="task">
+                    <div className="col-md-12 pad">
+                        <h4>Expanded Task Name</h4>
+                    </div>
+                    <div className="col-md-12 pad">
+                        <p>Expanded Task Description</p>
+                    </div>
+                    <div className="col-md-2 col-md-offset-1 pad">
+                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-3 pad">
+                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-6 text-right estimationActions pad">
+
+                    </div>
+                    <div className="newFlagStrip">
+                        <img src="/images/new_flag.png"></img>
+                    </div>
+                    <div className="repoFlagStrip">
+                        <img src="/images/repo_flag.png"></img>
+                    </div>
+                </div>
+                <div className="task">
+                    <div className="col-md-12 pad">
+                        <h4>Expanded Task Name</h4>
+                    </div>
+                    <div className="col-md-12 pad">
+                        <p>Expanded Task Description</p>
+                    </div>
+                    <div className="col-md-2 col-md-offset-1 pad">
+                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-3 pad">
+                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-6 text-right estimationActions pad">
+
+                    </div>
+                    <div className="newFlagStrip">
+                        <img src="/images/new_flag.png"></img>
+                    </div>
+                    <div className="repoFlagStrip">
+                        <img src="/images/repo_flag.png"></img>
+                    </div>
+                </div>
+                <div className="task">
+                    <div className="col-md-12 pad">
+                        <h4>Expanded Task Name</h4>
+                    </div>
+                    <div className="col-md-12 pad">
+                        <p>Expanded Task Description</p>
+                    </div>
+                    <div className="col-md-2 col-md-offset-1 pad">
+                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-3 pad">
+                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
+                    </div>
+                    <div className="col-md-6 text-right estimationActions pad">
+
+                    </div>
+                    <div className="newFlagStrip">
+                        <img src="/images/new_flag.png"></img>
+                    </div>
+                    <div className="repoFlagStrip">
+                        <img src="/images/repo_flag.png"></img>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
 class EstimationFeature extends React.PureComponent {
 
     render() {
@@ -203,38 +331,52 @@ class EstimationFeature extends React.PureComponent {
 
         return <div className="feature">
             <div className="col-md-12 pad">
-                <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
+                <div className="col-md-9">
+                    <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
+                </div>
+
+                <div className="col-md-3">
+                    {feature.owner == SC.OWNER_ESTIMATOR && feature.addedInThisIteration &&
+                    <div className="flagStrip">
+                        <img src="/images/estimator_new_flag.png"></img>
+                    </div>}
+
+                    {feature.owner == SC.OWNER_NEGOTIATOR && feature.addedInThisIteration &&
+                    <div className="flagStrip">
+                        <img src="/images/negotiator_new_flag.png"></img>
+                    </div>}
+
+                    {feature.estimator.changedInThisIteration && <div className="flagStrip">
+                        <img src="/images/estimator_edit_flag.png"></img>
+                    </div>}
+
+                    {feature.negotiator.changedInThisIteration && <div className="flagStrip">
+                        <img src="/images/negotiator_edit_flag.png"></img>
+                    </div>}
+
+                    {!feature.repo.addedFromThisEstimation &&
+                    <div className="flagStrip">
+                        <img src="/images/repo_flag.png"></img>
+                    </div>
+                    }
+                </div>
+
             </div>
-            <div className="col-md-12 pad">
+            <div className="col-md-12 short-description">
                 <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
-            <div className="col-md-2 col-md-offset-1 pad">
-                <h4>Est. Hrs:</h4> <h4>&nbsp;{feature.estimator.estimatedHours}</h4>
+            <div className="col-md-3">
+                <h4>Estimated:</h4>
+                <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
             </div>
-            <div className="col-md-3 pad">
-                <h4>Sug. Hrs:</h4> <h4>&nbsp;{feature.negotiator.estimatedHours}</h4>
+            <div className="col-md-3">
+                <h4>Suggested:</h4> <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
             </div>
 
-            <div className="col-md-6 text-right estimationActions pad">
+            <div className="col-md-6 text-right estimationActions">
                 {buttons}
             </div>
-            {feature.addedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/new_flag.png"></img>
-            </div>}
 
-            {loggedInUserRole== SC.ROLE_NEGOTIATOR && feature.estimator.changedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/edited_flag.png"></img>
-            </div>}
-
-            {loggedInUserRole== SC.ROLE_ESTIMATOR && feature.negotiator.changedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/edited_flag.png"></img>
-            </div>}
-
-            {!feature.repo.addedFromThisEstimation &&
-            <div className="repoFlagStrip">
-                <img src="/images/repo_flag.png"></img>
-            </div>
-            }
         </div>
 
     }

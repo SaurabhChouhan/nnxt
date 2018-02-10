@@ -206,6 +206,10 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR)
         estimationTask.estimator.changedInThisIteration = true
 
+    // As estimator has peformed edit, reset changeRequested and grant edit flags
+    estimationTask.estimator.changeRequested = false
+    estimationTask.negotiator.changeGranted = false
+
     estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {
@@ -315,9 +319,10 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         changeRequested: true
     }
 
-    // Add name into estimator section as well so that move to feature functionality at least show name
+    // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     taskInput.estimator = {
-        name: repositoryTask.name
+        name: repositoryTask.name,
+        description: repositoryTask.description
     }
 
     if (!_.isEmpty(taskInput.notes)) {
@@ -648,27 +653,35 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
     return await task.save();
 }
 
-estimationTaskSchema.statics.approveTaskByNegotiator = async (taskInput, negotiator) => {
+estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let task = await EstimationTaskModel.findById(taskInput.task_id)
+    let task = await EstimationTaskModel.findById(taskID)
+
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (task.status == SC.STATUS_APPROVED)
+        throw new AppError('Task already approved', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation._id == task.estimation._id)
-        throw new AppError('Task is not this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('You are not a negotiator of estimation this task is part of', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    if (task.estimator.changeRequested
+        || task.estimator.removalRequested
+        || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+        || _.isEmpty(task.estimator.name)
+        || _.isEmpty(task.estimator.description))
+        throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
 
     task.status = SC.STATUS_APPROVED
     task.updated = Date.now()

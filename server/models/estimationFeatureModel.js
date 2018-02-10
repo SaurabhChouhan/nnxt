@@ -9,7 +9,7 @@ import {
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
-import {EstimationModel, RepositoryModel,EstimationTaskModel} from "./"
+import {EstimationModel, RepositoryModel, EstimationTaskModel} from "./"
 import * as EC from "../errorcodes"
 import _ from 'lodash'
 
@@ -194,15 +194,15 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     /* Name/description would always match repository name description */
     // This will allow estimator to see updated changes as suggestions
     featureInput.negotiator = {
-        name:repositoryFeature.name,
-        description:repositoryFeature.description,
-        estimatedHours:repositoryFeature.estimatedHours,
-        changeRequested:true
+        name: repositoryFeature.name,
+        description: repositoryFeature.description,
+        estimatedHours: repositoryFeature.estimatedHours,
+        changeRequested: true
     }
 
     // Add name into estimator section as well so that move to feature functionality at least show name
     featureInput.estimator = {
-        name:repositoryFeature.name
+        name: repositoryFeature.name
     }
 
     if (!_.isEmpty(featureInput.notes)) {
@@ -270,6 +270,11 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_ESTIMATOR)
         estimationFeature.estimator.changedInThisIteration = true
     estimationFeature.estimator.description = featureInput.description
+
+    // As estimator has peformed edit, reset changeRequested and grant edit flags
+    estimationFeature.estimator.changeRequested = false
+    estimationFeature.negotiator.changeGranted = false
+
     estimationFeature.updated = Date.now()
 
     if (estimationFeature.repo && estimationFeature.repo._id) {
@@ -347,12 +352,12 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     return await estimationFeature.save()
 }
 
-estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureInput, negotiator) => {
+estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let feature = await EstimationFeatureModel.findById(featureInput._id)
+    let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -360,23 +365,53 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureInput
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation._id == feature.estimation._id)
-        throw new AppError('Feature is not this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
-    if(feature.estimator.changeRequested || feature.estimator.removalRequested || _.isEmpty(feature.estimator.name) || _.isEmpty(feature.estimator.description))
-        throw new AppError('Feature not approved because feature have invalid conditions [estimator.changeRequested,estimator.removalRequested flag must be false and estimator.name,estimator.description must be not empty]', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
+    if (feature.estimator.changeRequested || feature.estimator.removalRequested || _.isEmpty(feature.estimator.name) || _.isEmpty(feature.estimator.description))
+        throw new AppError('Cannot approve feature as either name/description is not not there or there are pending requests from Estimator', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
 
-    let pendingTaskListOfThisFeature = await EstimationTaskModel.find({"estimation._id":feature.estimation._id,"feature._id" : feature._id,status:{$in:[SC.STATUS_PENDING]}})
-    if(!pendingTaskListOfThisFeature && pendingTaskListOfThisFeature.length>0)
-        throw new AppError('Feature not approved because feature have any task status pending', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
+    let pendingTaskCountOfFeature = await EstimationTaskModel.count({
+        "estimation._id": feature.estimation._id,
+        "feature._id": feature._id,
+        status: {$in: [SC.STATUS_PENDING]}
+    })
+    if (pendingTaskCountOfFeature != 0)
+        throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
 
     feature.status = SC.STATUS_APPROVED
+    feature.updated = Date.now()
+    return await feature.save()
+}
+
+
+estimationFeatureSchema.statics.deleteFeatureByEstimator = async (paramsInput, estimator) => {
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(paramsInput.featureID)
+    if (!feature)
+        throw new AppError('feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.estimator._id != estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (feature.owner != SC.OWNER_ESTIMATOR)
+        throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    if (!feature.addedInThisIteration)
+        throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    feature.isDeleted = true
+    feature.estimator.changedInThisIteration = true
+    feature.updated = Date.now()
     return await feature.save()
 }
 
