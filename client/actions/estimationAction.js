@@ -114,7 +114,7 @@ export const initiateEstimationOnServer = (formInput) => {
 
 export const requestEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request/' + estimationID, {
+        return fetch('/api/estimations/' + estimationID + "/request", {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -134,6 +134,54 @@ export const requestEstimationOnServer = (estimationID) => {
             })
     }
 }
+
+export const requestReviewOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/review-request", {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const requestChangeOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/change-request", {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
 
 export const requestForTaskEditPermissionOnServer = (task) => {
     return (dispatch, getState) => {
@@ -203,54 +251,6 @@ export const requestForTaskDeletePermissionOnServer = (task) => {
             })
     }
 }
-
-export const requestReviewOnServer = (estimationID) => {
-    return (dispatch, getState) => {
-        return fetch('/api/estimations/review-request/' + estimationID, {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success) {
-                    dispatch(editEstimation(json.data))
-                }
-                return json
-            })
-    }
-}
-
-
-export const requestChangeOnServer = (estimationID) => {
-    return (dispatch, getState) => {
-        return fetch('/api/estimations/change-request/' + estimationID, {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success) {
-                    dispatch(editEstimation(json.data))
-                }
-                return json
-            })
-    }
-}
-
 
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
@@ -440,7 +440,7 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
                     NotificationManager.success('Permission Granted Successfully')
                     dispatch(updateEstimationTask(json.data))
                 }
-                else{
+                else {
                     NotificationManager.error('Permission Granted Failed')
                 }
 
