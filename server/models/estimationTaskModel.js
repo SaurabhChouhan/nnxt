@@ -7,7 +7,7 @@ import {
     estimationEstimatorAddTaskStruct,
     estimationEstimatorUpdateTaskStruct,
     estimationNegotiatorAddTaskStruct,
-    estimationNegotiatorUpdateTaskStruct
+    estimationNegotiatorUpdateTaskStruct,
     estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,

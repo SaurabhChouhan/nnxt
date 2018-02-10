@@ -7,25 +7,23 @@ import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
 import {
-    estimationEstimatorAddFeatureStruct,
+    generateSchema,
     estimationEstimatorAddTaskStruct,
-    estimationEstimatorMoveOutOfFeatureStruct,
+    estimationEstimatorUpdateTaskStruct,
+    estimationEstimatorAddFeatureStruct,
+    estimationEstimatorUpdateFeatureStruct,
     estimationEstimatorMoveToFeatureStruct,
+    estimationEstimatorMoveOutOfFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
     estimationEstimatorRequestRemovalToTaskStruct,
-    estimationEstimatorUpdateFeatureStruct,
-    estimationEstimatorUpdateTaskStruct,
-    estimationInitiationStruct,
-    estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorAddTaskStruct,
-    estimationNegotiatorGrantEditPermissionToTaskStruct,
-    estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct,
+    estimationNegotiatorAddFeatureStruct,
+    estimationNegotiatorUpdateTaskStruct,
     estimationNegotiatorUpdateFeatureStruct,
-    generateSchema,
     estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorGrantEditPermissionToTaskStruct
+    estimationNegotiatorGrantEditPermissionToTaskStruct,
+    estimationInitiationStruct
 } from "../validation"
 
 let estimationRouter = new Router({
