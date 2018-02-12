@@ -24,20 +24,20 @@ let EstimationTaskForm = (props) => {
         </div>
         <div className="row">
             <div className="col-md-12">
-                <Field name="description" component={renderTextArea} label="Task Description:" validate={[required]}/>
+                <Field name="description" component={renderTextArea} label="Task Description:" validate={[required]}
+                       rows="10"/>
             </div>
 
         </div>
+        {/* User would not be able to update feature during update operation, he would have to move task to feature or move out of it*/}
+        {!_id &&
         <div className="row">
             <div className="col-md-6">
-                <Field name="feature_id" component={renderSelect} label={"Feature:"} options={props.features}
+                <Field name="feature._id" component={renderSelect} label={"Feature:"} options={props.features}
                        displayField={"estimator.name"}/>
             </div>
-            <div className="col-md-6">
-                <Field name="technologies" component={renderMultiselect} label="technologies:"
-                       data={estimation.technologies}/>
-            </div>
         </div>
+        }
         <div className="row initiatEstimation">
             <div className="col-md-6 text-center">
                 <button type="submit" className="btn customBtn">{_id ? "Update" : "Submit"}</button>

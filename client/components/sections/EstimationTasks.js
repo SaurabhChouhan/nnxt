@@ -25,18 +25,36 @@ class EstimationTask extends React.PureComponent {
              */
 
             console.log("Edit view for negotiator")
-            if (task.negotiator.changeRequested) {
-                // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
-                buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
-                                             onClick={() => {
-                                                 this.props.addTaskSuggestion(task)
-                                             }}/> :
-                    <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
+            if (task.negotiator.changeSuggested) {
+                if (task.estimator.changedKeyInformation) {
+                    buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                                                 onClick={() => {
+                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                 }}/> :
+                        <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
+                } else {
+
+                    buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
+                                                 onClick={() => {
+                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                 }}/> :
+                        <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
+                }
+
             } else {
-                buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
-                                             onClick={() => {
-                                                 this.props.addTaskSuggestion(task)
-                                             }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
+                if (task.estimator.changedKeyInformation) {
+                    buttons.push(editView ? <img key="suggestion" src="/images/suggestion_incoming.png"
+                                                 onClick={() => {
+                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                 }}/> :
+                        <img key="suggestion" src="/images/suggestion_incoming_disable.png"/>)
+                } else {
+                    buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
+                                                 onClick={() => {
+                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                 }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
+
+                }
             }
 
 
@@ -77,7 +95,6 @@ class EstimationTask extends React.PureComponent {
             }
 
 
-
         } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
 
             /**
@@ -97,15 +114,24 @@ class EstimationTask extends React.PureComponent {
                                                  }}/> : <img key="delete" src="/images/delete_disable.png"/>)
 
                 } else {
-                    if (task.negotiator.changeRequested) {
-                        logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
-                        // Negotiator has requested change
-                        buttons.push(editView ? <img key="he_requested_edit" src="/images/suggestion_incoming.png"
-                                                     onClick={() => {
-                                                         this.props.seeTaskSuggestion(task)
-                                                     }}/> :
-                            <img key="he_requested_edit" src="/images/suggestion_incoming_disable.png"/>)
-
+                    if (task.negotiator.changeSuggested) {
+                        if (task.estimator.changedKeyInformation) {
+                            logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
+                            // Negotiator has requested change
+                            buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                                                         onClick={() => {
+                                                             this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                         }}/> :
+                                <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
+                        } else {
+                            logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
+                            // Negotiator has requested change
+                            buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
+                                                         onClick={() => {
+                                                             this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                         }}/> :
+                                <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
+                        }
                     }
 
                     if (task.estimator.changeRequested) {
@@ -153,16 +179,26 @@ class EstimationTask extends React.PureComponent {
                     }
                 }
             } else if (task.owner == SC.OWNER_NEGOTIATOR) {
-                if (task.negotiator.changeRequested) {
+                if (task.negotiator.changeSuggested) {
                     /* Negotiator has provided suggestions, clicking this button should show a window that would
                        allow estimator to see suggestions given by negotiator
                      */
-                    buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
-                                                 onClick={() => {
-                                                     this.props.seeTaskSuggestion(task)
-                                                 }}/> :
-                        <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
-                }
+
+                    if (task.estimator.changedKeyInformation) {
+                        buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
+                                                     onClick={() => {
+                                                         this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                     }}/> :
+                            <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
+                    } else {
+                        buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                                                     onClick={() => {
+                                                         this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                     }}/> :
+                            <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
+                    }
+
+                } 
 
                 if (task.estimator.changeRequested) {
                     if (task.negotiator.changeGranted) {
@@ -220,7 +256,7 @@ class EstimationTask extends React.PureComponent {
             } else {
                 // This task is an individual task so add move to feature button
                 buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
-                    this.props.moveToFeature(this.props.task._id);
+                    this.props.moveToFeature(this.props.task);
                 }}/>)
             }
         } else {
@@ -234,42 +270,56 @@ class EstimationTask extends React.PureComponent {
 
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, buttons)
-        return <div className="task">
-            <div className="col-md-12 pad">
+        return <div className="task" onClick={() => console.log("Task clicked")}>
+            <div className="col-md-9">
                 <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
             </div>
-            <div className="col-md-12 pad">
+            <div className="col-md-3">
+                {task.owner == SC.OWNER_ESTIMATOR && <div className="flagStrip">
+                    <img src="/images/estimator_new_flag.png" title="Added by Estimator"></img>
+                </div>}
+
+                {task.owner == SC.OWNER_NEGOTIATOR && <div className="flagStrip">
+                    <img src="/images/negotiator_new_flag.png" title="Added by Negotiator"></img>
+                </div>}
+
+                {!task.repo.addedFromThisEstimation &&
+                <div className="flagStrip">
+                    <img src="/images/repo_flag.png" title="From Repository"></img>
+                </div>
+                }
+
+                {task.estimator.changedInThisIteration && <div className="flagStrip">
+                    <img src="/images/estimator_edit_flag.png" title="Edited by Estimator"></img>
+                </div>}
+
+                {task.negotiator.changedInThisIteration && <div className="flagStrip">
+                    <img src="/images/negotiator_edit_flag.png" title="Edited by Negotiator"></img>
+                </div>}
+
+
+            </div>
+            <div className="col-md-12 short-description">
                 <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
             </div>
-            <div className="col-md-2 col-md-offset-1 pad">
-                <h4>Est. Hrs:</h4> <h4>&nbsp;{task.estimator.estimatedHours}</h4>
+            <div className="col-md-3">
+                <h4>Estimated:</h4>
+                <h4>&nbsp;{task.estimator.estimatedHours} {task.estimator.estimatedHours && 'hrs.'}</h4>
             </div>
-            <div className="col-md-3 pad">
-                <h4>Sug. Hrs:</h4> <h4>&nbsp;{task.negotiator.estimatedHours}</h4>
+            <div className="col-md-3">
+                <h4>Suggested:</h4>
+                <h4>&nbsp;{task.negotiator.estimatedHours} {task.negotiator.estimatedHours && 'hrs.'}</h4>
             </div>
 
-            <div className="col-md-6 text-right estimationActions pad">
+
+            <div className="col-md-6 text-right estimationActions">
                 {buttons}
             </div>
-
-            {task.addedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/new_flag.png"></img>
-            </div>}
-
-            {loggedInUserRole== SC.ROLE_NEGOTIATOR && task.estimator.changedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/edited_flag.png"></img>
-            </div>}
-
-            {loggedInUserRole== SC.ROLE_ESTIMATOR && task.negotiator.changedInThisIteration && <div className="newFlagStrip">
-                <img src="/images/edited_flag.png"></img>
-            </div>}
-
-
-            {!task.repo.addedFromThisEstimation &&
-            <div className="repoFlagStrip">
-                <img src="/images/repo_flag.png"></img>
-            </div>
-            }
+            {/*
+            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
+            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
+            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
+            */}
         </div>
 
     }
