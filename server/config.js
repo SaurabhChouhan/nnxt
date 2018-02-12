@@ -44,6 +44,11 @@ const config = {
             port: 3000,
             setupData: false,
             dropDatabase: false
+        },
+        ratnesh: {
+            port: 3002,
+            setupData: false,
+            dropDatabase: false
         }
     },
     mongo: {
@@ -90,6 +95,11 @@ const config = {
         gaurav_local: {
             dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        ratnesh: {
+            dbname: 'ratnesh_nnxt',
+            url: "mongodb://192.168.1.55:27017/ratnesh_nnxt",
             useMongoClient: true
         }
     }
