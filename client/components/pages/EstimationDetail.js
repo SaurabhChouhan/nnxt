@@ -250,26 +250,23 @@ class EstimationDetail extends Component {
 
                 <div className="col-md-12">
                     <div className="repository repositoryFeature">
-                                <div className="RepositoryHeading">
+                        {
+                            Array.isArray(this.props.repository) && this.props.repository.map((f,i)=>
+                                [<div className="RepositoryHeading" key={i}>
                                     <div className="repositoryFeatureLable">
                                     </div>
-                                    <h5>Feature</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                    className="pull-right">(04 HRS)</span>
-                                </div>
-                                <div className="RepositoryContent">
-                                    <p>Lorem ipsum dolor sit amet consetutor</p>
-                                </div>
-                    </div>
-                    <div className="repository repositoryTask">
-                        <div className="RepositoryHeading">
-                            <div className="repositoryTaskLable">
-                            </div>
-                            <h5>Task</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                            className="pull-right">(04 HRS)</span>
-                        </div>
-                        <div className="RepositoryContent">
-                            <p>Lorem ipsum dolor sit amet consetutor</p>
-                        </div>
+                                    {
+                                    (f.isFeature)?
+                                        (<div><h5>Feature</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span className="pull-right">(04 HRS)</span></div>)
+                                    :
+                                        (<div><h5>Task</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span className="pull-right">(04 HRS)</span></div>)
+                                    }
+                                </div>,
+                                    <div className="RepositoryContent">
+                                        <p>{f.description}</p>
+                                    </div>]
+                            )
+                        }
                     </div>
                 </div>
             </div>

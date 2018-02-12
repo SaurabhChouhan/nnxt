@@ -11,13 +11,14 @@ export const selectRepository = (repository) => ({
 
 export const getRepositoryFromServer = (technologies) => {
     return (dispatch, getState) => {
-        return fetch('/api/repositories/search?technologies=' + technologies, {
-                method: 'get',
+        return fetch('/api/repositories/search',{
+                method: 'post',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                }
+                },
+            body: JSON.stringify(technologies)
             }
         ).then(
             response => response.json()

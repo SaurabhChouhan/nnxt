@@ -120,18 +120,18 @@ repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
 }
 repositorySchema.statics.searchRepositories = async (filterObj) => {
     let technologies = []
-    if(filterObj.technologies && Array.isArray(filterObj.technologies))
-        technologies = filterObj.technologies
-    else
-        technologies = [filterObj.technologies]
-    let technologiesInCaseSensitive = [];
-    technologies.forEach(function(opt){
-        technologiesInCaseSensitive.push(new RegExp(opt, "i"));
-    });
+    if (filterObj.technologies && Array.isArray(filterObj.technologies)) {
+        filterObj.technologies.forEach(function (technology) {
+            technologies.push(new RegExp(technology, "i"))
+        })
+    }else {
+        let technology = new RegExp(filterObj.technologies, "i")
+        technologies = [technology]
+    }
     let totalArrayResult = await
         RepositoryModel.aggregate({
             $match: {
-                "technologies": {$in:technologiesInCaseSensitive},
+                "technologies": {$all: technologies},
             }
         }, {
             $project: {
