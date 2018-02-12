@@ -435,7 +435,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (featureInput,
 
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
 
-    if(task.estimator.estimatedHours){
+    if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
     }
 
@@ -721,12 +721,9 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (featureIn
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    //Here this method would be update estimated hours into feature when move task out of feature
-    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id, 0, task.estimator.estimatedHours, SC.OPERATION_SUBTRACTION)
-    console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
-    if (!isUpdatedEstimationHours) {
-        throw new AppError('Not update estimated hours of task into feature (Move Task out of feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    }
+    // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
+    if (task.estimator.estimatedHours)
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
 
     task.feature = null
     task.updated = Date.now()
