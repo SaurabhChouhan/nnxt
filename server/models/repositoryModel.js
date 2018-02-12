@@ -3,8 +3,8 @@ import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
-import {validate, repositoryAddTaskStruct,repositoryUpdateTaskAndFeatureStruct} from "../validation"
-import {EstimationModel,EstimationFeatureModel} from "./"
+import {validate, repositoryAddTaskStruct, repositoryUpdateTaskAndFeatureStruct} from "../validation"
+import {EstimationModel, EstimationFeatureModel} from "./"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -79,11 +79,11 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
 
     validate(featureInput, repositoryUpdateTaskAndFeatureStruct)
     const repositoryFeature = await RepositoryModel.findById(featureInput._id)
-    if(!repositoryFeature)
+    if (!repositoryFeature)
         throw new AppError('Feature not found in Repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     // check to see if estimation from where this feature was added is same a sent in feature
 
-    if(featureInput.estimation._id == repositoryFeature.estimation._id){
+    if (featureInput.estimation._id == repositoryFeature.estimation._id) {
         console.log("repository would be changed")
         repositoryFeature.name = featureInput.name
         repositoryFeature.description = featureInput.description
@@ -95,12 +95,9 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
         console.log("No changes in repository as estimation id do not match")
         return false
     }
-
-
-
 }
 
-repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id,is_feature,taskInput, user) => {
+repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id, is_feature, taskInput, user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
         throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can update task to repository", EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -108,25 +105,29 @@ repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id,is_feature,ta
     if (!repository)
         throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    repository.name  = taskInput.name
-    repository.description  = taskInput.description
-    repository.technologies  = taskInput.technologies
-    repository.tags  = taskInput.tags
-    repository.isFeature  = is_feature
+    repository.name = taskInput.name
+    repository.description = taskInput.description
+    repository.technologies = taskInput.technologies
+    repository.tags = taskInput.tags
+    repository.isFeature = is_feature
 
     return await repository.save()
 }
 
 repositorySchema.statics.searchRepositories = async (filterObj) => {
-   let technologies = []
-    if(filterObj.technologies && Array.isArray(filterObj.technologies))
-         technologies = filterObj.technologies
-    else
-         technologies = [filterObj.technologies]
+    let technologies = []
+    if (filterObj.technologies && Array.isArray(filterObj.technologies)) {
+                filterObj.technologies.forEach(function (technology) {
+                technologies.push(new RegExp(technology, "i"))
+        })
+    }else {
+        let technology = new RegExp(filterObj.technologies, "i")
+        technologies = [technology]
+    }
     let totalArrayResult = await
         RepositoryModel.aggregate({
             $match: {
-                "technologies": {$in:technologies},
+                "technologies": {$all: technologies},
             }
         }, {
             $project: {
