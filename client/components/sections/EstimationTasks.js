@@ -5,6 +5,16 @@ import * as logger from '../../clientLogger'
 import _ from 'lodash'
 
 class EstimationTask extends React.PureComponent {
+
+    componentWillReceiveProps(nextProps) {
+        //logger.debug(logger.ESTIMATION_TASK_LIFECYCLE, "componentWillReceiveProps:", nextProps)
+        logger.debug(logger.ESTIMATION_TASK_LIFECYCLE, "componentWillReceiveProps:", this.props.task.estimator.name, nextProps.task === this.props.task)
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        logger.debug(logger.ESTIMATION_TASK_LIFECYCLE, "componentWillUpdate", this.props.task.estimator.name)
+    }
+
     render() {
         const {task, loggedInUserRole, estimationStatus} = this.props
 
@@ -12,7 +22,7 @@ class EstimationTask extends React.PureComponent {
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'task owner ', task.owner)
-        logger.debug(logger.ESTIMATION_TASK_RENDER, "estimation status is ", estimationStatus)
+        logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
 
         let editView = false
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
@@ -235,8 +245,18 @@ class EstimationTask extends React.PureComponent {
     }
 }
 
+
 let
-    EstimationTasks = (props) =>
-        Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t} key={t._id}  {...props}/>)
+    EstimationTasks = (props) => {
+        // tasks array should not be passed to task as it keeps changes and will cause re-render
+        let childProps = Object.assign({}, props, {
+            tasks: undefined
+        })
+
+
+        return Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t}
+                                                                                  key={t._id}  {...childProps}/>)
+    }
+
 
 export default EstimationTasks

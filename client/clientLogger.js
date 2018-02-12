@@ -56,10 +56,11 @@ export const PROJECT_FORM_CONNECT = 'ProjectForm->connect():'
 
 export const ESTIMATION_DETAIL_RENDER = 'EstimationDetail->render():'
 export const ESTIMATION_TASK_RENDER = 'EstimationTask->render():'
+export const ESTIMATION_TASK_LIFECYCLE = 'EstimationTask->lc():'
 export const ESTIMATION_TASK_BUTTONS = 'EstimationTask->buttons:'
 export const ESTIMATION_FEATURE_RENDER = 'EstimationFeature->render():'
 export const ESTIMATION_FEATURE_BUTTONS = 'EstimationFeature->buttons:'
-let traceCodes = [ESTIMATION_DETAIL_RENDER, ESTIMATION_FEATURE_RENDER, ESTIMATION_TASK_RENDER, ESTIMATION_TASK_BUTTONS]
+let traceCodes = [ESTIMATION_TASK_RENDER, ESTIMATION_TASK_LIFECYCLE]
 //let traceCodes = undefined
 let logLevel = DEBUG_LEVEL
 
