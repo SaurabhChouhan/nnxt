@@ -11,9 +11,9 @@ let LeaveRequestForm = (props) => {
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">
-                <Field name="user.user.id" component="input" type="hidden"/>
-                <Field name="user.user.id" component="input" type="hidden"/>
-                <Field name="user.user.id" component="input" type="hidden"/>
+                <Field name="user.user._id" component="input" type="hidden"/>
+                <Field name="user.user.firstName" component="input" type="hidden"/>
+                <Field name="user.user.lastName" component="input" type="hidden"/>
 
                 <Field name="leave.from" placeholder={"Leave From :"} component={renderText} showTime={false}
                        label={"From :"} validate={[required]}/>
