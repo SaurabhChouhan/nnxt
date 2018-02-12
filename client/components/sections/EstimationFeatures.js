@@ -8,7 +8,10 @@ import _ from 'lodash'
 class EstimationFeatureDetail extends React.PureComponent {
 
     render() {
-        return <div className="feature-expanded">
+        const {feature, loggedInUserRole, estimationStatus, index} = this.props;
+        return <div className="feature-expanded" onClick={() => {
+            this.props.openDetailFeature("featurePrecise" + index)
+        }}>
             <div className="col-md-12 pad">
                 <h4>Expanded Feature Name</h4>
             </div>
@@ -135,7 +138,7 @@ class EstimationFeatureDetail extends React.PureComponent {
 class EstimationFeature extends React.PureComponent {
 
     render() {
-        const {feature, loggedInUserRole, estimationStatus} = this.props
+        const {feature, loggedInUserRole, estimationStatus, index} = this.props
 
         let buttons = [];
 
@@ -329,7 +332,9 @@ class EstimationFeature extends React.PureComponent {
             }
         }
 
-        return <div className="feature">
+        return <div className="feature" onClick={() => {
+            this.props.openDetailFeature("featureDetail" + index)
+        }}>
             <div className="col-md-12 pad">
                 <div className="col-md-9">
                     <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
@@ -384,7 +389,9 @@ class EstimationFeature extends React.PureComponent {
 
 let
     EstimationFeatures = (props) =>
-        Array.isArray(props.features) && props.features.map(f => <EstimationFeature feature={f}
-                                                                                    key={f._id} {...props}/>)
+        Array.isArray(props.features) && props.features.map((f, idx) => (props.featureDetailString === "featureDetail" + idx) ?
+        <EstimationFeatureDetail feature={f} index={idx} key={"feature" + idx} {...props}/> :
+        <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...props}/>
+        )
 
 export default EstimationFeatures

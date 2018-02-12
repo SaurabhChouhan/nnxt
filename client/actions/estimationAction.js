@@ -67,6 +67,11 @@ export const deleteEstimationFeature = (feature) => ({
     feature: feature
 })
 
+export const showFeatureDetail = (feature) => ({
+    type: AC.SHOW_FEATURE_DETAIL,
+    feature: feature
+})
+
 export const getAllEstimationsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/estimations', {

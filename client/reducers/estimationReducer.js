@@ -4,7 +4,9 @@ let initialState = {
     all: [],
     selected: {},
     tasks: [],
-    features: []
+    features: [],
+    featureDetailString:""
+
 }
 
 const estimationReducer = (state = initialState, action) => {
@@ -71,6 +73,10 @@ const estimationReducer = (state = initialState, action) => {
             })
         case AC.DELETE_ESTIMATION_FEATURE:
             return Object.assign({}, state, {features: state.features.filter(item => item._id != action.feature._id)})
+
+        case AC.SHOW_FEATURE_DETAIL:
+            return Object.assign({}, state, {
+                featureDetailString: action.feature})
 
         default:
             return state
