@@ -74,7 +74,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
     estimation: state.estimation.selected,
-    features: state.estimation.features
+    features: state.estimation.features,
+    repository:state.repository.all
 })
 
 const EstimationDetailContainer = withRouter(connect(

@@ -446,5 +446,31 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
     return await estimation.save()
 }
 
+estimationSchema.statics.projectAwardByNegotiator = async (projectAwardEstimationInput, negotiator) => {
+
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(projectAwardEstimationInput._id)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_APPROVED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_APPROVED + "] can project award by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let release = {}
+
+    //Note : this API is on hold because Project Award form is designing..........
+
+    estimation.release = release
+    estimation.status = SC.STATUS_PROJECT_AWARDED
+    estimation.updated = Date.now()
+
+    return await estimation.save()
+}
+
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel

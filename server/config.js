@@ -13,7 +13,7 @@ const config = {
         production: {
             port: 8080,
             setupData: false,
-            dropDatabase:false
+            dropDatabase: false
         },
         kamlesh: {
             port: 3002,
@@ -42,6 +42,16 @@ const config = {
         },
         gaurav: {
             port: 3000,
+            setupData: false,
+            dropDatabase: false
+        },
+        ravi: {
+            port: 3000,
+            setupData: false,
+            dropDatabase: false
+        },
+        ratnesh: {
+            port: 3002,
             setupData: false,
             dropDatabase: false
         }
@@ -79,7 +89,7 @@ const config = {
         },
         praveen: {
             dbname: 'nnxt',
-            url: "mongodb://praveen:praveen@ds119078.mlab.com:19078/nnxt",
+            url: "mongodb://localhost/nnxt",
             useMongoClient: true
         },
         anup: {
@@ -90,6 +100,16 @@ const config = {
         gaurav_local: {
             dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        ravi: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        ratnesh: {
+            dbname: 'ratnesh_nnxt',
+            url: "mongodb://192.168.1.55:27017/ratnesh_nnxt",
             useMongoClient: true
         }
     }
