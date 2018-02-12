@@ -1,29 +1,29 @@
 import Router from 'koa-router'
-import {EstimationModel, EstimationTaskModel, EstimationFeatureModel} from "../models"
+import {EstimationFeatureModel, EstimationModel, EstimationTaskModel} from "../models"
 import {hasRole, isAuthenticated} from "../utils"
+import * as SC from "../serverconstants";
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
 import {toObject} from 'tcomb-doc'
-import * as SC from '../serverconstants'
 import {
-    validate,
     generateSchema,
-    estimationInitiationStruct,
     estimationEstimatorAddTaskStruct,
-    estimationNegotiatorAddTaskStruct,
     estimationEstimatorUpdateTaskStruct,
     estimationEstimatorAddFeatureStruct,
     estimationEstimatorUpdateFeatureStruct,
     estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
-    estimationNegotiatorAddFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
     estimationEstimatorRequestRemovalToTaskStruct,
+    estimationNegotiatorAddTaskStruct,
+    estimationNegotiatorAddFeatureStruct,
+    estimationNegotiatorUpdateTaskStruct,
     estimationNegotiatorUpdateFeatureStruct,
     estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorGrantEditPermissionToTaskStruct
+    estimationNegotiatorGrantEditPermissionToTaskStruct,
+    estimationInitiationStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -63,14 +63,14 @@ estimationRouter.post('/initiate', async ctx => {
     if (!hasRole(ctx, ROLE_NEGOTIATOR))
         throw new AppError("Only users with role [" + ROLE_NEGOTIATOR + "] can initiate estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
 
-    return EstimationModel.initiate(ctx.request.body, ctx.state.user)
+    return await EstimationModel.initiate(ctx.request.body, ctx.state.user)
 })
 
 
 /**
  * Used for making estimation request by Negotiator
  */
-estimationRouter.put('/request/:estimationID', async ctx => {
+estimationRouter.put('/:estimationID/request', async ctx => {
     if (!hasRole(ctx, ROLE_NEGOTIATOR))
         throw new AppError("Only users with role [" + ROLE_NEGOTIATOR + "] can request estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
@@ -79,10 +79,22 @@ estimationRouter.put('/request/:estimationID', async ctx => {
 /**
  * User by Estimator to request review from Negotiator
  */
-estimationRouter.put('/review-request/:estimationID', async ctx => {
-    return EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
+estimationRouter.put('/:estimationID/review-request', async ctx => {
+    return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
 })
 
+estimationRouter.put('/:estimationID/change-request', async ctx => {
+    return await EstimationModel.requestChange(ctx.params.estimationID, ctx.state.user)
+})
+
+// Used by negotiator to approve estimation
+estimationRouter.put('/:estimationID/approve', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return await EstimationModel.approveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can approve estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
 
 /**
  * Add a new task to estimation
@@ -111,7 +123,9 @@ estimationRouter.put('/tasks', async ctx => {
             return generateSchema(estimationEstimatorUpdateTaskStruct)
         return await EstimationTaskModel.updateTaskByEstimator(ctx.request.body, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        return "not implemented"
+        if(ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorUpdateTaskStruct)
+        return await EstimationTaskModel.updateTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can update task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
@@ -217,7 +231,6 @@ estimationRouter.put('/request-removal-task', async ctx => {
 })
 
 
-
 /**
  * request Edit/Update permission task/feature by estimator to estimation
  * or cancel this request
@@ -260,5 +273,4 @@ estimationRouter.put('/grant-edit-permission-task', async ctx => {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
-
 export default estimationRouter

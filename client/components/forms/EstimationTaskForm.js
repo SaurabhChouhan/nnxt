@@ -24,13 +24,13 @@ let EstimationTaskForm = (props) => {
         </div>
         <div className="row">
             <div className="col-md-12">
-                <Field name="description" component={renderTextArea} label="Task Description:" validate={[required]}/>
+                <Field name="description" component={renderTextArea} label="Task Description:" validate={[required]} rows="10"/>
             </div>
 
         </div>
         <div className="row">
             <div className="col-md-6">
-                <Field name="feature._id" component={renderSelect} label={"Feature:"} options={estimation.features}
+                <Field name="feature_id" component={renderSelect} label={"Feature:"} options={props.features}
                        displayField={"estimator.name"}/>
             </div>
             <div className="col-md-6">

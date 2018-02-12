@@ -198,7 +198,10 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
         status: SC.STATUS_INITIATED
 
     }]
-    return await EstimationModel.create(estimationInput)
+
+    let estimation = await EstimationModel.create(estimationInput)
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 }
 
 estimationSchema.statics.request = async (estimationID, negotiator) => {
@@ -217,7 +220,10 @@ estimationSchema.statics.request = async (estimationID, negotiator) => {
         name: estimation.negotiator.firstName,
         status: SC.STATUS_ESTIMATION_REQUESTED
     })
-    return await estimation.save()
+    await estimation.save()
+    estimation = estimation.toObject()
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 }
 
 estimationSchema.statics.requestReview = async (estimationID, estimator) => {
@@ -238,14 +244,22 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
         "owner": SC.OWNER_NEGOTIATOR
-    }, {$set: {addedInThisIteration: false, "negotiator.changedInThisIteration": false}}, {multi: true})
+    }, {$set: {addedInThisIteration: false}}, {multi: true})
+
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeSuggested": false}}, {multi: true})
 
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id,
         "owner": SC.OWNER_NEGOTIATOR
-    }, {$set: {addedInThisIteration: false, "negotiator.changedInThisIteration": false}}, {multi: true})
+    }, {$set: {addedInThisIteration: false}}, {multi: true})
 
-    return await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
+    await EstimationFeatureModel.update({
+        "estimation._id": estimation._id
+    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeSuggested": false}}, {multi: true})
+
+    estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
         $set: {status: SC.STATUS_REVIEW_REQUESTED},
         $push: {
             statusHistory: {
@@ -254,12 +268,107 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
             }
         }
     }, {
-        new: true
+        new: true,
+        lean: true
     })
+    estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
+    return estimation
+}
+
+estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can be requested for change", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+        "owner": SC.OWNER_ESTIMATOR
+    }, {$set: {addedInThisIteration: false}}, {multi: true})
+
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+    }, {$set: {"estimator.changedInThisIteration": false, "estimator.changedKeyInformation": false}}, {multi: true})
+
+    await EstimationFeatureModel.update({
+        "estimation._id": estimation._id,
+        "owner": SC.OWNER_ESTIMATOR
+    }, {$set: {addedInThisIteration: false}}, {multi: true})
+
+    await EstimationFeatureModel.update({
+            "estimation._id": estimation._id
+        }, {$set: {"estimator.changedInThisIteration": false, "estimator.changedKeyInformation": false}}, {multi: true}
+    )
+
+    estimation = await
+        EstimationModel.findOneAndUpdate({_id: estimation._id}, {
+            $set: {status: SC.STATUS_CHANGE_REQUESTED},
+            $push: {
+                statusHistory: {
+                    name: negotiator.firstName,
+                    status: SC.STATUS_CHANGE_REQUESTED
+                }
+            }
+        }, {
+            new: true,
+            lean: true
+        })
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 
 
 }
 
+
+estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let pendingTasksCount = await EstimationTaskModel.count({"estimation._id": estimationID, status: SC.STATUS_PENDING})
+    let pendingFeaturesCount = await EstimationFeatureModel.count({
+        "estimation._id": estimation._id,
+        status: SC.STATUS_PENDING
+    })
+
+
+    if (pendingTasksCount > 0 || pendingFeaturesCount > 0)
+        throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let statusHistory = {}
+    statusHistory.name = negotiator.firstName + ' ' + negotiator.lastName
+    statusHistory.status = SC.STATUS_APPROVED
+    statusHistory.date = Date.now()
+
+    let existingEstimationStatusHistory = estimation.statusHistory
+    if (existingEstimationStatusHistory && existingEstimationStatusHistory.length > 0)
+        existingEstimationStatusHistory.push(statusHistory)
+    else
+        existingEstimationStatusHistory = [statusHistory]
+
+    estimation.statusHistory = existingEstimationStatusHistory
+    estimation.status = SC.STATUS_APPROVED
+    estimation.updated = Date.now()
+
+    return await estimation.save()
+}
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel
