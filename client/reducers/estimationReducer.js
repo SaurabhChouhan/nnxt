@@ -5,7 +5,8 @@ let initialState = {
     selected: {},
     tasks: [],
     features: [],
-    featureDetailString:""
+    expandedFeatureID: undefined,
+    expandedTaskID: undefined
 
 }
 
@@ -81,9 +82,37 @@ const estimationReducer = (state = initialState, action) => {
         case AC.DELETE_ESTIMATION_FEATURE:
             return Object.assign({}, state, {features: state.features.filter(item => item._id != action.feature._id)})
 
-        case AC.SHOW_FEATURE_DETAIL:
+        case AC.EXPAND_FEATURE:
+            // Compare expanded feature ID with expanded feature id of state
+
+            if (state.expandedFeatureID && state.expandedFeatureID == action.featureID) {
+                // Feature was expanded and clicked again, so contract
+                return Object.assign({}, state, {
+                    expandedFeatureID: undefined,
+                    expandedTaskID: undefined
+                })
+            }
+
             return Object.assign({}, state, {
-                featureDetailString: action.feature})
+                expandedFeatureID: action.featureID,
+                expandedTaskID: undefined
+            })
+        case AC.EXPAND_TASK:
+        case AC.EXPAND_FEATURE:
+            // Compare expanded task ID with expanded task id of state
+
+            if (state.expandedTaskID && state.expandedTaskID == action.taskID) {
+                // Feature was expanded and clicked again, so contract
+                return Object.assign({}, state, {
+                    expandedFeatureID: undefined,
+                    expandedTaskID: undefined
+                })
+            }
+
+            return Object.assign({}, state, {
+                expandedFeatureID: undefined,
+                expandedTaskID: action.taskID
+            })
 
         default:
             return state

@@ -69,9 +69,14 @@ export const deleteEstimationFeature = (feature) => ({
     feature: feature
 })
 
-export const showFeatureDetail = (feature) => ({
-    type: AC.SHOW_FEATURE_DETAIL,
-    feature: feature
+export const expandFeature = (featureID) => ({
+    type: AC.EXPAND_FEATURE,
+    featureID: featureID
+})
+
+export const expandTask = (featureID) => ({
+    type: AC.EXPAND_TASK,
+    taskID: taskID
 })
 
 export const getAllEstimationsFromServer = () => {

@@ -9,13 +9,18 @@ class EstimationFeatureDetail extends React.PureComponent {
 
     render() {
         const {feature, loggedInUserRole, estimationStatus, index} = this.props;
-        return <div className="feature-expanded" onClick={() => {
-            this.props.openDetailFeature("featurePrecise" + index)
-        }}>
-            <div className="col-md-12 pad">
+
+        logger.debug(logger.ESTIMATION_FEATURE_DETAIL_RENDER, this.props)
+
+        return <div className="feature-expanded">
+            <div className="col-md-12 pad" onClick={() => {
+                this.props.expandFeature(feature._id)
+            }}>
                 <h4>Expanded Feature Name</h4>
             </div>
-            <div className="col-md-12 pad">
+            <div className="col-md-12 pad" onClick={() => {
+                this.props.expandFeature(feature._id)
+            }}>
                 <p>Expanded Feature Description</p>
             </div>
             <div className="col-md-2 col-md-offset-1 pad">
@@ -164,13 +169,13 @@ class EstimationFeature extends React.PureComponent {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
                 buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                              onClick={() => {
-                                                 this.props.showFeatureSuggestionForm(feature,loggedInUserRole)
+                                                 this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                              }}/> :
                     <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
             } else {
                 buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
                                              onClick={() => {
-                                                 this.props.showFeatureSuggestionForm(feature,loggedInUserRole)
+                                                 this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                              }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
             }
 
@@ -332,11 +337,11 @@ class EstimationFeature extends React.PureComponent {
             }
         }
 
-        return <div className="feature" onClick={() => {
-            this.props.openDetailFeature("featureDetail" + index)
-        }}>
+        return <div className="feature">
             <div className="col-md-12 pad">
-                <div className="col-md-9">
+                <div className="col-md-9" onClick={() => {
+                    this.props.expandFeature(feature._id)
+                }}>
                     <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
                 </div>
 
@@ -367,7 +372,9 @@ class EstimationFeature extends React.PureComponent {
                 </div>
 
             </div>
-            <div className="col-md-12 short-description">
+            <div className="col-md-12 short-description" onClick={() => {
+                this.props.expandFeature(feature._id)
+            }}>
                 <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
             <div className="col-md-3">
@@ -375,7 +382,8 @@ class EstimationFeature extends React.PureComponent {
                 <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
             </div>
             <div className="col-md-3">
-                <h4>Suggested:</h4> <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
+                <h4>Suggested:</h4>
+                <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
             </div>
 
             <div className="col-md-6 text-right estimationActions">
@@ -387,11 +395,16 @@ class EstimationFeature extends React.PureComponent {
     }
 }
 
-let
-    EstimationFeatures = (props) =>
-        Array.isArray(props.features) && props.features.map((f, idx) => (props.featureDetailString === "featureDetail" + idx) ?
-        <EstimationFeatureDetail feature={f} index={idx} key={"feature" + idx} {...props}/> :
-        <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...props}/>
-        )
+let EstimationFeatures = (props) => {
+    let childProps = Object.assign({}, props, {
+        features: undefined
+    })
+
+    return Array.isArray(props.features) && props.features.map((f, idx) =>
+        (props.expandedFeatureID === f._id) ?
+            <EstimationFeatureDetail feature={f} index={idx} key={"feature" + idx} {...childProps}/> :
+            <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+    )
+}
 
 export default EstimationFeatures
