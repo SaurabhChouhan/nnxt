@@ -5,25 +5,24 @@ import * as SC from "../serverconstants";
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
-import {toObject} from 'tcomb-doc'
 import {
-    generateSchema,
-    estimationEstimatorAddTaskStruct,
-    estimationEstimatorUpdateTaskStruct,
     estimationEstimatorAddFeatureStruct,
-    estimationEstimatorUpdateFeatureStruct,
-    estimationEstimatorMoveToFeatureStruct,
+    estimationEstimatorAddTaskStruct,
     estimationEstimatorMoveOutOfFeatureStruct,
+    estimationEstimatorMoveToFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
     estimationEstimatorRequestRemovalToTaskStruct,
-    estimationNegotiatorAddTaskStruct,
+    estimationEstimatorUpdateFeatureStruct,
+    estimationEstimatorUpdateTaskStruct,
+    estimationInitiationStruct,
     estimationNegotiatorAddFeatureStruct,
-    estimationNegotiatorUpdateTaskStruct,
-    estimationNegotiatorUpdateFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct,
-    estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationNegotiatorAddTaskStruct,
     estimationNegotiatorGrantEditPermissionToTaskStruct,
-    estimationInitiationStruct
+    estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationNegotiatorMoveToFeatureStruct,
+    estimationNegotiatorUpdateFeatureStruct,
+    estimationNegotiatorUpdateTaskStruct,
+    generateSchema
 } from "../validation"
 
 let estimationRouter = new Router({
