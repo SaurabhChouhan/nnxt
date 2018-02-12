@@ -4,7 +4,9 @@ let initialState = {
     all: [],
     selected: {},
     tasks: [],
-    features: []
+    features: [],
+    featureDetailString:""
+
 }
 
 const estimationReducer = (state = initialState, action) => {
@@ -14,6 +16,7 @@ const estimationReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 tasks: Array.isArray(state.tasks) ? [...state.tasks, action.task] : [action.task]
             })
+
         case AC.MOVE_TASK_IN_FEATURE:
             return Object.assign({}, state, {
                 tasks: state.tasks.filter(item => item._id != action.task._id),
@@ -55,13 +58,16 @@ const estimationReducer = (state = initialState, action) => {
 
         case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})
+
         case AC.ADD_ESTIMATION:
             return Object.assign({}, state, {all: [...state.all, action.estimation]})
+
         case AC.EDIT_ESTIMATION:
             return Object.assign({}, state, {
                 all: state.all.map(item => item._id == action.estimation._id ? action.estimation : item),
                 selected: Object.assign({}, action.estimation)
             })
+
         case AC.SELECT_ESTIMATION:
             return Object.assign({}, state, {
                 selected: Object.assign({}, action.estimation, {
@@ -71,8 +77,13 @@ const estimationReducer = (state = initialState, action) => {
                 tasks: [...action.estimation.tasks],
                 features: [...action.estimation.features]
             })
+
         case AC.DELETE_ESTIMATION_FEATURE:
             return Object.assign({}, state, {features: state.features.filter(item => item._id != action.feature._id)})
+
+        case AC.SHOW_FEATURE_DETAIL:
+            return Object.assign({}, state, {
+                featureDetailString: action.feature})
 
         default:
             return state

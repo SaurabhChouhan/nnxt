@@ -9,7 +9,8 @@ import * as EC from "../../../server/errorcodes";
 
 const mapStateToProps = (state, ownProps) => ({
     features: state.estimation.features,
-    loggedInUserRole: state.estimation.selected.loggedInUserRole
+    loggedInUserRole: state.estimation.selected.loggedInUserRole,
+    featureDetailString: state.estimation.featureDetailString
 })
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showEditFeatureForm: (values) => {
@@ -80,6 +81,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     toggleDeleteRequest: (values) => {
         console.log("toggleDeleteRequest", values)
+    },
+    openDetailFeature: (values) => {
+        console.log("openDetailFeature", values)
+        dispatch(A.showFeatureDetail(values))
     }
 })
 
