@@ -110,6 +110,7 @@ export const editUserOnServer = (user) => {
     }
 }
 
+
 //delete user
 
 export const deleteUserOnServer = (userId) => {
@@ -171,11 +172,9 @@ export function showUserInfo() {
         dispatch(initialize('user-profile', getState().user.loggedIn))
     }
 }
-
-
 export const updateUserSettingsOnServer = (user) => {
     return function (dispatch, getState) {
-        return fetch('api/users',
+        return fetch('/api/users',
             {
                 method: "put",
                 credentials: "include",
@@ -191,8 +190,9 @@ export const updateUserSettingsOnServer = (user) => {
             }
         ).then(json => {
                 if (json.success) {
-                    // clear user form after update is successful
+
                     dispatch(initialize('user-profile', json.data))
+
                 }
                 return json
             }
