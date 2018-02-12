@@ -11,7 +11,8 @@ Form Field components
 export const renderText = ({
                                input,
                                label,
-                               readOnly,
+                               readOnly = false,
+                               disbled = false,
                                type,
                                placeholder,
                                meta: {touched, error, warning}
@@ -23,7 +24,7 @@ export const renderText = ({
               {error}
             </span>))
         }</label>
-        <input {...input} readOnly={readOnly} placeholder={placeholder} type={type}
+        <input {...input} readOnly={readOnly} disabled={disbled} placeholder={placeholder} type={type}
                className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))}/>
     </div>
 
@@ -95,6 +96,7 @@ export const renderTextArea = ({
                                    label,
                                    placeholder,
                                    disabled = false,
+                                   readOnly = false,
                                    rows,
                                    hoverEnabledMsg,
                                    hoverDisabledMsg,
@@ -107,7 +109,7 @@ export const renderTextArea = ({
             {error}
           </span>))
         }</label>
-        <textarea rows={rows} {...input} placeholder={placeholder} disabled={disabled}
+        <textarea rows={rows} {...input} placeholder={placeholder} readOnly={readOnly} disabled={disabled}
                   className={"form-control hoverToolTip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}></textarea>
     </div>
 export const renderError = ({
@@ -135,7 +137,15 @@ export const renderLoginField = ({
         <input {...input} className="form-control" type={type}/>
     </div>
 
-export const renderMultiselect = ({input, data, valueField, textField, label, placeholder, meta: {touched, error, warning}, disabled = false,}) =>
+export const renderMultiselect = ({
+                                      input,
+                                      data,
+                                      valueField,
+                                      disabled = false,
+                                      textField, label,
+                                      placeholder,
+                                      meta: {touched, error, warning}
+                                  }) =>
     <div className="form-group">
         <label htmlFor={input.name}>{label} {touched &&
         ((error &&
@@ -161,7 +171,8 @@ export const renderField = ({
                                 readOnly,
                                 type,
                                 placeholder,
-                                meta: {touched, error, warning}
+                                meta: {touched, error, warning},
+                                disabled = false
                             }) =>
     <div className="form-group">
         <label htmlFor={input.name}>{label} {touched &&
@@ -170,7 +181,7 @@ export const renderField = ({
               {error}
             </span>))
         }</label>
-        <input {...input} readOnly={readOnly} placeholder={placeholder} type={type}
+        <input {...input} readOnly={readOnly} disabled={disabled} placeholder={placeholder} type={type}
                className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))}/>
     </div>
 

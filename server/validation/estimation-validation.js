@@ -31,8 +31,6 @@ export const estimationEstimatorAddTaskStruct = t.struct({
     repo: t.maybe(t.struct({
         _id: ObjectId
     })),
-    technologies: t.maybe(t.list(t.String)),
-    tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
             note: t.String
@@ -46,11 +44,6 @@ export const estimationEstimatorUpdateTaskStruct = t.struct({
     name: t.maybe(RequiredString),
     description: t.maybe(RequiredString),
     estimatedHours: t.Number,
-    feature: t.maybe(t.struct({
-        _id: ObjectId
-    })),
-    technologies: t.maybe(t.list(t.String)),
-    tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
             note: t.String
@@ -182,6 +175,20 @@ export const estimationNegotiatorUpdateFeatureStruct = t.struct({
     repo: t.maybe(t.struct({_id: t.Nil}))
 })
 
+export const estimationNegotiatorUpdateTaskStruct = t.struct({
+    _id: ObjectId,
+    name: t.maybe(RequiredString),
+    description: t.maybe(RequiredString),
+    technologies: t.maybe(t.list(t.String)),
+    tags: t.maybe(t.list(t.String)),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    )
+})
+
 export const estimationNegotiatorMoveToFeatureStruct = t.struct({
     task_id: RequiredString,
     feature_id: RequiredString
@@ -195,21 +202,9 @@ export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
 export const estimationNegotiatorGrantEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
 })
-
-export const estimationNegotiatorApproveTaskStruct = t.struct({
-    task_id: RequiredString
-})
-
-export const estimationNegotiatorApproveFeatureStruct = t.struct({
-    feature_id: RequiredString
-})
-export const estimationApproveByNegotiatorStruct = t.struct({
-    _id: RequiredString
-})
 export const estimationProjectAwardByNegotiatorStruct = t.struct({
     _id: RequiredString
-})
-export const estimationAddTaskFromRepositoryByNegotiatorStruct = t.struct({
+})export const estimationAddTaskFromRepositoryByNegotiatorStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({
         _id: ObjectId
