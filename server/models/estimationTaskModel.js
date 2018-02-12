@@ -317,12 +317,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-        //Here this method would be update estimated hours into feature when add task with feature
-        let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(estimationFeatureObj._id, taskInput.estimatedHours, 0, SC.OPERATION_ADDITION)
-        console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
-        if (!isUpdatedEstimationHours) {
-            throw new AppError('Not update estimated hours of task into feature (Task update with feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-        }
+        // As task is being added by negotiator there would not be any change in estimated hours of feature as this would just be considered as suggestions
     }
 
     let repositoryTask = undefined
@@ -438,11 +433,10 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (featureInput,
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    //Here this method would be update estimated hours into feature when move task to feature
-    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id, task.estimator.estimatedHours, 0, SC.OPERATION_ADDITION)
-    console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
-    if (!isUpdatedEstimationHours) {
-        throw new AppError('Not update estimated hours of task into feature (Move Task to feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
+
+    if(task.estimator.estimatedHours){
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
     }
 
     task.feature = feature
