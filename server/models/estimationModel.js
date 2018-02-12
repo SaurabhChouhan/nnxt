@@ -246,13 +246,24 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
         "owner": SC.OWNER_NEGOTIATOR
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
-    // Reset change request by estimator, if edit was already granted for previous iteration
+    // Reset change request by estimator, if edit was already granted
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
-        "negotiator.changeGranted": true
+        "negotiator.changeGranted": true,
+        "estimator.changeRequested": true,
     }, {$set: {"estimator.changeRequested": false}}, {multi: true})
 
+    // Reset removal request by estimator, if negotiator has deleted that task
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+        "isDeleted": true,
+        "estimator.removalRequested": true
+    }, {$set: {"estimator.removalRequested": false}}, {multi: true})
 
+
+    /**
+     * Reset negotiator flags
+     */
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
     }, {
@@ -263,41 +274,79 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
         }
     }, {multi: true})
 
-    await EstimationFeatureModel.update({
-        "estimation._id": estimation._id,
-        "owner": SC.OWNER_NEGOTIATOR
-    }, {$set: {addedInThisIteration: false}}, {multi: true})
+    // Add changed in this iteration flag of estimator to true if there are pending requests (change, removal)
+    await EstimationTaskModel.update({
+            $and: [{"estimation._id": estimation._id}, {
+                $or: [
+                    {"estimator.changeRequested": true},
+                    {"estimator.removalRequested": true}
+                ]
+            }]
+        },
+        {
+            $set:
+                {"estimator.changedInThisIteration": true}
+        }, {multi: true}
+    )
+
+    await
+        EstimationFeatureModel.update({
+            "estimation._id": estimation._id,
+            "owner": SC.OWNER_NEGOTIATOR
+        }, {$set: {addedInThisIteration: false}}, {multi: true})
+
+// Reset change request by estimator, if edit was already granted
+    await
+        EstimationFeatureModel.update({
+            "estimation._id": estimation._id,
+            "negotiator.changeGranted": true,
+            "estimator.changeRequested": true,
+        }, {$set: {"estimator.changeRequested": false}}, {multi: true})
+
+// Reset removal request by estimator, if negotiator has deleted that task
+    await
+        EstimationFeatureModel.update({
+            "estimation._id": estimation._id,
+            "isDeleted": true,
+            "estimator.removalRequested": true
+        }, {$set: {"estimator.removalRequested": false}}, {multi: true})
 
 
-    // Reset change request by estimator, if edit was already granted for previous iteration
-    await EstimationFeatureModel.update({
-        "estimation._id": estimation._id,
-        "negotiator.changeGranted": true
-    }, {$set: {"estimator.changeRequested": false}}, {multi: true})
-
-
-    await EstimationFeatureModel.update({
-        "estimation._id": estimation._id
-    }, {
-        $set: {
-            "negotiator.changedInThisIteration": false,
-            "negotiator.changeSuggested": false,
-            "negotiator.changeGranted": false
-        }
-    }, {multi: true})
-
-    estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
-        $set: {status: SC.STATUS_REVIEW_REQUESTED},
-        $push: {
-            statusHistory: {
-                name: estimator.firstName,
-                status: SC.STATUS_REVIEW_REQUESTED
+    /**
+     * Reset negotiator flags
+     */
+    await
+        EstimationFeatureModel.update({
+            "estimation._id": estimation._id,
+        }, {
+            $set: {
+                "negotiator.changedInThisIteration": false,
+                "negotiator.changeSuggested": false,
+                "negotiator.changeGranted": false
             }
-        }
-    }, {
-        new: true,
-        lean: true
-    })
+        }, {multi: true})
+
+// Add changed in this iteration flag of estimator to true if there are pending requests (change, removal)
+    await
+        EstimationFeatureModel.update({
+            "estimation._id": estimation._id,
+            "$or": [{"estimator.removalRequested": true, "estimator.changeRequested": true}]
+        }, {$set: {"estimator.changedInThisIteration": true}}, {multi: true})
+
+
+    estimation = await
+        EstimationModel.findOneAndUpdate({_id: estimation._id}, {
+            $set: {status: SC.STATUS_REVIEW_REQUESTED},
+            $push: {
+                statusHistory: {
+                    name: estimator.firstName,
+                    status: SC.STATUS_REVIEW_REQUESTED
+                }
+            }
+        }, {
+            new: true,
+            lean: true
+        })
     estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
     return estimation
 }
