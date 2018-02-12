@@ -951,12 +951,36 @@ td.rejRowColor {
     margin-right: 1%;
     margin-bottom: 10px;
 }
-
+.technologytagNew {
+    min-width: 12%;
+    min-height: 10px;
+    background-color: #303440;
+    float: left;
+    padding: 6px;
+    padding-right: 1px;
+    margin-right: 1%;
+    margin-bottom: 10px;
+    color:white;
+}
+.removeClass{
+    float: right;
+    font-size: 6px;
+    color: #ff534f;
+    margin-top: -6px;
+    padding: 2px;
+    background: #fff;
+    border-radius: 50%;
+}
 .technologytag span {
     color: #fff;
     font-size: 18px;
 }
-
+.suggestionsClass ul{
+    list-style-type: none;
+}
+.suggestionsClass ul li{
+    float:left;
+}
 .technologytag button {
     float: right;
     background-color: #303440;
