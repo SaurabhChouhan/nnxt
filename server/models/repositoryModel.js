@@ -3,8 +3,8 @@ import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
-import {validate, repositoryAddTaskStruct,repositoryUpdateTaskAndFeatureStruct} from "../validation"
-import {EstimationModel,EstimationFeatureModel} from "./"
+import {validate, repositoryAddTaskStruct, repositoryUpdateTaskAndFeatureStruct} from "../validation"
+import {EstimationModel, EstimationFeatureModel} from "./"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -79,11 +79,11 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
 
     validate(featureInput, repositoryUpdateTaskAndFeatureStruct)
     const repositoryFeature = await RepositoryModel.findById(featureInput._id)
-    if(!repositoryFeature)
+    if (!repositoryFeature)
         throw new AppError('Feature not found in Repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     // check to see if estimation from where this feature was added is same a sent in feature
 
-    if(featureInput.estimation._id == repositoryFeature.estimation._id){
+    if (featureInput.estimation._id == repositoryFeature.estimation._id) {
         console.log("repository would be changed")
         repositoryFeature.name = featureInput.name
         repositoryFeature.description = featureInput.description
@@ -122,7 +122,7 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
         filterObj.technologies.forEach(function (technology) {
             technologies.push(new RegExp(technology, "i"))
         })
-    }else {
+    } else {
         let technology = new RegExp(filterObj.technologies, "i")
         technologies = [technology]
     }
