@@ -149,6 +149,13 @@ export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
 export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
 })
+
+export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
+    _id: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+    })
+})
 //Estimator Feature Validation Block End
 
 //Negotiator Feature Validation Block Start
@@ -164,7 +171,8 @@ export const estimationNegotiatorUpdateFeatureStruct = t.struct({
             note: t.String
         })
         )
-    )
+    ),
+    repo: t.maybe(t.struct({_id: t.Nil}))
 })
 
 export const estimationNegotiatorUpdateTaskStruct = t.struct({
