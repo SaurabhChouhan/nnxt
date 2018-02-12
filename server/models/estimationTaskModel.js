@@ -211,10 +211,6 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         estimationTask.estimator.changedKeyInformation = true
     }
 
-    // As estimator has peformed edit, reset changeRequested and grant edit flags
-    estimationTask.estimator.changeRequested = false
-    estimationTask.negotiator.changeGranted = false
-
     estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {

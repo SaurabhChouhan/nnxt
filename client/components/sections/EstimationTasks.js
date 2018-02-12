@@ -20,44 +20,30 @@ class EstimationTask extends React.PureComponent {
 
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
-            /**
-             * Negotiator would be able to give suggestions about changes in name/description/estimated hours
-             */
-
-            console.log("Edit view for negotiator")
+            // First button shown to negotiator would be suggestion button (kind of edit button)
             if (task.negotiator.changeSuggested) {
-                if (task.estimator.changedKeyInformation) {
-                    buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
-                                                 onClick={() => {
-                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                 }}/> :
-                        <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
-                } else {
-
-                    buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
-                                                 onClick={() => {
-                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                 }}/> :
-                        <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
-                }
-
+                // Negotiator has suggested changes in this iteration so show that to negotiator,
+                buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
+                                             onClick={() => {
+                                                 this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                             }}/> :
+                    <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
+            } else if (task.estimator.changedKeyInformation) {
+                // Estimator has changed key information in previous iteration, so show that to negotiator
+                buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                                             onClick={() => {
+                                                 this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                             }}/> :
+                    <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
             } else {
-                if (task.estimator.changedKeyInformation) {
-                    buttons.push(editView ? <img key="suggestion" src="/images/suggestion_incoming.png"
-                                                 onClick={() => {
-                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                 }}/> :
-                        <img key="suggestion" src="/images/suggestion_incoming_disable.png"/>)
-                } else {
-                    buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
-                                                 onClick={() => {
-                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                 }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
-
-                }
+                // Show normal suggestion button
+                buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
+                                             onClick={() => {
+                                                 this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                             }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
             }
 
-
+            // Second button shown to Negotiator would be related to edit requests (by estimator)/edit granted (by negotiator)
             if (task.estimator.changeRequested) {
                 if (task.negotiator.changeGranted) {
                     // estimator has requested change which negotiator has granted
@@ -78,6 +64,7 @@ class EstimationTask extends React.PureComponent {
                 }
             }
 
+            // Third button shown to negotiator would be related to removal request (by estimator)/ delete button
             if (task.estimator.removalRequested) {
                 // Estimator has requested removal, negotiator will directly delete task if he wants to
                 buttons.push(editView ? <img key="he_requested_delete" src="/images/he_requested_delete.png"
@@ -94,112 +81,39 @@ class EstimationTask extends React.PureComponent {
                                              }}/> : <img key="delete" src="/images/delete_disable.png"/>)
             }
 
-
         } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
+            if (task.addedInThisIteration && task.owner == SC.OWNER_ESTIMATOR) {
+                // As estimator has added this task in this iteration only, he/she would be able to edit/delete it without any restrictions
+                buttons.push(editView ? <img key="edit" src="/images/edit.png"
+                                             onClick={() => {
+                                                 this.props.editTask(task, loggedInUserRole)
+                                             }}/> : <img key="edit" src="/images/edit_disable.png"/>)
+                buttons.push(editView ? <img key="delete" src="/images/delete.png"
+                                             onClick={() => {
+                                                 this.props.deleteTask(task)
+                                             }}/> : <img key="delete" src="/images/delete_disable.png"/>)
 
-            /**
-             * First button show to estimator would always be edit or its variations
-             **/
-
-            if (task.owner == SC.OWNER_ESTIMATOR) {
-                if (task.addedInThisIteration) {
-                    // Estimator would see plain edit button in case he has added task in this iteration
-                    buttons.push(editView ? <img key="edit" src="/images/edit.png"
+            } else {
+                // As task is either not added by estimator or is not added in this iteration hence he has no direct permission to edit/delete task
+                if (task.estimator.changedKeyInformation) {
+                    // Estimator has changed key information so show estimator icon to notify that
+                    buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                                  onClick={() => {
-                                                     this.props.editTask(task, loggedInUserRole)
-                                                 }}/> : <img key="edit" src="/images/edit_disable.png"/>)
-                    buttons.push(editView ? <img key="delete" src="/images/delete.png"
+                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                 }}/> :
+                        <img key="suggestion_incoming" src="/images/suggestion_outgoing_disable.png"/>)
+                } else if (task.negotiator.changeSuggested) {
+                    // Negotiator has suggested changes in previous iteration so show that
+                    buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
                                                  onClick={() => {
-                                                     this.props.deleteTask(task)
-                                                 }}/> : <img key="delete" src="/images/delete_disable.png"/>)
-
-                } else {
-                    if (task.negotiator.changeSuggested) {
-                        if (task.estimator.changedKeyInformation) {
-                            logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
-                            // Negotiator has requested change
-                            buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
-                                                         onClick={() => {
-                                                             this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                         }}/> :
-                                <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
-                        } else {
-                            logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'negotiator requested change, he_requested_edit button')
-                            // Negotiator has requested change
-                            buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
-                                                         onClick={() => {
-                                                             this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                         }}/> :
-                                <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
-                        }
-                    }
-
-                    if (task.estimator.changeRequested) {
-                        if (task.negotiator.changeGranted) {
-                            // estimator has requested change which negotiator has granted
-                            logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                            buttons.push(editView ? <img key="he_granted_edit" src="/images/he_granted_edit.png"
-                                                         onClick={() => {
-                                                             this.props.editTask(task)
-                                                         }}/> :
-                                <img key="he_granted_edit" src="/images/he_granted_edit_disable.png"/>)
-                        } else {
-                            // estimator has requested change but negotiator has not granted it till now
-                            logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                            buttons.push(editView ? <img key="requested_edit" src="/images/requested_edit.png"
-                                                         onClick={() => {
-                                                             this.props.toggleEditRequest(task)
-                                                         }}/> :
-                                <img key="requested_edit" src="/images/requested_edit_disable.png"/>)
-                        }
-                    } else {
-                        // Estimator has not requested change and has no permission to change task either so he can request change
-                        logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                        buttons.push(editView ? <img key="request_edit" src="/images/request_edit.png"
-                                                     onClick={() => {
-                                                         this.props.toggleEditRequest(task)
-                                                     }}/> :
-                            <img key="request_edit" src="/images/request_edit_disable.png"/>)
-                    }
-
-                    if (task.estimator.removalRequested) {
-                        // Estimator has requested removal
-                        buttons.push(editView ? <img key="requested_delete" src="/images/requested_delete.png"
-                                                     onClick={() => {
-                                                         this.props.toggleDeleteRequest(task)
-                                                     }}/> :
-                            <img key="requested_delete" src="/images/requested_delete_disable.png"/>)
-                    } else {
-                        // Estimator can request removal
-                        buttons.push(editView ? <img key="request_delete" src="/images/request_delete.png"
-                                                     onClick={() => {
-                                                         this.props.toggleDeleteRequest(task)
-                                                     }}/> :
-                            <img key="request_delete" src="/images/request_delete_disable.png"/>)
-                    }
+                                                     this.props.openTaskSuggestionForm(task, loggedInUserRole)
+                                                 }}/> :
+                        <img key="suggestion_outgoing" src="/images/suggestion_incoming_disable.png"/>)
                 }
-            } else if (task.owner == SC.OWNER_NEGOTIATOR) {
-                if (task.negotiator.changeSuggested) {
-                    /* Negotiator has provided suggestions, clicking this button should show a window that would
-                       allow estimator to see suggestions given by negotiator
-                     */
 
-                    if (task.estimator.changedKeyInformation) {
-                        buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
-                                                     onClick={() => {
-                                                         this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                     }}/> :
-                            <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
-                    } else {
-                        buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
-                                                     onClick={() => {
-                                                         this.props.openTaskSuggestionForm(task, loggedInUserRole)
-                                                     }}/> :
-                            <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
-                    }
-
-                } 
-
+                /**
+                 * Second button shown to estimator would be related to edit or its request/grants
+                 */
                 if (task.estimator.changeRequested) {
                     if (task.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
@@ -227,7 +141,7 @@ class EstimationTask extends React.PureComponent {
                                                  }}/> :
                         <img key="request_edit" src="/images/request_edit_disable.png"/>)
                 }
-
+                // Third button is related to removal request
                 if (task.estimator.removalRequested) {
                     // Estimator has requested removal
                     buttons.push(editView ? <img key="requested_delete" src="/images/requested_delete.png"
@@ -246,14 +160,17 @@ class EstimationTask extends React.PureComponent {
             }
         }
 
-
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) ||
             loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
             if (task.feature && task.feature._id) {
                 // This task is part of some feature so add move out of feature button
-                buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature.png"
-                                  onClick={() => this.props.moveTaskOutOfFeature(this.props.task)}/>)
-            } else {
+                buttons
+                    .push(
+                        <img key="move_outof_feature" src="/images/move_outof_feature.png"
+                             onClick={() => this.props.moveTaskOutOfFeature(this.props.task)}/>)
+            }
+
+            else {
                 // This task is an individual task so add move to feature button
                 buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
                     this.props.moveToFeature(this.props.task);
@@ -268,8 +185,6 @@ class EstimationTask extends React.PureComponent {
             }
         }
 
-        logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
-        logger.debug(logger.ESTIMATION_TASK_BUTTONS, buttons)
         return <div className="task" onClick={() => console.log("Task clicked")}>
             <div className="col-md-9">
                 <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>

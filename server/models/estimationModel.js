@@ -246,18 +246,45 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
         "owner": SC.OWNER_NEGOTIATOR
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
+    // Reset change request by estimator, if edit was already granted for previous iteration
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
-    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeSuggested": false}}, {multi: true})
+        "negotiator.changeGranted": true
+    }, {$set: {"estimator.changeRequested": false}}, {multi: true})
+
+
+    await EstimationTaskModel.update({
+        "estimation._id": estimation._id,
+    }, {
+        $set: {
+            "negotiator.changedInThisIteration": false,
+            "negotiator.changeSuggested": false,
+            "negotiator.changeGranted": false
+        }
+    }, {multi: true})
 
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id,
         "owner": SC.OWNER_NEGOTIATOR
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
+
+    // Reset change request by estimator, if edit was already granted for previous iteration
+    await EstimationFeatureModel.update({
+        "estimation._id": estimation._id,
+        "negotiator.changeGranted": true
+    }, {$set: {"estimator.changeRequested": false}}, {multi: true})
+
+
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id
-    }, {$set: {"negotiator.changedInThisIteration": false, "negotiator.changeSuggested": false}}, {multi: true})
+    }, {
+        $set: {
+            "negotiator.changedInThisIteration": false,
+            "negotiator.changeSuggested": false,
+            "negotiator.changeGranted": false
+        }
+    }, {multi: true})
 
     estimation = await EstimationModel.findOneAndUpdate({_id: estimation._id}, {
         $set: {status: SC.STATUS_REVIEW_REQUESTED},
