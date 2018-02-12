@@ -209,10 +209,6 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         estimationTask.estimator.changedKeyInformation = true
     }
 
-// As estimator has peformed edit, reset changeRequested and grant edit flags
-    estimationTask.estimator.changeRequested = false
-    estimationTask.negotiator.changeGranted = false
-
     estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {
@@ -232,8 +228,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         mergeAllNotes = taskInput.notes
     }
     estimationTask.notes = mergeAllNotes
-    return await
-        estimationTask.save()
+    return await estimationTask.save()
 
 }
 
@@ -601,14 +596,14 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
 
     if (task.feature && task.feature._id) {
         let feature = await EstimationFeatureModel.findById(task.feature._id)
-        if (!feature)
+    if (!feature)
             throw new AppError('Feature that this task is associated with is not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
         if (task.estimator.estimatedHours)
             await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
 
-    }
+}
     task.isDeleted = true
     task.estimator.changedInThisIteration = true
     task.updated = Date.now()
