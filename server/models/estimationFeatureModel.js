@@ -419,56 +419,5 @@ estimationFeatureSchema.statics.deleteFeatureByEstimator = async (paramsInput, e
 }
 
 
-estimationFeatureSchema.statics.updateEstimatedHoursIntoFeatureByCriteria = async (featureID,taskNewEstimatedHours,taskExistingEstimatedHours,operationType) => {
-    let isUpdateEstimatedHoursIntoFeature = false
-    console.log("-----------update estimated hours into feature info--------------")
-    console.log("featureID = ",featureID)
-    console.log("taskNewEstimatedHours = ",taskNewEstimatedHours)
-    console.log("taskExistingEstimatedHours = ",taskExistingEstimatedHours)
-    console.log("operationType = ",operationType)
-
-    let estimationFeature = await EstimationFeatureModel.findOne({"_id":featureID,isDeleted:false})
-    if (!estimationFeature)
-        //throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        return isUpdateEstimatedHoursIntoFeature
-
-    let totalEstimatedHours = 0;
-    let existingFeatureEstimatedHours = estimationFeature.negotiator.estimatedHours
-    if(!(existingFeatureEstimatedHours && _.isNumber(existingFeatureEstimatedHours)))
-        return isUpdateEstimatedHoursIntoFeature
-    else{
-        if(existingFeatureEstimatedHours < 0)
-            existingFeatureEstimatedHours = 0
-    }
-
-    if(!(taskNewEstimatedHours && _.isNumber(taskNewEstimatedHours)))
-        return isUpdateEstimatedHoursIntoFeature
-    if(!(taskExistingEstimatedHours && _.isNumber(taskExistingEstimatedHours)))
-        return isUpdateEstimatedHoursIntoFeature
-
-    if(operationType == SC.OPERATION_ADDITION){
-        totalEstimatedHours = existingFeatureEstimatedHours + taskNewEstimatedHours
-    }else if(operationType == SC.OPERATION_SUBTRACTION){
-        totalEstimatedHours = existingFeatureEstimatedHours - taskExistingEstimatedHours
-        if(totalEstimatedHours < 0)
-            totalEstimatedHours = 0
-    }else if(operationType == SC.OPERATION_SUBTRACTION_AND_ADDITION){
-        totalEstimatedHours = existingFeatureEstimatedHours - taskExistingEstimatedHours
-        if(totalEstimatedHours < 0)
-            totalEstimatedHours = 0
-        totalEstimatedHours = totalEstimatedHours + taskNewEstimatedHours
-    }else{
-        //throw new AppError('Invalid operation to add or subtract estimated hours', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-        return isUpdateEstimatedHoursIntoFeature
-    }
-    console.log("totalEstimatedHours = ",totalEstimatedHours)
-    console.log("-------------------------------------------------------------------")
-    estimationFeature.negotiator.estimatedHours = totalEstimatedHours
-    let isUpdated = await estimationFeature.save()
-    if(isUpdated)
-        isUpdateEstimatedHoursIntoFeature = true
-    return isUpdateEstimatedHoursIntoFeature
-}
-
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel
