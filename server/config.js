@@ -94,7 +94,6 @@ const config = {
         },
         ravi: {
             dbname: 'nnxt',
-            //url: 'mongodb://192.168.1.55/ravi_nnxt',
             url: 'mongodb://localhost/nnxt',
             useMongoClient: true
         }

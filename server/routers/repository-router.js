@@ -6,15 +6,9 @@ let repositoryRouter = new Router({
     prefix: 'repositories'
 })
 
-
 repositoryRouter.get("/search", async ctx => {
-        console.log("ctx.params",ctx.query)
-   return "ravi inside"
-    // Return expected schema
-    if (ctx.schemaRequested)
-        return generateSchema(repositorySearchStruct)
-    return await RepositoryModel.get()
+    let technologies =  ctx.query
+    return await RepositoryModel.searchRepositories(technologies)
 })
-
 
 export default repositoryRouter

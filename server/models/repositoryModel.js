@@ -117,5 +117,38 @@ repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id,is_feature,ta
     return await repository.save()
 }
 
+repositorySchema.statics.searchRepositories = async (filterObj) => {
+   let technologies = []
+    if(filterObj.technologies && Array.isArray(filterObj.technologies))
+         technologies = filterObj.technologies
+    else
+         technologies = [filterObj.technologies]
+    let totalArrayResult = await
+        RepositoryModel.aggregate({
+            $match: {
+                "technologies": {$in:technologies},
+            }
+        }, {
+            $project: {
+                name: 1,
+                description: 1,
+                estimation: 1,
+                status: 1,
+                type: 1,
+                foundationTask: 1,
+                isFeature: 1,
+                isPartOfEstimation: 1,
+                hasHistory: 1,
+                createdBy: 1,
+                created: 1,
+                technologies: 1,
+                tags: 1,
+                tasks: 1
+            }
+        }).exec()
+
+    return totalArrayResult
+}
+
 const RepositoryModel = mongoose.model("Repository", repositorySchema)
 export default RepositoryModel
