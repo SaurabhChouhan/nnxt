@@ -58,10 +58,12 @@ export const estimationTaskDelete = (taskID) => ({
     type: AC.ESTIMATION_TASK_DELETE,
     taskID: taskID
 })
+
 export const moveTaskInFeature = (task) => ({
     type: AC.MOVE_TASK_IN_FEATURE,
     task: task
 })
+
 export const deleteEstimationFeature = (feature) => ({
     type: AC.DELETE_ESTIMATION_FEATURE,
     feature: feature

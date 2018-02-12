@@ -25,9 +25,9 @@ class EstimationFeatureDetail extends React.PureComponent {
                 <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
             </div>
             <div className="col-md-6 text-right estimationActions pad">
-                <img key="granted_edit" src="/images/he_granted_edit.png"/>
-                <img key="granted_edit" src="/images/he_granted_edit.png"/>
-                <img key="granted_edit" src="/images/he_granted_edit.png"/>
+                <img key="he_granted_edit1" src="/images/he_granted_edit.png"/>
+                <img key="he_granted_edit2" src="/images/he_granted_edit.png"/>
+                <img key="he_granted_edit3" src="/images/he_granted_edit.png"/>
 
             </div>
             <div className="newFlagStrip">
