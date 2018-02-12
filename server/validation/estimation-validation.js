@@ -209,3 +209,9 @@ export const estimationApproveByNegotiatorStruct = t.struct({
 export const estimationProjectAwardByNegotiatorStruct = t.struct({
     _id: RequiredString
 })
+export const estimationAddTaskFromRepositoryByNegotiatorStruct = t.struct({
+    _id: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+    })
+})

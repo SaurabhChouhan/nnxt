@@ -28,7 +28,8 @@ import {
     estimationNegotiatorApproveFeatureStruct,
     estimationApproveByNegotiatorStruct,
     estimationProjectAwardByNegotiatorStruct,
-    estimationAddTaskFromRepositoryByEstimatorStruct
+    estimationAddTaskFromRepositoryByEstimatorStruct,
+    estimationAddTaskFromRepositoryByNegotiatorStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -320,7 +321,9 @@ estimationRouter.post('/add-task-from-repository', async ctx => {
             return generateSchema(estimationAddTaskFromRepositoryByEstimatorStruct)
         return await EstimationTaskModel.addTaskFromRepositoryByEstimator(ctx.request.body, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        return "not implemented"
+        if (ctx.schemaRequested)
+            return generateSchema(estimationAddTaskFromRepositoryByNegotiatorStruct)
+        return await EstimationTaskModel.addTaskFromRepositoryByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task from repository into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
