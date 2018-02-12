@@ -5,24 +5,27 @@ import * as SC from "../serverconstants";
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
+import {toObject} from 'tcomb-doc'
 import {
-    estimationEstimatorAddFeatureStruct,
+    generateSchema,
     estimationEstimatorAddTaskStruct,
-    estimationEstimatorMoveOutOfFeatureStruct,
+    estimationEstimatorUpdateTaskStruct,
+    estimationEstimatorAddFeatureStruct,
+    estimationEstimatorUpdateFeatureStruct,
     estimationEstimatorMoveToFeatureStruct,
+    estimationEstimatorMoveOutOfFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
     estimationEstimatorRequestRemovalToTaskStruct,
-    estimationEstimatorUpdateFeatureStruct,
-    estimationEstimatorUpdateTaskStruct,
-    estimationInitiationStruct,
-    estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorAddTaskStruct,
-    estimationNegotiatorGrantEditPermissionToTaskStruct,
-    estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct,
-    estimationNegotiatorUpdateFeatureStruct,
+    estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorUpdateTaskStruct,
-    generateSchema
+    estimationNegotiatorUpdateFeatureStruct,
+    estimationNegotiatorMoveToFeatureStruct,
+    estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationNegotiatorGrantEditPermissionToTaskStruct,
+    estimationInitiationStruct,
+    estimationAddTaskFromRepositoryByEstimatorStruct,
+    estimationAddTaskFromRepositoryByNegotiatorStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -289,6 +292,17 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
     }
 })
 
+estimationRouter.put('/project-award', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationProjectAwardByNegotiatorStruct)
+        return await EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can project award of this estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+
 //soft delete feature by estimation
 estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
@@ -298,4 +312,22 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
 
     }else throw new AppError("Only users with role [" + ROLE_ESTIMATOR + ROLE_NEGOTIATOR+ "] can delete features from estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
 })
+
+/**
+ * Add task from repository by estimator/negotiator to estimation
+ */
+estimationRouter.post('/add-task-from-repository', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationAddTaskFromRepositoryByEstimatorStruct)
+        return await EstimationTaskModel.addTaskFromRepositoryByEstimator(ctx.request.body, ctx.state.user)
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationAddTaskFromRepositoryByNegotiatorStruct)
+        return await EstimationTaskModel.addTaskFromRepositoryByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add task from repository into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
 export default estimationRouter

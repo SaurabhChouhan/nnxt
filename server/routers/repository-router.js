@@ -7,14 +7,10 @@ let repositoryRouter = new Router({
 })
 
 
-repositoryRouter.get("/search", async ctx => {
-    // Return expected schema
-    if (ctx.schemaRequested)
-        return generateSchema(repositorySearchStruct)
-
-
-    return await RepositoryModel.get()
+repositoryRouter.post("/search", async ctx => {
+    let technologies =  ctx.request.body
+    console.log("inside search",technologies)
+    return await RepositoryModel.searchRepositories(ctx.request.body)
 })
-
 
 export default repositoryRouter
