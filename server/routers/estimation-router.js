@@ -293,9 +293,9 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
 estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         return await EstimationFeatureModel.deleteFeatureByEstimator(ctx.params, ctx.state.user)
-    } else {
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)){
         return await EstimationFeatureModel.deleteFeatureByNegotiator(ctx.params, ctx.state.user)
-        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "] can delete features from estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
-    }
+
+    }else throw new AppError("Only users with role [" + ROLE_ESTIMATOR + ROLE_NEGOTIATOR+ "] can delete features from estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
 })
 export default estimationRouter
