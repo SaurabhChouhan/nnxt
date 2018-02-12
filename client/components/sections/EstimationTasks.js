@@ -190,11 +190,11 @@ class EstimationTask extends React.PureComponent {
                 <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
             </div>
             <div className="col-md-3">
-                {task.owner == SC.OWNER_ESTIMATOR && <div className="flagStrip">
+                {task.owner == SC.OWNER_ESTIMATOR && task.addedInThisIteration && <div className="flagStrip">
                     <img src="/images/estimator_new_flag.png" title="Added by Estimator"></img>
                 </div>}
 
-                {task.owner == SC.OWNER_NEGOTIATOR && <div className="flagStrip">
+                {task.owner == SC.OWNER_NEGOTIATOR && task.addedInThisIteration && <div className="flagStrip">
                     <img src="/images/negotiator_new_flag.png" title="Added by Negotiator"></img>
                 </div>}
 
@@ -230,11 +230,6 @@ class EstimationTask extends React.PureComponent {
             <div className="col-md-6 text-right estimationActions">
                 {buttons}
             </div>
-            {/*
-            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
-            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
-            <div style={{width:'10px',height:'10px',float:'right',background:'#ccc'}}></div>
-            */}
         </div>
 
     }
