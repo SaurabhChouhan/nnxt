@@ -85,17 +85,11 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
         let estimationFeature = await EstimationFeatureModel.findById(taskInput.feature._id)
-
-        console.log("estimator feature found as ", estimationFeature)
         if (!estimationFeature || estimationFeature.estimation._id.toString() != estimation._id.toString()) {
             throw new AppError('No such feature in this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         }
-        //Here this method would be update estimated hours into feature when add new task with feature
-        let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(estimationFeature._id,taskInput.estimatedHours,0,SC.OPERATION_ADDITION)
-        console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
-        if (!isUpdatedEstimationHours) {
-            throw new AppError('Not update estimated hours of task into feature (Task added with feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-        }
+        // As task is being added into feature estimated hours of task would be added into current estimated hours of feature
+        await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
 
     let repositoryTask = undefined
@@ -202,7 +196,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         isFeature = true
         //Here this method would be update estimated hours into feature when update task with feature
-        let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(estimationFeatureObj._id,taskInput.estimatedHours,estimationTask.estimator.estimatedHours,SC.OPERATION_SUBTRACTION_AND_ADDITION)
+        let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(estimationFeatureObj._id, taskInput.estimatedHours, estimationTask.estimator.estimatedHours, SC.OPERATION_SUBTRACTION_AND_ADDITION)
         console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
         if (!isUpdatedEstimationHours) {
             throw new AppError('Not update estimated hours of task into feature (Task update with feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -331,7 +325,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         //Here this method would be update estimated hours into feature when add task with feature
-        let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(estimationFeatureObj._id,taskInput.estimatedHours,0,SC.OPERATION_ADDITION)
+        let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(estimationFeatureObj._id, taskInput.estimatedHours, 0, SC.OPERATION_ADDITION)
         console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
         if (!isUpdatedEstimationHours) {
             throw new AppError('Not update estimated hours of task into feature (Task update with feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -452,7 +446,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (featureInput,
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     //Here this method would be update estimated hours into feature when move task to feature
-    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id,task.estimator.estimatedHours,0,SC.OPERATION_ADDITION)
+    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id, task.estimator.estimatedHours, 0, SC.OPERATION_ADDITION)
     console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
     if (!isUpdatedEstimationHours) {
         throw new AppError('Not update estimated hours of task into feature (Move Task to feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -493,7 +487,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (featureInp
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     //Here this method would be update estimated hours into feature when move task out of feature
-    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id,0,task.estimator.estimatedHours,SC.OPERATION_SUBTRACTION)
+    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id, 0, task.estimator.estimatedHours, SC.OPERATION_SUBTRACTION)
     console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
     if (!isUpdatedEstimationHours) {
         throw new AppError('Not update estimated hours of task into feature (Move Task out of feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -530,7 +524,7 @@ estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskInput, e
     task.estimator.removalRequested = !task.estimator.removalRequested
     task.estimator.changedInThisIteration = true
 
-   return await task.save();
+    return await task.save();
 
     //const updatedTask = await task.save();
     //return {removalRequested:updatedTask.estimator.removalRequested}
@@ -586,7 +580,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (featureInput
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     //Here this method would be update estimated hours into feature when move task to feature
-    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id,task.estimator.estimatedHours,0,SC.OPERATION_ADDITION)
+    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id, task.estimator.estimatedHours, 0, SC.OPERATION_ADDITION)
     console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
     if (!isUpdatedEstimationHours) {
         throw new AppError('Not update estimated hours of task into feature (Move Task to feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -623,7 +617,7 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
 
     if (!task.addedInThisIteration)
         throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    if(task.feature && task.feature._id) {
+    if (task.feature && task.feature._id) {
         //Here this method would be update estimated hours into feature when move task out of feature
         let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(task.feature._id, 0, task.estimator.estimatedHours, SC.OPERATION_SUBTRACTION)
         console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
@@ -662,7 +656,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (featureInput
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     //Here this method would be update estimated hours into feature when move task to feature
-    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id,task.estimator.estimatedHours,0,SC.OPERATION_ADDITION)
+    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id, task.estimator.estimatedHours, 0, SC.OPERATION_ADDITION)
     console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
     if (!isUpdatedEstimationHours) {
         throw new AppError('Not update estimated hours of task into feature (Move Task to feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -700,7 +694,7 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
 
     if (!task.addedInThisIteration)
         throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    if(task.feature && task.feature._id) {
+    if (task.feature && task.feature._id) {
         //Here this method would be update estimated hours into feature when move task out of feature
         let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(task.feature._id, 0, task.estimator.estimatedHours, SC.OPERATION_SUBTRACTION)
         console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
@@ -741,7 +735,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (featureIn
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     //Here this method would be update estimated hours into feature when move task out of feature
-    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id,0,task.estimator.estimatedHours,SC.OPERATION_SUBTRACTION)
+    let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(feature._id, 0, task.estimator.estimatedHours, SC.OPERATION_SUBTRACTION)
     console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
     if (!isUpdatedEstimationHours) {
         throw new AppError('Not update estimated hours of task into feature (Move Task out of feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -771,7 +765,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-       throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only given grant edit permission to task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only given grant edit permission to task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
