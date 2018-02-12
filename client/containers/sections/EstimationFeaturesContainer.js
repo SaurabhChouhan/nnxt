@@ -3,8 +3,8 @@ import {EstimationFeatures} from "../../components"
 import * as COC from "../../components/componentConsts";
 import * as A from "../../actions";
 import {initialize} from "redux-form";
-import * as SC from "../../../server/serverconstants"
 import {NotificationManager} from "react-notifications";
+import * as EC from "../../../server/errorcodes";
 
 const mapStateToProps = (state, ownProps) => ({
     features: state.estimation.features,
@@ -31,6 +31,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         return dispatch(A.deleteFeatureByEstimatorOnServer(feature.estimation._id, feature._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Feature Deleted successfully")
+            }
+            else if (json.code && json.code == EC.INVALID_USER) {
+                NotificationManager.error("Feature Deletion Failed You are not owner of this feature !")
+            } else if (json.code && json.code == EC.ACCESS_DENIED) {
+                NotificationManager.error("You are not allowed to delete this feature !")
             }
             else
                 NotificationManager.error("Feature Deletion Failed !")
