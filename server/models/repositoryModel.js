@@ -95,8 +95,6 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
         console.log("No changes in repository as estimation id do not match")
         return false
     }
-
-
 }
 
 repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
@@ -124,7 +122,7 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
         filterObj.technologies.forEach(function (technology) {
             technologies.push(new RegExp(technology, "i"))
         })
-    }else {
+    } else {
         let technology = new RegExp(filterObj.technologies, "i")
         technologies = [technology]
     }

@@ -13,7 +13,7 @@ const config = {
         production: {
             port: 8080,
             setupData: false,
-            dropDatabase:false
+            dropDatabase: false
         },
         kamlesh: {
             port: 3002,
@@ -41,6 +41,11 @@ const config = {
             dropDatabase: false
         },
         gaurav: {
+            port: 3000,
+            setupData: false,
+            dropDatabase: false
+        },
+        ravi: {
             port: 3000,
             setupData: false,
             dropDatabase: false
@@ -93,6 +98,11 @@ const config = {
             useMongoClient: true
         },
         gaurav_local: {
+            dbname: 'nnxt',
+            url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        ravi: {
             dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
             useMongoClient: true
