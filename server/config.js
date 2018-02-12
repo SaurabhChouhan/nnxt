@@ -79,7 +79,7 @@ const config = {
         },
         praveen: {
             dbname: 'nnxt',
-            url: "mongodb://praveen:praveen@ds119078.mlab.com:19078/nnxt",
+            url: "mongodb://localhost/nnxt",
             useMongoClient: true
         },
         anup: {
