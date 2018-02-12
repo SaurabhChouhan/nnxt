@@ -7,7 +7,7 @@ let initialState = {
 const repositoryReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.SELECT_REPOSITORY:
-            return Object.assign({}, state, {all: action})
+            return Object.assign({}, state, {all:action.repository})
         default:
             return state
     }

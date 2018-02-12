@@ -250,15 +250,15 @@ class EstimationDetail extends Component {
 
                 <div className="col-md-12">
                     <div className="repository repositoryFeature">
-                        <div className="RepositoryHeading">
-                            <div className="repositoryFeatureLable">
-                            </div>
-                            <h5>Feature</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                            className="pull-right">(04 HRS)</span>
-                        </div>
-                        <div className="RepositoryContent">
-                            <p>Lorem ipsum dolor sit amet consetutor</p>
-                        </div>
+                                <div className="RepositoryHeading">
+                                    <div className="repositoryFeatureLable">
+                                    </div>
+                                    <h5>Feature</h5><i className="glyphicon glyphicon-option-vertical pull-right"></i><span
+                                    className="pull-right">(04 HRS)</span>
+                                </div>
+                                <div className="RepositoryContent">
+                                    <p>Lorem ipsum dolor sit amet consetutor</p>
+                                </div>
                     </div>
                     <div className="repository repositoryTask">
                         <div className="RepositoryHeading">
