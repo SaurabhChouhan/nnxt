@@ -7,7 +7,7 @@ import _ from 'lodash'
 
 let EstimationFeatureTask = (props) => {
     const {task} = props
-    return <div className="task">
+    return <div className="task-expanded">
         <div className="col-md-12 pad">
             <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
         </div>
