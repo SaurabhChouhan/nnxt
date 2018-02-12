@@ -24,10 +24,6 @@ import {
     estimationNegotiatorMoveOutOfFeatureStruct,
     estimationNegotiatorGrantEditPermissionToTaskStruct,
     estimationInitiationStruct,
-    estimationNegotiatorApproveTaskStruct,
-    estimationNegotiatorApproveFeatureStruct,
-    estimationApproveByNegotiatorStruct,
-    estimationProjectAwardByNegotiatorStruct,
     estimationAddTaskFromRepositoryByEstimatorStruct
 } from "../validation"
 
