@@ -152,6 +152,9 @@ export const requestReviewOnServer = (estimationID) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
+                    // During review flags of tasks/feature may also change so select this estimation again to get latest data
+                    dispatch(getEstimationFromServer(estimationID))
+
                 }
                 return json
             })
@@ -176,6 +179,9 @@ export const requestChangeOnServer = (estimationID) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
+                    // During change request,  flags of tasks/feature may also change so select this estimation again to get latest data
+                    dispatch(getEstimationFromServer(estimationID))
+
                 }
                 return json
             })
