@@ -120,7 +120,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
             },
             feature: taskInput.feature,
             createdBy: estimator,
-            technologies: taskInput.technologies,
+            technologies: estimation.technologies, // Technologies of estimation would be copied directly to tasks
             tags: taskInput.tags
         }, estimator)
 
@@ -132,20 +132,17 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
 
     // create estimator section
 
-    let estimatorSection = {}
-    /* Name/description would always match repository name description */
-
-    estimatorSection.name = repositoryTask.name
-    estimatorSection.description = repositoryTask.description
-    estimatorSection.estimatedHours = taskInput.estimatedHours
-
     taskInput.status = SC.STATUS_PENDING
     taskInput.addedInThisIteration = true
     taskInput.owner = SC.OWNER_ESTIMATOR
     taskInput.initiallyEstimated = true
     taskInput.changedKeyInformation = true
-
-    taskInput.estimator = estimatorSection
+    taskInput.technologies = estimation.technologies
+    taskInput.estimator = {
+        name: repositoryTask.name,
+        description: repositoryTask.description,
+        estimatedHours: taskInput.estimatedHours
+    }
     /**
      * Add name of logged in user against notes
      */
@@ -186,26 +183,21 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let isFeature = false
-    if (taskInput.feature && taskInput.feature._id) {
+    if (estimationTask.feature && estimationTask.feature._id) {
         let estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        isFeature = true
-        //Here this method would be update estimated hours into feature when update task with feature
-        let isUpdatedEstimationHours = await EstimationFeatureModel.updateEstimatedHoursIntoFeatureByIdTaskNewEstimatedHoursTaskExistingEstimatedHoursAndOperationType(estimationFeatureObj._id, taskInput.estimatedHours, estimationTask.estimator.estimatedHours, SC.OPERATION_SUBTRACTION_AND_ADDITION)
-        console.log("isUpdatedEstimationHours  = ", isUpdatedEstimationHours)
-        if (!isUpdatedEstimationHours) {
-            throw new AppError('Not update estimated hours of task into feature (Task update with feature) in this estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-        }
+
+        await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours - estimationTask.estimator.estimatedHours}})
     }
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
-        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, taskInput, estimator)
+        let repositoryTask = await
+            RepositoryModel.updateTask(estimationTask.repo._id, taskInput, estimator)
     }
 
     estimationTask.feature = taskInput.feature
@@ -217,7 +209,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         estimationTask.estimator.changedKeyInformation = true
     }
 
-    // As estimator has peformed edit, reset changeRequested and grant edit flags
+// As estimator has peformed edit, reset changeRequested and grant edit flags
     estimationTask.estimator.changeRequested = false
     estimationTask.negotiator.changeGranted = false
 
@@ -240,7 +232,8 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         mergeAllNotes = taskInput.notes
     }
     estimationTask.notes = mergeAllNotes
-    return await estimationTask.save()
+    return await
+        estimationTask.save()
 
 }
 
