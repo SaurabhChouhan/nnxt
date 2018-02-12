@@ -43,6 +43,7 @@ export const hasRole = (ctx, roleName) => {
 }
 
 export const userHasRole = (user, roleName) => {
+    console.log("user roles ", user.roles)
     if (user && Array.isArray(user.roles) && user.roles.findIndex(r => r.name == roleName) != -1)
         return true
 

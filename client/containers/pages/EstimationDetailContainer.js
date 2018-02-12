@@ -50,6 +50,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+    sendChangeRequest: (estimation) => {
+        dispatch(A.requestChangeOnServer(estimation._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Review requested successfully")
+            } else {
+                if (json.code == EC.INVALID_OPERATION)
+                    NotificationManager.error("Change already requested")
+                else
+                    NotificationManager.error("Unknown error occurred")
+            }
+        })
+    },
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
     }
@@ -62,7 +74,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
     estimation: state.estimation.selected,
-    features: state.estimation.features
+    features: state.estimation.features,
+    repository:state.repository.all
 })
 
 const EstimationDetailContainer = withRouter(connect(

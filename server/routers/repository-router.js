@@ -6,9 +6,11 @@ let repositoryRouter = new Router({
     prefix: 'repositories'
 })
 
-repositoryRouter.get("/search", async ctx => {
-    let technologies =  ctx.query
-    return await RepositoryModel.searchRepositories(technologies)
+
+repositoryRouter.post("/search", async ctx => {
+    let technologies =  ctx.request.body
+    console.log("inside search",technologies)
+    return await RepositoryModel.searchRepositories(ctx.request.body)
 })
 
 export default repositoryRouter

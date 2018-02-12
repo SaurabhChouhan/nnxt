@@ -14,6 +14,18 @@ const estimationReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 tasks: Array.isArray(state.tasks) ? [...state.tasks, action.task] : [action.task]
             })
+        case AC.MOVE_TASK_IN_FEATURE:
+            return Object.assign({}, state, {
+                tasks: state.tasks.filter(item => item._id != action.task._id),
+                features: Array.isArray(state.features) && state.features.length > 0 ? state.features.map((feature, idx) => {
+                    if (feature._id == action.task.feature._id) {
+                        if (feature.tasks && Array.isArray(feature.tasks)) {
+                            feature.tasks.push(action.task)
+                        } else feature.tasks = [action.task]
+                    }
+                    return feature
+                }) : []
+            })
 
         case AC.UPDATE_ESTIMATION_TASK:
             return Object.assign({}, state, {
@@ -59,6 +71,9 @@ const estimationReducer = (state = initialState, action) => {
                 tasks: [...action.estimation.tasks],
                 features: [...action.estimation.features]
             })
+        case AC.DELETE_ESTIMATION_FEATURE:
+            return Object.assign({}, state, {features: state.features.filter(item => item._id != action.feature._id)})
+
         default:
             return state
     }
