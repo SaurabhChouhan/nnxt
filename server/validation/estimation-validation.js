@@ -31,8 +31,6 @@ export const estimationEstimatorAddTaskStruct = t.struct({
     repo: t.maybe(t.struct({
         _id: ObjectId
     })),
-    technologies: t.maybe(t.list(t.String)),
-    tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
             note: t.String
@@ -46,11 +44,6 @@ export const estimationEstimatorUpdateTaskStruct = t.struct({
     name: t.maybe(RequiredString),
     description: t.maybe(RequiredString),
     estimatedHours: t.Number,
-    feature: t.maybe(t.struct({
-        _id: ObjectId
-    })),
-    technologies: t.maybe(t.list(t.String)),
-    tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
             note: t.String

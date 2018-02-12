@@ -274,6 +274,7 @@ estimationRouter.put('/grant-edit-permission-task', async ctx => {
     }
 })
 
+
 estimationRouter.put('/tasks/:taskID/approve', async ctx => {
     if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return await EstimationTaskModel.approveTaskByNegotiator(ctx.params.taskID, ctx.state.user)
@@ -298,4 +299,6 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "] can delete features from estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 })
+
+
 export default estimationRouter
