@@ -448,12 +448,19 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     font-weight: bolder;
 }
 
-.feature p, .task p, .feature-expanded p {
+.feature p, .task p {
     font-size: 1.3em;
     margin:5px 0px 20px 10px;
     line-height: 1.3em;
     height: 2.6em;
     overflow: hidden;
+    white-space: pre-line;
+}
+
+.feature-expanded p {
+    font-size: 1.3em;
+    margin:5px 0px 20px 10px;
+    line-height: 1.3em;
     white-space: pre-line;
 }
 

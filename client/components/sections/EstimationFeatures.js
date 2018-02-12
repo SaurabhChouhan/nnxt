@@ -5,7 +5,30 @@ import * as logger from '../../clientLogger'
 import _ from 'lodash'
 
 
-class EstimationFeatureDetail extends React.PureComponent {
+let EstimationFeatureTask = (props) => {
+    const {task} = props
+    return <div className="task">
+        <div className="col-md-12 pad">
+            <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
+        </div>
+        <div className="col-md-12 pad">
+            <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
+        </div>
+        <div className="col-md-2 col-md-offset-1 pad">
+            <h4>Est. Hrs:</h4> <h4>&nbsp;{task.estimator.estimatedHours}</h4>
+        </div>
+        <div className="col-md-3 pad">
+            <h4>Sug. Hrs:</h4> <h4>&nbsp;{task.negotiator.estimatedHours}</h4>
+        </div>
+        <div className="col-md-6 text-right estimationActions pad">
+
+        </div>
+
+    </div>
+}
+
+
+class EstimationExpandedFeature extends React.PureComponent {
 
     render() {
         const {feature, loggedInUserRole, estimationStatus, index} = this.props;
@@ -16,124 +39,29 @@ class EstimationFeatureDetail extends React.PureComponent {
             <div className="col-md-12 pad" onClick={() => {
                 this.props.expandFeature(feature._id)
             }}>
-                <h4>Expanded Feature Name</h4>
+                <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
             </div>
             <div className="col-md-12 pad" onClick={() => {
                 this.props.expandFeature(feature._id)
             }}>
-                <p>Expanded Feature Description</p>
+                <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
             <div className="col-md-2 col-md-offset-1 pad">
-                <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                <h4>Est. Hrs:</h4> <h4>&nbsp;{feature.estimator.estimatedHours}</h4>
             </div>
             <div className="col-md-3 pad">
-                <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
+                <h4>Sug. Hrs:</h4> <h4>&nbsp;{feature.negotiator.estimatedHours}</h4>
             </div>
             <div className="col-md-6 text-right estimationActions pad">
-                <img key="he_granted_edit1" src="/images/he_granted_edit.png"/>
-                <img key="he_granted_edit2" src="/images/he_granted_edit.png"/>
-                <img key="he_granted_edit3" src="/images/he_granted_edit.png"/>
+                {/* feature buttons to go here */}
+            </div>
 
-            </div>
-            <div className="newFlagStrip">
-                <img src="/images/new_flag.png"></img>
-            </div>
-            <div className="repoFlagStrip">
-                <img src="/images/repo_flag.png"></img>
-            </div>
             <div className="col-md-11 col-md-offset-1">
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
+                {
+                    Array.isArray(feature.tasks) && feature.tasks.length > 0 &&
+                    feature.tasks.map(t => <EstimationFeatureTask task={t}/>)
+                }
 
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
-
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
-
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
-
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
             </div>
         </div>
     }
@@ -402,7 +330,7 @@ let EstimationFeatures = (props) => {
 
     return Array.isArray(props.features) && props.features.map((f, idx) =>
         (props.expandedFeatureID === f._id) ?
-            <EstimationFeatureDetail feature={f} index={idx} key={"feature" + idx} {...childProps}/> :
+            <EstimationExpandedFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/> :
             <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
     )
 }
