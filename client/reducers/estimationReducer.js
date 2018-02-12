@@ -22,7 +22,9 @@ const estimationReducer = (state = initialState, action) => {
                 tasks: state.tasks.filter(item => item._id != action.task._id),
                 features: Array.isArray(state.features) && state.features.length > 0 ? state.features.map((feature, idx) => {
                     if (feature._id == action.task.feature._id) {
-                        feature.tasks.push(action.task)
+                        if (feature.tasks && Array.isArray(feature.tasks)) {
+                            feature.tasks.push(action.task)
+                        } else feature.tasks = [action.task]
                     }
                     return feature
                 }) : []

@@ -9,7 +9,7 @@ import {
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
-import {EstimationModel, EstimationTaskModel, RepositoryModel} from "./"
+import {EstimationModel, RepositoryModel, EstimationTaskModel} from "./"
 import * as EC from "../errorcodes"
 import _ from 'lodash'
 
@@ -33,7 +33,7 @@ let estimationFeatureSchema = mongoose.Schema({
     estimator: {
         name: {type: String},
         description: {type: String},
-        estimatedHours: {type: Number},
+        estimatedHours: {type: Number, default:0},
         changeRequested: {type: Boolean, default: false},
         changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
@@ -42,7 +42,6 @@ let estimationFeatureSchema = mongoose.Schema({
     negotiator: {
         name: {type: String},
         description: {type: String},
-        estimatedHours: {type: Number},
         changeSuggested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},

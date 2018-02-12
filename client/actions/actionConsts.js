@@ -64,3 +64,8 @@ export const DELETE_TECHNOLOGY = "DELETE_TECHNOLOGY"
 //Leave request Constants
 export const ADD_LEAVE_REQUEST = "ADD_LEAVE_REQUEST"
 export const ADD_LEAVE_REQUESTS = "ADD_LEAVE_REQUESTS"
+
+//repository constants
+export const SELECT_REPOSITORY = "SELECT_REPOSITORY"
+
+
