@@ -5,130 +5,63 @@ import * as logger from '../../clientLogger'
 import _ from 'lodash'
 
 
-class EstimationFeatureDetail extends React.PureComponent {
+let EstimationFeatureTask = (props) => {
+    const {task} = props
+    return <div className="task-expanded">
+        <div className="col-md-12 pad">
+            <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
+        </div>
+        <div className="col-md-12 pad">
+            <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
+        </div>
+        <div className="col-md-2 col-md-offset-1 pad">
+            <h4>Est. Hrs:</h4> <h4>&nbsp;{task.estimator.estimatedHours}</h4>
+        </div>
+        <div className="col-md-3 pad">
+            <h4>Sug. Hrs:</h4> <h4>&nbsp;{task.negotiator.estimatedHours}</h4>
+        </div>
+        <div className="col-md-6 text-right estimationActions pad">
+
+        </div>
+
+    </div>
+}
+
+
+class EstimationExpandedFeature extends React.PureComponent {
 
     render() {
         const {feature, loggedInUserRole, estimationStatus, index} = this.props;
-        return <div className="feature-expanded" onClick={() => {
-            this.props.openDetailFeature("featurePrecise" + index)
-        }}>
-            <div className="col-md-12 pad">
-                <h4>Expanded Feature Name</h4>
+
+        logger.debug(logger.ESTIMATION_FEATURE_DETAIL_RENDER, this.props)
+
+        return <div className="feature-expanded">
+            <div className="col-md-12 pad" onClick={() => {
+                this.props.expandFeature(feature._id)
+            }}>
+                <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
             </div>
-            <div className="col-md-12 pad">
-                <p>Expanded Feature Description</p>
+            <div className="col-md-12 pad" onClick={() => {
+                this.props.expandFeature(feature._id)
+            }}>
+                <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
             <div className="col-md-2 col-md-offset-1 pad">
-                <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
+                <h4>Est. Hrs:</h4> <h4>&nbsp;{feature.estimator.estimatedHours}</h4>
             </div>
             <div className="col-md-3 pad">
-                <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
+                <h4>Sug. Hrs:</h4> <h4>&nbsp;{feature.negotiator.estimatedHours}</h4>
             </div>
             <div className="col-md-6 text-right estimationActions pad">
-                <img key="he_granted_edit1" src="/images/he_granted_edit.png"/>
-                <img key="he_granted_edit2" src="/images/he_granted_edit.png"/>
-                <img key="he_granted_edit3" src="/images/he_granted_edit.png"/>
+                {/* feature buttons to go here */}
+            </div>
 
-            </div>
-            <div className="newFlagStrip">
-                <img src="/images/new_flag.png"></img>
-            </div>
-            <div className="repoFlagStrip">
-                <img src="/images/repo_flag.png"></img>
-            </div>
             <div className="col-md-11 col-md-offset-1">
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
+                {
+                    Array.isArray(feature.tasks) && feature.tasks.length > 0 &&
+                    feature.tasks.map(t => <EstimationFeatureTask task={t}/>)
+                }
 
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
-
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
-
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
-                <div className="task">
-                    <div className="col-md-12 pad">
-                        <h4>Expanded Task Name</h4>
-                    </div>
-                    <div className="col-md-12 pad">
-                        <p>Expanded Task Description</p>
-                    </div>
-                    <div className="col-md-2 col-md-offset-1 pad">
-                        <h4>Est. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-3 pad">
-                        <h4>Sug. Hrs:</h4> <h4>&nbsp;8</h4>
-                    </div>
-                    <div className="col-md-6 text-right estimationActions pad">
-
-                    </div>
-                    <div className="newFlagStrip">
-                        <img src="/images/new_flag.png"></img>
-                    </div>
-                    <div className="repoFlagStrip">
-                        <img src="/images/repo_flag.png"></img>
-                    </div>
-                </div>
             </div>
         </div>
     }
@@ -164,13 +97,13 @@ class EstimationFeature extends React.PureComponent {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
                 buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                              onClick={() => {
-                                                 this.props.showFeatureSuggestionForm(feature,loggedInUserRole)
+                                                 this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                              }}/> :
                     <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
             } else {
                 buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
                                              onClick={() => {
-                                                 this.props.showFeatureSuggestionForm(feature,loggedInUserRole)
+                                                 this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                              }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
             }
 
@@ -332,11 +265,11 @@ class EstimationFeature extends React.PureComponent {
             }
         }
 
-        return <div className="feature" onClick={() => {
-            this.props.openDetailFeature("featureDetail" + index)
-        }}>
+        return <div className="feature">
             <div className="col-md-12 pad">
-                <div className="col-md-9">
+                <div className="col-md-9" onClick={() => {
+                    this.props.expandFeature(feature._id)
+                }}>
                     <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
                 </div>
 
@@ -367,7 +300,9 @@ class EstimationFeature extends React.PureComponent {
                 </div>
 
             </div>
-            <div className="col-md-12 short-description">
+            <div className="col-md-12 short-description" onClick={() => {
+                this.props.expandFeature(feature._id)
+            }}>
                 <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
             <div className="col-md-3">
@@ -375,7 +310,8 @@ class EstimationFeature extends React.PureComponent {
                 <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
             </div>
             <div className="col-md-3">
-                <h4>Suggested:</h4> <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
+                <h4>Suggested:</h4>
+                <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
             </div>
 
             <div className="col-md-6 text-right estimationActions">
@@ -387,11 +323,16 @@ class EstimationFeature extends React.PureComponent {
     }
 }
 
-let
-    EstimationFeatures = (props) =>
-        Array.isArray(props.features) && props.features.map((f, idx) => (props.featureDetailString === "featureDetail" + idx) ?
-        <EstimationFeatureDetail feature={f} index={idx} key={"feature" + idx} {...props}/> :
-        <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...props}/>
-        )
+let EstimationFeatures = (props) => {
+    let childProps = Object.assign({}, props, {
+        features: undefined
+    })
+
+    return Array.isArray(props.features) && props.features.map((f, idx) =>
+        (props.expandedFeatureID === f._id) ?
+            <EstimationExpandedFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/> :
+            <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+    )
+}
 
 export default EstimationFeatures

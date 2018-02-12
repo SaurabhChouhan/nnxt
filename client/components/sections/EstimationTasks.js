@@ -252,8 +252,6 @@ let
         let childProps = Object.assign({}, props, {
             tasks: undefined
         })
-
-
         return Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t}
                                                                                   key={t._id}  {...childProps}/>)
     }

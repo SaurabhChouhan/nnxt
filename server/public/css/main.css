@@ -427,7 +427,14 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     background: #F6E5DD;
 }
 
-.feature, .task, .feature-expanded {
+.task-expanded {
+    background: #F6E5DD;
+    overflow: scroll;
+    max-height: 500px;
+}
+
+
+.feature, .task, .feature-expanded, .task-expanded {
     border: 2px solid #D4D5D8;
     margin-top: 5px;
     width: 100%;
@@ -438,22 +445,29 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     padding-bottom: 10px;
 }
 
-.task div[class^='col-md'], .feature div[class^='col-md'], .feature-expanded div[class^='col-md'] {
+.task div[class^='col-md'], .feature div[class^='col-md'], .feature-expanded div[class^='col-md'], .task-expanded div[class^='col-md'] {
     padding: 0px;
 }
 
-.feature h4, .task h4, .feature-expanded h4 {
+.feature h4, .task h4, .feature-expanded h4, .task-expanded h4 {
     float: left;
     margin: 10px 0px 0px 10px;
     font-weight: bolder;
 }
 
-.feature p, .task p, .feature-expanded p {
+.feature p, .task p {
     font-size: 1.3em;
     margin:5px 0px 20px 10px;
     line-height: 1.3em;
     height: 2.6em;
     overflow: hidden;
+    white-space: pre-line;
+}
+
+.feature-expanded p, .task-expanded p {
+    font-size: 1.3em;
+    margin:5px 0px 20px 10px;
+    line-height: 1.3em;
     white-space: pre-line;
 }
 
