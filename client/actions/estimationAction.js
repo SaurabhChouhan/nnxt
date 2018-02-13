@@ -201,9 +201,9 @@ export const requestChangeOnServer = (estimationID) => {
 }
 
 
-export const requestForTaskEditPermissionOnServer = (task) => {
+export const requestForTaskEditPermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-edit-permission-task', {
+        return fetch('/api/estimations/tasks/'+taskID+'/request-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {

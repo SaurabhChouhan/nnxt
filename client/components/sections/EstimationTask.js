@@ -256,9 +256,7 @@ EstimationTask.defaultProps = {
 
 EstimationTask = connect(null, (dispatch, ownProps) => ({
     toggleEditRequest: (values) => {
-        let task = {}
-        task.task_id = values._id
-        return dispatch(A.requestForTaskEditPermissionOnServer(task)).then(json => {
+        return dispatch(A.requestForTaskEditPermissionOnServer(values._id)).then(json => {
             if (json.success) {
 
                 if (json.data && json.data.estimator && json.data.estimator.changeRequested)
