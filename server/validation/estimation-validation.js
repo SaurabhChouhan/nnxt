@@ -142,10 +142,6 @@ export const estimationEstimatorMoveOutOfFeatureStruct = t.struct({
     feature_id: RequiredString
 })
 
-export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
-    task_id: RequiredString
-})
-
 export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
 })
