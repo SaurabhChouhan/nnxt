@@ -1,4 +1,4 @@
-import {RequiredString, ObjectId, validate} from "./index"
+import {ObjectId, RequiredString} from "./index"
 import t from 'tcomb-validation'
 
 export const estimationInitiationStruct = t.struct({
