@@ -287,6 +287,7 @@ EstimationFeature.defaultProps = {
 
 
 EstimationFeature = connect(null, (dispatch, ownProps) => ({
+
         showEditFeatureForm: (values) => {
             // would always be called by estimator
             dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
@@ -298,6 +299,8 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
             feature.description = values.estimator.description
             dispatch(initialize('estimation-feature', feature))
         },
+
+
         showFeatureSuggestionForm: (values, loggedInUserRole) => {
             console.log("showFeatureSuggestionForm feature", values)
             // Can be called by both estimator and negotiator
@@ -330,6 +333,8 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
             dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG))
 
         },
+
+
         deleteFeature: (feature) => {
             console.log("delete feature", feature)
             return dispatch(A.deleteFeatureByEstimatorOnServer(feature.estimation._id, feature._id)).then(json => {
@@ -346,19 +351,50 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
             })
         },
-        toggleEditRequest: (feature) => {
-            console.log("toggleEditRequest", feature)
+
+
+        toggleEditRequest: (values) => {
+                let feature = {}
+                feature.feature_id = values._id
+                return dispatch(A.requestForFeatureEditPermissionOnServer(feature)).then(json => {
+                    if (json.success) {
+
+                        if (json.data && json.data.estimator && json.data.estimator.changeRequested)
+                            NotificationManager.success("Edit request on Feature raised...")
+                        else
+                            NotificationManager.success("Edit request on Feature cleared...")
+                    } else {
+                        NotificationManager.error("Unknown error occurred")
+                    }
+                })
+
         },
-        toggleGrantEdit: (feature) => {
-            // Call grant edit API which automatically toggles input
-            console.log("toggleGrantEdit", feature)
+
+
+        toggleGrantEdit: (values) => {
+            let feature = {}
+            feature.feature_id = values._id
+            return dispatch(A.grantEditPermissionOfFeatureOnServer(feature)).then(json => {
+                if (json.success) {
+                    if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
+                        NotificationManager.success("Edit permission on Feature granted...")
+                    else
+                        NotificationManager.success("Edit permission on Feature not granted...")
+                }
+                else {
+                    NotificationManager.error('Permission Grant Failed')
+                }
+            })
         },
+
         toggleDeleteRequest: (values) => {
             console.log("toggleDeleteRequest", values)
         },
+
         expandFeature: (featureID) => {
             dispatch(A.expandFeature(featureID))
         }
+
     })
 )(EstimationFeature)
 

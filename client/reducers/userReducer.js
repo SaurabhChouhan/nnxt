@@ -1,4 +1,12 @@
-import {ADD_LOGIN_USER, LOGIN_FAILED, ADD_USERS, ADD_USER, EDIT_USER, DELETE_USER} from "../actions/actionConsts"
+import {
+    ADD_LOGIN_USER,
+    LOGIN_FAILED,
+    ADD_USERS,
+    ADD_USER,
+    EDIT_USER,
+    DELETE_USER,
+    UPDATE_USER_PROFILE_STATE
+} from "../actions/actionConsts"
 import {ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_APP_USER} from "../../server/serverconstants";
 
 
@@ -49,7 +57,26 @@ export const userReducer = (state = initialState, action) => {
                 isAuthenticated: false,
                 loginError: action.error
             })
+        case UPDATE_USER_PROFILE_STATE:
+            return Object.assign({}, state, {
+                loggedIn: (true) ?
+                    Object.assign({}, {
+                        firstName: action.user.firstName,
+                        lastName: action.user.lastName,
+                        phone: action.user.phone,
+                        email: action.user.email,
+                        address: action.user.address,
+                        dob: action.user.dob,
+                        dateJoined: action.user.dateJoined,
+                        designation: action.user.designation,
+                        employeeCode: action.user.employeeCode,
+                        roles: action.user.roles,
+                        permissions: state.loggedIn.permissions,
+                        roleNames: state.loggedIn.roleNames
+                    }) : state.user.loggedIn
 
+
+            })
         default:
             return state
     }

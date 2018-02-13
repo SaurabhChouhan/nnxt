@@ -225,6 +225,30 @@ export const requestForTaskEditPermissionOnServer = (task) => {
     }
 }
 
+export const requestForFeatureEditPermissionOnServer = (feature) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/request-edit-permission-feature', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feature)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    // As json.data would contain complete updated feature just fire update redux action
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
 export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/tasks/' + taskID, {
@@ -455,11 +479,30 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    NotificationManager.success('Permission Granted Successfully')
                     dispatch(updateEstimationTask(json.data))
                 }
-                else {
-                    NotificationManager.error('Permission Granted Failed')
+                return json
+            })
+    }
+}
+
+export const grantEditPermissionOfFeatureOnServer = (feature) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/grant-edit-permission-feature', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feature)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
                 }
 
                 return json
