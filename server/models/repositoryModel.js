@@ -117,36 +117,65 @@ repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id, is_feature, 
 repositorySchema.statics.searchRepositories = async (filterObj) => {
     let technologies = []
     if (filterObj.technologies && Array.isArray(filterObj.technologies)) {
-                filterObj.technologies.forEach(function (technology) {
-                technologies.push(new RegExp(technology, "i"))
+        filterObj.technologies.forEach(function (technology) {
+            technologies.push(new RegExp(technology, "i"))
         })
-    }else {
+    } else {
         let technology = new RegExp(filterObj.technologies, "i")
         technologies = [technology]
     }
-    let totalArrayResult = await
-        RepositoryModel.aggregate({
+
+    let pipline = []
+    if (filterObj.type.toLowerCase() && filterObj.type == 'feature') {
+
+        let case1 = {
             $match: {
-                "technologies": {$all: technologies},
+                "isFeature": true
             }
-        }, {
-            $project: {
-                name: 1,
-                description: 1,
-                estimation: 1,
-                status: 1,
-                type: 1,
-                foundationTask: 1,
-                isFeature: 1,
-                isPartOfEstimation: 1,
-                hasHistory: 1,
-                createdBy: 1,
-                created: 1,
-                technologies: 1,
-                tags: 1,
-                tasks: 1
+        }
+
+        pipline.push(case1)
+    } else if (filterObj.type.toLowerCase() && filterObj.type == 'task') {
+        let case2 = {
+            $match: {
+                "isFeature": false
             }
-        }).exec()
+        }
+
+        pipline.push(case2)
+    } else {
+        console.log("search for all")
+    }
+
+    let defaultCase = {
+        $match: {
+            "technologies": {$in: technologies},
+        }
+    }
+
+    pipline.push(defaultCase)
+
+    let project = {
+        name: 1,
+        description: 1,
+        estimation: 1,
+        status: 1,
+        type: 1,
+        foundationTask: 1,
+        isFeature: 1,
+        isPartOfEstimation: 1,
+        hasHistory: 1,
+        createdBy: 1,
+        created: 1,
+        technologies: 1,
+        tags: 1,
+        tasks: 1
+    }
+
+    pipline.push({$project: project})
+
+    let totalArrayResult = await
+        RepositoryModel.aggregate(pipline).exec()
 
     return totalArrayResult
 }
