@@ -279,9 +279,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         })
     },
     toggleDeleteRequest: (values) => {
-        let task = {}
-        task.task_id = values._id
-        return dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
+        return dispatch(A.requestForTaskDeletePermissionOnServer(values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Delete requested successfully")
             } else {
@@ -318,10 +316,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         dispatch(initialize("MoveTaskInFeatureForm", task))
     },
     moveTaskOutOfFeature: (values) => {
-        let task = {}
-        task.task_id = values._id
-        task.feature_id = values.feature._id
-        dispatch(A.moveTaskOutOfFeatureOnServer(values)).then(json => {
+        dispatch(A.moveTaskOutOfFeatureOnServer(values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success('Task moved out of feature Successfully')
             } else {

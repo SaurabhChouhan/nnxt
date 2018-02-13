@@ -268,9 +268,9 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     }
 }
 
-export const requestForTaskDeletePermissionOnServer = (task) => {
+export const requestForTaskDeletePermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-removal-task', {
+        return fetch('/api/estimations/tasks/'+taskID+'/request-removal', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -406,9 +406,9 @@ export const getEstimationFromServer = (estimationID) => {
 }
 
 
-export const moveTaskIntoFeatureOnServer = (formInput) => {
+export const moveTaskIntoFeatureOnServer = (taskID,featureID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/move-to-feature', {
+        return fetch('/api/estimations/tasks/'+taskID+'/features/'+featureID, {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -430,9 +430,9 @@ export const moveTaskIntoFeatureOnServer = (formInput) => {
     }
 }
 
-export const moveTaskOutOfFeatureOnServer = (formInput) => {
+export const moveTaskOutOfFeatureOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/move-out-of-feature', {
+        return fetch('/api/estimations/tasks/'+taskID+'/move-out-of-feature', {
                 method: 'put',
                 credentials: "include",
                 headers: {
