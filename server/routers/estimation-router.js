@@ -18,7 +18,6 @@ import {
     estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorUpdateTaskStruct,
     estimationNegotiatorUpdateFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
     estimationNegotiatorGrantEditPermissionToTaskStruct,
     estimationInitiationStruct,
@@ -181,15 +180,11 @@ estimationRouter.put('/features', async ctx => {
 /**
  * Update a move to feature to estimation
  */
-estimationRouter.put('/move-to-feature', async ctx => {
+estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationEstimatorMoveToFeatureStruct)
-        return await EstimationTaskModel.moveTaskToFeatureByEstimator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskToFeatureByEstimator(ctx.params.taskID,ctx.params.featureID,ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationNegotiatorMoveToFeatureStruct)
-        return await EstimationTaskModel.moveTaskToFeatureByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskToFeatureByNegotiator(ctx.params.taskID,ctx.params.featureID, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can move task to features into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
