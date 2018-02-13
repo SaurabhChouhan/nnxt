@@ -470,12 +470,12 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
     return await task.save();
 }
 
-estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskInput, estimator) => {
+estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, estimator) => {
 
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let task = await EstimationTaskModel.findById(taskInput.task_id)
+    let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 

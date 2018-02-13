@@ -131,10 +131,6 @@ export const estimationNegotiatorAddFeatureStruct = t.struct({
     )
 })
 
-export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
-    task_id: RequiredString
-})
-
 export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
 })

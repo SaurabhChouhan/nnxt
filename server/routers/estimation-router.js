@@ -13,7 +13,6 @@ import {
     estimationEstimatorAddFeatureStruct,
     estimationEstimatorUpdateFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
-    estimationEstimatorRequestRemovalToTaskStruct,
     estimationNegotiatorAddTaskStruct,
     estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorUpdateTaskStruct,
@@ -208,12 +207,9 @@ estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
 /**
  * Request removal of task to estimation
  */
-estimationRouter.put('/request-removal-task', async ctx => {
+estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationEstimatorRequestRemovalToTaskStruct)
-        return await EstimationTaskModel.requestRemovalTaskByEstimator(ctx.request.body, ctx.state.user)
-
+        return await EstimationTaskModel.requestRemovalTaskByEstimator(ctx.params.taskID, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
