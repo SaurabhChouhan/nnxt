@@ -336,7 +336,18 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
     toggleGrantEdit: (values) => {
         let task = {}
         task.task_id = values._id
-        return dispatch(A.grantEditPermissionOfTaskOnServer(task))
+        return dispatch(A.grantEditPermissionOfTaskOnServer(task)).then(json => {
+            if (json.success) {
+                if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
+                    NotificationManager.success("Edit permission on task granted...")
+                else
+                    NotificationManager.success("Edit permission on task not granted...")
+            }
+            else {
+                NotificationManager.error('Permission Grant Failed')
+            }
+
+        })
     },
     openTaskSuggestionForm: (values, loggedInUserRole) => {
         let task = {

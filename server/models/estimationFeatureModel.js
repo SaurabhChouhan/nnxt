@@ -9,7 +9,7 @@ import {
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
-import {EstimationModel, RepositoryModel, EstimationTaskModel} from "./"
+import {EstimationModel, EstimationTaskModel, RepositoryModel} from "./"
 import * as EC from "../errorcodes"
 import _ from 'lodash'
 

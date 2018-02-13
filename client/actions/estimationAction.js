@@ -479,11 +479,12 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    NotificationManager.success('Permission Granted Successfully')
                     dispatch(updateEstimationTask(json.data))
                 }
-                else {
-                    NotificationManager.error('Permission Granted Failed')
+                return json
+            })
+    }
+}
 
 export const grantEditPermissionOfFeatureOnServer = (feature) => {
     return (dispatch, getState) => {

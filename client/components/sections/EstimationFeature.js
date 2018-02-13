@@ -287,6 +287,7 @@ EstimationFeature.defaultProps = {
 
 
 EstimationFeature = connect(null, (dispatch, ownProps) => ({
+
         showEditFeatureForm: (values) => {
             // would always be called by estimator
             dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
@@ -298,6 +299,8 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
             feature.description = values.estimator.description
             dispatch(initialize('estimation-feature', feature))
         },
+
+
         showFeatureSuggestionForm: (values, loggedInUserRole) => {
             console.log("showFeatureSuggestionForm feature", values)
             // Can be called by both estimator and negotiator
@@ -330,6 +333,8 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
             dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG))
 
         },
+
+
         deleteFeature: (feature) => {
             console.log("delete feature", feature)
             return dispatch(A.deleteFeatureByEstimatorOnServer(feature.estimation._id, feature._id)).then(json => {
@@ -346,6 +351,8 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
             })
         },
+
+
         toggleEditRequest: (values) => {
                 let feature = {}
                 feature.feature_id = values._id
