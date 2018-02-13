@@ -4,54 +4,15 @@ import {ConfirmationDialog} from "../"
 import {EstimationFeaturesContainer, EstimationTasksContainer} from "../../containers"
 import * as logger from '../../clientLogger'
 import {WithContext as ReactTags} from 'react-tag-input';
-
+import RepositorySearch from './RepositorySearch'
 class EstimationDetail extends Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            showEstimationRequestDialog: false,
-            type: ['All', 'Feature', 'Task'],
-            tags: [],
-            suggestions: this.props.estimation.technologies
+            showEstimationRequestDialog: false
         };
-        this.props.estimation.technologies.map((f, i) => {
-            this.state.tags.push({
-                id: this.state.tags.length + 1,
-                text: f
-            });
-        })
-        this.handleDelete = this.handleDelete.bind(this);
-        this.handleAddition = this.handleAddition.bind(this);
-        this.handleDrag = this.handleDrag.bind(this);
     }
-
-    handleDelete(i) {
-        let tags = this.state.tags;
-        tags.splice(i, 1);
-        this.setState({tags: tags});
-    }
-
-    handleAddition(tag) {
-        let tags = this.state.tags;
-        tags.push({
-            id: tags.length + 1,
-            text: tag
-        });
-        this.setState({tags: tags});
-    }
-
-    handleDrag(tag, currPos, newPos) {
-        let tags = this.state.tags;
-
-        // mutate array
-        tags.splice(currPos, 1);
-        tags.splice(newPos, 0, tag);
-
-        // re-render
-        this.setState({tags: tags});
-    }
-
     onClose() {
         this.setState({
             showEstimationRequestDialog: false,
@@ -96,7 +57,6 @@ class EstimationDetail extends Component {
     render() {
 
         logger.debug(logger.ESTIMATION_DETAIL_RENDER, this.props)
-        const {tags, suggestions} = this.state;
         const {estimation} = this.props
         return <div>
             <div className="col-md-8 pad">
@@ -223,81 +183,7 @@ class EstimationDetail extends Component {
 
             </div>
             <div className="col-md-4 estimationsection pad">
-                <div className="col-md-12 repositoryHeading">
-                    <div className="col-md-10">
-                        <div className="dropdownoption">
-                            <select className="form-control"
-                                    onChange={e => this.props.onChangeTypeSearch(e.target.value)}>
-                                {
-                                    this.state.type.map((item, key) =>
-                                        <option value={item} key={key}>{item}</option>
-                                    )
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div className="col-md-1 pad marginTop">
-                        <div className="backarrow">
-                            <h5><a href=""><img key="he_requested_delete" src="/images/go_button.png"
-                                                onClick={() => {
-                                                }}/></a></h5>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-12 ">
-                    <ReactTags
-                        classNames=
-                            {{
-                                tags: 'tagsClass',
-                                tagInput: 'tagInputClass',
-                                tagInputField: 'tagInputFieldClass',
-                                selected: 'selectedClass',
-                                tag: 'tagClass technologytagNew',
-                                remove: 'removeClass',
-                                suggestions: 'suggestionsClass',
-                                activeSuggestion: 'activeSuggestionClass'
-                            }}
-                        tags={tags}
-                        suggestions={suggestions}
-                        placeholder="Repository"
-                        handleDelete={this.handleDelete}
-                        handleAddition={this.handleAddition}
-                        handleDrag={this.handleDrag}/>
-                </div>
-
-                <div className="col-md-12">
-
-                    {
-                        Array.isArray(this.props.repository) && this.props.repository.map((f, i) =>
-                            (f.isFeature) ?
-                                [<div className="repository repositoryFeature">
-                                    <div className="RepositoryHeading" key={i}>
-                                        <div>
-                                            <div className="repositoryFeatureLable"></div>
-                                            <h5>Feature</h5><i
-                                            className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">(04 HRS)</span></div>
-                                    </div>
-                                    <div className="RepositoryContent">
-                                        <p>{f.description}</p>
-                                    </div>
-                                </div>]
-                                :
-                                [<div className="repository repositoryTask">
-                                    <div className="RepositoryHeading" key={i}>
-                                        <div>
-                                            <div className="repositoryTaskLable"></div>
-                                            <h5>Task</h5><i
-                                            className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">(04 HRS)</span></div>
-                                    </div>
-                                    <div className="RepositoryContent">
-                                        <p>{f.description}</p>
-                                    </div>
-                                </div>]
-                        )
-                    }
-                </div>
+                <RepositorySearch  {...this.props}/>
             </div>
         </div>
     }

@@ -65,8 +65,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
     },
-    onChangeTypeSearch:(typeValue)=>{
-        console.log('@@@@@@typeValue@@@@',typeValue);
+    fetchRepositoryBasedOnDiffCriteria:(tags,type)=>{
+        let technologies=[];
+        tags.map((f, i) =>{technologies.push(f.text)})
+        dispatch(A.getRepositoryFromServer(technologies,type))
     }
 
 })
