@@ -128,7 +128,7 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
     }
 
     let pipline = []
-    if (filterObj.type.toLowerCase() && filterObj.type == 'feature') {
+    if (filterObj.type.toLowerCase() && filterObj.type == 'Feature') {
 
         let case1 = {
             $match: {
@@ -137,7 +137,7 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
         }
 
         pipline.push(case1)
-    } else if (filterObj.type.toLowerCase() && filterObj.type == 'task') {
+    } else if (filterObj.type.toLowerCase() && filterObj.type == 'Task') {
         let case2 = {
             $match: {
                 "isFeature": false
