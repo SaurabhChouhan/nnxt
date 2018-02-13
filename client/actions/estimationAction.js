@@ -58,13 +58,25 @@ export const estimationTaskDelete = (taskID) => ({
     type: AC.ESTIMATION_TASK_DELETE,
     taskID: taskID
 })
+
 export const moveTaskInFeature = (task) => ({
     type: AC.MOVE_TASK_IN_FEATURE,
     task: task
 })
+
 export const deleteEstimationFeature = (feature) => ({
     type: AC.DELETE_ESTIMATION_FEATURE,
     feature: feature
+})
+
+export const expandFeature = (featureID) => ({
+    type: AC.EXPAND_FEATURE,
+    featureID: featureID
+})
+
+export const expandTask = (featureID) => ({
+    type: AC.EXPAND_TASK,
+    taskID: taskID
 })
 
 export const getAllEstimationsFromServer = () => {
@@ -152,6 +164,9 @@ export const requestReviewOnServer = (estimationID) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
+                    // During review flags of tasks/feature may also change so select this estimation again to get latest data
+                    dispatch(getEstimationFromServer(estimationID))
+
                 }
                 return json
             })
@@ -176,6 +191,9 @@ export const requestChangeOnServer = (estimationID) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
+                    // During change request,  flags of tasks/feature may also change so select this estimation again to get latest data
+                    dispatch(getEstimationFromServer(estimationID))
+
                 }
                 return json
             })

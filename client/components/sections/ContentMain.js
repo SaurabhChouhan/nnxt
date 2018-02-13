@@ -14,6 +14,7 @@ import {
     ClientFormDialog,
     EstimationFeatureDialog,
     EstimationInitiateDialog,
+    EstimationSuggestFeatureDialog,
     EstimationSuggestTaskDialog,
     EstimationTaskDialog,
     LeaveRequestFormDialog,
@@ -119,6 +120,12 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
                         }
                     }/>
+                    <EstimationSuggestFeatureDialog name={COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG} show={true}
+                                                    close={
+                                                        () => {
+                                                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG))
+                                                        }
+                                                    }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
                 </ContentSection>
             }

@@ -31,8 +31,6 @@ export const estimationEstimatorAddTaskStruct = t.struct({
     repo: t.maybe(t.struct({
         _id: ObjectId
     })),
-    technologies: t.maybe(t.list(t.String)),
-    tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
             note: t.String
@@ -46,11 +44,6 @@ export const estimationEstimatorUpdateTaskStruct = t.struct({
     name: t.maybe(RequiredString),
     description: t.maybe(RequiredString),
     estimatedHours: t.Number,
-    feature: t.maybe(t.struct({
-        _id: ObjectId
-    })),
-    technologies: t.maybe(t.list(t.String)),
-    tags: t.maybe(t.list(t.String)),
     notes: t.maybe(t.list(
         t.struct({
             note: t.String
@@ -156,6 +149,13 @@ export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
 export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
 })
+
+export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
+    _id: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+    })
+})
 //Estimator Feature Validation Block End
 
 //Negotiator Feature Validation Block Start
@@ -171,7 +171,8 @@ export const estimationNegotiatorUpdateFeatureStruct = t.struct({
             note: t.String
         })
         )
-    )
+    ),
+    repo: t.maybe(t.struct({_id: t.Nil}))
 })
 
 export const estimationNegotiatorUpdateTaskStruct = t.struct({
@@ -200,4 +201,14 @@ export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
 
 export const estimationNegotiatorGrantEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
+})
+export const estimationProjectAwardByNegotiatorStruct = t.struct({
+    _id: RequiredString
+})
+
+export const estimationAddTaskFromRepositoryByNegotiatorStruct = t.struct({
+    _id: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+    })
 })

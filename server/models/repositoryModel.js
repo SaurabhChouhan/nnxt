@@ -95,8 +95,6 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
         console.log("No changes in repository as estimation id do not match")
         return false
     }
-
-
 }
 
 repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
@@ -118,6 +116,70 @@ repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
         return false
     }
 }
+repositorySchema.statics.searchRepositories = async (filterObj) => {
+    let technologies = []
+    if (filterObj.technologies && Array.isArray(filterObj.technologies)) {
+        filterObj.technologies.forEach(function (technology) {
+            technologies.push(new RegExp(technology, "i"))
+        })
+    } else {
+        let technology = new RegExp(filterObj.technologies, "i")
+        technologies = [technology]
+    }
 
+    let pipline = []
+    if (filterObj.type.toLowerCase() && filterObj.type == 'feature') {
+
+        let case1 = {
+            $match: {
+                "isFeature": true
+            }
+        }
+
+        pipline.push(case1)
+    } else if (filterObj.type.toLowerCase() && filterObj.type == 'task') {
+        let case2 = {
+            $match: {
+                "isFeature": false
+            }
+        }
+
+        pipline.push(case2)
+    } else {
+        console.log("search for all")
+    }
+
+    let defaultCase = {
+        $match: {
+            "technologies": {$in: technologies},
+        }
+    }
+
+    pipline.push(defaultCase)
+
+    let project = {
+        name: 1,
+        description: 1,
+        estimation: 1,
+        status: 1,
+        type: 1,
+        foundationTask: 1,
+        isFeature: 1,
+        isPartOfEstimation: 1,
+        hasHistory: 1,
+        createdBy: 1,
+        created: 1,
+        technologies: 1,
+        tags: 1,
+        tasks: 1
+    }
+
+    pipline.push({$project: project})
+
+    let totalArrayResult = await
+        RepositoryModel.aggregate(pipline).exec()
+
+    return totalArrayResult
+}
 const RepositoryModel = mongoose.model("Repository", repositorySchema)
 export default RepositoryModel

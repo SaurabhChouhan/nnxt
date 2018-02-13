@@ -64,9 +64,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
+    },
+    onChangeTypeSearch:(typeValue)=>{
+        console.log('@@@@@@typeValue@@@@',typeValue);
     }
-
-
 
 })
 
@@ -74,7 +75,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
     estimation: state.estimation.selected,
-    features: state.estimation.features
+    features: state.estimation.features,
+    repository:state.repository.all
 })
 
 const EstimationDetailContainer = withRouter(connect(
