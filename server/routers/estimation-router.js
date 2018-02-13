@@ -22,6 +22,7 @@ import {
     estimationNegotiatorUpdateFeatureStruct,
     estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationNegotiatorGrantEditPermissionToFeatureStruct,
     estimationNegotiatorGrantEditPermissionToTaskStruct,
     estimationInitiationStruct,
     estimationAddTaskFromRepositoryByEstimatorStruct,
@@ -235,7 +236,7 @@ estimationRouter.put('/request-removal-task', async ctx => {
 
 
 /**
- * request Edit/Update permission feature by estimator to estimation
+ * request Edit/Update permission task by estimator to estimation
  * or cancel this request
  */
 estimationRouter.put('/request-edit-permission-task', async ctx => {
@@ -281,13 +282,28 @@ estimationRouter.del('/:estimationID/tasks/:taskID', async ctx => {
 })
 
 /**
- * Grant Edit/Update permission task/feature by negotiator to estimation
+ * Grant Edit/Update permission task by negotiator to estimation
  * or cancel this request
  */
 estimationRouter.put('/grant-edit-permission-task', async ctx => {
     if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationNegotiatorGrantEditPermissionToTaskStruct)
+        return await EstimationTaskModel.grantEditPermissionOfTaskByNegotiator(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+
+/**
+ * Grant Edit/Update permission feature by negotiator to estimation
+ * or cancel this request
+ */
+estimationRouter.put('/grant-edit-permission-feature', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorGrantEditPermissionToFeatureStruct)
         return await EstimationTaskModel.grantEditPermissionOfTaskByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
