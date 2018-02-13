@@ -219,7 +219,7 @@ estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
 
 
 /**
- * request Edit/Update permission task/feature by estimator to estimation
+ * request Edit/Update permission feature by estimator to estimation
  * or cancel this request
  */
 estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {

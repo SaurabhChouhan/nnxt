@@ -135,10 +135,14 @@ export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({
         _id: ObjectId
-    })
+})
 })
 
 export const estimationEstimatorAddFeatureFromRepositoryStruct = t.struct({
+    task_id: RequiredString
+})
+
+export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({
         _id: ObjectId
