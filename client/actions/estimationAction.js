@@ -484,6 +484,24 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
                 }
                 else {
                     NotificationManager.error('Permission Granted Failed')
+
+export const grantEditPermissionOfFeatureOnServer = (feature) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/grant-edit-permission-feature', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feature)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
                 }
 
                 return json

@@ -362,16 +362,32 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 })
 
         },
-        toggleGrantEdit: (feature) => {
-            // Call grant edit API which automatically toggles input
-            console.log("toggleGrantEdit", feature)
+
+
+        toggleGrantEdit: (values) => {
+            let feature = {}
+            feature.feature_id = values._id
+            return dispatch(A.grantEditPermissionOfFeatureOnServer(feature)).then(json => {
+                if (json.success) {
+                    if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
+                        NotificationManager.success("Edit permission on Feature granted...")
+                    else
+                        NotificationManager.success("Edit permission on Feature not granted...")
+                }
+                else {
+                    NotificationManager.error('Permission Grant Failed')
+                }
+            })
         },
+
         toggleDeleteRequest: (values) => {
             console.log("toggleDeleteRequest", values)
         },
+
         expandFeature: (featureID) => {
             dispatch(A.expandFeature(featureID))
         }
+
     })
 )(EstimationFeature)
 

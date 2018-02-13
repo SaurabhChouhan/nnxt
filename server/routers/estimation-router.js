@@ -26,7 +26,7 @@ import {
     estimationNegotiatorGrantEditPermissionToTaskStruct,
     estimationInitiationStruct,
     estimationAddTaskFromRepositoryByEstimatorStruct,
-    estimationAddTaskFromRepositoryByNegotiatorStruct
+    estimationAddTaskFromRepositoryByNegotiatorStruct,
     estimationEstimatorRequestEditPermissionToFeatureStruct,
 } from "../validation"
 
@@ -304,7 +304,7 @@ estimationRouter.put('/grant-edit-permission-feature', async ctx => {
     if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationNegotiatorGrantEditPermissionToFeatureStruct)
-        return await EstimationTaskModel.grantEditPermissionOfTaskByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationFeatureModel.grantEditPermissionOfFeatureByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
