@@ -6,7 +6,6 @@ import {
     estimationEstimatorAddTaskStruct,
     estimationEstimatorUpdateTaskStruct,
     estimationNegotiatorAddTaskStruct,
-    estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorUpdateTaskStruct,
     validate
 } from "../validation"
