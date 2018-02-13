@@ -8,8 +8,8 @@ import {
     estimationEstimatorUpdateTaskStruct,
     estimationNegotiatorAddTaskStruct,
     estimationNegotiatorUpdateTaskStruct,
-    estimationEstimatorMoveOutOfFeatureStruct,
-    estimationNegotiatorMoveOutOfFeatureStruct
+    estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationNegotiatorMoveToFeatureStruct
 } from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationFeatureModel, EstimationModel, RepositoryModel} from "./"
@@ -435,20 +435,17 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID,featur
     return await task.save();
 }
 
-estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (featureInput, estimator) => {
-
-    validate(featureInput, estimationEstimatorMoveOutOfFeatureStruct)
-
+estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, estimator) => {
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let feature = await EstimationFeatureModel.findById(featureInput.feature_id)
-    if (!feature)
-        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let task = await EstimationTaskModel.findById(featureInput.task_id)
+    let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(task.feature_id)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
     if (!estimation)
@@ -600,20 +597,17 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
     return await task.save()
 }
 
-estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (featureInput, negotiator) => {
-
-    validate(featureInput, estimationNegotiatorMoveOutOfFeatureStruct)
-
+estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, negotiator) => {
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let feature = await EstimationFeatureModel.findById(featureInput.feature_id)
-    if (!feature)
-        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let task = await EstimationTaskModel.findById(featureInput.task_id)
+    let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(task.feature._id)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
     if (!estimation)
