@@ -219,7 +219,7 @@ estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
 
 
 /**
- * request Edit/Update permission feature by estimator to estimation
+ * request Edit/Update permission task by estimator to estimation
  * or cancel this request
  */
 estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {
@@ -246,12 +246,27 @@ estimationRouter.del('/:estimationID/tasks/:taskID', async ctx => {
 })
 
 /**
- * Grant Edit/Update permission task/feature by negotiator to estimation
+ * Grant Edit/Update permission task by negotiator to estimation
  * or cancel this request
  */
 estimationRouter.put('/tasks/:taskID/grant-edit', async ctx => {
     if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return await EstimationTaskModel.grantEditPermissionOfTaskByNegotiator(ctx.params.taskID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+
+/**
+ * Grant Edit/Update permission feature by negotiator to estimation
+ * or cancel this request
+ */
+estimationRouter.put('/grant-edit-permission-feature', async ctx => {
+    if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorGrantEditPermissionToFeatureStruct)
+        return await EstimationFeatureModel.grantEditPermissionOfFeatureByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }

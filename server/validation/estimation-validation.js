@@ -142,6 +142,11 @@ export const estimationEstimatorAddFeatureFromRepositoryStruct = t.struct({
     task_id: RequiredString
 })
 
+
+export const estimationEstimatorRequestEditPermissionToFeatureStruct = t.struct({
+    feature_id: RequiredString
+})
+
 export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({
@@ -183,6 +188,10 @@ export const estimationNegotiatorUpdateTaskStruct = t.struct({
 
 export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
     task_id: RequiredString,
+    feature_id: RequiredString
+})
+
+export const estimationNegotiatorGrantEditPermissionToFeatureStruct = t.struct({
     feature_id: RequiredString
 })
 
