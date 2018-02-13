@@ -9,6 +9,7 @@ import estimationReducer from './estimationReducer'
 import projectReducer from './projectReducer'
 import technologyReducer from './technologyReducer'
 import leaveRequestReducer from './leaveRequestReducer'
+import repositoryReducer from './repositoryReducer'
 
 const reducers = combineReducers({
     form: formReducer, // Redux form state
@@ -20,6 +21,7 @@ const reducers = combineReducers({
     estimation: estimationReducer,
     project: projectReducer,
     technology:technologyReducer,
-    leaveRequest:leaveRequestReducer
+    leaveRequest:leaveRequestReducer,
+    repository:repositoryReducer
 })
 export default reducers

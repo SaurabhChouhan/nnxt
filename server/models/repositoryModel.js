@@ -97,23 +97,25 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
     }
 }
 
-repositorySchema.statics.updateRepoWhenUpdateTask = async (repo_id, is_feature, taskInput, user) => {
+repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
         throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can update task to repository", EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let repository = await RepositoryModel.findById(repo_id)
-    if (!repository)
-        throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let repositoryTask = await RepositoryModel.findById(repo_id)
+    if (!repositoryTask)
+        throw new AppError('Task not found in repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    repository.name = taskInput.name
-    repository.description = taskInput.description
-    repository.technologies = taskInput.technologies
-    repository.tags = taskInput.tags
-    repository.isFeature = is_feature
-
-    return await repository.save()
+    if (taskInput.estimation._id == repositoryTask.estimation._id) {
+        repositoryTask.name = taskInput.name
+        repositoryTask.description = taskInput.description
+        repositoryTask.technologies = taskInput.technologies
+        repositoryTask.tags = taskInput.tags
+        return await repositoryTask.save()
+    } else {
+        console.log("No changes in repository as estimation id do not match")
+        return false
+    }
 }
-
 repositorySchema.statics.searchRepositories = async (filterObj) => {
     let technologies = []
     if (filterObj.technologies && Array.isArray(filterObj.technologies)) {
@@ -179,6 +181,5 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
 
     return totalArrayResult
 }
-
 const RepositoryModel = mongoose.model("Repository", repositorySchema)
 export default RepositoryModel

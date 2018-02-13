@@ -1,28 +1,28 @@
 import React, {Component} from 'react'
-import PropTypes from 'prop-types'
 import ContentSection from './ContentSection'
 import {
-    EstimationListContainer,
+    ClientListContainer,
     EstimationDetailContainer,
+    EstimationListContainer,
     ProjectListContainer,
-    TechnologyListContainer,
-    ClientListContainer
+    TechnologyListContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
 import {
-    EstimationInitiateDialog,
-    EstimationTaskDialog,
-    ProjectFormDialog,
-    TechnologyFormDialog,
     ClientFormDialog,
-    LeaveRequestFormDialog,
     EstimationFeatureDialog,
-    MoveTaskInFeatureFormDialog
+    EstimationInitiateDialog,
+    EstimationSuggestFeatureDialog,
+    EstimationSuggestTaskDialog,
+    EstimationTaskDialog,
+    LeaveRequestFormDialog,
+    MoveTaskInFeatureFormDialog,
+    ProjectFormDialog,
+    TechnologyFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
-import {connect} from 'react-redux'
 
 class ContentMain extends Component {
     constructor(props) {
@@ -114,6 +114,17 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
                         }
                     }/>
+                    <EstimationSuggestTaskDialog name={COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
+                        }
+                    }/>
+                    <EstimationSuggestFeatureDialog name={COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG} show={true}
+                                                    close={
+                                                        () => {
+                                                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG))
+                                                        }
+                                                    }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
                 </ContentSection>
             }
@@ -122,12 +133,13 @@ class ContentMain extends Component {
             url: "/raise_leave",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
-                return <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                return <ContentSection>
+                    <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
                     () => {
-                        console.log("you are in the raise leave content main ",props)
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
                 }/>
+                </ContentSection>
 
             }
         })

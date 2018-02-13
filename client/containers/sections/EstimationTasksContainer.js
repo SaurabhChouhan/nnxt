@@ -3,13 +3,13 @@ import {EstimationTasks} from "../../components"
 import * as EC from '../../../server/errorcodes'
 import {NotificationManager} from "react-notifications";
 import * as A from "../../actions";
-import {initialize, SubmissionError} from 'redux-form'
+import {initialize} from 'redux-form'
 import * as COC from "../../components/componentConsts";
-
+import * as SC from "../../../server/serverconstants"
+import MoveTaskInFeatureForm from "../../components/forms/MoveTaskInFeatureForm";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-
-    requestTaskEdit: (values) => {
+    toggleEditRequest: (values) => {
         let task = {}
         task.task_id = values._id
         return dispatch(A.requestForTaskEditPermissionOnServer(task)).then(json => {
@@ -24,7 +24,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
-
     deleteTask: (values) => {
         return dispatch(A.deleteEstimationTaskOnServer(values.estimation._id, values._id)).then(json => {
             if (json.success) {
@@ -35,8 +34,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         })
     },
-
-    deleteTaskRequest: (values) => {
+    toggleDeleteRequest: (values) => {
         let task = {}
         task.task_id = values._id
         return dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
@@ -50,38 +48,87 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
-
-    editTask: (values) => {
+    editTask: (values, loggedInUserRole) => {
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
         let task = {}
         task._id = values._id
         task.estimation = values.estimation
-        task.name = values.estimator.name
-        task.description = values.estimator.description
-        task.estimatedHours = values.estimator.estimatedHours
+        if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
+            task.name = values.estimator.name
+            task.description = values.estimator.description
+            task.estimatedHours = values.estimator.estimatedHours
+        }
+        else {
+            task.name = values.negotiator.name
+            task.description = values.negotiator.description
+            task.estimatedHours = values.negotiator.estimatedHours
+        }
         task.feature = values.feature
         task.technologies = values.technologies
         dispatch(initialize("estimation-task", task))
     },
-
-    showFeatureSelectionForm: (values) => {
-        let task = {
-            "task": {
-                "_id": ""
-            }
-        }
-        task.task._id = values
+    moveToFeature: (values) => {
+        let task = {}
+        task.task_id = values._id
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
+    },
+    moveTaskOutOfFeature: (values) => {
+        let task = {}
+        task.task_id = values._id
+        task.feature_id = values.feature._id
+        dispatch(A.moveTaskOutOfFeatureOnServer(values)).then(json=>{
+            if(json.success){
+                NotificationManager.success('Task moved out of feature Successfully')
+            } else {
+                NotificationManager.success('Some error occurred')
+            }
 
+        })
+        //dispatch(initialize("MoveTaskInFeatureForm", task))
+    },
+    toggleGrantEdit: (values) => {
+        let task = {}
+        task.task_id = values._id
+        return dispatch(A.grantEditPermissionOfTaskOnServer(task))
+    },
+    openTaskSuggestionForm: (values, loggedInUserRole) => {
+        let task = {
+            loggedInUserRole:loggedInUserRole,
+            readOnly: {}
+        }
+        task._id = values._id
+        task.estimation = values.estimation
+        if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
+            /* Since negotiator is logged in, he would see details of negotiator section in editable form and details of estimator section in read only form  */
+            task.name = values.negotiator.name
+            task.description = values.negotiator.description
+            task.estimatedHours = values.negotiator.estimatedHours
+
+            task.readOnly.name = values.estimator.name
+            task.readOnly.description = values.estimator.description
+            task.readOnly.estimatedHours = values.estimator.estimatedHours
+
+        } else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
+            /* Since estimator is logged in, he would see details of  estimator section in editable form  */
+            task.name = values.estimator.name
+            task.description = values.estimator.description
+            task.estimatedHours = values.estimator.estimatedHours
+
+            task.readOnly.name = values.negotiator.name
+            task.readOnly.description = values.negotiator.description
+            task.readOnly.estimatedHours = values.negotiator.estimatedHours
+
+        }
+
+        dispatch(initialize("estimation-suggest-task", task))
+        dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
     }
-
 })
 
 
 const mapStateToProps = (state, ownProps) => ({
-    tasks: state.estimation.tasks,
-    loggedInUserRole: state.estimation.selected.loggedInUserRole
+    tasks: state.estimation.tasks
 })
 
 

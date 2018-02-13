@@ -22,7 +22,7 @@ let EstimationFeatureForm = (props) => {
         <div className="row">
             <div className="col-md-12">
                 <Field name="description" component={renderTextArea} label="Feature Description:"
-                       validate={[required]}/>
+                       validate={[required]} rows="10"/>
             </div>
 
         </div>
