@@ -47,7 +47,7 @@ export {default as EstimationInitiateDialog} from './dialogs/EstimationInitiateD
 export {default as MoveTaskInFeatureFormDialog} from './dialogs/MoveTaskInFeatureFormDialog'
 export {default as EstimationSuggestTaskDialog} from './dialogs/EstimationSuggestTaskDialog'
 export {default as EstimationSuggestFeatureDialog} from './dialogs/EstimationSuggestFeatureDialog'
-
+export {default as AttendenceSettingForm} from './forms/AttendenceSettingForm'
 
 //ProjectDialog
 export {default as ProjectFormDialog} from './dialogs/ProjectFormDialog'
