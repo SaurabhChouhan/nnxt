@@ -3,13 +3,12 @@ import AppError from '../AppError'
 import * as EC from '../errorcodes'
 import * as SC from "../serverconstants"
 import {
-    validate,
     estimationEstimatorAddTaskStruct,
     estimationEstimatorUpdateTaskStruct,
     estimationNegotiatorAddTaskStruct,
+    estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorUpdateTaskStruct,
-    estimationNegotiatorMoveOutOfFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct
+    validate
 } from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationFeatureModel, EstimationModel, RepositoryModel} from "./"
