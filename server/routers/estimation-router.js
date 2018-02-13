@@ -12,15 +12,11 @@ import {
     estimationEstimatorUpdateTaskStruct,
     estimationEstimatorAddFeatureStruct,
     estimationEstimatorUpdateFeatureStruct,
-    estimationEstimatorMoveToFeatureStruct,
-    estimationEstimatorMoveOutOfFeatureStruct,
     estimationEstimatorRequestEditPermissionToTaskStruct,
-    estimationEstimatorRequestRemovalToTaskStruct,
     estimationNegotiatorAddTaskStruct,
     estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorUpdateTaskStruct,
     estimationNegotiatorUpdateFeatureStruct,
-    estimationNegotiatorMoveToFeatureStruct,
     estimationNegotiatorMoveOutOfFeatureStruct,
     estimationInitiationStruct,
     estimationAddTaskFromRepositoryByEstimatorStruct,
@@ -182,15 +178,11 @@ estimationRouter.put('/features', async ctx => {
 /**
  * Update a move to feature to estimation
  */
-estimationRouter.put('/move-to-feature', async ctx => {
+estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationEstimatorMoveToFeatureStruct)
-        return await EstimationTaskModel.moveTaskToFeatureByEstimator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskToFeatureByEstimator(ctx.params.taskID,ctx.params.featureID,ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationNegotiatorMoveToFeatureStruct)
-        return await EstimationTaskModel.moveTaskToFeatureByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskToFeatureByNegotiator(ctx.params.taskID,ctx.params.featureID, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can move task to features into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
@@ -200,15 +192,11 @@ estimationRouter.put('/move-to-feature', async ctx => {
 /**
  * Update a move out of feature to estimation
  */
-estimationRouter.put('/move-out-of-feature', async ctx => {
+estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationEstimatorMoveOutOfFeatureStruct)
-        return await EstimationTaskModel.moveTaskOutOfFeatureByEstimator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskOutOfFeatureByEstimator(ctx.params.taskID, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationNegotiatorMoveOutOfFeatureStruct)
-        return await EstimationTaskModel.moveTaskOutOfFeatureByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.moveTaskOutOfFeatureByNegotiator(ctx.params.taskID, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can move task out of features into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
@@ -218,12 +206,9 @@ estimationRouter.put('/move-out-of-feature', async ctx => {
 /**
  * Request removal of task to estimation
  */
-estimationRouter.put('/request-removal-task', async ctx => {
+estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationEstimatorRequestRemovalToTaskStruct)
-        return await EstimationTaskModel.requestRemovalTaskByEstimator(ctx.request.body, ctx.state.user)
-
+        return await EstimationTaskModel.requestRemovalTaskByEstimator(ctx.params.taskID, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
@@ -236,11 +221,9 @@ estimationRouter.put('/request-removal-task', async ctx => {
  * request Edit/Update permission task/feature by estimator to estimation
  * or cancel this request
  */
-estimationRouter.put('/request-edit-permission-task', async ctx => {
+estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationEstimatorRequestEditPermissionToTaskStruct)
-        return await EstimationTaskModel.requestEditPermissionOfTaskByEstimator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.requestEditPermissionOfTaskByEstimator(ctx.params.taskID, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {
