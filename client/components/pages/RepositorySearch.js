@@ -60,7 +60,7 @@ class RepositorySearch extends Component {
         return (
             <div>
                 <div className="col-md-12 repositoryHeading">
-                    <div class="col-md-10 pad">
+                    <div className="col-md-10 pad">
                         <h5>Repository</h5>
                     </div>
                     <div className="col-md-1 pad ">

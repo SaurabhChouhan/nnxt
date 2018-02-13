@@ -206,8 +206,7 @@ export const requestForTaskEditPermissionOnServer = (taskID) => {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(task)
+                }
             }
         ).then(
             response => response.json()
@@ -224,14 +223,13 @@ export const requestForTaskEditPermissionOnServer = (taskID) => {
 
 export const requestForFeatureEditPermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
-        return fetch('/api//api/estimations/features/' + featureID + '/request-edit', {
+        return fetch('/api/estimations/features/' + featureID + '/request-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(feature)
+                }
             }
         ).then(
             response => response.json()
@@ -276,8 +274,7 @@ export const requestForTaskDeletePermissionOnServer = (taskID) => {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(task)
+                }
             }
         ).then(
             response => response.json()
