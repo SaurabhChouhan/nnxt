@@ -18,7 +18,7 @@ export const getRepositoryFromServer = (technologies) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(technologies)
+            body: JSON.stringify({"technologies":technologies,"type":"all"})
             }
         ).then(
             response => response.json()

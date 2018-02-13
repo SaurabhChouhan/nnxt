@@ -66,7 +66,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.estimationTaskDelete(taskID))
     },
     onChangeTypeSearch:(typeValue)=>{
-        console.log('@@@@@@typeValue@@@@',typeValue);
+        //console.log('@@@@@@typeValue@@@@',typeValue);
     }
 
 })
