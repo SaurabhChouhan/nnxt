@@ -7,9 +7,8 @@ import * as EC from "../../../server/errorcodes";
 import {SubmissionError} from "redux-form";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: (values) => {
-        console.log("received values ", values)
-        return dispatch(A.moveTaskIntoFeatureOnServer(values.task_id,values.feature_id)).then(json => {
+    onSubmit: (formValues) => {
+        return dispatch(A.moveTaskIntoFeatureOnServer(formValues._id,formValues.feature_id)).then(json => {
             if (json.success) {
                 NotificationManager.success('Task Moved Successfully')
                 dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))

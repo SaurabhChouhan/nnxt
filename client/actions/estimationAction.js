@@ -61,6 +61,12 @@ export const moveTaskInFeature = (task) => ({
     task: task
 })
 
+export const moveTaskOutOfFeature = (task, featureID) => ({
+    type: AC.MOVE_TASK_OUTOF_FEATURE,
+    task: task,
+    featureID: featureID
+})
+
 export const deleteEstimationFeature = (feature) => ({
     type: AC.DELETE_ESTIMATION_FEATURE,
     feature: feature
@@ -427,9 +433,9 @@ export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
     }
 }
 
-export const moveTaskOutOfFeatureOnServer = (taskID) => {
+export const moveTaskOutOfFeatureOnServer = (task) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/tasks/' + taskID + '/move-out-of-feature', {
+        return fetch('/api/estimations/tasks/' + task._id + '/move-out-of-feature', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -441,6 +447,9 @@ export const moveTaskOutOfFeatureOnServer = (taskID) => {
             response => response.json()
         ).then(
             json => {
+                if (json.success) {
+                    dispatch(moveTaskOutOfFeature(json.data, task.feature._id))
+                }
                 return json
             })
     }
