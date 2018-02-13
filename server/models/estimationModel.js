@@ -1,10 +1,10 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {ProjectModel, UserModel, RepositoryModel, EstimationTaskModel, EstimationFeatureModel} from "./index"
+import {EstimationFeatureModel, EstimationTaskModel, ProjectModel, UserModel} from "./index"
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
-import {validate, estimationInitiationStruct, estimationEstimatorAddTaskStruct} from "../validation"
+import {estimationInitiationStruct, validate} from "../validation"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -446,12 +446,12 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
     return await estimation.save()
 }
 
-estimationSchema.statics.projectAwardByNegotiator = async (projectAwardEstimationInput, negotiator) => {
+estimationSchema.statics.projectAwardByNegotiator = async (EstimationID, negotiator) => {
 
     if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findById(projectAwardEstimationInput._id)
+    let estimation = await EstimationModel.findById(EstimationID)
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
