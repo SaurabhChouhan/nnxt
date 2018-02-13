@@ -9,7 +9,7 @@ let MoveTaskInFeatureForm = (props) => {
         <div className="row">
             <div className="col-md-4">
 
-                <Field name="task_id" component="input" type="hidden"/>
+                <Field name="_id" component="input" type="hidden"/>
                 <Field name="feature_id" component={renderSelect} label={"Feature :"} options={props.features}
                        validate={[required]} displayField="estimator.name"/>
 

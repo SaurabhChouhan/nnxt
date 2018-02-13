@@ -200,7 +200,7 @@ export const requestChangeOnServer = (estimationID) => {
 
 export const requestForTaskEditPermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/tasks/'+taskID+'/request-edit', {
+        return fetch('/api/estimations/tasks/' + taskID + '/request-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -268,7 +268,7 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
 
 export const requestForTaskDeletePermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/tasks/'+taskID+'/request-removal', {
+        return fetch('/api/estimations/tasks/' + taskID + '/request-removal', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -403,16 +403,16 @@ export const getEstimationFromServer = (estimationID) => {
 }
 
 
-export const moveTaskIntoFeatureOnServer = (taskID,featureID) => {
+export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
+    console.log("task id ", taskID, " feature id ", featureID)
     return (dispatch, getState) => {
-        return fetch('/api/estimations/tasks/'+taskID+'/features/'+featureID, {
+        return fetch('/api/estimations/tasks/' + taskID + '/features/' + featureID, {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
+                }
             }
         ).then(
             response => response.json()
@@ -429,14 +429,13 @@ export const moveTaskIntoFeatureOnServer = (taskID,featureID) => {
 
 export const moveTaskOutOfFeatureOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/tasks/'+taskID+'/move-out-of-feature', {
+        return fetch('/api/estimations/tasks/' + taskID + '/move-out-of-feature', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
+                }
             }
         ).then(
             response => response.json()
