@@ -1,51 +1,136 @@
 import React, {Component} from 'react'
 import {Field, reduxForm, formValueSelector} from 'redux-form'
 import {connect} from 'react-redux'
-import {renderText, renderTextArea, renderMultiselect, renderField} from './fields'
-import {required, email, passwordLength} from "./validation"
+import {
+    renderText,
+    renderTextArea,
+    renderMultiselect,
+    renderField,
+    renderSelect,
+    renderDateTimePickerString
+} from './fields'
+import {required, email, passwordLength, number} from "./validation"
+
 
 const passwordMatch = (value, values) => {
-    //console.log("pm ", value, values)
-    return (value != values.password) ? `Should match password value` : undefined
+
+    console.log("password match",values.password)
+    return (value != values.password) ? `both password field should be same ` : undefined
 }
 
-
 class UserProfileForm extends Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props);
     }
 
     render() {
         const {handleSubmit, pristine, reset, submitting, addUser, editUser, changeCredentials} = this.props;
 
-        return <div className="row">
-            <div className="col-md-6">
-                <form key="userProfileForm" onSubmit={this.props.handleSubmit}>
+        console.log("render called for user profile form container",this.props)
+        return <div className="col-md-8">
+            <div className="col-md-12">
+                <div className="col-md-12 pad">
 
-                    <div className={"col-md-12"}>
-                        <Field name="firstName" label="First Name:" component={renderField} validate={[required]}
-                               type="text"/>
-                        <Field name="lastName" label="Last Name:" component={renderField} validate={[required]}
-                               type="text"/>
-                        <Field name="email" label="Email:" validate={[required, email]} component={renderField}
-                               type="email"/>
-                        <Field name="password" label="Password:" validate={[passwordLength]}
-                               component={renderField} type="password"/>
-                        <Field name="confirmPassword" label="Confirm Password:"
-                               validate={[passwordLength, passwordMatch]} component={renderField}
-                               type="password"/>
-                    </div>
-                    <div className={"col-md-12"}>
-                        <input type="submit" value="SAVE" className="btn btn-default btn-submit addBtn"
-                               disabled={pristine || submitting}/>
+                    <div className="col-md-12">
 
-                        <button onClick={() => this.props.reset()} type="button"
-                                className="btn btn-default btn-submit addBtn"
-                                style={{'marginLeft': '5px'}}
-                                disabled={pristine || submitting}>RESET
-                        </button>
+
+                        <form key="userProfileForm" onSubmit={this.props.handleSubmit}>
+
+
+                            {/*firstname lastName*/}
+                            <div className="row">
+
+                                <div className="col-md-6">
+                                    <Field name="firstName" placeholder={"First Name"} component={renderText}
+                                           label={"First Name:"} validate={[required]}/>
+                                </div>
+                                <div className="col-md-6">
+                                    <Field name="lastName" label={"Last Name :"} placeholder={"Last Name"}
+                                           component={renderText} validate={[required]}/>
+                                </div>
+                            </div>
+
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Field name="phone" label={"Phone No.:"} placeholder={"phone Name"}
+                                           component={renderText} validate={[required, number]}/>
+                                </div>
+                                <div className="col-md-6">
+                                    <Field name="email" label={"Email :"} placeholder={"Email"}
+                                           validate={[required, email]}
+                                           component={renderText} type="email"/>
+
+                                </div>
+
+                            </div>
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Field name="address" label={"Address :"} placeholder={"address"}
+                                           component={renderTextArea} validate={[required]}/>
+                                </div>
+
+                            </div>
+
+                            <div className="row">
+
+
+                                <div className="col-md-6">
+                                    <Field name="password" label={"New Password :"} placeholder={"new Password"}
+                                           validate={[passwordLength]}
+                                           component={renderText} type="password"/>
+                                </div>
+
+                                <div className="col-md-6">
+
+                                    <Field name="confirmPassword" label="Confirm Password :"
+                                           placeholder={"confirm Password"}
+                                           validate={[passwordLength,passwordMatch]} component={renderField}
+                                           type="password"/>
+                                </div>
+                            </div>
+
+                            <div className="row">
+
+                                <div className="col-md-6">
+
+                                    <Field name="dob" label={"DOB :"} placeholder={"date of birth"}
+                                           component={renderText}/>
+                                </div>
+
+                                <div className="col-md-6">
+                                    <Field name="designation" label={"designation :"}
+                                           placeholder={"Employee-designation"}
+                                           component={renderText} readOnly={true}/>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <Field name="employeeCode" label={"code :"} placeholder={"Employee-Code"}
+                                           component={renderText}   readOnly={true} />
+                                </div>
+                                <div className="col-md-6">
+
+                                    <Field name="dateJoined" label={"Date of joining :"}
+                                           placeholder={"Employee-date of joining"}
+                                           component={renderText} readOnly={true}/>
+                                </div>
+                            </div>
+                            <div className="row updateUserProfile">
+                                <div className="col-md-6 text-right">
+                                    <button type="submit" className="btn customBtn">Submit</button>
+                                </div>
+                                <div className="col-md-6 text-left">
+                                    <button type="submit" className="btn customBtn">Reset</button>
+                                </div>
+                            </div>
+
+
+                        </form>
+
                     </div>
-                </form>
+                </div>
             </div>
         </div>
 

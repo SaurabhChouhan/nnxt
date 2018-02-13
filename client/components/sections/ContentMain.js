@@ -5,7 +5,8 @@ import {
     EstimationDetailContainer,
     EstimationListContainer,
     ProjectListContainer,
-    TechnologyListContainer
+    TechnologyListContainer,
+    UserProfileFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -139,6 +140,17 @@ class ContentMain extends Component {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
                 }/>
+                </ContentSection>
+
+            }
+        })
+        routes.push({
+            url: "/edit-profile",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/edit-profile: props:", props)
+                return <ContentSection>
+                    <UserProfileFormContainer name={COC.USER_PROFILE_FORM}
+                    />
                 </ContentSection>
 
             }
