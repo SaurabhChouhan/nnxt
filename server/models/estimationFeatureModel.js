@@ -451,5 +451,62 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     return await feature.save()
 }
 
+estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (featureInput, estimator) => {
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureInput._id)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!feature.repo && !feature.repo._id)
+        throw new AppError('This feature not found into repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let repo = await RepositoryModel.findById(feature.repo._id)
+    if (!repo)
+        throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!repo.isFeature)
+        throw new AppError('This feature not into repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if(!repo.status == SC.STATUS_APPROVED)
+        throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(featureInput.estimation._id)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let thisFeatureAlreadyAddedFromRepo = await EstimationFeatureModel.findOne({"repo._id" : repo._id,"estimation._id":estimation._id})
+    if (thisFeatureAlreadyAddedFromRepo)
+        throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    let newFeature = new EstimationFeatureModel()
+
+    newFeature.status = SC.STATUS_PENDING
+    newFeature.addedInThisIteration = true
+    newFeature.changedKeyInformation = true
+    newFeature.owner = SC.OWNER_ESTIMATOR
+    newFeature.initiallyEstimated = true
+
+    newFeature.estimator.name = repo.name
+    newFeature.estimator.description = repo.description
+    newFeature.estimator.estimatedHours = repo.estimatedHours
+
+    newFeature.estimation = estimation
+    newFeature.repo = feature.repo
+
+    newFeature.technologies = feature.technologies
+    newFeature.tags = feature.tags
+    newFeature.notes = feature.notes
+
+    newFeature.created = Date.now()
+    newFeature.updated = Date.now()
+
+    return await EstimationFeatureModel.create(newFeature)
+}
+
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel

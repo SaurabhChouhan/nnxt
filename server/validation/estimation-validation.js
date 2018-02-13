@@ -137,6 +137,13 @@ export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
         _id: ObjectId
     })
 })
+
+export const estimationEstimatorAddFeatureFromRepositoryStruct = t.struct({
+    _id: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+    })
+})
 //Estimator Feature Validation Block End
 
 //Negotiator Feature Validation Block Start
