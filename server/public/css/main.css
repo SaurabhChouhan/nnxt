@@ -95,7 +95,9 @@ img {
 .pad {
     padding: 0 !important;
 }
-
+.marginTop{
+    margin-top: 2%;
+}
 /*#login {
     position: absolute;
     top: 37%;
