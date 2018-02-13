@@ -354,9 +354,7 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
 
         toggleEditRequest: (values) => {
-                let feature = {}
-                feature.feature_id = values._id
-                return dispatch(A.requestForFeatureEditPermissionOnServer(feature)).then(json => {
+                return dispatch(A.requestForFeatureEditPermissionOnServer(values._id)).then(json => {
                     if (json.success) {
 
                         if (json.data && json.data.estimator && json.data.estimator.changeRequested)

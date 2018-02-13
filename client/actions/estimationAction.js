@@ -1,7 +1,4 @@
 import * as AC from './actionConsts'
-import * as A from "./index";
-import * as COC from "../components/componentConsts";
-import {NotificationManager} from "react-notifications";
 
 
 export const addEstimations = (estimations) => ({
@@ -225,9 +222,9 @@ export const requestForTaskEditPermissionOnServer = (taskID) => {
     }
 }
 
-export const requestForFeatureEditPermissionOnServer = (feature) => {
+export const requestForFeatureEditPermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-edit-permission-feature', {
+        return fetch('/api//api/estimations/features/' + featureID + '/request-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
