@@ -1,4 +1,4 @@
-import {ADD_LOGIN_USER, LOGIN_FAILED, ADD_USERS, ADD_USER, EDIT_USER, DELETE_USER} from "./actionConsts"
+import {ADD_LOGIN_USER, LOGIN_FAILED, ADD_USERS, ADD_USER, EDIT_USER, DELETE_USER,UPDATE_USER_PROFILE_STATE} from "./actionConsts"
 import {initialize} from 'redux-form'
 
 
@@ -31,7 +31,10 @@ export const deleteUser = (userID) => ({
     type: DELETE_USER,
     userID: userID
 })
-
+export const updateUserProfileState = (user) => ({
+    type: UPDATE_USER_PROFILE_STATE,
+    user: user
+})
 
 export const addUserOnServer = (formInput) => {
     return function (dispatch, getState) {
@@ -190,7 +193,7 @@ export const updateUserSettingsOnServer = (user) => {
             }
         ).then(json => {
                 if (json.success) {
-
+                    dispatch(updateUserProfileState(json.data))
                     dispatch(initialize('user-profile', json.data))
 
                 }

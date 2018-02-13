@@ -77,7 +77,7 @@ class UserProfileForm extends Component {
 
                                 <div className="col-md-6">
                                     <Field name="password" label={"New Password :"} placeholder={"new Password"}
-                                           validate={[required,passwordLength]}
+                                           validate={[passwordLength]}
                                            component={renderText} type="password"/>
                                 </div>
 
@@ -85,7 +85,7 @@ class UserProfileForm extends Component {
 
                                     <Field name="confirmPassword" label="Confirm Password :"
                                            placeholder={"confirm Password"}
-                                           validate={[required,passwordLength,passwordMatch]} component={renderField}
+                                           validate={[passwordLength,passwordMatch]} component={renderField}
                                            type="password"/>
                                 </div>
                             </div>
@@ -101,20 +101,20 @@ class UserProfileForm extends Component {
                                 <div className="col-md-6">
                                     <Field name="designation" label={"designation :"}
                                            placeholder={"Employee-designation"}
-                                           component={renderText}  />
+                                           component={renderText} readOnly={true}/>
                                 </div>
                             </div>
 
                             <div className="row">
                                 <div className="col-md-6">
                                     <Field name="employeeCode" label={"code :"} placeholder={"Employee-Code"}
-                                           component={renderText}    />
+                                           component={renderText}   readOnly={true} />
                                 </div>
                                 <div className="col-md-6">
 
                                     <Field name="dateJoined" label={"Date of joining :"}
                                            placeholder={"Employee-date of joining"}
-                                           component={renderText} />
+                                           component={renderText} readOnly={true}/>
                                 </div>
                             </div>
                             <div className="row updateUserProfile">
