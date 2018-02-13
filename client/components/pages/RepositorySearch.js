@@ -1,6 +1,4 @@
 import React, {Component} from 'react'
-import * as SC from '../../../server/serverconstants'
-import * as logger from '../../clientLogger'
 import {WithContext as ReactTags} from 'react-tag-input';
 
 class RepositorySearch extends Component {

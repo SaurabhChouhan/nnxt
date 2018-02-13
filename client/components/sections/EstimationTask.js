@@ -309,14 +309,12 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         task.technologies = values.technologies
         dispatch(initialize("estimation-task", task))
     },
-    moveToFeature: (values) => {
-        let task = {}
-        task.task_id = values._id
+    moveToFeature: (task) => {
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
         dispatch(initialize("MoveTaskInFeatureForm", task))
     },
-    moveTaskOutOfFeature: (values) => {
-        dispatch(A.moveTaskOutOfFeatureOnServer(values._id)).then(json => {
+    moveTaskOutOfFeature: (task) => {
+        dispatch(A.moveTaskOutOfFeatureOnServer(task)).then(json => {
             if (json.success) {
                 NotificationManager.success('Task moved out of feature Successfully')
             } else {
