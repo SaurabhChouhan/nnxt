@@ -5,20 +5,24 @@ import * as SC from "../serverconstants";
 import {ROLE_ESTIMATOR, ROLE_NEGOTIATOR} from "../serverconstants";
 import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import AppError from '../AppError'
+import {toObject} from 'tcomb-doc'
 import {
+    generateSchema,
+    estimationEstimatorAddTaskStruct,
+    estimationEstimatorUpdateTaskStruct,
+    estimationEstimatorAddFeatureStruct,
+    estimationEstimatorUpdateFeatureStruct,
+    estimationEstimatorRequestEditPermissionToTaskStruct,
+    estimationNegotiatorAddTaskStruct,
+    estimationNegotiatorAddFeatureStruct,
+    estimationNegotiatorUpdateTaskStruct,
+    estimationNegotiatorUpdateFeatureStruct,
+    estimationNegotiatorMoveOutOfFeatureStruct,
+    estimationInitiationStruct,
     estimationAddTaskFromRepositoryByEstimatorStruct,
     estimationAddTaskFromRepositoryByNegotiatorStruct,
-    estimationEstimatorAddFeatureStruct,
-    estimationEstimatorAddTaskStruct,
-    estimationEstimatorUpdateFeatureStruct,
-    estimationEstimatorUpdateTaskStruct,
-    estimationInitiationStruct,
-    estimationNegotiatorAddFeatureStruct,
-    estimationNegotiatorAddTaskStruct,
-    estimationNegotiatorUpdateFeatureStruct,
-    estimationNegotiatorUpdateTaskStruct,
-    estimationProjectAwardByNegotiatorStruct,
-    generateSchema
+    estimationEstimatorAddFeatureFromRepositoryStruct,
+    estimationNegotiatorAddFeatureFromRepositoryStruct
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -340,7 +344,9 @@ estimationRouter.post('/features/:featureID/from-repository', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.featureID, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        return "not implemented"
+        if (ctx.schemaRequested)
+            return generateSchema(estimationNegotiatorAddFeatureFromRepositoryStruct)
+        return await EstimationFeatureModel.addFeatureFromRepositoryByNegotiator(ctx.request.body, ctx.state.user)
     }else {
         throw new AppError("Only user with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can add feature from repo into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }

@@ -7,7 +7,7 @@ class RepositorySearch extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            selectedValue:'All',
+            selectedValue: 'All',
             type: ['All', 'Feature', 'Task'],
             tags: [],
             suggestions: this.props.estimation.technologies
@@ -21,11 +21,13 @@ class RepositorySearch extends Component {
         this.handleDelete = this.handleDelete.bind(this);
         this.handleAddition = this.handleAddition.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
-        this.handleSelectChange=this.handleSelectChange.bind(this);
+        this.handleSelectChange = this.handleSelectChange.bind(this);
     }
-    handleSelectChange(e){
-        this.setState({selectedValue:e.target.value});
+
+    handleSelectChange(e) {
+        this.setState({selectedValue: e.target.value});
     }
+
     handleDelete(i) {
         let tags = this.state.tags;
         tags.splice(i, 1);
@@ -55,30 +57,22 @@ class RepositorySearch extends Component {
     render() {
         const {tags, suggestions} = this.state;
         const {estimation} = this.props
-        return(
-        <div>
+        return (
+            <div>
                 <div className="col-md-12 repositoryHeading">
-                    <div className="col-md-10">
-                        <div className="dropdownoption">
-                            <select className="form-control"
-                                    onChange={this.handleSelectChange}>
-                                {
-                                    this.state.type.map((item, key) =>
-                                        <option value={item} key={key}>{item}</option>
-                                    )
-                                }
-                            </select>
-                        </div>
+                    <div class="col-md-10 pad">
+                        <h5>Repository</h5>
                     </div>
-                    <div className="col-md-1 pad marginTop">
+                    <div className="col-md-1 pad ">
                         <div className="backarrow">
                             <h5><img key="he_requested_delete" src="/images/go_button.png"
-                                                onClick={() => {this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags,this.state.selectedValue)
-                                                }}/></h5>
+                                     onClick={() => {
+                                         this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue)
+                                     }}/></h5>
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12 ">
+                <div className="col-md-6 ">
                     <ReactTags
                         classNames=
                             {{
@@ -93,10 +87,23 @@ class RepositorySearch extends Component {
                             }}
                         tags={tags}
                         suggestions={suggestions}
-                        placeholder="Repository"
+                        autofocus={false}
+                        placeholder="Technology"
                         handleDelete={this.handleDelete}
                         handleAddition={this.handleAddition}
                         handleDrag={this.handleDrag}/>
+                </div>
+                <div class="col-md-6">
+                    <div className="dropdownoption">
+                        <select className="form-control "
+                                onChange={this.handleSelectChange}>
+                            {
+                                this.state.type.map((item, key) =>
+                                    <option value={item} key={key}>{item}</option>
+                                )
+                            }
+                        </select>
+                    </div>
                 </div>
 
                 <div className="col-md-12">
