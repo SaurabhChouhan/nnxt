@@ -1,4 +1,8 @@
 import React from 'react'
+import * as A from "../../actions";
+import * as COC from "../componentConsts";
+import {Link} from 'react-router-dom'
+import {connect} from 'react-redux'
 
 const SidebarSideSection = (props) => <div className="sidebarSideSection">
     <ul className="list-unstyled">
@@ -11,11 +15,14 @@ const SidebarSideSection = (props) => <div className="sidebarSideSection">
         <li className="sub-menu-parent" tab-index="0"><a href=""><i className="fa fa-user-o"></i></a>
             <ul className="sub-menu">
                 <i className="down-arrow"></i>
-                <li><a href="">Edit Profile</a></li>
+                <li><Link to="/app-home/edit-profile" onClick={() => {
+                    props.dispatch(A.showComponent(COC.USER_PROFILE_FORM))
+                }}>Edit Profile</Link></li>
                 <li><a href="/logout">Logout</a></li>
+
             </ul>
         </li>
     </ul>
 </div>
 
-export default SidebarSideSection
+export default connect()(SidebarSideSection)
