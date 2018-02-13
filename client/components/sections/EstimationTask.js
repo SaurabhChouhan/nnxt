@@ -327,9 +327,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         //dispatch(initialize("MoveTaskInFeatureForm", task))
     },
     toggleGrantEdit: (values) => {
-        let task = {}
-        task.task_id = values._id
-        return dispatch(A.grantEditPermissionOfTaskOnServer(task)).then(json => {
+        return dispatch(A.grantEditPermissionOfTaskOnServer(values._id)).then(json => {
             if (json.success) {
                 if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
                     NotificationManager.success("Edit permission on task granted...")

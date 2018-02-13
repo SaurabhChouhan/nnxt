@@ -445,24 +445,15 @@ export const moveTaskOutOfFeatureOnServer = (taskID) => {
             response => response.json()
         ).then(
             json => {
-                /*
-                if (json.success) {
-                    NotificationManager.success('Task moved out of feature Successfully')
-                }
-                else{
-                    NotificationManager.error('Process Failed')
-                }
-                */
-
                 return json
             })
     }
 }
 
 
-export const grantEditPermissionOfTaskOnServer = (formInput) => {
+export const grantEditPermissionOfTaskOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/grant-edit-permission-task', {
+        return fetch('/api/estimations/tasks/' + taskID + '/grant-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -483,9 +474,9 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
     }
 }
 
-export const grantEditPermissionOfFeatureOnServer = (feature) => {
+export const grantEditPermissionOfFeatureOnServer = (featureId) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/grant-edit-permission-feature', {
+        return fetch('/api/estimations/features/' + featureId + '/grant-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {

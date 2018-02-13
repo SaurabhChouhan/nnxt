@@ -370,9 +370,7 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
 
         toggleGrantEdit: (values) => {
-            let feature = {}
-            feature.feature_id = values._id
-            return dispatch(A.grantEditPermissionOfFeatureOnServer(feature)).then(json => {
+            return dispatch(A.grantEditPermissionOfFeatureOnServer(values._id)).then(json => {
                 if (json.success) {
                     if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
                         NotificationManager.success("Edit permission on Feature granted...")
