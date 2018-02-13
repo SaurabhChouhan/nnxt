@@ -5,7 +5,8 @@ import {
     EstimationDetailContainer,
     EstimationListContainer,
     ProjectListContainer,
-    TechnologyListContainer
+    TechnologyListContainer,
+    AttendenceSettingFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -19,7 +20,7 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
-    TechnologyFormDialog
+    TechnologyFormDialog,
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -139,6 +140,16 @@ class ContentMain extends Component {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
                 }/>
+                </ContentSection>
+
+            }
+        })
+        routes.push({
+            url: "/attendance",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/attendance: props:", props)
+                return <ContentSection>
+                    <AttendenceSettingFormContainer name={COC.ATTENDENCE_SETTING_FORM}/>
                 </ContentSection>
 
             }
