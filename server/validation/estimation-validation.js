@@ -131,21 +131,6 @@ export const estimationNegotiatorAddFeatureStruct = t.struct({
     )
 })
 
-
-export const estimationEstimatorMoveToFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
-export const estimationEstimatorMoveOutOfFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
-export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
-    task_id: RequiredString
-})
-
 export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({
@@ -183,11 +168,6 @@ export const estimationNegotiatorUpdateTaskStruct = t.struct({
         })
         )
     )
-})
-
-export const estimationNegotiatorMoveToFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
 })
 
 export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
