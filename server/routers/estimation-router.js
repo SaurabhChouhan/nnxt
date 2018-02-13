@@ -233,6 +233,21 @@ estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {
     }
 })
 
+
+/**
+ * request Edit/Update permission feature by estimator to estimation
+ * or cancel this request
+ */
+estimationRouter.put('/features/:featureID/request-edit', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        return await EstimationFeatureModel.requestEditPermissionOfFeatureByEstimator(ctx.params.featureID, ctx.state.user)
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can request edit permission task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
 /**
  * Delete task to estimation
  */
@@ -263,11 +278,9 @@ estimationRouter.put('/tasks/:taskID/grant-edit', async ctx => {
  * Grant Edit/Update permission feature by negotiator to estimation
  * or cancel this request
  */
-estimationRouter.put('/grant-edit-permission-feature', async ctx => {
+estimationRouter.put('/features/:featureID/grant-edit', async ctx => {
     if (hasRole(ctx, ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationNegotiatorGrantEditPermissionToFeatureStruct)
-        return await EstimationFeatureModel.grantEditPermissionOfFeatureByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationFeatureModel.grantEditPermissionOfFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
@@ -327,11 +340,9 @@ estimationRouter.post('/tasks/from-repository', async ctx => {
     }
 })
 
-estimationRouter.post('/features/from-repository', async ctx => {
+estimationRouter.post('/features/:featureID/from-repository', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(estimationEstimatorAddFeatureFromRepositoryStruct)
-        return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.request.body, ctx.state.user)
+        return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.featureID, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationNegotiatorAddFeatureFromRepositoryStruct)

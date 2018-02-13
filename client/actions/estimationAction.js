@@ -1,7 +1,4 @@
 import * as AC from './actionConsts'
-import * as A from "./index";
-import * as COC from "../components/componentConsts";
-import {NotificationManager} from "react-notifications";
 
 
 export const addEstimations = (estimations) => ({
@@ -201,9 +198,9 @@ export const requestChangeOnServer = (estimationID) => {
 }
 
 
-export const requestForTaskEditPermissionOnServer = (task) => {
+export const requestForTaskEditPermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-edit-permission-task', {
+        return fetch('/api/estimations/tasks/'+taskID+'/request-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -225,9 +222,9 @@ export const requestForTaskEditPermissionOnServer = (task) => {
     }
 }
 
-export const requestForFeatureEditPermissionOnServer = (feature) => {
+export const requestForFeatureEditPermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-edit-permission-feature', {
+        return fetch('/api//api/estimations/features/' + featureID + '/request-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -271,9 +268,9 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     }
 }
 
-export const requestForTaskDeletePermissionOnServer = (task) => {
+export const requestForTaskDeletePermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-removal-task', {
+        return fetch('/api/estimations/tasks/'+taskID+'/request-removal', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -409,9 +406,9 @@ export const getEstimationFromServer = (estimationID) => {
 }
 
 
-export const moveTaskIntoFeatureOnServer = (formInput) => {
+export const moveTaskIntoFeatureOnServer = (taskID,featureID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/move-to-feature', {
+        return fetch('/api/estimations/tasks/'+taskID+'/features/'+featureID, {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -433,9 +430,9 @@ export const moveTaskIntoFeatureOnServer = (formInput) => {
     }
 }
 
-export const moveTaskOutOfFeatureOnServer = (formInput) => {
+export const moveTaskOutOfFeatureOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/move-out-of-feature', {
+        return fetch('/api/estimations/tasks/'+taskID+'/move-out-of-feature', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -448,24 +445,15 @@ export const moveTaskOutOfFeatureOnServer = (formInput) => {
             response => response.json()
         ).then(
             json => {
-                /*
-                if (json.success) {
-                    NotificationManager.success('Task moved out of feature Successfully')
-                }
-                else{
-                    NotificationManager.error('Process Failed')
-                }
-                */
-
                 return json
             })
     }
 }
 
 
-export const grantEditPermissionOfTaskOnServer = (formInput) => {
+export const grantEditPermissionOfTaskOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/grant-edit-permission-task', {
+        return fetch('/api/estimations/tasks/' + taskID + '/grant-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -486,9 +474,9 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
     }
 }
 
-export const grantEditPermissionOfFeatureOnServer = (feature) => {
+export const grantEditPermissionOfFeatureOnServer = (featureId) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/grant-edit-permission-feature', {
+        return fetch('/api/estimations/features/' + featureId + '/grant-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {

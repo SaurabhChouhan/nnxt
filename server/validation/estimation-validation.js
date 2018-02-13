@@ -1,4 +1,4 @@
-import {RequiredString, ObjectId, validate} from "./index"
+import {ObjectId, RequiredString} from "./index"
 import t from 'tcomb-validation'
 
 export const estimationInitiationStruct = t.struct({
@@ -147,12 +147,6 @@ export const estimationEstimatorRequestEditPermissionToFeatureStruct = t.struct(
     feature_id: RequiredString
 })
 
-export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
-    _id: RequiredString,
-    estimation: t.struct({
-        _id: ObjectId
-    })
-})
 //Estimator Feature Validation Block End
 
 //Negotiator Feature Validation Block Start

@@ -256,9 +256,7 @@ EstimationTask.defaultProps = {
 
 EstimationTask = connect(null, (dispatch, ownProps) => ({
     toggleEditRequest: (values) => {
-        let task = {}
-        task.task_id = values._id
-        return dispatch(A.requestForTaskEditPermissionOnServer(task)).then(json => {
+        return dispatch(A.requestForTaskEditPermissionOnServer(values._id)).then(json => {
             if (json.success) {
 
                 if (json.data && json.data.estimator && json.data.estimator.changeRequested)
@@ -281,9 +279,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         })
     },
     toggleDeleteRequest: (values) => {
-        let task = {}
-        task.task_id = values._id
-        return dispatch(A.requestForTaskDeletePermissionOnServer(task)).then(json => {
+        return dispatch(A.requestForTaskDeletePermissionOnServer(values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Delete requested successfully")
             } else {
@@ -320,10 +316,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         dispatch(initialize("MoveTaskInFeatureForm", task))
     },
     moveTaskOutOfFeature: (values) => {
-        let task = {}
-        task.task_id = values._id
-        task.feature_id = values.feature._id
-        dispatch(A.moveTaskOutOfFeatureOnServer(values)).then(json => {
+        dispatch(A.moveTaskOutOfFeatureOnServer(values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success('Task moved out of feature Successfully')
             } else {
@@ -334,9 +327,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         //dispatch(initialize("MoveTaskInFeatureForm", task))
     },
     toggleGrantEdit: (values) => {
-        let task = {}
-        task.task_id = values._id
-        return dispatch(A.grantEditPermissionOfTaskOnServer(task)).then(json => {
+        return dispatch(A.grantEditPermissionOfTaskOnServer(values._id)).then(json => {
             if (json.success) {
                 if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
                     NotificationManager.success("Edit permission on task granted...")

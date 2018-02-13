@@ -453,13 +453,11 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     return await feature.save()
 }
 
-estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (featureInput, estimator) => {
+estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (featureID, estimator) => {
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    validate(featureInput, estimationEstimatorAddFeatureFromRepositoryStruct)
-
-    let feature = await EstimationFeatureModel.findById(featureInput._id)
+    let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -515,11 +513,11 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (fea
 
 
 
-estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = async (featureInput, estimator) => {
+estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = async (featureID, estimator) => {
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let feature = await EstimationFeatureModel.findById(featureInput.feature_id)
+    let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -538,12 +536,12 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
     return await feature.save()
 }
 
-estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async (featureInput, negotiator) => {
+estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async (featureID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let feature = await EstimationFeatureModel.findById(featureInput.feature_id)
+    let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
