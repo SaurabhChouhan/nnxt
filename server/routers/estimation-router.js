@@ -317,7 +317,7 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
 /**
  * Add task from repository by estimator/negotiator to estimation
  */
-estimationRouter.post('/add-task-from-repository', async ctx => {
+estimationRouter.post('/tasks/from-repository', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationAddTaskFromRepositoryByEstimatorStruct)
@@ -331,7 +331,7 @@ estimationRouter.post('/add-task-from-repository', async ctx => {
     }
 })
 
-estimationRouter.post('/add-feature-from-repository', async ctx => {
+estimationRouter.post('/features/from-repository', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorAddFeatureFromRepositoryStruct)
