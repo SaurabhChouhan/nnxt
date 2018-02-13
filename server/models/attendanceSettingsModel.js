@@ -9,10 +9,10 @@ mongoose.Promise = global.Promise
 
 let attendanceSettingsSchema = mongoose.Schema({
 
-    minFullDayHours:{type:Number, default:7},
-    minHalfDayHours:{type:Number, default:4},
-    dayStartTime:{type:String, default:"10:00"},
-    dayEndTime:{type:String, default:"22:00"}
+    minFullDayHours: {type: Number, default: 7},
+    minHalfDayHours: {type: Number, default: 4},
+    dayStartTime: {type: String, default: "10:00"},
+    dayEndTime: {type: String, default: "22:00"}
 
 })
 
