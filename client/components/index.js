@@ -33,7 +33,9 @@ export {default as EstimationSuggestFeatureForm} from './forms/EstimationSuggest
 // Estimation Page
 
 export {default as EstimationList} from './lists/EstimationList'
+export {default as EstimationTask} from './sections/EstimationTask'
 export {default as EstimationTasks} from './sections/EstimationTasks'
+export {default as EstimationFeature} from './sections/EstimationFeature'
 export {default as EstimationFeatures} from './sections/EstimationFeatures'
 export {default as EstimationDetail} from './pages/EstimationDetail'
 
