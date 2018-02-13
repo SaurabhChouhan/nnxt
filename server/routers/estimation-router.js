@@ -292,11 +292,11 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
     }
 })
 
-estimationRouter.put('/project-award', async ctx => {
+estimationRouter.put('/:estimationID/project-awarded', async ctx => {
     if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationProjectAwardByNegotiatorStruct)
-        return await EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationModel.projectAwardByNegotiator(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + ROLE_NEGOTIATOR + "] can project award of this estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
     }
@@ -316,7 +316,7 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
 /**
  * Add task from repository by estimator/negotiator to estimation
  */
-estimationRouter.post('/add-task-from-repository', async ctx => {
+estimationRouter.post('/tasks/from-repository', async ctx => {
     if (hasRole(ctx, ROLE_ESTIMATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(estimationAddTaskFromRepositoryByEstimatorStruct)
