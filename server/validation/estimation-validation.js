@@ -150,6 +150,10 @@ export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
     task_id: RequiredString
 })
 
+export const estimationEstimatorRequestEditPermissionToFeatureStruct = t.struct({
+    feature_id: RequiredString
+})
+
 export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({

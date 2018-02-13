@@ -26,6 +26,7 @@ import {
     estimationInitiationStruct,
     estimationAddTaskFromRepositoryByEstimatorStruct,
     estimationAddTaskFromRepositoryByNegotiatorStruct
+    estimationEstimatorRequestEditPermissionToFeatureStruct,
 } from "../validation"
 
 let estimationRouter = new Router({
@@ -234,7 +235,7 @@ estimationRouter.put('/request-removal-task', async ctx => {
 
 
 /**
- * request Edit/Update permission task/feature by estimator to estimation
+ * request Edit/Update permission feature by estimator to estimation
  * or cancel this request
  */
 estimationRouter.put('/request-edit-permission-task', async ctx => {
@@ -242,6 +243,23 @@ estimationRouter.put('/request-edit-permission-task', async ctx => {
         if (ctx.schemaRequested)
             return generateSchema(estimationEstimatorRequestEditPermissionToTaskStruct)
         return await EstimationTaskModel.requestEditPermissionOfTaskByEstimator(ctx.request.body, ctx.state.user)
+    } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
+        return "not implemented"
+    } else {
+        throw new AppError("Only users with role [" + ROLE_ESTIMATOR + "," + ROLE_NEGOTIATOR + "] can request edit permission task into estimation", ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+})
+
+/**
+ * request Edit/Update permission feature by estimator to estimation
+ * or cancel this request
+ */
+
+estimationRouter.put('/request-edit-permission-feature', async ctx => {
+    if (hasRole(ctx, ROLE_ESTIMATOR)) {
+        if (ctx.schemaRequested)
+            return generateSchema(estimationEstimatorRequestEditPermissionToFeatureStruct)
+        return await EstimationFeatureModel.requestEditPermissionOfFeatureByEstimator(ctx.request.body, ctx.state.user)
     } else if (hasRole(ctx, ROLE_NEGOTIATOR)) {
         return "not implemented"
     } else {

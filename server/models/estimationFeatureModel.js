@@ -451,5 +451,31 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     return await feature.save()
 }
 
+
+
+estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = async (featureInput, estimator) => {
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureInput.feature_id)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only request edit feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    feature.estimator.changeRequested = !feature.estimator.changeRequested
+    feature.estimator.changedInThisIteration = true
+    return await feature.save()
+}
+
+
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel
