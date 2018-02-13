@@ -346,8 +346,21 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
             })
         },
-        toggleEditRequest: (feature) => {
-            console.log("toggleEditRequest", feature)
+        toggleEditRequest: (values) => {
+                let feature = {}
+                feature.feature_id = values._id
+                return dispatch(A.requestForFeatureEditPermissionOnServer(feature)).then(json => {
+                    if (json.success) {
+
+                        if (json.data && json.data.estimator && json.data.estimator.changeRequested)
+                            NotificationManager.success("Edit request on Feature raised...")
+                        else
+                            NotificationManager.success("Edit request on Feature cleared...")
+                    } else {
+                        NotificationManager.error("Unknown error occurred")
+                    }
+                })
+
         },
         toggleGrantEdit: (feature) => {
             // Call grant edit API which automatically toggles input
