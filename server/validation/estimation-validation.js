@@ -131,24 +131,17 @@ export const estimationNegotiatorAddFeatureStruct = t.struct({
     )
 })
 
-
-export const estimationEstimatorMoveToFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
+export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
+    _id: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+})
 })
 
-export const estimationEstimatorMoveOutOfFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
-export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
+export const estimationEstimatorAddFeatureFromRepositoryStruct = t.struct({
     task_id: RequiredString
 })
 
-export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
-    task_id: RequiredString
-})
 
 export const estimationEstimatorRequestEditPermissionToFeatureStruct = t.struct({
     feature_id: RequiredString
@@ -193,18 +186,9 @@ export const estimationNegotiatorUpdateTaskStruct = t.struct({
     )
 })
 
-export const estimationNegotiatorMoveToFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
 export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
     task_id: RequiredString,
     feature_id: RequiredString
-})
-
-export const estimationNegotiatorGrantEditPermissionToTaskStruct = t.struct({
-    task_id: RequiredString
 })
 
 export const estimationNegotiatorGrantEditPermissionToFeatureStruct = t.struct({
