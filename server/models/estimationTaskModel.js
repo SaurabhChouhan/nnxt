@@ -633,12 +633,12 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, n
 }
 
 
-estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (taskInput, negotiator) => {
+estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (taskID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let task = await EstimationTaskModel.findById(taskInput.task_id)
+    let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
