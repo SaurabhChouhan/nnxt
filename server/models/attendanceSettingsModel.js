@@ -1,9 +1,8 @@
 import mongoose from 'mongoose'
-import AppError from "../AppError";
-import {userHasRole} from "../utils";
-import * as SC from "../serverconstants";
-import * as EC from "../errorcodes";
-import {isAuthenticated, isAdmin, isSuperAdmin, hasRole} from "../utils"
+import AppError from "../AppError"
+import {userHasRole} from "../utils"
+import * as SC from "../serverconstants"
+import * as EC from "../errorcodes"
 
 mongoose.Promise = global.Promise
 
@@ -18,39 +17,21 @@ let attendanceSettingsSchema = mongoose.Schema({
 
 /*I am hoping that default add / update / delete of super will work here */
 
-attendanceSettingsSchema.statics.getAdminAttendanceSettings = async (loggedInUser) => {
+attendanceSettingsSchema.statics.get = async (loggedInUser) => {
+    return await AttendanceSettingsModel.findOne()
+}
 
-    if (isAdmin || isSuperAdmim) {
-        // Only admin and super admin can see holidays
-        let settings =  await AttendanceSettingsModel.find().exec()
-        console.log("getAdminAttendanceSettings - ",settings);
-        if(!settings || settings.length == 0)
-        {
-            /**Default settings creation */
-            settings = new AttendanceSettingsModel();
-            console.log("creating first time admin attendance settings - ",settings);
-            return await AttendanceSettingsModel.create(settings)
+attendanceSettingsSchema.statics.updateSetting = async (newSettings, loggedInUser) => {
+    console.log("logged in settings are ", newSettings)
 
-        }
-    }
-    else {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    let attendanceSetting = await AttendanceSettingsModel.findOne()
+
+    if (!attendanceSetting) {
+        return await AttendanceSettingsModel.create(newSettings)
+    } else {
+        return await AttendanceSettingsModel.findOneAndUpdate({}, {$set: newSettings}, {new: true})
     }
 }
 
-attendanceSettingsSchema.updateAdminAttedanceSettings = async (newSettings,loggedInUser) => {
-    if (isAdmin || isSuperAdmim) {
-        let settings = await AttendanceSettingsModel.getAdminAttendanceSettings()
-        settings.minFullDayHours = newSettings.minFullDayHours;
-        settings.minHalfDayHours = newSettings.minHalfDayHours;
-        settings.dayStartTime = newSettings.dayStartTime;
-        settings.dayEndTime = newSettings.dayEndTime;
-        return await AttendanceSettingsModel.update(settings);
-    }
-    else {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-
-}
 const AttendanceSettingsModel = mongoose.model("attendancesettings", attendanceSettingsSchema)
 export default AttendanceSettingsModel

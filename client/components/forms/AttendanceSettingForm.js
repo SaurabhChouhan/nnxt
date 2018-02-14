@@ -5,7 +5,7 @@ import {number, required} from "./validation"
 import * as logger from '../../clientLogger'
 
 
-let AttendenceSettingForm = (props) => {
+let AttendanceSettingForm = (props) => {
 
     return <div className="col-md-8">
         <div className="col-md-12 pad">
@@ -40,8 +40,8 @@ let AttendenceSettingForm = (props) => {
     </div>
 }
 
-AttendenceSettingForm = reduxForm({
-    form: 'attendence-setting'
-})(AttendenceSettingForm)
+AttendanceSettingForm = reduxForm({
+    form: 'attendance-setting'
+})(AttendanceSettingForm)
 
-export default AttendenceSettingForm
+export default AttendanceSettingForm

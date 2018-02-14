@@ -33,3 +33,30 @@ export const addAttendanceSettingOnServer = (formInput) => {
         )
     }
 }
+
+export const getAttendanceSettingFromServer = () => {
+    return function (dispatch, getState) {
+        return fetch('/api/attendance/attendance-settings',
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(initialize('attendance-setting', json.data))
+                    dispatch(addAttendanceSetting(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+

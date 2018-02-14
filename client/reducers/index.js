@@ -10,7 +10,7 @@ import projectReducer from './projectReducer'
 import technologyReducer from './technologyReducer'
 import leaveRequestReducer from './leaveRequestReducer'
 import repositoryReducer from './repositoryReducer'
-import attendenceSettingReducer from './attendenceSettingReducer'
+import attendanceSettingReducer from './attendanceSettingReducer'
 
 const reducers = combineReducers({
     form: formReducer, // Redux form state
@@ -24,6 +24,6 @@ const reducers = combineReducers({
     technology: technologyReducer,
     leaveRequest: leaveRequestReducer,
     repository: repositoryReducer,
-    attendenceSetting: attendenceSettingReducer,
+    attendanceSetting: attendanceSettingReducer,
 })
 export default reducers
