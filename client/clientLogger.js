@@ -45,6 +45,7 @@ export const ESTIMATION_TASK_FORM_RENDER = 'EstimationTaskForm->render():'
 export const ESTIMATION_FEATURE_FORM_RENDER = 'EstimationFeatureForm->render():'
 export const ESTIMATION_FEATURE_FORM_SUBMIT = 'EstimationFeatureForm->submit():'
 export const ESTIMATION_SUGGEST_FEATURE_FORM_SUBMIT = 'EstimationSuggestFeatureForm->submit():'
+export const ESTIMATION_PROJECT_AWARD_FORM_RENDER = 'EstimationProjectAwardForm->render():'
 
 export const ESTIMATION_LIST_CONNECT = "EstimationList->connect():"
 

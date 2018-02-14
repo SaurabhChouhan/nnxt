@@ -44,6 +44,7 @@ export {default as EstimationFeatureFormContainer} from './forms/EstimationFeatu
 export {default as MoveTaskInFeatureFormContainer} from './forms/MoveTaskInFeatureFormContainer'
 export {default as EstimationSuggestTaskFormContainer} from './forms/EstimationSuggestTaskFormContainer'
 export {default as EstimationSuggestFeatureFormContainer} from './forms/EstimationSuggestFeatureFormContainer'
+export {default as EstimationProjectAwardFormContainer} from './forms/EstimationProjectAwardFormContainer'
 
 
 //Projects

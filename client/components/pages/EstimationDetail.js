@@ -180,7 +180,9 @@ class EstimationDetail extends Component {
                     <EstimationTasksContainer estimationStatus={estimation.status}
                                               loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
-
+                <div className="col-md-12">
+                    <button type="button" className="btn customBtn" onClick={()=>{this.props.showProjectAwardForm()}}>Project Award</button>
+                </div>
             </div>
             <div className="col-md-4 estimationsection pad">
                 <RepositorySearch  {...this.props}/>
