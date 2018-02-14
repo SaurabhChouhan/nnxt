@@ -827,7 +827,7 @@ td.rejRowColor {
 
 .loginform input {
     width: 100%;
-    padding: 28px 28px;
+    height:60px;
     margin-bottom: 15px;
 }
 
