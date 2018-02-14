@@ -63,6 +63,7 @@ export {default as ClientForm} from './forms/ClientForm'
 //raise leave request
 export {default as LeaveRequestFormDialog} from './dialogs/LeaveRequestFormDialog'
 export {default as LeaveRequestForm} from './forms/LeaveRequestForm'
+export {default as RaiseLeaveList} from './lists/RaiseLeaveList'
 
 
 //technology RelatedForm

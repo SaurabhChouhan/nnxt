@@ -7,7 +7,8 @@ import {
     ProjectListContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
-    AttendenceSettingFormContainer
+    AttendenceSettingFormContainer,
+    RaiseLeaveListContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -141,6 +142,7 @@ class ContentMain extends Component {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
                 }/>
+                    <RaiseLeaveListContainer name={COC.RAISE_LEAVE_LIST}/>
                 </ContentSection>
 
             }
