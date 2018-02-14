@@ -446,16 +446,16 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
     return await estimation.save()
 }
 
-estimationSchema.statics.projectAwardByNegotiator = async (EstimationID, negotiator) => {
+estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, negotiator) => {
 
     if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findById(EstimationID)
+    let estimation = await EstimationModel.findById(projectAwardData.estimation._id)
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (estimation.negotiator._id != negotiator._id)
+    if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))

@@ -306,11 +306,11 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
 })
 
 // noinspection Annotator
-estimationRouter.put('/:estimationID/project-awarded', async ctx => {
+estimationRouter.put('/project-awarded', async ctx => {
     if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
         if (ctx.schemaRequested)
             return generateSchema(V.estimationProjectAwardByNegotiatorStruct)
-        return await EstimationModel.projectAwardByNegotiator(ctx.params.estimationID, ctx.state.user)
+        return await EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can project award of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
