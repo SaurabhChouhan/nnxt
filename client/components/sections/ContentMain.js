@@ -150,7 +150,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/attendance: props:", props)
                 return <ContentSection>
-                    <AttendenceSettingFormContainer name={COC.ATTENDENCE_SETTING_FORM}/>
+                    <AttendenceSettingFormContainer name={COC.ATTENDANCE_SETTING_FORM}/>
                 </ContentSection>
 
             }
