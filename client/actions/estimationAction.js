@@ -464,8 +464,7 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
+                }
             }
         ).then(
             response => response.json()
@@ -487,8 +486,7 @@ export const grantEditPermissionOfFeatureOnServer = (featureId) => {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(feature)
+                }
             }
         ).then(
             response => response.json()

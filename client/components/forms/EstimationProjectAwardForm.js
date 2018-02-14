@@ -14,37 +14,37 @@ let EstimationProjectAwardForm = (props) => {
 
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="NegotiatedBilledHours" component={renderText} label={"Negotiated Billed Hours:"}/>
+                    <Field name="negotiatedBilledHours" component={renderText} label={"Negotiated Billed Hours:"}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="name" component={renderText} label={"Name (Relese Version):"}/>
+                    <Field name="nameReleaseVersion" component={renderText} label={"Name (Relese Version):"}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-4">
-                    <Field name="ExpectedStartDateForDeveloper:" component={renderText}
+                    <Field name="expectedStartDateForDeveloper:" component={renderText}
                            label={"Expected Start Date For Developer:"}/>
                 </div>
                 <div className="col-md-4">
-                    <Field name="ExpectedDeveloperReleaseDate" component={renderText}
+                    <Field name="expectedDeveloperReleaseDate" component={renderText}
                            label={"Expected Developer Release Date:"}/>
                 </div>
                 <div className="col-md-4">
-                    <Field name="ExpectedClientReleaseDate" component={renderText}
+                    <Field name="expectedClientReleaseDate" component={renderText}
                            label={"Expected Client Release Date:"}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="ManagerOfRelease" component={renderText} label={"Manager Of Release:"}/>
+                    <Field name="managerOfRelease" component={renderText} label={"Manager Of Release:"}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="LeaderOfRelease" component={renderText} label={"Leader Of Release:"}/>
+                    <Field name="leaderOfRelease" component={renderText} label={"Leader Of Release:"}/>
                 </div>
             </div>
 
             <div className="col-md-12">
-                <Field name="PlannedEmployeesForRelease" component={renderText}
+                <Field name="plannedEmployeesForRelease" component={renderText}
                        label={"Planned Employees For Release:"}/>
             </div>
 
