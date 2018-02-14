@@ -19,7 +19,22 @@ const estimationReducer = (state = initialState, action) => {
             })
 
         case AC.UPDATE_ESTIMATION_TASK:
-            return Object.assign({}, state, {
+            let feature
+            if (action.task && action.task.feature && action.task.feature._id && Array.isArray(state.features)) {
+                feature = state.features.find(item => item._id == action.task.feature._id)
+                if (feature && Array.isArray(feature.tasks)) {
+                    feature.tasks = feature.tasks.map(item => item._id == action.task._id ?
+                        Object.assign({}, action.task) : item)
+                    return Object.assign({}, state, {
+                        features: Array.isArray(state.features) ?
+                            state.features.map(item => item._id == feature._id ?
+                                Object.assign({}, feature) : item) : null
+                    })
+                }
+
+            }
+            else
+                return Object.assign({}, state, {
                 tasks: Array.isArray(state.tasks) ?
                     state.tasks.map(item => item._id == action.task._id ?
                         Object.assign({}, action.task) : item) : null
