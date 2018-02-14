@@ -136,10 +136,6 @@ export const estimationEstimatorAddFeatureFromRepositoryStruct = t.struct({
 })
 
 
-export const estimationEstimatorRequestEditPermissionToFeatureStruct = t.struct({
-    feature_id: RequiredString
-})
-
 //Estimator Feature Validation Block End
 
 //Negotiator Feature Validation Block Start
@@ -171,15 +167,6 @@ export const estimationNegotiatorUpdateTaskStruct = t.struct({
         })
         )
     )
-})
-
-export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
-export const estimationNegotiatorGrantEditPermissionToFeatureStruct = t.struct({
-    feature_id: RequiredString
 })
 
 export const estimationProjectAwardByNegotiatorStruct = t.struct({
