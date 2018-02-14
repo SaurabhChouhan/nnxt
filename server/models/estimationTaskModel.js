@@ -180,14 +180,14 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (estimationTask.feature && estimationTask.feature._id) {
-        let estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
+        let estimationFeatureObj = await EstimationFeatureModel.findById(estimationTask.feature._id)
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-        await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours - estimationTask.estimator.estimatedHours}})
+        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours - estimationTask.estimator.estimatedHours}})
     }
 
     if (estimationTask.repo && estimationTask.repo._id) {
@@ -196,7 +196,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
             RepositoryModel.updateTask(estimationTask.repo._id, taskInput, estimator)
     }
 
-    estimationTask.feature = taskInput.feature
+    estimationTask.feature = taskInput.feature ? taskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
@@ -256,7 +256,7 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
         let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, taskInput, negotiator)
     }*/
 
-    estimationTask.feature = taskInput.feature
+    estimationTask.feature = taskInput.feature ? taskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.negotiator.name = taskInput.name
     estimationTask.negotiator.description = taskInput.description
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
