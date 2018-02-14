@@ -2,7 +2,9 @@ import * as AC from "../actions/actionConsts";
 
 let initialState = {
     all: [],
-    selected: {}
+    selected: {},
+    leaveTypes:[],
+
 }
 
 let leaveRequestReducer = (state = initialState, action) => {
@@ -12,6 +14,9 @@ let leaveRequestReducer = (state = initialState, action) => {
 
         case AC.ADD_LEAVE_REQUEST:
             return Object.assign({}, state, {all: [...state.all, action.leaveRequest]})
+
+        case AC.ADD_LEAVE_TYPES:
+            return Object.assign({}, state, {leaveTypes: action.leaveTypes})
 
         default:
             return state

@@ -331,30 +331,25 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
 /**
  * Add task from repository by estimator/negotiator to estimation
  */
-estimationRouter.post('/tasks/from-repository', async ctx => {
+estimationRouter.post('/:estimationID/repository/:repositoryID/tasks/from-repository', async ctx => {
     if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(V.estimationAddTaskFromRepositoryByEstimatorStruct)
-        return await EstimationTaskModel.addTaskFromRepositoryByEstimator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.addTaskFromRepositoryByEstimator(ctx.params.estimationID,ctx.params.repositoryID, ctx.state.user)
     } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return generateSchema(V.estimationAddTaskFromRepositoryByNegotiatorStruct)
-        return await EstimationTaskModel.addTaskFromRepositoryByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationTaskModel.addTaskFromRepositoryByNegotiator(ctx.params.estimationID,ctx.params.repositoryID, ctx.state.user)
     } else {
         throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add task from repository into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 
 // noinspection Annotator
-estimationRouter.post('/features/:featureID/from-repository', async ctx => {
+/**
+ * Add feature from repository by estimator/negotiator to estimation
+ */
+estimationRouter.post('/:estimationID/repository/:repositoryID/features/from-repository', async ctx => {
     if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.featureID, ctx.state.user)
+        return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.estimationID,ctx.params.repositoryID, ctx.state.user)
     } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            { // noinspection Annotator
-                return generateSchema(V.estimationNegotiatorAddFeatureFromRepositoryStruct)
-            }
-        return await EstimationFeatureModel.addFeatureFromRepositoryByNegotiator(ctx.request.body, ctx.state.user)
+        return await EstimationFeatureModel.addFeatureFromRepositoryByNegotiator(ctx.params.estimationID,ctx.params.repositoryID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add feature from repo into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
