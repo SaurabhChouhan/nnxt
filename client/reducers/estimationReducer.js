@@ -45,6 +45,7 @@ const estimationReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 features: Array.isArray(state.features) ? [...state.features, action.feature] : [action.feature]
             })
+
         case AC.UPDATE_ESTIMATION_FEATURE:
             // feature is added to estimation, it would be added against selected estimation
             return Object.assign({}, state, {
@@ -85,6 +86,7 @@ const estimationReducer = (state = initialState, action) => {
                     return feature
                 }) : []
             })
+
         case AC.DELETE_ESTIMATION_TASK:
             return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id)})
 
@@ -130,9 +132,9 @@ const estimationReducer = (state = initialState, action) => {
             })
         case AC.EXPAND_TASK:
             return state
+
         case AC.EXPAND_FEATURE:
             // Compare expanded task ID with expanded task id of state
-
             if (state.expandedTaskID && state.expandedTaskID == action.taskID) {
                 // Feature was expanded and clicked again, so contract
                 return Object.assign({}, state, {
@@ -140,7 +142,6 @@ const estimationReducer = (state = initialState, action) => {
                     expandedTaskID: undefined
                 })
             }
-
             return Object.assign({}, state, {
                 expandedFeatureID: undefined,
                 expandedTaskID: action.taskID
