@@ -2,6 +2,10 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {STATUS_APPROVED, STATUS_PENDING, STATUS_REJECTED} from "../serverconstants";
 import moment from 'moment'
+import * as EC from "../errorcodes";
+import * as SC from "../serverconstants";
+import {userHasRole} from "../utils";
+import ProjectModel from "./projectModel";
 mongoose.Promise = global.Promise
 
 
@@ -36,6 +40,11 @@ leaveSchema.statics.saveLeave = async (leaveInput) => {
     leaveInput.status = STATUS_PENDING
     leaveInput.leave.numberOfLeaveDays = leaveDaysCount
     return await LeaveModel.create(leaveInput)
+}
+
+leaveSchema.statics.getAllActive = async (loggedInUser) => {
+
+        return await LeaveModel.find({"user._id":loggedInUser._id }).exec()
 }
 
 const LeaveModel = mongoose.model("Leave", leaveSchema)
