@@ -522,3 +522,28 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
             })
     }
 }
+
+export const addProjectAwardOnServer = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/project-award', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("ProjectAward",json.data)
+                    //dispatch(addEstimation(json.data))
+                }
+
+                return json
+            })
+    }
+}
