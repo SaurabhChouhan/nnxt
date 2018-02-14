@@ -6,8 +6,6 @@ import {
     estimationEstimatorUpdateFeatureStruct,
     estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorUpdateFeatureStruct,
-    estimationNegotiatorAddFeatureFromRepositoryStruct,
-    estimationEstimatorAddFeatureFromRepositoryStruct
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
