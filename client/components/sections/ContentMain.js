@@ -6,6 +6,7 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     TechnologyListContainer,
+    UserProfileFormContainer,
     AttendenceSettingFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
@@ -20,7 +21,7 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
-    TechnologyFormDialog,
+    TechnologyFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -150,6 +151,18 @@ class ContentMain extends Component {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/attendance: props:", props)
                 return <ContentSection>
                     <AttendenceSettingFormContainer name={COC.ATTENDENCE_SETTING_FORM}/>
+                </ContentSection>
+
+            }
+        })
+
+routes.push({
+            url: "/edit-profile",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/edit-profile: props:", props)
+                return <ContentSection>
+                    <UserProfileFormContainer name={COC.USER_PROFILE_FORM}
+                    />
                 </ContentSection>
 
             }

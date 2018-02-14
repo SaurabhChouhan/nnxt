@@ -1,7 +1,4 @@
 import * as AC from './actionConsts'
-import * as A from "./index";
-import * as COC from "../components/componentConsts";
-import {NotificationManager} from "react-notifications";
 
 
 export const addEstimations = (estimations) => ({
@@ -62,6 +59,12 @@ export const estimationTaskDelete = (taskID) => ({
 export const moveTaskInFeature = (task) => ({
     type: AC.MOVE_TASK_IN_FEATURE,
     task: task
+})
+
+export const moveTaskOutOfFeature = (task, featureID) => ({
+    type: AC.MOVE_TASK_OUTOF_FEATURE,
+    task: task,
+    featureID: featureID
 })
 
 export const deleteEstimationFeature = (feature) => ({
@@ -201,16 +204,15 @@ export const requestChangeOnServer = (estimationID) => {
 }
 
 
-export const requestForTaskEditPermissionOnServer = (task) => {
+export const requestForTaskEditPermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-edit-permission-task', {
+        return fetch('/api/estimations/tasks/' + taskID + '/request-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(task)
+                }
             }
         ).then(
             response => response.json()
@@ -219,6 +221,29 @@ export const requestForTaskEditPermissionOnServer = (task) => {
                 if (json.success) {
                     // As json.data would contain complete updated task just fire update redux action
                     dispatch(updateEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const requestForFeatureEditPermissionOnServer = (featureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features/' + featureID + '/request-edit', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    // As json.data would contain complete updated feature just fire update redux action
+                    dispatch(updateEstimationFeature(json.data))
                 }
                 return json
             })
@@ -247,16 +272,15 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     }
 }
 
-export const requestForTaskDeletePermissionOnServer = (task) => {
+export const requestForTaskDeletePermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/request-removal-task', {
+        return fetch('/api/estimations/tasks/' + taskID + '/request-removal', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(task)
+                }
             }
         ).then(
             response => response.json()
@@ -385,16 +409,16 @@ export const getEstimationFromServer = (estimationID) => {
 }
 
 
-export const moveTaskIntoFeatureOnServer = (formInput) => {
+export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
+    console.log("task id ", taskID, " feature id ", featureID)
     return (dispatch, getState) => {
-        return fetch('/api/estimations/move-to-feature', {
+        return fetch('/api/estimations/tasks/' + taskID + '/features/' + featureID, {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
+                }
             }
         ).then(
             response => response.json()
@@ -409,39 +433,32 @@ export const moveTaskIntoFeatureOnServer = (formInput) => {
     }
 }
 
-export const moveTaskOutOfFeatureOnServer = (formInput) => {
+export const moveTaskOutOfFeatureOnServer = (task) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/move-out-of-feature', {
+        return fetch('/api/estimations/tasks/' + task._id + '/move-out-of-feature', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
+                }
             }
         ).then(
             response => response.json()
         ).then(
             json => {
-                /*
                 if (json.success) {
-                    NotificationManager.success('Task moved out of feature Successfully')
+                    dispatch(moveTaskOutOfFeature(json.data, task.feature._id))
                 }
-                else{
-                    NotificationManager.error('Process Failed')
-                }
-                */
-
                 return json
             })
     }
 }
 
 
-export const grantEditPermissionOfTaskOnServer = (formInput) => {
+export const grantEditPermissionOfTaskOnServer = (taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/grant-edit-permission-task', {
+        return fetch('/api/estimations/tasks/' + taskID + '/grant-edit', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -455,11 +472,30 @@ export const grantEditPermissionOfTaskOnServer = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    NotificationManager.success('Permission Granted Successfully')
                     dispatch(updateEstimationTask(json.data))
                 }
-                else {
-                    NotificationManager.error('Permission Granted Failed')
+                return json
+            })
+    }
+}
+
+export const grantEditPermissionOfFeatureOnServer = (featureId) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features/' + featureId + '/grant-edit', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(feature)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
                 }
 
                 return json

@@ -18,19 +18,6 @@ const estimationReducer = (state = initialState, action) => {
                 tasks: Array.isArray(state.tasks) ? [...state.tasks, action.task] : [action.task]
             })
 
-        case AC.MOVE_TASK_IN_FEATURE:
-            return Object.assign({}, state, {
-                tasks: state.tasks.filter(item => item._id != action.task._id),
-                features: Array.isArray(state.features) && state.features.length > 0 ? state.features.map((feature, idx) => {
-                    if (feature._id == action.task.feature._id) {
-                        if (feature.tasks && Array.isArray(feature.tasks)) {
-                            feature.tasks.push(action.task)
-                        } else feature.tasks = [action.task]
-                    }
-                    return feature
-                }) : []
-            })
-
         case AC.UPDATE_ESTIMATION_TASK:
             return Object.assign({}, state, {
                 tasks: Array.isArray(state.tasks) ?
@@ -49,11 +36,35 @@ const estimationReducer = (state = initialState, action) => {
                 features: Array.isArray(state.features) ? state.features.map(item => item._id == action.feature._id ? Object.assign({}, action.feature) : item) : null
             })
 
-        /*
-        case AC.REQUEST_FOR_TASK_EDIT_PERMISSION:
-            return Object.assign({}, state, {tasks: state.tasks.map(item => item._id == action.task._id ? action.task : item)})
-            */
+        case AC.MOVE_TASK_IN_FEATURE:
+            return Object.assign({}, state, {
+                tasks: state.tasks.filter(item => item._id != action.task._id),
+                features: Array.isArray(state.features) && state.features.length > 0 ? state.features.map((feature, idx) => {
+                    if (feature._id == action.task.feature._id) {
+                        return Object.assign({}, feature, {
+                                tasks: Array.isArray(feature.tasks) ? [...feature.tasks, Object.assign({}, action.task)] : [Object.assign({}, action.task)]
+                            }
+                        )
+                    }
+                    return feature
+                }) : []
+            })
 
+        case AC.MOVE_TASK_OUTOF_FEATURE:
+            /*
+                As task is moved out, task would be added to tasks array and would be removed from feature it was part of
+             */
+            return Object.assign({}, state, {
+                tasks: [...state.tasks, Object.assign({}, action.task)],
+                features: Array.isArray(state.features) && state.features.length > 0 ? state.features.map((feature, idx) => {
+                    if (feature._id == action.featureID) {
+                        return Object.assign({}, feature, {
+                            tasks: Array.isArray(feature.tasks) ? feature.tasks.filter(t => t._id != action.task._id) : []
+                        })
+                    }
+                    return feature
+                }) : []
+            })
         case AC.DELETE_ESTIMATION_TASK:
             return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id)})
 
@@ -98,6 +109,7 @@ const estimationReducer = (state = initialState, action) => {
                 expandedTaskID: undefined
             })
         case AC.EXPAND_TASK:
+            return state
         case AC.EXPAND_FEATURE:
             // Compare expanded task ID with expanded task id of state
 

@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getEstimationFromServer(estimation._id)).then(json => {
             dispatch(A.showComponentHideOthers(COC.ESTIMATION_DETAIL_PAGE))
         }),
-        dispatch(A.getRepositoryFromServer(estimation.technologies))
+        dispatch(A.getRepositoryFromServer(estimation.technologies,'all'))
     }
 })
 

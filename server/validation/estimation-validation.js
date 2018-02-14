@@ -1,4 +1,4 @@
-import {RequiredString, ObjectId, validate} from "./index"
+import {ObjectId, RequiredString} from "./index"
 import t from 'tcomb-validation'
 
 export const estimationInitiationStruct = t.struct({
@@ -131,31 +131,22 @@ export const estimationNegotiatorAddFeatureStruct = t.struct({
     )
 })
 
-
-export const estimationEstimatorMoveToFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
-export const estimationEstimatorMoveOutOfFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
-export const estimationEstimatorRequestRemovalToTaskStruct = t.struct({
-    task_id: RequiredString
-})
-
-export const estimationEstimatorRequestEditPermissionToTaskStruct = t.struct({
-    task_id: RequiredString
-})
-
 export const estimationAddTaskFromRepositoryByEstimatorStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({
         _id: ObjectId
-    })
 })
+})
+
+export const estimationEstimatorAddFeatureFromRepositoryStruct = t.struct({
+    task_id: RequiredString
+})
+
+
+export const estimationEstimatorRequestEditPermissionToFeatureStruct = t.struct({
+    feature_id: RequiredString
+})
+
 //Estimator Feature Validation Block End
 
 //Negotiator Feature Validation Block Start
@@ -189,24 +180,26 @@ export const estimationNegotiatorUpdateTaskStruct = t.struct({
     )
 })
 
-export const estimationNegotiatorMoveToFeatureStruct = t.struct({
-    task_id: RequiredString,
-    feature_id: RequiredString
-})
-
 export const estimationNegotiatorMoveOutOfFeatureStruct = t.struct({
     task_id: RequiredString,
     feature_id: RequiredString
 })
 
-export const estimationNegotiatorGrantEditPermissionToTaskStruct = t.struct({
-    task_id: RequiredString
+export const estimationNegotiatorGrantEditPermissionToFeatureStruct = t.struct({
+    feature_id: RequiredString
 })
+
 export const estimationProjectAwardByNegotiatorStruct = t.struct({
     _id: RequiredString
 })
 
 export const estimationAddTaskFromRepositoryByNegotiatorStruct = t.struct({
+    _id: RequiredString,
+    estimation: t.struct({
+        _id: ObjectId
+    })
+})
+export const estimationNegotiatorAddFeatureFromRepositoryStruct = t.struct({
     _id: RequiredString,
     estimation: t.struct({
         _id: ObjectId

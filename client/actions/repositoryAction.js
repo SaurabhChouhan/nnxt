@@ -9,7 +9,7 @@ export const selectRepository = (repository) => ({
     repository: repository
 })
 
-export const getRepositoryFromServer = (technologies) => {
+export const getRepositoryFromServer = (technologies,type) => {
     return (dispatch, getState) => {
         return fetch('/api/repositories/search',{
                 method: 'post',
@@ -18,7 +18,7 @@ export const getRepositoryFromServer = (technologies) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(technologies)
+            body: JSON.stringify({"technologies":technologies,"type":type})
             }
         ).then(
             response => response.json()
