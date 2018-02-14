@@ -71,4 +71,7 @@ export const ADD_LEAVE_REQUESTS = "ADD_LEAVE_REQUESTS"
 //repository constants
 export const SELECT_REPOSITORY = "SELECT_REPOSITORY"
 
+//attendence Settings
+
+export const ADD_UPDATE_ATTENDENCE_SETTING = "ADD_UPDATE_ATTENDENCE_SETTING"
 

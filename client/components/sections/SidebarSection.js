@@ -32,6 +32,10 @@ const SidebarSection = (props) => <section className="sidebar">
                     <li><Link to="/app-home/raise_leave" onClick={() => {
                         props.dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))}}
                         >Raise-leave</Link></li>
+                    <li><Link to="/app-home/attendance" onClick={() => {
+                        props.dispatch(A.showComponentHideOthers(COC.ATTENDENCE_SETTING_FORM))
+
+                    }}>Attendence Setting</Link></li>
                     {/*
                     <li className="Expandlist"><a href="">Estimations</a>
                         <ul className="Expandedlist">
