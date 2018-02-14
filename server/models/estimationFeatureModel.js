@@ -462,7 +462,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     if (!repo.isFeature)
         throw new AppError('This feature not into repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_APPROVED,SC.STATUS_PENDING], repo.status))
+    if (!_.includes([SC.STATUS_APPROVED], repo.status))
         throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findById(estimationID)
@@ -574,7 +574,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     if (!repo.isFeature)
         throw new AppError('This feature not into repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_APPROVED,SC.STATUS_PENDING], repo.status))
+    if (!_.includes([SC.STATUS_APPROVED], repo.status))
         throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findById(estimationID)
