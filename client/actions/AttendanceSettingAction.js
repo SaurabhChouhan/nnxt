@@ -2,15 +2,15 @@ import * as AC from "./actionConsts"
 import {initialize} from "redux-form"
 
 
-export const addAttendenceSetting = (attendenceSetting) => ({
+export const addAttendanceSetting = (attendanceSetting) => ({
     type: AC.ADD_UPDATE_ATTENDENCE_SETTING,
-    attendenceSetting: attendenceSetting
+    attendanceSetting: attendanceSetting
 })
 
 
-export const addAttendenceSettingOnServer = (formInput) => {
+export const addAttendanceSettingOnServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/attendance/admin-attendance-settings',
+        return fetch('/api/attendance/attendance-settings',
             {
                 method: "post",
                 credentials: "include",
@@ -26,8 +26,7 @@ export const addAttendenceSettingOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addAttendenceSetting(json.data))
-
+                    dispatch(addAttendanceSetting(json.data))
                 }
                 return json
             }
