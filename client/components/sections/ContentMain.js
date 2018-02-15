@@ -8,7 +8,9 @@ import {
     ProjectListContainer,
     RaiseLeaveListContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    AttendenceSettingFormContainer,
+    RaiseLeaveListContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -25,6 +27,7 @@ import {
     ProjectFormDialog,
     TechnologyFormDialog,
     RepositoryTaskDetailDialog
+    ReleaseList
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -167,6 +170,16 @@ class ContentMain extends Component {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/attendance: props:", props)
                 return <ContentSection>
                     <AttendenceSettingFormContainer name={COC.ATTENDANCE_SETTING_FORM}/>
+                </ContentSection>
+
+            }
+        })
+        routes.push({
+            url: "/release",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
+                return <ContentSection>
+                    <ReleaseList name={COC.RELEASE_LIST}/>
                 </ContentSection>
 
             }

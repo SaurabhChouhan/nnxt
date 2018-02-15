@@ -35,12 +35,12 @@ class RepositorySearch extends Component {
     handleAddition(tag) {
         let tags = this.state.tags;
         if(!(tags.findIndex(f=> f.text.toLowerCase()===tag.toLowerCase())!=-1)){
-            tags.push({
-                id: tags.length + 1,
-                text: tag
-            });
-            this.setState({tags: tags});
-        }
+        tags.push({
+            id: tags.length + 1,
+            text: tag
+        });
+        this.setState({tags: tags});
+    }
     }
 
     handleDrag(tag, currPos, newPos) {
