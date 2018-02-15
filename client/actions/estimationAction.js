@@ -464,8 +464,7 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
+                }
             }
         ).then(
             response => response.json()
@@ -487,8 +486,7 @@ export const grantEditPermissionOfFeatureOnServer = (featureId) => {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(feature)
+                }
             }
         ).then(
             response => response.json()
@@ -520,6 +518,31 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
                 if (json.success) {
                     dispatch(deleteEstimationFeature(json.data))
                 }
+                return json
+            })
+    }
+}
+
+export const addProjectAwardOnServer = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/project-award', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("ProjectAward",json.data)
+                    //dispatch(addEstimation(json.data))
+                }
+
                 return json
             })
     }

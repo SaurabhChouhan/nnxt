@@ -6,7 +6,8 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    AttendenceSettingFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -20,7 +21,8 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
-    TechnologyFormDialog
+    TechnologyFormDialog,
+    EstimationProjectAwardDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -127,6 +129,12 @@ class ContentMain extends Component {
                                                         }
                                                     }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
+
+                    <EstimationProjectAwardDialog name={COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
+                        }
+                    }/>
                 </ContentSection>
             }
         })
@@ -145,6 +153,17 @@ class ContentMain extends Component {
             }
         })
         routes.push({
+            url: "/attendance",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/attendance: props:", props)
+                return <ContentSection>
+                    <AttendenceSettingFormContainer name={COC.ATTENDANCE_SETTING_FORM}/>
+                </ContentSection>
+
+            }
+        })
+
+routes.push({
             url: "/edit-profile",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/edit-profile: props:", props)

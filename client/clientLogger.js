@@ -45,6 +45,8 @@ export const ESTIMATION_TASK_FORM_RENDER = 'EstimationTaskForm->render():'
 export const ESTIMATION_FEATURE_FORM_RENDER = 'EstimationFeatureForm->render():'
 export const ESTIMATION_FEATURE_FORM_SUBMIT = 'EstimationFeatureForm->submit():'
 export const ESTIMATION_SUGGEST_FEATURE_FORM_SUBMIT = 'EstimationSuggestFeatureForm->submit():'
+export const ESTIMATION_PROJECT_AWARD_FORM_RENDER = 'EstimationProjectAwardForm->render():'
+export const ESTIMATION_PROJECT_AWARD_FORM_SUBMIT = 'EstimationProjectAwardForm->submit():'
 
 export const ESTIMATION_LIST_CONNECT = "EstimationList->connect():"
 
@@ -62,6 +64,10 @@ export const ESTIMATION_TASK_BUTTONS = 'EstimationTask->buttons:'
 export const ESTIMATION_FEATURE_RENDER = 'EstimationFeature->render():'
 export const ESTIMATION_FEATURE_BUTTONS = 'EstimationFeature->buttons:'
 export const ESTIMATION_FEATURE_DETAIL_RENDER = 'EstimationFeatureDetail->render():'
+
+export const ATTENDENCE_SETTING_FORM_RENDER = 'AttendenceForm->render():'
+export const ATTENDENCE_SETTING_FORM_CONNECT = 'AttendenceForm->connect():'
+
 let traceCodes = [ESTIMATION_TASK_RENDER, ESTIMATION_FEATURE_RENDER, ESTIMATION_FEATURE_DETAIL_RENDER]
 //let traceCodes = undefined
 let logLevel = DEBUG_LEVEL
