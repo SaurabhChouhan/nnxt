@@ -1,10 +1,9 @@
 import React, {Component} from 'react'
 import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../"
-import {EstimationFeaturesContainer, EstimationTasksContainer} from "../../containers"
+import {EstimationFeaturesContainer, EstimationTasksContainer,RepositorySearchContainer} from "../../containers"
 import * as logger from '../../clientLogger'
 import {WithContext as ReactTags} from 'react-tag-input';
-import RepositorySearch from './RepositorySearch'
 class EstimationDetail extends Component {
 
     constructor(props) {
@@ -185,7 +184,7 @@ class EstimationDetail extends Component {
                 </div>}
             </div>
             <div className="col-md-4 estimationsection pad">
-                <RepositorySearch  {...this.props}/>
+                <RepositorySearchContainer  {...this.props}/>
             </div>
         </div>
     }

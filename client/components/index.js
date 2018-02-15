@@ -73,3 +73,6 @@ export {default as TechnologyFormDialog} from './dialogs/TechnologyFormDialog'
 export {default as TechnologyForm} from './forms/TechnologyForm'
 export {default as TechnologyList} from './lists/TechnologyList'
 
+// Repository page
+
+export {default as RepositorySearch} from './pages/RepositorySearch'
