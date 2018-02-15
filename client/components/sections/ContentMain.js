@@ -8,9 +8,7 @@ import {
     ProjectListContainer,
     RaiseLeaveListContainer,
     TechnologyListContainer,
-    UserProfileFormContainer,
-    AttendenceSettingFormContainer,
-    RaiseLeaveListContainer
+    UserProfileFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -26,7 +24,7 @@ import {
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
     TechnologyFormDialog,
-    RepositoryTaskDetailDialog
+    RepositoryTaskDetailDialog,
     ReleaseList
 } from "../index"
 import {Route} from 'react-router-dom'
