@@ -1057,6 +1057,9 @@ td.rejRowColor {
     height: 43px;
 }
 
+.RepositorySideHeight {
+    min-height: 49px;
+}
 .col-md-12.repositoryHeading {
     border-bottom: 1px solid #182939;
 }
@@ -1126,14 +1129,22 @@ td.rejRowColor {
 .tagInputFieldClass {
     height: 35px;
     width: 100%;
-    position: absolute;
-    left: 10px;
+    /*position: absolute;*/
+    /*left: 10px;*/
 }
 
 .tagInputClass {
-    margin-top: 3%;
+    position: absolute;
+    width: 98%;
+    top: 5px;
 }
 ::placeholder {
     color: red;
    
+}
+.selectedClass {
+    overflow-y: scroll;
+    height: 120px;
+    position: relative;
+    padding-right: 10px;
 }

@@ -34,11 +34,13 @@ class RepositorySearch extends Component {
 
     handleAddition(tag) {
         let tags = this.state.tags;
-        tags.push({
-            id: tags.length + 1,
-            text: tag
-        });
-        this.setState({tags: tags});
+        if(!(tags.findIndex(f=> f.text.toLowerCase()===tag.toLowerCase())!=-1)){
+            tags.push({
+                id: tags.length + 1,
+                text: tag
+            });
+            this.setState({tags: tags});
+        }
     }
 
     handleDrag(tag, currPos, newPos) {
@@ -57,9 +59,18 @@ class RepositorySearch extends Component {
         const {estimation} = this.props
         return (
             <div>
-                <div className="col-md-12 repositoryHeading">
-                    <div className="col-md-10 pad">
-                        <h5>Repository</h5>
+                <div className="col-md-12 RepositoryHeading RepositorySideHeight">
+                    <div class="col-md-10">
+                        <div className="dropdownoption">
+                            <select className="form-control "
+                                    onChange={this.handleSelectChange}>
+                                {
+                                    this.state.type.map((item, key) =>
+                                        <option value={item} key={key}>{item}</option>
+                                    )
+                                }
+                            </select>
+                        </div>
                     </div>
                     <div className="col-md-1 pad ">
                         <div className="backarrow">
@@ -70,7 +81,7 @@ class RepositorySearch extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="col-md-6 ">
+                <div className="col-md-11">
                     <ReactTags
                         classNames=
                             {{
@@ -86,23 +97,12 @@ class RepositorySearch extends Component {
                         tags={tags}
                         suggestions={suggestions}
                         autofocus={false}
-                        placeholder="Technology"
+                        placeholder="Repository"
                         handleDelete={this.handleDelete}
                         handleAddition={this.handleAddition}
                         handleDrag={this.handleDrag}/>
                 </div>
-                <div class="col-md-6">
-                    <div className="dropdownoption">
-                        <select className="form-control "
-                                onChange={this.handleSelectChange}>
-                            {
-                                this.state.type.map((item, key) =>
-                                    <option value={item} key={key}>{item}</option>
-                                )
-                            }
-                        </select>
-                    </div>
-                </div>
+
 
                 <div className="col-md-12">
 
