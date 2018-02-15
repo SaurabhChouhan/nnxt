@@ -77,7 +77,7 @@ export const expandFeature = (featureID) => ({
     featureID: featureID
 })
 
-export const expandTask = (featureID) => ({
+export const expandTask = (taskID) => ({
     type: AC.EXPAND_TASK,
     taskID: taskID
 })
