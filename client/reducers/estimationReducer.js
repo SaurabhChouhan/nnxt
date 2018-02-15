@@ -19,7 +19,7 @@ const estimationReducer = (state = initialState, action) => {
             })
 
         case AC.UPDATE_ESTIMATION_TASK:
-            let feature
+            let feature = {}
             if (action.task && action.task.feature && action.task.feature._id && Array.isArray(state.features)) {
                 feature = state.features.find(item => item._id == action.task.feature._id)
                 if (feature && Array.isArray(feature.tasks)) {
@@ -130,10 +130,8 @@ const estimationReducer = (state = initialState, action) => {
                 expandedFeatureID: action.featureID,
                 expandedTaskID: undefined
             })
-        case AC.EXPAND_TASK:
-            return state
 
-        case AC.EXPAND_FEATURE:
+        case AC.EXPAND_TASK:
             // Compare expanded task ID with expanded task id of state
             if (state.expandedTaskID && state.expandedTaskID == action.taskID) {
                 // Feature was expanded and clicked again, so contract
