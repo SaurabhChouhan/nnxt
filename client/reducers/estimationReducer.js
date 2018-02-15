@@ -19,7 +19,7 @@ const estimationReducer = (state = initialState, action) => {
             })
 
         case AC.UPDATE_ESTIMATION_TASK:
-            let feature
+            let feature = {}
             if (action.task && action.task.feature && action.task.feature._id && Array.isArray(state.features)) {
                 feature = state.features.find(item => item._id == action.task.feature._id)
                 if (feature && Array.isArray(feature.tasks)) {
@@ -88,7 +88,21 @@ const estimationReducer = (state = initialState, action) => {
             })
 
         case AC.DELETE_ESTIMATION_TASK:
-            return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id)})
+            let featureTask = {}
+            if (action.task && action.task.feature && action.task.feature._id && Array.isArray(state.features)) {
+                featureTask = state.features.find(item => item._id == action.task.feature._id)
+                if (featureTask && Array.isArray(featureTask.tasks)) {
+                    featureTask.tasks = featureTask.tasks.filter(item => item._id != action.task._id)
+                    return Object.assign({}, state, {
+                        features: Array.isArray(state.features) ?
+                            state.features.map(item => item._id == featureTask._id ?
+                                Object.assign({}, featureTask) : item) : null
+                    })
+                }
+
+            }
+            else
+                return Object.assign({}, state, {tasks: state.tasks.filter(item => item._id != action.task._id)})
 
         case AC.ADD_ESTIMATIONS:
             return Object.assign({}, state, {all: action.estimations})
@@ -108,8 +122,8 @@ const estimationReducer = (state = initialState, action) => {
                     tasks: undefined,
                     features: undefined
                 }),
-                tasks: [...action.estimation.tasks],
-                features: [...action.estimation.features]
+                tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(item => item.isDeleted == false) : [],
+                features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ? action.estimation.features.filter(item => item.isDeleted == false) : []
             })
 
         case AC.DELETE_ESTIMATION_FEATURE:
@@ -130,10 +144,8 @@ const estimationReducer = (state = initialState, action) => {
                 expandedFeatureID: action.featureID,
                 expandedTaskID: undefined
             })
-        case AC.EXPAND_TASK:
-            return state
 
-        case AC.EXPAND_FEATURE:
+        case AC.EXPAND_TASK:
             // Compare expanded task ID with expanded task id of state
             if (state.expandedTaskID && state.expandedTaskID == action.taskID) {
                 // Feature was expanded and clicked again, so contract
