@@ -91,7 +91,7 @@ class RepositorySearch extends Component {
                         handleAddition={this.handleAddition}
                         handleDrag={this.handleDrag}/>
                 </div>
-                <div class="col-md-6">
+                <div className="col-md-6">
                     <div className="dropdownoption">
                         <select className="form-control "
                                 onChange={this.handleSelectChange}>

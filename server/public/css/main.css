@@ -949,17 +949,6 @@ td.rejRowColor {
     margin-top: 11px;
 }
 
-.technologytag {
-    min-width: 12%;
-    min-height: 10px;
-    background-color: #303440;
-    float: left;
-    padding: 6px;
-    padding-right: 1px;
-    margin-right: 1%;
-    margin-bottom: 10px;
-}
-
 .technologytagNew {
     min-width: 12%;
     min-height: 10px;
@@ -976,17 +965,14 @@ td.rejRowColor {
 
 .removeClass {
     float: right;
-    font-size: 6px;
+    font-size: 8px;
     color: #ff534f;
-    margin-top: -6px;
-    padding: 2px;
+    margin-top: -4px;
+    padding: 1px 3px;
     background: #fff;
     border-radius: 50%;
-}
-
-.technologytag span {
-    color: #fff;
-    font-size: 18px;
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 .suggestionsClass ul {
@@ -995,22 +981,6 @@ td.rejRowColor {
 
 .suggestionsClass ul li {
     float: left;
-}
-
-.technologytag button {
-    float: right;
-    background-color: #303440;
-    padding: 0;
-}
-
-.technologytag i {
-    float: right;
-    font-size: 6px;
-    color: #ff534f;
-    margin-top: -6px;
-    padding: 2px;
-    background: #fff;
-    border-radius: 50%;
 }
 
 .repository {
@@ -1054,7 +1024,7 @@ td.rejRowColor {
 
 .RepositoryHeading {
     position: relative;
-    height: 43px;
+    height: 49px;
 }
 
 .col-md-12.repositoryHeading {
