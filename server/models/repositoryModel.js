@@ -116,6 +116,53 @@ repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
         return false
     }
 }
+
+repositorySchema.statics.moveTaskToFeature = async (repositoryTaskID, repositoryFeatureID, estimationID) => {
+    let repositoryTask = await RepositoryModel.findById(repositoryTaskID)
+
+    console.log("sent estimation id is ", estimationID)
+
+    if (!repositoryTask)
+        throw new AppError('Task not found in repository')
+
+    console.log("repository task estimation id is ", repositoryTask.estimation._id)
+
+    if (repositoryTask.estimation._id.toString() != estimationID.toString()) {
+        console.log("No changes in repository as estimation of task mismatches with current estimation")
+        return false
+    }
+
+    let repositoryFeature = await RepositoryModel.findById(repositoryFeatureID)
+
+    if (!repositoryFeature)
+        throw new AppError('Feature not found in repository')
+
+    console.log("repository feature estimation id is ", repositoryFeature.estimation._id)
+
+    if (repositoryFeature.estimation._id.toString() != estimationID.toString()) {
+        console.log("No changes in repository as estimation of feature mismatches with current estimation")
+        return false
+    }
+
+    if (Array.isArray(repositoryFeature.tasks) && repositoryFeature.tasks.length > 0) {
+        if (repositoryFeature.tasks.findIndex(t => t._id.toString() == repositoryTask._id.toString()) == -1) {
+            // task is not already part of feature so add it
+            repositoryFeature.tasks.push(repositoryTask)
+            repositoryFeature.save()
+        } else {
+            console.log("Task already part of repository")
+            return false
+        }
+    } else {
+        repositoryFeature.tasks = [repositoryTask]
+        repositoryFeature.save()
+    }
+
+    return true
+
+
+}
+
 repositorySchema.statics.searchRepositories = async (filterObj) => {
     let technologies = []
     if (filterObj.technologies && Array.isArray(filterObj.technologies)) {

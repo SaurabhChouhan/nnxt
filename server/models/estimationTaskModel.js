@@ -355,6 +355,10 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
     }
 
+    // As task is moved please update repository as well to note this change
+
+    await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
+
     task.feature = feature
     task.updated = Date.now()
     if (!task.addedInThisIteration || task.owner != SC.OWNER_ESTIMATOR)
@@ -475,6 +479,8 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
     if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
     }
+
+    await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
 
     task.feature = feature
     task.updated = Date.now()
