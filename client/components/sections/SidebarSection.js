@@ -30,6 +30,7 @@ const SidebarSection = (props) => <section className="sidebar">
                     }}>Estimation</Link></li>
                     <li><Link to="/app-home/raise_leave" onClick={() => {
                         props.dispatch(A.getAllLeaveRequestFromServer())
+                        props.dispatch(A.getAllLeavetypesFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.RAISE_LEAVE_LIST))
                        // props.dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }}>Raise-leave</Link></li>

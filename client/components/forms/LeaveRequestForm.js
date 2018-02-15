@@ -21,7 +21,7 @@ let LeaveRequestForm = (props) => {
                 <Field name="leave.to" placeholder={"Leave To :"} component={renderText}
                        label={"To :"} validate={[required]}/>
 
-                <Field name="leave.type" placeholder={"type of leave"} displayField={"name"} valueField={"_id"} component={renderSelect} options={props.leaveTypes}
+                <Field name="leave.type" placeholder={"type of leave"} displayField={"name"} valueField={"name"} component={renderSelect} options={props.leaveTypes}
                        label={"Type :"} validate={[required]}/>
 
                 <Field width="80%" name="leave.description" validate={[required]} component={renderTextArea}
