@@ -38,6 +38,9 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.ATTENDANCE_SETTING_FORM))
                         props.dispatch(A.getAttendanceSettingFromServer())
                     }}>Attendance Setting</Link></li>
+                    <li><Link to="/app-home/release" onClick={() => {
+                        props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
+                    }}>Release</Link></li>
                 </ul>
             </div>
         </div>
