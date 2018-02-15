@@ -165,7 +165,7 @@ estimationSchema.statics.getById = async estimationID => {
 }
 
 /**
- * Estimation request is initiated by Negotiator
+ * Estimation is initiated by Negotiator
  * @param estimationInput
  */
 estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
@@ -270,7 +270,9 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
         $set: {
             "negotiator.changedInThisIteration": false,
             "negotiator.changeSuggested": false,
-            "negotiator.changeGranted": false
+            "negotiator.changeGranted": false,
+            "negotiator.isMovedToFeature": false,
+            "negotiator.isMovedOutOfFeature": false
         }
     }, {multi: true})
 
@@ -371,8 +373,16 @@ estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
     await EstimationTaskModel.update({
-        "estimation._id": estimation._id,
-    }, {$set: {"estimator.changedInThisIteration": false, "estimator.changedKeyInformation": false}}, {multi: true})
+            "estimation._id": estimation._id,
+        },
+        {
+            $set: {
+                "estimator.changedInThisIteration": false,
+                "estimator.changedKeyInformation": false,
+                "estimator.isMovedToFeature": false,
+                "estimator.isMovedOutOfFeature": false
+            }
+        }, {multi: true})
 
     await EstimationFeatureModel.update({
         "estimation._id": estimation._id,
@@ -381,7 +391,15 @@ estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
 
     await EstimationFeatureModel.update({
             "estimation._id": estimation._id
-        }, {$set: {"estimator.changedInThisIteration": false, "estimator.changedKeyInformation": false}}, {multi: true}
+        },
+        {
+            $set: {
+                "estimator.changedInThisIteration": false,
+                "estimator.changedKeyInformation": false,
+                "estimator.isMovedToFeature": false,
+                "estimator.isMovedOutOfFeature": false
+            }
+        }, {multi: true}
     )
 
     estimation = await
