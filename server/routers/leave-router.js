@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {LeaveModel} from "../models"
+import { LeaveModel, LeaveTypeModel} from "../models"
 import {leaveRequestAdditionStruct,generateSchema,validate} from "../validation"
 
 
@@ -22,7 +22,8 @@ leaveRouter.put("/cancel-request", async ctx => {
 
     return await LeaveModel.cancelLeaveRequest(ctx.request.body)
 })
-
-
+leaveRouter.get('/leave-types', async ctx => {
+    return await LeaveTypeModel.getAllActiveLeaveTypes()
+})
 
 export default leaveRouter

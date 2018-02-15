@@ -7,7 +7,7 @@ import * as logger from "../../clientLogger";
 
 let LeaveRequestForm = (props) => {
 
-    console.log("You are leave request Form", props)
+    console.log("You are leave request Form", props.leaveTypes.name)
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">
@@ -15,13 +15,13 @@ let LeaveRequestForm = (props) => {
                 <Field name="user.user.firstName" component="input" type="hidden"/>
                 <Field name="user.user.lastName" component="input" type="hidden"/>
 
-                <Field name="leave.from" placeholder={"Leave From :"} component={renderText} showTime={false}
+                <Field name="leave.from" placeholder={"Leave From :"} component={renderText}
                        label={"From :"} validate={[required]}/>
 
                 <Field name="leave.to" placeholder={"Leave To :"} component={renderText}
                        label={"To :"} validate={[required]}/>
 
-                <Field name="leave.type" placeholder={"type of leave"} component={renderText} showTime={false}
+                <Field name="leave.type" placeholder={"type of leave"} displayField={"name"} valueField={"_id"} component={renderSelect} options={props.leaveTypes}
                        label={"Type :"} validate={[required]}/>
 
                 <Field width="80%" name="leave.description" validate={[required]} component={renderTextArea}

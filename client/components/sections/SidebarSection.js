@@ -34,6 +34,10 @@ const SidebarSection = (props) => <section className="sidebar">
                        // props.dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }}>Raise-leave</Link></li>
                     <li><Link to="/app-home/attendance" onClick={() => {
+                        props.dispatch(A.getAllLeavetypesFromServer())
+                        props.dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))}}
+                        >Raise-leave</Link></li>
+                   <li><Link to="/app-home/attendance" onClick={() => {
                         props.dispatch(A.showComponentHideOthers(COC.ATTENDANCE_SETTING_FORM))
                         props.dispatch(A.getAttendanceSettingFromServer())
                     }}>Attendance Setting</Link></li>

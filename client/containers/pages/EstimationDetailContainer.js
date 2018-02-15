@@ -26,6 +26,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
+    showProjectAwardForm: (estimation) => {
+        dispatch(A.showComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
+        // initialize
+        dispatch(initialize('estimation-project-award', {
+            estimation: {
+                _id: estimation._id
+            }
+        }))
+    },
     sendEstimationRequest: (estimation) => {
         dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
             if (json.success) {

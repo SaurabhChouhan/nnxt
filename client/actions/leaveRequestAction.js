@@ -1,5 +1,7 @@
 import * as AC from "./actionConsts"
 import {editProject} from "./projectAction";
+import {addClients} from "./clientAction";
+
 
 
 export const addLeaveRequests = (leaveRequests) => ({
@@ -15,6 +17,11 @@ export const cancelLeaveRequest = (leaveRequest) => ({
 
     type: AC.CANCEL_LEAVE_REQUEST,
     leaveRequest: leaveRequest
+})
+
+export const addLeaveTypes = (leaveTypes) => ({
+    type: AC.ADD_LEAVE_TYPES,
+    leaveTypes: leaveTypes
 })
 
 export const addLeaveRequestOnServer = (formInput) => {
@@ -94,5 +101,25 @@ export const cancelLeaveRequestFromServer = (formInput) => {
                 return json
             }
         )
+
+export const getAllLeavetypesFromServer = () => {
+    return (dispatch, getState) => {
+        return fetch('/api/leave/leave-types', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addLeaveTypes(json.data))
+                }
+            })
+
     }
 }

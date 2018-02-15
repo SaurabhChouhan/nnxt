@@ -28,6 +28,7 @@ export {default as EstimationFeatureForm} from './forms/EstimationFeatureForm'
 export {default as MoveTaskInFeatureForm} from './forms/MoveTaskInFeatureForm'
 export {default as EstimationSuggestTaskForm} from './forms/EstimationSuggestTaskForm'
 export {default as EstimationSuggestFeatureForm} from './forms/EstimationSuggestFeatureForm'
+export {default as EstimationProjectAwardForm} from './forms/EstimationProjectAwardForm'
 
 
 // Estimation Page
@@ -47,6 +48,7 @@ export {default as EstimationInitiateDialog} from './dialogs/EstimationInitiateD
 export {default as MoveTaskInFeatureFormDialog} from './dialogs/MoveTaskInFeatureFormDialog'
 export {default as EstimationSuggestTaskDialog} from './dialogs/EstimationSuggestTaskDialog'
 export {default as EstimationSuggestFeatureDialog} from './dialogs/EstimationSuggestFeatureDialog'
+export {default as EstimationProjectAwardDialog} from './dialogs/EstimationProjectAwardDialog'
 export {default as AttendenceSettingForm} from './forms/AttendanceSettingForm'
 
 //ProjectDialog
