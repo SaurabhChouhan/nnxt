@@ -1,14 +1,14 @@
 import React, {Component} from 'react'
 import ContentSection from './ContentSection'
 import {
+    AttendenceSettingFormContainer,
     ClientListContainer,
     EstimationDetailContainer,
     EstimationListContainer,
     ProjectListContainer,
+    RaiseLeaveListContainer,
     TechnologyListContainer,
-    UserProfileFormContainer,
-    AttendenceSettingFormContainer,
-    RaiseLeaveListContainer
+    UserProfileFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -16,6 +16,7 @@ import {
     ClientFormDialog,
     EstimationFeatureDialog,
     EstimationInitiateDialog,
+    EstimationProjectAwardDialog,
     EstimationSuggestFeatureDialog,
     EstimationSuggestTaskDialog,
     EstimationTaskDialog,
@@ -23,7 +24,7 @@ import {
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
     TechnologyFormDialog,
-    EstimationProjectAwardDialog
+    RepositoryTaskDetailDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -127,6 +128,12 @@ class ContentMain extends Component {
                                                     close={
                                                         () => {
                                                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG))
+                                                        }
+                                                    }/>
+                    <RepositoryTaskDetailDialog name={COC.REPOSITORY_TASK_DETAIL_DIALOG} show={true}
+                                                    close={
+                                                        () => {
+                                                            this.props.dispatch(A.hideComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
                                                         }
                                                     }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>

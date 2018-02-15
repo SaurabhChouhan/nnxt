@@ -1,7 +1,16 @@
 import {connect} from 'react-redux'
 import {RepositorySearch} from '../../components'
+import * as EC from '../../../server/errorcodes'
+import * as COC from '../../components/componentConsts'
+import * as A from '../../actions'
 
-const mapDispatchToProps = (dispatch, ownProps) => ({})
+const mapDispatchToProps = (dispatch, ownProps) => ({
+    showFeatureDetailPage: () => console.log("showFeatureDeatilPage called"),
+    showTaskDetailPage: (task) => {
+        console.log("showTaskDeatilPage called")
+        dispatch(A.showComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
+    }
+})
 
 
 const mapStateToProps = (state) => ({})
