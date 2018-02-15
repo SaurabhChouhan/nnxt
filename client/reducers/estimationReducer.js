@@ -88,15 +88,15 @@ const estimationReducer = (state = initialState, action) => {
             })
 
         case AC.DELETE_ESTIMATION_TASK:
-            let feature = {}
+            let featureTask = {}
             if (action.task && action.task.feature && action.task.feature._id && Array.isArray(state.features)) {
-                feature = state.features.find(item => item._id == action.task.feature._id)
-                if (feature && Array.isArray(feature.tasks)) {
-                    feature.tasks = feature.tasks.filter(item => item._id != action.task._id)
+                featureTask = state.features.find(item => item._id == action.task.feature._id)
+                if (featureTask && Array.isArray(featureTask.tasks)) {
+                    featureTask.tasks = featureTask.tasks.filter(item => item._id != action.task._id)
                     return Object.assign({}, state, {
                         features: Array.isArray(state.features) ?
-                            state.features.map(item => item._id == feature._id ?
-                                Object.assign({}, feature) : item) : null
+                            state.features.map(item => item._id == featureTask._id ?
+                                Object.assign({}, featureTask) : item) : null
                     })
                 }
 
