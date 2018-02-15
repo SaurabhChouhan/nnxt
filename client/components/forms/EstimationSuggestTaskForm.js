@@ -28,7 +28,7 @@ let EstimationSuggestTaskForm = (props) => {
                     <Field name="readOnly.estimatedHours"
                            component={renderText}
                            readOnly={true}
-                           label={"Estimated Hours:"}
+                           label={"Task Estimated Hours:"}
                     />
                 </div>
             </div>
@@ -38,7 +38,7 @@ let EstimationSuggestTaskForm = (props) => {
                            readOnly={true}
                            component={renderTextArea}
                            rows="10"
-                           label="Description:"
+                           label="Task Description:"
                     />
                 </div>
 
