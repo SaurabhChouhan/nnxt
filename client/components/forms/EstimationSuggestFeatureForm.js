@@ -21,7 +21,7 @@ let EstimationSuggestTaskForm = (props) => {
                     <Field name="readOnly.name"
                            readOnly={true}
                            component={renderText}
-                           label={"Task Name:"}
+                           label={"Feature Name:"}
                     />
                 </div>
             </div>
@@ -31,7 +31,7 @@ let EstimationSuggestTaskForm = (props) => {
                            readOnly={true}
                            component={renderTextArea}
                            rows="10"
-                           label="Description:"
+                           label="Feature Description:"
                     />
                 </div>
 
@@ -45,7 +45,7 @@ let EstimationSuggestTaskForm = (props) => {
                     <Field
                         name="name"
                         component={renderText}
-                        label={"Name:"}
+                        label={"Feature Name:"}
                         validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
                     />
                 </div>
@@ -55,7 +55,7 @@ let EstimationSuggestTaskForm = (props) => {
                     <Field
                         name="description"
                         component={renderTextArea}
-                        label="Description:"
+                        label="Feature Description:"
                         rows="10"
                         validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
                     />
