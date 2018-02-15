@@ -392,6 +392,9 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
     if (task.estimator.estimatedHours)
         await EstimationFeatureModel.updateOne({_id: task.feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
 
+    let feature = await EstimationFeatureModel.findById(task.feature._id)
+    await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
+
     task.feature = null
     task.updated = Date.now()
     task.estimator.isMovedToFeature = false
@@ -555,6 +558,8 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, n
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
     if (task.estimator.estimatedHours)
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
+
+    await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
 
     task.feature = null
     task.updated = Date.now()
