@@ -36,50 +36,58 @@ class EstimationFeature extends React.PureComponent {
              */
 
 
-            if (feature.negotiator.changeRequested) {
+            if (feature.negotiator.changeSuggested) {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
-                buttons.push(editView ? <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
+                buttons.push(editView ?
+                    <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                              onClick={() => {
                                                  this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                              }}/> :
-                    <img key="suggestion_outgoing" src="/images/suggestion_outgoing_disable.png"/>)
+                    <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"/>)
             } else {
-                buttons.push(editView ? <img key="suggestion" src="/images/suggestion.png"
+                buttons.push(editView ?
+                    <img key="suggestion" src="/images/suggestion.png"
                                              onClick={() => {
                                                  this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
-                                             }}/> : <img key="suggestion" src="/images/suggestion_disable.png"/>)
+                                             }}/> :
+                    <img key="suggestion_disable" src="/images/suggestion_disable.png"/>)
             }
 
             if (feature.estimator.removalRequested) {
                 // Estimator has requested removal
-                buttons.push(editView ? <img key="he_requested_delete" src="/images/he_requested_delete.png"
+                buttons.push(editView ?
+                    <img key="he_requested_delete" src="/images/he_requested_delete.png"
                                              onClick={() => {
                                                  this.props.deleteFeature(feature)
                                              }}/> :
-                    <img key="he_requested_delete" src="/images/he_requested_delete_disable.png"/>)
+                    <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"/>)
             } else {
-                buttons.push(editView ? <img key="delete" src="/images/delete.png"
+                buttons.push(editView ?
+                    <img key="delete" src="/images/delete.png"
                                              onClick={() => {
                                                  this.props.deleteFeature(feature)
-                                             }}/> : <img key="delete" src="/images/delete_disable.png"/>)
+                                             }}/> :
+                    <img key="delete_disable" src="/images/delete_disable.png"/>)
             }
 
             if (feature.estimator.changeRequested) {
                 if (feature.negotiator.changeGranted) {
                     // estimator has requested change which negotiator has granted
-                    buttons.push(editView ? <img key="granted_edit" src="/images/granted_edit.png"
+                    buttons.push(editView ?
+                        <img key="granted_edit" src="/images/granted_edit.png"
                                                  onClick={() => {
                                                      this.props.toggleGrantEdit(feature)
                                                  }}/> :
-                        <img key="granted_edit" src="/images/granted_edit_disable.png"/>)
+                        <img key="granted_edit_disable" src="/images/granted_edit_disable.png"/>)
                 } else {
                     // estimator has requested change but negotiator has not granted it till now
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, heRequestedEditFeature')
-                    buttons.push(editView ? <img key="he_requested_edit" src="/images/he_requested_edit.png"
+                    buttons.push(editView ?
+                        <img key="he_requested_edit" src="/images/he_requested_edit.png"
                                                  onClick={() => {
                                                      this.props.toggleGrantEdit(feature)
                                                  }}/> :
-                        <img key="he_requested_edit" src="/images/he_requested_edit_disable.png"/>)
+                        <img key="he_requested_edit_disable" src="/images/he_requested_edit_disable.png"/>)
                 }
             }
 
@@ -95,38 +103,47 @@ class EstimationFeature extends React.PureComponent {
                 if (feature.addedInThisIteration) {
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'added in this iteration, edit button')
                     // Estimator would see plain edit button in case he has added task in this iteration
-                    buttons.push(editView ? <img key="edit" src="/images/edit.png"
+                    buttons.push(editView ?
+                        <img key="edit" src="/images/edit.png"
                                                  onClick={() => {
                                                      this.props.showEditFeatureForm(feature)
-                                                 }}/> : <img key="edit" src="/images/edit_disable.png"/>)
+                                                 }}/> :
+                        <img key="edit_disable" src="/images/edit_disable.png"/>)
 
-                    buttons.push(editView ? <img key="delete" src="/images/delete.png"
+                    buttons.push(editView ?
+                        <img key="delete" src="/images/delete.png"
                                                  onClick={() => {
                                                      this.props.deleteFeature(feature)
-                                                 }}/> : <img key="delete" src="/images/delete_disable.png"/>)
+                                                 }}/> :
+                        <img key="delete_disable" src="/images/delete_disable.png"/>)
                 } else {
                     if (feature.negotiator.changeRequested) {
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
                         // Negotiator has requested change
-                        buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                        buttons.push(editView ?
+                            <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
                                                      onClick={() => {
                                                          this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                                      }}/> :
-                            <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
+                            <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
                     } else if (feature.estimator.changeRequested) {
                         if (feature.negotiator.changeGranted) {
                             // estimator has requested change which negotiator has granted
                             logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                            buttons.push(editView ? <img key="he_granted_edit" src="/images/he_granted_edit.png"
-                                                         onClick={() => this.props.showEditFeatureForm(feature)}/> :
-                                <img key="he_granted_edit" src="/images/he_granted_edit_disable.png"/>)
+                            buttons.push(editView ?
+                                <img key="he_granted_edit" src="/images/he_granted_edit.png"
+                                     onClick={() => {
+                                         this.props.showEditFeatureForm(feature)
+                                     }}/> :
+                                <img key="he_granted_edit_disable" src="/images/he_granted_edit_disable.png"/>)
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
-                            buttons.push(editView ? <img key="requested_edit" src="/images/requested_edit.png"
+                            buttons.push(editView ?
+                                <img key="requested_edit" src="/images/requested_edit.png"
                                                          onClick={() => {
                                                              this.props.toggleEditRequest(feature)
                                                          }}/> :
-                                <img key="requested_edit" src="/images/requested_edit_disable.png"/>)
+                                <img key="requested_edit_disable" src="/images/requested_edit_disable.png"/>)
                         }
                     } else {
                         // Estimator has not requested change and has no permission to change task either so he can request change
@@ -134,22 +151,23 @@ class EstimationFeature extends React.PureComponent {
                         buttons.push(editView ?
                             <img key="request_edit" src="/images/request_edit.png" onClick={() => {
                                 this.props.toggleEditRequest(feature)
-                            }}/> : <img key="request_edit" src="/images/request_edit_disable.png"/>)
+                            }}/> : <img key="request_edit_disable" src="/images/request_edit_disable.png"/>)
                     }
 
                     if (feature.estimator.removalRequested) {
                         // Estimator has requested removal
-                        buttons.push(editView ? <img key="requested_delete" src="/images/requested_delete.png"
+                        buttons.push(editView ?
+                            <img key="requested_delete" src="/images/requested_delete.png"
                                                      onClick={() => {
                                                          this.props.toggleDeleteRequest()
                                                      }}/> :
-                            <img key="requested_delete" src="/images/requested_delete_disable.png"/>)
+                            <img key="requested_delete_disable" src="/images/requested_delete_disable.png"/>)
                     } else {
                         // Estimator can request removal
                         buttons.push(editView ?
                             <img key="request_delete" src="/images/request_delete.png" onClick={() => {
                                 this.props.toggleDeleteRequest()
-                            }}/> : <img key="request_delete" src="/images/request_delete_disable.png"/>)
+                            }}/> : <img key="request_delete_disable" src="/images/request_delete_disable.png"/>)
                     }
                 }
             } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
@@ -158,52 +176,60 @@ class EstimationFeature extends React.PureComponent {
                     /* Negotiator has provided suggestions, clicking this button should show a window that would
                        allow estimator to see suggestions given by negotiator
                      */
-                    buttons.push(editView ? <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                    buttons.push(editView ?
+                        <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
                                                  onClick={() => {
                                                      this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                                  }}/> :
-                        <img key="suggestion_incoming" src="/images/suggestion_incoming_disable.png"/>)
+                        <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
                 }
 
                 if (feature.estimator.changeRequested) {
                     if (feature.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
-                        buttons.push(editView ? <img key="granted_edit" src="/images/he_granted_edit.png"
+                        buttons.push(editView ?
+                            <img key="granted_edit" src="/images/he_granted_edit.png"
                                                      onClick={() =>
                                                          this.props.showEditFeatureForm(feature)
                                                      }/> :
-                            <img key="granted_edit" src="/images/he_granted_edit_disable.png"/>)
+                            <img key="he_granted_edit_disable" src="/images/he_granted_edit_disable.png"/>)
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
-                        buttons.push(editView ? <img key="requested_edit" src="/images/requested_edit.png"
+                        buttons.push(editView ?
+                            <img key="requested_edit" src="/images/requested_edit.png"
                                                      onClick={() => {
                                                          this.props.toggleEditRequest(feature)
                                                      }}/> :
-                            <img key="requested_edit" src="/images/requested_edit_disable.png"/>)
+                            <img key="requested_edit_disable" src="/images/requested_edit_disable.png"/>)
 
                     }
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'can request edit, request_edit')
-                    buttons.push(editView ? <img key="request_edit" src="/images/request_edit.png"
+                    buttons.push(editView ?
+                        <img key="request_edit" src="/images/request_edit.png"
                                                  onClick={() => {
                                                      this.props.toggleEditRequest(feature)
                                                  }}/> :
-                        <img key="request_edit" src="/images/request_edit_disable.png"/>)
+                        <img key="request_edit_disable" src="/images/request_edit_disable.png"/>)
                 }
 
                 if (feature.estimator.removalRequested) {
                     // Estimator has requested removal
-                    buttons.push(editView ? <img key="he_requested_delete" src="/images/he_requested_delete.png"
+                    buttons.push(editView ?
+                        <img key="he_requested_delete" src="/images/he_requested_delete.png"
                                                  onClick={() => {
                                                      this.props.toggleDeleteRequest(feature)
                                                  }}/> :
-                        <img key="he_requested_delete" src="/images/he_requested_delete_disable.png"/>)
+                        <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"/>)
                 } else {
                     // Estimator can request removal
-                    buttons.push(editView ? <img key="request_delete" src="/images/request_delete.png" onClick={() => {
-                        this.props.toggleDeleteRequest(feature)
-                    }}/> : <img key="request_delete" src="/images/request_delete_disable.png"/>)
+                    buttons.push(editView ?
+                        <img key="request_delete" src="/images/request_delete.png"
+                             onClick={() => {
+                                 this.props.toggleDeleteRequest(feature)
+                             }}/> :
+                        <img key="request_delete_disable" src="/images/request_delete_disable.png"/>)
                 }
             }
         }
