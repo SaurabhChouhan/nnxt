@@ -220,7 +220,9 @@ class EstimationTask extends React.PureComponent {
 
 
             </div>
-            <div className="col-md-12 short-description">
+            <div className="col-md-12 short-description"  onClick={() => {
+                this.props.expandTask(task._id)
+            }}>
                 <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
             </div>
             <div className="col-md-3">
@@ -369,6 +371,10 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
 
         dispatch(initialize("estimation-suggest-task", task))
         dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
+    },
+
+    expandTask: (taskId) => {
+        dispatch(A.expandTask(taskId))
     }
 }))(EstimationTask)
 
