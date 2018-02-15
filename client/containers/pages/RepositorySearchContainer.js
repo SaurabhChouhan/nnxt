@@ -7,7 +7,7 @@ import * as A from '../../actions'
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showFeatureDetailPage: () => console.log("showFeatureDeatilPage called"),
     showTaskDetailPage: (task) => {
-        console.log("showTaskDeatilPage called")
+        dispatch(A.selectTaskFromRepository(task))
         dispatch(A.showComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
     }
 })

@@ -9,6 +9,11 @@ export const selectRepository = (repository) => ({
     repository: repository
 })
 
+export const selectTaskFromRepository = (task) => ({
+    type: AC.SELECT_TASK_FROM_REPOSITORY,
+    task: task
+})
+
 export const getRepositoryFromServer = (technologies,type) => {
     return (dispatch, getState) => {
         return fetch('/api/repositories/search',{

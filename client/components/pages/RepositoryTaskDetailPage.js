@@ -7,9 +7,17 @@ class RepositoryTaskDetailPage extends Component {
 
 
     render() {
+        const {task} = this.props
         return (
-            <div><h1>this is your task </h1>
-            </div>)
+            <div>
+                <div>
+                    <h3>Task Name:  {this.props.task.name} </h3>
+                </div>
+                <div>
+                    <p>Task Description: {this.props.task.description} </p>
+                </div>
+            </div>
+        )
     }
 
 }

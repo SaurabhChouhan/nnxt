@@ -1,13 +1,17 @@
 import * as AC from "../actions/actionConsts"
 
 let initialState = {
-    all: []
+    all: [],
+    task: {},
+    feature: {}
 }
 
 const repositoryReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.SELECT_REPOSITORY:
-            return Object.assign({}, state, {all:action.repository})
+            return Object.assign({}, state, {all: action.repository})
+        case AC.SELECT_TASK_FROM_REPOSITORY:
+            return Object.assign({}, state, {task: action.task})
         default:
             return state
     }

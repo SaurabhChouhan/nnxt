@@ -26,6 +26,12 @@ export {default as AdminRoleFormContainer} from './forms/AdminRoleFormContainer'
 export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
 
 
+
+//Repository pages
+export {default as RepositoryTaskDetailPageContainer} from './pages/RepositoryTaskDetailPageContainer'
+export {default as RepositorySearchContainer} from './pages/RepositorySearchContainer'
+
+
 //Estimation pages
 export {default as EstimationListContainer} from './lists/EstimationListContainer'
 export {default as EstimationDetailContainer} from './pages/EstimationDetailContainer'
@@ -68,8 +74,4 @@ export {default as RaiseLeaveListContainer} from './lists/RaiseLeaveListContaine
 
 //attendence setting
 export {default as AttendenceSettingFormContainer} from './forms/AttendanceSettingFormContainer'
-
-//Repository pages
-export {default as RepositorySearchContainer} from './pages/RepositorySearchContainer'
-export {default as RepositoryTaskDetailPageContainer} from './pages/RepositoryTaskDetailPageContainer'
 
