@@ -15,17 +15,17 @@ let AttendanceSettingForm = (props) => {
                         <div className="col-md-6">
                             <Field name="minFullDayHours" placeholder={"minimum full day hours"}
                                    component={renderText} validate={[required, number]}
-                                   label={"minimum full day hours:"}/>
+                                   label={"Minimum Full Day Hours :"}/>
 
                             <Field name="minHalfDayHours" placeholder={"minimum half day hours"}
                                    component={renderText} validate={[required, number]}
-                                   label={"minimum full day hours:"}/>
+                                   label={"Minimum Half Day Hours :"}/>
 
                             <Field name="dayStartTime" placeholder={"day start Time"} component={renderText}
-                                   label={"Day Start Time:"} validate={[required, number]}/>
+                                   label={"Day Start Time :"} validate={[required, number]}/>
 
                             <Field name="dayEndTime" placeholder={"day end Time"} component={renderText} validate={[required, number]}
-                                   label={"Day End Time:"}/>
+                                   label={"Day End Time :"}/>
 
                             <button type="submit" className="btn customBtn">Submit</button>
 

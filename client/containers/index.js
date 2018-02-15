@@ -64,6 +64,7 @@ export {default as ClientFormContainer} from './forms/ClientFormContainer'
 
 //leave
 export {default as LeaveRequestFormContainer} from './forms/LeaveRequestFormContainer'
+export {default as RaiseLeaveListContainer} from './lists/RaiseLeaveListContainer'
 
 //attendence setting
 export {default as AttendenceSettingFormContainer} from './forms/AttendanceSettingFormContainer'
