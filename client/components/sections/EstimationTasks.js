@@ -7,8 +7,12 @@ let
         let childProps = Object.assign({}, props, {
             tasks: undefined
         })
-        return Array.isArray(props.tasks) && props.tasks.map(t => <EstimationTask task={t}
-                                                                                  key={t._id}  {...childProps}/>)
+        return Array.isArray(props.tasks) && props.tasks.map((t, idx) =>
+            (props.expandedTaskID === t._id) ?
+                <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps} expanded="true"/> :
+                <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+        )
+
     }
 
 
