@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import * as SC from "../serverconstants";
+import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 import {validate, repositoryAddTaskStruct, repositoryUpdateTaskAndFeatureStruct} from "../validation"
@@ -92,7 +92,7 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
         await repositoryFeature.save()
         return true
     } else {
-        console.log("No changes in repository as estimation id do not match")
+        console.log("No changes to feature in repository as feature does not belong to estimation")
         return false
     }
 }

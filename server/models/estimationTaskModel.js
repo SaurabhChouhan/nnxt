@@ -88,69 +88,102 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
 
-    let repositoryTask = undefined
+    let repositoryTask = repositoryTask = await RepositoryModel.addTask({
+        name: taskInput.name,
+        description: taskInput.description,
+        estimation: {
+            _id: estimation._id.toString()
+        },
+        feature: taskInput.feature,
+        createdBy: estimator,
+        technologies: estimation.technologies, // Technologies of estimation would be copied directly to tasks
+        tags: taskInput.tags
+    }, estimator)
 
-    if (taskInput.repo && taskInput.repo._id) {
-        // task is added from repository
-        // find if task actually exists there
-        repositoryTask = await RepositoryModel.findById(taskInput.repo._id)
-        if (!repositoryTask)
-            throw new AppError('Task not part of repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-        // as this task was found in repository, this means that this is already part of repository
-        taskInput.repo = {
-            addedFromThisEstimation: false,
-            _id: repositoryTask._id
-        }
-    } else {
-        /**
-         * As no repo id is sent, this means that this is a new task, hence save this task into repository
-         * @type {{addedFromThisEstimation: boolean}}
-         */
-
-        repositoryTask = await RepositoryModel.addTask({
-            name: taskInput.name,
-            description: taskInput.description,
-            estimation: {
-                _id: estimation._id.toString()
-            },
-            feature: taskInput.feature,
-            createdBy: estimator,
-            technologies: estimation.technologies, // Technologies of estimation would be copied directly to tasks
-            tags: taskInput.tags
-        }, estimator)
-
-        taskInput.repo = {
-            _id: repositoryTask._id,
-            addedFromThisEstimation: true
-        }
-    }
-
-    // create estimator section
-
-    taskInput.status = SC.STATUS_PENDING
-    taskInput.addedInThisIteration = true
-    taskInput.owner = SC.OWNER_ESTIMATOR
-    taskInput.initiallyEstimated = true
-    taskInput.changedKeyInformation = true
-    taskInput.technologies = estimation.technologies
-    taskInput.estimator = {
-        name: repositoryTask.name,
-        description: repositoryTask.description,
-        estimatedHours: taskInput.estimatedHours
-    }
-    /**
-     * Add name of logged in user against notes
-     */
+    let estimationTask = new EstimationTaskModel()
+    estimationTask.estimator.name = taskInput.name
+    estimationTask.estimator.description = taskInput.description
+    estimationTask.estimator.estimatedHours = taskInput.estimatedHours
+    estimationTask.status = SC.STATUS_PENDING
+    estimationTask.addedInThisIteration = true
+    estimationTask.owner = SC.OWNER_ESTIMATOR
+    estimationTask.initiallyEstimated = true
+    estimationTask.estimation = taskInput.estimation
+    estimationTask.technologies = estimation.technologies
+    // Add repository reference and also note that this task was added into repository from this estimation
+    estimationTask.repo._id = repositoryTask._id
+    estimationTask.repo.addedFromThisEstimation = true
 
     if (!_.isEmpty(taskInput.notes)) {
-        taskInput.notes = taskInput.notes.map(n => {
+        estimationTask.notes = taskInput.notes.map(n => {
             n.name = estimator.fullName
             return n
         })
     }
-    return await EstimationTaskModel.create(taskInput)
 
+    return await estimationTask.save()
+}
+
+estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator) => {
+    validate(taskInput, estimationNegotiatorAddTaskStruct)
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    let estimation = await EstimationModel.findById(taskInput.estimation._id)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (taskInput.feature && taskInput.feature._id) {
+        // task is part of some feature,
+
+        let estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
+        if (!estimationFeatureObj)
+            throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+        if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
+            throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+        // As task is being added by negotiator there would not be any change in estimated hours of feature as this would just be considered as suggestions
+    }
+
+    let repositoryTask = await RepositoryModel.addTask({
+        name: taskInput.name,
+        description: taskInput.description,
+        estimation: {
+            _id: estimation._id.toString()
+        },
+        feature: taskInput.feature,
+        createdBy: negotiator,
+        technologies: estimation.technologies
+    }, negotiator)
+
+    let estimationTask = new EstimationTaskModel()
+    estimationTask.negotiator.name = taskInput.name
+    estimationTask.negotiator.description = taskInput.description
+    estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
+    estimationTask.negotiator.changeSuggested = true
+    estimationTask.status = SC.STATUS_PENDING
+    estimationTask.addedInThisIteration = true
+    estimationTask.owner = SC.OWNER_NEGOTIATOR
+    estimationTask.initiallyEstimated = true
+    estimationTask.estimation = taskInput.estimation
+    estimationTask.technologies = estimation.technologies
+    // Add repository reference and also note that this task was added into repository from this estimation
+    estimationTask.repo._id = repositoryTask._id
+    estimationTask.repo.addedFromThisEstimation = true
+    // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
+    estimationTask.estimator.name = taskInput.name
+    estimationTask.estimator.description = taskInput.description
+    if (!_.isEmpty(taskInput.notes)) {
+        estimationTask.notes = taskInput.notes.map(n => {
+            n.name = negotiator.fullName
+            return n
+        })
+    }
+
+    return await estimationTask.save()
 }
 
 
@@ -289,110 +322,6 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
 }
 
-estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator) => {
-    validate(taskInput, estimationNegotiatorAddTaskStruct)
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-    let estimation = await EstimationModel.findById(taskInput.estimation._id)
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    if (taskInput.feature && taskInput.feature._id) {
-        // task is part of some feature,
-
-        let estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
-        if (!estimationFeatureObj)
-            throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-        if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
-            throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-        // As task is being added by negotiator there would not be any change in estimated hours of feature as this would just be considered as suggestions
-    }
-
-    let repositoryTask = undefined
-
-    if (taskInput.repo && taskInput.repo._id) {
-        // task is added from repository
-        // find if task actually exists there
-        repositoryTask = await RepositoryModel.findById(taskInput.repo._id)
-        if (!repositoryTask)
-            throw new AppError('Task not part of repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-        // as this task was found in repository, this means that this is already part of repository
-        taskInput.repo = {
-            addedFromThisEstimation: false,
-            _id: repositoryTask._id
-        }
-    } else {
-        /**
-         * As no repo id is sent, this means that this is a new task, hence save this task into repository
-         * @type {{addedFromThisEstimation: boolean}}
-         */
-
-        repositoryTask = await RepositoryModel.addTask({
-            name: taskInput.name,
-            description: taskInput.description,
-            estimation: {
-                _id: estimation._id.toString()
-            },
-            feature: taskInput.feature,
-            createdBy: negotiator,
-            technologies: taskInput.technologies,
-            tags: taskInput.tags
-        }, negotiator)
-
-        taskInput.repo = {
-            _id: repositoryTask._id,
-            addedFromThisEstimation: true
-        }
-    }
-
-    // create negotiator section
-
-    let negotiatorSection = {}
-
-
-    negotiatorSection.name = repositoryTask.name
-    negotiatorSection.description = repositoryTask.description
-    negotiatorSection.estimatedHours = taskInput.estimatedHours
-    negotiatorSection.changeRequested = true
-
-
-    taskInput.status = SC.STATUS_PENDING
-    taskInput.addedInThisIteration = true
-    taskInput.owner = SC.OWNER_NEGOTIATOR
-    taskInput.initiallyEstimated = true
-
-
-    /* Name/description would always match repository name description
-    * Add/edit of task by negotiator is considered suggestions. Change requested flag would allow estimator to see those changes*/
-
-    taskInput.negotiator = {
-        name: repositoryTask.name,
-        description: repositoryTask.description,
-        estimatedHours: taskInput.estimatedHours,
-        changeSuggested: true
-    }
-
-    // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
-    taskInput.estimator = {
-        name: repositoryTask.name,
-        description: repositoryTask.description
-    }
-
-    if (!_.isEmpty(taskInput.notes)) {
-        taskInput.notes = taskInput.notes.map(n => {
-            n.name = negotiator.fullName
-            return n
-        })
-    }
-
-    return await EstimationTaskModel.create(taskInput)
-}
 
 estimationTaskSchema.statics.getAllTaskOfEstimation = async (estimation_id) => {
     let tasksOfEstimation = await EstimationTaskModel.find({"estimation._id": estimation_id})
