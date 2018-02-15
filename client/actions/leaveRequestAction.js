@@ -11,6 +11,11 @@ export const addLeaveRequest = (leaveRequest) => ({
     type: AC.ADD_LEAVE_REQUEST,
     leaveRequest: leaveRequest
 })
+export const cancelLeaveRequest = (leaveRequest) => ({
+
+    type: AC.CANCEL_LEAVE_REQUEST,
+    leaveRequest: leaveRequest
+})
 
 export const addLeaveRequestOnServer = (formInput) => {
     return function (dispatch, getState) {
@@ -67,7 +72,7 @@ export const getAllLeaveRequestFromServer = (formInput) => {
 }
 export const cancelLeaveRequestFromServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/leave',
+        return fetch('/api/leave/cancel-request',
             {
                 method: "put",
                 credentials: "include",
@@ -83,7 +88,7 @@ export const cancelLeaveRequestFromServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addLeaveRequests(json.data))
+                    dispatch(cancelLeaveRequest(json.data))
                 }
 
                 return json

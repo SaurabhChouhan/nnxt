@@ -27,6 +27,7 @@ export const STATUS_CHANGE_REQUESTED = 'change-requested'
 export const STATUS_REOPENED = 'reopened'
 export const STATUS_PROJECT_AWARDED = 'project-awarded'
 export const STATUS_REJECTED = 'rejected'
+export const STATUS_CANCELLED = 'cancelled'
 
 export const TYPE_DEVELOPMENT = 'development'
 

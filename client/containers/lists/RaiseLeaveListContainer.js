@@ -5,22 +5,28 @@ import {connect} from "react-redux";
 import RaiseLeaveList from "../../components/lists/RaiseLeaveList";
 import {initialize, SubmissionError} from "redux-form";
 import {NotificationManager} from "react-notifications";
-import {showComponentHideOthers, showComponent} from "../../actions";
-import {PROJECT_FORM_DIALOG} from "../../components/componentConsts";
+
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showRaiseLeaveForm: () => {
-        console.log("show showRaiseLeaveForm init form caled")
-        //dispatch(A.getAllClientsFromServer()),
         dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
     },
+
     cancelRaiseLeaveRequestCall: (data) => {
-        //dispatch(A.getAllClientsFromServer()),
-        console.log("show showRaiseLeaveForm init form caled", data)
-        //return dispatch(A.cancelLeaveRequestFromServer(id))
+        return dispatch(A.cancelLeaveRequestFromServer(data)).then(json => {
+            if (json.success) {
+                NotificationManager.success('Leave request Cancelled Successfully')
+            } else {
+                NotificationManager.error('process failed')
+            }
+            return json
+
+        })
     }
 
+
 })
+
 
 const mapStateToProps = (state, ownProps) => {
     return {

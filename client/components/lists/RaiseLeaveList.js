@@ -12,7 +12,6 @@ class RaiseLeaveList extends Component {
     constructor(props) {
         super(props)
 
-
     }
 
     formatFrom(leave) {
@@ -37,7 +36,7 @@ class RaiseLeaveList extends Component {
     viewDeleteButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-trash btn btn-custom " type="button" onClick={() => {
+        return (<button className="fa fa-remove btn btn-custom " type="button" disabled={(row.status=="cancelled")?true : false} onClick={() => {
                 console.log("delete button call", row)
                 this.props.cancelRaiseLeaveRequestCall(row)
             }}>
@@ -77,7 +76,7 @@ class RaiseLeaveList extends Component {
                                                            dataFormat={this.formatType.bind(this)}>Type</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
                                         <TableHeaderColumn width="15%" dataField='deleteButton'
-                                                           dataFormat={this.viewDeleteButton.bind(this)}>Cancel Request</TableHeaderColumn>
+                                                           dataFormat={this.viewDeleteButton.bind(this)}>Cancel Leave</TableHeaderColumn>
 
                                     </BootstrapTable>
                                 </div>
