@@ -23,7 +23,8 @@ import {
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
     TechnologyFormDialog,
-    EstimationProjectAwardDialog
+    EstimationProjectAwardDialog,
+    ReleaseList
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -164,8 +165,18 @@ class ContentMain extends Component {
 
             }
         })
+        routes.push({
+            url: "/release",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
+                return <ContentSection>
+                    <ReleaseList name={COC.RELEASE_LIST}/>
+                </ContentSection>
 
-routes.push({
+            }
+        })
+
+        routes.push({
             url: "/edit-profile",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/edit-profile: props:", props)

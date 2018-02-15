@@ -73,3 +73,5 @@ export {default as TechnologyFormDialog} from './dialogs/TechnologyFormDialog'
 export {default as TechnologyForm} from './forms/TechnologyForm'
 export {default as TechnologyList} from './lists/TechnologyList'
 
+//Release List
+export {default as ReleaseList} from './lists/ReleaseList'
