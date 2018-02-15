@@ -101,7 +101,8 @@ export const cancelLeaveRequestFromServer = (formInput) => {
                 return json
             }
         )
-
+    }
+}
 export const getAllLeavetypesFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/leave/leave-types', {
