@@ -33,7 +33,7 @@ let estimationFeatureSchema = mongoose.Schema({
     estimator: {
         name: {type: String},
         description: {type: String},
-        estimatedHours: {type: Number, default:0},
+        estimatedHours: {type: Number, default: 0},
         changeRequested: {type: Boolean, default: false},
         changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
@@ -69,67 +69,44 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
     let repositoryFeature = undefined
 
-    if (featureInput.repo && featureInput.repo._id) {
-        // Feature is added from repository
-        // find if Feature actually exists there
-        repositoryFeature = await RepositoryModel.findById(featureInput.repo._id)
-        if (!repositoryFeature)
-            throw new AppError('Feature not part of repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    /**
+     * As no repo id is sent, this means that this is a new feature, hence save this feature into repository
+     * @type {{addedFromThisEstimation: boolean}}
+     */
 
-        // as this feature was found in repository, this means that this is already part of repository
-        featureInput.repo = {
-            addedFromThisEstimation: false,
-            _id: repositoryFeature._id
-        }
-    } else {
-        /**
-         * As no repo id is sent, this means that this is a new feature, hence save this feature into repository
-         * @type {{addedFromThisEstimation: boolean}}
-         */
+    repositoryFeature = await RepositoryModel.addFeature({
+        name: featureInput.name,
+        description: featureInput.description,
+        estimation: {
+            _id: estimation._id.toString()
+        },
+        createdBy: estimator,
+        technologies: estimation.technologies,
+        tags: featureInput.tags
+    }, estimator)
 
-        repositoryFeature = await RepositoryModel.addFeature({
-            name: featureInput.name,
-            description: featureInput.description,
-            estimation: {
-                _id: estimation._id.toString()
-            },
-            createdBy: estimator,
-            technologies: featureInput.technologies,
-            tags: featureInput.tags
-        }, estimator)
-
-        featureInput.repo = {
-            _id: repositoryFeature._id,
-            addedFromThisEstimation: true
-        }
-    }
-
-    // create estimator section
-
-    let estimatorSection = {}
-    let defaultEstimatedHoursForFeature = 0;
-    /* Name/description would always match repository name description */
-
-    estimatorSection.name = repositoryFeature.name
-    estimatorSection.description = repositoryFeature.description
-    estimatorSection.estimatedHours = defaultEstimatedHoursForFeature
-
-    featureInput.status = SC.STATUS_PENDING
-    featureInput.addedInThisIteration = true
-    featureInput.changedKeyInformation = true
-    featureInput.owner = SC.OWNER_ESTIMATOR
-    featureInput.initiallyEstimated = true
-    featureInput.estimator = estimatorSection
+    let estimationFeature = new EstimationFeatureModel()
+    estimationFeature.estimator.name = featureInput.name
+    estimationFeature.estimator.description = featureInput.description
+    estimationFeature.estimator.estimatedHours = featureInput.estimatedHours
+    estimationFeature.status = SC.STATUS_PENDING
+    estimationFeature.addedInThisIteration = true
+    estimationFeature.owner = SC.OWNER_ESTIMATOR
+    estimationFeature.initiallyEstimated = true
+    estimationFeature.estimation = featureInput.estimation
+    estimationFeature.technologies = estimation.technologies
+    // Add repository reference and also note that this task was added into repository from this estimation
+    estimationFeature.repo._id = repositoryFeature._id
+    estimationFeature.repo.addedFromThisEstimation = true
 
     if (!_.isEmpty(featureInput.notes)) {
-        featureInput.notes = featureInput.notes.map(n => {
+        estimationFeature.notes = featureInput.notes.map(n => {
             n.name = estimator.fullName
             return n
         })
     }
 
-    return await EstimationFeatureModel.create(featureInput)
-
+    return await estimationFeature.save()
 }
 
 estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, negotiator) => {
@@ -143,77 +120,48 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let repositoryFeature = undefined
+    let repositoryFeature = await RepositoryModel.addFeature({
+        name: featureInput.name,
+        description: featureInput.description,
+        estimation: {
+            _id: estimation._id.toString()
+        },
+        createdBy: negotiator,
+        technologies: estimation.technologies,
+        tags: featureInput.tags
+    }, negotiator)
 
-    if (featureInput.repo && featureInput.repo._id) {
-        // Feature is added from repository
-        // find if Feature actually exists there
-        repositoryFeature = await RepositoryModel.findById(featureInput.repo._id)
-        if (!repositoryFeature)
-            throw new AppError('Feature not part of repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-        // as this feature was found in repository, this means that this is already part of repository
-        featureInput.repo = {
-            addedFromThisEstimation: false,
-            _id: repositoryFeature._id
-        }
-    } else {
-        /**
-         * As no repo id is sent, this means that this is a new feature, hence save this feature into repository
-         * @type {{addedFromThisEstimation: boolean}}
-         */
-
-        repositoryFeature = await RepositoryModel.addFeature({
-            name: featureInput.name,
-            description: featureInput.description,
-            estimation: {
-                _id: estimation._id.toString()
-            },
-            createdBy: negotiator,
-            technologies: featureInput.technologies,
-            tags: featureInput.tags
-        }, negotiator)
-
-        featureInput.repo = {
-            _id: repositoryFeature._id,
-            addedFromThisEstimation: true
-        }
+    featureInput.repo = {
+        _id: repositoryFeature._id,
+        addedFromThisEstimation: true
     }
 
-    // create negotiator section
 
-    let negotiatorSection = {}
-    let defaultEstimatedHoursForFeature = 0;
-
-
-    featureInput.status = SC.STATUS_PENDING
-    featureInput.addedInThisIteration = true
-    featureInput.owner = SC.OWNER_NEGOTIATOR
-    featureInput.initiallyEstimated = true
-    featureInput.negotiator = negotiatorSection
-
-    /* Name/description would always match repository name description */
-    // This will allow estimator to see updated changes as suggestions
-    featureInput.negotiator = {
-        name: repositoryFeature.name,
-        description: repositoryFeature.description,
-        estimatedHours: repositoryFeature.estimatedHours,
-        changeRequested: true
-    }
-
-    // Add name into estimator section as well so that move to feature functionality at least show name
-    featureInput.estimator = {
-        name: repositoryFeature.name
-    }
-
+    let estimationFeature = new EstimationFeatureModel()
+    estimationFeature.negotiator.name = featureInput.name
+    estimationFeature.negotiator.description = featureInput.description
+    estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours
+    estimationFeature.negotiator.changeSuggested = true
+    estimationFeature.status = SC.STATUS_PENDING
+    estimationFeature.addedInThisIteration = true
+    estimationFeature.owner = SC.OWNER_NEGOTIATOR
+    estimationFeature.initiallyEstimated = true
+    estimationFeature.estimation = featureInput.estimation
+    estimationFeature.technologies = estimation.technologies
+    // Add repository reference and also note that this task was added into repository from this estimation
+    estimationFeature.repo._id = repositoryFeature._id
+    estimationFeature.repo.addedFromThisEstimation = true
+    // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
+    estimationFeature.estimator.name = featureInput.name
+    estimationFeature.estimator.description = featureInput.description
     if (!_.isEmpty(featureInput.notes)) {
-        featureInput.notes = featureInput.notes.map(n => {
+        estimationFeature.notes = featureInput.notes.map(n => {
             n.name = negotiator.fullName
             return n
         })
     }
 
-    return await EstimationFeatureModel.create(featureInput)
+    return await estimationFeature.save()
 }
 
 
@@ -451,19 +399,26 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     return await feature.save()
 }
 
-estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (estimationID,repositoryID,estimator) => {
+estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatureID, estimator) => {
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let repo = await RepositoryModel.findById(repositoryID)
-    if (!repo)
-        throw new AppError('Repository not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let repositoryFeature = await RepositoryModel.findById(repositoryFeatureID)
+    if (!repositoryFeature)
+        throw new AppError('Feature not found in Repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!repo.isFeature)
-        throw new AppError('This feature not into repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    if (!repositoryFeature.isFeature)
+        throw new AppError('This is not a feature but a task', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_APPROVED], repo.status))
-        throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    /**
+     * TODO: Uncomment this code when feature approve functionality if available in repository
+     if (!_.includes([SC.STATUS_APPROVED], repositoryFeature.status))
+     throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+     **/
+
+    if (!Array.isArray(repositoryFeature.tasks) || repositoryFeature.tasks.length === 0) {
+        throw new AppError('This feature has no tasks so there is no point adding this feature to estimation')
+    }
 
     let estimation = await EstimationModel.findById(estimationID)
     if (!estimation)
@@ -472,44 +427,43 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if(!repo.tasks && !repo.tasks.length>0)
-        throw new AppError('This repository do not have any tasks', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let existingFeatureCount = await EstimationFeatureModel.count({
+        "repo._id": repositoryFeature._id,
+        "estimation._id": estimation._id
+    })
 
-    let thisFeatureAlreadyAddedFromRepo = await EstimationFeatureModel.findOne({"repo._id" : repo._id,"repo.addedFromThisEstimation":false,"estimation._id":estimation._id})
-
-    if (thisFeatureAlreadyAddedFromRepo)
+    if (existingFeatureCount > 0)
         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
-    let newFeature = new EstimationFeatureModel()
+    let estimationFeature = new EstimationFeatureModel()
 
-    newFeature.status = SC.STATUS_PENDING
-    newFeature.addedInThisIteration = true
-    newFeature.changedKeyInformation = true
-    newFeature.owner = SC.OWNER_ESTIMATOR
-    newFeature.initiallyEstimated = true
+    estimationFeature.status = SC.STATUS_PENDING
+    estimationFeature.addedInThisIteration = true
+    estimationFeature.owner = SC.OWNER_ESTIMATOR
+    estimationFeature.initiallyEstimated = true
 
-    newFeature.estimator.name = repo.name
-    newFeature.estimator.description = repo.description
-    if(repo.estimatedHours)
-        newFeature.estimator.estimatedHours = repo.estimatedHours
-    else
-        newFeature.estimator.estimatedHours = 0
+    estimationFeature.estimator.name = repositoryFeature.name
+    estimationFeature.estimator.description = repositoryFeature.description
+    estimationFeature.estimation = estimation
+    estimationFeature.repo._id = repositoryFeature._id
+    estimationFeature.repo.addedFromThisEstimation = false
+    estimationFeature.technologies = repositoryFeature.technologies
 
-    newFeature.estimation = estimation
-    newFeature.repo._id = repo._id
-    newFeature.repo.addedFromThisEstimation = false
+    // Iterate on tasks and add all the tasks into estimation
 
-    newFeature.technologies = repo.technologies
-    newFeature.tags = repo.tags
-    newFeature.tasks = repo.tasks
+    let taskPromises = repositoryFeature.tasks.forEach(t => {
+        return RepositoryModel.findById(t._id)
+    })
 
-    newFeature.created = Date.now()
-    newFeature.updated = Date.now()
+    estimationFeature.created = Date.now()
+    estimationFeature.updated = Date.now()
+    await estimationFeature.save()
 
-    return await EstimationFeatureModel.create(newFeature)
+    // In case repository feature has tasks as well we would be
+
+
+    //return await EstimationFeatureModel.create(estimationFeature)
 }
-
-
 
 
 estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = async (featureID, estimator) => {
@@ -559,11 +513,11 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
 
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
     feature.updated = Date.now()
-    return await feature.save();
+    return await feature.save()
 }
 
 
-estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (estimationID,repositoryID, negotiator) => {
+estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (estimationID, repositoryID, negotiator) => {
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -584,10 +538,14 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature from repository into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if(!repo.tasks && !repo.tasks.length>0)
+    if (!repo.tasks && !repo.tasks.length > 0)
         throw new AppError('This repository do not have any tasks', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let thisFeatureAlreadyAddedFromRepo = await EstimationFeatureModel.findOne({"repo._id" : repo._id,"repo.addedFromThisEstimation":false,"estimation._id":estimation._id})
+    let thisFeatureAlreadyAddedFromRepo = await EstimationFeatureModel.findOne({
+        "repo._id": repo._id,
+        "repo.addedFromThisEstimation": false,
+        "estimation._id": estimation._id
+    })
 
     if (thisFeatureAlreadyAddedFromRepo)
         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
@@ -602,7 +560,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
 
     newFeature.negotiator.name = repo.name
     newFeature.negotiator.description = repo.description
-    if(repo.estimatedHours)
+    if (repo.estimatedHours)
         newFeature.negotiator.estimatedHours = repo.estimatedHours
     else
         newFeature.negotiator.estimatedHours = 0

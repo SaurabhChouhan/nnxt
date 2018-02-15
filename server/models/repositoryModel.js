@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import * as SC from "../serverconstants";
+import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 import {validate, repositoryAddTaskStruct, repositoryUpdateTaskAndFeatureStruct} from "../validation"
@@ -92,7 +92,7 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
         await repositoryFeature.save()
         return true
     } else {
-        console.log("No changes in repository as estimation id do not match")
+        console.log("No changes to feature in repository as feature does not belong to estimation")
         return false
     }
 }
@@ -116,6 +116,84 @@ repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
         return false
     }
 }
+
+repositorySchema.statics.moveTaskToFeature = async (repositoryTaskID, repositoryFeatureID, estimationID) => {
+    let repositoryTask = await RepositoryModel.findById(repositoryTaskID)
+
+    if (!repositoryTask)
+        throw new AppError('Task not found in repository')
+
+    if (repositoryTask.estimation._id.toString() != estimationID.toString()) {
+        console.log("No changes in repository as estimation of task mismatches with current estimation")
+        return false
+    }
+
+    let repositoryFeature = await RepositoryModel.findById(repositoryFeatureID)
+
+    if (!repositoryFeature)
+        throw new AppError('Feature not found in repository')
+
+    if (repositoryFeature.estimation._id.toString() != estimationID.toString()) {
+        console.log("No changes in repository as estimation of feature mismatches with current estimation")
+        return false
+    }
+
+    if (Array.isArray(repositoryFeature.tasks) && repositoryFeature.tasks.length > 0) {
+        if (repositoryFeature.tasks.findIndex(t => t._id.toString() == repositoryTask._id.toString()) == -1) {
+            // task is not already part of feature so add it
+            repositoryFeature.tasks.push(repositoryTask)
+            repositoryFeature.save()
+        } else {
+            console.log("Task already part of feature")
+            return false
+        }
+    } else {
+        repositoryFeature.tasks = [repositoryTask]
+        repositoryFeature.save()
+    }
+
+    return true
+}
+
+repositorySchema.statics.moveTaskOutOfFeature = async (repositoryTaskID, repositoryFeatureID, estimationID) => {
+    let repositoryTask = await RepositoryModel.findById(repositoryTaskID)
+
+    if (!repositoryTask)
+        throw new AppError('Task not found in repository')
+
+    if (repositoryTask.estimation._id.toString() != estimationID.toString()) {
+        console.log("No changes in repository as estimation of task mismatches with current estimation")
+        return false
+    }
+
+    let repositoryFeature = await RepositoryModel.findById(repositoryFeatureID)
+
+    if (!repositoryFeature)
+        throw new AppError('Feature not found in repository')
+
+    if (repositoryFeature.estimation._id.toString() != estimationID.toString()) {
+        console.log("No changes in repository as estimation of feature mismatches with current estimation")
+        return false
+    }
+
+    if (Array.isArray(repositoryFeature.tasks) && repositoryFeature.tasks.length > 0) {
+        if (repositoryFeature.tasks.findIndex(t => t._id.toString() == repositoryTask._id.toString()) != -1) {
+            // task is part of feature
+            repositoryFeature.tasks.remove(repositoryTask._id)
+            repositoryFeature.save()
+        } else {
+            console.log("Task not part of feature cannot move out")
+            return false
+        }
+    } else {
+        console.log("Task not part of feature cannot move out")
+        return false
+    }
+
+    return true
+
+}
+
 repositorySchema.statics.searchRepositories = async (filterObj) => {
     let technologies = []
     if (filterObj.technologies && Array.isArray(filterObj.technologies)) {
