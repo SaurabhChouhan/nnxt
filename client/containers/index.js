@@ -71,4 +71,5 @@ export {default as AttendenceSettingFormContainer} from './forms/AttendanceSetti
 
 //Repository pages
 export {default as RepositorySearchContainer} from './pages/RepositorySearchContainer'
+export {default as RepositoryTaskDetailPageContainer} from './pages/RepositoryTaskDetailPageContainer'
 
