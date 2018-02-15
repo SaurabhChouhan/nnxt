@@ -73,6 +73,7 @@ export const ADD_LEAVE_TYPES = "ADD_LEAVE_TYPES"
 
 //repository constants
 export const SELECT_REPOSITORY = "SELECT_REPOSITORY"
+export const SELECT_TASK_FROM_REPOSITORY = "SELECT_TASK_FROM_REPOSITORY"
 
 //attendence Settings
 

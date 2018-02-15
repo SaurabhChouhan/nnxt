@@ -110,7 +110,7 @@ class RepositorySearch extends Component {
                         Array.isArray(this.props.repository) && this.props.repository.map((f, i) =>
                             (f.isFeature) ?
                                 [<div className="repository repositoryFeature">
-                                    <div className="RepositoryHeading" key={i}>
+                                    <div className="RepositoryHeading" key={i} onClick={()=>{this.props.showFeatureDetailPage(f)}}>
                                         <div>
                                             <div className="repositoryFeatureLable"></div>
                                             <h5>Feature</h5><i
@@ -123,7 +123,7 @@ class RepositorySearch extends Component {
                                 </div>]
                                 :
                                 [<div className="repository repositoryTask">
-                                    <div className="RepositoryHeading" key={i}>
+                                    <div className="RepositoryHeading" key={i} onClick={()=>{this.props.showTaskDetailPage(f)}}>
                                         <div>
                                             <div className="repositoryTaskLable"></div>
                                             <h5>Task</h5><i
