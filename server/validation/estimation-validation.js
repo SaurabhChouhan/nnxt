@@ -173,13 +173,27 @@ export const estimationProjectAwardByNegotiatorStruct = t.struct({
     estimation: t.struct({
         _id: ObjectId
     }),
-    negotiatedBilledHours: t.Number,
-    expectedClientReleaseDate: RequiredString,
-    expectedStartDateOfDev: RequiredString,
-    expectedDevReleaseDate: RequiredString,
     releaseVersionName: RequiredString,
-    managerOfRelease: RequiredString,
-    leaderOfRelease: RequiredString,
-    plannedEmployeesForRelease: t.list(t.String)
+    billedHours: t.Number,
+    clientReleaseDate: RequiredString,
+    devStartDate: RequiredString,
+    devReleaseDate: RequiredString,
+    managerOfRelease: t.struct({
+        _id: ObjectId,
+        name: t.String,
+        email: t.String,
+    }),
+    leaderOfRelease: t.struct({
+        _id: ObjectId,
+        name: t.String,
+        email: t.String,
+    }),
+    employeesOfRelease: t.list(
+        t.struct({
+            _id: ObjectId,
+            name: t.String,
+            email: t.String,
+        })
+    )
 })
 

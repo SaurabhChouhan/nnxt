@@ -17,6 +17,8 @@ export const APP_USER_EMAIL = 'appuser@test.com'
 
 export const OWNER_ESTIMATOR = 'estimator'
 export const OWNER_NEGOTIATOR = 'negotiator'
+export const OWNER_MANAGER = 'manager'
+export const OWNER_LEADER = 'leader'
 
 export const STATUS_PENDING = 'pending'
 export const STATUS_APPROVED = 'approved'
@@ -28,8 +30,23 @@ export const STATUS_REOPENED = 'reopened'
 export const STATUS_PROJECT_AWARDED = 'project-awarded'
 export const STATUS_REJECTED = 'rejected'
 
+export const STATUS_PLAN_REQUESTED = 'plan-requested'
+export const STATUS_DEV_IN_PROGRESS = 'dev-in-progress'
+export const STATUS_DEV_COMPLETED = 'dev-completed'
+export const STATUS_RELEASED = 'released'
+export const STATUS_ISSUE_FIXING = 'issue-fixing'
+export const STATUS_OVER = 'over'
+export const STATUS_COMPLETED = 'completed'
+
 export const TYPE_DEVELOPMENT = 'development'
 
 export const OPERATION_ADDITION = 'addition'
 export const OPERATION_SUBTRACTION = 'subtraction'
 export const OPERATION_SUBTRACTION_AND_ADDITION = 'subtraction-and-addition'
+
+export const FLAG_UNPLANNED = 'unplanned'
+export const FLAG_EMPLOYEE_ON_LEAVE = 'employee-on-leave'
+export const FLAG_DEV_DATE_MISSED = 'development-date-missed'
+export const FLAG_HAS_UNREPORTED_DAYS = 'has-unreported-days'
+export const FLAG_PENDING_AFTER_END_DATE = 'pending-after-enddate'
+export const FLAG_COMPLETED_BEFORE_END_DATE = 'completed-before-enddate'
