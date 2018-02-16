@@ -1,4 +1,4 @@
-import {RoleModel, PermissionModel, UserModel, ClientModel, ProjectModel} from "../models"
+import {RoleModel, PermissionModel, UserModel, ClientModel, ProjectModel,LeaveTypeModel} from "../models"
 import {
     MANAGE_PERMISSIONS,
     MANAGE_ROLES,
@@ -205,6 +205,7 @@ export const addInitialData = async () => {
     }
     */
 
+    await addLeaveTypes()
 }
 
 export const addNNXTData = async () => {
@@ -401,4 +402,38 @@ const addProjects = async () => {
         }
     }
 
+}
+
+const addLeaveTypes = async () => {
+    let cl = await LeaveTypeModel.findOne({name: 'Casual leave (CL)'})
+    if(!cl) {
+        await LeaveTypeModel.saveLeaveType({
+            name: 'Casual leave (CL)',
+            description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calender year.\n' +
+            'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
+        })
+    }
+    let les = await LeaveTypeModel.findOne({name: 'Leave for Emergency Services (LES)'})
+    if(!les) {
+        await LeaveTypeModel.saveLeaveType({
+            name: 'Leave for Emergency Services (LES)',
+            description: 'Employees who are certified by the Civil Air Patrol as emergency service specialists or certified to fly counter-narcotics missions may be granted leave of absence from their respective duties.  Leave for such service shall not be for more than 15 working days in any state fiscal year.'
+        })
+    }
+    let sl = await LeaveTypeModel.findOne({name: 'Sick leave (SL)'})
+    if(!sl) {
+        await LeaveTypeModel.saveLeaveType({
+            name: 'Sick leave (SL)',
+            description: 'Employees who are employed on a full-time basis in positions of a continuing or permanent nature earn sick leave.  Full-time employees receive five hours of sick leave each pay period for each semi-month of service in which they are in pay status for 80 or more hours.'
+        })
+    }
+    let al = await LeaveTypeModel.findOne({name: 'Annual Leave (AL)'})
+    if(!al) {
+        await LeaveTypeModel.saveLeaveType({
+            name: 'Annual Leave (AL)',
+            description: 'Employees in full-time positions of a continuing or permanent nature shall be entitled to accumulate annual leave as follows:\n' +
+            '\n' +
+            'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
+        })
+    }
 }
