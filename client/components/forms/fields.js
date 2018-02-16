@@ -291,10 +291,44 @@ export const renderDateTimePickerString = ({
 
     </div>
 }
-export const renderDateTimePicker = ({input: {onChange, value}, showTime}) =>
-    <DateTimePicker
-        onChange={onChange}
-        format="DD MMM YYYY"
-        time={showTime}
-        value={!value ? null : new Date(value)}
-    />
+
+export const renderDateTimePicker = ({
+                                         input: {onChange, value, name},
+                                         label,
+                                         readOnly,
+                                         info,
+                                         showTime,
+                                         showCalendar,
+                                         min,
+                                         max,
+                                         type,
+                                         dropUp = false,
+                                         placeholder,
+                                         disabled = false,
+                                         meta: {touched, error, warning}
+                                     }) => {
+    return <div className="form-group">
+        <label htmlFor={name}>{label} {touched &&
+        ((error &&
+            <span className="validation-error">
+            {error}
+          </span>))
+
+        }{(info &&
+            <span className="field-info">
+            {info}
+          </span>)}</label>
+        <DateTimePicker
+            min={min}
+            max={max}
+            format={'MM-DD-YYYY'}
+            readOnly={readOnly}
+            disabled={disabled}
+            onChange={onChange}
+            time={showTime}
+            calendar={showCalendar}
+            value={!value ? null : new Date(value)}
+
+        />
+    </div>
+}
