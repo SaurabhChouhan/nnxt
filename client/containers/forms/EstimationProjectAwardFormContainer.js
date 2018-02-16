@@ -26,7 +26,7 @@ const mapStateToProps = (state) => {
     let Team = []
 
 
-    if (state.user.all && Array.isArray(state.user.all) && state.user.all.length > 0) {
+    if (state.user.userWithRoleCategory) {
         // Users who has role as a manager or leader or both
         Managers = state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : []
         Leaders = state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : []
