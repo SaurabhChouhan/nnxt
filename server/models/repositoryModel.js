@@ -26,6 +26,39 @@ let repositorySchema = mongoose.Schema({
     tasks: [{_id: {type: mongoose.Schema.ObjectId, required: true}}]
 })
 
+repositorySchema.statics.getFeature = async (repositoryFeatureID) => {
+    let features = await RepositoryModel.aggregate({
+        $match: {_id: mongoose.Types.ObjectId(repositoryFeatureID), isFeature: true}
+    }, {
+        $unwind: {
+            path: '$tasks'
+        }
+    }, {
+        $lookup: {
+            from: 'repositories',
+            localField: 'tasks._id',
+            foreignField: '_id',
+            as: 'tasks'
+        }
+    }, {
+        $group: {
+            _id: "$_id",
+            name: {$first:"$name"},
+            description: {$first:"$description"},
+            isFeature: {$first:"$isFeature"},
+            technologies: {$first:"$technologies"},
+            tags: {$first:"$tags"},
+            tasks: {
+                $push: {$arrayElemAt: ['$tasks', 0]}
+            }
+        }
+    })
+
+    if(features.length > 0)
+        return features[0]
+}
+
+
 repositorySchema.statics.addTask = async (taskInput, user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
         throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add task to repository", EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
