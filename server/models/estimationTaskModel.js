@@ -177,6 +177,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
+    estimationTask.feature=taskInput.feature
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = negotiator.fullName
