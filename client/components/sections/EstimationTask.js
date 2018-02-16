@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import {ConfirmationDialog} from "../index";
 import * as logger from '../../clientLogger'
 import * as SC from '../../../server/serverconstants'
+import * as CM from "../../clientMsg"
 import _ from 'lodash'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
@@ -239,8 +240,8 @@ class EstimationTask extends React.PureComponent {
             <div className="col-md-3">
                 <div>{this.state.showTaskDeletionDialog &&
                 <ConfirmationDialog show={true} onConfirm={this.onConfirmTaskDelete.bind(this)}
-                                    title="Delete Task" onClose={this.onClose.bind(this)}
-                                    body="You are about to delete Task. are you sure you want to delete this Task,Please confirm!"/>
+                                    title={CM.DELETE_TASK} onClose={this.onClose.bind(this)}
+                                    body={CM.DELETE_TASK_BODY}/>
                 }
                     {task.owner == SC.OWNER_ESTIMATOR && task.addedInThisIteration && <div className="flagStrip">
                         <img src="/images/estimator_new_flag.png" title="Added by Estimator"/>

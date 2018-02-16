@@ -3,7 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../index";
-
+import * as CM from "../../clientMsg"
 
 class TechnologyList extends Component {
 
@@ -29,7 +29,7 @@ class TechnologyList extends Component {
     viewButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-trash" type="button" onClick={() => {
+        return (<button className="fa fa-trash btn btn-custom" type="button" onClick={() => {
                  this.setState({showTechnologyDeletionDialog: true}),
                  this.setState({addRow:row._id})
             }}>
@@ -44,8 +44,8 @@ class TechnologyList extends Component {
         return (
             <div>{this.state.showTechnologyDeletionDialog &&
             <ConfirmationDialog show={true} onConfirm={this.OkConfimationForDeleteTechnology.bind(this)}
-                                title="Delete Technology" onClose={this.onClose.bind(this)}
-                                body="You are about to delete Technology. are you sure you want to delete,Please confirm!"/>
+                                title={CM.DELETE_TECHNOLOGY} onClose={this.onClose.bind(this)}
+                                body={CM.DELETE_TECHNOLOGY_BODY}/>
             }
 
             <div key="technology_list" className="clearfix">

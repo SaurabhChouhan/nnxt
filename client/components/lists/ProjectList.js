@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
+import * as CM from "../../clientMsg"
 import * as SC from '../../../server/serverconstants'
 import {showComponentHideOthers} from "../../actions";
 import {PROJECT_FORM_DIALOG} from "../componentConsts";
@@ -64,8 +65,8 @@ class ProjectList extends Component {
         return (
             <div>{this.state.showProjectDeletionDialog &&
             <ConfirmationDialog show={true} onConfirm={this.OkConfimationForDeletingProject.bind(this)}
-                                title="Delete Project" onClose={this.onClose.bind(this)}
-                                body="You are about to delete Project. are you sure you want to delete this Project,Please confirm!"/>
+                                title={CM.DELETE_PROJECT} onClose={this.onClose.bind(this)}
+                                body={CM.DELETE_PROJECT_BODY}/>
             }
                 <div key="project_list" className="clearfix">
 
