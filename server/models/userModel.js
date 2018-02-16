@@ -54,6 +54,41 @@ userSchema.statics.getAllActive = async (loggedInUser) => {
     }
 }
 
+userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
+    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR)) {
+
+        // Negotiator can see estimators (Estimation Initiate), developers, leaders (company cost approximations)
+        let Leaders = await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_LEADER],
+                    $ne: SC.ROLE_SUPER_ADMIN
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+        let Managers = await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_MANAGER]
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+        let Developers = await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_DEVELOPER]
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+        let userList = {
+            managers: Managers ? Managers : [],
+            leaders: Leaders ? Leaders : [],
+            team: Developers ? Developers : []
+        }
+        return userList
+    }
+    else {
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+}
+
 
 userSchema.statics.saveUser = async usrObj => {
     if (!usrObj.email)

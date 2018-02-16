@@ -15,6 +15,10 @@ userRouter.get('/', async ctx => {
     return await UserModel.getAllActive(ctx.state.user)
 })
 
+userRouter.get('/role-category', async ctx => {
+    return await UserModel.getAllActiveWithRoleCategory(ctx.state.user)
+})
+
 userRouter.post('/', async ctx => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
         return await UserModel.saveUser(ctx.request.body)
