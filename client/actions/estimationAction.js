@@ -525,7 +525,7 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
 
 export const addProjectAwardOnServer = (formInput) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/project-award', {
+        return fetch('/api/estimations/project-awarded', {
                 method: 'put',
                 credentials: "include",
                 headers: {
