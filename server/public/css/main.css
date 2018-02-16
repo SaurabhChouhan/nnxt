@@ -1003,9 +1003,10 @@ td.rejRowColor {
     border: 1px solid #CBCED5;
     width: 100%;
     position: relative;
-    height: 30px;
+    min-height: 30px;
     padding: 6px;
     padding-left: 15px;
+    margin: 0;
 }
 
 .repositoryTask .RepositoryHeading {
@@ -1024,7 +1025,6 @@ td.rejRowColor {
 
 .RepositoryHeading {
     position: relative;
-    height: 49px;
 }
 
 .RepositorySideHeight {
@@ -1064,9 +1064,9 @@ td.rejRowColor {
 .RepositoryHeading h5 {
     float: left;
     font-weight: bold;
-    margin-top: 10px;
+    margin: 0px;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 .RepositoryHeading h4 {
@@ -1076,6 +1076,11 @@ td.rejRowColor {
 
 .RepositoryHeading span {
     padding-right: 5%;
+}
+
+.repositoryModalPara {
+    height:120px;
+    overflow-y: scroll;
 }
 
 .repository .RepositoryContent {
