@@ -21,11 +21,11 @@ let LeaveRequestForm = (props) => {
                 <Field name="dayType" placeholder={"Leave day"} displayField={"name"} valueField={"name"} component={renderSelect} options={[{name:"Full"},{name:"Half"}]}
                        label={"Day type :"} validate={[required]}/>
 
-                <Field name="startDate" placeholder={"Leave Start Date :"} component={renderText}
+                <Field name="startDate" placeholder={"Leave Start Date :"} component={renderDateTimePicker}
                        min={moment()} showTime={false}
                        label={"Start Date :"} validate={[required]}/>
 
-                <Field name="endDate" placeholder={"Leave End Date :"} component={renderText}
+                <Field name="endDate" placeholder={"Leave End Date :"} component={renderDateTimePicker}
                        min={moment()} showTime={false}
                        label={"End Date :"} validate={[required]}/>
 
