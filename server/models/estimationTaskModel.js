@@ -111,6 +111,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
+    estimationTask.feature=taskInput.feature
     estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
 
@@ -176,6 +177,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
+    estimationTask.feature=taskInput.feature
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = negotiator.fullName
