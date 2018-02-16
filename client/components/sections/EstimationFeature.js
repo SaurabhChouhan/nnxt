@@ -11,6 +11,7 @@ import {NotificationManager} from 'react-notifications'
 import {initialize} from 'redux-form'
 import * as EC from "../../../server/errorcodes";
 import {ConfirmationDialog} from "../index";
+import * as CM from "../../clientMsg"
 
 
 class EstimationFeature extends React.PureComponent {
@@ -270,8 +271,8 @@ class EstimationFeature extends React.PureComponent {
                 <div className="col-md-3">
                     <div>{this.state.showFeatureDeletionDialog &&
                     <ConfirmationDialog show={true} onConfirm={this.onConfirmFeatureDelete.bind(this)}
-                                        title="Delete Feature" onClose={this.onClose.bind(this)}
-                                        body="You are about to delete Feature. are you sure you want to delete this Feature,Please confirm!"/>
+                                        title={CM.DELETE_FEATURE} onClose={this.onClose.bind(this)}
+                                        body={CM.DELETE_FEATURE_BODY}/>
                     }
 
                         {feature.owner == SC.OWNER_ESTIMATOR && feature.addedInThisIteration &&

@@ -3,6 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
 import * as SC from '../../../server/serverconstants'
+import * as CM from "../../clientMsg"
 
 class ClientList extends Component {
 
@@ -55,8 +56,8 @@ class ClientList extends Component {
         return (
             <div>{this.state.showClientDeletionDialog &&
             <ConfirmationDialog show={true} onConfirm={this.OkConfimationForDeletingClient.bind(this)}
-                                title="Delete Client" onClose={this.onClose.bind(this)}
-                                body="You are about to delete Client. are you sure you want to delete this Client,Please confirm!"/>
+                                title={CM.DELETE_CLIENT} onClose={this.onClose.bind(this)}
+                                body={CM.DELETE_CLIENT_BODY}/>
             }
             <div key="client_list" className="clearfix">
 
