@@ -8,7 +8,7 @@ import {required,number} from "./validation"
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
     const {pristine, submitting,reset} = props
-    const {all, Managers, Leaders} = props
+    const {Team, Managers, Leaders} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -54,7 +54,7 @@ let EstimationProjectAwardForm = (props) => {
 
                 <Field name="team"
                        component={renderMultiselect} label={"Planned Employees For Release:"}
-                       data={all} valueField="_id" textField="name"
+                       data={Team} valueField="_id" textField="name"
                 />
             </div>
 

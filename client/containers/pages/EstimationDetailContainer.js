@@ -27,6 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }))
     },
     showProjectAwardForm: (estimation) => {
+        dispatch(A.getUsersWithRoleCategoryFromServer())
         dispatch(A.showComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
         // initialize
         dispatch(initialize('estimation-project-award', {
