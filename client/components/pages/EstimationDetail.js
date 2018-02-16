@@ -1,9 +1,9 @@
 import React, {Component} from 'react'
 import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../"
-import {EstimationFeaturesContainer, EstimationTasksContainer,RepositorySearchContainer} from "../../containers"
+import {EstimationFeaturesContainer, EstimationTasksContainer, RepositorySearchContainer} from "../../containers"
 import * as logger from '../../clientLogger'
-import {WithContext as ReactTags} from 'react-tag-input';
+
 class EstimationDetail extends Component {
 
     constructor(props) {
@@ -180,7 +180,11 @@ class EstimationDetail extends Component {
                                               loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
                 {estimation.status == SC.STATUS_APPROVED && <div className="col-md-12">
-                    <button type="button" className="btn customBtn" onClick={()=>{this.props.showProjectAwardForm(estimation)}}>Project Award</button>
+                    <button type="button" className="btn customBtn" onClick={
+                        () => {
+                            this.props.showProjectAwardForm(estimation)
+                        }}>Project Award
+                    </button>
                 </div>}
             </div>
             <div className="col-md-4 estimationsection pad">
