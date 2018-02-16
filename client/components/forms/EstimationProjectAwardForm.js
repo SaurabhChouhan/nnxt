@@ -1,11 +1,14 @@
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
-import {renderText} from './fields'
+import {renderMultiselect, renderSelect, renderText} from './fields'
 import * as logger from '../../clientLogger'
+import {required,number} from "./validation"
+
 
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
-    const {pristine, submitting} = props
+    const {pristine, submitting,reset} = props
+    const {all, Managers, Leaders} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -14,38 +17,45 @@ let EstimationProjectAwardForm = (props) => {
 
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="negotiatedBilledHours" component={renderText} label={"Negotiated Billed Hours:"}/>
+                    <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}  validate={[number]}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="nameReleaseVersion" component={renderText} label={"Name (Relese Version):"}/>
+                    <Field name="releaseVersionName" component={renderText} validate={[required]} label={"Name (Relese Version):"}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-4">
-                    <Field name="expectedStartDateForDeveloper:" component={renderText}
-                           label={"Expected Start Date For Developer:"}/>
+                    <Field name="devStartDate:" component={renderText}
+                           label={"Expected Start Date For Developer:"} validate={[required]} />
                 </div>
                 <div className="col-md-4">
-                    <Field name="expectedDeveloperReleaseDate" component={renderText}
-                           label={"Expected Developer Release Date:"}/>
+                    <Field name="devReleaseDate" component={renderText}
+                           label={"Expected Developer Release Date:"} validate={[required]} />
                 </div>
                 <div className="col-md-4">
-                    <Field name="expectedClientReleaseDate" component={renderText}
-                           label={"Expected Client Release Date:"}/>
+                    <Field name="clientReleaseDate" component={renderText}
+                           label={"Expected Client Release Date:"} validate={[required]} />
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="managerOfRelease" component={renderText} label={"Manager Of Release:"}/>
+                    <Field name="manager" component={renderSelect} label={"Manager Of Release:"}
+                           options={Managers} valueField="_id" displayField="name"
+                    />
                 </div>
                 <div className="col-md-6">
-                    <Field name="leaderOfRelease" component={renderText} label={"Leader Of Release:"}/>
+                    <Field name="leader" component={renderSelect} label={"Leader Of Release:"}
+                           options={Leaders} valueField="_id" displayField="name"
+                    />
                 </div>
             </div>
 
             <div className="col-md-12">
-                <Field name="plannedEmployeesForRelease" component={renderText}
-                       label={"Planned Employees For Release:"}/>
+
+                <Field name="team"
+                       component={renderMultiselect} label={"Planned Employees For Release:"}
+                       data={all} valueField="_id" textField="name"
+                />
             </div>
 
         </div>
@@ -54,7 +64,7 @@ let EstimationProjectAwardForm = (props) => {
                 <button type="submit" disabled={pristine || submitting} className="btn customBtn">Submit</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn">Reset</button>
+                <button type="button" disabled={pristine || submitting} onClick={reset} className="btn customBtn">Reset</button>
             </div>
         </div>
     </form>

@@ -6,6 +6,7 @@ import * as logger from '../../clientLogger'
 
 let EstimationInitiateForm = (props) => {
     logger.debug(logger.ESTIMATION_INITIATE_FORM_RENDER, props)
+    const {reset}=props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">
@@ -34,7 +35,7 @@ let EstimationInitiateForm = (props) => {
                 <button type="submit" className="btn customBtn">Submit</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">Reset</button>
+                <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
             </div>
         </div>
     </form>
