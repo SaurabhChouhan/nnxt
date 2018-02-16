@@ -111,6 +111,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
+    estimationTask.feature=taskInput.feature
     estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
 
