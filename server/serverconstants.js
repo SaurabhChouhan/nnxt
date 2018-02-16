@@ -51,3 +51,6 @@ export const FLAG_DEV_DATE_MISSED = 'development-date-missed'
 export const FLAG_HAS_UNREPORTED_DAYS = 'has-unreported-days'
 export const FLAG_PENDING_AFTER_END_DATE = 'pending-after-enddate'
 export const FLAG_COMPLETED_BEFORE_END_DATE = 'completed-before-enddate'
+
+export const LEAVE_TYPE_FULL_DAY = 'Full'
+export const LEAVE_TYPE_HALF_DAY = 'Half'

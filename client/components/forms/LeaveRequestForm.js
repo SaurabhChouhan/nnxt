@@ -18,18 +18,21 @@ let LeaveRequestForm = (props) => {
                 <Field name="user.user.firstName" component="input" type="hidden"/>
                 <Field name="user.user.lastName" component="input" type="hidden"/>
 
-                <Field name="leave.from" placeholder={"Leave From :"} component={renderDateTimePicker}
-                       min={moment()}
-                       showTime={false} label={"From :"} validate={[required]}/>
+                <Field name="dayType" placeholder={"Leave day"} displayField={"name"} valueField={"name"} component={renderSelect} options={[{name:"Full"},{name:"Half"}]}
+                       label={"Day type :"} validate={[required]}/>
 
-                <Field name="leave.to" placeholder={"Leave To :"} component={renderDateTimePicker}
-                       min={moment()}
-                       showTime={false} label={"To :"} validate={[required]}/>
+                <Field name="startDate" placeholder={"Leave Start Date :"} component={renderText}
+                       min={moment()} showTime={false}
+                       label={"Start Date :"} validate={[required]}/>
 
-                <Field name="leave.type" placeholder={"type of leave"} displayField={"name"} valueField={"name"} component={renderSelect} options={props.leaveTypes}
+                <Field name="endDate" placeholder={"Leave End Date :"} component={renderText}
+                       min={moment()} showTime={false}
+                       label={"End Date :"} validate={[required]}/>
+
+                <Field name="leaveType._id" placeholder={"type of leave"} displayField={"name"} valueField={"_id"} component={renderSelect} options={props.leaveTypes}
                        label={"Type :"} validate={[required]}/>
 
-                <Field width="80%" name="leave.description" validate={[required]} component={renderTextArea}
+                <Field width="80%" name="description" validate={[required]} component={renderTextArea}
                        label="Description:"/>
 
                 <button type="submit" className="btn customBtn"> Submit</button>

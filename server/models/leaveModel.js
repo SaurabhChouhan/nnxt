@@ -1,14 +1,10 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {STATUS_APPROVED, STATUS_CANCELLED, STATUS_PENDING, STATUS_REJECTED} from "../serverconstants";
 import moment from 'moment'
 import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
 import {userHasRole} from "../utils";
-import ProjectModel from "./projectModel";
-import {ALREADY_EXISTS} from "../errorcodes";
-import {HTTP_BAD_REQUEST} from "../errorcodes";
-import {NOT_FOUND} from "../errorcodes";
+import {LeaveTypeModel} from "../models";
 
 mongoose.Promise = global.Promise
 
@@ -19,33 +15,72 @@ let leaveSchema = mongoose.Schema({
         firstName: {type: String, required: true},
         lastName: {type: String, required: true},
     },
-    status: {type: String, enum: [STATUS_PENDING, STATUS_APPROVED, STATUS_REJECTED, STATUS_CANCELLED]},
+    status: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_APPROVED, SC.STATUS_REJECTED, SC.STATUS_CANCELLED]},
+    dayType: {type: String, enum: [SC.LEAVE_TYPE_FULL_DAY, SC.LEAVE_TYPE_HALF_DAY]},
     approver: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: false},
         reason: {type: String, required: false}
     },
-    leave: {
-        type: {type: String, required: true},
-        description: {type: String, required: false},
-        createdDate: {type: Date, default: Date.now()},
-        from: {type: Date, required: true},
-        to: {type: Date, required: true},
-        numberOfLeaveDays: {type: Number, required: true}
-    },
-    isDeleted: {type: Boolean, default: false}
+    leaveType: {
+        _id: mongoose.Schema.ObjectId,
+         name: {type: String, required: false}
+     },
+    description: {type: String, required: false},
+    startDate: {type: Date, required: true},
+    endDate: {type: Date, required: true},
+    numberOfLeaveDays: {type: Number, required: true},
+    isDeleted: {type: Boolean, default: false},
+    created: {type: Date, default: Date.now()},
+    updated: {type: Date, default: Date.now()}
 })
 
 
-leaveSchema.statics.saveLeave = async (leaveInput) => {
+leaveSchema.statics.saveLeave = async (leaveInput,user) => {
 
-    let leaveStartDate = moment(leaveInput.leave.from, "DD/MM/YYYY");
-    let leaveEndDate = moment(leaveInput.leave.to, "DD/MM/YYYY");
-    let leaveDaysCount = leaveEndDate.diff(leaveStartDate, 'days');
-    console.log("leaveDaysCount ..",leaveDaysCount)
-    leaveInput.status = STATUS_PENDING
-    leaveInput.leave.numberOfLeaveDays = leaveDaysCount
-    console.log("save leave..",leaveInput)
+    console.log("leaveInput ",leaveInput)
+    const leaveType = await LeaveTypeModel.findById(leaveInput.leaveType._id)
+    if(!leaveType)
+        throw new AppError("Leave type not fount", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let startDate =  leaveInput.startDate
+    let endDate = leaveInput.endDate
+
+
+    let startDateMoment  = moment(startDate,'MM-DD-YYYY')
+    let endDateMoment = moment(endDate,'MM-DD-YYYY')
+
+    console.log("startDateMoment ",startDateMoment)
+    console.log("endDateMoment ",endDateMoment)
+
+    if(!moment().isBefore(startDateMoment))
+        throw new AppError("Start date is not valid", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if(!moment().isBefore(endDateMoment))
+        throw new AppError("End date is not valid", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+
+    if(startDateMoment > endDateMoment)
+        throw new AppError("Leave start date is gretter then End date", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let leaveDaysCount =  endDateMoment.diff(startDateMoment, 'days')
+    if(!leaveDaysCount)
+        leaveDaysCount = 0
+
+    if(leaveDaysCount == 0)
+        //note:- this case for current date raise leave
+        leaveDaysCount = 1
+
+    console.log("leaveDaysCount ",leaveDaysCount)
+    leaveInput.startDate = startDateMoment
+    leaveInput.endDate = endDateMoment
+    leaveInput.numberOfLeaveDays = leaveDaysCount
+    leaveInput.leaveType = leaveType
+    leaveInput.status = SC.STATUS_PENDING
+    leaveInput.user = user
+    if(!leaveInput.dayType)
+        leaveInput.dayType = SC.LEAVE_TYPE_FULL_DAY
+
     return await LeaveModel.create(leaveInput)
 }
 
@@ -59,10 +94,10 @@ leaveSchema.statics.cancelLeaveRequest = async (inputLeaveRequest) => {
     let leaveRequest = await LeaveModel.findById(inputLeaveRequest._id)
 
     if (!leaveRequest) {
-        throw new AppError("leave reqest Not Found", NOT_FOUND, HTTP_BAD_REQUEST)
+        throw new AppError("leave reqest Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    leaveRequest.status = STATUS_CANCELLED
+    leaveRequest.status = SC.STATUS_CANCELLED
     return await leaveRequest.save()
 }
 
