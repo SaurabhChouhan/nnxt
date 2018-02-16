@@ -2,6 +2,8 @@ import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import {renderMultiselect, renderSelect, renderText} from './fields'
 import * as logger from '../../clientLogger'
+import {required,number} from "./validation"
+
 
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
@@ -15,24 +17,24 @@ let EstimationProjectAwardForm = (props) => {
 
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}/>
+                    <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}  validate={[number]}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="releaseVersionName" component={renderText} label={"Name (Relese Version):"}/>
+                    <Field name="releaseVersionName" component={renderText} validate={[required]} label={"Name (Relese Version):"}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-4">
                     <Field name="devStartDate:" component={renderText}
-                           label={"Expected Start Date For Developer:"}/>
+                           label={"Expected Start Date For Developer:"} validate={[required]} />
                 </div>
                 <div className="col-md-4">
                     <Field name="devReleaseDate" component={renderText}
-                           label={"Expected Developer Release Date:"}/>
+                           label={"Expected Developer Release Date:"} validate={[required]} />
                 </div>
                 <div className="col-md-4">
                     <Field name="clientReleaseDate" component={renderText}
-                           label={"Expected Client Release Date:"}/>
+                           label={"Expected Client Release Date:"} validate={[required]} />
                 </div>
             </div>
             <div className="col-md-12">
