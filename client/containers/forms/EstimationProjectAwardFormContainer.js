@@ -4,7 +4,6 @@ import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
-import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
@@ -24,20 +23,19 @@ const mapStateToProps = (state) => {
 
     let Managers = []
     let Leaders = []
+    let Team = []
 
 
     if (state.user.all && Array.isArray(state.user.all) && state.user.all.length > 0) {
         // Users who has role as a manager or leader or both
-        Managers = state.user.all.filter(user => user.roles.find((role) => {
-            role.name = SC.ROLE_MANAGER
-        }))
-        Leaders = state.user.list.filter(user => user.roles.find((role) => {
-            role.name = SC.ROLE_LEADER
-        }))
+        Managers = state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : []
+        Leaders = state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : []
+        Team = state.user.userWithRoleCategory && state.user.userWithRoleCategory.team ? state.user.userWithRoleCategory.team : []
+
     }
 
     return {
-        all: state.user.all,
+        Team,
         Managers,
         Leaders
     }

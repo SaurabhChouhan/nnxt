@@ -1,5 +1,14 @@
-import {ADD_LOGIN_USER, LOGIN_FAILED, ADD_USERS, ADD_USER, EDIT_USER, DELETE_USER,UPDATE_USER_PROFILE_STATE} from "./actionConsts"
 import {initialize} from 'redux-form'
+import {
+    ADD_LOGIN_USER,
+    ADD_USER,
+    ADD_USERS,
+    ADD_USERS_WITH_ROLE_CATEGORY,
+    DELETE_USER,
+    EDIT_USER,
+    LOGIN_FAILED,
+    UPDATE_USER_PROFILE_STATE
+} from "./actionConsts"
 
 
 export const addLoginUser = (user) => ({
@@ -14,6 +23,11 @@ export const loginFailed = (error) => ({
 
 export const addAllUsers = (users) => ({
     type: ADD_USERS,
+    users: users
+})
+
+export const addUsersWithRoleCategory = (users) => ({
+    type: ADD_USERS_WITH_ROLE_CATEGORY,
     users: users
 })
 
@@ -86,6 +100,32 @@ export const getAllUsersFromServer = () => {
         )
     }
 }
+
+export const getUsersWithRoleCategoryFromServer = () => {
+    return function (dispatch, getState) {
+        return fetch('/api/users/role-category',
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addUsersWithRoleCategory(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
 //update user
 export const editUserOnServer = (user) => {
     return function (dispatch, getState) {
