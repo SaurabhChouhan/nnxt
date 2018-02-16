@@ -14,22 +14,32 @@ class RaiseLeaveList extends Component {
 
     }
 
-    formatFrom(leave) {
+    formatCreatedDate(leave) {
         if (leave) {
-            return Moment(leave.from).format("DD-MM-YYYY")
+            return Moment(leave.created).format("DD-MM-YYYY hh:mm:ss")
         }
         return ''
     }
 
-    formatTo(leave) {
-        if (leave)
-            return Moment(leave.to).format("DD-MM-YYYY")
+    formatStartDate(leave) {
+        if (leave) {
+
+            return Moment(leave.startDate).format("DD-MM-YYYY")
+
+        }
         return ''
     }
 
-    formatType(leave) {
+    formatEndDate(leave) {
         if (leave)
-            return leave.type
+            return Moment(leave.endDate).format("DD-MM-YYYY")
+        return ''
+    }
+
+    formatLeaveType(leaveType) {
+        console.log("leaveType ",leaveType)
+        if (leaveType)
+            return leaveType.name
         return ''
     }
 
@@ -66,14 +76,18 @@ class RaiseLeaveList extends Component {
                                                     hover={true}>
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                                            hidden={true}>ID</TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle dataField='leave'
-                                                           dataFormat={this.formatFrom.bind(this)}>Date
-                                            From</TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle dataField='leave'
-                                                           dataFormat={this.formatTo.bind(this)}>Date
-                                            To</TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle dataField='leave'
-                                                           dataFormat={this.formatType.bind(this)}>Type</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='created'
+                                                           dataFormat={this.formatCreatedDate.bind(this)}>Created
+                                            </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='startDate'
+                                                           dataFormat={this.formatStartDate.bind(this)}>Start Date
+                                            </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='endDate'
+                                                           dataFormat={this.formatEndDate.bind(this)}>End Date
+                                            </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='dayType'>Day Type</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='leaveType'
+                                                           dataFormat={this.formatLeaveType.bind(this)}>Type</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
                                         <TableHeaderColumn width="15%" dataField='deleteButton'
                                                            dataFormat={this.viewDeleteButton.bind(this)}>Cancel Leave</TableHeaderColumn>

@@ -8,10 +8,10 @@ const leaveRouter = new Router({
 })
 
 leaveRouter.post("/", async ctx => {
-    if (ctx.schemaRequested)
-        return generateSchema(leaveRequestAdditionStruct)
 
-    return await LeaveModel.saveLeave(ctx.request.body)
+    validate(ctx.request.body, leaveRequestAdditionStruct)
+
+    return await LeaveModel.saveLeave(ctx.request.body,ctx.state.user)
 })
 leaveRouter.get("/", async ctx => {
     return await LeaveModel.getAllActive(ctx.state.user)
