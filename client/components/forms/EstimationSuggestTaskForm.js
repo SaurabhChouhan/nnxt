@@ -8,7 +8,7 @@ import * as SC from "../../../server/serverconstants"
 
 let EstimationSuggestTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation, loggedInUserRole, pristine, submitting} = props
+    const {estimation, loggedInUserRole, pristine, submitting,reset} = props
     let isLeftDisable = true, isRightDisable = false;
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-6">
@@ -83,7 +83,7 @@ let EstimationSuggestTaskForm = (props) => {
                 <button type="submit" disabled={pristine || submitting} className="btn customBtn">Save</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn">Reset</button>
+                <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>Reset</button>
             </div>
         </div>
     </form>

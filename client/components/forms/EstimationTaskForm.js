@@ -7,7 +7,7 @@ import {connect} from "react-redux";
 
 let EstimationTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation, _id} = props
+    const {estimation, _id,reset} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -43,7 +43,7 @@ let EstimationTaskForm = (props) => {
                 <button type="submit" className="btn customBtn">{_id ? "Update" : "Submit"}</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">Reset</button>
+                <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
             </div>
         </div>
     </form>

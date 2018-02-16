@@ -122,7 +122,7 @@ class UserProfileForm extends Component {
                                     <button type="submit" className="btn customBtn">Submit</button>
                                 </div>
                                 <div className="col-md-6 text-left">
-                                    <button type="submit" className="btn customBtn">Reset</button>
+                                    <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
                                 </div>
                             </div>
 
