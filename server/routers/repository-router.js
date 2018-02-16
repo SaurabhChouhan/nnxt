@@ -7,8 +7,11 @@ let repositoryRouter = new Router({
 })
 
 repositoryRouter.post("/search", async ctx => {
-
     return await RepositoryModel.searchRepositories(ctx.request.body)
+})
+
+repositoryRouter.get('/features/:featureID', async ctx => {
+    return await RepositoryModel.getFeature(ctx.params.featureID)
 })
 
 export default repositoryRouter

@@ -345,11 +345,12 @@ estimationRouter.post('/tasks/estimation/:estimationID/repository-task/:taskID',
 /**
  * Add feature from repository by estimator/negotiator to estimation
  */
-estimationRouter.post('/:estimationID/repository/:repositoryID/features/from-repository', async ctx => {
+estimationRouter.post('/features/estimation/:estimationID/repository-feature/:featureID', async ctx => {
+    console.log("I am here")
     if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.repositoryID, ctx.state.user)
+        return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
     } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationFeatureModel.addFeatureFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.repositoryID, ctx.state.user)
+        return await EstimationFeatureModel.addFeatureFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add feature from repo into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
