@@ -317,6 +317,50 @@ export const addTaskToEstimationOnServer = (task) => {
     }
 }
 
+export const addTaskFromRepositoryToEstimationOnServer = (estimationID,taskID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/tasks/estimation/'+estimationID+'/repository-task/'+taskID, {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const addFeatureFromRepositoryToEstimationOnServer = (estimationID,featureId) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/'+estimationID+'/repository/'+featureId+'/features/from-repository', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
 export const updateTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks', {
