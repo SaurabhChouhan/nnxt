@@ -1,13 +1,14 @@
 import {
     ADD_LOGIN_USER,
-    LOGIN_FAILED,
-    ADD_USERS,
     ADD_USER,
-    EDIT_USER,
+    ADD_USERS,
+    ADD_USERS_WITH_ROLE_CATEGORY,
     DELETE_USER,
+    EDIT_USER,
+    LOGIN_FAILED,
     UPDATE_USER_PROFILE_STATE
 } from "../actions/actionConsts"
-import {ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_APP_USER} from "../../server/serverconstants";
+import {ROLE_ADMIN, ROLE_APP_USER, ROLE_SUPER_ADMIN} from "../../server/serverconstants";
 
 
 let initialState = {
@@ -16,6 +17,7 @@ let initialState = {
     authenticationFailed: false,
     loginError: undefined,
     all: [],
+    userWithRoleCategory:{},
     selected: {}
 }
 
@@ -23,6 +25,8 @@ export const userReducer = (state = initialState, action) => {
     switch (action.type) {
         case ADD_USERS:
             return Object.assign({}, state, {all: action.users})
+        case ADD_USERS_WITH_ROLE_CATEGORY:
+            return Object.assign({}, state, {userWithRoleCategory: action.users})
         case ADD_USER:
             return Object.assign({}, state, {all: [...state.all, action.user]})
         case EDIT_USER:

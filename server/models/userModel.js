@@ -5,7 +5,6 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
-import {addUserOnServer} from "../../client/actions";
 
 
 mongoose.Promise = global.Promise
@@ -54,6 +53,41 @@ userSchema.statics.getAllActive = async (loggedInUser) => {
     }
 }
 
+userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
+    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR)) {
+
+        // Negotiator can see estimators (Estimation Initiate), developers, leaders (company cost approximations)
+        let Leaders = await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_LEADER],
+                    $ne: SC.ROLE_SUPER_ADMIN
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+        let Managers = await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_MANAGER]
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+        let Developers = await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_DEVELOPER]
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+        let userList = {
+            managers: Managers ? Managers : [],
+            leaders: Leaders ? Leaders : [],
+            team: Developers ? Developers : []
+        }
+        return userList
+    }
+    else {
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+}
+
 
 userSchema.statics.saveUser = async usrObj => {
     if (!usrObj.email)
@@ -68,11 +102,13 @@ userSchema.statics.saveUser = async usrObj => {
     usrObj.password = await bcrypt.hash(usrObj.password, 10)
     let totalUsers = await UserModel.count()
     usrObj.employeeCode = "AIPL-"+(totalUsers+1)
+   
     if (_.isEmpty(usrObj.dateJoined))
         throw new AppError("Joining date is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     //usrObj.dateJoined = Date.now();//assuming joining date is same as created date for now
     if (_.isEmpty(usrObj.designation))
         throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
 
     return await UserModel.create(usrObj)
 }

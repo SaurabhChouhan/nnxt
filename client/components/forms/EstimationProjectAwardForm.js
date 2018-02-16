@@ -2,13 +2,13 @@ import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import {renderMultiselect, renderSelect, renderText} from './fields'
 import * as logger from '../../clientLogger'
-import {required,number} from "./validation"
+import {number, required} from "./validation"
 
 
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
     const {pristine, submitting,reset} = props
-    const {all, Managers, Leaders} = props
+    const {Team, Managers, Leaders} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -40,12 +40,12 @@ let EstimationProjectAwardForm = (props) => {
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="manager" component={renderSelect} label={"Manager Of Release:"}
-                           options={Managers} valueField="_id" displayField="name"
+                           options={Managers} valueField="_id" displayField="firstName"
                     />
                 </div>
                 <div className="col-md-6">
                     <Field name="leader" component={renderSelect} label={"Leader Of Release:"}
-                           options={Leaders} valueField="_id" displayField="name"
+                           options={Leaders} valueField="_id" displayField="firstName"
                     />
                 </div>
             </div>
@@ -54,7 +54,7 @@ let EstimationProjectAwardForm = (props) => {
 
                 <Field name="team"
                        component={renderMultiselect} label={"Planned Employees For Release:"}
-                       data={all} valueField="_id" textField="name"
+                       data={Team} valueField="_id" textField="firstName"
                 />
             </div>
 
