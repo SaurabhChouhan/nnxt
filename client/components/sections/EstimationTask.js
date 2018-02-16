@@ -321,6 +321,10 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         return dispatch(A.deleteEstimationTaskOnServer(values.estimation._id, values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Deleted successfully")
+            }else if (json.code && json.code == EC.INVALID_USER) {
+                NotificationManager.error("Task Deletion Failed You are not owner of this task !")
+            } else if (json.code && json.code == EC.ACCESS_DENIED) {
+                NotificationManager.error("You are not allowed to delete this task !")
             }
             else
                 NotificationManager.error("Task Deletion Failed !")
