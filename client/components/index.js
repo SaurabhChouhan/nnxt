@@ -81,3 +81,4 @@ export {default as  RepositoryTaskDetailPage} from './pages/RepositoryTaskDetail
 
 //Release List
 export {default as ReleaseList} from './lists/ReleaseList'
+export {default as ReleaseDetailList} from './lists/ReleaseDetailList'

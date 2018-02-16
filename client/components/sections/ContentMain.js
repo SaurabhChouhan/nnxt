@@ -25,7 +25,8 @@ import {
     ProjectFormDialog,
     TechnologyFormDialog,
     RepositoryTaskDetailDialog,
-    ReleaseList
+    ReleaseList,
+    ReleaseDetailList
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -178,6 +179,17 @@ class ContentMain extends Component {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
                     <ReleaseList name={COC.RELEASE_LIST}/>
+                </ContentSection>
+
+            }
+        })
+
+        routes.push({
+            url: "/release-detail",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
+                return <ContentSection>
+                    <ReleaseDetailList name={COC.RELEASE_DETAIL_LIST}/>
                 </ContentSection>
 
             }
