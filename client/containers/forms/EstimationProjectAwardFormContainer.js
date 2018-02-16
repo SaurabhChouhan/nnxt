@@ -30,7 +30,12 @@ const mapStateToProps = (state) => {
         // Users who has role as a manager or leader or both
         Managers = state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : []
         Leaders = state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : []
-        Team = state.user.userWithRoleCategory && state.user.userWithRoleCategory.team ? state.user.userWithRoleCategory.team : []
+        Team = state.user.userWithRoleCategory && state.user.userWithRoleCategory.team ?
+            state.user.userWithRoleCategory.team.map((dev, idx) => {
+                dev.name = dev.firstName + dev.lastName
+                return dev
+            })
+            : []
 
     }
 

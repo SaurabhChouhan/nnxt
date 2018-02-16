@@ -7,7 +7,7 @@ import {number, required} from "./validation"
 
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
-    const {pristine, submitting,reset} = props
+    const {pristine, submitting, reset, change} = props
     const {Team, Managers, Leaders} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
@@ -39,13 +39,41 @@ let EstimationProjectAwardForm = (props) => {
             </div>
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="manager" component={renderSelect} label={"Manager Of Release:"}
+                    <Field name="manager._id" component="input" type="hidden"/>
+                    <Field name="manager.email" component="input" type="hidden"/>
+                    <Field name="manager.name" component="input" type="hidden"/>
+                    <Field name="selectedManager" component={renderSelect} label={"Manager Of Release:"}
                            options={Managers} valueField="_id" displayField="firstName"
+                           onChange={(event, newValue, oldValue) => {
+                               if (Managers && Managers.length) {
+                                   let selectedManager = Managers.find(manager => manager._id == newValue)
+                                   if (selectedManager) {
+                                       change('manager._id', selectedManager._id)
+                                       change('manager.email', selectedManager.email)
+                                       change('manager.name', selectedManager.firstName + selectedManager.lastName)
+                                   }
+                               }
+
+                           }}
                     />
                 </div>
                 <div className="col-md-6">
-                    <Field name="leader" component={renderSelect} label={"Leader Of Release:"}
+                    <Field name="leader._id" component="input" type="hidden"/>
+                    <Field name="leader.email" component="input" type="hidden"/>
+                    <Field name="leader.name" component="input" type="hidden"/>
+                    <Field name="selectedLeader" component={renderSelect} label={"Leader Of Release:"}
                            options={Leaders} valueField="_id" displayField="firstName"
+                           onChange={(event, newValue, oldValue) => {
+                               if (Leaders && Leaders.length) {
+                                   let selectedLeader = Leaders.find(manager => manager._id == newValue)
+                                   if (selectedLeader) {
+                                       change('leader._id', selectedLeader._id)
+                                       change('leader.email', selectedLeader.email)
+                                       change('leader.name', selectedLeader.firstName + selectedLeader.lastName)
+                                   }
+                               }
+
+                           }}
                     />
                 </div>
             </div>
@@ -54,7 +82,7 @@ let EstimationProjectAwardForm = (props) => {
 
                 <Field name="team"
                        component={renderMultiselect} label={"Planned Employees For Release:"}
-                       data={Team} valueField="_id" textField="firstName"
+                       data={Team} textField="firstName"
                 />
             </div>
 
