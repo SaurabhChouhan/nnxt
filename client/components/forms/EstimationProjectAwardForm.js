@@ -1,6 +1,6 @@
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
-import {renderMultiselect, renderText} from './fields'
+import {renderMultiselect, renderSelect, renderText} from './fields'
 import * as logger from '../../clientLogger'
 
 let EstimationProjectAwardForm = (props) => {
@@ -15,42 +15,42 @@ let EstimationProjectAwardForm = (props) => {
 
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="negotiatedBilledHours" component={renderText} label={"Negotiated Billed Hours:"}/>
+                    <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="nameReleaseVersion" component={renderText} label={"Name (Relese Version):"}/>
+                    <Field name="releaseVersionName" component={renderText} label={"Name (Relese Version):"}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-4">
-                    <Field name="expectedStartDateForDeveloper:" component={renderText}
+                    <Field name="devStartDate:" component={renderText}
                            label={"Expected Start Date For Developer:"}/>
                 </div>
                 <div className="col-md-4">
-                    <Field name="expectedDeveloperReleaseDate" component={renderText}
+                    <Field name="devReleaseDate" component={renderText}
                            label={"Expected Developer Release Date:"}/>
                 </div>
                 <div className="col-md-4">
-                    <Field name="expectedClientReleaseDate" component={renderText}
+                    <Field name="clientReleaseDate" component={renderText}
                            label={"Expected Client Release Date:"}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="managerOfRelease" component={renderMultiselect} label={"Manager Of Release:"}
-                           data={Managers} valueField="_id" textField="name"
+                    <Field name="manager" component={renderSelect} label={"Manager Of Release:"}
+                           options={Managers} valueField="_id" displayField="name"
                     />
                 </div>
                 <div className="col-md-6">
-                    <Field name="leaderOfRelease" component={renderMultiselect} label={"Leader Of Release:"}
-                           data={Leaders} valueField="_id" textField="name"
+                    <Field name="leader" component={renderSelect} label={"Leader Of Release:"}
+                           options={Leaders} valueField="_id" displayField="name"
                     />
                 </div>
             </div>
 
             <div className="col-md-12">
 
-                <Field name="plannedEmployeesForRelease"
+                <Field name="team"
                        component={renderMultiselect} label={"Planned Employees For Release:"}
                        data={all} valueField="_id" textField="name"
                 />
