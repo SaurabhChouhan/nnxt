@@ -759,17 +759,17 @@ span.tag.new {
 button.taskbtn {
     background-color: #fff;
     color: #F6B841;
-    font-size: 20px;
+    font-size: 21px;
     float: right;
-    margin-top: 2px;
+    margin-top: -7px;
 }
 
 button.featurebtn {
     float: right;
-    font-size: 20px;
+    font-size: 21px;
     background-color: #fff;
     color: #6F7888;
-    margin-top: 2px;
+    margin-top: -7px;
 }
 
 /* estimation td row background color */
@@ -1117,4 +1117,55 @@ td.rejRowColor {
     height: 120px;
     position: relative;
     padding-right: 10px;
+}
+/*Release Section*/
+
+.releaseTeam  span{
+
+    width: 30px;
+    height: 30px;
+    float: left;
+    margin-right: 10%;
+    margin-top: -5px;
+    font-weight: bold;
+}
+.releaseOption {
+    margin-bottom: 15px;
+}
+.releasecontent p {
+
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.releaseTitle {
+    font-size: 14px;
+    font-style: initial;
+}
+.releaseHeader {
+    border-bottom: 1px solid #182939;
+    margin-bottom: 1%;
+    margin-top: 1%;
+}
+.releaseHeader i{
+    color:#F65A4F;
+}
+.releaseHeader .backarrow {
+    font-size: 26px;
+}
+.releasefileoption li {
+    display: inline-block;
+    margin-right: 15%;
+    font-size: 26px;
+    margin-top: 13px;
+}
+.searchRelease .searchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 1.1% 2%;
+    font-size: 23px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: 0.8s;
 }

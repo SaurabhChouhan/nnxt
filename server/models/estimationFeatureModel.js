@@ -403,7 +403,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let repositoryFeature = await RepositoryModel.findById(repositoryFeatureID)
+    let repositoryFeature = await RepositoryModel.getFeature(repositoryFeatureID)
     if (!repositoryFeature)
         throw new AppError('Feature not found in Repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -432,9 +432,10 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
         "estimation._id": estimation._id
     })
 
+
     if (existingFeatureCount > 0)
         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
+    
     let estimationFeature = new EstimationFeatureModel()
 
     estimationFeature.status = SC.STATUS_PENDING
@@ -451,13 +452,32 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
 
     // Iterate on tasks and add all the tasks into estimation
 
-    let taskPromises = repositoryFeature.tasks.forEach(t => {
-        return RepositoryModel.findById(t._id)
+    let estimationTaskPromises = repositoryFeature.tasks.map(async repositoryTask => {
+        console.log("inside ", repositoryTask._id)
+        let estimationTask = new EstimationTaskModel()
+        // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
+        estimationTask.estimator.name = repositoryTask.name
+        estimationTask.estimator.description = repositoryTask.description
+        estimationTask.status = SC.STATUS_PENDING
+        estimationTask.addedInThisIteration = true
+        estimationTask.owner = SC.OWNER_ESTIMATOR
+        estimationTask.initiallyEstimated = true
+        estimationTask.estimation = estimation
+        estimationTask.technologies = estimation.technologies
+        estimationTask.repo._id = repositoryTask._id
+        estimationTask.repo.addedFromThisEstimation = false
+        estimationTask.feature._id = estimationFeature._id
+        return estimationTask.save()
     })
+
+    let estimationTasks = await Promise.all(estimationTaskPromises)
 
     estimationFeature.created = Date.now()
     estimationFeature.updated = Date.now()
     await estimationFeature.save()
+    estimationFeature = estimationFeature.toObject()
+    estimationFeature.tasks = estimationTasks
+    return estimationFeature
 
     // In case repository feature has tasks as well we would be
 

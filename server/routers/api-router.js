@@ -18,7 +18,6 @@ const apiRouter = new Router({
 apiRouter.use(publicRouter.routes())
 
 apiRouter.use(async (ctx, next) => {
-    console.log("ctx.user.state", ctx.state.user)
     if (ctx.request.query && typeof(ctx.request.query.schema)!= 'undefined') {
         // User is requesting schema for this API
         ctx.schemaRequested = true
