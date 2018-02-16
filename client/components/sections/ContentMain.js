@@ -25,6 +25,7 @@ import {
     ProjectFormDialog,
     TechnologyFormDialog,
     RepositoryTaskDetailDialog,
+    RepositoryFeatureDetailDialog,
     ReleaseList,
     ReleaseDetailList
 } from "../index"
@@ -136,6 +137,12 @@ class ContentMain extends Component {
                                                     close={
                                                         () => {
                                                             this.props.dispatch(A.hideComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
+                                                        }
+                                                    }/>
+                    <RepositoryFeatureDetailDialog name={COC.REPOSITORY_FEATURE_DETAIL_DIALOG} show={true}
+                                                    close={
+                                                        () => {
+                                                            this.props.dispatch(A.hideComponent(COC.REPOSITORY_FEATURE_DETAIL_DIALOG))
                                                         }
                                                     }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>

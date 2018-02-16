@@ -29,6 +29,7 @@ export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
 
 //Repository pages
 export {default as RepositoryTaskDetailPageContainer} from './pages/RepositoryTaskDetailPageContainer'
+export {default as RepositoryFeatureDetailPageContainer} from './pages/RepositoryFeatureDetailPageContainer'
 export {default as RepositorySearchContainer} from './pages/RepositorySearchContainer'
 
 

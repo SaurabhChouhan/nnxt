@@ -113,7 +113,7 @@ class RepositorySearch extends Component {
                                     <div className="RepositoryHeading" key={i} onClick={()=>{this.props.showFeatureDetailPage(f)}}>
                                         <div>
                                             <div className="repositoryFeatureLable"></div>
-                                            <h5>Feature</h5><i
+                                            <h5>Feature: {f.name}</h5><i
                                             className="glyphicon glyphicon-option-vertical pull-right"></i><span
                                             className="pull-right">(04 HRS)</span></div>
                                     </div>
@@ -126,7 +126,7 @@ class RepositorySearch extends Component {
                                     <div className="RepositoryHeading" key={i} onClick={()=>{this.props.showTaskDetailPage(f)}}>
                                         <div>
                                             <div className="repositoryTaskLable"></div>
-                                            <h5>Task</h5><i
+                                            <h5>Task: {f.name}</h5><i
                                             className="glyphicon glyphicon-option-vertical pull-right"></i><span
                                             className="pull-right">(04 HRS)</span></div>
                                     </div>

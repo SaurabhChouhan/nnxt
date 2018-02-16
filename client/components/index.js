@@ -78,6 +78,8 @@ export {default as TechnologyList} from './lists/TechnologyList'
 export {default as RepositorySearch} from './pages/RepositorySearch'
 export {default as RepositoryTaskDetailDialog} from './dialogs/RepositoryTaskDetailDialog'
 export {default as  RepositoryTaskDetailPage} from './pages/RepositoryTaskDetailPage'
+export {default as  RepositoryFeatureDetailPage} from './pages/RepositoryFeatureDetailPage'
+export {default as  RepositoryFeatureDetailDialog} from './dialogs/RepositoryFeatureDetailDialog'
 
 //Release List
 export {default as ReleaseList} from './lists/ReleaseList'
