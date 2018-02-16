@@ -4,6 +4,7 @@ import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
@@ -19,9 +20,28 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             })
     }
 })
+const mapStateToProps = (state) => {
 
-const mapStateToProps = (state, ownProps) => ({
-})
+    let Managers = []
+    let Leaders = []
+
+
+    if (state.user.all && Array.isArray(state.user.all) && state.user.all.length > 0) {
+        // Users who has role as a manager or leader or both
+        Managers = state.user.all.filter(user => user.roles.find((role) => {
+            role.name = SC.ROLE_MANAGER
+        }))
+        Leaders = state.user.list.filter(user => user.roles.find((role) => {
+            role.name = SC.ROLE_LEADER
+        }))
+    }
+
+    return {
+        all: state.user.all,
+        Managers,
+        Leaders
+    }
+}
 
 const EstimationProjectAwardFormContainer = connect(
     mapStateToProps,

@@ -1,11 +1,12 @@
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
-import {renderText} from './fields'
+import {renderMultiselect, renderText} from './fields'
 import * as logger from '../../clientLogger'
 
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
     const {pristine, submitting,reset} = props
+    const {all, Managers, Leaders} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -36,16 +37,23 @@ let EstimationProjectAwardForm = (props) => {
             </div>
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="managerOfRelease" component={renderText} label={"Manager Of Release:"}/>
+                    <Field name="managerOfRelease" component={renderMultiselect} label={"Manager Of Release:"}
+                           data={Managers} valueField="_id" textField="name"
+                    />
                 </div>
                 <div className="col-md-6">
-                    <Field name="leaderOfRelease" component={renderText} label={"Leader Of Release:"}/>
+                    <Field name="leaderOfRelease" component={renderMultiselect} label={"Leader Of Release:"}
+                           data={Leaders} valueField="_id" textField="name"
+                    />
                 </div>
             </div>
 
             <div className="col-md-12">
-                <Field name="plannedEmployeesForRelease" component={renderText}
-                       label={"Planned Employees For Release:"}/>
+
+                <Field name="plannedEmployeesForRelease"
+                       component={renderMultiselect} label={"Planned Employees For Release:"}
+                       data={all} valueField="_id" textField="name"
+                />
             </div>
 
         </div>
