@@ -25,23 +25,23 @@ class RepositoryTaskDetailPage extends Component {
                     <h3>{task.estimatedHours ? '(' + task.estimatedHours + ')' : '(00)'} </h3>
                 </div>
                 <div className="col-md-12">
-                    <p>Task Description: {task.description} </p>
+                    <p className="repositoryModalPara">Task Description: {task.description} </p>
                 </div>
-                <div className="col-md-12">
-                    <div className="col-md-2">
-                        <button type="button" onClick={
+                <div className="col-md-12 pad">
+                    <div className="col-md-3">
+                        <button className="customBtn" type="button" onClick={
                             this.showHistoryDetail
                         }>History
                         </button>
                     </div>
-                    <div className="col-md-4">
-                        <button type="button" onClick={() => {
+                    <div className="col-md-4 pad">
+                        <button className="customBtn" type="button" onClick={() => {
                             this.props.addTask(task._id, task.estimation._id)
                         }}>Add to Estimation
                         </button>
                     </div>
-                    <div className="col-md-4">
-                        <button type="button">Copy To Estimation</button>
+                    <div className="col-md-5">
+                        <button type="button" className="customBtn">Copy To Estimation</button>
                     </div>
                 </div>
                 {showHistory &&
