@@ -23,6 +23,10 @@ leaveTypesSchema.statics.getAllActiveLeaveTypes = async () => {
     return await LeaveTypeModel.find({isDeleted: false, isActive: true})
 }
 
+leaveTypesSchema.statics.saveLeaveType = async (leaveTypeInput) => {
+    //console.log("saveLeaveType data ",leaveTypeInput)
+    return await LeaveTypeModel.create(leaveTypeInput)
+}
 
 const LeaveTypeModel = mongoose.model("leaveType", leaveTypesSchema)
 export default LeaveTypeModel
