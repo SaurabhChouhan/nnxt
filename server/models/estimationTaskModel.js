@@ -532,6 +532,45 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
     task.updated = Date.now()
     return await task.save()
 }
+estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negotiator) => {
+    //console.log("deleteTaskByEstimator for paramsInput ", paramsInput)
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let task = await EstimationTaskModel.findById(paramsInput.taskID)
+    console.log("task filtered",task)
+
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not an negtotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (task.owner != SC.OWNER_NEGOTIATOR)
+        throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    if (!task.addedInThisIteration)
+        throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    if (task.feature && task.feature._id) {
+        let feature = await EstimationFeatureModel.findById(task.feature._id)
+        if (!feature)
+            throw new AppError('Feature that this task is associated with is not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+        // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
+        if (task.negotiator.estimatedHours)
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours}})
+
+    }
+    task.isDeleted = true
+    task.negotiator.changedInThisIteration = true
+    task.updated = Date.now()
+    return await task.save()
+}
 
 estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, negotiator) => {
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
