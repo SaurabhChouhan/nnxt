@@ -121,39 +121,30 @@ class EstimationDetail extends Component {
                                 <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
                                 <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
                                 <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
+                                <li><a href=""> <i class="glyphicon glyphicon-option-vertical pull-right"></i></a></li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
                 <div className="col-md-12 ">
-                    <div className="col-md-3 pad">
+                    <div className="col-md-2 pad">
                         <div className="estimationuser tooltip"><span>C</span>
                             <p className="tooltiptext">{estimation.client ? estimation.client.name : ''}</p>
                         </div>
                         <div className="estimationuser"><span>E</span></div>
                         <div className="estimationuser"><span>N</span></div>
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-3">
                         <div className="logo">
                             <img src="/images/react.png"/>
                             <img src="/images/mongodb.png"/>
                             <img src="/images/node.png"/>
-                            <img src="/images/html.png"/>
-                            <img src="/images/java.png"/>
-                        </div>
-                    </div>
-                    <div className="col-md-3 text-right esTime">
-                        <b>8 Hrs</b>
-                        <div className="clock">
-                            <i className="fa fa-clock-o "></i>
-                        </div>
-                    </div>
-                </div>
 
-                <div className=" col-md-12">
-                    <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
-                    <div className="col-md-6">
+                        </div>
+                    </div>
+
+                    <div className="col-md-5">
                         {(estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
                             estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
                         && <form>
@@ -169,6 +160,17 @@ class EstimationDetail extends Component {
                             </button>
                         </form>}
                     </div>
+
+                    <div className="col-md-2 text-right esTime">
+                        <b>8 Hrs</b>
+                        <div className="clock">
+                            <i className="fa fa-clock-o "></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div className=" col-md-12">
+                    <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
                 </div>
                 <div className="col-md-12">
                     <EstimationFeaturesContainer estimationStatus={estimation.status}
