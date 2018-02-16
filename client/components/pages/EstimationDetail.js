@@ -179,7 +179,7 @@ class EstimationDetail extends Component {
                     <EstimationTasksContainer estimationStatus={estimation.status}
                                               loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
-                {estimation.status == SC.STATUS_APPROVED && <div className="col-md-12">
+                {(estimation.status == SC.STATUS_APPROVED) && <div className="col-md-12">
                     <button type="button" className="btn customBtn" onClick={
                         () => {
                             this.props.showProjectAwardForm(estimation)
