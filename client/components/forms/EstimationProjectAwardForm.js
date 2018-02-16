@@ -5,7 +5,7 @@ import * as logger from '../../clientLogger'
 
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
-    const {pristine, submitting} = props
+    const {pristine, submitting,reset} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -54,7 +54,7 @@ let EstimationProjectAwardForm = (props) => {
                 <button type="submit" disabled={pristine || submitting} className="btn customBtn">Submit</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn">Reset</button>
+                <button type="button" disabled={pristine || submitting} onClick={reset} className="btn customBtn">Reset</button>
             </div>
         </div>
     </form>
