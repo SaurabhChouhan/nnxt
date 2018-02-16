@@ -1,10 +1,8 @@
 import Router from 'koa-router'
 import {UserModel} from "../models"
-import * as ErrorCodes from '../errorcodes'
-import {isSuperAdmin, isAdmin, isAppUser, isAuthenticated, hasRole} from "../utils"
+import {ACCESS_DENIED, HTTP_FORBIDDEN} from '../errorcodes'
+import {isAdmin, isAuthenticated, isSuperAdmin} from "../utils"
 import AppError from '../AppError'
-import {ROLE_SUPER_ADMIN} from "../serverconstants"
-import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 
 const userRouter = new Router({
     prefix: "users"
