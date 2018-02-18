@@ -1,140 +1,119 @@
 import {RoleModel, PermissionModel, UserModel, ClientModel, ProjectModel,LeaveTypeModel} from "../models"
-import {
-    MANAGE_PERMISSIONS,
-    MANAGE_ROLES,
-    EDIT_PROFILE,
-    CREATE_USER,
-    LIST_USERS,
-    EDIT_USER,
-    DELETE_USER,
-    EDIT_ROLE_PERMISSIONS
-} from "../../client/clientconstants"
 
-import {
-    ROLE_SUPER_ADMIN,
-    ROLE_ADMIN,
-    ROLE_APP_USER,
-    ROLE_ESTIMATOR,
-    ROLE_NEGOTIATOR,
-    ROLE_MANAGER,
-    ROLE_LEADER,
-    ROLE_DEVELOPER,
-    APP_USER_EMAIL,
-    SUPER_ADMIN_EMAIL,
-    ADMIN_EMAIL
-} from "../serverconstants"
+import * as CC from '../../client/clientconstants'
+import * as SC from '../serverconstants'
 
 export const addInitialData = async () => {
 
-    if (!await PermissionModel.exists(MANAGE_PERMISSIONS)) {
+    if (!await PermissionModel.exists(CC.MANAGE_PERMISSIONS)) {
         await PermissionModel.savePermission({
-            name: MANAGE_PERMISSIONS
+            name: CC.MANAGE_PERMISSIONS
         })
     }
 
-    if (!await PermissionModel.exists(MANAGE_ROLES)) {
+    if (!await PermissionModel.exists(CC.MANAGE_ROLES)) {
         await PermissionModel.savePermission({
-            name: MANAGE_ROLES
+            name: CC.MANAGE_ROLES
         })
     }
 
-    if (!await PermissionModel.exists(LIST_USERS)) {
+    if (!await PermissionModel.exists(CC.LIST_USERS)) {
         await PermissionModel.savePermission({
-            name: LIST_USERS
+            name: CC.LIST_USERS
         })
     }
 
-    if (!await PermissionModel.exists(EDIT_PROFILE)) {
+    if (!await PermissionModel.exists(CC.EDIT_PROFILE)) {
         await PermissionModel.savePermission({
-            name: EDIT_PROFILE
+            name: CC.EDIT_PROFILE
         })
     }
 
-    if (!await PermissionModel.exists(EDIT_ROLE_PERMISSIONS)) {
+    if (!await PermissionModel.exists(CC.EDIT_ROLE_PERMISSIONS)) {
         await PermissionModel.savePermission({
-            name: EDIT_ROLE_PERMISSIONS
+            name: CC.EDIT_ROLE_PERMISSIONS
         })
     }
 
-    if (!await PermissionModel.exists(CREATE_USER)) {
+    if (!await PermissionModel.exists(CC.CREATE_USER)) {
         await PermissionModel.savePermission({
-            name: CREATE_USER
+            name: CC.CREATE_USER
         })
     }
 
-    if (!await PermissionModel.exists(EDIT_USER)) {
+    if (!await PermissionModel.exists(CC.EDIT_USER)) {
         await PermissionModel.savePermission({
-            name: EDIT_USER
+            name: CC.EDIT_USER
         })
     }
 
-    if (!await PermissionModel.exists(DELETE_USER)) {
+    if (!await PermissionModel.exists(CC.DELETE_USER)) {
         await PermissionModel.savePermission({
-            name: DELETE_USER
+            name: CC.DELETE_USER
         })
     }
 
     /**
      * Super admin can manage users/permissions and roles
      */
-    if (!await RoleModel.exists(ROLE_SUPER_ADMIN)) {
+    if (!await RoleModel.exists(SC.ROLE_SUPER_ADMIN)) {
 
         let permissions = []
-        let managePermissions = await PermissionModel.findOne({name: MANAGE_PERMISSIONS}).lean()
+        let managePermissions = await PermissionModel.findOne({name: CC.MANAGE_PERMISSIONS}).lean()
         if (managePermissions) {
             managePermissions.configurable = false
             managePermissions.enabled = true
             permissions.push(managePermissions)
         }
-        let manageRoles = await PermissionModel.findOne({name: MANAGE_ROLES}).lean()
+        let manageRoles = await PermissionModel.findOne({name: CC.MANAGE_ROLES}).lean()
         if (manageRoles) {
             manageRoles.configurable = false
             manageRoles.enabled = true
             permissions.push(manageRoles)
         }
-        let listUsers = await PermissionModel.findOne({name: LIST_USERS}).lean()
+        let listUsers = await PermissionModel.findOne({name: CC.LIST_USERS}).lean()
         if (listUsers) {
             listUsers.configurable = false
             listUsers.enabled = true
             permissions.push(listUsers)
         }
         await RoleModel.saveRole({
-            name: ROLE_SUPER_ADMIN,
+            name: SC.ROLE_SUPER_ADMIN,
             permissions: permissions
         })
     }
 
-    if (!await RoleModel.exists(ROLE_ADMIN)) {
+    if (!await RoleModel.exists(SC.ROLE_ADMIN)) {
         let permissions = []
-        let listUsers = await PermissionModel.findOne({name: LIST_USERS}).lean()
+        let listUsers = await PermissionModel.findOne({name: CC.LIST_USERS}).lean()
         if (listUsers) {
             listUsers.configurable = true
             listUsers.enabled = true
             permissions.push(listUsers)
         }
 
-        let editRolePermissions = await PermissionModel.findOne({name: EDIT_ROLE_PERMISSIONS}).lean()
+        let editRolePermissions = await PermissionModel.findOne({name: CC.EDIT_ROLE_PERMISSIONS}).lean()
         if (editRolePermissions) {
             editRolePermissions.configurable = true
             editRolePermissions.enabled = true
             permissions.push(editRolePermissions)
         }
 
-        let createUserPermissions = await PermissionModel.findOne({name: CREATE_USER}).lean()
+        let createUserPermissions = await PermissionModel.findOne({name: CC.CREATE_USER}).lean()
         if (createUserPermissions) {
             createUserPermissions.configurable = true
             createUserPermissions.enabled = true
             permissions.push(createUserPermissions)
         }
 
-        let editUserPermissions = await PermissionModel.findOne({name: EDIT_USER}).lean()
+        let editUserPermissions = await PermissionModel.findOne({name: CC.EDIT_USER}).lean()
         if (editUserPermissions) {
             editUserPermissions.configurable = true
             editUserPermissions.enabled = true
             permissions.push(editUserPermissions)
         }
 
-        let deleteUserPermissions = await PermissionModel.findOne({name: DELETE_USER}).lean()
+        let deleteUserPermissions = await PermissionModel.findOne({name: CC.DELETE_USER}).lean()
         if (deleteUserPermissions) {
             deleteUserPermissions.configurable = true
             deleteUserPermissions.enabled = true
@@ -143,7 +122,7 @@ export const addInitialData = async () => {
 
 
         await RoleModel.saveRole({
-            name: ROLE_ADMIN,
+            name: SC.ROLE_ADMIN,
             permissions: permissions
         })
     }
@@ -165,29 +144,35 @@ export const addInitialData = async () => {
     }
     */
 
-    if (!await UserModel.exists(ADMIN_EMAIL)) {
-        let adminRole = await RoleModel.findOne({name: ROLE_ADMIN}).lean()
+    if (!await UserModel.exists(SC.ADMIN_EMAIL)) {
+        let adminRole = await RoleModel.findOne({name: SC.ROLE_ADMIN}).lean()
 
         // create user
         await UserModel.saveUser({
-            email: ADMIN_EMAIL,
+            email: SC.ADMIN_EMAIL,
             firstName: "App",
             lastName: "Admin",
             roles: [adminRole],
-            password: "admin"
+            password: "admin",
+            employeeCode:'emp-100',
+            designation:SC.DESIGNATION_MANAGER,
+            dateJoined:'01-01-2018'
         })
     }
 
-    if (!await UserModel.exists(SUPER_ADMIN_EMAIL)) {
+    if (!await UserModel.exists(SC.SUPER_ADMIN_EMAIL)) {
 
-        let superAdminRole = await RoleModel.findOne({name: ROLE_SUPER_ADMIN}).lean()
+        let superAdminRole = await RoleModel.findOne({name: SC.ROLE_SUPER_ADMIN}).lean()
         // create user
         await UserModel.saveUser({
-            email: SUPER_ADMIN_EMAIL,
+            email: SC.SUPER_ADMIN_EMAIL,
             firstName: "Super",
             lastName: "Admin",
             roles: [superAdminRole],
-            password: "admin"
+            password: "admin",
+            employeeCode:'emp-101',
+            designation:SC.DESIGNATION_MANAGER,
+            dateJoined:'01-01-2018'
         })
     }
 
@@ -205,7 +190,7 @@ export const addInitialData = async () => {
     }
     */
 
-    await addLeaveTypes()
+
 }
 
 export const addNNXTData = async () => {
@@ -213,11 +198,12 @@ export const addNNXTData = async () => {
     await addNNXTUsers()
     await addClients()
     await addProjects()
+    await addLeaveTypes()
 }
 
 const addRolesPermissions = async () => {
 
-    let editProfile = await PermissionModel.findOne({name: EDIT_PROFILE}).lean()
+    let editProfile = await PermissionModel.findOne({name: CC.EDIT_PROFILE}).lean()
     let permissions = []
     if (editProfile) {
         editProfile.configurable = true
@@ -225,44 +211,44 @@ const addRolesPermissions = async () => {
         permissions.push(editProfile)
     }
 
-    if (!await RoleModel.exists(ROLE_ESTIMATOR)) {
+    if (!await RoleModel.exists(SC.ROLE_ESTIMATOR)) {
         await RoleModel.saveRole({
-            name: ROLE_ESTIMATOR,
+            name: SC.ROLE_ESTIMATOR,
             permissions: permissions
         })
     }
 
-    if (!await RoleModel.exists(ROLE_NEGOTIATOR)) {
+    if (!await RoleModel.exists(SC.ROLE_NEGOTIATOR)) {
         await RoleModel.saveRole({
-            name: ROLE_NEGOTIATOR,
+            name: SC.ROLE_NEGOTIATOR,
             permissions: permissions
         })
     }
 
-    if (!await RoleModel.exists(ROLE_MANAGER)) {
+    if (!await RoleModel.exists(SC.ROLE_MANAGER)) {
         await RoleModel.saveRole({
-            name: ROLE_MANAGER,
+            name: SC.ROLE_MANAGER,
             permissions: permissions
         })
     }
 
-    if (!await RoleModel.exists(ROLE_LEADER)) {
+    if (!await RoleModel.exists(SC.ROLE_LEADER)) {
         await RoleModel.saveRole({
-            name: ROLE_LEADER,
+            name: SC.ROLE_LEADER,
             permissions: permissions
         })
     }
 
-    if (!await RoleModel.exists(ROLE_DEVELOPER)) {
+    if (!await RoleModel.exists(SC.ROLE_DEVELOPER)) {
         await RoleModel.saveRole({
-            name: ROLE_DEVELOPER,
+            name: SC.ROLE_DEVELOPER,
             permissions: permissions
         })
     }
 }
 
 const addNNXTUsers = async () => {
-    let estimatorRole = await RoleModel.findOne({name: ROLE_ESTIMATOR}).lean()
+    let estimatorRole = await RoleModel.findOne({name: SC.ROLE_ESTIMATOR}).lean()
     // create estimator user
     if (!await UserModel.exists('estimator1@test.com')) {
         await UserModel.saveUser({
@@ -270,7 +256,10 @@ const addNNXTUsers = async () => {
             firstName: "Estimator-1",
             lastName: "One",
             roles: [estimatorRole],
-            password: "estimator"
+            password: "estimator",
+            employeeCode:'emp-001',
+            designation:SC.DESIGNATION_TEAM_LEAD,
+            dateJoined:'01-01-2018'
         })
     }
 
@@ -280,7 +269,10 @@ const addNNXTUsers = async () => {
             firstName: "Estimator-2",
             lastName: "Two",
             roles: [estimatorRole],
-            password: "estimator"
+            password: "estimator",
+            employeeCode:'emp-002',
+            designation:SC.DESIGNATION_TEAM_LEAD,
+            dateJoined:'01-01-2018'
         })
     }
 
@@ -290,11 +282,14 @@ const addNNXTUsers = async () => {
             firstName: "Estimator-3",
             lastName: "Three",
             roles: [estimatorRole],
-            password: "estimator"
+            password: "estimator",
+            employeeCode:'emp-003',
+            designation:SC.DESIGNATION_TEAM_LEAD,
+            dateJoined:'01-01-2018'
         })
     }
 
-    let negotiatorRole = await RoleModel.findOne({name: ROLE_NEGOTIATOR}).lean()
+    let negotiatorRole = await RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
     // create estimator user
     if (!await UserModel.exists('negotiator1@test.com')) {
         await UserModel.saveUser({
@@ -302,7 +297,10 @@ const addNNXTUsers = async () => {
             firstName: "Negotiator-1",
             lastName: "One",
             roles: [negotiatorRole],
-            password: "negotiator"
+            password: "negotiator",
+            employeeCode:'emp-004',
+            designation:SC.DESIGNATION_MANAGER,
+            dateJoined:'01-01-2018'
         })
     }
 
@@ -312,7 +310,10 @@ const addNNXTUsers = async () => {
             firstName: "Negotiator-2",
             lastName: "Two",
             roles: [negotiatorRole],
-            password: "negotiator"
+            password: "negotiator",
+            employeeCode:'emp-005',
+            designation:SC.DESIGNATION_MANAGER,
+            dateJoined:'01-01-2018'
         })
     }
 
@@ -322,7 +323,10 @@ const addNNXTUsers = async () => {
             firstName: "Negotiator-3",
             lastName: "Three",
             roles: [negotiatorRole],
-            password: "negotiator"
+            password: "negotiator",
+            employeeCode:'emp-006',
+            designation:SC.DESIGNATION_MANAGER,
+            dateJoined:'01-01-2018'
         })
     }
 }
@@ -385,7 +389,7 @@ const addProjects = async () => {
 
         if (!await ProjectModel.exists('FotoShare', mike._id)) {
             await ProjectModel.saveProject({
-                name: 'Catalog',
+                name: 'FotoShare',
                 client: mike
             })
         }
