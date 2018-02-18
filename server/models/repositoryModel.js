@@ -12,7 +12,7 @@ mongoose.Promise = global.Promise
 let repositorySchema = mongoose.Schema({
     name: {type: String, required: [true, 'Task/Feature name is required']},
     description: {type: String, required: [true, 'Task/Feature description is required']},
-    estimation: {_id: {type: mongoose.Schema.ObjectId, required: true}},
+    estimation: {_id: {type: mongoose.Schema.ObjectId}},
     status: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_APPROVED, SC.STATUS_REJECTED]},
     type: {type: String, enum: [SC.TYPE_DEVELOPMENT]},
     foundationTask: {type: Boolean, default: false},
@@ -25,6 +25,15 @@ let repositorySchema = mongoose.Schema({
     tags: [String],
     tasks: [{_id: {type: mongoose.Schema.ObjectId, required: true}}]
 })
+
+repositorySchema.statics.isTaskExists = async (name) => {
+    let count = await RepositoryModel.count({'name': name})
+    console.log("count is ", count)
+    if (count > 0)
+        return true
+    return false
+}
+
 
 repositorySchema.statics.getFeature = async (repositoryFeatureID) => {
     let features = await RepositoryModel.aggregate({
@@ -43,31 +52,25 @@ repositorySchema.statics.getFeature = async (repositoryFeatureID) => {
     }, {
         $group: {
             _id: "$_id",
-            name: {$first:"$name"},
-            description: {$first:"$description"},
-            isFeature: {$first:"$isFeature"},
-            technologies: {$first:"$technologies"},
-            tags: {$first:"$tags"},
+            name: {$first: "$name"},
+            description: {$first: "$description"},
+            isFeature: {$first: "$isFeature"},
+            technologies: {$first: "$technologies"},
+            tags: {$first: "$tags"},
             tasks: {
                 $push: {$arrayElemAt: ['$tasks', 0]}
             }
         }
     })
 
-    if(features.length > 0)
+    if (features.length > 0)
         return features[0]
 }
 
 
 repositorySchema.statics.addTask = async (taskInput, user) => {
-    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
-        throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add task to repository", EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     validate(taskInput, repositoryAddTaskStruct)
-
-    const estimation = await EstimationModel.findById(taskInput.estimation._id)
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     taskInput.status = SC.STATUS_PENDING
     taskInput.isFeature = false
@@ -238,35 +241,30 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
         technologies = [technology]
     }
 
-    let pipline = []
+    let matchConditions = []
     if (filterObj.type.toLowerCase() && filterObj.type == 'Feature') {
-
-        let case1 = {
+        matchConditions.push({
             $match: {
                 "isFeature": true
             }
-        }
-
-        pipline.push(case1)
+        })
     } else if (filterObj.type.toLowerCase() && filterObj.type == 'Task') {
-        let case2 = {
+        matchConditions.push({
             $match: {
                 "isFeature": false
             }
-        }
-
-        pipline.push(case2)
+        })
     } else {
         console.log("search for all")
     }
 
-    let defaultCase = {
-        $match: {
-            "technologies": {$in: technologies},
-        }
-    }
-
-    pipline.push(defaultCase)
+    // TODO: Later on we need to paginate search rather than returning all tasks features of repository
+    if (technologies.length > 0)
+        matchConditions.push({
+            $match: {
+                "technologies": {$in: technologies},
+            }
+        })
 
     let project = {
         name: 1,
@@ -285,10 +283,10 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
         tasks: 1
     }
 
-    pipline.push({$project: project})
+    matchConditions.push({$project: project})
 
     let totalArrayResult = await
-        RepositoryModel.aggregate(pipline).exec()
+        RepositoryModel.aggregate(matchConditions).exec()
 
     return totalArrayResult
 }

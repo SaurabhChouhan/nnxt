@@ -1,4 +1,12 @@
-import {RoleModel, PermissionModel, UserModel, ClientModel, ProjectModel,LeaveTypeModel} from "../models"
+import {
+    RoleModel,
+    PermissionModel,
+    UserModel,
+    ClientModel,
+    ProjectModel,
+    LeaveTypeModel,
+    RepositoryModel
+} from "../models"
 
 import * as CC from '../../client/clientconstants'
 import * as SC from '../serverconstants'
@@ -154,9 +162,9 @@ export const addInitialData = async () => {
             lastName: "Admin",
             roles: [adminRole],
             password: "admin",
-            employeeCode:'emp-100',
-            designation:SC.DESIGNATION_MANAGER,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-100',
+            designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
         })
     }
 
@@ -170,9 +178,9 @@ export const addInitialData = async () => {
             lastName: "Admin",
             roles: [superAdminRole],
             password: "admin",
-            employeeCode:'emp-101',
-            designation:SC.DESIGNATION_MANAGER,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-101',
+            designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
         })
     }
 
@@ -199,6 +207,7 @@ export const addNNXTData = async () => {
     await addClients()
     await addProjects()
     await addLeaveTypes()
+    await addRepositoryTasksAndFeatures()
 }
 
 const addRolesPermissions = async () => {
@@ -257,9 +266,9 @@ const addNNXTUsers = async () => {
             lastName: "One",
             roles: [estimatorRole],
             password: "estimator",
-            employeeCode:'emp-001',
-            designation:SC.DESIGNATION_TEAM_LEAD,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-001',
+            designation: SC.DESIGNATION_TEAM_LEAD,
+            dateJoined: '01-01-2018'
         })
     }
 
@@ -270,9 +279,9 @@ const addNNXTUsers = async () => {
             lastName: "Two",
             roles: [estimatorRole],
             password: "estimator",
-            employeeCode:'emp-002',
-            designation:SC.DESIGNATION_TEAM_LEAD,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-002',
+            designation: SC.DESIGNATION_TEAM_LEAD,
+            dateJoined: '01-01-2018'
         })
     }
 
@@ -283,9 +292,9 @@ const addNNXTUsers = async () => {
             lastName: "Three",
             roles: [estimatorRole],
             password: "estimator",
-            employeeCode:'emp-003',
-            designation:SC.DESIGNATION_TEAM_LEAD,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_TEAM_LEAD,
+            dateJoined: '01-01-2018'
         })
     }
 
@@ -298,9 +307,9 @@ const addNNXTUsers = async () => {
             lastName: "One",
             roles: [negotiatorRole],
             password: "negotiator",
-            employeeCode:'emp-004',
-            designation:SC.DESIGNATION_MANAGER,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-004',
+            designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
         })
     }
 
@@ -311,9 +320,9 @@ const addNNXTUsers = async () => {
             lastName: "Two",
             roles: [negotiatorRole],
             password: "negotiator",
-            employeeCode:'emp-005',
-            designation:SC.DESIGNATION_MANAGER,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-005',
+            designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
         })
     }
 
@@ -324,9 +333,9 @@ const addNNXTUsers = async () => {
             lastName: "Three",
             roles: [negotiatorRole],
             password: "negotiator",
-            employeeCode:'emp-006',
-            designation:SC.DESIGNATION_MANAGER,
-            dateJoined:'01-01-2018'
+            employeeCode: 'emp-006',
+            designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
         })
     }
 }
@@ -371,7 +380,7 @@ const addProjects = async () => {
 
         if (!await ProjectModel.exists('WiFi Survey', zaib._id)) {
             await ProjectModel.saveProject({
-                name: 'WiFi Survay',
+                name: 'WiFi Survey',
                 client: zaib
             })
         }
@@ -410,7 +419,7 @@ const addProjects = async () => {
 
 const addLeaveTypes = async () => {
     let cl = await LeaveTypeModel.findOne({name: 'Casual leave (CL)'})
-    if(!cl) {
+    if (!cl) {
         await LeaveTypeModel.saveLeaveType({
             name: 'Casual leave (CL)',
             description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calender year.\n' +
@@ -418,26 +427,115 @@ const addLeaveTypes = async () => {
         })
     }
     let les = await LeaveTypeModel.findOne({name: 'Leave for Emergency Services (LES)'})
-    if(!les) {
+    if (!les) {
         await LeaveTypeModel.saveLeaveType({
             name: 'Leave for Emergency Services (LES)',
             description: 'Employees who are certified by the Civil Air Patrol as emergency service specialists or certified to fly counter-narcotics missions may be granted leave of absence from their respective duties.  Leave for such service shall not be for more than 15 working days in any state fiscal year.'
         })
     }
     let sl = await LeaveTypeModel.findOne({name: 'Sick leave (SL)'})
-    if(!sl) {
+    if (!sl) {
         await LeaveTypeModel.saveLeaveType({
             name: 'Sick leave (SL)',
             description: 'Employees who are employed on a full-time basis in positions of a continuing or permanent nature earn sick leave.  Full-time employees receive five hours of sick leave each pay period for each semi-month of service in which they are in pay status for 80 or more hours.'
         })
     }
     let al = await LeaveTypeModel.findOne({name: 'Annual Leave (AL)'})
-    if(!al) {
+    if (!al) {
         await LeaveTypeModel.saveLeaveType({
             name: 'Annual Leave (AL)',
             description: 'Employees in full-time positions of a continuing or permanent nature shall be entitled to accumulate annual leave as follows:\n' +
             '\n' +
             'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
+        })
+    }
+}
+
+// This method would add tasks and features in repository
+const addRepositoryTasksAndFeatures = async () => {
+
+    if (!await RepositoryModel.isTaskExists('Simple Login (AJAX) using Passport.js API (Node/Koa)')) {
+        console.log("Adding repository task")
+        await RepositoryModel.addTask({
+            name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
+            description: `Create an API that uses passport.js to authenticate against local database (mongodb)
+            - On success API should return user details 
+            - On failure API should failure code
+            - Use bcrypt to encrypt/decrypt passwords
+            - Use koa-passport as a middleware
+            `,
+            status: SC.STATUS_APPROVED,
+            type: SC.TYPE_DEVELOPMENT,
+            isFeature: false,
+            isPartOfEstimation: false,
+            hasHistory: false,
+            technologies: ['Koa', 'Passport', 'Node'],
+            tags: ['Authentication', 'Local Login']
+        })
+    }
+
+    if (!await RepositoryModel.isTaskExists('Registration API (Node/Koa) basic details')) {
+        console.log("Adding repository task")
+        await RepositoryModel.addTask({
+            name: 'Registration API (Node/Koa) basic details',
+            description: `Create an API that takes basic details of user (name/email etc) and store details 
+            - Create an user model that would contain basic details of user
+            - Create a public API to receive details from front end
+            - encrypt passwords using bcrypt before storing them
+            `,
+            status: SC.STATUS_APPROVED,
+            type: SC.TYPE_DEVELOPMENT,
+            isFeature: false,
+            isPartOfEstimation: false,
+            hasHistory: false,
+            technologies: ['Koa', 'Node', 'Mongodb'],
+            tags: ['Registration', 'basic fields']
+        })
+    }
+
+    if (!await RepositoryModel.isTaskExists('Login page (username/password) - React')) {
+        console.log("Adding repository task")
+        await RepositoryModel.addTask({
+            name: 'Login page (username/password) - React',
+            description: `Create a login page using React 
+            - Create a login component with a redux form having two fields username/password
+            - Create redux reducer for keeping logged in user details
+            - Create thunk action to call login API to validate logged in user
+            - Call thunk action from login component and handle success/failure scenario
+            - On success user details should be added into redux state
+            - On failure user should appropriately be told about authentication failure
+            `,
+            status: SC.STATUS_APPROVED,
+            type: SC.TYPE_DEVELOPMENT,
+            isFeature: false,
+            isPartOfEstimation: false,
+            hasHistory: false,
+            technologies: ['React', 'Redux'],
+            tags: ['Simple Login']
+        })
+    }
+
+    if (!await RepositoryModel.isTaskExists('Registration page (basic details) - React')) {
+        console.log("Adding repository task")
+        await RepositoryModel.addTask({
+            name: 'Registration page (basic details) - React',
+            description: `Create a registration page with basic details of user
+            Fields:
+            Name, email, password, confirm password
+            - Create a registration component with a redux form have mentioned fields
+            - Add appropriate validation (like valid email, email not already exists)
+            - Create thunk action to call registration API
+            - Call thunk action from registration component and handle success/failure scenario
+            - On success user should be automatically logged in with his detail added into logged in user redux state
+            - On failure user should appropriately be told about registration problems (like email already registered, system failure etc.
+            `,
+            status: SC.STATUS_APPROVED,
+            type: SC.TYPE_DEVELOPMENT,
+            isFeature: false,
+            isPartOfEstimation: false,
+            hasHistory: false,
+            technologies: ['Koa', 'Node', 'Mongodb'],
+            tags: ['Registration', 'basic fields']
         })
     }
 }
