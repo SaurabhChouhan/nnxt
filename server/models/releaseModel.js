@@ -4,7 +4,7 @@ import * as SC from "../serverconstants";
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 import * as V from "../validation"
-import {EstimationModel,ProjectModel} from "./"
+import {EstimationModel,ProjectModel,UserModel} from "./"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -17,14 +17,16 @@ let releaseSchema = mongoose.Schema({
         name:{type:String,required: [true, 'Project name is required']}
     },
     manager: {
-        _id: {type: mongoose.Schema.ObjectId, required: true},
-        name:{type: String, required: [true, 'Manager name is required']},
-        email:{type: String, required: [true, 'Manager email name is required']}
+       _id: {type: mongoose.Schema.ObjectId, required: true},
+       firstName:{type: String, required: [true, 'Manager name is required']},
+       lastName: String,
+       email:{type: String, required: [true, 'Manager email name is required']}
     },
     leader: {
-         _id: {type: mongoose.Schema.ObjectId, required: true},
-         name:{type: String, required: [true, 'Leader name is required']},
-         email:{type: String, required: [true, 'Leader email name is required']}
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        firstName:{type: String, required: [true, 'Leader name is required']},
+        lastName: String,
+        email:{type: String, required: [true, 'Leader email name is required']}
     },
     team: [{
            _id: {type: mongoose.Schema.ObjectId, required: true},
@@ -73,8 +75,16 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    const manager = await UserModel.findOne({"_id":projectAwardData.manager._id,"roles.name":SC.ROLE_MANAGER})
+    if (!manager)
+        throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    const leader = await UserModel.findById({"_id":projectAwardData.leader._id,"roles.name":SC.ROLE_LEADER})
+    if (!leader)
+        throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     const projectAlreadyAwarded = await ReleaseModel.findOne({"project._id":projectAwardData.estimation.project._id})
-    if (!projectAlreadyAwarded)
+    if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
     initial.billedHours = projectAwardData.billedHours
@@ -84,8 +94,8 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     initial.devStartDate = projectAwardData.devStartDate
     initial.devStartDate = projectAwardData.devStartDate
     releaseInput.project = project
-    releaseInput.manager = projectAwardData.manager
-    releaseInput.leader = projectAwardData.leader
+    releaseInput.manager = manager
+    releaseInput.leader = leader
     releaseInput.team = projectAwardData.team
     releaseInput.initial = initial
     releaseInput.name = projectAwardData.releaseVersionName

@@ -495,10 +495,12 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
     if(!taskList && !taskList.length>0)
         throw new AppError('Task list not found for default release plan', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    taskList.map(async task => {
+    let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(async task => {
         releasePlanInput.task = task
         const releasePlan = await ReleasePlanModel.addReleasePlan(releasePlanInput)
     })
+
+    let releasePlans = await Promise.all(estimationTasksCopyAndReadyForReleasePlanPromises)
 
     let newStatusHistory = {
         name:negotiator.firstName +' '+negotiator.lastName,

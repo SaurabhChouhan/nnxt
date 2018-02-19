@@ -20,12 +20,12 @@ let releasePlanSchema = mongoose.Schema({
         name:{type: String, required: [true, 'Release name is required']}
     },
     task: {
-        _id: {type: mongoose.Schema.ObjectId, required: true},
-        name:{type: String, required: [true, 'Task name is required']}
+        _id: mongoose.Schema.ObjectId,
+        name:String
     },
     feature: {
-         _id: {type: mongoose.Schema.ObjectId, required: true},
-         name:{type: String, required: [true, 'Feature name is required']}
+        _id: mongoose.Schema.ObjectId,
+        name:String
     },
     owner: {type: String, enum: [SC.OWNER_LEADER,SC.OWNER_MANAGER]},
     flags: [{type: String, enum: [SC.FLAG_UNPLANNED,SC.FLAG_EMPLOYEE_ON_LEAVE,SC.FLAG_DEV_DATE_MISSED,SC.FLAG_HAS_UNREPORTED_DAYS,SC.FLAG_COMPLETED_BEFORE_END_DATE,SC.FLAG_PENDING_AFTER_END_DATE]}],
