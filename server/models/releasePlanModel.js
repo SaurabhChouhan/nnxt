@@ -57,5 +57,12 @@ releasePlanSchema.statics.addReleasePlan = async (releasePlanInput) => {
         return  await ReleasePlanModel.create(releasePlanInput)
 }
 
+releasePlanSchema.statics.getReleasePlansByReleaseID = async (releaseID,user) => {
+    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
+        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    return await ReleasePlanModel.find({"release._id" : releaseID})
+}
+
 const ReleasePlanModel = mongoose.model("ReleasePlan", releasePlanSchema)
 export default ReleasePlanModel
