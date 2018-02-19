@@ -8,7 +8,8 @@ import {
     ProjectListContainer,
     RaiseLeaveListContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    ReleaseListContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -164,6 +165,10 @@ class ContentMain extends Component {
                     () => {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
+                }/> <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                    () => {
+                        this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+                    }
                 }/>
                     <RaiseLeaveListContainer name={COC.RAISE_LEAVE_LIST}/>
                 </ContentSection>
@@ -185,7 +190,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleaseList name={COC.RELEASE_LIST}/>
+                    <ReleaseListContainer name={COC.RELEASE_LIST}/>
                 </ContentSection>
 
             }
