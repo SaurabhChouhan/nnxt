@@ -387,11 +387,19 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     if (estimation.negotiator._id != negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (feature.owner != SC.OWNER_NEGOTIATOR)
+    if (!feature.estimator.removalRequested) {
+        if (feature.owner != SC.OWNER_NEGOTIATOR)
+            throw new AppError('You are not owner of this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+        /*if (!feature.addedInThisIteration)
+            throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)*/
+    }
+
+    /*if (feature.owner != SC.OWNER_NEGOTIATOR)
         throw new AppError('You are not owner of this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     if (!feature.addedInThisIteration)
-        throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)*/
 
     feature.isDeleted = true
     feature.negotiator.changedInThisIteration = true
@@ -435,7 +443,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
 
     if (existingFeatureCount > 0)
         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-    
+
     let estimationFeature = new EstimationFeatureModel()
 
     estimationFeature.status = SC.STATUS_PENDING
@@ -597,6 +605,35 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     newFeature.updated = Date.now()
 
     return await EstimationFeatureModel.create(newFeature)
+}
+
+estimationFeatureSchema.statics.requestRemovalFeatureByEstimator = async (featureID, estimator) => {
+
+
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureID)
+
+    if (!feature)
+        throw new AppError('feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update removal task flag into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    feature.estimator.removalRequested = !feature.estimator.removalRequested
+    feature.estimator.changedInThisIteration = true
+
+    return await feature.save()
+
+
 }
 const EstimationFeatureModel = mongoose.model("EstimationFeature", estimationFeatureSchema)
 export default EstimationFeatureModel
