@@ -54,3 +54,10 @@ export const FLAG_COMPLETED_BEFORE_END_DATE = 'completed-before-enddate'
 
 export const LEAVE_TYPE_FULL_DAY = 'Full'
 export const LEAVE_TYPE_HALF_DAY = 'Half'
+
+export const DESIGNATION_SOFTWARE_ENGINEER = "Software Engineer"
+export const DESIGNATION_SOFTWARE_TRAINEE = "Software Trainee"
+export const DESIGNATION_SENIOR_SW_ENGINEER = "Sr. Software Engineer"
+export const DESIGNATION_TEAM_LEAD = "Team Leader"
+export const DESIGNATION_MANAGER = "Manager"
+
