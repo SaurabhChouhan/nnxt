@@ -4,12 +4,17 @@ import * as SC from "../serverconstants";
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 import * as V from "../validation"
-import {EstimationModel,ProjectModel} from "./"
+import {EstimationModel,ProjectModel,UserModel} from "./"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
 let releaseSchema = mongoose.Schema({
+    user: {
+        _id: mongoose.Schema.ObjectId,
+        firstName: String,
+        lastName: String
+    },
     name: {type: String, required: [true, 'Release Version name is required']},
     status: {type: String, enum: [SC.STATUS_PLAN_REQUESTED,SC.STATUS_DEV_IN_PROGRESS,SC.STATUS_DEV_COMPLETED,SC.STATUS_RELEASED,SC.STATUS_ISSUE_FIXING,SC.STATUS_OVER]},
     project: {
@@ -17,14 +22,16 @@ let releaseSchema = mongoose.Schema({
         name:{type:String,required: [true, 'Project name is required']}
     },
     manager: {
-        _id: {type: mongoose.Schema.ObjectId, required: true},
-        name:{type: String, required: [true, 'Manager name is required']},
-        email:{type: String, required: [true, 'Manager email name is required']}
+       _id: {type: mongoose.Schema.ObjectId, required: true},
+       firstName:{type: String, required: [true, 'Manager name is required']},
+       lastName: String,
+       email:{type: String, required: [true, 'Manager email name is required']}
     },
     leader: {
-         _id: {type: mongoose.Schema.ObjectId, required: true},
-         name:{type: String, required: [true, 'Leader name is required']},
-         email:{type: String, required: [true, 'Leader email name is required']}
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        firstName:{type: String, required: [true, 'Leader name is required']},
+        lastName: String,
+        email:{type: String, required: [true, 'Leader email name is required']}
     },
     team: [{
            _id: {type: mongoose.Schema.ObjectId, required: true},
@@ -73,10 +80,19 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    const manager = await UserModel.findOne({"_id":projectAwardData.manager._id,"roles.name":SC.ROLE_MANAGER})
+    if (!manager)
+        throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    const leader = await UserModel.findById({"_id":projectAwardData.leader._id,"roles.name":SC.ROLE_LEADER})
+    if (!leader)
+        throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     const projectAlreadyAwarded = await ReleaseModel.findOne({"project._id":projectAwardData.estimation.project._id})
-    if (!projectAlreadyAwarded)
+    if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
+    initial.user = user
     initial.billedHours = projectAwardData.billedHours
     initial.clientReleaseDate = projectAwardData.clientReleaseDate
     initial.devStartDate = projectAwardData.devStartDate
@@ -84,8 +100,8 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     initial.devStartDate = projectAwardData.devStartDate
     initial.devStartDate = projectAwardData.devStartDate
     releaseInput.project = project
-    releaseInput.manager = projectAwardData.manager
-    releaseInput.leader = projectAwardData.leader
+    releaseInput.manager = manager
+    releaseInput.leader = leader
     releaseInput.team = projectAwardData.team
     releaseInput.initial = initial
     releaseInput.name = projectAwardData.releaseVersionName
@@ -94,5 +110,12 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     return  await ReleaseModel.create(releaseInput)
 }
 
+
+releaseSchema.statics.getReleases = async (user) => {
+    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
+        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    return await ReleaseModel.find({"user._id" : user._id})
+}
 const ReleaseModel = mongoose.model("Release", releaseSchema)
 export default ReleaseModel
