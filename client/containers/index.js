@@ -76,3 +76,7 @@ export {default as RaiseLeaveListContainer} from './lists/RaiseLeaveListContaine
 //attendence setting
 export {default as AttendenceSettingFormContainer} from './forms/AttendanceSettingFormContainer'
 
+
+//attendence setting
+export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
+

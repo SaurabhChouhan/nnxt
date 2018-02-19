@@ -29,7 +29,7 @@ let EstimationProjectAwardForm = (props) => {
             </div>
             <div className="col-md-12">
                 <div className="col-md-4">
-                    <Field name="devStartDate:" component={renderDateTimePicker}
+                    <Field name="devStartDate" component={renderDateTimePicker}
                            min={moment()} showTime={false}
                            label={"Expected Start Date For Developer:"} validate={[required]} />
                 </div>

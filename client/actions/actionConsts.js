@@ -71,6 +71,9 @@ export const ADD_LEAVE_REQUESTS = "ADD_LEAVE_REQUESTS"
 export const CANCEL_LEAVE_REQUEST = "CANCEL_LEAVE_REQUEST"
 export const ADD_LEAVE_TYPES = "ADD_LEAVE_TYPES"
 
+//Leave request Constants
+export const ADD_RELEASES = "ADD_RELEASES"
+
 
 //repository constants
 export const SELECT_REPOSITORY = "SELECT_REPOSITORY"

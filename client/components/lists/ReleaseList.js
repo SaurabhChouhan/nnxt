@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
-import {withRouter} from 'react-router-dom'
-
+import * as SC from '../../../server/serverconstants'
+import moment from 'moment'
 
 
 class ReleaseList extends Component {
@@ -15,7 +15,7 @@ class ReleaseList extends Component {
     }
 
     onRowClick(row) {
-        this.props.history.push("/app-home/release-detail")
+        // this.props.history.push("/app-home/release-detail")
 
     }
 
@@ -30,10 +30,30 @@ class ReleaseList extends Component {
         return ''
     }
 
-    formatProject(project) {
+    formatUser(row) {
+        return row.firstName + ' ' + row.lastName
+    }
+
+    formateProjectName(project) {
         if (project)
             return project.name
         return ''
+    }
+
+    formateCreatedDate(row) {
+        return moment(row).format("DD-MM-YYYY")
+    }
+
+    formateStartDate(row) {
+        return moment(row).format("DD-MM-YYYY")
+    }
+
+    formateEndDate(row) {
+        return moment(row).format("DD-MM-YYYY")
+    }
+
+    formateReleaseDate(row) {
+        return moment(row).format("DD-MM-YYYY")
     }
 
 
@@ -62,19 +82,35 @@ class ReleaseList extends Component {
 
                     </div>
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={this.props.estimations}
+                        <BootstrapTable options={this.options} data={this.props.releases}
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle width='10px' dataField='status'
                                                dataFormat={this.formatStatus}
                                                columnClassName={this.columnClassStatusFormat}></TableHeaderColumn>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='project'
-                                               dataFormat={this.formatProject.bind(this)}>Project
-                                Name</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='role'>Role</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='startdate'>Start Date</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='enddate'>End Date</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='created'
+                                               dataFormat={this.formateCreatedDate.bind(this)}>
+                                Created </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle={"Project Name"} dataField='project'
+                                               dataFormat={this.formateProjectName.bind(this)}>
+                                Project </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='manager'
+                                               dataFormat={this.formatUser.bind(this)}> Manager
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='leader'
+                                               dataFormat={this.formatUser.bind(this)}> Leader
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='initial.devStartDate'
+                                               dataFormat={this.formateStartDate.bind(this)}>Start
+                                Date</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='initial.devEndDate'
+                                               dataFormat={this.formateEndDate.bind(this)}>End
+                                Date</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='initial.clientReleaseDate'
+                                               dataFormat={this.formateReleaseDate.bind(this)}>Release
+                                Date</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
                         </BootstrapTable>
                     </div>
                 </div>
