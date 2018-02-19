@@ -3,9 +3,7 @@ import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
-import * as V from "../validation"
-import {EstimationModel,ProjectModel,UserModel} from "./"
-import _ from 'lodash'
+import {ProjectModel, UserModel} from "./"
 
 mongoose.Promise = global.Promise
 
@@ -92,13 +90,10 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
-    initial.user = user
     initial.billedHours = projectAwardData.billedHours
     initial.clientReleaseDate = projectAwardData.clientReleaseDate
     initial.devStartDate = projectAwardData.devStartDate
     initial.devEndDate = projectAwardData.devReleaseDate
-    initial.devStartDate = projectAwardData.devStartDate
-    initial.devStartDate = projectAwardData.devStartDate
     releaseInput.project = project
     releaseInput.manager = manager
     releaseInput.leader = leader
@@ -106,6 +101,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     releaseInput.initial = initial
     releaseInput.name = projectAwardData.releaseVersionName
     releaseInput.status = SC.STATUS_PLAN_REQUESTED
+    releaseInput.user = user
 
     return  await ReleaseModel.create(releaseInput)
 }
@@ -117,5 +113,13 @@ releaseSchema.statics.getReleases = async (user) => {
 
     return await ReleaseModel.find({"user._id" : user._id})
 }
+
+releaseSchema.statics.getReleaseById = async (releaseId, user) => {
+    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
+        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    return await ReleaseModel.find({"_id": releaseId, "user._id": user._id})
+}
+
 const ReleaseModel = mongoose.model("Release", releaseSchema)
 export default ReleaseModel
