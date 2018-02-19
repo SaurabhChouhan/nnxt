@@ -10,6 +10,11 @@ import _ from 'lodash'
 mongoose.Promise = global.Promise
 
 let releaseSchema = mongoose.Schema({
+    user: {
+        _id: mongoose.Schema.ObjectId,
+        firstName: String,
+        lastName: String
+    },
     name: {type: String, required: [true, 'Release Version name is required']},
     status: {type: String, enum: [SC.STATUS_PLAN_REQUESTED,SC.STATUS_DEV_IN_PROGRESS,SC.STATUS_DEV_COMPLETED,SC.STATUS_RELEASED,SC.STATUS_ISSUE_FIXING,SC.STATUS_OVER]},
     project: {
@@ -87,6 +92,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
+    initial.user = user
     initial.billedHours = projectAwardData.billedHours
     initial.clientReleaseDate = projectAwardData.clientReleaseDate
     initial.devStartDate = projectAwardData.devStartDate
@@ -104,5 +110,12 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     return  await ReleaseModel.create(releaseInput)
 }
 
+
+releaseSchema.statics.getReleases = async (user) => {
+    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
+        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    return await ReleaseModel.find({"user._id" : user._id})
+}
 const ReleaseModel = mongoose.model("Release", releaseSchema)
 export default ReleaseModel
