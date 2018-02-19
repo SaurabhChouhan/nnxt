@@ -277,25 +277,25 @@ class EstimationFeature extends React.PureComponent {
 
                         {feature.owner == SC.OWNER_ESTIMATOR && feature.addedInThisIteration &&
                         <div className="flagStrip">
-                            <img src="/images/estimator_new_flag.png"></img>
+                            <img key="estimator_new_flag" src="/images/estimator_new_flag.png"></img>
                         </div>}
 
                         {feature.owner == SC.OWNER_NEGOTIATOR && feature.addedInThisIteration &&
                         <div className="flagStrip">
-                            <img src="/images/negotiator_new_flag.png"></img>
+                            <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"></img>
                         </div>}
 
                         {feature.estimator.changedInThisIteration && <div className="flagStrip">
-                            <img src="/images/estimator_edit_flag.png"></img>
+                            <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"></img>
                         </div>}
 
                         {feature.negotiator.changedInThisIteration && <div className="flagStrip">
-                            <img src="/images/negotiator_edit_flag.png"></img>
+                            <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"></img>
                         </div>}
 
                         {!feature.repo.addedFromThisEstimation &&
                         <div className="flagStrip">
-                            <img src="/images/repo_flag.png"></img>
+                            <img key="repo_flag" src="/images/repo_flag.png"></img>
                         </div>
                         }
                     </div>
