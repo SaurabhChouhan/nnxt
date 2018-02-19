@@ -215,13 +215,13 @@ class EstimationTask extends React.PureComponent {
                 buttons
                     .push(
                         <img key="move_outof_feature" src="/images/move_outof_feature.png"
-                             onClick={() => this.props.moveTaskOutOfFeature(this.props.task)}/>)
+                             onClick={() => this.props.moveTaskOutOfFeature(task)}/>)
             }
 
             else {
                 // This task is an individual task so add move to feature button
                 buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
-                    this.props.moveToFeature(this.props.task);
+                    this.props.moveToFeature(task);
                 }}/>)
             }
         } else {
@@ -244,25 +244,41 @@ class EstimationTask extends React.PureComponent {
                                     body={CM.DELETE_TASK_BODY}/>
                 }
                     {task.owner == SC.OWNER_ESTIMATOR && task.addedInThisIteration && <div className="flagStrip">
-                        <img src="/images/estimator_new_flag.png" title="Added by Estimator"/>
+                        <img key="estimator_new_flag" src="/images/estimator_new_flag.png" title="Added by Estimator"/>
                     </div>}
 
                     {task.owner == SC.OWNER_NEGOTIATOR && task.addedInThisIteration && <div className="flagStrip">
-                        <img src="/images/negotiator_new_flag.png" title="Added by Negotiator"/>
+                        <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"
+                             title="Added by Negotiator"/>
                     </div>}
 
                     {!task.repo.addedFromThisEstimation &&
                     <div className="flagStrip">
-                        <img src="/images/repo_flag.png" title="From Repository"/>
+                        <img key="repo_flag" src="/images/repo_flag.png" title="From Repository"/>
                     </div>
                     }
 
                     {task.estimator.changedInThisIteration && <div className="flagStrip">
-                        <img src="/images/estimator_edit_flag.png" title="Edited by Estimator"/>
+                        <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
+                             title="Edited by Estimator"/>
                     </div>}
 
                     {task.negotiator.changedInThisIteration && <div className="flagStrip">
-                        <img src="/images/negotiator_edit_flag.png" title="Edited by Negotiator"/>
+                        <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
+                             title="Edited by Negotiator"/>
+                    </div>}
+                    {((task.negotiator.changedInThisIteration && task.negotiator.isMovedOutOfFeature ) ||
+                        (task.estimator.changedInThisIteration && task.estimator.isMovedOutOfFeature ))
+                    &&
+                    <div className="flagStrip">
+                        <img key="move_out_flag" src="/images/move_out_flag.png" title="Moved Out From Feature"/>
+                    </div>}
+
+                    {((task.negotiator.changedInThisIteration && task.negotiator.isMovedToFeature ) ||
+                        (task.estimator.changedInThisIteration && task.estimator.isMovedToFeature ))
+                    &&
+                    <div className="flagStrip">
+                        <img key="move_in_flag" src="/images/move_in_flag.png" title="Moved Into Feature"/>
                     </div>}
                 </div>
 
