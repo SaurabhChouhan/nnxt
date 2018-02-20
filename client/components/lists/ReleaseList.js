@@ -107,10 +107,9 @@ class ReleaseList extends Component {
                         </div>
                         <div className="col-md-3">
                             <div className="estimation">
-                                <select className="form-control" onChange={(event, newValue, oldValue) => {
-                                    this.props.changeReleseStatus(newValue)
-
-                                }}>
+                                <select className="form-control" onChange={(status) =>
+                                    this.props.changeReleseStatus(status.target.value)
+                                }>
                                     <option value="all">All</option>
                                     <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
                                     <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
