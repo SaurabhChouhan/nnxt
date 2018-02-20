@@ -28,7 +28,6 @@ import {
     ReleaseDetailList,
     RepositoryFeatureDetailDialog,
     ReleaseList,
-    ReleaseDetailList,
     EstimationFilterDialog,
     RepositoryTaskDetailDialog,
     TechnologyFormDialog
