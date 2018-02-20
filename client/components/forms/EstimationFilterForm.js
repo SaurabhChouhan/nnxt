@@ -1,36 +1,44 @@
 import {required} from "./validation"
 import {renderCheckBox, renderSelect, renderText} from "./fields"
-import {Field, reduxForm,reset} from 'redux-form'
+import {Field, reduxForm, reset} from 'redux-form'
 import React from 'react'
+import * as SC from "../../../server/serverconstants";
 
 
 let EstimationFilterForm = (props) => {
+
+    console.log("look at the props",props)
+
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">
                 <Field name="repository" component={renderCheckBox} label={"Repository:"}/>
             </div>
             <div className="col-md-6">
-                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>
+                <Field name="changeRequest" component={renderCheckBox} label={"Change-Request:"}/>
             </div>
 
         </div>
         <div className="row">
             <div className="col-md-6">
-                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}/>
-            </div>
-            <div className="col-md-6">
-                <Field name="change_request" component={renderCheckBox} label={"Change-Request:"}/>
-            </div>
-
-        </div>
-        <div className="row">
-            <div className="col-md-6">
-                <Field name="permission" component={renderCheckBox} label={"Permission Granted:"}/>
+                <Field name="grantPermision" component={renderCheckBox} label={"Permission Granted:"}/>
             </div>
             <div className="col-md-6">
                 <Field name="suggestion" component={renderCheckBox} label={"Suggestion:"}/>
             </div>
+
+        </div>
+        <div className="row">
+            <div className="col-md-6">
+                {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
+                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}/>}
+
+                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
+                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>}
+            </div>
+            {/*<div className="col-md-6">
+                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>
+            </div>*/}
 
         </div>
 

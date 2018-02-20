@@ -6,7 +6,13 @@ let initialState = {
     tasks: [],
     features: [],
     expandedFeatureID: undefined,
-    expandedTaskID: undefined
+    expandedTaskID: undefined,
+    repository: false,
+    estimator: false,
+    negotiator: false,
+    changeRequest: false,
+    grantPermission: false,
+    suggestions: false,
 
 }
 
@@ -51,10 +57,10 @@ const estimationReducer = (state = initialState, action) => {
             }
             else
                 return Object.assign({}, state, {
-                tasks: Array.isArray(state.tasks) ?
-                    state.tasks.map(item => item._id == action.task._id ?
-                        Object.assign({}, action.task) : item) : null
-            })
+                    tasks: Array.isArray(state.tasks) ?
+                        state.tasks.map(item => item._id == action.task._id ?
+                            Object.assign({}, action.task) : item) : null
+                })
 
         case AC.ADD_ESTIMATION_FEATURE:
             // feature is added to estimation, it would be added against selected estimation
@@ -174,6 +180,21 @@ const estimationReducer = (state = initialState, action) => {
                 expandedFeatureID: undefined,
                 expandedTaskID: action.taskID
             })
+
+        case AC.ADD_FILTERED_ESTIMATIONS:
+
+            return Object.assign({}, state, {
+
+                repository: action.filter.repository ? true : false,
+                estimator: action.filter.estimator ? true : false,
+                negotiator: action.filter.negotiator ? true : false,
+                changeRequest: action.filter.changeRequest ? true : false,
+                grantPermission: action.filter.grantPermission ? true : false,
+                suggestions: action.filter.suggestions ? true : false,
+
+
+            })
+
 
         default:
             return state
