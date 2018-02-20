@@ -21,7 +21,6 @@ export const getAllReleaseFromServer = (status) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("json data", json.data)
                       dispatch(addReleases(json.data))
                 }
             })
