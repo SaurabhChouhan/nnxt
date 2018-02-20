@@ -21,17 +21,14 @@ import {
     EstimationSuggestFeatureDialog,
     EstimationSuggestTaskDialog,
     EstimationTaskDialog,
+    LeaveRequestDetailDialog,
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
     ReleaseDetailList,
     RepositoryFeatureDetailDialog,
-    ReleaseList,
-    ReleaseDetailList,
-    LeaveRequestDetailDialog,
     RepositoryTaskDetailDialog,
     TechnologyFormDialog
-
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -165,10 +162,6 @@ class ContentMain extends Component {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
                 return <ContentSection>
                     <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
-                    () => {
-                        this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
-                    }
-                }/> <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
                     () => {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
