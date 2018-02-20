@@ -7,8 +7,8 @@ let releaseRouter = new Router({
     prefix: "releases"
 })
 
-releaseRouter.get("/", async ctx => {
-    return await ReleaseModel.getReleases(ctx.state.user)
+releaseRouter.get("/status/:status", async ctx => {
+    return await ReleaseModel.getReleases(ctx.params.status,ctx.state.user)
 })
 
 releaseRouter.get("/:releaseID", async ctx => {
