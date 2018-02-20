@@ -7,7 +7,6 @@ import * as SC from "../../../server/serverconstants";
 
 let EstimationFilterForm = (props) => {
 
-    console.log("look at the props",props)
 
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
@@ -15,26 +14,32 @@ let EstimationFilterForm = (props) => {
                 <Field name="repository" component={renderCheckBox} label={"Repository:"}/>
             </div>
             <div className="col-md-6">
-                <Field name="changeRequest" component={renderCheckBox} label={"Change-Request:"}/>
+                {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
+                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}/>}
+
+                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
+                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>}
+
+
             </div>
 
         </div>
         <div className="row">
             <div className="col-md-6">
-                <Field name="grantPermision" component={renderCheckBox} label={"Permission Granted:"}/>
+                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
+                <Field name="grantPermission" component={renderCheckBox} label={"Permission Granted:"}/>}
             </div>
             <div className="col-md-6">
-                <Field name="suggestion" component={renderCheckBox} label={"Suggestion:"}/>
+                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
+                <Field name="suggestion" component={renderCheckBox} label={"Suggestion:"}/>}
             </div>
 
         </div>
         <div className="row">
             <div className="col-md-6">
                 {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}/>}
+                <Field name="changeRequested" component={renderCheckBox} label={"Change-Request:"}/>}
 
-                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>}
             </div>
             {/*<div className="col-md-6">
                 <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>

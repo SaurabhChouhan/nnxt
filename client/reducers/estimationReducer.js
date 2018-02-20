@@ -7,12 +7,12 @@ let initialState = {
     features: [],
     expandedFeatureID: undefined,
     expandedTaskID: undefined,
-    repository: false,
-    estimator: false,
-    negotiator: false,
-    changeRequest: false,
-    grantPermission: false,
-    suggestions: false,
+    repository: true,
+    estimator: true,
+    negotiator: true,
+    changeRequested: true,
+    grantPermission: true,
+    suggestions: true,
 
 }
 
@@ -142,10 +142,19 @@ const estimationReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 selected: Object.assign({}, action.estimation, {
                     tasks: undefined,
-                    features: undefined
+                    features: undefined,
+
                 }),
                 tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(item => item.isDeleted == false) : [],
-                features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ? action.estimation.features.filter(item => item.isDeleted == false) : []
+                features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ? action.estimation.features.filter(item => item.isDeleted == false) : [],
+                repository: true,
+                estimator: true,
+                negotiator: true,
+                changeRequested: true,
+                grantPermission: true,
+                suggestions: true,
+
+
             })
 
         case AC.DELETE_ESTIMATION_FEATURE:
@@ -183,17 +192,31 @@ const estimationReducer = (state = initialState, action) => {
 
         case AC.ADD_FILTERED_ESTIMATIONS:
 
-            return Object.assign({}, state, {
 
-                repository: action.filter.repository ? true : false,
-                estimator: action.filter.estimator ? true : false,
-                negotiator: action.filter.negotiator ? true : false,
-                changeRequest: action.filter.changeRequest ? true : false,
-                grantPermission: action.filter.grantPermission ? true : false,
-                suggestions: action.filter.suggestions ? true : false,
+            if (action.filter) {
+                return Object.assign({}, state, {
 
+                    repository: action.filter && action.filter.repository ? true : false,
+                    estimator: action.filter && action.filter.estimator ? true : false,
+                    negotiator: action.filter && action.filter.negotiator ? true : false,
+                    changeRequested: action.filter && action.filter.changeRequested ? true : false,
+                    grantPermission: action.filter && action.filter.grantPermission ? true : false,
+                    suggestions: action.filter && action.filter.suggestions ? true : false,
 
-            })
+                })
+            }
+            else {
+                return Object.assign({}, state, {
+
+                    repository: true,
+                    estimator: true,
+                    negotiator: true,
+                    changeRequested: true,
+                    grantPermission: true,
+                    suggestions: true,
+
+                })
+            }
 
 
         default:
