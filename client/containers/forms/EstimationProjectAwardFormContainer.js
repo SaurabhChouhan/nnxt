@@ -12,7 +12,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 if (json.success) {
                     NotificationManager.success("Project Awarded")
                     // hide dialog
-                    dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
+                    dispatch(A.hideComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
                 } else {
                     NotificationManager.error("Project Awardation Failed")
                 }

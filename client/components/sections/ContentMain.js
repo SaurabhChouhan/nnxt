@@ -7,6 +7,7 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     RaiseLeaveListContainer,
+    ReleaseListContainer,
     TechnologyListContainer,
     UserProfileFormContainer
 } from "../../containers"
@@ -23,12 +24,14 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
-    TechnologyFormDialog,
-    RepositoryTaskDetailDialog,
+    ReleaseDetailList,
     RepositoryFeatureDetailDialog,
     ReleaseList,
     ReleaseDetailList,
-    LeaveRequestDetailDialog
+    LeaveRequestDetailDialog,
+    RepositoryTaskDetailDialog,
+    TechnologyFormDialog
+
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -165,6 +168,10 @@ class ContentMain extends Component {
                     () => {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
+                }/> <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                    () => {
+                        this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+                    }
                 }/>
                     <LeaveRequestDetailDialog name={COC.LEAVE_DETAIL_DIALOG} show={true} close={
                         () => {
@@ -191,7 +198,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleaseList name={COC.RELEASE_LIST}/>
+                    <ReleaseListContainer name={COC.RELEASE_LIST}/>
                 </ContentSection>
 
             }

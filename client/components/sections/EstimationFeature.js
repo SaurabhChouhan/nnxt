@@ -185,14 +185,14 @@ class EstimationFeature extends React.PureComponent {
                         buttons.push(editView ?
                             <img key="requested_delete" src="/images/requested_delete.png"
                                  onClick={() => {
-                                     this.props.toggleDeleteRequest()
+                                     this.props.toggleDeleteRequest(feature)
                                  }}/> :
                             <img key="requested_delete_disable" src="/images/requested_delete_disable.png"/>)
                     } else {
                         // Estimator can request removal
                         buttons.push(editView ?
                             <img key="request_delete" src="/images/request_delete.png" onClick={() => {
-                                this.props.toggleDeleteRequest()
+                                this.props.toggleDeleteRequest(feature)
                             }}/> : <img key="request_delete_disable" src="/images/request_delete_disable.png"/>)
                     }
                 }
@@ -243,11 +243,11 @@ class EstimationFeature extends React.PureComponent {
                 if (feature.estimator.removalRequested) {
                     // Estimator has requested removal
                     buttons.push(editView ?
-                        <img key="he_requested_delete" src="/images/he_requested_delete.png"
+                        <img key="he_requested_delete" src="/images/requested_delete.png"
                              onClick={() => {
                                  this.props.toggleDeleteRequest(feature)
                              }}/> :
-                        <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"/>)
+                        <img key="he_requested_delete_disable" src="/images/requested_delete_disable.png"/>)
                 } else {
                     // Estimator can request removal
                     buttons.push(editView ?
@@ -277,25 +277,25 @@ class EstimationFeature extends React.PureComponent {
 
                         {feature.owner == SC.OWNER_ESTIMATOR && feature.addedInThisIteration &&
                         <div className="flagStrip">
-                            <img src="/images/estimator_new_flag.png"></img>
+                            <img key="estimator_new_flag" src="/images/estimator_new_flag.png"></img>
                         </div>}
 
                         {feature.owner == SC.OWNER_NEGOTIATOR && feature.addedInThisIteration &&
                         <div className="flagStrip">
-                            <img src="/images/negotiator_new_flag.png"></img>
+                            <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"></img>
                         </div>}
 
                         {feature.estimator.changedInThisIteration && <div className="flagStrip">
-                            <img src="/images/estimator_edit_flag.png"></img>
+                            <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"></img>
                         </div>}
 
                         {feature.negotiator.changedInThisIteration && <div className="flagStrip">
-                            <img src="/images/negotiator_edit_flag.png"></img>
+                            <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"></img>
                         </div>}
 
                         {!feature.repo.addedFromThisEstimation &&
                         <div className="flagStrip">
-                            <img src="/images/repo_flag.png"></img>
+                            <img key="repo_flag" src="/images/repo_flag.png"></img>
                         </div>
                         }
                     </div>
@@ -443,7 +443,16 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
         },
 
         toggleDeleteRequest: (values) => {
-            console.log("toggleDeleteRequest", values)
+            return dispatch(A.requestForFeatureDeletePermissionOnServer(values._id)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Feature Delete requested successfully")
+                } else {
+                    if (json.code == EC.INVALID_OPERATION)
+                        NotificationManager.error("Feature Delete already requested")
+                    else
+                        NotificationManager.error("Unknown error occurred")
+                }
+            })
         },
 
         expandFeature: (featureID) => {

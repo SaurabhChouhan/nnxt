@@ -31,6 +31,11 @@ export const selectEstimation = (estimation) => ({
     estimation: estimation
 })
 
+export const updateSelectedEstimation = (estimation) => ({
+    type: AC.UPDATE_SELECTED_ESTIMATION,
+    estimation: estimation
+})
+
 export const addEstimationTask = (task) => ({
     type: AC.ADD_ESTIMATION_TASK,
     task: task
@@ -317,9 +322,9 @@ export const addTaskToEstimationOnServer = (task) => {
     }
 }
 
-export const addTaskFromRepositoryToEstimationOnServer = (estimationID,taskID) => {
+export const addTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/tasks/estimation/'+estimationID+'/repository-task/'+taskID, {
+        return fetch('/api/estimations/tasks/estimation/' + estimationID + '/repository-task/' + taskID, {
                 method: 'post',
                 credentials: "include",
                 headers: {
@@ -339,9 +344,9 @@ export const addTaskFromRepositoryToEstimationOnServer = (estimationID,taskID) =
     }
 }
 
-export const addFeatureFromRepositoryToEstimationOnServer = (estimationID,featureId) => {
+export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featureId) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/'+estimationID+'/repository/'+featureId+'/features/from-repository', {
+        return fetch('/api/estimations/' + estimationID + '/repository/' + featureId + '/features/from-repository', {
                 method: 'post',
                 credentials: "include",
                 headers: {
@@ -583,11 +588,34 @@ export const addProjectAwardOnServer = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("ProjectAward",json.data)
-                    //dispatch(addEstimation(json.data))
+                    console.log("ProjectAward", json.data)
+                    dispatch(updateSelectedEstimation(json.data))
                 }
 
                 return json
             })
     }
 }
+
+export const requestForFeatureDeletePermissionOnServer = (featureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features/' + featureID + '/request-removal', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
