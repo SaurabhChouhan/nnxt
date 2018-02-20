@@ -20,18 +20,28 @@ class ReleaseList extends Component {
     }
 
     columnClassStatusFormat(status) {
-
         if (status == SC.STATUS_APPROVED)
             return 'appRowColor'
-
     }
 
     formatStatus(status) {
         return ''
     }
 
-    formatUser(row) {
-        return row.firstName + ' ' + row.lastName
+    formatManager(row) {
+        if (row) {
+            return row.firstName + ' ' + row.lastName
+        }
+        return ''
+
+    }
+
+    formatLeader(row) {
+        if (row) {
+            return row.firstName + ' ' + row.lastName
+        }
+        return ''
+
     }
 
     formateProjectName(project) {
@@ -40,20 +50,44 @@ class ReleaseList extends Component {
         return ''
     }
 
-    formateCreatedDate(row) {
-        return moment(row).format("DD-MM-YYYY")
+    formatCreatedDate(row) {
+        if (row) {
+            return moment(row).format("DD-MM-YYYY")
+        }
+        return ''
+
     }
 
-    formateStartDate(row) {
-        return moment(row).format("DD-MM-YYYY")
+    formatStartDate(row) {
+        if (row) {
+            return moment(row.devStartDate).format("DD-MM-YYYY")
+        }
+        return ''
+
     }
 
-    formateEndDate(row) {
-        return moment(row).format("DD-MM-YYYY")
+    formatEndDate(row) {
+        if (row) {
+            return moment(row.devEndDate).format("DD-MM-YYYY")
+        }
+        return ''
+
     }
 
-    formateReleaseDate(row) {
-        return moment(row).format("DD-MM-YYYY")
+    formatReleaseDate(row) {
+        if (row) {
+            return moment(row.clientReleaseDate).format("DD-MM-YYYY")
+        }
+        return ''
+
+    }
+
+    formatHours(row) {
+        if (row) {
+            return row.billedHours
+        }
+        return ''
+
     }
 
 
@@ -65,7 +99,7 @@ class ReleaseList extends Component {
                     <div className="col-md-12 pad">
                         <div className="col-md-6 pad">
                             <div className="search">
-                                <input type="text" className="form-control" placeholder="Search Features/Tasks"/>
+                                <input type="text" className="form-control" placeholder="Search Project Names"/>
                                 <button type="submit" className="btn searchBtn"><i className="fa fa-search"></i></button>
                             </div>
                         </div>
@@ -73,42 +107,50 @@ class ReleaseList extends Component {
                             <div className="estimation">
                                 <select className="form-control">
                                     <option value="">All</option>
-                                    <option value="">project1</option>
-                                    <option value="">project2</option>
-                                    <option value="">project3</option>
+                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                    <option value={SC.STATUS_APPROVED}>{SC.STATUS_APPROVED}</option>
+                                    <option value={SC.STATUS_INITIATED}>{SC.STATUS_INITIATED}</option>
+                                    <option
+                                        value={SC.STATUS_ESTIMATION_REQUESTED}>{SC.STATUS_ESTIMATION_REQUESTED}</option>
+                                    <option value={SC.STATUS_REVIEW_REQUESTED}>{SC.STATUS_REVIEW_REQUESTED}</option>
+                                    <option value={SC.STATUS_CHANGE_REQUESTED}>{SC.STATUS_CHANGE_REQUESTED}</option>
+                                    <option value={SC.STATUS_REOPENED}>{SC.STATUS_REOPENED}</option>
+                                    <option value={SC.STATUS_PROJECT_AWARDED}>{SC.STATUS_PROJECT_AWARDED}</option>
+                                    <option value={SC.STATUS_REJECTED}>{SC.STATUS_REJECTED}</option>
+                                    <option value={SC.STATUS_CANCELLED}>{SC.STATUS_CANCELLED}</option>
+
                                 </select>
                             </div>
                         </div>
-
                     </div>
                     <div className="estimation">
                         <BootstrapTable options={this.options} data={this.props.releases}
                                         striped={true}
                                         hover={true}>
-                            <TableHeaderColumn columnTitle width='10px' dataField='status'
-                                               dataFormat={this.formatStatus}
-                                               columnClassName={this.columnClassStatusFormat}></TableHeaderColumn>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='created'
-                                               dataFormat={this.formateCreatedDate.bind(this)}>
+                                               dataFormat={this.formatCreatedDate.bind(this)}>
                                 Created </TableHeaderColumn>
                             <TableHeaderColumn columnTitle={"Project Name"} dataField='project'
                                                dataFormat={this.formateProjectName.bind(this)}>
                                 Project </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='manager'
-                                               dataFormat={this.formatUser.bind(this)}> Manager
+                                               dataFormat={this.formatManager.bind(this)}> Manager
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='leader'
-                                               dataFormat={this.formatUser.bind(this)}> Leader
+                                               dataFormat={this.formatLeader.bind(this)}> Leader
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial.devStartDate'
-                                               dataFormat={this.formateStartDate.bind(this)}>Start
+                            <TableHeaderColumn columnTitle dataField='initial'
+                                               dataFormat={this.formatHours.bind(this)}> Billed Hours
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='initial'
+                                               dataFormat={this.formatStartDate.bind(this)}>Start
                                 Date</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial.devEndDate'
-                                               dataFormat={this.formateEndDate.bind(this)}>End
+                            <TableHeaderColumn columnTitle dataField='initial'
+                                               dataFormat={this.formatEndDate.bind(this)}>End
                                 Date</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial.clientReleaseDate'
-                                               dataFormat={this.formateReleaseDate.bind(this)}>Release
+                            <TableHeaderColumn columnTitle dataField='initial'
+                                               dataFormat={this.formatReleaseDate.bind(this)}>Release
                                 Date</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
                         </BootstrapTable>
@@ -120,3 +162,6 @@ class ReleaseList extends Component {
 }
 
 export default ReleaseList
+/*<TableHeaderColumn columnTitle width='10px' dataField='status'
+                                               dataFormat={this.formatStatus}
+                                               columnClassName={this.columnClassStatusFormat}></TableHeaderColumn>*/
