@@ -26,8 +26,12 @@ import {
     ProjectFormDialog,
     ReleaseDetailList,
     RepositoryFeatureDetailDialog,
+    ReleaseList,
+    ReleaseDetailList,
+    LeaveRequestDetailDialog,
     RepositoryTaskDetailDialog,
     TechnologyFormDialog
+
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -169,6 +173,11 @@ class ContentMain extends Component {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
                 }/>
+                    <LeaveRequestDetailDialog name={COC.LEAVE_DETAIL_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.LEAVE_DETAIL_DIALOG))
+                        }
+                    }/>
                     <RaiseLeaveListContainer name={COC.RAISE_LEAVE_LIST}/>
                 </ContentSection>
 

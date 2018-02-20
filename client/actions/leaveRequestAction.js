@@ -3,10 +3,14 @@ import {editProject} from "./projectAction";
 import {addClients} from "./clientAction";
 
 
-
 export const addLeaveRequests = (leaveRequests) => ({
     type: AC.ADD_LEAVE_REQUESTS,
     leaveRequests: leaveRequests
+})
+
+export const selectRaiseLeave = (leaveDetail) => ({
+    type: AC.SELECTED_LEAVE_DETAIL,
+    leaveDetail: leaveDetail
 })
 
 export const addLeaveRequest = (leaveRequest) => ({

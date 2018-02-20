@@ -17,6 +17,8 @@ let leaveRequestReducer = (state = initialState, action) => {
             return Object.assign({}, state, {all: state.all.map(item => item._id == action.leaveRequest._id ? action.leaveRequest : item)})
         case AC.ADD_LEAVE_TYPES:
             return Object.assign({}, state, {leaveTypes: action.leaveTypes})
+        case AC.SELECTED_LEAVE_DETAIL:
+            return Object.assign({}, state, {selected: action.leaveDetail})
         default:
             return state
     }

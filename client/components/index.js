@@ -50,6 +50,7 @@ export {default as EstimationSuggestTaskDialog} from './dialogs/EstimationSugges
 export {default as EstimationSuggestFeatureDialog} from './dialogs/EstimationSuggestFeatureDialog'
 export {default as EstimationProjectAwardDialog} from './dialogs/EstimationProjectAwardDialog'
 export {default as AttendenceSettingForm} from './forms/AttendanceSettingForm'
+export {default as LeaveRequestDetailDialog} from './dialogs/LeaveRequestDetailDialog'
 
 //ProjectDialog
 export {default as ProjectFormDialog} from './dialogs/ProjectFormDialog'
@@ -84,3 +85,4 @@ export {default as  RepositoryFeatureDetailDialog} from './dialogs/RepositoryFea
 //Release List
 export {default as ReleaseList} from './lists/ReleaseList'
 export {default as ReleaseDetailList} from './lists/ReleaseDetailList'
+export {default as RaiseLeaveDeatilPage} from './pages/RaiseLeaveDeatilPage'

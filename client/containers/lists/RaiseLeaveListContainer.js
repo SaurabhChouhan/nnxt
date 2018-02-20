@@ -12,6 +12,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
     },
 
+    showRaiseLeaveDetail: (leave) => {
+        dispatch(A.selectRaiseLeave(leave))
+        dispatch(A.showComponent(COC.LEAVE_DETAIL_DIALOG))
+    },
+
     cancelRaiseLeaveRequestCall: (data) => {
         return dispatch(A.cancelLeaveRequestFromServer(data)).then(json => {
             if (json.success) {
