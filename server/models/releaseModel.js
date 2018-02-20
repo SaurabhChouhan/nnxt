@@ -107,11 +107,17 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
 }
 
 
-releaseSchema.statics.getReleases = async (user) => {
+releaseSchema.statics.getReleases = async (status,user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
         throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    return await ReleaseModel.find({"user._id" : user._id})
+    let filter = {"user._id" : user._id}
+    if(status && status.toLowerCase() != "all")
+        filter = {"user._id" : user._id ,"status":status}
+    else
+        filter = {"user._id" : user._id}
+
+    return await ReleaseModel.find(filter)
 }
 
 releaseSchema.statics.getReleaseById = async (releaseId, user) => {
