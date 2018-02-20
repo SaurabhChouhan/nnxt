@@ -157,6 +157,14 @@ const estimationReducer = (state = initialState, action) => {
 
             })
 
+        case AC.UPDATE_SELECTED_ESTIMATION:
+            return Object.assign({}, state, {
+                selected: Object.assign({}, action.estimation, {
+                    tasks: undefined,
+                    features: undefined
+                }),
+            })
+
         case AC.DELETE_ESTIMATION_FEATURE:
             return Object.assign({}, state, {features: state.features.filter(item => item._id != action.feature._id)})
 

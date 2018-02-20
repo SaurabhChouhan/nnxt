@@ -7,6 +7,7 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     RaiseLeaveListContainer,
+    ReleaseListContainer,
     TechnologyListContainer,
     UserProfileFormContainer
 } from "../../containers"
@@ -20,15 +21,18 @@ import {
     EstimationSuggestFeatureDialog,
     EstimationSuggestTaskDialog,
     EstimationTaskDialog,
+    LeaveRequestDetailDialog,
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
-    TechnologyFormDialog,
-    RepositoryTaskDetailDialog,
+    ReleaseDetailList,
     RepositoryFeatureDetailDialog,
     ReleaseList,
     ReleaseDetailList,
-    EstimationFilterDialog
+    EstimationFilterDialog,
+    RepositoryTaskDetailDialog,
+    TechnologyFormDialog
+
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -167,13 +171,17 @@ class ContentMain extends Component {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
                 return <ContentSection>
                     <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
+                    () => {
+                        this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+                    }
+                     }/>
+                    <LeaveRequestDetailDialog name={COC.LEAVE_DETAIL_DIALOG} show={true} close={
                         () => {
-                            this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+                            this.props.dispatch(A.hideComponent(COC.LEAVE_DETAIL_DIALOG))
                         }
-                    }/>
+                     }/>
                     <RaiseLeaveListContainer name={COC.RAISE_LEAVE_LIST}/>
                 </ContentSection>
-
             }
         })
         routes.push({
@@ -191,7 +199,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleaseList name={COC.RELEASE_LIST}/>
+                    <ReleaseListContainer name={COC.RELEASE_LIST}/>
                 </ContentSection>
 
             }
