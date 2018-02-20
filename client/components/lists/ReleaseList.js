@@ -3,6 +3,8 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 
+import {withRouter} from 'react-router-dom'
+
 
 class ReleaseList extends Component {
 
@@ -15,7 +17,7 @@ class ReleaseList extends Component {
     }
 
     onRowClick(row) {
-        // this.props.history.push("/app-home/release-detail")
+        this.props.history.push("/app-home/release-detail")
 
     }
 
@@ -105,19 +107,17 @@ class ReleaseList extends Component {
                         </div>
                         <div className="col-md-3">
                             <div className="estimation">
-                                <select className="form-control">
-                                    <option value="">All</option>
-                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-                                    <option value={SC.STATUS_APPROVED}>{SC.STATUS_APPROVED}</option>
-                                    <option value={SC.STATUS_INITIATED}>{SC.STATUS_INITIATED}</option>
-                                    <option
-                                        value={SC.STATUS_ESTIMATION_REQUESTED}>{SC.STATUS_ESTIMATION_REQUESTED}</option>
-                                    <option value={SC.STATUS_REVIEW_REQUESTED}>{SC.STATUS_REVIEW_REQUESTED}</option>
-                                    <option value={SC.STATUS_CHANGE_REQUESTED}>{SC.STATUS_CHANGE_REQUESTED}</option>
-                                    <option value={SC.STATUS_REOPENED}>{SC.STATUS_REOPENED}</option>
-                                    <option value={SC.STATUS_PROJECT_AWARDED}>{SC.STATUS_PROJECT_AWARDED}</option>
-                                    <option value={SC.STATUS_REJECTED}>{SC.STATUS_REJECTED}</option>
-                                    <option value={SC.STATUS_CANCELLED}>{SC.STATUS_CANCELLED}</option>
+                                <select className="form-control" onChange={(event, newValue, oldValue) => {
+                                    this.props.changeReleseStatus(newValue)
+
+                                }}>
+                                    <option value="all">All</option>
+                                    <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
+                                    <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                                    <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                                    <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                                    <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                                    <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
 
                                 </select>
                             </div>
@@ -161,7 +161,9 @@ class ReleaseList extends Component {
     }
 }
 
-export default ReleaseList
+export default withRouter(ReleaseList)
+
+
 /*<TableHeaderColumn columnTitle width='10px' dataField='status'
                                                dataFormat={this.formatStatus}
                                                columnClassName={this.columnClassStatusFormat}></TableHeaderColumn>*/

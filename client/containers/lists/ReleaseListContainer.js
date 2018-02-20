@@ -5,6 +5,7 @@ import {ReleaseList} from "../../components"
 import * as logger from '../../clientLogger'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+    changeReleseStatus:(status)=> dispatch(A.getAllReleaseFromServer(status))
     /*
     showEstimationInitiateForm: () => {
         console.log("show estimation init form caled")

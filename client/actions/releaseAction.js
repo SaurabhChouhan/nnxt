@@ -6,9 +6,9 @@ export const addReleases = (releases) => ({
     releases: releases
 })
 
-export const getAllReleaseFromServer = () => {
+export const getAllReleaseFromServer = (status) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases', {
+        return fetch('/api/releases/status/'+status, {
                 method: 'get',
                 credentials: "include",
                 headers: {
