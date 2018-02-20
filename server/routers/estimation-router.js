@@ -63,7 +63,7 @@ estimationRouter.put('/:estimationID/request', async ctx => {
 
 // noinspection Annotator
 /**
- * User by Estimator to request review from Negotiator
+ * User by Estimator to EstimationTaskDialog.js from Negotiator
  */
 estimationRouter.put('/:estimationID/review-request', async ctx => {
     return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)

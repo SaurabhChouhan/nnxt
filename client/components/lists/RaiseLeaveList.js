@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
-import Moment from 'moment'
+import moment from 'moment'
 import {ConfirmationDialog} from "../index";
 import * as SC from '../../../server/serverconstants'
 import {showComponentHideOthers} from "../../actions";
@@ -11,33 +11,56 @@ class RaiseLeaveList extends Component {
 
     constructor(props) {
         super(props)
+        // this.options = {
+        //   onRowClick: this.onRowClick.bind(this)
+        //  }
 
     }
 
+
+    viewButton(cell, row, enumObject, rowIndex) {
+
+
+        return (<button className="fa fa-eye btn btn-custom" type="button" onClick={() => {
+                this.props.showRaiseLeaveDetail(row)
+            }}>
+
+            </button>
+        )
+
+    }
+
+
+    //onRowClick(row) {
+
+    //this.props.showRaiseLeaveDetail(row)
+
+    //  }
+
     formatCreatedDate(leave) {
         if (leave) {
-            return Moment(leave.created).format("DD-MM-YYYY hh:mm:ss")
+            return moment(leave).format("DD-MM-YYYY hh:mm:ss")
         }
         return ''
     }
 
     formatStartDate(leave) {
+
         if (leave) {
 
-            return Moment(leave.startDate).format("DD-MM-YYYY")
-
+            return moment(leave).format("DD-MM-YYYY")
         }
         return ''
     }
 
     formatEndDate(leave) {
         if (leave)
-            return Moment(leave.endDate).format("DD-MM-YYYY")
+            return moment(leave).format("DD-MM-YYYY")
         return ''
     }
 
     formatLeaveType(leaveType) {
-        console.log("leaveType ",leaveType)
+        console.log("leaveType ", leaveType)
         if (leaveType)
             return leaveType.name
         return ''
@@ -46,7 +69,8 @@ class RaiseLeaveList extends Component {
     viewDeleteButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-remove btn btn-custom " type="button" disabled={(row.status=="cancelled")?true : false} onClick={() => {
+        return (<button className="fa fa-remove btn btn-custom " type="button"
+                        disabled={(row.status == "cancelled") ? true : false} onClick={() => {
                 console.log("delete button call", row)
                 this.props.cancelRaiseLeaveRequestCall(row)
             }}>
@@ -78,19 +102,25 @@ class RaiseLeaveList extends Component {
                                                            hidden={true}>ID</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='created'
                                                            dataFormat={this.formatCreatedDate.bind(this)}>Created
-                                            </TableHeaderColumn>
+                                        </TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='startDate'
                                                            dataFormat={this.formatStartDate.bind(this)}>Start Date
-                                            </TableHeaderColumn>
+                                        </TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='endDate'
                                                            dataFormat={this.formatEndDate.bind(this)}>End Date
-                                            </TableHeaderColumn>
+                                        </TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='dayType'>Day Type</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='leaveType'
-                                                           dataFormat={this.formatLeaveType.bind(this)}>Type</TableHeaderColumn>
+                                                           dataFormat={this.formatLeaveType.bind(this)}>Leave
+                                            Type</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
                                         <TableHeaderColumn width="15%" dataField='deleteButton'
-                                                           dataFormat={this.viewDeleteButton.bind(this)}>Cancel Leave</TableHeaderColumn>
+                                                           dataFormat={this.viewDeleteButton.bind(this)}>Cancel
+                                            Leave</TableHeaderColumn>
+
+                                        <TableHeaderColumn width="6%" dataField='button'
+                                                           dataFormat={this.viewButton.bind(this)}>View
+                                        </TableHeaderColumn>
 
                                     </BootstrapTable>
                                 </div>
