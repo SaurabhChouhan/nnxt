@@ -31,6 +31,11 @@ export const selectEstimation = (estimation) => ({
     estimation: estimation
 })
 
+export const updateSelectedEstimation = (estimation) => ({
+    type: AC.UPDATE_SELECTED_ESTIMATION,
+    estimation: estimation
+})
+
 export const addEstimationTask = (task) => ({
     type: AC.ADD_ESTIMATION_TASK,
     task: task
@@ -584,7 +589,7 @@ export const addProjectAwardOnServer = (formInput) => {
             json => {
                 if (json.success) {
                     console.log("ProjectAward", json.data)
-                    //dispatch(addEstimation(json.data))
+                    dispatch(updateSelectedEstimation(json.data))
                 }
 
                 return json
