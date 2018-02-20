@@ -27,8 +27,12 @@ import {
     ProjectFormDialog,
     ReleaseDetailList,
     RepositoryFeatureDetailDialog,
+    ReleaseList,
+    ReleaseDetailList,
+    EstimationFilterDialog,
     RepositoryTaskDetailDialog,
     TechnologyFormDialog
+
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -135,22 +139,27 @@ class ContentMain extends Component {
                                                         }
                                                     }/>
                     <RepositoryTaskDetailDialog name={COC.REPOSITORY_TASK_DETAIL_DIALOG} show={true}
-                                                    close={
-                                                        () => {
-                                                            this.props.dispatch(A.hideComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
-                                                        }
-                                                    }/>
+                                                close={
+                                                    () => {
+                                                        this.props.dispatch(A.hideComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
+                                                    }
+                                                }/>
                     <RepositoryFeatureDetailDialog name={COC.REPOSITORY_FEATURE_DETAIL_DIALOG} show={true}
-                                                    close={
-                                                        () => {
-                                                            this.props.dispatch(A.hideComponent(COC.REPOSITORY_FEATURE_DETAIL_DIALOG))
-                                                        }
-                                                    }/>
+                                                   close={
+                                                       () => {
+                                                           this.props.dispatch(A.hideComponent(COC.REPOSITORY_FEATURE_DETAIL_DIALOG))
+                                                       }
+                                                   }/>
                     <EstimationDetailContainer name={COC.ESTIMATION_DETAIL_PAGE}/>
 
                     <EstimationProjectAwardDialog name={COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
+                        }
+                    }/>
+                    <EstimationFilterDialog name={COC.ESTIMATION_FILTER_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_FILTER_DIALOG))
                         }
                     }/>
                 </ContentSection>
@@ -165,15 +174,14 @@ class ContentMain extends Component {
                     () => {
                         this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }
-                }/>
+                     }/>
                     <LeaveRequestDetailDialog name={COC.LEAVE_DETAIL_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.LEAVE_DETAIL_DIALOG))
                         }
-                    }/>
+                     }/>
                     <RaiseLeaveListContainer name={COC.RAISE_LEAVE_LIST}/>
                 </ContentSection>
-
             }
         })
         routes.push({
@@ -208,7 +216,7 @@ class ContentMain extends Component {
             }
         })
 
-routes.push({
+        routes.push({
             url: "/edit-profile",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/edit-profile: props:", props)

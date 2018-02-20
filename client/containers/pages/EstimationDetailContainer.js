@@ -75,11 +75,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
     },
-    fetchRepositoryBasedOnDiffCriteria:(tags,type)=>{
-        let technologies=[];
-        tags.map((f, i) =>{technologies.push(f.text)})
-        dispatch(A.getRepositoryFromServer(technologies,type))
-    }
+    fetchRepositoryBasedOnDiffCriteria: (tags, type) => {
+        let technologies = [];
+        tags.map((f, i) => {
+            technologies.push(f.text)
+        })
+        dispatch(A.getRepositoryFromServer(technologies, type))
+    },
+
 
 })
 
@@ -88,7 +91,7 @@ const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
     estimation: state.estimation.selected,
     features: state.estimation.features,
-    repository:state.repository.all
+    repository: state.repository.all
 })
 
 const EstimationDetailContainer = withRouter(connect(

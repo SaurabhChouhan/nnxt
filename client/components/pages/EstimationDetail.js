@@ -3,7 +3,10 @@ import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../"
 import {EstimationFeaturesContainer, EstimationTasksContainer, RepositorySearchContainer} from "../../containers"
 import * as logger from '../../clientLogger'
-
+import * as A from "../../actions";
+import * as COC from "../componentConsts";
+import {Link} from 'react-router-dom'
+import {connect} from 'react-redux'
 class EstimationDetail extends Component {
 
     constructor(props) {
@@ -121,7 +124,15 @@ class EstimationDetail extends Component {
                                 <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
                                 <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
                                 <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
-                                <li><a href=""> <i class="glyphicon glyphicon-option-vertical pull-right"></i></a></li>
+                                <li><a href=""> <i class="glyphicon glyphicon-option-vertical pull-right">
+
+                                    <Link to="/app-home/estimation-detail" onClick={() => {
+                                        this.props.dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG))
+                                    }}>filter</Link>
+                                </i></a>
+
+                                </li>
+
                             </ul>
                         </div>
                     </div>
@@ -197,4 +208,4 @@ class EstimationDetail extends Component {
 
 }
 
-export default EstimationDetail
+export default connect()(EstimationDetail)

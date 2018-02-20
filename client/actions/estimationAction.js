@@ -86,6 +86,10 @@ export const expandTask = (taskID) => ({
     type: AC.EXPAND_TASK,
     taskID: taskID
 })
+export const addFilteredEstimation = (filter) => ({
+    type: AC.ADD_FILTERED_ESTIMATIONS,
+    filter: filter
+})
 
 export const getAllEstimationsFromServer = () => {
     return (dispatch, getState) => {
