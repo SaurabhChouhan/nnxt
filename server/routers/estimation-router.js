@@ -355,6 +355,33 @@ estimationRouter.post('/features/estimation/:estimationID/repository-feature/:fe
         throw new AppError("Only user with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add feature from repo into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
+
+/**
+ * copy task from repository by estimator/negotiator to estimation
+ */
+estimationRouter.post('/tasks/estimation/:estimationID/repository-task-copy/:taskID', async ctx => {
+    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
+        return await EstimationTaskModel.copyTaskFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
+    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        return await EstimationTaskModel.copyTaskFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can copy task from repository into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
+/**
+ * Copy feature from repository by estimator/negotiator to estimation
+ */
+estimationRouter.post('/features/estimation/:estimationID/repository-feature-copy/:featureID', async ctx => {
+    console.log("I am here")
+    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
+        return await EstimationFeatureModel.copyFeatureFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
+    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        return await EstimationFeatureModel.copyFeatureFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can copy feature from repo into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
 estimationRouter.put('/features/:featureID/request-removal', async ctx => {
     if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
         return await EstimationFeatureModel.requestRemovalFeatureByEstimator(ctx.params.featureID, ctx.state.user)

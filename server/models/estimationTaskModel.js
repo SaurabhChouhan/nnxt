@@ -734,6 +734,60 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
 
 }
 
+estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, estimator) => {
+
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let repositoryTask = await RepositoryModel.findById(repositoryTaskID)
+    if (!repositoryTask)
+        throw new AppError('Task not found in repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (repositoryTask.isFeature)
+        throw new AppError('This is not a task but a feature', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /*
+    TODO: Need to uncomment this once repository approve functionality is in place
+    if (!_.includes([SC.STATUS_APPROVED], repositoryTask.status))
+        throw new AppError('This repository task is not yet approved so cannot be added to this estimation', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        */
+
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can add task from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + "," + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.estimator._id == estimator._id)
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let thisTaskWithRepoAlreadyExist = await EstimationTaskModel.findOne({
+        "repo._id": repositoryTask._id,
+        "estimation._id": estimation._id
+    })
+    if (thisTaskWithRepoAlreadyExist)
+        throw new AppError('This task is already part of estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+
+
+    let estimationTask = new EstimationTaskModel()
+    // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
+    estimationTask.estimator.name = repositoryTask.name
+    estimationTask.estimator.description = repositoryTask.description
+    estimationTask.status = SC.STATUS_PENDING
+    estimationTask.addedInThisIteration = true
+    estimationTask.owner = SC.OWNER_ESTIMATOR
+    estimationTask.initiallyEstimated = true
+    estimationTask.estimation = estimation
+    estimationTask.technologies = estimation.technologies
+    //estimationTask.repo._id = repositoryTask._id
+    //estimationTask.repo.addedFromThisEstimation = false
+
+    return await estimationTask.save()
+
+}
+
 estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
@@ -784,5 +838,57 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
     taskFromRepositoryObj.repo.addedFromThisEstimation = false
     return await EstimationTaskModel.create(taskFromRepositoryObj)
 }
+
+estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let repositoryTask = await RepositoryModel.findById(repositoryTaskID)
+    if (!repositoryTask)
+        throw new AppError('Task not found in repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /**
+     TODO: Need to uncomment code once we have repository task approval feature in place
+     if (!_.includes([SC.STATUS_APPROVED], repositoryTask.status))
+     throw new AppError('This repository task is not yet approved so cannot be added to this estimation', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+     **/
+
+    if (repositoryTask.isFeature)
+        throw new AppError('This is not a task but a feature', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can add task from repository into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "," + SC.STATUS_INITIATED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('Not a Negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let checkExistsCount = await EstimationTaskModel.count({
+        "repo._id": repositoryTask._id,
+        "estimation._id": estimation._id
+    })
+    if (checkExistsCount > 0)
+        throw new AppError('This task from repository already added', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
+    let taskFromRepositoryObj = new EstimationTaskModel()
+    taskFromRepositoryObj.estimator.name = repositoryTask.name
+    taskFromRepositoryObj.estimator.description = repositoryTask.description
+    taskFromRepositoryObj.status = SC.STATUS_PENDING
+    taskFromRepositoryObj.addedInThisIteration = true
+    taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
+    taskFromRepositoryObj.initiallyEstimated = true
+
+    taskFromRepositoryObj.estimation = estimation
+    taskFromRepositoryObj.technologies = estimation.technologies
+    //taskFromRepositoryObj.repo._id = repositoryTask._id
+    //taskFromRepositoryObj.repo.addedFromThisEstimation = false
+    return await EstimationTaskModel.create(taskFromRepositoryObj)
+}
+
 const EstimationTaskModel = mongoose.model("EstimationTask", estimationTaskSchema)
 export default EstimationTaskModel
