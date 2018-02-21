@@ -1,6 +1,13 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {EstimationFeatureModel, EstimationTaskModel, ProjectModel, UserModel,ReleaseModel,ReleasePlanModel} from "./index"
+import {
+    EstimationFeatureModel,
+    EstimationTaskModel,
+    ProjectModel,
+    UserModel,
+    ReleaseModel,
+    ReleasePlanModel
+} from "./index"
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
@@ -480,8 +487,8 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
         throw new AppError("Only estimations with status [" + SC.STATUS_APPROVED + "] can project award by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     projectAwardData.estimation = estimation
-    const release = await  ReleaseModel.addRelease(projectAwardData,negotiator)
-    if(!release)
+    const release = await  ReleaseModel.addRelease(projectAwardData, negotiator)
+    if (!release)
         throw new AppError('No such release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let releasePlanInput = {}
@@ -491,26 +498,29 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
     releasePlanInput.owner = SC.OWNER_MANAGER
     releasePlanInput.flags = [SC.FLAG_UNPLANNED]
 
-    const taskList = await EstimationTaskModel.find({"estimation._id":estimation._id})
-    if(!taskList && !taskList.length>0)
+    const taskList = await EstimationTaskModel.find({"estimation._id": estimation._id})
+    if (!taskList && !taskList.length > 0)
         throw new AppError('Task list not found for default release plan', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(async task => {
-        releasePlanInput.task = task
-        const releasePlan = await ReleasePlanModel.addReleasePlan(releasePlanInput)
+    let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(task => {
+        let updateTask = {}
+        updateTask._id = task._id
+        updateTask.name = task.negotiator.name
+        releasePlanInput.task = updateTask
+        const releasePlan = ReleasePlanModel.addReleasePlan(releasePlanInput)
     })
 
     let releasePlans = await Promise.all(estimationTasksCopyAndReadyForReleasePlanPromises)
 
     let newStatusHistory = {
-        name:negotiator.firstName +' '+negotiator.lastName,
-        date:Date.now(),
-        status:SC.STATUS_PROJECT_AWARDED
+        name: negotiator.firstName + ' ' + negotiator.lastName,
+        date: Date.now(),
+        status: SC.STATUS_PROJECT_AWARDED
     }
     let existingStatusHistory = estimation.statusHistory
-    if(existingStatusHistory && _.isArray(existingStatusHistory)) {
+    if (existingStatusHistory && _.isArray(existingStatusHistory)) {
         existingStatusHistory.push(newStatusHistory)
-    }else {
+    } else {
         existingStatusHistory = []
         existingStatusHistory.push(newStatusHistory)
     }
