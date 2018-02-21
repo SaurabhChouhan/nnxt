@@ -28,7 +28,7 @@ let estimationFeatureSchema = mongoose.Schema({
     },
     repo: {
         _id: mongoose.Schema.ObjectId,
-        addedFromThisEstimation: {type: Boolean, required: true}
+        addedFromThisEstimation: {type: Boolean,required:false}
     },
     estimator: {
         name: {type: String},
