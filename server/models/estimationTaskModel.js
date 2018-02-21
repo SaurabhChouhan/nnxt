@@ -359,7 +359,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
 
     // As task is moved please update repository as well to note this change
 
-    await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
+    //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
 
     task.feature = feature
     task.updated = Date.now()
@@ -395,7 +395,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
         await EstimationFeatureModel.updateOne({_id: task.feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
 
     let feature = await EstimationFeatureModel.findById(task.feature._id)
-    await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
+    //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
 
     task.feature = null
     task.updated = Date.now()
@@ -485,7 +485,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
     }
 
-    await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
+    //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
 
     task.feature = feature
     task.updated = Date.now()
@@ -607,7 +607,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, n
     if (task.estimator.estimatedHours)
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
 
-    await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
+    //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
 
     task.feature = null
     task.updated = Date.now()

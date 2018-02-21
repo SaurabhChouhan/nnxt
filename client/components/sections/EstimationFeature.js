@@ -293,7 +293,7 @@ class EstimationFeature extends React.PureComponent {
                             <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"></img>
                         </div>}
 
-                        {!feature.repo.addedFromThisEstimation &&
+                        {feature.repo && !feature.repo.addedFromThisEstimation &&
                         <div className="flagStrip">
                             <img key="repo_flag" src="/images/repo_flag.png"></img>
                         </div>
