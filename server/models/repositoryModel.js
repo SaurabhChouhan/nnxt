@@ -34,6 +34,13 @@ repositorySchema.statics.isTaskExists = async (name) => {
     return false
 }
 
+repositorySchema.statics.isFeatureExists = async (name) => {
+    let count = await RepositoryModel.count({'name': name,'isFeature':true})
+    console.log("count is ", count)
+    if (count > 0)
+        return true
+    return false
+}
 
 repositorySchema.statics.getFeature = async (repositoryFeatureID) => {
     let features = await RepositoryModel.aggregate({
@@ -82,7 +89,6 @@ repositorySchema.statics.addTask = async (taskInput, user) => {
     return await RepositoryModel.create(taskInput)
 
 }
-
 
 repositorySchema.statics.get = async () => {
     /*Currently api return all repository task/features with out any filters, filter will be apply in next.*/

@@ -453,7 +453,7 @@ const addLeaveTypes = async () => {
 
 // This method would add tasks and features in repository
 const addRepositoryTasksAndFeatures = async () => {
-
+    let taskIdsForFeature=[];
     if (!await RepositoryModel.isTaskExists('Simple Login (AJAX) using Passport.js API (Node/Koa)')) {
         console.log("Adding repository task")
         await RepositoryModel.addTask({
@@ -495,7 +495,7 @@ const addRepositoryTasksAndFeatures = async () => {
 
     if (!await RepositoryModel.isTaskExists('Login page (username/password) - React')) {
         console.log("Adding repository task")
-        await RepositoryModel.addTask({
+        let userLoginTask=await RepositoryModel.addTask({
             name: 'Login page (username/password) - React',
             description: `Create a login page using React 
             - Create a login component with a redux form having two fields username/password
@@ -513,11 +513,13 @@ const addRepositoryTasksAndFeatures = async () => {
             technologies: ['React', 'Redux'],
             tags: ['Simple Login']
         })
+        if(userLoginTask)
+        taskIdsForFeature.push({'_id':userLoginTask._id})
     }
 
     if (!await RepositoryModel.isTaskExists('Registration page (basic details) - React')) {
         console.log("Adding repository task")
-        await RepositoryModel.addTask({
+        let userRegistrationTask=await RepositoryModel.addTask({
             name: 'Registration page (basic details) - React',
             description: `Create a registration page with basic details of user
             Fields:
@@ -536,6 +538,32 @@ const addRepositoryTasksAndFeatures = async () => {
             hasHistory: false,
             technologies: ['Koa', 'Node', 'Mongodb'],
             tags: ['Registration', 'basic fields']
+        })
+        if(userRegistrationTask)
+            taskIdsForFeature.push({'_id':userRegistrationTask._id})
+    }
+    if (!await RepositoryModel.isFeatureExists('User Login and registration (basic details) - React')) {
+        console.log("Adding repository task")
+        await RepositoryModel.create({
+            name: 'User Login and registration (basic details) - React',
+            description: `Create a login and registration page with basic details of user
+            Fields:
+            Name, email, password, confirm password
+            - Create a registration component with a redux form have mentioned fields
+            - Add appropriate validation (like valid email, email not already exists)
+            - Create thunk action to call registration API
+            - Call thunk action from registration component and handle success/failure scenario
+            - On success user should be automatically logged in with his detail added into logged in user redux state
+            - On failure user should appropriately be told about registration problems (like email already registered, system failure etc.
+            `,
+            status: SC.STATUS_APPROVED,
+            type: SC.TYPE_DEVELOPMENT,
+            isFeature: true,
+            isPartOfEstimation: false,
+            hasHistory: false,
+            technologies: ['Koa', 'Node', 'Mongodb'],
+            tags: ['Login','Registration', 'basic fields'],
+            tasks:taskIdsForFeature
         })
     }
 }
