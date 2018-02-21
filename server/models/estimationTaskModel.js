@@ -88,7 +88,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
 
-    let repositoryTask = repositoryTask = await RepositoryModel.addTask({
+   /* let repositoryTask = repositoryTask = await RepositoryModel.addTask({
         name: taskInput.name,
         description: taskInput.description,
         estimation: {
@@ -98,7 +98,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         createdBy: estimator,
         technologies: estimation.technologies, // Technologies of estimation would be copied directly to tasks
         tags: taskInput.tags
-    }, estimator)
+    }, estimator)*/
 
     let estimationTask = new EstimationTaskModel()
     estimationTask.estimator.name = taskInput.name
@@ -112,7 +112,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
     estimationTask.feature=taskInput.feature
-    estimationTask.repo._id = repositoryTask._id
+    //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
 
     if (!_.isEmpty(taskInput.notes)) {
@@ -149,7 +149,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         // As task is being added by negotiator there would not be any change in estimated hours of feature as this would just be considered as suggestions
     }
 
-    let repositoryTask = await RepositoryModel.addTask({
+   /* let repositoryTask = await RepositoryModel.addTask({
         name: taskInput.name,
         description: taskInput.description,
         estimation: {
@@ -158,7 +158,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         feature: taskInput.feature,
         createdBy: negotiator,
         technologies: estimation.technologies
-    }, negotiator)
+    }, negotiator)*/
 
     let estimationTask = new EstimationTaskModel()
     estimationTask.negotiator.name = taskInput.name
@@ -172,7 +172,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
-    estimationTask.repo._id = repositoryTask._id
+    //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     estimationTask.estimator.name = taskInput.name
