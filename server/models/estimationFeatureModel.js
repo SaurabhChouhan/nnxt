@@ -67,14 +67,14 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let repositoryFeature = undefined
+    //let repositoryFeature = undefined
 
     /**
      * As no repo id is sent, this means that this is a new feature, hence save this feature into repository
      * @type {{addedFromThisEstimation: boolean}}
      */
 
-    repositoryFeature = await RepositoryModel.addFeature({
+    /*repositoryFeature = await RepositoryModel.addFeature({
         name: featureInput.name,
         description: featureInput.description,
         estimation: {
@@ -83,7 +83,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
         createdBy: estimator,
         technologies: estimation.technologies,
         tags: featureInput.tags
-    }, estimator)
+    }, estimator)*/
 
     let estimationFeature = new EstimationFeatureModel()
     estimationFeature.estimator.name = featureInput.name
@@ -96,7 +96,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     estimationFeature.estimation = featureInput.estimation
     estimationFeature.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
-    estimationFeature.repo._id = repositoryFeature._id
+    //estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
 
     if (!_.isEmpty(featureInput.notes)) {
@@ -120,7 +120,7 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let repositoryFeature = await RepositoryModel.addFeature({
+   /* let repositoryFeature = await RepositoryModel.addFeature({
         name: featureInput.name,
         description: featureInput.description,
         estimation: {
@@ -134,7 +134,7 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     featureInput.repo = {
         _id: repositoryFeature._id,
         addedFromThisEstimation: true
-    }
+    } */
 
 
     let estimationFeature = new EstimationFeatureModel()
@@ -149,8 +149,8 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     estimationFeature.estimation = featureInput.estimation
     estimationFeature.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
-    estimationFeature.repo._id = repositoryFeature._id
-    estimationFeature.repo.addedFromThisEstimation = true
+    //estimationFeature.repo._id = repositoryFeature._id
+    //estimationFeature.repo.addedFromThisEstimation = true
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
