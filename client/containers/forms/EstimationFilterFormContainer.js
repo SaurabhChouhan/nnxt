@@ -4,11 +4,11 @@ import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 import * as EC from "../../../server/errorcodes";
-import {SubmissionError} from "redux-form";
+import {getFormValues} from "redux-form";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
-        console.log("get the form values",formValues)
+        console.log("get the form values", formValues)
         dispatch(A.addFilteredEstimation(formValues))
         dispatch(A.hideComponent(COC.ESTIMATION_FILTER_DIALOG))
     }
@@ -17,7 +17,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
 
     loggedInUser: state.user.loggedIn,
-    features: state.estimation.features,
+    initialValues: {
+        "repository": state.estimation.repository,
+        "estimator": state.estimation.estimator,
+        "negotiator": state.estimation.negotiator,
+        "changeRequested": state.estimation.changeRequested,
+        "grantPermission": state.estimation.grantPermission,
+        "suggestions": state.estimation.suggestions,
+    }
+
 
 })
 

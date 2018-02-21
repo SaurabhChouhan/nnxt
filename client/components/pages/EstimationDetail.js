@@ -7,6 +7,8 @@ import * as A from "../../actions";
 import * as COC from "../componentConsts";
 import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
+
+
 class EstimationDetail extends Component {
 
     constructor(props) {
@@ -125,14 +127,11 @@ class EstimationDetail extends Component {
                                 <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
                                 <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
                                 <li><a href=""> <i class="glyphicon glyphicon-option-vertical pull-right">
-
-                                    <Link to="/app-home/estimation-detail" onClick={() => {
-                                        this.props.dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG))
-                                    }}>filter</Link>
                                 </i></a>
-
                                 </li>
-
+                                <button type="button" className="btn customBtn" onClick={() =>
+                                { this.props.estimationFilterForm()}
+                                }>filter</button>
                             </ul>
                         </div>
                     </div>
@@ -208,4 +207,4 @@ class EstimationDetail extends Component {
 
 }
 
-export default connect()(EstimationDetail)
+export default EstimationDetail

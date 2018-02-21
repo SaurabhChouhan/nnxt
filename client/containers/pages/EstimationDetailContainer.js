@@ -83,6 +83,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getRepositoryFromServer(technologies, type))
     },
 
+    estimationFilterForm:()=>{
+        dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG))
+    }
 
 })
 

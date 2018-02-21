@@ -4,7 +4,13 @@ import {EstimationFeatures} from "../../components"
 const mapStateToProps = (state, ownProps) => ({
     features: state.estimation.features,
     loggedInUserRole: state.estimation.selected.loggedInUserRole,
-    expandedFeatureID: state.estimation.expandedFeatureID
+    expandedFeatureID: state.estimation.expandedFeatureID,
+    repository:state.estimation.repository,
+    estimator:state.estimation.estimator,
+    negotiator:state.estimation.negotiator,
+    changeRequested:state.estimation.changeRequested,
+    grantPermission:state.estimation.grantPermission,
+    suggestions:state.estimation.suggestions,
 })
 
 const EstimationFeaturesContainer = connect(

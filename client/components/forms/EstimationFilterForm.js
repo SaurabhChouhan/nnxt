@@ -1,8 +1,9 @@
 import {required} from "./validation"
-import {renderCheckBox, renderSelect, renderText} from "./fields"
+import {renderCheckBox, renderSelect} from "./fields"
 import {Field, reduxForm, reset} from 'redux-form'
 import React from 'react'
 import * as SC from "../../../server/serverconstants";
+import {connect} from "react-redux";
 
 
 let EstimationFilterForm = (props) => {
@@ -11,14 +12,17 @@ let EstimationFilterForm = (props) => {
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">
-                <Field name="repository" component={renderCheckBox} label={"Repository:"}/>
+
+                <Field name="repository" component={renderCheckBox} label={"Repository:"} />
             </div>
             <div className="col-md-6">
                 {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}/>}
+                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}
+                       />}
 
                 {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>}
+                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}
+                      />}
 
 
             </div>
@@ -27,23 +31,17 @@ let EstimationFilterForm = (props) => {
         <div className="row">
             <div className="col-md-6">
                 {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="grantPermission" component={renderCheckBox} label={"Permission Granted:"}/>}
-            </div>
-            <div className="col-md-6">
-                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="suggestion" component={renderCheckBox} label={"Suggestion:"}/>}
-            </div>
+                <Field name="grantPermission" component={renderCheckBox} label={"Permission Granted:"}
+                       />}
 
-        </div>
-        <div className="row">
-            <div className="col-md-6">
                 {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                <Field name="changeRequested" component={renderCheckBox} label={"Change-Request:"}/>}
-
+                <Field name="changeRequested" component={renderCheckBox} label={"Change-Request:"}
+                       />}
             </div>
-            {/*<div className="col-md-6">
-                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}/>
-            </div>*/}
+            <div className="col-md-6">
+                <Field name="suggestions" component={renderCheckBox} label={"Suggestion:"}
+                       />
+            </div>
 
         </div>
 
