@@ -31,6 +31,30 @@ class ReleaseDetailList extends Component {
         return ''
 
     }
+    formatDate(row) {
+        if (row) {
+            return moment(row).format("DD-MM-YYYY")
+        }
+        return ''
+
+    }
+    formatEstimatedHours(estimation) {
+        if (estimation)
+            return estimation.estimatedHours
+        return ''
+    }
+
+    formatReportedHours(report) {
+        if (report)
+            return report.reportedHours
+        return ''
+    }
+    formatReportedStatus(report) {
+        if (report)
+            return report.finalStatus
+        return ''
+    }
+
 
     formateTaskName(task) {
         if (task)
@@ -142,39 +166,30 @@ class ReleaseDetailList extends Component {
                         </div>
                     </div>
                     <div className="col-md-12 releaseOption">
-                        <div className="col-md-4 pad ">
+                        <div className="col-md-2 pad ">
                             <div className="releaseTeamManager"><span>Manager</span>
                             </div>
-                            <div className="estimationuser tooltip"><span>AB</span>
-                                <p className="tooltiptext">{release.manager ? release.manager.firstName : ''}</p></div>
-                            <div className="estimationuser"><span>CD</span></div>
-                            <div className="estimationuser"><span>EF</span></div>
-                            <div className="estimationuser"><span>GH</span></div>
-
-
-                        </div>
-                        <div className="col-md-3 pad ">
-                            <div className="releaseTeamManager"><span> Leader</span>
+                            <div className="estimationuser tooltip"><span>M</span>
+                                <p className="tooltiptext">{release.manager ? release.manager.firstName : ''}</p>
                             </div>
-                            <div className="estimationuser tooltip"><span>AB</span>
+                         </div>
+                        <div className="col-md-2 pad ">
+                            <div className="releaseTeamLeader"><span> Leader</span>
+                            </div>
+                            <div className="estimationuser tooltip"><span>L</span>
                                 <p className="tooltiptext">{release.leader ? release.leader.firstName : ''}</p></div>
-                            <div className="estimationuser"><span>CD</span></div>
-                            <div className="estimationuser"><span>EF</span></div>
-                            <div className="estimationuser"><span>GH</span></div>
-
-
-                        </div>
-                        <div className="col-md-5 pad ">
-                            <div className="releaseTeam"><span>TeamMember</span>
+                          </div>
+                        <div className="col-md-8 pad ">
+                            <div className="releaseTeam"><span>Team</span>
                             </div>
-
-                            <div className="estimationuser tooltip"><span>AB</span>
-                                <p className="tooltiptext">{release.team ? release.team[team].name : ''}</p></div>
-                            <div className="estimationuser"><span>CD</span></div>
-                            <div className="estimationuser"><span>EF</span></div>
-                            <div className="estimationuser"><span>GH</span></div>
-                            <div className="estimationuser"><span>IJ</span></div>
-                            <div className="estimationuser"><span>KL</span></div>
+                            {
+                                release.team.map((teamMember,index)=> {
+                                console.log("teamMember" ,teamMember);
+                               return <div className="estimationuser tooltip"><span>T{index+1}</span>
+                                    <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
+                                </div>
+                            })
+                            }
 
                         </div>
 
@@ -184,18 +199,22 @@ class ReleaseDetailList extends Component {
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatStartDate.bind(this)}>Start
-                                Date</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='created'  dataFormat={this.formatDate.bind(this)} >Created</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='task'
                                                dataFormat={this.formateTaskName.bind(this)}>Task
                                 Name</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='employee'>Emp. Name</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='flag'>Emp. Flag</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='estimated-hour'>Est Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='requested-hour'>Requested
+                            <TableHeaderColumn columnTitle dataField='employee'>Emp./Team Name</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='flags'>Emp./Team Flag</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='estimation' dataFormat={this.formatEstimatedHours.bind(this)}>Est Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='report' dataFormat={this.formatReportedHours.bind(this)}>Reported
                                 Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='startDate'
+                                               dataFormat={this.formatStartDate.bind(this)}>Start
+                                Date</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='endDate'>End Date</TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle dataField='report' dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
+
                         </BootstrapTable>
                     </div>
                 </div>
