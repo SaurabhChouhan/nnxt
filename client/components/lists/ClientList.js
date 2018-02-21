@@ -12,8 +12,6 @@ class ClientList extends Component {
         this.state = {
             showClientDeletionDialog: false,
             addRow:null
-
-
         }
 
     }
@@ -77,9 +75,9 @@ class ClientList extends Component {
                                                 hover={true}>
                                     <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
                                     <TableHeaderColumn dataField='name'>Client Name</TableHeaderColumn>
-                                    <TableHeaderColumn width="15%" dataField='editButton' dataFormat={this.viewEditButton.bind(this)} >Edit project
+                                    <TableHeaderColumn width="15%" dataField='editButton' dataFormat={this.viewEditButton.bind(this)} >Edit Client
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn width="15%" dataField='deleteButton' dataFormat={this.viewDeleteButton.bind(this)} >Delete project
+                                    <TableHeaderColumn width="15%" dataField='deleteButton' dataFormat={this.viewDeleteButton.bind(this)} >Delete Client
                                     </TableHeaderColumn>
 
                                 </BootstrapTable>

@@ -26,7 +26,6 @@ const mapStateToProps = (state, ownProps) => ({
         "suggestions": state.estimation.suggestions,
     }
 
-
 })
 
 const EstimationFilterFormContainer = connect(
