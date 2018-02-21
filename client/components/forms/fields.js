@@ -3,7 +3,6 @@ import moment from 'moment';
 import Multiselect from 'react-widgets/lib/Multiselect'
 import DateTimePicker from 'react-widgets/lib/DateTimePicker'
 import _ from 'lodash'
-
 /*
 Form Field components
  */
@@ -42,12 +41,32 @@ export const renderCheckBox = ({
             </span>))
         }
         <label>
-            <input {...input} readOnly={readOnly} type="checkbox"/>
+            <input {...input} readOnly={readOnly} checked={input && input.value ? true : false}
+                   onCheck={input.onChange} type="checkbox"/>
             {label}
         </label>
 
     </div>
+/*
+export const renderCheckBox = ({
+                                   input,
+                                   label,
+                                   readOnly,
+                                   meta: {touched, error, warning}
+                               }) =>
+            <div className="input checkbox">
+        {touched &&
+        ((error &&
+            <span className="validation-error">
+        {error}
+            </span>))
+        }
+         <label>
+             <input {...input} readOnly={readOnly} type="checkbox"/>
+              {label}
+            </label>
 
+                </div>*/
 
 export const renderSelect = ({
                                  input,

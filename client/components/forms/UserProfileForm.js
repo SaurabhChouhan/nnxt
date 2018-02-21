@@ -7,9 +7,10 @@ import {
     renderMultiselect,
     renderField,
     renderSelect,
-    renderDateTimePickerString
+    renderDateTimePickerString, renderDateTimePicker
 } from './fields'
 import {required, email, passwordLength, number} from "./validation"
+import moment from "moment/moment";
 
 
 const passwordMatch = (value, values) => {
@@ -93,9 +94,9 @@ class UserProfileForm extends Component {
                             <div className="row">
 
                                 <div className="col-md-6">
-
-                                    <Field name="dob" label={"DOB :"} placeholder={"date of birth"}
-                                           component={renderText}/>
+                                    <Field name="dob" placeholder={"date of birth :"} component={renderDateTimePicker}
+                                           showTime={false}
+                                           label={"DOB :"} validate={[required]}/>
                                 </div>
 
                                 <div className="col-md-6">
@@ -119,7 +120,7 @@ class UserProfileForm extends Component {
                             </div>
                             <div className="row updateUserProfile">
                                 <div className="col-md-6 text-right">
-                                    <button type="submit" className="btn customBtn">Submit</button>
+                                    <button type="submit" className="btn customBtn">Update</button>
                                 </div>
                                 <div className="col-md-6 text-left">
                                     <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
