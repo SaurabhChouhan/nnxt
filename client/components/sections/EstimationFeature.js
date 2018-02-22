@@ -143,7 +143,7 @@ class EstimationFeature extends React.PureComponent {
                              }}/> :
                         <img key="delete_disable" src="/images/delete_disable.png"/>)
                 } else {
-                    if (feature.negotiator.changeRequested) {
+                    if (feature.negotiator.changeSuggested) {
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
                         // Negotiator has requested change
                         buttons.push(editView ?
@@ -197,7 +197,7 @@ class EstimationFeature extends React.PureComponent {
                     }
                 }
             } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
-                if (feature.negotiator.changeRequested) {
+                if (feature.negotiator.changeSuggested) {
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'estimator suggestion_incoming change, suggestion_incoming button')
                     /* Negotiator has provided suggestions, clicking this button should show a window that would
                        allow estimator to see suggestions given by negotiator
