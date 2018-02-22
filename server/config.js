@@ -54,6 +54,11 @@ const config = {
             port: 3002,
             setupData: false,
             dropDatabase: false
+        },
+        khushboo: {
+            port: 3000,
+            setupData: false,
+            dropDatabase: false
         }
     },
     mongo: {
@@ -69,7 +74,7 @@ const config = {
         },
         khushboo: {
             dbname: 'nnxt',
-            url: 'mongodb://192.168.1.55:27017/khushboo_nnxt',
+            url: 'mongodb://localhost:27017/khushboo_nnxt',
             useMongoClient: true
         },
         gaurav: {

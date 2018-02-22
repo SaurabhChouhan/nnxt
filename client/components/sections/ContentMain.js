@@ -9,7 +9,8 @@ import {
     RaiseLeaveListContainer,
     ReleaseListContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    ReleaseDetailListContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -25,7 +26,6 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
-    ReleaseDetailList,
     RepositoryFeatureDetailDialog,
     ReleaseList,
     EstimationFilterDialog,
@@ -209,7 +209,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleaseDetailList name={COC.RELEASE_DETAIL_LIST}/>
+                    <ReleaseDetailListContainer name={COC.RELEASE_DETAIL_LIST}/>
                 </ContentSection>
 
             }

@@ -18,6 +18,7 @@ class ReleaseList extends Component {
 
     onRowClick(row) {
         this.props.history.push("/app-home/release-detail")
+        this.props.projectSelected(row)
 
     }
 
@@ -93,7 +94,6 @@ class ReleaseList extends Component {
     }
 
 
-
     render() {
         return (
             <div key="estimation_list" className="clearfix">
@@ -102,13 +102,14 @@ class ReleaseList extends Component {
                         <div className="col-md-6 pad">
                             <div className="search">
                                 <input type="text" className="form-control" placeholder="Search Project Names"/>
-                                <button type="submit" className="btn searchBtn"><i className="fa fa-search"></i></button>
+                                <button type="submit" className="btn searchBtn"><i className="fa fa-search"></i>
+                                </button>
                             </div>
                         </div>
                         <div className="col-md-3">
                             <div className="estimation">
                                 <select className="form-control" onChange={(status) =>
-                                    this.props.changeReleseStatus(status.target.value)
+                                    this.props.changeReleaseStatus(status.target.value)
                                 }>
                                     <option value="all">All</option>
                                     <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
