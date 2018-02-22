@@ -575,7 +575,6 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
             })
     }
 }
-
 export const addProjectAwardOnServer = (formInput) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/project-awarded', {
@@ -623,3 +622,24 @@ export const requestForFeatureDeletePermissionOnServer = (featureID) => {
     }
 }
 
+export const approveTaskByNegotiatorOnServer = (taskID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/tasks/' + taskID + '/approve', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
