@@ -674,7 +674,7 @@ estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator
         || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
         || _.isEmpty(task.estimator.name)
         || _.isEmpty(task.estimator.description))
-        throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
+        throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
     task.status = SC.STATUS_APPROVED
     task.updated = Date.now()

@@ -43,8 +43,24 @@ class EstimationTask extends React.PureComponent {
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
             editView = true
 
+        if(task.status===SC.STATUS_APPROVED){
+            editView=false
+        }
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
+
+
+            //if task is not empty show approve button
+            if(task.status===SC.STATUS_PENDING){
+                buttons.push(editView ?
+                    <img key="approve" src="/images/approve.png"
+                         onClick={() => {
+                             console.log("good job",task._id)
+                             this.props.approveTask(task)
+                         }}/> :
+                    <img key="approve_disable" src="/images/approve_disable.png"/>)
+            }
+
             // First button shown to negotiator would be suggestion button (kind of edit button)
             if (task.negotiator.changeSuggested) {
                 // Negotiator has suggested changes in this iteration so show that to negotiator,
@@ -95,6 +111,9 @@ class EstimationTask extends React.PureComponent {
                 }
             }
 
+
+
+
             // Third button shown to negotiator would be related to removal request (by estimator)/ delete button
             if (task.estimator.removalRequested) {
                 // Estimator has requested removal, negotiator will directly delete task if he wants to
@@ -115,6 +134,8 @@ class EstimationTask extends React.PureComponent {
                          }}/> :
                     <img key="delete_disable" src="/images/delete_disable.png"/>)
             }
+
+
 
         } else if (loggedInUserRole === SC.ROLE_ESTIMATOR) {
             if (task.addedInThisIteration && task.owner === SC.OWNER_ESTIMATOR) {
@@ -209,21 +230,36 @@ class EstimationTask extends React.PureComponent {
         }
 
         if (loggedInUserRole === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) ||
-            loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
-            if (task.feature && task.feature._id) {
-                // This task is part of some feature so add move out of feature button
-                buttons
-                    .push(
-                        <img key="move_outof_feature" src="/images/move_outof_feature.png"
-                             onClick={() => this.props.moveTaskOutOfFeature(task)}/>)
+            loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus) ) {
+
+            if(editView)
+            {
+                if (task.feature && task.feature._id) {
+                    // This task is part of some feature so add move out of feature button
+                    buttons
+                        .push(
+                            <img key="move_outof_feature" src="/images/move_outof_feature.png"
+                                 onClick={() => this.props.moveTaskOutOfFeature(task)}/>)
+                }
+
+                else {
+                    // This task is an individual task so add move to feature button
+                    buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
+                        this.props.moveToFeature(task);
+                    }}/>)
+                }
+            }
+            else {
+                if (task.feature && task.feature._id) {
+                    buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature_disable.png"/>)
+                } else {
+                    buttons.push(<img key="move_to_feature" src="/images/move_to_feature_disable.png"/>)
+
+                }
             }
 
-            else {
-                // This task is an individual task so add move to feature button
-                buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png" onClick={() => {
-                    this.props.moveToFeature(task);
-                }}/>)
-            }
+
+
         } else {
             if (task.feature && task.feature._id) {
                 buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature_disable.png"/>)
@@ -266,6 +302,12 @@ class EstimationTask extends React.PureComponent {
                     {task.negotiator.changedInThisIteration && <div className="flagStrip">
                         <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
                              title="Edited by Negotiator"/>
+                    </div>}
+
+                    {task.status === SC.STATUS_APPROVED &&
+                    <div className="flagStrip">
+                        <img key="approved_flag" src="/images/approved_flag.png"
+                             title="Approved"/>
                     </div>}
                     {((task.negotiator.changedInThisIteration && task.negotiator.isMovedOutOfFeature ) ||
                         (task.estimator.changedInThisIteration && task.estimator.isMovedOutOfFeature ))
@@ -403,6 +445,26 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
             }
             else {
                 NotificationManager.error('Permission Grant Failed')
+            }
+
+        })
+    },
+    approveTask: (values) => {
+        console.log("check the value in estimation tasks",values)
+        return dispatch(A.approveTaskByNegotiatorOnServer(values._id)).then(json => {
+            if (json.success) {
+                    NotificationManager.success("Task Approved ...")
+
+            }
+            else {
+                if (json.code == EC.TASK_APPROVAL_ERROR){
+                    NotificationManager.error('Task cant be approved as Estimator has demanded some changes')
+                }
+                else{
+
+                    NotificationManager.error('Task Not Approved')
+                }
+
             }
 
         })
