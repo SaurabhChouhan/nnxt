@@ -6,15 +6,16 @@ import {withRouter} from 'react-router-dom'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    changeReleseFlag: (flag) => {
-        if (flag)
-            return dispatch(A.getAllReleaseFromServer(flag))
+    changeReleaseFlag: (release, status, flag) => {
+        return dispatch(A.getTaskReleaseFromServer(release, status, flag))
+    },
+    changeReleaseStatus: (release, status, flag) => {
+        return dispatch(A.getTaskReleaseFromServer(release, status, flag))
     }
 
 })
 
 const mapStateToProps = (state) => {
-    console.log("releaseDetail", state.release.selected)
     return {
         loggedInUser: state.user.loggedIn,
         release: state.release.selected,

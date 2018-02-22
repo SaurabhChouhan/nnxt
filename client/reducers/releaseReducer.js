@@ -14,11 +14,8 @@ const clientReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 selected: action.project
             })
-
         case AC.ADD_RELEASES_TASK:
-
             return Object.assign({}, state, {all: action.releasePlans})
-
         default:
             return state
     }

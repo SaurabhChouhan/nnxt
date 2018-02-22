@@ -38,6 +38,7 @@ export const STATUS_RELEASED = 'released'
 export const STATUS_ISSUE_FIXING = 'issue-fixing'
 export const STATUS_OVER = 'over'
 export const STATUS_COMPLETED = 'completed'
+export const STATUS_UNPLANNED = 'unplanned'
 
 export const TYPE_DEVELOPMENT = 'development'
 

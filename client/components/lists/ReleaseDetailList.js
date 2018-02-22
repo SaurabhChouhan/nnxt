@@ -8,9 +8,15 @@ class ReleaseDetailList extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            status: "all",
+            flag: "all"
+        }
         this.options = {
             onRowClick: this.onRowClick.bind(this)
         }
+        this.onFlagChange = this.onFlagChange.bind(this)
+        this.onStatusChange = this.onStatusChange.bind(this)
 
     }
 
@@ -19,40 +25,29 @@ class ReleaseDetailList extends Component {
 
     }
 
-
-    formatStatus(status) {
-        return ''
-    }
-
-    formatStartDate(row) {
-        if (row) {
-            return moment(row.devStartDate).format("DD-MM-YYYY")
-        }
-        return ''
-
-    }
     formatDate(row) {
         if (row) {
             return moment(row).format("DD-MM-YYYY")
         }
         return ''
-
     }
-    formatEstimatedHours(estimation) {
-        if (estimation)
-            return estimation.estimatedHours
-        return ''
+
+    formatEstimatedHours(task) {
+        if (task)
+            return task.estimatedHours
+        return 0
     }
 
     formatReportedHours(report) {
         if (report)
             return report.reportedHours
-        return ''
+        return 0
     }
+
     formatReportedStatus(report) {
         if (report)
             return report.finalStatus
-        return ''
+        return 'unplanned'
     }
 
 
@@ -62,15 +57,35 @@ class ReleaseDetailList extends Component {
         return ''
     }
 
+    formatTaskPlanStartDate(planning) {
+        if (planning && planning.minPlanningDate) {
+            return moment(planning.minPlanningDate).format("DD-MM-YYYY")
+        }
+        return ''
+    }
+
+    formatTaskPlanEndDate(planning) {
+        if (planning && planning.maxPlanningDate) {
+            return moment(planning.maxPlanningDate).format("DD-MM-YYYY")
+        }
+        return ''
+    }
+
+    onFlagChange(flag) {
+        this.setState({flag: flag})
+        this.props.changeReleaseFlag(this.props.release, this.state.status, flag)
+    }
+
+    onStatusChange(status) {
+        this.setState({status: status})
+        this.props.changeReleaseStatus(this.props.release, status, this.state.flag)
+    }
 
     render() {
         let team = 0
         const {release} = this.props
-
-        console.log("release", this.props.release)
+        const {status, flag} = this.state
         return (
-
-
             <div key="estimation_list" className="clearfix">
 
                 <div className="col-md-12 releaseHeader">
@@ -133,7 +148,7 @@ class ReleaseDetailList extends Component {
                         <div className="col-md-3">
                             <div className="releaseSelect">
                                 <select className="form-control" onChange={(flag) =>
-                                    this.props.changeReleaseFlag(flag.target.value)
+                                    this.onFlagChange(flag.target.value)
                                 }>
                                     <option value="all">All Flags</option>
                                     <option value={SC.FLAG_UNPLANNED}>{SC.FLAG_UNPLANNED}</option>
@@ -150,11 +165,11 @@ class ReleaseDetailList extends Component {
                         </div>
                         <div className="col-md-3">
                             <div className="releaseSelect">
-                                <select className="form-control" onChange={(status) =>
-                                    this.props.changeReleseStatus(status.target.value)
-                                }>
+                                <select className="form-control"
+                                        onChange={(status) => this.onStatusChange(status.target.value)}>
                                     <option value="all">All Status</option>
-                                    <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
+                                    <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
                                     <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
                                     <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
                                     <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
@@ -172,23 +187,22 @@ class ReleaseDetailList extends Component {
                             <div className="estimationuser tooltip"><span>M</span>
                                 <p className="tooltiptext">{release.manager ? release.manager.firstName : ''}</p>
                             </div>
-                         </div>
+                        </div>
                         <div className="col-md-2 pad ">
                             <div className="releaseTeamLeader"><span> Leader</span>
                             </div>
                             <div className="estimationuser tooltip"><span>L</span>
                                 <p className="tooltiptext">{release.leader ? release.leader.firstName : ''}</p></div>
-                          </div>
+                        </div>
                         <div className="col-md-8 pad ">
                             <div className="releaseTeam"><span>Team</span>
                             </div>
                             {
-                                release.team.map((teamMember,index)=> {
-                                console.log("teamMember" ,teamMember);
-                               return <div className="estimationuser tooltip"><span>T{index+1}</span>
-                                    <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
-                                </div>
-                            })
+                                release.team.map((teamMember, index) => {
+                                    return <div className="estimationuser tooltip"><span>T{index + 1}</span>
+                                        <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
+                                    </div>
+                                })
                             }
 
                         </div>
@@ -199,21 +213,27 @@ class ReleaseDetailList extends Component {
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='created'  dataFormat={this.formatDate.bind(this)} >Created</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Created</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='task'
                                                dataFormat={this.formateTaskName.bind(this)}>Task
                                 Name</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='employee'>Emp./Team Name</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='flags'>Emp./Team Flag</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='estimation' dataFormat={this.formatEstimatedHours.bind(this)}>Est Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='report' dataFormat={this.formatReportedHours.bind(this)}>Reported
+                            <TableHeaderColumn columnTitle dataField='task'
+                                               dataFormat={this.formatEstimatedHours.bind(this)}>Est
                                 Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='startDate'
-                                               dataFormat={this.formatStartDate.bind(this)}>Start
-                                Date</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='endDate'>End Date</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)}>Reported
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='planning'
+                                               dataFormat={this.formatTaskPlanStartDate.bind(this)}>Start Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='planning'
+                                               dataFormat={this.formatTaskPlanEndDate.bind(this)}>End Date
+                            </TableHeaderColumn>
 
-                            <TableHeaderColumn columnTitle dataField='report' dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='report'
+                                               dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
 
                         </BootstrapTable>
                     </div>

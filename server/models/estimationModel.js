@@ -504,9 +504,13 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
 
     let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(task => {
         let updateTask = {}
+        let report = {}
         updateTask._id = task._id
         updateTask.name = task.negotiator.name
+        updateTask.estimatedHours = task.negotiator.estimatedHours
         releasePlanInput.task = updateTask
+        report.finalStatus = SC.STATUS_UNPLANNED
+        releasePlanInput.report = report
         const releasePlan = ReleasePlanModel.addReleasePlan(releasePlanInput)
     })
 

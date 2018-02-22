@@ -5,6 +5,7 @@ export const addReleases = (releases) => ({
     type: AC.ADD_RELEASES,
     releases: releases
 })
+
 export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASES_TASK,
     releasePlans: releasePlans
@@ -34,9 +35,9 @@ export const getAllReleaseFromServer = (status) => {
             })
     }
 }
-export const getTaskReleaseFromServer = (release) => {
+export const getTaskReleaseFromServer = (release, status, empFlag) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + release._id + '/release-plans', {
+        return fetch('/api/releases/' + release._id + '/release-plans-with/status/' + status + '/empflag/' + empFlag, {
                 method: 'get',
                 credentials: "include",
                 headers: {

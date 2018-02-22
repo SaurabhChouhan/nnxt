@@ -8,19 +8,19 @@ let releaseRouter = new Router({
 })
 
 releaseRouter.get("/status/:status", async ctx => {
-    return await ReleaseModel.getReleases(ctx.params.status,ctx.state.user)
+    return await ReleaseModel.getReleases(ctx.params.status, ctx.state.user)
 })
 
 releaseRouter.get("/:releaseID", async ctx => {
     let release = await ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
     if (!release) {
-            throw new AppError("Not allowed to release details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-        }
+        throw new AppError("Not allowed to release details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
     return release
 })
 
-releaseRouter.get("/:releaseID/release-plans", async ctx => {
-    let releasePlans = await ReleasePlanModel.getReleasePlansByReleaseID(ctx.params.releaseID,ctx.state.user)
+releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empflag", async ctx => {
+    let releasePlans = await ReleasePlanModel.getReleasePlansByReleaseID(ctx.params, ctx.state.user)
     if (!releasePlans) {
         throw new AppError("Not allowed to releases plans details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
