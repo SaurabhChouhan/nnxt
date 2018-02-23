@@ -3,6 +3,7 @@ import {RepositoryTaskDetailPage} from '../../components'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
+import * as EC from '../../../server/errorcodes'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     addTask: (EstimationId, taskId) => dispatch(A.addTaskFromRepositoryToEstimationOnServer(EstimationId, taskId)).then(json => {
@@ -11,7 +12,20 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             // hide dialog
             dispatch(A.hideComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
         } else {
-            NotificationManager.error("Task Addition Failed")
+            if (json.code == EC.ALREADY_EXISTS)
+                NotificationManager.error("Task Already Added ")
+            else  NotificationManager.error("Task Addition Failed")
+        }
+    }),
+    copyTask: (EstimationId, task) => dispatch(A.addTaskFromRepositoryToEstimationOnServer(EstimationId, task)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Task Copied")
+            // hide dialog
+            dispatch(A.hideComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
+        } else {
+            if (json.code == EC.ALREADY_EXISTS)
+                NotificationManager.error("Task Already Added ")
+            else  NotificationManager.error("Task Addition Failed")
         }
     })
 })

@@ -42,7 +42,9 @@ class RepositoryFeatureDetailPage extends Component {
                         </button>
                     </div>
                     <div className="col-md-5">
-                        <button className="customBtn" type="button">Copy To Estimation</button>
+                        <button className="customBtn" type="button"  onClick={() => {
+                            this.props.copyFeature(estimationId, feature)
+                        }}>Copy To Estimation</button>
                     </div>
                 </div>
                 {showHistory &&
