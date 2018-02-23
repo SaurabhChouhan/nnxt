@@ -867,12 +867,12 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('Not a Negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let checkExistsCount = await EstimationTaskModel.count({
+    /*let checkExistsCount = await EstimationTaskModel.count({
         "repo._id": repositoryTask._id,
         "estimation._id": estimation._id
     })
     if (checkExistsCount > 0)
-        throw new AppError('This task from repository already added', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError('This task from repository already added', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)*/
 
     // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
     let taskFromRepositoryObj = new EstimationTaskModel()

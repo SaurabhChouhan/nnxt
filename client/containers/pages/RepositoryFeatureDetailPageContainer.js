@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         }
     }),
-    copyFeature: (EstimationId, feature) => dispatch(A.copyFeatureFromRepositoryToEstimationOnServer(EstimationId, feature)).then(json => {
+    copyFeature: (EstimationId, featureId) => dispatch(A.copyFeatureFromRepositoryToEstimationOnServer(EstimationId, featureId)).then(json => {
         if (json.success) {
             NotificationManager.success("Feature Copied")
             // hide dialog
