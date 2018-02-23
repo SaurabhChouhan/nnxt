@@ -782,7 +782,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     estimationTask.estimation = estimation
     estimationTask.technologies = estimation.technologies
     //estimationTask.repo._id = repositoryTask._id
-    //estimationTask.repo.addedFromThisEstimation = false
+    estimationTask.repo.addedFromThisEstimation = true
 
     return await estimationTask.save()
 
@@ -886,7 +886,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
     taskFromRepositoryObj.estimation = estimation
     taskFromRepositoryObj.technologies = estimation.technologies
     //taskFromRepositoryObj.repo._id = repositoryTask._id
-    //taskFromRepositoryObj.repo.addedFromThisEstimation = false
+    taskFromRepositoryObj.repo.addedFromThisEstimation = true
     return await EstimationTaskModel.create(taskFromRepositoryObj)
 }
 

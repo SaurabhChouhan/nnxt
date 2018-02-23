@@ -14,10 +14,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         } else {
             if (json.code == EC.ALREADY_EXISTS)
                 NotificationManager.error("Task Already Added ")
-            else  NotificationManager.error("Task Addition Failed")
+            else  NotificationManager.error("Task Copy Failed")
         }
     }),
-    copyTask: (EstimationId, task) => dispatch(A.copyTaskFromRepositoryToEstimationOnServer(EstimationId, task)).then(json => {
+    copyTask: (EstimationId, taskId) => dispatch(A.copyTaskFromRepositoryToEstimationOnServer(EstimationId, taskId)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Copied")
             // hide dialog
@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         } else {
             if (json.code == EC.ALREADY_EXISTS)
                 NotificationManager.error("Task Already Available ")
-            else  NotificationManager.error("Task Addition Failed")
+            else  NotificationManager.error("Task Copy Failed")
         }
     })
 })

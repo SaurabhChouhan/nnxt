@@ -42,7 +42,7 @@ class RepositoryTaskDetailPage extends Component {
                     </div>
                     <div className="col-md-5">
                         <button type="button" className="customBtn" onClick={() => {
-                            this.props.copyTask(estimationId, task)
+                            this.props.copyTask(estimationId, task._id)
                         }} >Copy To Estimation</button>
                     </div>
                 </div>
