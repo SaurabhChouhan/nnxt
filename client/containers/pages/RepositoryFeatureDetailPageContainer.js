@@ -19,14 +19,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         }
     }),
-    copyFeature: (EstimationId, feature) => dispatch(A.addFeatureFromRepositoryToEstimationOnServer(EstimationId, feature)).then(json => {
+    copyFeature: (EstimationId, feature) => dispatch(A.copyFeatureFromRepositoryToEstimationOnServer(EstimationId, feature)).then(json => {
         if (json.success) {
-            NotificationManager.success("Feature Added")
+            NotificationManager.success("Feature Copied")
             // hide dialog
             dispatch(A.hideComponent(COC.REPOSITORY_FEATURE_DETAIL_DIALOG))
         } else {
             if (json.code == EC.ALREADY_EXISTS)
-                NotificationManager.error("Feature Already Added ")
+                NotificationManager.error("Feature Already Available")
             else  NotificationManager.error("Feature Addition Failed")
 
         }

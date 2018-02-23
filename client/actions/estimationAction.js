@@ -348,9 +348,33 @@ export const addTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) 
     }
 }
 
-export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featureId) => {
+
+export const copyTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/' + estimationID + '/repository/' + featureId + '/features/from-repository', {
+        return fetch('/api/estimations/tasks/estimation/' + estimationID + '/repository-task-copy/' + taskID, {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features/estimation/' + estimationID + '/repository-feature/' + featureID, {
                 method: 'post',
                 credentials: "include",
                 headers: {
@@ -369,6 +393,30 @@ export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featu
             })
     }
 }
+
+
+export const copyFeatureFromRepositoryToEstimationOnServer = (estimationID, featureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features/estimation/' + estimationID + '/repository-feature-copy/' + featureID, {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
 
 export const updateTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
