@@ -75,13 +75,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onTaskDelete: (taskID) => {
         dispatch(A.estimationTaskDelete(taskID))
     },
-    fetchRepositoryBasedOnDiffCriteria: (tags, type) => {
-        let technologies = [];
-        tags.map((f, i) => {
-            technologies.push(f.text)
-        })
-        dispatch(A.getRepositoryFromServer(technologies, type))
-    },
 
     estimationFilterForm:()=>{
         dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG))
