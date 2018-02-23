@@ -331,7 +331,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
 
     })
 
-    if (taskCountOfFeature != 0)
+    if (taskCountOfFeature == 0)
         throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_FEATURE_ERROR, EC.HTTP_FORBIDDEN)
 
     if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
