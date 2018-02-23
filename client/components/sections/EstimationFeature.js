@@ -83,12 +83,24 @@ class EstimationFeature extends React.PureComponent {
                          }}/> :
                     <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"/>)
             } else {
-                buttons.push(editView ?
-                    <img key="suggestion" src="/images/suggestion.png"
-                         onClick={() => {
-                             this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
-                         }}/> :
-                    <img key="suggestion_disable" src="/images/suggestion_disable.png"/>)
+                if (feature.estimator.changedKeyInformation) {
+                    // Estimator has changed key information in previous iteration, so show that to negotiator
+                    buttons.push(editView ?
+                        <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                             onClick={() => {
+                                 this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
+                             }}/> :
+                        <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
+                }
+                else {
+                    buttons.push(editView ?
+                        <img key="suggestion" src="/images/suggestion.png"
+                             onClick={() => {
+                                 this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
+                             }}/> :
+                        <img key="suggestion_disable" src="/images/suggestion_disable.png"/>)
+                }
+
             }
 
             if (feature.estimator.removalRequested) {
@@ -159,16 +171,28 @@ class EstimationFeature extends React.PureComponent {
                              }}/> :
                         <img key="delete_disable" src="/images/delete_disable.png"/>)
                 } else {
-                    if (feature.negotiator.changeSuggested) {
-                        logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
-                        // Negotiator has requested change
+                    if (feature.estimator.changedKeyInformation) {
+                        // Estimator has changed key information so show estimator icon to notify that
                         buttons.push(editView ?
-                            <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                            <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                  onClick={() => {
                                      this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                                  }}/> :
-                            <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
-                    } else if (feature.estimator.changeRequested) {
+                            <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"/>)
+                    }
+                    else {
+                        if (feature.negotiator.changeSuggested) {
+                            logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
+                            // Negotiator has requested change
+                            buttons.push(editView ?
+                                <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                                     onClick={() => {
+                                         this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
+                                     }}/> :
+                                <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
+                        }
+                    }
+                    if (feature.estimator.changeRequested) {
                         if (feature.negotiator.changeGranted) {
                             // estimator has requested change which negotiator has granted
                             logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
@@ -213,18 +237,29 @@ class EstimationFeature extends React.PureComponent {
                     }
                 }
             } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
-                if (feature.negotiator.changeSuggested) {
-                    logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'estimator suggestion_incoming change, suggestion_incoming button')
-                    /* Negotiator has provided suggestions, clicking this button should show a window that would
-                       allow estimator to see suggestions given by negotiator
-                     */
+                if (feature.estimator.changedKeyInformation) {
+                    // Estimator has changed key information so show estimator icon to notify that
                     buttons.push(editView ?
-                        <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                        <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                              onClick={() => {
                                  this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                              }}/> :
-                        <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
+                        <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"/>)
+                } else {
+                    if (feature.negotiator.changeSuggested) {
+                        logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'estimator suggestion_incoming change, suggestion_incoming button')
+                        /* Negotiator has provided suggestions, clicking this button should show a window that would
+                           allow estimator to see suggestions given by negotiator
+                         */
+                        buttons.push(editView ?
+                            <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                                 onClick={() => {
+                                     this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
+                                 }}/> :
+                            <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
+                    }
                 }
+
 
                 if (feature.estimator.changeRequested) {
                     if (feature.negotiator.changeGranted) {
