@@ -335,6 +335,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let feature = await EstimationFeatureModel.findById(featureID)
+
     if (!feature)
         throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -352,6 +353,9 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
+    if(feature.status===SC.STATUS_APPROVED){
+        throw new AppError('Task can not be moved as it is already appooved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+    }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
     if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
@@ -480,6 +484,9 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
+    if(feature.status===SC.STATUS_APPROVED){
+        throw new AppError('task cant be moved as it is already appooved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+    }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
     if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
