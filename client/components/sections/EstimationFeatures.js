@@ -14,7 +14,7 @@ let EstimationFeatures = (props) => {
         if (props.estimator && props.changeRequested && props.repository && props.grantPermission && props.suggestions && props.negotiator) {
             console.log("feature....", f)
             return (props.expandedFeatureID === f._id) ?
-                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded="true"/> :
+                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded={true}/> :
                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
         }
         else {

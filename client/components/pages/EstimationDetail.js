@@ -126,7 +126,7 @@ class EstimationDetail extends Component {
                                 <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
                                 <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
                                 <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
-                                <li><a href=""> <i class="glyphicon glyphicon-option-vertical pull-right">
+                                <li><a href=""> <i className="glyphicon glyphicon-option-vertical pull-right">
                                 </i></a>
                                 </li>
                                 <button type="button" className="btn customBtn" onClick={() =>

@@ -14,7 +14,7 @@ let
                 // by default show all
                 return (props.expandedTaskID === t._id) ?
                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
-                                    expanded="true"/> :
+                                    expanded={true}/> :
                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
             }
             else {
