@@ -49,6 +49,9 @@ class EstimationFeature extends React.PureComponent {
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
             editView = true
 
+        if (feature.status === SC.STATUS_APPROVED) {
+            editView = false
+        }
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
 
@@ -56,6 +59,19 @@ class EstimationFeature extends React.PureComponent {
              * Negotiator would always be able to edit any task (would be considered as suggestions), first button hence would always be edit
              * He would also be able to delete any task
              */
+
+            //if task is not empty show approve button
+            if (feature.status === SC.STATUS_PENDING) {
+                buttons.push(editView ?
+                    <img key="approve" src="/images/approve.png"
+                         onClick={() => {
+                             console.log("good job", feature._id)
+                             console.log("good job feature", feature)
+
+                             this.props.approveFeature(feature)
+                         }}/> :
+                    <img key="approve_disable" src="/images/approve_disable.png"/>)
+            }
 
 
             if (feature.negotiator.changeSuggested) {
@@ -293,6 +309,12 @@ class EstimationFeature extends React.PureComponent {
                             <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"></img>
                         </div>}
 
+                        {feature.status === SC.STATUS_APPROVED &&
+                        <div className="flagStrip">
+                            <img key="approved_flag" src="/images/approved_flag.png"
+                                 title="Approved"/>
+                        </div>}
+
                         {feature.repo && !feature.repo.addedFromThisEstimation &&
                         <div className="flagStrip">
                             <img key="repo_flag" src="/images/repo_flag.png"></img>
@@ -454,7 +476,35 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 }
             })
         },
+        approveFeature: (values) => {
+            console.log("check the value in estimation features", values)
+            return dispatch(A.approveFeatureByNegotiatorOnServer(values._id)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Feature Approved ...")
+                }
+                else {
+                    if (json.code == EC.FEATURE_APPROVAL_ERROR) {
+                        NotificationManager.error('Feature cant be approved as Estimator has demanded some changes')
+                    } else {
+                        if (json.code == EC.TASK_APPROVAL_ERROR) {
+                            NotificationManager.error('All the task of feature should be approved')
+                        }
+                        else {
+                            if (json.code == EC.TASK_APPROVAL_FEATURE_ERROR) {
+                                NotificationManager.error('Feature should atlest have one task with estimated task greater than zero')
+                            }
+                            else {
+                                NotificationManager.error('Feature Not Approved')
+                            }
 
+                        }
+                    }
+
+
+                }
+
+            })
+        },
         expandFeature: (featureID) => {
             dispatch(A.expandFeature(featureID))
         }

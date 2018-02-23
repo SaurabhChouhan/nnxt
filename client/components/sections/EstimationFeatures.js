@@ -52,7 +52,9 @@ let EstimationFeatures = (props) => {
                     }
 
                     //feature added from repository
-                    if (props.repository) {
+                    if (props.repository)
+                    {
+                        if(f.repo)
                         if (!f.repo.addedFromThisEstimation) {
                             return (props.expandedFeatureID === f._id) ?
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
@@ -89,6 +91,7 @@ let EstimationFeatures = (props) => {
                         }
 
                         if (props.repository) {
+                            if(f.repo)
                             if (!f.repo.addedFromThisEstimation) {
                                 return (props.expandedFeatureID === f._id) ?
                                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}

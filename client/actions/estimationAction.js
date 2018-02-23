@@ -643,3 +643,25 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
             })
     }
 }
+export const approveFeatureByNegotiatorOnServer = (featureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/features/' + featureID + '/approve', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("check the response data")
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}

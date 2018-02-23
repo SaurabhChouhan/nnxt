@@ -58,12 +58,13 @@ let
                         console.log("repository", props.repository)
                         //added from repository
                         if (props.repository) {
-                            if (!t.repo.addedFromThisEstimation) {
-                                return (props.expandedTaskID === t._id) ?
-                                    <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
-                                                    expanded="true"/> :
-                                    <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                            }
+                            if (t.repo)
+                                if (!t.repo.addedFromThisEstimation) {
+                                    return (props.expandedTaskID === t._id) ?
+                                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                                        expanded="true"/> :
+                                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                                }
                         }
 
                     }
@@ -96,6 +97,7 @@ let
                             }
                             console.log("negotiator repository", props.repository)
                             if (props.repository) {
+                                if (t.repo)
                                 if (!t.repo.addedFromThisEstimation) {
                                     return (props.expandedTaskID === t._id) ?
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
