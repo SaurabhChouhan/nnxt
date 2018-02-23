@@ -299,7 +299,7 @@ estimationRouter.put('/tasks/:taskID/approve', async ctx => {
 // noinspection Annotator
 estimationRouter.put('/features/:featureID/approve', async ctx => {
     if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.approveFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
+        return await EstimationFeatureModel.approveFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve feature", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
