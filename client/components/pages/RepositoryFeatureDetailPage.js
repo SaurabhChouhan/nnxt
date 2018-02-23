@@ -15,7 +15,7 @@ class RepositoryFeatureDetailPage extends Component {
 
 
     render() {
-        const {feature} = this.props
+        const {feature, estimationId} = this.props
         const {showHistory} = this.state
         return (
             <div className="col-md-12">
@@ -37,7 +37,7 @@ class RepositoryFeatureDetailPage extends Component {
                     </div>
                     <div className="col-md-4 pad">
                         <button className="customBtn" type="button" onClick={() => {
-                            this.props.addFeature(feature._id, feature.estimation._id)
+                            this.props.addFeature(estimationId, feature._id)
                         }}>Add to Estimation
                         </button>
                     </div>

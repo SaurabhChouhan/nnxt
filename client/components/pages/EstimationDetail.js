@@ -200,7 +200,7 @@ class EstimationDetail extends Component {
                 </div>}
             </div>
             <div className="col-md-4 estimationsection pad">
-                <RepositorySearchContainer  {...this.props}/>
+                <RepositorySearchContainer/>
             </div>
         </div>
     }

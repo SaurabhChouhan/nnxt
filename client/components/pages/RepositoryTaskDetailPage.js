@@ -14,7 +14,7 @@ class RepositoryTaskDetailPage extends Component {
     }
 
     render() {
-        const {task} = this.props
+        const {task, estimationId} = this.props
         const {showHistory} = this.state
         return (
             <div className="col-md-12">
@@ -36,7 +36,7 @@ class RepositoryTaskDetailPage extends Component {
                     </div>
                     <div className="col-md-4 pad">
                         <button className="customBtn" type="button" onClick={() => {
-                            this.props.addTask(task._id, task.estimation._id)
+                            this.props.addTask(estimationId, task._id)
                         }}>Add to Estimation
                         </button>
                     </div>
