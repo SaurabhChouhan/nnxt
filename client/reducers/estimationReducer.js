@@ -143,18 +143,16 @@ const estimationReducer = (state = initialState, action) => {
                 selected: Object.assign({}, action.estimation, {
                     tasks: undefined,
                     features: undefined,
-
                 }),
-                tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(item => item.isDeleted == false) : [],
+                tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(t => t.isDeleted == false) : [],
                 features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ?
-                    action.estimation.features.map(item => {
-                            if (item.isDeleted == false) {
-                                if (Array.isArray(item.tasks) && item.tasks.length > 0)
-                                    item.tasks = item.tasks.filter(item => item.isDeleted == false)
+                    action.estimation.features.map(f => {
+                            if (f.isDeleted == false) {
+                                if (Array.isArray(f.tasks) && f.tasks.length > 0)
+                                    f.tasks = f.tasks.filter(t => t.isDeleted == false)
 
-                                return item
+                                return f;
                             }
-
                         }
                     ) : [],
                 expandedFeatureID: undefined,
@@ -165,8 +163,6 @@ const estimationReducer = (state = initialState, action) => {
                 changeRequested: true,
                 grantPermission: true,
                 suggestions: true,
-
-
             })
 
         case AC.UPDATE_SELECTED_ESTIMATION:
