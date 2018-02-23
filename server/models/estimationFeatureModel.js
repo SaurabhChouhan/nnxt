@@ -185,6 +185,9 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('You are not estimator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
+    if (!featureInput.repo.addedFromThisEstimation)
+        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
+
     /**
      * Check to see if this task is added by estimator or not
      */
@@ -262,6 +265,9 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
 
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
+
+    if (!featureInput.repo.addedFromThisEstimation)
+        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
 
     estimationFeature.technologies = featureInput.technologies
     estimationFeature.tags = featureInput.tags
