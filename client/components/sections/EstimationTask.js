@@ -62,7 +62,7 @@ class EstimationTask extends React.PureComponent {
             }
 
             // First button shown to negotiator would be suggestion button (kind of edit button)
-            if (task.negotiator.changeSuggested) {
+            if (task.negotiator.changeSuggested && task.repo.addedFromThisEstimation ) {
                 // Negotiator has suggested changes in this iteration so show that to negotiator,
                 buttons.push(editView ?
                     <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
@@ -70,7 +70,7 @@ class EstimationTask extends React.PureComponent {
                              this.props.openTaskSuggestionForm(task, loggedInUserRole)
                          }}/> :
                     <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"/>)
-            } else if (task.estimator.changedKeyInformation) {
+            } else if (task.estimator.changedKeyInformation && task.repo.addedFromThisEstimation ) {
                 // Estimator has changed key information in previous iteration, so show that to negotiator
                 buttons.push(editView ?
                     <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
@@ -80,7 +80,7 @@ class EstimationTask extends React.PureComponent {
                     <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"/>)
             } else {
                 // Show normal suggestion button
-                buttons.push(editView ?
+                buttons.push(editView  && task.repo.addedFromThisEstimation  ?
                     <img key="suggestion" src="/images/suggestion.png"
                          onClick={() => {
                              this.props.openTaskSuggestionForm(task, loggedInUserRole)
@@ -93,7 +93,7 @@ class EstimationTask extends React.PureComponent {
                 if (task.negotiator.changeGranted) {
                     // estimator has requested change which negotiator has granted
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                    buttons.push(editView ?
+                    buttons.push(editView && task.repo.addedFromThisEstimation ?
                         <img key="granted_edit" src="/images/granted_edit.png"
                              onClick={() => {
                                  this.props.toggleGrantEdit(task)
@@ -102,7 +102,7 @@ class EstimationTask extends React.PureComponent {
                 } else {
                     // estimator has requested change but negotiator has not granted it till now
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                    buttons.push(editView ?
+                    buttons.push(editView && task.repo.addedFromThisEstimation ?
                         <img key="he_requested_edit" src="/images/he_requested_edit.png"
                              onClick={() => {
                                  this.props.toggleGrantEdit(task)
@@ -125,7 +125,7 @@ class EstimationTask extends React.PureComponent {
                     <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"/>)
             } else {
                 // Negotiator can delete any task during its review without getting permission from estimator
-                buttons.push(editView ?
+                buttons.push(editView && task.repo.addedFromThisEstimation ?
                     <img key="delete" src="/images/delete.png"
                          onClick={() => {
                              this.setState({showTaskDeletionDialog: true})
@@ -140,7 +140,7 @@ class EstimationTask extends React.PureComponent {
         } else if (loggedInUserRole === SC.ROLE_ESTIMATOR) {
             if (task.addedInThisIteration && task.owner === SC.OWNER_ESTIMATOR) {
                 // As estimator has added this task in this iteration only, he/she would be able to edit/delete it without any restrictions
-                buttons.push(editView ?
+                buttons.push(editView && task.repo.addedFromThisEstimation ?
                     <img key="edit" src="/images/edit.png"
                          onClick={() => {
                              this.props.editTask(task, loggedInUserRole)
@@ -159,7 +159,7 @@ class EstimationTask extends React.PureComponent {
                 // As task is either not added by estimator or is not added in this iteration hence he has no direct permission to edit/delete task
                 if (task.estimator.changedKeyInformation) {
                     // Estimator has changed key information so show estimator icon to notify that
-                    buttons.push(editView ?
+                    buttons.push(editView && task.repo.addedFromThisEstimation ?
                         <img key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                              onClick={() => {
                                  this.props.openTaskSuggestionForm(task, loggedInUserRole)
@@ -167,7 +167,7 @@ class EstimationTask extends React.PureComponent {
                         <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"/>)
                 } else if (task.negotiator.changeSuggested) {
                     // Negotiator has suggested changes in previous iteration so show that
-                    buttons.push(editView ?
+                    buttons.push(editView && task.repo.addedFromThisEstimation ?
                         <img key="suggestion_incoming" src="/images/suggestion_incoming.png"
                              onClick={() => {
                                  this.props.openTaskSuggestionForm(task, loggedInUserRole)
@@ -182,7 +182,7 @@ class EstimationTask extends React.PureComponent {
                     if (task.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                        buttons.push(editView ?
+                        buttons.push(editView && task.repo.addedFromThisEstimation ?
                             <img key="he_granted_edit" src="/images/he_granted_edit.png"
                                  onClick={() => {
                                      this.props.editTask(task)
@@ -191,7 +191,7 @@ class EstimationTask extends React.PureComponent {
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                        buttons.push(editView ?
+                        buttons.push(editView && task.repo.addedFromThisEstimation ?
                             <img key="requested_edit" src="/images/requested_edit.png"
                                  onClick={() => {
                                      this.props.toggleEditRequest(task)
@@ -201,7 +201,7 @@ class EstimationTask extends React.PureComponent {
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                    buttons.push(editView ?
+                    buttons.push(editView && task.repo.addedFromThisEstimation ?
                         <img key="request_edit" src="/images/request_edit.png"
                              onClick={() => {
                                  this.props.toggleEditRequest(task)
