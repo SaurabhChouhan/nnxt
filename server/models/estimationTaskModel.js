@@ -457,6 +457,9 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
+    if (!task.repo.addedFromThisEstimation)
+        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+
     task.estimator.changeRequested = !task.estimator.changeRequested
     task.estimator.changedInThisIteration = true
     return await task.save()

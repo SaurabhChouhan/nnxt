@@ -613,6 +613,9 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
+    if (!feature.repo.addedFromThisEstimation)
+        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
+
     feature.estimator.changeRequested = !feature.estimator.changeRequested
     feature.estimator.changedInThisIteration = true
     return await feature.save()
@@ -639,6 +642,11 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
 
     if (!feature.addedInThisIteration || feature.owner != SC.OWNER_NEGOTIATOR)
         feature.negotiator.changedInThisIteration = true
+
+    if (!feature.repo.addedFromThisEstimation)
+        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
+
+
 
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
     feature.updated = Date.now()
