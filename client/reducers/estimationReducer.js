@@ -146,7 +146,19 @@ const estimationReducer = (state = initialState, action) => {
 
                 }),
                 tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(item => item.isDeleted == false) : [],
-                features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ? action.estimation.features.filter(item => item.isDeleted == false) : [],
+                features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ?
+                    action.estimation.features.map(item => {
+                            if (item.isDeleted == false) {
+                                if (Array.isArray(item.tasks) && item.tasks.length > 0)
+                                    item.tasks = item.tasks.filter(item => item.isDeleted == false)
+
+                                return item
+                            }
+
+                        }
+                    ) : [],
+                expandedFeatureID: undefined,
+                expandedTaskID: undefined,
                 repository: true,
                 estimator: true,
                 negotiator: true,
