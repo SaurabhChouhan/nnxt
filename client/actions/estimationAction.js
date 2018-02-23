@@ -112,6 +112,7 @@ export const getAllEstimationsFromServer = () => {
     }
 }
 
+
 export const initiateEstimationOnServer = (formInput) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/initiate', {
@@ -136,6 +137,7 @@ export const initiateEstimationOnServer = (formInput) => {
     }
 }
 
+
 export const requestEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/request", {
@@ -158,6 +160,7 @@ export const requestEstimationOnServer = (estimationID) => {
             })
     }
 }
+
 
 export const requestReviewOnServer = (estimationID) => {
     return (dispatch, getState) => {
@@ -236,6 +239,7 @@ export const requestForTaskEditPermissionOnServer = (taskID) => {
     }
 }
 
+
 export const requestForFeatureEditPermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/request-edit', {
@@ -259,6 +263,7 @@ export const requestForFeatureEditPermissionOnServer = (featureID) => {
     }
 }
 
+
 export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/tasks/' + taskID, {
@@ -280,6 +285,7 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
             })
     }
 }
+
 
 export const requestForTaskDeletePermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
@@ -303,6 +309,7 @@ export const requestForTaskDeletePermissionOnServer = (taskID) => {
     }
 }
 
+
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks', {
@@ -325,6 +332,7 @@ export const addTaskToEstimationOnServer = (task) => {
             })
     }
 }
+
 
 export const addTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
@@ -441,6 +449,7 @@ export const updateTaskToEstimationOnServer = (task) => {
     }
 }
 
+
 export const addFeatureToEstimationOnServer = (feature) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features', {
@@ -464,6 +473,7 @@ export const addFeatureToEstimationOnServer = (feature) => {
     }
 }
 
+
 export const updateFeatureToEstimationOnServer = (feature) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features', {
@@ -486,6 +496,7 @@ export const updateFeatureToEstimationOnServer = (feature) => {
             })
     }
 }
+
 
 export const getEstimationFromServer = (estimationID) => {
     return (dispatch, getState) => {
@@ -534,6 +545,7 @@ export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
     }
 }
 
+
 export const moveTaskOutOfFeatureOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + task._id + '/move-out-of-feature', {
@@ -579,6 +591,7 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
     }
 }
 
+
 export const grantEditPermissionOfFeatureOnServer = (featureId) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureId + '/grant-edit', {
@@ -602,6 +615,7 @@ export const grantEditPermissionOfFeatureOnServer = (featureId) => {
     }
 }
 
+
 export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/feature/' + featureID, {
@@ -623,6 +637,8 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
             })
     }
 }
+
+
 export const addProjectAwardOnServer = (formInput) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/project-awarded', {
@@ -669,6 +685,7 @@ export const requestForFeatureDeletePermissionOnServer = (featureID) => {
             })
     }
 }
+
 
 export const approveTaskByNegotiatorOnServer = (taskID) => {
     return (dispatch, getState) => {
