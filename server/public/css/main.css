@@ -1207,3 +1207,18 @@ td.rejRowColor {
     top: 0;
     transition: 0.8s;
 }
+.Repo-padding{
+    padding-top: 10px;
+}
+.searchText input{
+    margin-top: 7px;
+}
+.dropdownoptionRepo{
+    margin-top: 7px;
+    margin-left: -15px;
+    width: 36%;
+}
+.repoArrow{
+    margin-top: 9px;
+    margin-left: 5px;
+}

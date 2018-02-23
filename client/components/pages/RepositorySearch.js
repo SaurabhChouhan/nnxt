@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 import {WithContext as ReactTags} from 'react-tag-input';
+import {required} from "../forms/validation";
+import {renderText} from "../forms/fields";
 
 class RepositorySearch extends Component {
     constructor(props) {
@@ -8,7 +10,8 @@ class RepositorySearch extends Component {
             selectedValue: 'All',
             type: ['All', 'Feature', 'Task'],
             tags: [],
-            suggestions: this.props.estimation && this.props.estimation.technologies ? this.props.estimation.technologies : []
+            suggestions: this.props.estimation && this.props.estimation.technologies ? this.props.estimation.technologies : [],
+            searchText: ''
         };
         this.props.estimation.technologies.map((f, i) => {
             this.state.tags.push({
@@ -20,6 +23,8 @@ class RepositorySearch extends Component {
         this.handleAddition = this.handleAddition.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
         this.handleSelectChange = this.handleSelectChange.bind(this);
+        this.searchText = this.searchText.bind(this);
+
     }
 
     handleSelectChange(e) {
@@ -34,13 +39,13 @@ class RepositorySearch extends Component {
 
     handleAddition(tag) {
         let tags = this.state.tags;
-        if(!(tags.findIndex(f=> f.text.toLowerCase()===tag.toLowerCase())!=-1)){
-        tags.push({
-            id: tags.length + 1,
-            text: tag
-        });
-        this.setState({tags: tags});
-    }
+        if (!(tags.findIndex(f => f.text.toLowerCase() === tag.toLowerCase()) != -1)) {
+            tags.push({
+                id: tags.length + 1,
+                text: tag
+            });
+            this.setState({tags: tags});
+        }
     }
 
     handleDrag(tag, currPos, newPos) {
@@ -54,13 +59,23 @@ class RepositorySearch extends Component {
         this.setState({tags: tags});
     }
 
+    searchText(searchText) {
+        this.setState({searchText: searchText.target.value});
+    }
+
     render() {
         const {tags, suggestions} = this.state;
         return (
             <div>
                 <div className="col-md-12 RepositoryHeading RepositorySideHeight">
-                    <div className="col-md-10">
-                        <div className="dropdownoption">
+
+
+                    <div className="row">
+                        <div className="col-md-6 searchText">
+                            <input type="text" className="form-control" placeholder="Search Features/Tasks"
+                                   onChange={this.searchText}/>
+                        </div>
+                        <div className="col-md-4 dropdownoptionRepo">
                             <select className="form-control "
                                     onChange={this.handleSelectChange}>
                                 {
@@ -70,16 +85,46 @@ class RepositorySearch extends Component {
                                 }
                             </select>
                         </div>
-                    </div>
-                    <div className="col-md-1 pad ">
-                        <div className="backarrow">
+                        <div className="col-md-2 repoArrow">
                             <h5><img key="he_requested_delete" src="/images/go_button.png"
                                      onClick={() => {
-                                         this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue)
+                                         this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue,this.state.searchText)
                                      }}/></h5>
                         </div>
                     </div>
-                </div>
+
+                    {/*<div  className="col-md-12">
+                        <div className="col-md-6">
+
+                            <div className="searchText">
+                                <input type="text" className="form-control" placeholder="Search Features/Tasks"
+                                       onChange={this.searchText}/>
+                            </div>
+
+                        </div>
+                        <div className="col-md-4">
+                            <div className="dropdownoption">
+                                <select className="form-control "
+                                        onChange={this.handleSelectChange}>
+                                    {
+                                        this.state.type.map((item, key) =>
+                                            <option value={item} key={key}>{item}</option>
+                                        )
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-md-2">
+                            <div className="backarrow">
+                                <h5><img key="he_requested_delete" src="/images/go_button.png"
+                                         onClick={() => {
+                                             this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue)
+                                         }}/></h5>
+                            </div>
+                        </div>
+                    </div>*/}
+                    </div>
+
                 <div className="col-md-11">
                     <ReactTags
                         classNames=
@@ -102,8 +147,7 @@ class RepositorySearch extends Component {
                         handleDrag={this.handleDrag}/>
                 </div>
 
-
-                <div className="col-md-12">
+                <div className="col-md-12 Repo-padding">
 
                     {
                         Array.isArray(this.props.repository) && this.props.repository.map((f, i) =>
@@ -140,6 +184,7 @@ class RepositorySearch extends Component {
                         )
                     }
                 </div>
+
             </div>)
     }
 
