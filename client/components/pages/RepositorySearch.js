@@ -56,7 +56,6 @@ class RepositorySearch extends Component {
 
     render() {
         const {tags, suggestions} = this.state;
-        const {estimation} = this.props
         return (
             <div>
                 <div className="col-md-12 RepositoryHeading RepositorySideHeight">
