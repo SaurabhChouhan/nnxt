@@ -116,7 +116,7 @@ class RepositorySearch extends Component {
                                             <div className="repositoryFeatureLable"></div>
                                             <h5>Feature: {f.name}</h5><i
                                             className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">(04 HRS)</span></div>
+                                            className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span></div>
                                     </div>
                                     <div className="RepositoryContent">
                                         <p>{f.description}</p>
@@ -131,7 +131,7 @@ class RepositorySearch extends Component {
                                             <div className="repositoryTaskLable"></div>
                                             <h5>Task: {f.name}</h5><i
                                             className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">(04 HRS)</span></div>
+                                            className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span></div>
                                     </div>
                                     <div className="RepositoryContent">
                                         <p>{f.description}</p>

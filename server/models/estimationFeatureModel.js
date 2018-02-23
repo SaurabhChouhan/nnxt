@@ -556,7 +556,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     estimationFeature.estimator.description = repositoryFeature.description
     estimationFeature.estimation = estimation
     //estimationFeature.repo._id = repositoryFeature._id
-    //estimationFeature.repo.addedFromThisEstimation = false
+    estimationFeature.repo.addedFromThisEstimation = true
     estimationFeature.technologies = repositoryFeature.technologies
 
     // Iterate on tasks and add all the tasks into estimation
@@ -574,7 +574,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
         estimationTask.estimation = estimation
         estimationTask.technologies = estimation.technologies
         //estimationTask.repo._id = repositoryTask._id
-        //estimationTask.repo.addedFromThisEstimation = false
+        estimationTask.repo.addedFromThisEstimation = true
         estimationTask.feature._id = estimationFeature._id
         return estimationTask.save()
     })
@@ -756,7 +756,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
 
     newFeature.estimation = estimation
     //newFeature.repo._id = repo._id
-    //newFeature.repo.addedFromThisEstimation = false
+    newFeature.repo.addedFromThisEstimation = true
 
     newFeature.technologies = repo.technologies
     newFeature.tags = repo.tags
