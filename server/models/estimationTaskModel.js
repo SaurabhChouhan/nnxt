@@ -719,6 +719,7 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
 
     let thisTaskWithRepoAlreadyExist = await EstimationTaskModel.findOne({
         "repo._id": repositoryTask._id,
+        "isDeleted": false,
         "estimation._id": estimation._id
     })
     if (thisTaskWithRepoAlreadyExist)
@@ -825,6 +826,7 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
 
     let checkExistsCount = await EstimationTaskModel.count({
         "repo._id": repositoryTask._id,
+        "isDeleted": false,
         "estimation._id": estimation._id
     })
     if (checkExistsCount > 0)

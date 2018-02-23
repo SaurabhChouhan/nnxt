@@ -452,6 +452,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
 
     let existingFeatureCount = await EstimationFeatureModel.count({
         "repo._id": repositoryFeature._id,
+        "isDeleted": false,
         "estimation._id": estimation._id
     })
 
@@ -671,6 +672,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
 
     let thisFeatureAlreadyAddedFromRepo = await EstimationFeatureModel.findOne({
         "repo._id": repo._id,
+        "isDeleted": false,
         "repo.addedFromThisEstimation": false,
         "estimation._id": estimation._id
     })
