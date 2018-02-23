@@ -28,7 +28,7 @@ let estimationFeatureSchema = mongoose.Schema({
     },
     repo: {
         _id: mongoose.Schema.ObjectId,
-        addedFromThisEstimation: {type: Boolean,required:false}
+        addedFromThisEstimation: {type: Boolean, required: false}
     },
     estimator: {
         name: {type: String},
@@ -120,21 +120,21 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-   /* let repositoryFeature = await RepositoryModel.addFeature({
-        name: featureInput.name,
-        description: featureInput.description,
-        estimation: {
-            _id: estimation._id.toString()
-        },
-        createdBy: negotiator,
-        technologies: estimation.technologies,
-        tags: featureInput.tags
-    }, negotiator)
+    /* let repositoryFeature = await RepositoryModel.addFeature({
+         name: featureInput.name,
+         description: featureInput.description,
+         estimation: {
+             _id: estimation._id.toString()
+         },
+         createdBy: negotiator,
+         technologies: estimation.technologies,
+         tags: featureInput.tags
+     }, negotiator)
 
-    featureInput.repo = {
-        _id: repositoryFeature._id,
-        addedFromThisEstimation: true
-    } */
+     featureInput.repo = {
+         _id: repositoryFeature._id,
+         addedFromThisEstimation: true
+     } */
 
 
     let estimationFeature = new EstimationFeatureModel()
@@ -334,7 +334,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     if (taskCountOfFeature == 0)
         throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_FEATURE_ERROR, EC.HTTP_FORBIDDEN)
 
-    if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
+    if (!feature.estimator.estimatedHours && !feature.estimator.estimatedHours > 0) {
         throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
     }
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
@@ -345,7 +345,6 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
 
     if (pendingTaskCountOfFeature != 0)
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_FEATURE_ERROR, EC.HTTP_FORBIDDEN)
-
 
 
     feature.status = SC.STATUS_APPROVED
