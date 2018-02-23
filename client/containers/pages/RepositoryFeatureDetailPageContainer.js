@@ -19,7 +19,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    feature: state.repository.feature
+    feature: state.repository.feature,
+    estimationId: state.estimation.selected && state.estimation.selected._id ? state.estimation.selected._id : undefined
 })
 
 const RepositoryFeatureDetailPageContainer = connect(

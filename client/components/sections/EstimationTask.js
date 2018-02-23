@@ -51,7 +51,7 @@ class EstimationTask extends React.PureComponent {
 
 
             //if task is not empty show approve button
-            if(task.status===SC.STATUS_PENDING){
+            if(task.status===SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED])){
                 buttons.push(editView ?
                     <img key="approve" src="/images/approve.png"
                          onClick={() => {

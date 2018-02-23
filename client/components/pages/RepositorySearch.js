@@ -8,7 +8,7 @@ class RepositorySearch extends Component {
             selectedValue: 'All',
             type: ['All', 'Feature', 'Task'],
             tags: [],
-            suggestions: this.props.estimation.technologies
+            suggestions: this.props.estimation && this.props.estimation.technologies ? this.props.estimation.technologies : []
         };
         this.props.estimation.technologies.map((f, i) => {
             this.state.tags.push({
@@ -56,11 +56,10 @@ class RepositorySearch extends Component {
 
     render() {
         const {tags, suggestions} = this.state;
-        const {estimation} = this.props
         return (
             <div>
                 <div className="col-md-12 RepositoryHeading RepositorySideHeight">
-                    <div class="col-md-10">
+                    <div className="col-md-10">
                         <div className="dropdownoption">
                             <select className="form-control "
                                     onChange={this.handleSelectChange}>
@@ -109,8 +108,10 @@ class RepositorySearch extends Component {
                     {
                         Array.isArray(this.props.repository) && this.props.repository.map((f, i) =>
                             (f.isFeature) ?
-                                [<div className="repository repositoryFeature">
-                                    <div className="RepositoryHeading" key={i} onClick={()=>{this.props.showFeatureDetailPage(f)}}>
+                                [<div key={"feature" + f._id} className="repository repositoryFeature">
+                                    <div className="RepositoryHeading" key={i} onClick={() => {
+                                        this.props.showFeatureDetailPage(f)
+                                    }}>
                                         <div>
                                             <div className="repositoryFeatureLable"></div>
                                             <h5>Feature: {f.name}</h5><i
@@ -122,8 +123,10 @@ class RepositorySearch extends Component {
                                     </div>
                                 </div>]
                                 :
-                                [<div className="repository repositoryTask">
-                                    <div className="RepositoryHeading" key={i} onClick={()=>{this.props.showTaskDetailPage(f)}}>
+                                [<div key={"task" + f._id} className="repository repositoryTask">
+                                    <div className="RepositoryHeading" key={i} onClick={() => {
+                                        this.props.showTaskDetailPage(f)
+                                    }}>
                                         <div>
                                             <div className="repositoryTaskLable"></div>
                                             <h5>Task: {f.name}</h5><i
