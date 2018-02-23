@@ -973,6 +973,7 @@ td.rejRowColor {
     border-radius: 50%;
     margin-left: 2px;
     margin-right: 2px;
+    cursor: pointer;
 }
 
 .suggestionsClass ul {
@@ -1077,6 +1078,7 @@ td.rejRowColor {
 
 .RepositoryHeading span {
     padding-right: 5%;
+    padding-top: 6px;
 }
 
 .repositoryModalPara {
@@ -1206,4 +1208,27 @@ td.rejRowColor {
     right: 0;
     top: 0;
     transition: 0.8s;
+}
+
+.div-hover {
+    cursor: pointer;
+}
+
+.repo-detail {
+    font-size: 1.3em;
+    margin: 5px 0px 20px 10px;
+    line-height: 1.3em;
+    white-space: pre-line;
+}
+
+.repo-detail-header {
+    font-weight: bold;
+    font-size: 1.3em;
+    margin: 5px 0px 20px 10px;
+    line-height: 1.3em;
+    white-space: pre-line;
+}
+
+.repo-detail-hour{
+    margin: 5px 0px 20px 4px;
 }

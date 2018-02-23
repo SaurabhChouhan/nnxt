@@ -325,7 +325,7 @@ class EstimationTask extends React.PureComponent {
                 </div>
 
             </div>
-            <div className="col-md-12 short-description" onClick={() => {
+            <div className="col-md-12  div-hover short-description" onClick={() => {
                 this.props.expandTask(task._id)
             }}>
                 <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>

@@ -18,14 +18,14 @@ class RepositoryTaskDetailPage extends Component {
         const {showHistory} = this.state
         return (
             <div className="col-md-12">
-                <div className="col-md-6">
-                    <h3>{task.name} </h3>
+                <div className="col-md-10">
+                    <h3 className="repo-detail-header">{task.name} </h3>
                 </div>
-                <div className="col-md-6">
-                    <h3>{task.estimatedHours ? '(' + task.estimatedHours + ')' : '(00)'} </h3>
+                <div className="col-md-2">
+                    <h3 className="repo-detail-hour">{task.estimatedHours ? '(' + task.estimatedHours + ')' : '(00)'} </h3>
                 </div>
                 <div className="col-md-12">
-                    <p className="repositoryModalPara">Task Description: {task.description} </p>
+                    <p className=" repo-detail repositoryModalPara">Task Description: {task.description} </p>
                 </div>
                 <div className="col-md-12 pad">
                     <div className="col-md-3">
