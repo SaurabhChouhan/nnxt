@@ -1,11 +1,11 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {
-    validate,
     estimationEstimatorAddFeatureStruct,
     estimationEstimatorUpdateFeatureStruct,
     estimationNegotiatorAddFeatureStruct,
     estimationNegotiatorUpdateFeatureStruct,
+    validate,
 } from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
@@ -185,7 +185,7 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('You are not estimator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
-    if (!featureInput.repo.addedFromThisEstimation)
+    if (featureInput.repo && !featureInput.repo.addedFromThisEstimation)
         throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
 
     /**
@@ -266,7 +266,7 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
-    if (!featureInput.repo.addedFromThisEstimation)
+    if (featureInput.repo && !featureInput.repo.addedFromThisEstimation)
         throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
 
     estimationFeature.technologies = featureInput.technologies
@@ -618,7 +618,7 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (!feature.repo.addedFromThisEstimation)
+    if (feature.repo && !feature.repo.addedFromThisEstimation)
         throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
 
     feature.estimator.changeRequested = !feature.estimator.changeRequested
@@ -648,7 +648,7 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
     if (!feature.addedInThisIteration || feature.owner != SC.OWNER_NEGOTIATOR)
         feature.negotiator.changedInThisIteration = true
 
-    if (!feature.repo.addedFromThisEstimation)
+    if (feature.repo && !feature.repo.addedFromThisEstimation)
         throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
 
 

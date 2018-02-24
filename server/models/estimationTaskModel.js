@@ -214,7 +214,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!taskInput.repo.addedFromThisEstimation)
+    if (taskInput.repo && !taskInput.repo.addedFromThisEstimation)
         throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
 
     if (estimationTask.feature && estimationTask.feature._id) {
@@ -285,7 +285,7 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     if (negotiator._id.toString() != estimation.negotiator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!taskInput.repo.addedFromThisEstimation)
+    if (taskInput.repo && !taskInput.repo.addedFromThisEstimation)
         throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
