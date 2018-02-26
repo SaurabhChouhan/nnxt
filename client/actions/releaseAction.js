@@ -10,9 +10,15 @@ export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASES_TASK,
     releasePlans: releasePlans
 })
+
 export const releaseProjectSelected = (project) => ({
     type: AC.ADD_RELEASE_PROJECT_SELECTED,
     project: project
+})
+
+export const releaseTaskSelected = (task) => ({
+    type: AC.RELEASE_TASK_SELECTED,
+    task: task
 })
 
 export const getAllReleaseFromServer = (status) => {

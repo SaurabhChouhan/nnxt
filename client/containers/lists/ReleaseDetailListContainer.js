@@ -6,11 +6,13 @@ import {withRouter} from 'react-router-dom'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    changeReleaseFlag: (release, status, flag) => {
-        return dispatch(A.getTaskReleaseFromServer(release, status, flag))
-    },
-    changeReleaseStatus: (release, status, flag) => {
-        return dispatch(A.getTaskReleaseFromServer(release, status, flag))
+    changeReleaseFlag: (release, status, flag) => dispatch(A.getTaskReleaseFromServer(release, status, flag)),
+
+    changeReleaseStatus: (release, status, flag) => dispatch(A.getTaskReleaseFromServer(release, status, flag)),
+
+    taskSelected: (task) => {
+        dispatch(A.releaseTaskSelected(task)),
+            dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_DETAIL_PAGE))
     }
 
 })
