@@ -143,18 +143,26 @@ const estimationReducer = (state = initialState, action) => {
                 selected: Object.assign({}, action.estimation, {
                     tasks: undefined,
                     features: undefined,
-
                 }),
-                tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(item => item.isDeleted == false) : [],
-                features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ? action.estimation.features.filter(item => item.isDeleted == false) : [],
+                tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(t => t.isDeleted == false) : [],
+                features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ?
+                    action.estimation.features.map(f => {
+                            if (f.isDeleted == false) {
+                                if (Array.isArray(f.tasks) && f.tasks.length > 0)
+                                    f.tasks = f.tasks.filter(t => t.isDeleted == false)
+
+                                return f;
+                            }
+                        }
+                    ) : [],
+                expandedFeatureID: undefined,
+                expandedTaskID: undefined,
                 repository: true,
                 estimator: true,
                 negotiator: true,
                 changeRequested: true,
                 grantPermission: true,
                 suggestions: true,
-
-
             })
 
         case AC.UPDATE_SELECTED_ESTIMATION:

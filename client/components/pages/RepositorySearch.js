@@ -61,7 +61,7 @@ class RepositorySearch extends Component {
                 <div className="col-md-12 RepositoryHeading RepositorySideHeight">
                     <div className="col-md-10">
                         <div className="dropdownoption">
-                            <select className="form-control "
+                            <select className="form-control div-hover "
                                     onChange={this.handleSelectChange}>
                                 {
                                     this.state.type.map((item, key) =>
@@ -72,7 +72,7 @@ class RepositorySearch extends Component {
                         </div>
                     </div>
                     <div className="col-md-1 pad ">
-                        <div className="backarrow">
+                        <div className="backarrow  div-hover">
                             <h5><img key="he_requested_delete" src="/images/go_button.png"
                                      onClick={() => {
                                          this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue)
@@ -108,7 +108,7 @@ class RepositorySearch extends Component {
                     {
                         Array.isArray(this.props.repository) && this.props.repository.map((f, i) =>
                             (f.isFeature) ?
-                                [<div key={"feature" + f._id} className="repository repositoryFeature">
+                                [<div key={"feature" + f._id} className="repository repositoryFeature div-hover">
                                     <div className="RepositoryHeading" key={i} onClick={() => {
                                         this.props.showFeatureDetailPage(f)
                                     }}>
@@ -116,7 +116,7 @@ class RepositorySearch extends Component {
                                             <div className="repositoryFeatureLable"></div>
                                             <h5>Feature: {f.name}</h5><i
                                             className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">(04 HRS)</span></div>
+                                            className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span></div>
                                     </div>
                                     <div className="RepositoryContent">
                                         <p>{f.description}</p>
@@ -124,14 +124,14 @@ class RepositorySearch extends Component {
                                 </div>]
                                 :
                                 [<div key={"task" + f._id} className="repository repositoryTask">
-                                    <div className="RepositoryHeading" key={i} onClick={() => {
+                                    <div className="RepositoryHeading div-hover" key={i} onClick={() => {
                                         this.props.showTaskDetailPage(f)
                                     }}>
                                         <div>
                                             <div className="repositoryTaskLable"></div>
                                             <h5>Task: {f.name}</h5><i
                                             className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">(04 HRS)</span></div>
+                                            className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span></div>
                                     </div>
                                     <div className="RepositoryContent">
                                         <p>{f.description}</p>
