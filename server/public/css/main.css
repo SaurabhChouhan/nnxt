@@ -1029,7 +1029,7 @@ td.rejRowColor {
 }
 
 .RepositorySideHeight {
-    min-height: 49px;
+    min-height: 43px;
 }
 
 .col-md-12.repositoryHeading {
@@ -1066,9 +1066,7 @@ td.rejRowColor {
 .RepositoryHeading h5 {
     float: left;
     font-weight: bold;
-    margin: 0px;
-    font-weight: bold;
-    font-size: 16px;
+    font-size: 20px;
 }
 
 .RepositoryHeading h4 {
@@ -1221,9 +1219,9 @@ td.rejRowColor {
     margin-left: -15px;
     width: 36%;
 }
-.repoArrow{
-    margin-top: 9px;
+.repoArrow {
     margin-left: 5px;
+}
 
 .div-hover {
     cursor: pointer;
@@ -1247,4 +1245,152 @@ td.rejRowColor {
 .repo-detail-hour{
     margin: 5px 0px 20px 4px;
 
+}
+
+/*release Detail page*/
+.releaseClock{
+    margin-top:  5px;
+
+}
+.releaseClock i {
+    font-size: 32px;
+    color: #29CAC8;
+    margin-left: 124px;
+}
+.releaseClock b {
+    font-size: 17px;
+    position: absolute;
+    left: 80%;
+    top: 11%;
+}
+
+.planBtn .customBtn{
+    float: right;
+    margin-top: 3px;
+}
+.planBtn .taskbtn{
+    margin-top: 3px;
+}
+.planchk input{
+    zoom:2.3;
+}
+.planchk span {
+    font-size: 20px;
+    margin-left: 10px;
+    position: absolute;
+    margin-top: 8px;
+}
+.planDivider{
+    background-color: #ADADAD;
+    height: 70px;
+    border-bottom: 2px solid #34343C;
+    border-top: 2px solid #34343C;
+    margin-top: 10px;
+}
+.planDividerBtn .Past {
+    float: right;
+    margin-top: 12px;
+}
+.planDividerBtn .Future {
+    margin-left: 90px;
+    margin-top: 12px;
+}
+.planDividerDate span {
+    color: white;
+    font-size: 17px;
+}
+.planDateSlct{
+    margin-top: 20px;
+
+}
+.planDateSlct input{
+    height: 34px;
+}
+.planDateSlct span {
+    font-size: 16px;
+    color: #989C9F;
+}
+.planDateSlctFrom{
+    left: 19%;
+}
+.planDateSlctTo{
+    left: 14%;
+}
+.planchkSchedule  span{
+    font-size: 15px;
+    position: absolute;
+}
+.planchkSchedule input{
+    zoom: 2;
+    margin-right: 3px;
+    margin-top: 3px;
+
+}
+.planSchedule{
+    margin-top: 12px;
+}
+.div-overflow {
+    height: 100%;
+    overflow: auto;
+}
+.releaseDevInfo{
+    background-color: #ECECEC;
+}
+.releaseDevInfo .releaseDevHeading {
+    border: 1px solid #CBCED5;
+    width: 100%;
+    position: relative;
+    height: 30px;
+    padding: 6px;
+    padding-left: 15px;
+    background-color: #ADADAD;
+}
+.releaseSchedule{
+    margin-top: 10px;
+
+}
+
+.releaseDevHeading b{
+    margin-top: 5px;
+    font-size: 20px;
+}
+.releaseDevHeading i{
+    float: right;
+    color: #fff
+}
+.releaseDevHeading {
+    position: relative;
+}
+.col-md-12.releaseDevHeading {
+    border-bottom: 1px solid #182939;
+}
+.releaseDevHeading h5 {
+    float: left;
+    font-weight: bold;
+    margin: 0;
+    color:#fff;
+}
+.releaseDevHeading span {
+    padding-right: 5%;
+    color: #fff;
+}
+.estimation table i {
+    color: red;
+    font-size: 20px;
+}
+.releaseDayRow{
+    display: table-row;
+}
+.releaseDayCell{
+    display: table-cell;
+}
+.releaseDayRow .estimationuser{
+    margin-right: 17px;
+}
+.releaseDayCell h5{
+    padding: 10px;
+}
+.searchReleasePlan {
+    margin-top: 10px;
+    font-size: 25px;
 }
