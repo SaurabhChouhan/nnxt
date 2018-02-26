@@ -88,17 +88,17 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
 
-   /* let repositoryTask = repositoryTask = await RepositoryModel.addTask({
-        name: taskInput.name,
-        description: taskInput.description,
-        estimation: {
-            _id: estimation._id.toString()
-        },
-        feature: taskInput.feature,
-        createdBy: estimator,
-        technologies: estimation.technologies, // Technologies of estimation would be copied directly to tasks
-        tags: taskInput.tags
-    }, estimator)*/
+    /* let repositoryTask = repositoryTask = await RepositoryModel.addTask({
+         name: taskInput.name,
+         description: taskInput.description,
+         estimation: {
+             _id: estimation._id.toString()
+         },
+         feature: taskInput.feature,
+         createdBy: estimator,
+         technologies: estimation.technologies, // Technologies of estimation would be copied directly to tasks
+         tags: taskInput.tags
+     }, estimator)*/
 
     let estimationTask = new EstimationTaskModel()
     estimationTask.estimator.name = taskInput.name
@@ -111,7 +111,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
-    estimationTask.feature=taskInput.feature
+    estimationTask.feature = taskInput.feature
     //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
 
@@ -149,16 +149,16 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         // As task is being added by negotiator there would not be any change in estimated hours of feature as this would just be considered as suggestions
     }
 
-   /* let repositoryTask = await RepositoryModel.addTask({
-        name: taskInput.name,
-        description: taskInput.description,
-        estimation: {
-            _id: estimation._id.toString()
-        },
-        feature: taskInput.feature,
-        createdBy: negotiator,
-        technologies: estimation.technologies
-    }, negotiator)*/
+    /* let repositoryTask = await RepositoryModel.addTask({
+         name: taskInput.name,
+         description: taskInput.description,
+         estimation: {
+             _id: estimation._id.toString()
+         },
+         feature: taskInput.feature,
+         createdBy: negotiator,
+         technologies: estimation.technologies
+     }, negotiator)*/
 
     let estimationTask = new EstimationTaskModel()
     estimationTask.negotiator.name = taskInput.name
@@ -177,7 +177,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
-    estimationTask.feature=taskInput.feature
+    estimationTask.feature = taskInput.feature
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = negotiator.fullName
@@ -213,6 +213,9 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (taskInput.repo && !taskInput.repo.addedFromThisEstimation)
+        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
 
     if (estimationTask.feature && estimationTask.feature._id) {
         let estimationFeatureObj = await EstimationFeatureModel.findById(estimationTask.feature._id)
@@ -281,6 +284,9 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
     if (negotiator._id.toString() != estimation.negotiator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (taskInput.repo && !taskInput.repo.addedFromThisEstimation)
+        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -353,7 +359,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if(feature.status===SC.STATUS_APPROVED){
+    if (feature.status === SC.STATUS_APPROVED) {
         throw new AppError('Task can not be moved as it is already appooved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
@@ -429,6 +435,9 @@ estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, esti
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
+    if (!task.repo.addedFromThisEstimation)
+        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+
     task.estimator.removalRequested = !task.estimator.removalRequested
     task.estimator.changedInThisIteration = true
 
@@ -457,6 +466,9 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
+    if (!task.repo.addedFromThisEstimation)
+        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+
     task.estimator.changeRequested = !task.estimator.changeRequested
     task.estimator.changedInThisIteration = true
     return await task.save()
@@ -484,7 +496,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if(feature.status===SC.STATUS_APPROVED){
+    if (feature.status === SC.STATUS_APPROVED) {
         throw new AppError('task cant be moved as it is already appooved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
@@ -548,7 +560,7 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
 
     let task = await EstimationTaskModel.findById(paramsInput.taskID)
 
-    console.log("task filtered",task)
+    console.log("task filtered", task)
 
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -561,15 +573,14 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
         throw new AppError('Not an negtotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
 
-    if(!task.estimator.removalRequested){
+    if (!task.estimator.removalRequested) {
 
         if (task.owner != SC.OWNER_NEGOTIATOR)
             throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
-      /*  if (!task.addedInThisIteration)
-            throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)*/
+        /*  if (!task.addedInThisIteration)
+              throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)*/
     }
-
 
 
     if (task.feature && task.feature._id) {
@@ -647,6 +658,10 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
     if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
         task.negotiator.changedInThisIteration = true
+
+    if (!task.repo.addedFromThisEstimation)
+        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
     task.updated = Date.now()
@@ -776,7 +791,6 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     })
     if (thisTaskWithRepoAlreadyExist)
         throw new AppError('This task is already part of estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
 
 
     let estimationTask = new EstimationTaskModel()
