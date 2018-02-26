@@ -21,7 +21,8 @@ class ReleaseDetailList extends Component {
     }
 
     onRowClick(row) {
-        this.props.history.push("/app-home/release-project-detail")
+        this.props.taskSelected(row)
+        this.props.history.push("/app-home/release-task-detail")
 
     }
 

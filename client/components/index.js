@@ -88,6 +88,7 @@ export {default as  RepositoryFeatureDetailDialog} from './dialogs/RepositoryFea
 //Release List
 export {default as ReleaseList} from './lists/ReleaseList'
 export {default as ReleaseDetailList} from './lists/ReleaseDetailList'
+export {default as ReleaseTaskDetailPage} from './pages/ReleaseTaskDetailPage'
 
 
 //Raise Leave

@@ -10,7 +10,8 @@ import {
     ReleaseListContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
-    ReleaseDetailListContainer
+    ReleaseDetailListContainer,
+    ReleaseTaskDetailPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -205,11 +206,21 @@ class ContentMain extends Component {
         })
 
         routes.push({
-            url: "/release-detail",
+            url: "/release-project-detail",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
                     <ReleaseDetailListContainer name={COC.RELEASE_DETAIL_LIST}/>
+                </ContentSection>
+
+            }
+        })
+        routes.push({
+            url: "/release-task-detail",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
+                return <ContentSection>
+                    <ReleaseTaskDetailPageContainer name={COC.RELEASE_TASK_DETAIL_PAGE}/>
                 </ContentSection>
 
             }
