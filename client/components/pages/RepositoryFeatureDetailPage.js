@@ -20,13 +20,13 @@ class RepositoryFeatureDetailPage extends Component {
         return (
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <h3>{feature.name} </h3>
+                    <h3 className="repo-detail-header">{feature.name} </h3>
                 </div>
                 <div className="col-md-6">
-                    <h3>{feature.estimatedHours ? '(' + feature.estimatedHours + ')' : '(00)'} </h3>
+                    <h3 className="repo-detail-hour">{feature.estimatedHours ? '(' + feature.estimatedHours + ')' : '(00)'} </h3>
                 </div>
                 <div className="col-md-12">
-                    <p className="repositoryModalPara">Feature Description: {feature.description} </p>
+                    <p className="repositoryModalPara repo-detail">Feature Description: {feature.description} </p>
                 </div>
                 <div className="col-md-12 pad">
                     <div className="col-md-3">
@@ -42,7 +42,9 @@ class RepositoryFeatureDetailPage extends Component {
                         </button>
                     </div>
                     <div className="col-md-5">
-                        <button className="customBtn" type="button">Copy To Estimation</button>
+                        <button className="customBtn" type="button"  onClick={() => {
+                            this.props.copyFeature(estimationId, feature._id)
+                        }}>Copy To Estimation</button>
                     </div>
                 </div>
                 {showHistory &&

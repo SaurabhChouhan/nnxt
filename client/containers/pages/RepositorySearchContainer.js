@@ -9,10 +9,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.selectFeatureFromRepository(feature))
         dispatch(A.showComponent(COC.REPOSITORY_FEATURE_DETAIL_DIALOG))
     },
+
     showTaskDetailPage: (task) => {
         dispatch(A.selectTaskFromRepository(task))
         dispatch(A.showComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
     },
+
     fetchRepositoryBasedOnDiffCriteria: (tags, type, searchText) => {
         let technologies = [];
         tags.map((f, i) => {
@@ -20,6 +22,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
         dispatch(A.getRepositoryFromServer(technologies, type, searchText))
     },
+
 })
 
 
