@@ -43,22 +43,29 @@ class EstimationTask extends React.PureComponent {
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
             editView = true
 
-        if(task.status===SC.STATUS_APPROVED){
-            editView=false
+        if (task.status === SC.STATUS_APPROVED) {
+            editView = false
         }
 
-        if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
+        if (loggedInUserRole == SC.ROLE_NEGOTIATOR ) {
 
 
-            //if task is not empty show approve button
-            if(task.status===SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED])){
-                buttons.push(editView ?
-                    <img key="approve" src="/images/approve.png"
-                         onClick={() => {
-                             console.log("good job",task._id)
-                             this.props.approveTask(task)
-                         }}/> :
-                    <img key="approve_disable" src="/images/approve_disable.png"/>)
+            //condition for task approval
+
+            if (task.status === SC.STATUS_PENDING && _.includes([ SC.STATUS_REVIEW_REQUESTED], estimationStatus) ) {
+
+                if (!(task.estimator.changeRequested
+                        || task.estimator.removalRequested
+                        || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+                        || _.isEmpty(task.estimator.name)
+                        || _.isEmpty(task.estimator.description))) {
+                    buttons.push(editView ?
+                        <img key="approve" src="/images/approve.png"
+                             onClick={() => {
+                                 this.props.approveTask(task)
+                             }}/> :
+                        <img key="approve_disable" src="/images/approve_disable.png"/>)
+                }
             }
 
             // First button shown to negotiator would be suggestion button (kind of edit button)
@@ -112,8 +119,6 @@ class EstimationTask extends React.PureComponent {
             }
 
 
-
-
             // Third button shown to negotiator would be related to removal request (by estimator)/ delete button
             if (task.estimator.removalRequested) {
                 // Estimator has requested removal, negotiator will directly delete task if he wants to
@@ -134,7 +139,6 @@ class EstimationTask extends React.PureComponent {
                          }}/> :
                     <img key="delete_disable" src="/images/delete_disable.png"/>)
             }
-
 
 
         } else if (loggedInUserRole === SC.ROLE_ESTIMATOR) {
@@ -230,10 +234,9 @@ class EstimationTask extends React.PureComponent {
         }
 
         if (loggedInUserRole === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) ||
-            loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus) ) {
+            loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
 
-            if(editView)
-            {
+            if (editView) {
                 if (task.feature && task.feature._id) {
                     // This task is part of some feature so add move out of feature button
                     buttons
@@ -257,7 +260,6 @@ class EstimationTask extends React.PureComponent {
 
                 }
             }
-
 
 
         } else {
@@ -309,15 +311,15 @@ class EstimationTask extends React.PureComponent {
                         <img key="approved_flag" src="/images/approved_flag.png"
                              title="Approved"/>
                     </div>}
-                    {((task.negotiator.changedInThisIteration && task.negotiator.isMovedOutOfFeature ) ||
-                        (task.estimator.changedInThisIteration && task.estimator.isMovedOutOfFeature ))
+                    {((task.negotiator.changedInThisIteration && task.negotiator.isMovedOutOfFeature) ||
+                        (task.estimator.changedInThisIteration && task.estimator.isMovedOutOfFeature))
                     &&
                     <div className="flagStrip">
                         <img key="move_out_flag" src="/images/move_out_flag.png" title="Moved Out From Feature"/>
                     </div>}
 
-                    {((task.negotiator.changedInThisIteration && task.negotiator.isMovedToFeature ) ||
-                        (task.estimator.changedInThisIteration && task.estimator.isMovedToFeature ))
+                    {((task.negotiator.changedInThisIteration && task.negotiator.isMovedToFeature) ||
+                        (task.estimator.changedInThisIteration && task.estimator.isMovedToFeature))
                     &&
                     <div className="flagStrip">
                         <img key="move_in_flag" src="/images/move_in_flag.png" title="Moved Into Feature"/>
@@ -379,7 +381,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         return dispatch(A.deleteEstimationTaskOnServer(values.estimation._id, values._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Deleted successfully")
-            }else if (json.code && json.code == EC.INVALID_USER) {
+            } else if (json.code && json.code == EC.INVALID_USER) {
                 NotificationManager.error("Task Deletion Failed You are not owner of this task !")
             } else if (json.code && json.code == EC.ACCESS_DENIED) {
                 NotificationManager.error("You are not allowed to delete this task !")
@@ -450,17 +452,16 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         })
     },
     approveTask: (values) => {
-        console.log("check the value in estimation tasks",values)
         return dispatch(A.approveTaskByNegotiatorOnServer(values._id)).then(json => {
             if (json.success) {
-                    NotificationManager.success("Task Approved ...")
+                NotificationManager.success("Task Approved ...")
 
             }
             else {
-                if (json.code == EC.TASK_APPROVAL_ERROR){
+                if (json.code == EC.TASK_APPROVAL_ERROR) {
                     NotificationManager.error('Task cant be approved as Estimator has demanded some changes')
                 }
-                else{
+                else {
 
                     NotificationManager.error('Task Not Approved')
                 }
