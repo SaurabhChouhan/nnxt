@@ -62,3 +62,16 @@ export const DESIGNATION_SENIOR_SW_ENGINEER = "Sr. Software Engineer"
 export const DESIGNATION_TEAM_LEAD = "Team Leader"
 export const DESIGNATION_MANAGER = "Manager"
 
+
+export const REASON_GENRAL_DELAY = "general-delay"
+export const REASON_EMPLOYEE_ON_LEAVE = "employee-on-leave"
+export const REASON_INCOMPLETE_DEPENDENCY = "incomplete-dependency"
+export const REASON_NO_GUIDANCE_PROVIDED = "no-guidance-provided"
+export const REASON_RESEARCH_WORK = "research-work"
+export const REASON_UNFAMILIAR_TECHNOLOGY = "unfamiliar-technology"
+
+
+export const REPORT_UNREPORTED = "un-reported"
+export const REPORT_COMPLETED = "completed"
+export const REPORT_PENDING = "pending"
+
