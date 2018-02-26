@@ -317,7 +317,7 @@ class EstimationFeature extends React.PureComponent {
 
         return <div className={expanded ? 'feature-expanded' : 'feature'}>
             <div className="col-md-12 pad">
-                <div className="col-md-9" onClick={() => {
+                <div className="col-md-9 div-hover" onClick={() => {
                     this.props.expandFeature(feature._id)
                 }}>
                     <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
