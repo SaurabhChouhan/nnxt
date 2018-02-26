@@ -76,7 +76,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.estimationTaskDelete(taskID))
     },
 
-    estimationFilterForm:()=>{
+    estimationFilterForm: () => {
+
         dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG))
     }
 

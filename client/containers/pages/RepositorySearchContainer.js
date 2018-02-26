@@ -15,12 +15,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
     },
 
-    fetchRepositoryBasedOnDiffCriteria: (tags, type) => {
+    fetchRepositoryBasedOnDiffCriteria: (tags, type, searchText) => {
         let technologies = [];
-        tags.map((t, i) => {
-            technologies.push(t.text)
+        tags.map((f, i) => {
+            technologies.push(f.text)
         })
-        dispatch(A.getRepositoryFromServer(technologies, type))
+        dispatch(A.getRepositoryFromServer(technologies, type, searchText))
     },
 
 })

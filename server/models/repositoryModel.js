@@ -35,7 +35,7 @@ repositorySchema.statics.isTaskExists = async (name) => {
 }
 
 repositorySchema.statics.isFeatureExists = async (name) => {
-    let count = await RepositoryModel.count({'name': name,'isFeature':true})
+    let count = await RepositoryModel.count({'name': name, 'isFeature': true})
     console.log("count is ", count)
     if (count > 0)
         return true
