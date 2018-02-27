@@ -16,6 +16,27 @@ let employeeDaysSchema = mongoose.Schema({
     plannedHours: {type: Number, default: 0}
 })
 
+
+
+employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput,user) => {
+    return await EmployeeDaysModel.create(EmployeeDaysInput)
+}
+
 const EmployeeDaysModel = mongoose.model("EmployeeDays", employeeDaysSchema)
 export default EmployeeDaysModel
 
+
+/*
+{
+    "project": {
+        "_id": "5a8fc14733118914b0a548e4",
+        "name": "project-management"
+    },
+    "employee": {
+        "_id": "5a93bf9b2af17a16e808b340",
+        "name": "gauravagrawal"
+    },
+    "dateString": "10/10/10",
+    "plannedHours": 5
+}
+*/

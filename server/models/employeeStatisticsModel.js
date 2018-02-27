@@ -35,6 +35,38 @@ let employeeStatisticsSchema = mongoose.Schema({
     ]
 })
 
-const EmployeeStatisticsModel = mongoose.model("EmployeeDays", employeeStatisticsSchema)
+employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeStatisticsInput,user) => {
+    return await EmployeeStatisticsModel.create(EmployeeStatisticsInput)
+}
+
+const EmployeeStatisticsModel = mongoose.model("EmployeeStatistics", employeeStatisticsSchema)
 export default EmployeeStatisticsModel
 
+/*{
+
+    "release": {
+        "_id":"5a93c0062af17a16e808b342",
+        "version": "v2.0"
+    },
+    "employee": {
+        "_id": "5a93bf9b2af17a16e808b340",
+        "name":"Gaurav agrawal"
+    },
+    "leaves": [
+        {
+            "date":"10/10/10",
+            "reason":"medical",
+            "plannedHours": 5,
+            "isLastMinuteLeave": true
+        }
+    ],
+    "tasks": [
+        {
+            "_id": "5a900ab687ccf511f8d967e6",
+            "name": "Registration with faceBook",
+            "plannedHours": 20,
+            "reportedHours":4,
+            "plannedHoursReportedTasks":5
+        }
+    ]
+}*/
