@@ -10,6 +10,10 @@ export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASES_TASK,
     releasePlans: releasePlans
 })
+export const addTaskDetailPlans = (task) => ({
+    type: AC.ADD_RELEASES_TASK_DETAIL,
+    task: task
+})
 
 export const releaseProjectSelected = (project) => ({
     type: AC.ADD_RELEASE_PROJECT_SELECTED,
@@ -58,6 +62,28 @@ export const getTaskReleaseFromServer = (release, status, empFlag) => {
                 if (json.success) {
                     console.log("getTaskReleaseFromServer ", json.data)
                     dispatch(addReleasePlans(json.data))
+                }
+            })
+    }
+}
+export const getTaskDetailReleaseFromServer = (releasePlan,task) => {
+    return (dispatch, getState) => {
+        console.log("inside plan task action",releasePlan,task)
+        return fetch('/api/releases/release-plans/'+ releasePlan._id + '/release-plans-with/task/' + task._id +  {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("getTaskDetailReleaseFromServer ", json.data)
+                    dispatch(addTaskDetailPlans(json.data))
                 }
             })
     }
