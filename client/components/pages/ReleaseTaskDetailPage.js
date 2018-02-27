@@ -71,7 +71,7 @@ class ReleaseTaskDetailPage extends Component {
 
     render() {
        // const {release} = this.props
-        const {task} = this.props
+        const {releasePlan} = this.props
         return (
             <div className="clearfix  ">
                 <div className="col-md-8 pad">
@@ -80,7 +80,7 @@ class ReleaseTaskDetailPage extends Component {
                             <div className="backarrow">
 
                                 <h5>
-                                    <a href=""><i className="glyphicon glyphicon-arrow-left"></i></a><b>{task.task ? task.task.name : ''} </b></h5>
+                                    <a href=""><i className="glyphicon glyphicon-arrow-left"></i></a><b>{releasePlan.task ? releasePlan.task.name : ''} </b></h5>
                             </div>
                         </div>
                         <div className="col-md-4  releaseClock ">
@@ -98,12 +98,12 @@ class ReleaseTaskDetailPage extends Component {
                         <div className="col-md-4 planchk"><input type="checkbox" name="" value=""/><span>Project Users Only</span>
                         </div>
                         <div className="col-md-4 planBtn">
-                            <button type="button" className="btn taskbtn"   onClick={() => this.props.showTaskPlanningCreationForm()}><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn taskbtn"   onClick={() => this.props.showTaskPlanningCreationForm(releasePlan)}><i className="fa fa-plus-circle"></i>
                                 Add New Row
                             </button>
                         </div>
                         <div className="col-md-4 planBtn">
-                            <button className="btn customBtn" onClick={() => this.props.showPlanTask(task)}>
+                            <button className="btn customBtn" onClick={() => this.props.showPlanTask(releasePlan)}>
                                 Plan Task
                             </button>
                         </div>

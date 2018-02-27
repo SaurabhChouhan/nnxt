@@ -22,14 +22,9 @@ const clientReducer = (state = initialState, action) => {
         case AC.ADD_RELEASES_TASK:
             return Object.assign({}, state, {all: action.releasePlans})
 
-        case AC.ADD_RELEASES_TASK_DETAIL:
+        /*case AC.ADD_RELEASES_TASK_PLANNING:
             return Object.assign({}, state, {
-                task:[{
-                    estimatedHours:action.estimatedHours,
-                    developer:action.developer._id,
-                    minPlanningDate:action.minPlanningDate
-                }]
-            })
+            })*/
         default:
             return state
     }
