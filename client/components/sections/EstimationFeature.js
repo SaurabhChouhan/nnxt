@@ -60,19 +60,23 @@ class EstimationFeature extends React.PureComponent {
              * He would also be able to delete any task
              */
 
-            //if task is not empty show approve button
-            if (feature.status === SC.STATUS_PENDING) {
-                buttons.push(editView ?
-                    <img key="approve" src="/images/approve.png"
-                         onClick={() => {
-                             console.log("good job", feature._id)
-                             console.log("good job feature", feature)
 
-                             this.props.approveFeature(feature)
-                         }}/> :
-                    <img key="approve_disable" src="/images/approve_disable.png"/>)
+           //condition for feature approval
+            if (feature.status === SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED], estimationStatus)) {
+
+                if (!(feature.estimator.changeRequested
+                        || feature.estimator.removalRequested
+                        || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
+                        || _.isEmpty(feature.estimator.name)
+                        || _.isEmpty(feature.estimator.description))) {
+                    buttons.push(editView ?
+                        <img key="approve" src="/images/approve.png"
+                             onClick={() => {
+                                 this.props.approveFeature(feature)
+                             }}/> :
+                        <img key="approve_disable" src="/images/approve_disable.png"/>)
+                }
             }
-
 
             if (feature.negotiator.changeSuggested) {
                 // As negotiator has requested change, means he has added his suggestions during this iteration, show appropriate suggestion button
@@ -512,31 +516,20 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
             })
         },
         approveFeature: (values) => {
-            console.log("check the value in estimation features", values)
             return dispatch(A.approveFeatureByNegotiatorOnServer(values._id)).then(json => {
                 if (json.success) {
                     NotificationManager.success("Feature Approved ...")
                 }
                 else {
-                    if (json.code == EC.FEATURE_APPROVAL_ERROR) {
-                        NotificationManager.error('Feature cant be approved as Estimator has demanded some changes')
-                    } else {
-                        if (json.code == EC.TASK_APPROVAL_ERROR) {
-                            NotificationManager.error('All the task of feature should be approved')
-                        }
-                        else {
-                            if (json.code == EC.TASK_APPROVAL_FEATURE_ERROR) {
-                                NotificationManager.error('Feature should atlest have one task with estimated task greater than zero')
-                            }
-                            else {
-                                NotificationManager.error('Feature Not Approved')
-                            }
-
-                        }
+                    if (json.code == EC.TASK_APPROVAL_ERROR) {
+                        NotificationManager.error('First All the task of feature should be approved')
+                    }
+                    else {
+                        NotificationManager.error('Feature Not Approved')
                     }
 
-
                 }
+
 
             })
         },

@@ -338,10 +338,12 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     })
 
     if (taskCountOfFeature == 0)
-        throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_FEATURE_ERROR, EC.HTTP_FORBIDDEN)
+        throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
-    if (!feature.estimator.estimatedHours && !feature.estimator.estimatedHours > 0) {
-        throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+
+    if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
+        throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
+
     }
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
@@ -350,7 +352,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     })
 
     if (pendingTaskCountOfFeature != 0)
-        throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_FEATURE_ERROR, EC.HTTP_FORBIDDEN)
+        throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
 
     feature.status = SC.STATUS_APPROVED
