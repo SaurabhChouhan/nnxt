@@ -98,7 +98,7 @@ class ReleaseTaskDetailPage extends Component {
                         <div className="col-md-4 planchk"><input type="checkbox" name="" value=""/><span>Project Users Only</span>
                         </div>
                         <div className="col-md-4 planBtn">
-                            <button type="button" className="btn taskbtn"  onClick={this.addRows}><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn taskbtn"   onClick={() => this.props.showTaskPlanningCreationForm()}><i className="fa fa-plus-circle"></i>
                                 Add New Row
                             </button>
                         </div>
