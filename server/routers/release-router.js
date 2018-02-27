@@ -30,7 +30,7 @@ releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empfla
 releaseRouter.put("/plan-task/", async ctx => {
        let planTask = await TaskPlanningModel.addTaskPlanningDetails(ctx.request.body, ctx.state.user)
        if (!planTask) {
-           throw new AppError("Not allowed to releases plans details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+           throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
        }
        return planTask
 })
