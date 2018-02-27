@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
-
+import {} from '../models'
 mongoose.Promise = global.Promise
 
 let taskPlanningSchema = mongoose.Schema({
@@ -42,6 +42,11 @@ let taskPlanningSchema = mongoose.Schema({
 })
 
 
+taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput,user) => {
+/*    let taskPlanning = new TaskPlanningModel()
+    taskPlanning.date = taskPlanningInput*/
+    return await TaskPlanningModel.create(taskPlanningInput)
+}
 
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
 export default TaskPlanningModel

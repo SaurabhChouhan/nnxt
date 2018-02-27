@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {ReleaseModel, ReleasePlanModel} from "../models"
+import {ReleaseModel, ReleasePlanModel, TaskPlanningModel} from "../models"
 import * as EC from '../errorcodes'
 import AppError from '../AppError'
 
@@ -26,6 +26,16 @@ releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empfla
     }
     return releasePlans
 })
+
+releaseRouter.put("/plan-task/", async ctx => {
+       let planTask = await TaskPlanningModel.addTaskPlanningDetails(ctx.request.body, ctx.state.user)
+       if (!planTask) {
+           throw new AppError("Not allowed to releases plans details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+       }
+       return planTask
+})
+
+
 
 
 export default releaseRouter
