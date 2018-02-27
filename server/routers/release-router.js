@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {ReleaseModel, ReleasePlanModel, TaskPlanningModel} from "../models"
+import {ReleaseModel, ReleasePlanModel, TaskPlanningModel,EmployeeDaysModel,EmployeeStatisticsModel} from "../models"
 import * as EC from '../errorcodes'
 import AppError from '../AppError'
 
@@ -33,6 +33,22 @@ releaseRouter.put("/plan-task/", async ctx => {
            throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
        }
        return planTask
+})
+
+releaseRouter.post("/employee-days/", async ctx => {
+       let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
+       if (!employeeDays) {
+           throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+       }
+       return employeeDays
+})
+
+releaseRouter.post("/employee-statistics/", async ctx => {
+       let employeeStatistics = await EmployeeStatisticsModel.addEmployeeStatisticsDetails(ctx.request.body, ctx.state.user)
+       if (!employeeStatistics) {
+           throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+       }
+       return employeeStatistics
 })
 
 

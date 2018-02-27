@@ -4,10 +4,20 @@ import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 
-const mapDispatchToProps = (dispatch, ownProps) => ({})
+const mapDispatchToProps = (dispatch, ownProps) => ({
+    showPlanTask: (release) => dispatch(A.getTaskDetailReleaseFromServer(release))
 
 
-const mapStateToProps = (state) => ({})
+})
+
+
+const mapStateToProps = (state) => ({
+    loggedInUser: state.user.loggedIn,
+    //release: state.release.selectedTask,
+    task:state.release.selectedTask,
+    taskPlanning : [],
+    data : []
+})
 
 const ReleaseTaskDetailPageContainer = connect(
     mapStateToProps,

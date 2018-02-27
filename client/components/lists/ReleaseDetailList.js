@@ -200,7 +200,7 @@ class ReleaseDetailList extends Component {
                             </div>
                             {
                                 release.team.map((teamMember, index) => {
-                                    return <div className="estimationuser tooltip"><span>T{index + 1}</span>
+                                    return <div key={"teamMember"+index} className="estimationuser tooltip"><span>T{index + 1}</span>
                                         <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
                                     </div>
                                 })

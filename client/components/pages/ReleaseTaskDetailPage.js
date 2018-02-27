@@ -10,8 +10,17 @@ class ReleaseTaskDetailPage extends Component {
         super(props);
         this.state = {
             status: "all",
-            flag: "all"
+            flag: "all",
+            row: []
         }
+        this.addRows = this.addRows.bind(this);
+    }
+    addRows(row){
+
+        var row = this.state.row
+        row.push('new row')
+        this.setState({row: row})
+
     }
 
     formatDate(row) {
@@ -61,7 +70,8 @@ class ReleaseTaskDetailPage extends Component {
     }
 
     render() {
-        const {release} = this.props
+       // const {release} = this.props
+        const {task} = this.props
         return (
             <div className="clearfix  ">
                 <div className="col-md-8 pad">
@@ -70,8 +80,7 @@ class ReleaseTaskDetailPage extends Component {
                             <div className="backarrow">
 
                                 <h5>
-                                    <a href=""><i className="glyphicon glyphicon-arrow-left"></i></a><b>Integration with
-                                    FB /Twitter </b></h5>
+                                    <a href=""><i className="glyphicon glyphicon-arrow-left"></i></a><b>{task.task ? task.task.name : ''} </b></h5>
                             </div>
                         </div>
                         <div className="col-md-4  releaseClock ">
@@ -89,19 +98,19 @@ class ReleaseTaskDetailPage extends Component {
                         <div className="col-md-4 planchk"><input type="checkbox" name="" value=""/><span>Project Users Only</span>
                         </div>
                         <div className="col-md-4 planBtn">
-                            <button type="button" className="btn taskbtn"><i className="fa fa-plus-circle"></i>
+                            <button type="button" className="btn taskbtn"  onClick={this.addRows}><i className="fa fa-plus-circle"></i>
                                 Add New Row
                             </button>
                         </div>
                         <div className="col-md-4 planBtn">
-                            <button className="btn customBtn ">
+                            <button className="btn customBtn" onClick={() => this.props.showPlanTask(task)}>
                                 Plan Task
                             </button>
                         </div>
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={this.props.releasePlans}
+                            <BootstrapTable options={this.options} data={this.props.taskPlanning}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
@@ -158,7 +167,7 @@ class ReleaseTaskDetailPage extends Component {
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={this.props.releasePlans}
+                            <BootstrapTable options={this.options} data={this.props.data}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
