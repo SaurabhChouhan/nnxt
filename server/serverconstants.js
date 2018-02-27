@@ -71,6 +71,12 @@ export const REASON_RESEARCH_WORK = "research-work"
 export const REASON_UNFAMILIAR_TECHNOLOGY = "unfamiliar-technology"
 
 
+export const REASON_MEDICAL = "medical"
+export const REASON_PERSONAL = "personal"
+export const REASON_OCCASION= "occasion"
+export const REASON_FESTIVAL = "festival"
+
+
 export const REPORT_UNREPORTED = "un-reported"
 export const REPORT_COMPLETED = "completed"
 export const REPORT_PENDING = "pending"
