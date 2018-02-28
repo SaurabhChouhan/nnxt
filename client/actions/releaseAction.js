@@ -25,6 +25,11 @@ export const releaseTaskSelected = (task) => ({
     task: task
 })
 
+export const addTaskPlanningToState = (taskPlan) => ({
+    type: AC.ADD_TASK_PLANNING_TO_STATE,
+    taskPlan: taskPlan
+})
+
 export const getAllReleaseFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {
