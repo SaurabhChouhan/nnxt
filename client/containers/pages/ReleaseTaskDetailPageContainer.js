@@ -7,8 +7,8 @@ import * as SC from '../../../server/serverconstants'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+
     showTaskPlanningCreationForm: (releasePlan) => {
-        console.log("releasePlan", releasePlan)
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
             task: releasePlan.task,
@@ -23,7 +23,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
     },
+
     deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromState(plan.localId)),
+
     planTask: (taskPlanning) => dispatch(A.addTaskPlanningOnServer(taskPlanning)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Added")

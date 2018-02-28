@@ -22,7 +22,7 @@ const mapStateToProps = (state) => {
     return {
         loggedInUser: state.user.loggedIn,
         release: state.release.selected,
-        releasePlans: state.release.all
+        releasePlans: state.release.allReleses
     }
 }
 

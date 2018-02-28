@@ -5,7 +5,6 @@ import * as COC from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (task) => {
-           console.log("taskplanning dialog form submit",task)
             dispatch(A.addTaskPlanningToState(task)),
             dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
         }
