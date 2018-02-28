@@ -51,7 +51,7 @@ class ReleaseTaskDetailPage extends Component {
 
     render() {
        // const {release} = this.props
-        const {releasePlan} = this.props
+        const {releasePlan, taskPlanning} = this.props
         return (
             <div className=" col-md-12 clearfix  ">
                 <div className="col-md-8 pad">
@@ -83,14 +83,14 @@ class ReleaseTaskDetailPage extends Component {
                             </button>
                         </div>
                         <div className="col-md-4 planBtn">
-                            <button className="btn customBtn" onClick={() => this.props.showPlanTask(releasePlan)}>
+                            <button className="btn customBtn" onClick={() => this.props.planTask(taskPlanning)}>
                                 Plan Task
                             </button>
                         </div>
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={this.props.taskPlanning}
+                            <BootstrapTable options={this.options} data={taskPlanning}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>

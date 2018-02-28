@@ -1,5 +1,6 @@
 import * as AC from './actionConsts'
 
+let localId = 1
 
 export const addReleases = (releases) => ({
     type: AC.ADD_RELEASES,
@@ -10,9 +11,9 @@ export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASES_TASK,
     releasePlans: releasePlans
 })
-export const addReleaseTaskPlanning = (task) => ({
+export const addReleaseTaskPlanning = ( taskPlanning ) => ({
     type: AC.ADD_RELEASES_TASK_PLANNING,
-    task: task
+    taskPlanning :  taskPlanning
 })
 
 export const releaseProjectSelected = (project) => ({
@@ -25,9 +26,16 @@ export const releaseTaskSelected = (task) => ({
     task: task
 })
 
-export const addTaskPlanningToState = (taskPlan) => ({
+export const addTaskPlanningToState = (taskPlan) => {
+    taskPlan.localId = localId++
+    return {
     type: AC.ADD_TASK_PLANNING_TO_STATE,
     taskPlan: taskPlan
+}}
+
+export const deleteTaskPlanningFromState = (planId) => ({
+    type: AC.DELETE_TASK_PLAN_FROM_STATE,
+    planId: planId
 })
 
 export const getAllReleaseFromServer = (status) => {
@@ -72,18 +80,16 @@ export const getTaskReleaseFromServer = (release, status, empFlag) => {
     }
 }
 
-export const addTaskPlanningOnServer = (task) => {
-    console.log("task inside release planning for task planning",task)
-    console.log("task inside release planning for task planning",task.task._id)
+export const addTaskPlanningOnServer = (taskPlanning) => {
     return (dispatch, getState) => {
-        return fetch('/api/plan-task/' + task.task._id, {
+        return fetch('/api/releases/plan-task/', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(task)
+                body: JSON.stringify(taskPlanning)
             }
         ).then(
             response => response.json()

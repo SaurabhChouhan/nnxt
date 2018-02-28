@@ -4,6 +4,7 @@ import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {initialize} from 'redux-form'
 import * as SC from '../../../server/serverconstants'
+import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showTaskPlanningCreationForm: (releasePlan) => {
@@ -22,10 +23,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
     },
-    showPlanTask: (release) => dispatch(A.getTaskDetailReleaseFromServer(release)),
-    deleteTaskPlanningRow: (row) => console.log("delete Task planning row", row)
-
-
+    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromState(plan.localId)),
+    planTask: (taskPlanning) => dispatch(A.addTaskPlanningOnServer(taskPlanning)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Task Planning Added")
+        }
+        else NotificationManager.error("Task Planning Added")
+    })
 })
 
 
