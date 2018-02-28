@@ -21,8 +21,11 @@ let employeeDaysSchema = mongoose.Schema({
 employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput,user) => {
     return await EmployeeDaysModel.create(EmployeeDaysInput)
 }
+employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
+    return await EmployeeDaysModel.find({})
+}
 
-const EmployeeDaysModel = mongoose.model("EmployeeDays", employeeDaysSchema)
+const EmployeeDaysModel = mongoose.model("EmployeeDay", employeeDaysSchema)
 export default EmployeeDaysModel
 
 

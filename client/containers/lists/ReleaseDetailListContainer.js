@@ -10,8 +10,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     changeReleaseStatus: (release, status, flag) => dispatch(A.getTaskReleaseFromServer(release, status, flag)),
 
-    taskSelected: (task) => {
-        dispatch(A.releaseTaskSelected(task)),
+    taskPlanSelected: (taskPlanning) => {
+            dispatch(A.releaseTaskPlanSelected(taskPlanning)),
+            dispatch(A.getAllTaskPlannedFromServer(taskPlanning._id))
             dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_DETAIL_PAGE))
     }
 
@@ -21,7 +22,7 @@ const mapStateToProps = (state) => {
     return {
         loggedInUser: state.user.loggedIn,
         release: state.release.selected,
-        releasePlans: state.release.all
+        releasePlans: state.release.allReleses
     }
 }
 
