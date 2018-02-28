@@ -21,9 +21,9 @@ export const releaseProjectSelected = (project) => ({
     project: project
 })
 
-export const releaseTaskSelected = (task) => ({
-    type: AC.RELEASE_TASK_SELECTED,
-    task: task
+export const releaseTaskPlanSelected = (taskPlan) => ({
+    type: AC.RELEASE_TASK_PLAN_SELECTED,
+    taskPlan: taskPlan
 })
 
 export const addTaskPlanningToState = (taskPlan) => {

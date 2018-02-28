@@ -4,7 +4,7 @@ import * as AC from "../actions/actionConsts"
 let initialState = {
     all: [],
     selected: {},
-    selectedTask:{},
+    selectedTaskPlan:{},
     taskPlanning:[]
 }
 
@@ -16,9 +16,9 @@ const clientReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 selected: action.project
             })
-        case AC.RELEASE_TASK_SELECTED:
+        case AC.RELEASE_TASK_PLAN_SELECTED:
             return Object.assign({}, state, {
-                selectedTask: action.task
+                selectedTaskPlan: action.taskPlan
             })
         case AC.ADD_TASK_PLANNING_TO_STATE:
             return Object.assign({}, state, {
