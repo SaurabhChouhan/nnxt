@@ -43,7 +43,7 @@ employeeStatisticsSchema.statics.getActiveEmployeeStatistics = async (user) => {
     return await EmployeeStatisticsModel.find({})
 }
 
-const EmployeeStatisticsModel = mongoose.model("EmployeeStatistics", employeeStatisticsSchema)
+const EmployeeStatisticsModel = mongoose.model("EmployeeStatistic", employeeStatisticsSchema)
 export default EmployeeStatisticsModel
 
 /*{

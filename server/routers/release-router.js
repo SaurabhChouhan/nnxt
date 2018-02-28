@@ -35,7 +35,7 @@ releaseRouter.put("/plan-task/", async ctx => {
        return planTask
 })
 
-releaseRouter.post("/employee-days/", async ctx => {
+releaseRouter.post("/employee-days", async ctx => {
        let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
        if (!employeeDays) {
            throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -43,7 +43,7 @@ releaseRouter.post("/employee-days/", async ctx => {
        return employeeDays
 })
 
-releaseRouter.get("/employee-days/", async ctx => {
+releaseRouter.get("/employee-days/:id", async ctx => {
 
     return await EmployeeDaysModel.getActiveEmployeeDays(ctx.state.user)
 })
@@ -56,7 +56,7 @@ releaseRouter.post("/employee-statistics/", async ctx => {
        return employeeStatistics
 })
 
-releaseRouter.get("/employee-statistics/", async ctx => {
+releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
 })
 

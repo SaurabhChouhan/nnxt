@@ -25,7 +25,7 @@ employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
     return await EmployeeDaysModel.find({})
 }
 
-const EmployeeDaysModel = mongoose.model("EmployeeDays", employeeDaysSchema)
+const EmployeeDaysModel = mongoose.model("EmployeeDay", employeeDaysSchema)
 export default EmployeeDaysModel
 
 
