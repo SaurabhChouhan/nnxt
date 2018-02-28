@@ -59,6 +59,7 @@ taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput,use
                 taskPlanning.employee = task.employee
                 taskPlanning.flags = task.flags
                 taskPlanning.planning = task.planning
+                taskPlanning.report = task.report
                 return await taskPlanning.save()
             }
             else return task
