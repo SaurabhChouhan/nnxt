@@ -12,7 +12,7 @@ let ReleaseTaskPlanningForm = (props) => {
 
     return <form onSubmit={handleSubmit}>
         <div className="row">
-            <div className="col-md-4">
+            <div className="col-md-6">
 
                 <Field name="release._id" component="input" type="hidden"/>
 
@@ -31,12 +31,17 @@ let ReleaseTaskPlanningForm = (props) => {
                        }}
                        component={renderSelect} options={team}
                        label={"Developer Name:"} validate={[required]}/>
+            </div>
 
                 <div className="col-md-12">
-                    <button type="submit" className="btn customBtn">Save To Local</button>
-                    <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
+                    <div className="col-md-4">
+                        <button type="submit" className="btn customBtn">Save To Local</button>
+                    </div>
+                    <div className="col-md-4">
+                        <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
+                    </div>
                 </div>
-            </div>
+
         </div>
 
     </form>

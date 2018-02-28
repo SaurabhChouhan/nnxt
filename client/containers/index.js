@@ -80,7 +80,8 @@ export {default as AttendenceSettingFormContainer} from './forms/AttendanceSetti
 
 
 //Release setting
+export {default as ReleaseDeveloperFilterFormContainer} from './forms/ReleaseDeveloperFilterFormContainer'
+export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleaseDetailListContainer} from './lists/ReleaseDetailListContainer'
 export {default as ReleaseTaskDetailPageContainer} from './pages/ReleaseTaskDetailPageContainer'
-export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
