@@ -1,79 +1,59 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
-import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 
 class ReleaseTaskDetailPage extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            status: "all",
-            flag: "all",
-            row: []
+
+    }
+
+    deleteCellButton(cell, row, enumObject, rowIndex) {
+        if (row._id) {
+
         }
-        this.addRows = this.addRows.bind(this);
-    }
-    addRows(row){
-
-        var row = this.state.row
-        row.push('new row')
-        this.setState({row: row})
-
+        else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+                             onClick={() => {
+                                 this.props.deleteTaskPlanningRow(row)
+                             }}></button>)
     }
 
-    formatDate(row) {
+    formatPlanningDate(row) {
         if (row) {
             return moment(row).format("DD-MM-YYYY")
         }
         return ''
     }
 
-    formatEstimatedHours(task) {
-        if (task)
-            return task.estimatedHours
+    formatPlannedHours(planning) {
+        if (planning)
+            return planning.plannedHours
         return 0
     }
 
-    formatReportedHours(report) {
-        if (report)
-            return report.reportedHours
-        return 0
-    }
 
-    formatReportedStatus(report) {
-        if (report)
-            return report.finalStatus
-        return 'unplanned'
-    }
-
-
-    formateTaskName(task) {
-        if (task)
-            return task.name
-        return ''
-    }
-
-    formatTaskPlanStartDate(planning) {
-        if (planning && planning.minPlanningDate) {
-            return moment(planning.minPlanningDate).format("DD-MM-YYYY")
+    formatDeveloper(developer) {
+        if (developer && developer.name) {
+            return developer.name
         }
         return ''
     }
 
-    formatTaskPlanEndDate(planning) {
-        if (planning && planning.maxPlanningDate) {
-            return moment(planning.maxPlanningDate).format("DD-MM-YYYY")
+    formatReport(report) {
+        if (report && report.status) {
+            return report.status
         }
         return ''
     }
+
 
     render() {
        // const {release} = this.props
         const {releasePlan} = this.props
         return (
-            <div className="clearfix  ">
+            <div className=" col-md-12 clearfix  ">
                 <div className="col-md-8 pad">
                     <div className="col-md-12 estimateheader">
                         <div className="col-md-8 pad">
@@ -114,13 +94,20 @@ class ReleaseTaskDetailPage extends Component {
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Date</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'
-                                                   dataFormat={this.formatEstimatedHours.bind(this)}>Est
+                                <TableHeaderColumn columnTitle dataField='planningDate'
+                                                   dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='planning'
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Est
                                     Hours</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'>Developer</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='employee'>Reported Status</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='flags'>Delete Row</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='employee'
+                                                   dataFormat={this.formatDeveloper.bind(this)}>>Developer</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReport.bind(this)}>Reported
+                                    Status</TableHeaderColumn>
+                                <TableHeaderColumn width="5%" dataField='button'
+                                                   dataFormat={this.deleteCellButton.bind(this)}><i
+                                    className="fa fa-trash"></i>
+                                </TableHeaderColumn>
                             </BootstrapTable>
                         </div>
                     </div>
@@ -171,11 +158,10 @@ class ReleaseTaskDetailPage extends Component {
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Date</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'
-                                                   dataFormat={this.formateTaskName.bind(this)}>Task
+                                <TableHeaderColumn columnTitle dataField='created'>Date</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'>Task
                                     Name</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'>Developer</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='employee'>Developer</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='palnning'>Planned Effort</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='project'>Project</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='flags'>Action</TableHeaderColumn>

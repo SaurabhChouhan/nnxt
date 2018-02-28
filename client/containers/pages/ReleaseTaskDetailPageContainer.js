@@ -3,7 +3,6 @@ import {ReleaseTaskDetailPage} from '../../components'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {initialize} from 'redux-form'
-import {NotificationManager} from 'react-notifications'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -23,7 +22,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
     },
-    showPlanTask: (release) => dispatch(A.getTaskDetailReleaseFromServer(release))
+    showPlanTask: (release) => dispatch(A.getTaskDetailReleaseFromServer(release)),
+    deleteTaskPlanningRow: (row) => console.log("delete Task planning row", row)
 
 
 })
@@ -31,9 +31,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
-    //release: state.release.selectedTask,
     releasePlan: state.release.selectedTask,
-    taskPlanning: [],
+    taskPlanning: state.release.taskPlanning,
     data: []
 })
 
