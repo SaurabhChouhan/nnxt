@@ -58,6 +58,28 @@ export const getAllReleaseFromServer = (status) => {
             })
     }
 }
+
+export const getAllTaskPlannedFromServer = (planningId) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/task-plans/' + planningId, {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addReleaseTaskPlanning(json.data))
+                }
+            })
+    }
+}
+
 export const getTaskReleaseFromServer = (release, status, empFlag) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/' + release._id + '/release-plans-with/status/' + status + '/empflag/' + empFlag, {

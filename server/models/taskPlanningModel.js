@@ -69,6 +69,10 @@ taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput,use
     else return []
 }
 
+taskPlanningSchema.statics.getTaskPlanningDetails = async (taskPlanningId, user) => {
+    return await TaskPlanningModel.find({})
+}
+
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
 export default TaskPlanningModel
 

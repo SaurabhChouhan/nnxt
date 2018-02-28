@@ -35,6 +35,12 @@ releaseRouter.put("/plan-task/", async ctx => {
        return planTask
 })
 
+releaseRouter.get("/task-plans/:planningId", async ctx => {
+    let taskPlans = await TaskPlanningModel.getTaskPlanningDetails(ctx.params.planningId, ctx.state.user)
+
+    return taskPlans
+})
+
 releaseRouter.post("/employee-days", async ctx => {
        let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
        if (!employeeDays) {
