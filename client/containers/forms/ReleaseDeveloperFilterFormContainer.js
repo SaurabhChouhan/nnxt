@@ -3,11 +3,14 @@ import {ReleaseDeveloperFilterForm} from "../../components"
 import * as A from "../../actions"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperDetails: (developerId, StartDate, EndDate) => console.log("developer value developerId ", developerId, "Start Date ", StartDate, "End Date ", EndDate)
+    getDeveloperDetails: (employee, StartDate, EndDate) => dispatch(A.addTaskPlanningFilterOnServer(employee, null, null)),
+    getDeveloperStartDateDetails: (employee, StartDate, EndDate) =>dispatch(A.addTaskPlanningFilterOnServer(employee, null, null)),
+    getDeveloperEndDateDetails: (employee, StartDate, EndDate) => dispatch(addTaskPlanningFilterOnServer(employee, null, null)),
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    team: state.release.selected && state.release.selected.team ? state.release.selected.team : []
+    team: state.release.selected && state.release.selected.team ? state.release.selected.team : [],
+
 })
 
 

@@ -22,14 +22,23 @@ let ReleaseTaskPlanningForm = (props) => {
                    label={"Developer Name:"} />
 
         </div>
-        <div className="col-md-8">
+        <div className="col-md-6">
             <div className="col-md-6">
                 <Field name="startDate" placeholder={"Start Date"} component={renderDateTimePicker}
+                       onChange={(event, newValue, oldValue) =>
+                       {
+                           props.getDeveloperStartDateDetails(newValue, startDate, endDate)
+                       }}
                        showTime={false}
                        label={" From :"} />
             </div>
             <div className="col-md-6">
                 <Field name="endDate" placeholder={" End Date"} component={renderDateTimePicker}
+                       onChange={(event, newValue, oldValue) =>
+                       {
+                           console.log("inside end date",event, newValue, oldValue)
+                           props.getDeveloperEndDateDetails(newValue, startDate,endDate)
+                       }}
                        showTime={false}
                        label={" To :"}/>
             </div>

@@ -44,8 +44,8 @@ let taskPlanningSchema = mongoose.Schema({
 })
 
 
-taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput,user) => {
-    
+taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput, user) => {
+
     if (taskPlanningInput && Array.isArray(taskPlanningInput) && taskPlanningInput.length > 0) {
         let taskPlanningPromises = taskPlanningInput.map(async task => {
             let taskPlanning = new TaskPlanningModel()
@@ -71,6 +71,19 @@ taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput,use
 
 taskPlanningSchema.statics.getTaskPlanningDetails = async (taskPlanningId, user) => {
     return await TaskPlanningModel.find({})
+}
+taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
+    console.log("taskPlanning Model", employeeId, fromDate, toDate)
+    let filter = {}
+    if (!employeeId)
+        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    filter.employee = employeeId
+
+    //if(!fromDate && !toDate)
+    // filter.planningDate = fromDate
+
+    return await TaskPlanningModel.find(filter)
 }
 
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)

@@ -31,6 +31,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.success("Task Planning Added")
         }
         else NotificationManager.error("Task Planning Added")
+    }),
+    planTaskFilter: (taskPlanFilter) => dispatch(A.addTaskPlanningFiltersOnServer(taskPlanFilter)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Task Planning Added")
+        }
+        else NotificationManager.error("Task Planning Added")
     })
 })
 
@@ -39,7 +45,8 @@ const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
     releasePlan: state.release.selectedTaskPlan,
     taskPlanning: state.release.taskPlanning,
-    data: []
+    taskPlanFilter: state.release.taskPlanFilter,
+    data:[]
 })
 
 const ReleaseTaskDetailPageContainer = connect(

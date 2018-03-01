@@ -41,12 +41,17 @@ releaseRouter.get("/task-plans/:planningId", async ctx => {
     return taskPlans
 })
 
+releaseRouter.get("/task-plans/employee/:employeeId/fromDate/:fromDate/toDate/:toDate", async ctx => {
+    let taskPlans = await TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
+
+    return taskPlans
+})
 releaseRouter.post("/employee-days", async ctx => {
-       let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
-       if (!employeeDays) {
-           throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-       }
-       return employeeDays
+    let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
+    if (!employeeDays) {
+        throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    return employeeDays
 })
 
 releaseRouter.get("/employee-days/:id", async ctx => {
@@ -55,11 +60,11 @@ releaseRouter.get("/employee-days/:id", async ctx => {
 })
 
 releaseRouter.post("/employee-statistics/", async ctx => {
-       let employeeStatistics = await EmployeeStatisticsModel.addEmployeeStatisticsDetails(ctx.request.body, ctx.state.user)
-       if (!employeeStatistics) {
-           throw new AppError("Not allowed to add statistics", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-       }
-       return employeeStatistics
+    let employeeStatistics = await EmployeeStatisticsModel.addEmployeeStatisticsDetails(ctx.request.body, ctx.state.user)
+    if (!employeeStatistics) {
+        throw new AppError("Not allowed to add statistics", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    return employeeStatistics
 })
 
 releaseRouter.get("/employee-statistics/:id", async ctx => {

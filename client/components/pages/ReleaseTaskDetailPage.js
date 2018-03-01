@@ -52,7 +52,7 @@ class ReleaseTaskDetailPage extends Component {
 
     render() {
        // const {release} = this.props
-        const {releasePlan, taskPlanning} = this.props
+        const {releasePlan, taskPlanning,taskPlanFilter} = this.props
         return (
             <div className=" col-md-12 clearfix  ">
                 <div className="col-md-8 pad">
@@ -137,7 +137,14 @@ class ReleaseTaskDetailPage extends Component {
                         </div>
                     </div>
                     <div className="col-md-12 planDateSlct">
+                        <div className="col-md-10">
                         <ReleaseDeveloperFilterFormContainer/>
+                        </div>
+                        <div className="col-md-2">
+                            <button className="btn customBtn" onClick={() => this.props.planTaskFilter(taskPlanFilter)}>
+                                Plan Task
+                            </button>
+                        </div>
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">

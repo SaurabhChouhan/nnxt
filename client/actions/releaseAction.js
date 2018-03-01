@@ -15,6 +15,10 @@ export const addReleaseTaskPlanning = ( taskPlanning ) => ({
     type: AC.ADD_RELEASES_TASK_PLANNING,
     taskPlanning :  taskPlanning
 })
+export const addReleaseTaskPlanningFilter = ( taskPlanFilter ) => ({
+    type: AC.ADD_RELEASES_TASK_PLANNING_FILTER,
+    taskPlanning :  taskPlanFilter
+})
 
 export const releaseProjectSelected = (project) => ({
     type: AC.ADD_RELEASE_PROJECT_SELECTED,
@@ -124,8 +128,52 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
             })
     }
 }
-
-
+export const addTaskPlanningFilterOnServer = (employee, startDate, endDate) => {
+    console.log("employee",employee)
+    console.log("employee",employee._id)
+    return (dispatch, getState) => {
+        return fetch('/api/releases/task-plans/employee/'+ employee + '/fromDate/' +startDate+ '/toDate/'+endDate ,{
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addReleaseTaskPlanningFilter(json.data))
+                }
+                return json
+            })
+    }
+}
+/*export const addTaskPlanningFilterOnServer = (taskPlanFilter) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/plan-task/', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(taskPlanFilter)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addReleaseTaskPlanning(json.data))
+                }
+                return json
+            })
+    }
+}
+*/
 /*export const getTaskDetailReleaseFromServer = (releasePlan,task) => {
     return (dispatch, getState) => {
         console.log("inside plan task action",releasePlan,task)
