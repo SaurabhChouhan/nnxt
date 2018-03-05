@@ -45,7 +45,7 @@ const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,
     releasePlan: state.release.selectedTaskPlan,
     taskPlanning: state.release.taskPlanning,
-    taskPlanFilter: state.release.taskPlanFilter,
+    developerPlanned: state.release.developerPlanned,
     data:[]
 })
 

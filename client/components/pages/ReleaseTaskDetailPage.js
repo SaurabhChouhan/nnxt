@@ -52,7 +52,7 @@ class ReleaseTaskDetailPage extends Component {
 
     render() {
        // const {release} = this.props
-        const {releasePlan, taskPlanning,taskPlanFilter} = this.props
+        const {releasePlan, taskPlanning,developerPlanned} = this.props
         return (
             <div className=" col-md-12 clearfix  ">
                 <div className="col-md-8 pad">
@@ -141,7 +141,7 @@ class ReleaseTaskDetailPage extends Component {
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={this.props.data}
+                            <BootstrapTable options={this.options} data={developerPlanned}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>

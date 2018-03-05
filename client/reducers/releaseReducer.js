@@ -7,6 +7,7 @@ let initialState = {
     selected: {},
     selectedTaskPlan:{},
     taskPlanning:[],
+    developerPlanned:[]
 }
 
 const clientReducer = (state = initialState, action) => {
@@ -41,10 +42,12 @@ const clientReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 taskPlanning: action.taskPlanning
             })
-        case AC.ADD_RELEASES_TASK_PLANNING_FILTER:
+
+        case AC.ADD_DEVELOPER_FILTERED:
             return Object.assign({}, state, {
-                taskPlanningFilter: action.taskPlanning
+                developerPlanned: action.developerPlanned
             })
+
         default:
             return state
     }
