@@ -20,6 +20,12 @@ class ReleaseTaskDetailPage extends Component {
                                  this.props.deleteTaskPlanningRow(row)
                              }}></button>)
     }
+    actionCellButton(cell, row, enumObject, rowIndex) {
+        return (<button className="pull-left btn btn-custom" type="button"
+                             onClick={() => {
+                                 this.props.deleteTaskPlanningRow(row)
+                             }}>Merge</button>)
+    }
 
     formatPlanningDate(row) {
         if (row) {
@@ -45,6 +51,12 @@ class ReleaseTaskDetailPage extends Component {
     formatReport(report) {
         if (report && report.status) {
             return report.status
+        }
+        return ''
+    }
+    formatTaskName(task) {
+        if (task && task.name) {
+            return task.name
         }
         return ''
     }
@@ -145,13 +157,23 @@ class ReleaseTaskDetailPage extends Component {
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='created'>Date</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'>Task
+                                <TableHeaderColumn columnTitle dataField='planningDate'
+                                                   dataFormat={this.formatPlanningDate.bind(this)
+                                                   }>Date</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatTaskName.bind(this)}>Task
                                     Name</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='employee'>Developer</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='palnning'>Planned Effort</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='project'>Project</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='flags'>Action</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='employee'
+                                                   dataFormat={this.formatDeveloper.bind(this)}
+                                >Developer</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='planning'
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned Effort</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReport.bind(this)} >Reported</TableHeaderColumn>
+                                <TableHeaderColumn width="8%" dataField='button'
+                                                   dataFormat={this.actionCellButton.bind(this)}><i
+                                    className="fa fa-plus"></i>
+                                </TableHeaderColumn>
                             </BootstrapTable>
                         </div>
                     </div>

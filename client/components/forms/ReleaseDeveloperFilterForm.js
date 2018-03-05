@@ -8,7 +8,7 @@ import {connect} from 'react-redux'
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
-    const {change, team, handleSubmit, startDate, endDate} = props
+    const {change, team, handleSubmit, employeeId, startDate, endDate} = props
 
     return <form onSubmit={handleSubmit}>
 
@@ -25,11 +25,17 @@ let ReleaseDeveloperFilterForm = (props) => {
         <div className="col-md-6">
             <div className="col-md-6">
                 <Field name="startDate" placeholder={"Start Date"} component={renderDateTimePicker}
+                       onChange={(event, newValue, oldValue) => {
+                           props.getDeveloperDetails(employeeId, newValue, endDate)
+                       }}
                        showTime={false}
                        label={" From :"} />
             </div>
             <div className="col-md-6">
                 <Field name="endDate" placeholder={" End Date"} component={renderDateTimePicker}
+                       onChange={(event, newValue, oldValue) => {
+                           props.getDeveloperDetails(employeeId, startDate, newValue)
+                       }}
                        showTime={false}
                        label={" To :"}/>
             </div>
@@ -46,8 +52,9 @@ const selector = formValueSelector('developer-filter')
 
 ReleaseDeveloperFilterForm = connect(
     state => {
-        const {startDate, endDate} = selector(state, 'startDate', 'endDate')
+        const {employeeId, startDate, endDate} = selector(state, 'employeeId', 'startDate', 'endDate')
         return {
+            employeeId,
             startDate,
             endDate
         }
