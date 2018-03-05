@@ -74,17 +74,22 @@ taskPlanningSchema.statics.getTaskPlanningDetails = async (taskId, user) => {
     return await TaskPlanningModel.find({"task._id":taskId})
 }
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
-    console.log("taskPlanning Model", employeeId, fromDate, toDate)
-    let filter = {
-
-
-    }
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    //filter.employee._id = employeeId
-
-    return await TaskPlanningModel.find({"employee._id": employeeId})
+    let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId})
+    if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
+        console.log("fromDate", fromDate, "toDate", toDate)
+        console.log("date type of ", typeof fromDate)
+        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrAfter(fromDate) && moment(tp.planningDate).isSameOrBefore(toDate))
+    }
+    else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
+        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrAfter(fromDate))
+    }
+    else if (toDate && toDate != 'undefined' && toDate != undefined) {
+        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrBefore(toDate))
+    }
+    return taskPlannings
 }
 
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
