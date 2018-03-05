@@ -15,10 +15,6 @@ export const addReleaseTaskPlanning = ( taskPlanning ) => ({
     type: AC.ADD_RELEASES_TASK_PLANNING,
     taskPlanning :  taskPlanning
 })
-export const addReleaseTaskPlanningFilter = ( taskPlanFilter ) => ({
-    type: AC.ADD_RELEASES_TASK_PLANNING_FILTER,
-    taskPlanning :  taskPlanFilter
-})
 
 export const releaseProjectSelected = (project) => ({
     type: AC.ADD_RELEASE_PROJECT_SELECTED,
@@ -40,6 +36,11 @@ export const addTaskPlanningToState = (taskPlan) => {
 export const deleteTaskPlanningFromState = (planId) => ({
     type: AC.DELETE_TASK_PLAN_FROM_STATE,
     planId: planId
+})
+
+export const addDeveloperFilteredData = ( developerPlanned ) => ({
+    type: AC.ADD_DEVELOPER_FILTERED,
+    developerPlanned :  developerPlanned
 })
 
 export const getAllReleaseFromServer = (status) => {
@@ -99,7 +100,6 @@ export const getTaskReleaseFromServer = (release, status, empFlag) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("getTaskReleaseFromServer ", json.data)
                     dispatch(addReleasePlans(json.data))
                 }
             })
@@ -128,11 +128,10 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
             })
     }
 }
-export const addTaskPlanningFilterOnServer = (employee, startDate, endDate) => {
-    console.log("employee",employee)
-    console.log("employee",employee._id)
+
+export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, EndDate) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/task-plans/employee/'+ employee + '/fromDate/' +startDate+ '/toDate/'+endDate ,{
+        return fetch('/api/releases/task-plans/employee/' + employeeId + '/fromDate/' + StartDate + '/toDate/' + EndDate, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -145,54 +144,10 @@ export const addTaskPlanningFilterOnServer = (employee, startDate, endDate) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseTaskPlanningFilter(json.data))
+                    dispatch(addDeveloperFilteredData(json.data))
                 }
                 return json
             })
     }
 }
-/*export const addTaskPlanningFilterOnServer = (taskPlanFilter) => {
-    return (dispatch, getState) => {
-        return fetch('/api/releases/plan-task/', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(taskPlanFilter)
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success) {
-                    dispatch(addReleaseTaskPlanning(json.data))
-                }
-                return json
-            })
-    }
-}
-*/
-/*export const getTaskDetailReleaseFromServer = (releasePlan,task) => {
-    return (dispatch, getState) => {
-        console.log("inside plan task action",releasePlan,task)
-        return fetch('/api/releases/release-plans/'+ releasePlan._id + '/release-plans-with/task/' + task._id +  {
-                method: 'get',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success) {
-                    console.log("getTaskDetailReleaseFromServer ", json.data)
-                    dispatch(addTaskDetailPlans(json.data))
-                }
-            })
-    }
-}*/
+
