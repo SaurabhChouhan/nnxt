@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
 import moment from 'moment'
+import * as EC from '../errorcodes'
 
 mongoose.Promise = global.Promise
 
@@ -74,16 +75,16 @@ taskPlanningSchema.statics.getTaskPlanningDetails = async (taskPlanningId, user)
 }
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     console.log("taskPlanning Model", employeeId, fromDate, toDate)
-    let filter = {}
+    let filter = {
+
+
+    }
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    filter.employee = employeeId
+    //filter.employee._id = employeeId
 
-    //if(!fromDate && !toDate)
-    // filter.planningDate = fromDate
-
-    return await TaskPlanningModel.find(filter)
+    return await TaskPlanningModel.find({"employee._id": employeeId})
 }
 
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)

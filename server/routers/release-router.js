@@ -42,9 +42,9 @@ releaseRouter.get("/task-plans/:planningId", async ctx => {
 })
 
 releaseRouter.get("/task-plans/employee/:employeeId/fromDate/:fromDate/toDate/:toDate", async ctx => {
-    let taskPlans = await TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
+    let DeveloperDetails = await TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
 
-    return taskPlans
+    return DeveloperDetails
 })
 releaseRouter.post("/employee-days", async ctx => {
     let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
