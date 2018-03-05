@@ -7,13 +7,13 @@ import {connect} from 'react-redux'
 
 moment.locale('en')
 momentLocalizer()
-let ReleaseTaskPlanningForm = (props) => {
+let ReleaseDeveloperFilterForm = (props) => {
     const {change, team, handleSubmit, startDate, endDate} = props
 
     return <form onSubmit={handleSubmit}>
 
         <div className="col-md-4">
-            <Field name="employee._id" placeholder={"Name of Developer"}
+            <Field name="employeeId" placeholder={"Name of Developer"}
                    onChange={(event, newValue, oldValue) =>
                    {
                        props.getDeveloperDetails(newValue, startDate, endDate)
@@ -25,20 +25,11 @@ let ReleaseTaskPlanningForm = (props) => {
         <div className="col-md-6">
             <div className="col-md-6">
                 <Field name="startDate" placeholder={"Start Date"} component={renderDateTimePicker}
-                       onChange={(event, newValue, oldValue) =>
-                       {
-                           props.getDeveloperStartDateDetails(newValue, startDate, endDate)
-                       }}
                        showTime={false}
                        label={" From :"} />
             </div>
             <div className="col-md-6">
                 <Field name="endDate" placeholder={" End Date"} component={renderDateTimePicker}
-                       onChange={(event, newValue, oldValue) =>
-                       {
-                           console.log("inside end date",event, newValue, oldValue)
-                           props.getDeveloperEndDateDetails(newValue, startDate,endDate)
-                       }}
                        showTime={false}
                        label={" To :"}/>
             </div>
@@ -47,13 +38,13 @@ let ReleaseTaskPlanningForm = (props) => {
     </form>
 }
 
-ReleaseTaskPlanningForm = reduxForm({
-    form: 'task-planning'
-})(ReleaseTaskPlanningForm)
+ReleaseDeveloperFilterForm = reduxForm({
+    form: 'developer-filter'
+})(ReleaseDeveloperFilterForm)
 
-const selector = formValueSelector('task-planning')
+const selector = formValueSelector('developer-filter')
 
-ReleaseTaskPlanningForm = connect(
+ReleaseDeveloperFilterForm = connect(
     state => {
         const {startDate, endDate} = selector(state, 'startDate', 'endDate')
         return {
@@ -61,7 +52,7 @@ ReleaseTaskPlanningForm = connect(
             endDate
         }
     }
-)(ReleaseTaskPlanningForm)
+)(ReleaseDeveloperFilterForm)
 
 
-export default ReleaseTaskPlanningForm
+export default ReleaseDeveloperFilterForm

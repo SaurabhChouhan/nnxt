@@ -3,9 +3,7 @@ import {ReleaseDeveloperFilterForm} from "../../components"
 import * as A from "../../actions"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperDetails: (employee, StartDate, EndDate) => dispatch(A.addTaskPlanningFilterOnServer(employee, null, null)),
-    getDeveloperStartDateDetails: (employee, StartDate, EndDate) =>dispatch(A.addTaskPlanningFilterOnServer(employee, null, null)),
-    getDeveloperEndDateDetails: (employee, StartDate, EndDate) => dispatch(addTaskPlanningFilterOnServer(employee, null, null)),
+    getDeveloperDetails: (employeeId, StartDate, EndDate) => dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate)),
 })
 
 const mapStateToProps = (state, ownProps) => ({

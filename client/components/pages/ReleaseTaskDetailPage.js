@@ -137,14 +137,7 @@ class ReleaseTaskDetailPage extends Component {
                         </div>
                     </div>
                     <div className="col-md-12 planDateSlct">
-                        <div className="col-md-10">
                         <ReleaseDeveloperFilterFormContainer/>
-                        </div>
-                        <div className="col-md-2">
-                            <button className="btn customBtn" onClick={() => this.props.planTaskFilter(taskPlanFilter)}>
-                                Plan Task
-                            </button>
-                        </div>
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
