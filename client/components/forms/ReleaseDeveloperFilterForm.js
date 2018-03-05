@@ -29,6 +29,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                            props.getDeveloperDetails(employeeId, newValue, endDate)
                        }}
                        showTime={false}
+                       max = {endDate}
                        label={" From :"} />
             </div>
             <div className="col-md-6">
@@ -37,6 +38,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                            props.getDeveloperDetails(employeeId, startDate, newValue)
                        }}
                        showTime={false}
+                       min = {startDate}
                        label={" To :"}/>
             </div>
 
