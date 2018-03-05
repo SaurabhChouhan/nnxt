@@ -64,9 +64,9 @@ export const getAllReleaseFromServer = (status) => {
     }
 }
 
-export const getAllTaskPlannedFromServer = (planningId) => {
+export const getAllTaskPlannedFromServer = (taskId) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/task-plans/' + planningId, {
+        return fetch('/api/releases/task-plans/' + taskId, {
                 method: 'get',
                 credentials: "include",
                 headers: {

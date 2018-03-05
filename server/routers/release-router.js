@@ -35,8 +35,8 @@ releaseRouter.put("/plan-task/", async ctx => {
        return planTask
 })
 
-releaseRouter.get("/task-plans/:planningId", async ctx => {
-    let taskPlans = await TaskPlanningModel.getTaskPlanningDetails(ctx.params.planningId, ctx.state.user)
+releaseRouter.get("/task-plans/:taskId", async ctx => {
+    let taskPlans = await TaskPlanningModel.getTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
 
     return taskPlans
 })
