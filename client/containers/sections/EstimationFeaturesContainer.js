@@ -5,6 +5,7 @@ const mapStateToProps = (state, ownProps) => ({
     features: state.estimation.features,
     loggedInUserRole: state.estimation.selected.loggedInUserRole,
     expandedFeatureID: state.estimation.expandedFeatureID,
+    expandedTaskID: state.estimation.expandedTaskID,
     repository:state.estimation.repository,
     estimator:state.estimation.estimator,
     negotiator:state.estimation.negotiator,

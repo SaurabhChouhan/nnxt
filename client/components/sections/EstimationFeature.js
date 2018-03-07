@@ -36,7 +36,7 @@ class EstimationFeature extends React.PureComponent {
 
 
     render() {
-        const {feature, loggedInUserRole, estimationStatus, index, expanded} = this.props
+        const {feature, loggedInUserRole, estimationStatus, index, expanded, expandedTaskID} = this.props
 
         let buttons = [];
 
@@ -383,7 +383,16 @@ class EstimationFeature extends React.PureComponent {
             {expanded && <div className="col-md-11 col-md-offset-1">
                 {
                     Array.isArray(feature.tasks) && feature.tasks.length > 0 &&
-                    feature.tasks.map(t => <EstimationTask task={t} {...{estimationStatus, loggedInUserRole}}/>)
+                    feature.tasks.map((t, idx) => (expandedTaskID && expandedTaskID === t._id) ?
+                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...{
+                            estimationStatus,
+                            loggedInUserRole
+                        }}
+                                        expanded={true}/> :
+                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...{
+                            estimationStatus,
+                            loggedInUserRole
+                        }} />)
                 }
             </div>
             }
