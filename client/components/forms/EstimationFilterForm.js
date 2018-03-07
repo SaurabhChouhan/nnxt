@@ -1,9 +1,7 @@
-import {required} from "./validation"
-import {renderCheckBox, renderSelect} from "./fields"
+import {renderCheckBox} from "./fields"
 import {Field, reduxForm, reset} from 'redux-form'
 import React from 'react'
 import * as SC from "../../../server/serverconstants";
-import {connect} from "react-redux";
 
 
 let EstimationFilterForm = (props) => {

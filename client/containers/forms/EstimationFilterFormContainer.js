@@ -2,9 +2,6 @@ import {connect} from 'react-redux'
 import {EstimationFilterForm} from "../../components"
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
-import {NotificationManager} from 'react-notifications'
-import * as EC from "../../../server/errorcodes";
-import {getFormValues} from "redux-form";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
@@ -18,12 +15,12 @@ const mapStateToProps = (state, ownProps) => ({
 
     loggedInUser: state.user.loggedIn,
     initialValues: {
-        "repository": state.estimation.repository,
-        "estimator": state.estimation.estimator,
-        "negotiator": state.estimation.negotiator,
-        "changeRequested": state.estimation.changeRequested,
-        "grantPermission": state.estimation.grantPermission,
-        "suggestions": state.estimation.suggestions,
+        "repository": state.estimation.filter.repository,
+        "estimator": state.estimation.filter.estimator,
+        "negotiator": state.estimation.filter.negotiator,
+        "changeRequested": state.estimation.filter.changeRequested,
+        "grantPermission": state.estimation.filter.grantPermission,
+        "suggestions": state.estimation.filter.suggestions,
     }
 
 })
