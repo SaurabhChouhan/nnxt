@@ -154,7 +154,7 @@ class RepositorySearch extends Component {
                     {
                         Array.isArray(this.props.repository) && this.props.repository.map((f, i) =>
                             (f.isFeature) ?
-                                [<div key={"feature" + f._id} className="repository repositoryFeature div-hover">
+                                <div key={"feature" + f._id} className="repository repositoryFeature div-hover">
                                     <div className="RepositoryHeading repotext" key={i} onClick={() => {
                                         this.props.showFeatureDetailPage(f)
                                     }}>
@@ -168,9 +168,9 @@ class RepositorySearch extends Component {
                                     <div className="RepositoryContent">
                                         <p>{f.description}</p>
                                     </div>
-                                </div>]
+                                </div>
                                 :
-                                [<div key={"task" + f._id} className="repository repositoryTask">
+                                <div key={"task" + f._id} className="repository repositoryTask">
                                     <div className="RepositoryHeading repotext div-hover" key={i} onClick={() => {
                                         this.props.showTaskDetailPage(f)
                                     }}>
@@ -184,7 +184,7 @@ class RepositorySearch extends Component {
                                     <div className="RepositoryContent">
                                         <p>{f.description}</p>
                                     </div>
-                                </div>]
+                                </div>
                         )
                     }
                 </div>
