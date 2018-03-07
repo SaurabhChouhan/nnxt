@@ -35,26 +35,9 @@ class EstimationDetail extends Component {
         this.props.sendReviewRequest(this.props.estimation)
     }
 
-    onConfirmReviewRequest() {
-        this.setState({showEstimationReviewDialog: false})
-        this.props.sendReviewRequest(this.props.estimation)
-    }
-
     onConfirmChangeRequest() {
         this.setState({showEstimationChangeDialog: false})
         this.props.sendChangeRequest(this.props.estimation)
-    }
-
-    formatName(estimatorSecion) {
-        if (estimatorSecion)
-            return estimatorSecion.name
-        return ''
-    }
-
-    formatDescription(estimatorSecion) {
-        if (estimatorSecion)
-            return estimatorSecion.description
-        return ''
     }
 
 
