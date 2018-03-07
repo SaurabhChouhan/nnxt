@@ -679,7 +679,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature from repository into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (!repo.tasks && !repo.tasks.length > 0)
