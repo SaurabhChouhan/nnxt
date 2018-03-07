@@ -756,7 +756,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
         if (thisFeatureAlreadyAddedFromRepo)
             throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     */
-    
+
     let newFeature = new EstimationFeatureModel()
 
     newFeature.status = SC.STATUS_PENDING
