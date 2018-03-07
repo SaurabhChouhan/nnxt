@@ -206,6 +206,22 @@ const estimationReducer = (state = initialState, action) => {
                 expandedTaskID: action.taskID
             })
 
+        case AC.EXPAND_TASK_AND_FEATURE:
+            // Compare expanded task ID with expanded task id of state
+            if (state.expandedTaskID && state.expandedTaskID == action.taskID && state.expandedFeatureID && state.expandedFeatureID == action.featureID) {
+                // Feature was expanded and clicked again, so contract
+                return Object.assign({}, state, {
+                    expandedFeatureID: action.featureID,
+                    expandedTaskID: undefined
+                })
+            }
+            else if (state.expandedFeatureID && state.expandedFeatureID == action.featureID) {
+                return Object.assign({}, state, {
+                    expandedFeatureID: action.featureID,
+                    expandedTaskID: action.taskID
+                })
+            }
+
         case AC.ADD_FILTERED_ESTIMATIONS:
 
 
