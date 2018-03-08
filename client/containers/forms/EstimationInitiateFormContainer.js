@@ -9,13 +9,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         logger.debug(logger.ESTIMATION_INITIATE_FORM_SUBMIT, "values:", values)
         if (values._id) {
-            return dispatch(A.initiateEstimationOnServer(values)).then(json => {
+            return dispatch(A.updateEstimationOnServer(values)).then(json => {
                 if (json.success) {
                     NotificationManager.success("Estimation Updated Successfully")
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
                 } else {
-                    NotificationManager.error("Estimation Initia Failed")
+                    NotificationManager.error("Estimation update Failed")
                 }
             })
         }

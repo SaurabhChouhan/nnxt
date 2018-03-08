@@ -120,7 +120,7 @@ export const getAllEstimationsFromServer = () => {
 }
 
 
-export const initiateEstimationOnServer = (formInput) => {
+export const initiateEstimationOnServer = (estimation) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/initiate', {
                 method: 'post',
@@ -129,7 +129,7 @@ export const initiateEstimationOnServer = (formInput) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formInput)
+            body: JSON.stringify(estimation)
             }
         ).then(
             response => response.json()
@@ -137,6 +137,32 @@ export const initiateEstimationOnServer = (formInput) => {
             json => {
                 if (json.success) {
                     dispatch(addEstimation(json.data))
+                }
+
+                return json
+            })
+    }
+}
+
+
+export const updateEstimationOnServer = (estimation) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/update', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(estimation)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("estimation update", json.data)
+                    //  dispatch(addEstimation(json.data))
                 }
 
                 return json
