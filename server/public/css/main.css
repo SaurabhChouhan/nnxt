@@ -524,6 +524,18 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     transition: 0.8s;
 }
 
+.estimationSearchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 2.1% 2%;
+    font-size: 15px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: 0.8s;
+    margin-top: 2px;
+}
+
 .searchBtn:hover {
     background: none;
     color: #FF534F;
@@ -1399,4 +1411,8 @@ td.rejRowColor {
     font-weight: bold;
     float: left;
     margin: 3px;
+}
+
+.estimationForm {
+    margin-top: 16px;
 }
