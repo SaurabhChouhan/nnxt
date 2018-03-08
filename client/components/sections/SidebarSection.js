@@ -26,6 +26,7 @@ const SidebarSection = (props) => <section className="sidebar">
                     }}>Technology</Link></li>
                     <li><Link to="/app-home/estimation" onClick={() => {
                         props.dispatch(A.getAllEstimationsFromServer())
+                        props.dispatch(A.getAllProjectsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
                     }}>Estimation</Link></li>
                     <li><Link to="/app-home/raise_leave" onClick={() => {
