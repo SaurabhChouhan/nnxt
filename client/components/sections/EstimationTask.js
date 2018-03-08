@@ -330,7 +330,10 @@ class EstimationTask extends React.PureComponent {
 
             </div>
             <div className="col-md-12  div-hover short-description" onClick={() => {
-                this.props.expandTask(task._id)
+                if (task && task._id && task.feature && task.feature._id) {
+                    this.props.expandTaskAndFeature(task.feature._id, task._id)
+                }
+                else this.props.expandTask(task._id)
             }}>
                 <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
             </div>
@@ -507,6 +510,9 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
 
     expandTask: (taskId) => {
         dispatch(A.expandTask(taskId))
+    },
+    expandTaskAndFeature: (featureID, taskID) => {
+        dispatch(A.expandTaskAndFeature(featureID, taskID))
     }
 }))(EstimationTask)
 

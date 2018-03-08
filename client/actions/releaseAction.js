@@ -38,6 +38,11 @@ export const deleteTaskPlanningFromState = (planId) => ({
     planId: planId
 })
 
+export const addDeveloperFilteredData = ( developerPlanned ) => ({
+    type: AC.ADD_DEVELOPER_FILTERED,
+    developerPlanned :  developerPlanned
+})
+
 export const getAllReleaseFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {
@@ -59,9 +64,9 @@ export const getAllReleaseFromServer = (status) => {
     }
 }
 
-export const getAllTaskPlannedFromServer = (planningId) => {
+export const getAllTaskPlannedFromServer = (taskId) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/task-plans/' + planningId, {
+        return fetch('/api/releases/task-plans/' + taskId, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -95,7 +100,6 @@ export const getTaskReleaseFromServer = (release, status, empFlag) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("getTaskReleaseFromServer ", json.data)
                     dispatch(addReleasePlans(json.data))
                 }
             })
@@ -125,11 +129,9 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
     }
 }
 
-
-/*export const getTaskDetailReleaseFromServer = (releasePlan,task) => {
+export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, EndDate) => {
     return (dispatch, getState) => {
-        console.log("inside plan task action",releasePlan,task)
-        return fetch('/api/releases/release-plans/'+ releasePlan._id + '/release-plans-with/task/' + task._id +  {
+        return fetch('/api/releases/task-plans/employee/' + employeeId + '/fromDate/' + StartDate + '/toDate/' + EndDate, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -142,9 +144,10 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("getTaskDetailReleaseFromServer ", json.data)
-                    dispatch(addTaskDetailPlans(json.data))
+                    dispatch(addDeveloperFilteredData(json.data))
                 }
+                return json
             })
     }
-}*/
+}
+

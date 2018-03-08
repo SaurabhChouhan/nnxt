@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
+import {ReleaseDeveloperFilterFormContainer} from '../../containers'
 
 class ReleaseTaskDetailPage extends Component {
 
@@ -18,6 +19,12 @@ class ReleaseTaskDetailPage extends Component {
                              onClick={() => {
                                  this.props.deleteTaskPlanningRow(row)
                              }}></button>)
+    }
+    actionCellButton(cell, row, enumObject, rowIndex) {
+        return (<button className="pull-left btn btn-custom" type="button"
+                             onClick={() => {
+                                 this.props.deleteTaskPlanningRow(row)
+                             }}>Merge</button>)
     }
 
     formatPlanningDate(row) {
@@ -47,11 +54,17 @@ class ReleaseTaskDetailPage extends Component {
         }
         return ''
     }
+    formatTaskName(task) {
+        if (task && task.name) {
+            return task.name
+        }
+        return ''
+    }
 
 
     render() {
        // const {release} = this.props
-        const {releasePlan, taskPlanning} = this.props
+        const {releasePlan, taskPlanning,developerPlanned} = this.props
         return (
             <div className=" col-md-12 clearfix  ">
                 <div className="col-md-8 pad">
@@ -104,7 +117,7 @@ class ReleaseTaskDetailPage extends Component {
                                 <TableHeaderColumn columnTitle dataField='report'
                                                    dataFormat={this.formatReport.bind(this)}>Reported
                                     Status</TableHeaderColumn>
-                                <TableHeaderColumn width="5%" dataField='button'
+                                <TableHeaderColumn width="8%" dataField='button'
                                                    dataFormat={this.deleteCellButton.bind(this)}><i
                                     className="fa fa-trash"></i>
                                 </TableHeaderColumn>
@@ -136,35 +149,31 @@ class ReleaseTaskDetailPage extends Component {
                         </div>
                     </div>
                     <div className="col-md-12 planDateSlct">
-                        <div className="col-md-4">
-                            <select className="form-control">
-                                <option value="">Developer</option>
-                                <option value="">Developer1</option>
-                                <option value="">Developer2</option>
-                                <option value="">Developer3</option>
-                            </select>
-                        </div>
-                        <div className="col-md-8 ">
-                            <div className="col-md-6 planDateSlctFrom">
-                                <span>From</span> <input type="text" className="form-inline " placeholder="Date"/></div>
-                            <div className="col-md-6 planDateSlctTo">
-                                <span>To</span> <input type="text" className="form-inline " placeholder="Date"/></div>
-
-                        </div>
+                        <ReleaseDeveloperFilterFormContainer/>
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={this.props.data}
+                            <BootstrapTable options={this.options} data={developerPlanned}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='created'>Date</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'>Task
+                                <TableHeaderColumn columnTitle dataField='planningDate'
+                                                   dataFormat={this.formatPlanningDate.bind(this)
+                                                   }>Date</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatTaskName.bind(this)}>Task
                                     Name</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='employee'>Developer</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='palnning'>Planned Effort</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='project'>Project</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='flags'>Action</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='employee'
+                                                   dataFormat={this.formatDeveloper.bind(this)}
+                                >Developer</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='planning'
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned Effort</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReport.bind(this)} >Reported</TableHeaderColumn>
+                                <TableHeaderColumn width="8%" dataField='button'
+                                                   dataFormat={this.actionCellButton.bind(this)}><i
+                                    className="fa fa-plus"></i>
+                                </TableHeaderColumn>
                             </BootstrapTable>
                         </div>
                     </div>

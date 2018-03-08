@@ -86,6 +86,13 @@ export const expandTask = (taskID) => ({
     type: AC.EXPAND_TASK,
     taskID: taskID
 })
+
+export const expandTaskAndFeature = (featureID, taskID) => ({
+    type: AC.EXPAND_TASK_AND_FEATURE,
+    taskID: taskID,
+    featureID: featureID
+})
+
 export const addFilteredEstimation = (filter) => ({
     type: AC.ADD_FILTERED_ESTIMATIONS,
     filter: filter

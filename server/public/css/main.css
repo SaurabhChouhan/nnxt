@@ -1076,7 +1076,7 @@ td.rejRowColor {
 
 .RepositoryHeading span {
     padding-right: 5%;
-    padding-top: 6px;
+   /* padding-top: 6px;*/
 }
 
 .repositoryModalPara {
@@ -1393,4 +1393,10 @@ td.rejRowColor {
 .searchReleasePlan {
     margin-top: 10px;
     font-size: 25px;
+}
+.repotext h5 {
+    font-size: 13px;
+    font-weight: bold;
+    float: left;
+    margin: 3px;
 }

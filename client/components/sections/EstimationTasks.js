@@ -8,59 +8,61 @@ let
         let childProps = Object.assign({}, props, {
             tasks: undefined
         })
+        const {estimator, changeRequested, repository, grantPermission, suggestions, negotiator} = props.filter
+        const {expandedTaskID, loggedInUserRole} = props
         return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {
 
-            if (props.estimator && props.changeRequested && props.repository && props.grantPermission && props.suggestions && props.negotiator) {
+            if (estimator && changeRequested && repository && grantPermission && suggestions && negotiator) {
                 // by default show all
-                return (props.expandedTaskID === t._id) ?
+                return (expandedTaskID === t._id) ?
                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                     expanded={true}/> :
                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
             }
             else {
-                console.log("props.loggedInUserRole at task", props.loggedInUserRole)
-                if (props.estimator || props.changeRequested || props.repository || props.grantPermission || props.suggestions || props.negotiator) {
-                    if (props.loggedInUserRole == SC.ROLE_ESTIMATOR) {
+                console.log("loggedInUserRole at task", loggedInUserRole)
+                if (estimator || changeRequested || repository || grantPermission || suggestions || negotiator) {
+                    if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
                         console.log("estimation Role", t)
                         //when owner of task is estimator
-                        console.log("props.estimator OWNER_ESTIMATOR", props.estimator)
-                        if (props.estimator) {
+                        console.log("estimator OWNER_ESTIMATOR", estimator)
+                        if (estimator) {
                             if (t.owner === SC.OWNER_ESTIMATOR)
-                                return (props.expandedTaskID === t._id) ?
+                                return (expandedTaskID === t._id) ?
                                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                     expanded="true"/> :
                                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
 
                         }
 
-                        console.log("suggestions", props.suggestions)
+                        console.log("suggestions", suggestions)
                         //when negotiator ask for suggestion
-                        if (props.suggestions) {
+                        if (suggestions) {
                             if (t.negotiator.changedInThisIteration && t.negotiator.changeSuggested) {
-                                return (props.expandedTaskID === t._id) ?
+                                return (expandedTaskID === t._id) ?
                                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                     expanded="true"/> :
                                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                             }
                         }
 
-                        console.log("grantPermission", props.grantPermission)
+                        console.log("grantPermission", grantPermission)
                         //when negotiator grant the permission
-                        if (props.grantPermission) {
+                        if (grantPermission) {
                             if (t.negotiator.changedInThisIteration && t.negotiator.changeGranted) {
-                                return (props.expandedTaskID === t._id) ?
+                                return (expandedTaskID === t._id) ?
                                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                     expanded="true"/> :
                                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                             }
                         }
 
-                        console.log("repository", props.repository)
+                        console.log("repository", repository)
                         //added from repository
-                        if (props.repository) {
+                        if (repository) {
                             if (t.repo)
                                 if (!t.repo.addedFromThisEstimation) {
-                                    return (props.expandedTaskID === t._id) ?
+                                    return (expandedTaskID === t._id) ?
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                         expanded="true"/> :
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
@@ -69,25 +71,25 @@ let
 
                     }
                     else {
-                        if (props.loggedInUserRole == SC.ROLE_NEGOTIATOR) {
+                        if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
-                            console.log("negotiator OWNER_NEGOTIATOR ROLE_NEGOTIATOR", props.negotiator)
+                            console.log("negotiator OWNER_NEGOTIATOR ROLE_NEGOTIATOR", negotiator)
                             //task owner is negotiator
-                            if (props.negotiator) {
+                            if (negotiator) {
                                 if (t.owner === SC.OWNER_NEGOTIATOR)
-                                    return (props.expandedTaskID === t._id) ?
+                                    return (expandedTaskID === t._id) ?
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                         expanded="true"/> :
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
 
                             }
 
-                            console.log("negotiator changeRequested", props.changeRequested)
+                            console.log("negotiator changeRequested", changeRequested)
                             //when estimator asked for change request on task
-                            if (props.changeRequested) {
+                            if (changeRequested) {
                                 if (t.estimator.changedInThisIteration) {
                                     if (t.estimator.changeRequested || t.estimator.removalRequested) {
-                                        return (props.expandedTaskID === t._id) ?
+                                        return (expandedTaskID === t._id) ?
                                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                             expanded="true"/> :
                                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
@@ -95,27 +97,27 @@ let
                                 }
 
                             }
-                            console.log("negotiator repository", props.repository)
-                            if (props.repository) {
+                            console.log("negotiator repository", repository)
+                            if (repository) {
                                 if (t.repo)
                                 if (!t.repo.addedFromThisEstimation) {
-                                    return (props.expandedTaskID === t._id) ?
+                                    return (expandedTaskID === t._id) ?
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                         expanded="true"/> :
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                                 }
                             }
 
-                            if (props.suggestions) {
+                            if (suggestions) {
                                 if (t.estimator.changedKeyInformation && t.estimator.changedInThisIteration) {
-                                    return (props.expandedTaskID === t._id) ?
+                                    return (expandedTaskID === t._id) ?
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                         expanded="true"/> :
                                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                                 }
                             }
                         } else {
-                            return (props.expandedTaskID === t._id) ?
+                            return (expandedTaskID === t._id) ?
                                 <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                                 expanded="true"/> :
                                 <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
@@ -124,7 +126,7 @@ let
                 } else {
                     // when all are false show all
                     console.log("show all task", t)
-                    return (props.expandedTaskID === t._id) ?
+                    return (expandedTaskID === t._id) ?
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps} expanded="true"/> :
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                 }

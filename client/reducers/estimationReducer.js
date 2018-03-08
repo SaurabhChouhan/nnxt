@@ -7,12 +7,14 @@ let initialState = {
     features: [],
     expandedFeatureID: undefined,
     expandedTaskID: undefined,
-    repository: true,
-    estimator: true,
-    negotiator: true,
-    changeRequested: true,
-    grantPermission: true,
-    suggestions: true,
+    filter: {
+        repository: true,
+        estimator: true,
+        negotiator: true,
+        changeRequested: true,
+        grantPermission: true,
+        suggestions: true,
+    }
 
 }
 
@@ -69,7 +71,7 @@ const estimationReducer = (state = initialState, action) => {
             })
 
         case AC.UPDATE_ESTIMATION_FEATURE:
-            // feature is added to estimation, it would be added against selected estimation
+            // feature is updated to  selected estimation
             return Object.assign({}, state, {
                 features: Array.isArray(state.features) ? state.features.map(item => {
                     if (item._id == action.feature._id) {
@@ -146,23 +148,28 @@ const estimationReducer = (state = initialState, action) => {
                 }),
                 tasks: Array.isArray(action.estimation.tasks) && action.estimation.tasks.length > 0 ? action.estimation.tasks.filter(t => t.isDeleted == false) : [],
                 features: Array.isArray(action.estimation.features) && action.estimation.features.length > 0 ?
-                    action.estimation.features.map(f => {
+                    action.estimation.features.filter(f => {
                             if (f.isDeleted == false) {
                                 if (Array.isArray(f.tasks) && f.tasks.length > 0)
                                     f.tasks = f.tasks.filter(t => t.isDeleted == false)
 
-                                return f;
+                                return true;
                             }
+                            else return false
                         }
                     ) : [],
+
                 expandedFeatureID: undefined,
                 expandedTaskID: undefined,
-                repository: true,
-                estimator: true,
-                negotiator: true,
-                changeRequested: true,
-                grantPermission: true,
-                suggestions: true,
+                filter: {
+                    repository: true,
+                    estimator: true,
+                    negotiator: true,
+                    changeRequested: true,
+                    grantPermission: true,
+                    suggestions: true,
+                },
+
             })
 
         case AC.UPDATE_SELECTED_ESTIMATION:
@@ -206,31 +213,50 @@ const estimationReducer = (state = initialState, action) => {
                 expandedTaskID: action.taskID
             })
 
+        case AC.EXPAND_TASK_AND_FEATURE:
+            // Compare expanded task ID with expanded task id of state
+            if (state.expandedTaskID && state.expandedTaskID == action.taskID && state.expandedFeatureID && state.expandedFeatureID == action.featureID) {
+                // Feature was expanded and clicked again, so contract
+                return Object.assign({}, state, {
+                    expandedFeatureID: action.featureID,
+                    expandedTaskID: undefined
+                })
+            }
+            else if (state.expandedFeatureID && state.expandedFeatureID == action.featureID) {
+                return Object.assign({}, state, {
+                    expandedFeatureID: action.featureID,
+                    expandedTaskID: action.taskID
+                })
+            }
+
         case AC.ADD_FILTERED_ESTIMATIONS:
 
 
             if (action.filter) {
                 return Object.assign({}, state, {
+                    filter: {
+                        repository: action.filter && action.filter.repository ? true : false,
+                        estimator: action.filter && action.filter.estimator ? true : false,
+                        negotiator: action.filter && action.filter.negotiator ? true : false,
+                        changeRequested: action.filter && action.filter.changeRequested ? true : false,
+                        grantPermission: action.filter && action.filter.grantPermission ? true : false,
+                        suggestions: action.filter && action.filter.suggestions ? true : false,
+                    }
 
-                    repository: action.filter && action.filter.repository ? true : false,
-                    estimator: action.filter && action.filter.estimator ? true : false,
-                    negotiator: action.filter && action.filter.negotiator ? true : false,
-                    changeRequested: action.filter && action.filter.changeRequested ? true : false,
-                    grantPermission: action.filter && action.filter.grantPermission ? true : false,
-                    suggestions: action.filter && action.filter.suggestions ? true : false,
+
 
                 })
             }
             else {
                 return Object.assign({}, state, {
-
-                    repository: true,
-                    estimator: true,
-                    negotiator: true,
-                    changeRequested: true,
-                    grantPermission: true,
-                    suggestions: true,
-
+                    filter: {
+                        repository: true,
+                        estimator: true,
+                        negotiator: true,
+                        changeRequested: true,
+                        grantPermission: true,
+                        suggestions: true,
+                    }
                 })
             }
 

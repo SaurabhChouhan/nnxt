@@ -7,26 +7,29 @@ let EstimationFeatures = (props) => {
     let childProps = Object.assign({}, props, {
         features: undefined
     })
-
+    const {repository, estimator, negotiator, changeRequested, grantPermission, suggestions} = props.filter
+    const {expandedFeatureID,loggedInUserRole} = props
+       
     return Array.isArray(props.features) && props.features.map((f, idx) => {
 
-
-        if (props.estimator && props.changeRequested && props.repository && props.grantPermission && props.suggestions && props.negotiator) {
-            console.log("feature....", f)
-            return (props.expandedFeatureID === f._id) ?
+        if (!f) {
+            return <span></span>
+        }
+        if (estimator && changeRequested &&repository && grantPermission && suggestions && negotiator) {
+            return (expandedFeatureID === f._id) ?
                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded={true}/> :
                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
         }
         else {
-            if (props.estimator || props.changeRequested || props.repository || props.grantPermission || props.suggestions || props.negotiator) {
+            if (estimator || changeRequested ||repository || grantPermission || suggestions || negotiator) {
 
-                if (props.loggedInUserRole == SC.ROLE_ESTIMATOR) {
+                if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
 
 
                     //when feature owner is estimator
-                    if (props.estimator) {
+                    if (estimator) {
                         if (f.owner === SC.OWNER_ESTIMATOR)
-                            return (props.expandedFeatureID === f._id) ?
+                            return (expandedFeatureID === f._id) ?
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                    expanded="true"/> :
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
@@ -34,17 +37,17 @@ let EstimationFeatures = (props) => {
                     }
 
                     //when negotiator grant the permission required
-                    if (props.grantPermission) {
+                    if (grantPermission) {
                         if (f.negotiator.changedInThisIteration && f.negotiator.changeGranted) {
-                            return (props.expandedFeatureID === f._id) ?
+                            return (expandedFeatureID === f._id) ?
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                    expanded="true"/> :
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
                         }
                     }
-                    if (props.suggestions) {
+                    if (suggestions) {
                         if (f.negotiator.changedInThisIteration && f.negotiator.changeSuggested) {
-                            return (props.expandedFeatureID === f._id) ?
+                            return (expandedFeatureID === f._id) ?
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                    expanded="true"/> :
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
@@ -52,11 +55,11 @@ let EstimationFeatures = (props) => {
                     }
 
                     //feature added from repository
-                    if (props.repository)
+                    if (repository)
                     {
                         if(f.repo)
                         if (!f.repo.addedFromThisEstimation) {
-                            return (props.expandedFeatureID === f._id) ?
+                            return (expandedFeatureID === f._id) ?
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                    expanded="true"/> :
                                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
@@ -64,12 +67,12 @@ let EstimationFeatures = (props) => {
                     }
                 }
                 else {
-                    if (props.loggedInUserRole == SC.ROLE_NEGOTIATOR) {
+                    if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
                         //feature owner is negotiator
-                        if (props.negotiator) {
+                        if (negotiator) {
                             if (f.owner === SC.OWNER_NEGOTIATOR)
-                                return (props.expandedFeatureID === f._id) ?
+                                return (expandedFeatureID === f._id) ?
                                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                        expanded="true"/> :
                                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
@@ -77,10 +80,10 @@ let EstimationFeatures = (props) => {
                         }
 
                         //when estimator asked for change request on feature
-                        if (props.changeRequested) {
+                        if (changeRequested) {
                             if (f.estimator.changedInThisIteration) {
                                 if (f.estimator.changeRequested || f.estimator.removalRequested) {
-                                    return (props.expandedFeatureID === f._id) ?
+                                    return (expandedFeatureID === f._id) ?
                                         <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                            expanded="true"/> :
                                         <EstimationFeature feature={f} index={idx}
@@ -90,18 +93,18 @@ let EstimationFeatures = (props) => {
 
                         }
 
-                        if (props.repository) {
+                        if (repository) {
                             if(f.repo)
                             if (!f.repo.addedFromThisEstimation) {
-                                return (props.expandedFeatureID === f._id) ?
+                                return (expandedFeatureID === f._id) ?
                                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                        expanded="true"/> :
                                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
                             }
                         }
-                        if (props.suggestions) {
+                        if (suggestions) {
                             if (f.estimator.changedInThisIteration && f.estimator.changedKeyInformation) {
-                                return (props.expandedFeatureID === f._id) ?
+                                return (expandedFeatureID === f._id) ?
                                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                        expanded="true"/> :
                                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
@@ -109,7 +112,7 @@ let EstimationFeatures = (props) => {
                         }
                     }
                     else {
-                        return (props.expandedFeatureID === f._id) ?
+                        return (expandedFeatureID === f._id) ?
                             <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                                expanded="true"/> :
                             <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
@@ -119,7 +122,7 @@ let EstimationFeatures = (props) => {
             }
             else {
                 // by default show all
-                return (props.expandedFeatureID === f._id) ?
+                return (expandedFeatureID === f._id) ?
                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded="true"/> :
                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
             }
