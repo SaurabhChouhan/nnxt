@@ -17,6 +17,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
+
     showAddFeatureForm: (estimation) => {
         dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
         // initialize
@@ -26,6 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
+
     showProjectAwardForm: (estimation) => {
         dispatch(A.getUsersWithRoleCategoryFromServer())
         dispatch(A.showComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
@@ -36,8 +38,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
+
     sendEstimationRequest: (estimation) => {
-        dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
+        return dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Estimation requested successfully")
             } else {
@@ -48,8 +51,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+
     sendReviewRequest: (estimation) => {
-        dispatch(A.requestReviewOnServer(estimation._id)).then(json => {
+        return dispatch(A.requestReviewOnServer(estimation._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Review requested successfully")
             } else {
@@ -60,8 +64,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+
     sendChangeRequest: (estimation) => {
-        dispatch(A.requestChangeOnServer(estimation._id)).then(json => {
+        return dispatch(A.requestChangeOnServer(estimation._id)).then(json => {
             if (json.success) {
                 NotificationManager.success("Review requested successfully")
             } else {
@@ -72,14 +77,19 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
-    onTaskDelete: (taskID) => {
-        dispatch(A.estimationTaskDelete(taskID))
-    },
 
-    estimationFilterForm: () => {
+    onTaskDelete: (taskID) => dispatch(A.estimationTaskDelete(taskID)),
 
-        dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG))
+    estimationFilterForm: () => dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG)),
+
+    editEstimationInitiateForm: (estimation) => {
+        dispatch(A.getAllProjectsFromServer())
+        dispatch(A.getAllUsersFromServer())
+        dispatch(A.getAllTechnologiesFromServer())
+        dispatch(A.showComponent(COC.ESTIMATION_INITIATE_DIALOG))
+        dispatch(initialize('estimation-initiate', estimation))
     }
+
 
 })
 
