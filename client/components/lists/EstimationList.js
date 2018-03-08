@@ -3,6 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import _ from 'lodash'
+import {EstimationSearchFormContainer} from '../../containers'
 
 class EstimationList extends Component {
 
@@ -94,23 +95,31 @@ class EstimationList extends Component {
     }
 
     render() {
+        const {projects, estimations, loggedInUser} = this.props
         return (
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
                     <div className="col-md-12 pad">
                         <div className="col-md-6 pad">
+                            <EstimationSearchFormContainer/>
                             <div className="search">
                                 <input type="text" className="form-control" placeholder="Search Features/Tasks"/>
-                                    <button type="submit" className="btn searchBtn"><i className="fa fa-search"></i></button>
+                                <button type="submit" className="btn searchBtn" onClick={(data) => {
+                                    console.log("typed data", data.target.value)
+                                }}
+                                ><i className="fa fa-search"></i></button>
                             </div>
                         </div>
                         <div className="col-md-3">
                             <div className="estimation">
-                                <select className="form-control">
-                                    <option value="">All</option>
-                                    <option value="">project1</option>
-                                    <option value="">project2</option>
-                                    <option value="">project3</option>
+                                <select className="form-control"
+                                        onChange={(project) => this.props.filterEstimationByProject(project.target.value)}>
+                                    <option value="all">{"select Project"}</option>
+                                    {projects && projects.map(option => {
+                                            return <option value={_.get(option, '_id')}
+                                                           key={option['_id']}>{_.get(option, 'name')}</option>
+                                        }
+                                    )}
                                 </select>
                             </div>
                         </div>

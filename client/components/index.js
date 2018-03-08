@@ -41,7 +41,7 @@ export {default as EstimationFeatures} from './sections/EstimationFeatures'
 export {default as EstimationDetail} from './pages/EstimationDetail'
 
 
-//Estimation Dialog
+//Estimation Dialog and form
 export {default as EstimationTaskDialog} from './dialogs/EstimationTaskDialog'
 export {default as EstimationFeatureDialog} from './dialogs/EstimationFeatureDialog'
 export {default as EstimationInitiateDialog} from './dialogs/EstimationInitiateDialog'
@@ -52,6 +52,7 @@ export {default as EstimationProjectAwardDialog} from './dialogs/EstimationProje
 export {default as AttendenceSettingForm} from './forms/AttendanceSettingForm'
 export {default as EstimationFilterDialog} from './dialogs/EstimationFilterDialog'
 export {default as EstimationFilterForm} from './forms/EstimationFilterForm'
+export {default as EstimationSearchForm} from './forms/EstimationSearchForm'
 export {default as LeaveRequestDetailDialog} from './dialogs/LeaveRequestDetailDialog'
 
 

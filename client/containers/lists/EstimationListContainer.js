@@ -23,7 +23,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => {
     return {
         loggedInUser: state.user.loggedIn,
-        estimations: state.estimation.all
+        estimations: state.estimation.all,
+        projects: state.project.all
     }
 }
 
