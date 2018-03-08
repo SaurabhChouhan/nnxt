@@ -8,16 +8,28 @@ import {NotificationManager} from 'react-notifications'
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         logger.debug(logger.ESTIMATION_INITIATE_FORM_SUBMIT, "values:", values)
-        return dispatch(A.initiateEstimationOnServer(values)).then(json => {
-            if (json.success) {
-                NotificationManager.success("Estimation Initiated Successfully")
-                // hide dialog
-                dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
-            } else {
-                NotificationManager.error("Estimation Initiation Failed")
-            }
-        })
-
+        if (values._id) {
+            return dispatch(A.initiateEstimationOnServer(values)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Estimation Updated Successfully")
+                    // hide dialog
+                    dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
+                } else {
+                    NotificationManager.error("Estimation Initia Failed")
+                }
+            })
+        }
+        else {
+            return dispatch(A.initiateEstimationOnServer(values)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Estimation Initiated Successfully")
+                    // hide dialog
+                    dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
+                } else {
+                    NotificationManager.error("Estimation Initiation Failed")
+                }
+            })
+        }
     }
 })
 
