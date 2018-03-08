@@ -161,8 +161,8 @@ export const updateEstimationOnServer = (estimation) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("estimation update", json.data)
-                    //  dispatch(addEstimation(json.data))
+                 //   console.log("estimation update", json.data)
+                      dispatch(editEstimation(json.data))
                 }
 
                 return json

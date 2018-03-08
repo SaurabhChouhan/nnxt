@@ -5,7 +5,7 @@ import * as SC from "../serverconstants"
 import * as EC from '../errorcodes'
 import AppError from '../AppError'
 import * as V from '../validation'
-import {generateSchema} from "../validation"
+import {generateSchema} from '../validation'
 
 let estimationRouter = new Router({
     prefix: "estimations"
@@ -42,12 +42,25 @@ estimationRouter.get("/:estimationID", async ctx => {
 estimationRouter.post('/initiate', async ctx => {
     // Return expected schema
     if (ctx.schemaRequested)
-        return generateSchema(V.estimationInitiationStruct)
+        return generateSchema(V.estimationUpdationStruct)
 
     if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
         throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
     return await EstimationModel.initiate(ctx.request.body, ctx.state.user)
+})
+
+
+//update estimation by negotiator
+estimationRouter.post('/update', async ctx => {
+    // Return expected schema
+    if (ctx.schemaRequested)
+        return generateSchema(V.estimationInitiationStruct)
+
+    if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    return await EstimationModel.updateEstimationByNegotiator(ctx.request.body, ctx.state.user)
 })
 
 
