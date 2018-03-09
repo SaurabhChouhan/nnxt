@@ -1468,7 +1468,14 @@ td.rejRowColor {
 .estimationForm {
     margin-top: 16px;
 }
-
 .releaseSelect {
     margin-top: 20px;
+}
+.suggestCopy {
+    margin-top: 150px;
+    margin-left: 40px;
+}
+.suggestCopy i {
+    color: #F65A4F;
+    font-size: 21px;
 }

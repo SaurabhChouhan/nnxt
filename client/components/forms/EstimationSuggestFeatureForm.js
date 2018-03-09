@@ -6,12 +6,12 @@ import * as logger from '../../clientLogger'
 import {connect} from "react-redux";
 import * as SC from "../../../server/serverconstants"
 
-let EstimationSuggestTaskForm = (props) => {
+let EstimationSuggestFeatureForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation, loggedInUserRole, pristine, submitting,reset} = props
-    let isLeftDisable = true, isRightDisable = false;
+    const {pristine, submitting, reset, change} = props
+    const {loggedInUserRole, readOnly} = props
     return <form onSubmit={props.handleSubmit}>
-        <div className="col-md-6">
+        <div className="col-md-5">
             <div className="row">
 
                 <Field name="estimation._id" component="input" type="hidden"/>
@@ -38,7 +38,15 @@ let EstimationSuggestTaskForm = (props) => {
             </div>
 
         </div>
-        <div className="col-md-6">
+        <div className="col-md-2 ">
+            <button type="button" className="suggestCopy btn-link"
+                    title="Copy Feature Details"
+                    onClick={() => {
+                change("name", readOnly.name)
+                change("description", readOnly.description)
+            }}><i className="glyphicon glyphicon-arrow-right"></i></button>
+        </div>
+        <div className="col-md-5">
             <div className="row">
 
                 <div className="col-md-6">
@@ -74,20 +82,25 @@ let EstimationSuggestTaskForm = (props) => {
     </form>
 }
 
-EstimationSuggestTaskForm = reduxForm({
+EstimationSuggestFeatureForm = reduxForm({
     form: 'estimation-suggest-feature'
-})(EstimationSuggestTaskForm)
+})(EstimationSuggestFeatureForm)
 
 const selector = formValueSelector('estimation-suggest-feature')
 
-EstimationSuggestTaskForm = connect(
+EstimationSuggestFeatureForm = connect(
     state => {
         const loggedInUserRole = selector(state, 'loggedInUserRole')
+        const readOnly = {
+            name: selector(state, 'readOnly.name'),
+            description: selector(state, 'readOnly.description')
+        }
         return {
-            loggedInUserRole
+            loggedInUserRole,
+            readOnly
         }
     }
-)(EstimationSuggestTaskForm)
+)(EstimationSuggestFeatureForm)
 
 
-export default EstimationSuggestTaskForm
+export default EstimationSuggestFeatureForm

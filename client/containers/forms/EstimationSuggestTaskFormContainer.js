@@ -51,8 +51,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    estimation: state.estimation.selected,
-    features: state.estimation.features
 })
 
 const EstimationSuggestTaskFormContainer = connect(
