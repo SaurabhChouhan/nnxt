@@ -23,7 +23,7 @@ class ReleaseTaskDetailPage extends Component {
     actionCellButton(cell, row, enumObject, rowIndex) {
         return (<button className="pull-left btn btn-custom" type="button"
                              onClick={() => {
-                                 this.props.deleteTaskPlanningRow(row)
+                                 this.props.mergeTaskPlanningRow(row)
                              }}>Merge</button>)
     }
 
@@ -77,7 +77,7 @@ class ReleaseTaskDetailPage extends Component {
                             </div>
                         </div>
                         <div className="col-md-4  releaseClock ">
-                            <i className="fa fa-clock-o "></i><b>8 Hrs</b>
+                            <i className="fa fa-clock-o "></i><b>{releasePlan.task ? releasePlan.task.estimatedHours : ''} Hrs</b>
                         </div>
                     </div>
                     <div className="col-md-12 ">
@@ -113,7 +113,7 @@ class ReleaseTaskDetailPage extends Component {
                                                    dataFormat={this.formatPlannedHours.bind(this)}>Est
                                     Hours</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
-                                                   dataFormat={this.formatDeveloper.bind(this)}>>Developer</TableHeaderColumn>
+                                                   dataFormat={this.formatDeveloper.bind(this)}>Developer</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
                                                    dataFormat={this.formatReport.bind(this)}>Reported
                                     Status</TableHeaderColumn>
@@ -160,17 +160,17 @@ class ReleaseTaskDetailPage extends Component {
                                 <TableHeaderColumn columnTitle dataField='planningDate'
                                                    dataFormat={this.formatPlanningDate.bind(this)
                                                    }>Date</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'
+                                <TableHeaderColumn  columnTitle dataField='task'
                                                    dataFormat={this.formatTaskName.bind(this)}>Task
                                     Name</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='employee'
+                                <TableHeaderColumn width="25%"columnTitle dataField='employee'
                                                    dataFormat={this.formatDeveloper.bind(this)}
                                 >Developer</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planning'
+                                <TableHeaderColumn  columnTitle dataField='planning'
                                                    dataFormat={this.formatPlannedHours.bind(this)}>Planned Effort</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
                                                    dataFormat={this.formatReport.bind(this)} >Reported</TableHeaderColumn>
-                                <TableHeaderColumn width="8%" dataField='button'
+                                <TableHeaderColumn width="12%" dataField='button'
                                                    dataFormat={this.actionCellButton.bind(this)}><i
                                     className="fa fa-plus"></i>
                                 </TableHeaderColumn>

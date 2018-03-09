@@ -25,6 +25,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromState(plan.localId)),
+    mergeTaskPlanningRow: (plan) => console.log(" mergeTaskPlanningRow"),
 
     planTask: (taskPlanning) => dispatch(A.addTaskPlanningOnServer(taskPlanning)).then(json => {
         if (json.success) {
