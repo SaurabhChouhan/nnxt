@@ -513,14 +513,18 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     position: relative;
 }
 
+.searchRelease {
+    margin-top: -4px;
+}
+
 .searchBtn {
     background: #FF534F;
     color: #fff;
-    padding: 1.1% 2%;
+    padding: 1.2% 2%;
     font-size: 20px;
     position: absolute;
     right: 0;
-    top: 0;
+    top: 0px;
     transition: 0.8s;
 }
 
@@ -1088,7 +1092,7 @@ td.rejRowColor {
 
 .RepositoryHeading span {
     padding-right: 5%;
-   /* padding-top: 6px;*/
+    /* padding-top: 6px;*/
 }
 
 .repositoryModalPara {
@@ -1162,6 +1166,7 @@ td.rejRowColor {
     font-weight: bold;
     font-size: 18px;
 }
+
 .releaseTeamLeader span {
 
     width: 30px;
@@ -1209,28 +1214,42 @@ td.rejRowColor {
     margin-top: 13px;
 }
 
-.searchRelease .searchBtn {
+.search .searchBtn {
     background: #FF534F;
     color: #fff;
-    padding: 1.1% 2%;
-    font-size: 23px;
+    padding: 1.2% 2%;
+    font-size: 18px;
     position: absolute;
     right: 0;
-    top: 0;
+    top: 4px;
     transition: 0.8s;
 }
 
-.Repo-padding{
+.searchRelease .searchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 1.6% 2%;
+    font-size: 17px;
+    position: absolute;
+    right: 0;
+    top: 0px;
+    transition: 0.8s;
+}
+
+.Repo-padding {
     padding-top: 10px;
 }
-.searchText input{
+
+.searchText input {
     margin-top: 7px;
 }
-.dropdownoptionRepo{
+
+.dropdownoptionRepo {
     margin-top: 7px;
     margin-left: -15px;
     width: 36%;
 }
+
 .repoArrow {
     margin-left: 5px;
 }
@@ -1254,21 +1273,23 @@ td.rejRowColor {
     white-space: pre-line;
 }
 
-.repo-detail-hour{
+.repo-detail-hour {
     margin: 5px 0px 20px 4px;
 
 }
 
 /*release Detail page*/
-.releaseClock{
-    margin-top:  5px;
+.releaseClock {
+    margin-top: 5px;
 
 }
+
 .releaseClock i {
     font-size: 32px;
     color: #29CAC8;
     margin-left: 124px;
 }
+
 .releaseClock b {
     font-size: 17px;
     position: absolute;
@@ -1276,78 +1297,96 @@ td.rejRowColor {
     top: 11%;
 }
 
-.planBtn .customBtn{
+.planBtn .customBtn {
     float: right;
     margin-top: 3px;
 }
-.planBtn .taskbtn{
+
+.planBtn .taskbtn {
     margin-top: 3px;
 }
-.planchk input{
-    zoom:2.3;
+
+.planchk input {
+    zoom: 2.3;
 }
+
 .planchk span {
     font-size: 20px;
     margin-left: 10px;
     position: absolute;
     margin-top: 8px;
 }
-.planDivider{
+
+.planDivider {
     background-color: #ADADAD;
     height: 70px;
     border-bottom: 2px solid #34343C;
     border-top: 2px solid #34343C;
     margin-top: 10px;
 }
+
 .planDividerBtn .Past {
     float: right;
     margin-top: 12px;
 }
+
 .planDividerBtn .Future {
     margin-left: 90px;
     margin-top: 12px;
 }
+
 .planDividerDate span {
     color: white;
     font-size: 17px;
 }
-.planDateSlct{
+
+.planDateSlct {
     margin-top: 20px;
 
 }
-.planDateSlct input{
+
+.planDateSlct input {
     height: 34px;
 }
+
 .planDateSlct span {
     font-size: 16px;
     color: #989C9F;
 }
-.planDateSlctFrom{
+
+.planDateSlctFrom {
     left: 19%;
 }
-.planDateSlctTo{
+
+.planDateSlctTo {
     left: 14%;
 }
-.planchkSchedule  span{
+
+.planchkSchedule span {
     font-size: 15px;
     position: absolute;
 }
-.planchkSchedule input{
+
+.planchkSchedule input {
     zoom: 2;
     margin-right: 3px;
     margin-top: 3px;
 
 }
-.planSchedule{
+
+.planSchedule {
     margin-top: 12px;
 }
+
 .div-overflow {
     height: 100%;
     overflow: auto;
 }
-.releaseDevInfo{
+
+.releaseDevInfo {
     background-color: #ECECEC;
 }
+
 .releaseDevInfo .releaseDevHeading {
     border: 1px solid #CBCED5;
     width: 100%;
@@ -1357,55 +1396,68 @@ td.rejRowColor {
     padding-left: 15px;
     background-color: #ADADAD;
 }
-.releaseSchedule{
+
+.releaseSchedule {
     margin-top: 10px;
 
 }
 
-.releaseDevHeading b{
+.releaseDevHeading b {
     margin-top: 5px;
     font-size: 20px;
 }
-.releaseDevHeading i{
+
+.releaseDevHeading i {
     float: right;
     color: #fff
 }
+
 .releaseDevHeading {
     position: relative;
 }
+
 .col-md-12.releaseDevHeading {
     border-bottom: 1px solid #182939;
 }
+
 .releaseDevHeading h5 {
     float: left;
     font-weight: bold;
     margin: 0;
-    color:#fff;
+    color: #fff;
 }
+
 .releaseDevHeading span {
     padding-right: 5%;
     color: #fff;
 }
+
 .estimation table i {
     color: red;
     font-size: 20px;
 }
-.releaseDayRow{
+
+.releaseDayRow {
     display: table-row;
 }
-.releaseDayCell{
+
+.releaseDayCell {
     display: table-cell;
 }
-.releaseDayRow .estimationuser{
+
+.releaseDayRow .estimationuser {
     margin-right: 17px;
 }
-.releaseDayCell h5{
+
+.releaseDayCell h5 {
     padding: 10px;
 }
+
 .searchReleasePlan {
     margin-top: 10px;
     font-size: 25px;
 }
+
 .repotext h5 {
     font-size: 13px;
     font-weight: bold;
@@ -1416,12 +1468,13 @@ td.rejRowColor {
 .estimationForm {
     margin-top: 16px;
 }
-
+.releaseSelect {
+    margin-top: 20px;
+}
 .suggestCopy {
     margin-top: 150px;
     margin-left: 40px;
 }
-
 .suggestCopy i {
     color: #F65A4F;
     font-size: 21px;
