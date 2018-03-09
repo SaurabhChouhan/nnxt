@@ -88,7 +88,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getAllTechnologiesFromServer())
         dispatch(A.showComponent(COC.ESTIMATION_INITIATE_DIALOG))
         dispatch(initialize('estimation-initiate', estimation))
-    }
+    },
+    EstimationGoBack: (event) =>
+        dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
 
 
 })
