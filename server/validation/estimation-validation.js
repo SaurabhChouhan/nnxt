@@ -16,6 +16,23 @@ export const estimationInitiationStruct = t.struct({
     isArchived: t.Nil
 })
 
+export const estimationUpdationStruct = t.struct({
+    _id: ObjectId,
+    description: RequiredString,
+    estimator: t.struct({
+        _id: ObjectId
+    }),
+    project: t.struct({
+        _id: ObjectId
+    }),
+    notes: t.maybe(t.list(
+        t.struct({
+            note: t.String
+        })
+        )
+    )
+})
+
 export const estimationEstimatorAddTaskStruct = t.struct({
     _id: t.Nil,
     name: t.maybe(RequiredString),

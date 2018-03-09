@@ -113,6 +113,11 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/estimation-detail: props:", props)
                 return <ContentSection>
+                    <EstimationInitiateDialog name={COC.ESTIMATION_INITIATE_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_INITIATE_DIALOG))
+                        }
+                    }/>
                     <EstimationTaskDialog name={COC.ESTIMATION_TASK_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))

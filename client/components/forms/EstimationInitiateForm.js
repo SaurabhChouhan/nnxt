@@ -1,15 +1,17 @@
-import {reduxForm, Field, Form} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
-import {required, email} from './validation'
-import {renderText, renderTextArea, renderSelect, renderMultiselect} from './fields'
+import {required} from './validation'
+import {renderMultiselect, renderSelect, renderTextArea} from './fields'
 import * as logger from '../../clientLogger'
+import {connect} from 'react-redux'
 
 let EstimationInitiateForm = (props) => {
     logger.debug(logger.ESTIMATION_INITIATE_FORM_RENDER, props)
-    const {reset}=props
+    const {reset, _id} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">
+                <Field name="_id" component="input" className="form-control" type="hidden"></Field>
                 <Field name="project._id" component={renderSelect} label={"Project:"} options={props.projects}
                        validate={[required]}/>
             </div>
@@ -32,7 +34,7 @@ let EstimationInitiateForm = (props) => {
         </div>
         <div className="row initiatEstimation">
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">Submit</button>
+                <button type="submit" className="btn customBtn">{(!_id && "Submit") || (_id && "Update")}</button>
             </div>
             <div className="col-md-6 text-center">
                 <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
@@ -44,5 +46,16 @@ let EstimationInitiateForm = (props) => {
 EstimationInitiateForm = reduxForm({
     form: 'estimation-initiate'
 })(EstimationInitiateForm)
+
+const selector = formValueSelector('estimation-initiate')
+
+EstimationInitiateForm = connect(
+    state => {
+        const _id = selector(state, '_id')
+        return {
+            _id
+        }
+    }
+)(EstimationInitiateForm)
 
 export default EstimationInitiateForm

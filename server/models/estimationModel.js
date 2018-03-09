@@ -4,14 +4,14 @@ import {
     EstimationFeatureModel,
     EstimationTaskModel,
     ProjectModel,
-    UserModel,
     ReleaseModel,
-    ReleasePlanModel
+    ReleasePlanModel,
+    UserModel
 } from "./index"
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
-import {estimationInitiationStruct, validate} from "../validation"
+import {estimationInitiationStruct, estimationUpdationStruct, validate} from "../validation"
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -209,6 +209,56 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     let estimation = await EstimationModel.create(estimationInput)
     estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
     return estimation
+}
+
+/**
+ * Estimation is Updated by Negotiator
+ * @param estimationInput
+ */
+estimationSchema.statics.updateEstimationByNegotiator = async (estimationInput, negotiator) => {
+
+    // validate input
+    validate(estimationInput, estimationUpdationStruct)
+    let estimation = await EstimationModel.findById(estimationInput._id)
+    // enhance estimation input as per requirement
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.status != SC.STATUS_INITIATED)
+        throw new AppError('Only estimations with status [' + SC.STATUS_INITIATED + "] can Edit", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let project = await ProjectModel.findById(estimationInput.project._id)
+    if (!project)
+        throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimator = await UserModel.findById(estimationInput.estimator._id)
+    if (!userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!estimator)
+        throw new AppError('Estimator not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    estimation.status = SC.STATUS_INITIATED
+    estimation.project = project
+    estimation.client = project.client
+    estimation.estimator = estimator
+    estimation.negotiator = negotiator
+    estimation.technologies = estimationInput.technologies
+    estimation.features = undefined
+    estimation.tasks = undefined
+    estimation.statusHistory = [{
+        name: negotiator.firstName,
+        status: SC.STATUS_INITIATED
+
+    }]
+
+    await estimation.save()
+    let updatedEstimation = estimation.toObject()
+    updatedEstimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return updatedEstimation
 }
 
 estimationSchema.statics.request = async (estimationID, negotiator) => {

@@ -3,10 +3,6 @@ import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../"
 import {EstimationFeaturesContainer, EstimationTasksContainer, RepositorySearchContainer} from "../../containers"
 import * as logger from '../../clientLogger'
-import * as A from "../../actions";
-import * as COC from "../componentConsts";
-import {Link} from 'react-router-dom'
-import {connect} from 'react-redux'
 
 
 class EstimationDetail extends Component {
@@ -112,9 +108,16 @@ class EstimationDetail extends Component {
                                 <li><a href=""> <i className="glyphicon glyphicon-option-vertical pull-right">
                                 </i></a>
                                 </li>
-                                <button type="button" className="btn customBtn" onClick={() =>
-                                { this.props.estimationFilterForm()}
+                                {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && (estimation.status == SC.STATUS_INITIATED) ?
+                                    <button type="button" className="btn customBtn" onClick={() => {
+                                        this.props.editEstimationInitiateForm(estimation)
+                                    }
+                                    }>Edit Estimation</button> :
+                                    < button type="button" className="btn customBtn" onClick={() => {
+                                        this.props.estimationFilterForm()
+                                    }
                                 }>filter</button>
+                                }
                             </ul>
                         </div>
                     </div>

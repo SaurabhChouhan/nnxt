@@ -6,7 +6,6 @@ import * as logger from '../../clientLogger'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showEstimationInitiateForm: () => {
-        console.log("show estimation init form caled")
         dispatch(A.getAllProjectsFromServer())
         dispatch(A.getAllUsersFromServer())
         dispatch(A.getAllTechnologiesFromServer())
