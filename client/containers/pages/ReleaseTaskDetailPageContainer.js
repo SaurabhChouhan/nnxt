@@ -38,7 +38,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.success("Task Planning Added")
         }
         else NotificationManager.error("Task Planning Added")
-    })
+    }),
+    ReleaseTaskGoBack: (event) =>
+        dispatch(A.showComponentHideOthers(COC.RELEASE_DETAIL_LIST))
 })
 
 
@@ -47,7 +49,7 @@ const mapStateToProps = (state) => ({
     releasePlan: state.release.selectedTaskPlan,
     taskPlanning: state.release.taskPlanning,
     developerPlanned: state.release.developerPlanned,
-    data:[]
+    data: []
 })
 
 const ReleaseTaskDetailPageContainer = connect(

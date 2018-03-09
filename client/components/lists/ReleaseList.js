@@ -94,7 +94,6 @@ class ReleaseList extends Component {
 
     }
 
-
     render() {
         return (
             <div key="estimation_list" className="clearfix">

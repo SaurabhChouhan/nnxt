@@ -9,16 +9,9 @@ class ReleaseDetailList extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            status: "all",
-            flag: "all"
-        }
         this.options = {
             onRowClick: this.onRowClick.bind(this)
         }
-        this.onFlagChange = this.onFlagChange.bind(this)
-        this.onStatusChange = this.onStatusChange.bind(this)
-
     }
 
     onRowClick(row) {
@@ -73,26 +66,18 @@ class ReleaseDetailList extends Component {
         return ''
     }
 
-    onFlagChange(flag) {
-        this.setState({flag: flag})
-        this.props.changeReleaseFlag(this.props.release, this.state.status, flag)
-    }
-
-    onStatusChange(status) {
-        this.setState({status: status})
-        this.props.changeReleaseStatus(this.props.release, status, this.state.flag)
-    }
-
     render() {
         let team = 0
         const {release} = this.props
-        const {status, flag} = this.state
         return (
             <div key="estimation_list" className="clearfix">
 
                 <div className="col-md-12 releaseHeader">
                     <div className=" col-md-1 backarrow">
-                        <a href=""><i className="glyphicon glyphicon-arrow-left"></i></a>
+                        <button className="btn-link" onClick={() => {
+                            this.props.history.push("/app-home/release")
+                            this.props.ReleaseProjectGoBack()
+                        }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                     </div>
                     <div className="col-md-3">
                         <div className="releaseTitle">
