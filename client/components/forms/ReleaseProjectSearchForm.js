@@ -1,6 +1,6 @@
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
-import { renderText} from './fields'
+import {renderText} from './fields'
 import * as SC from '../../../server/serverconstants'
 
 let ReleaseProjectSearchForm = (props) => {
@@ -8,7 +8,8 @@ let ReleaseProjectSearchForm = (props) => {
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-6 pad">
             <div className="search">
-                <Field name="search" className="form-control" component={renderText} placeholder="Search Project Names"/>
+                <Field name="search" className="form-control" component={renderText}
+                       placeholder="Search Project Names"/>
                 <button type="submit" className="btn searchBtn"><i className="fa fa-search"></i>
                 </button>
             </div>

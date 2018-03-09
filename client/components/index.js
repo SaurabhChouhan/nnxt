@@ -95,6 +95,7 @@ export {default as ReleaseDeveloperFilterForm} from './forms/ReleaseDeveloperFil
 export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPlanningFormDialog'
 export {default as ReleaseTaskPlanningForm} from './forms/ReleaseTaskPlanningForm'
 export {default as ReleaseProjectSearchForm} from './forms/ReleaseProjectSearchForm'
+export {default as ReleaseTaskSearchForm} from './forms/ReleaseTaskSearchForm'
 //Release Pages
 export {default as ReleaseTaskDetailPage} from './pages/ReleaseTaskDetailPage'
 
