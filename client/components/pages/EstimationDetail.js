@@ -13,6 +13,7 @@ class EstimationDetail extends Component {
             showEstimationRequestDialog: false
         };
     }
+
     onClose() {
         this.setState({
             showEstimationRequestDialog: false,
@@ -47,8 +48,12 @@ class EstimationDetail extends Component {
                     <div className="col-md-5 pad">
                         <div className="backarrow">
                             <h5>
-                                <a href=""><i
-                                    className="glyphicon glyphicon-arrow-left"></i></a><b>{estimation.project ? estimation.project.name : ''}</b>
+                                <button className="btn-link" onClick={() => {
+                                    this.props.history.push("/app-home/estimation")
+                                    this.props.EstimationGoBack()
+                                }}><i className="glyphicon glyphicon-arrow-left"></i></button>
+
+                                <b>{estimation.project ? estimation.project.name : ''}</b>
                             </h5>
                         </div>
                     </div>
@@ -116,7 +121,7 @@ class EstimationDetail extends Component {
                                     < button type="button" className="btn customBtn" onClick={() => {
                                         this.props.estimationFilterForm()
                                     }
-                                }>filter</button>
+                                    }>filter</button>
                                 }
                             </ul>
                         </div>
@@ -177,7 +182,8 @@ class EstimationDetail extends Component {
                     <EstimationTasksContainer estimationStatus={estimation.status}
                                               loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
-                {(estimation.status == SC.STATUS_APPROVED) && (estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR) && <div className="col-md-12">
+                {(estimation.status == SC.STATUS_APPROVED) && (estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR) &&
+                <div className="col-md-12">
                     <button type="button" className="btn customBtn" onClick={
                         () => {
                             this.props.showProjectAwardForm(estimation)

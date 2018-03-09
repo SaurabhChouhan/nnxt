@@ -1058,7 +1058,7 @@ td.rejRowColor {
 
 .estimationsection {
     border-left: 1px solid #182939;
-    height: 660px;
+    min-height: 660px;
 }
 
 .repositoryFeatureLable {
