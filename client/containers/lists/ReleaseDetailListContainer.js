@@ -11,7 +11,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.addDeveloperFilteredData([])),
             dispatch(A.getAllTaskPlannedFromServer(taskPlanning.task._id))
         dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_DETAIL_PAGE))
-    }
+    },
+    ReleaseProjectGoBack: (event) =>
+        dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
+
 
 })
 

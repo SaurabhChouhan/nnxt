@@ -74,7 +74,10 @@ class ReleaseDetailList extends Component {
 
                 <div className="col-md-12 releaseHeader">
                     <div className=" col-md-1 backarrow">
-                        <a href=""><i className="glyphicon glyphicon-arrow-left"></i></a>
+                        <button className="btn-link" onClick={() => {
+                            this.props.history.push("/app-home/release")
+                            this.props.ReleaseProjectGoBack()
+                        }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                     </div>
                     <div className="col-md-3">
                         <div className="releaseTitle">
