@@ -516,11 +516,11 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 .searchBtn {
     background: #FF534F;
     color: #fff;
-    padding: 1.1% 2%;
+    padding: 1.5% 2%;
     font-size: 20px;
     position: absolute;
     right: 0;
-    top: 0;
+    top: 2px;
     transition: 0.8s;
 }
 
@@ -1415,4 +1415,7 @@ td.rejRowColor {
 
 .estimationForm {
     margin-top: 16px;
+}
+.releaseSelect{
+    margin-top: 20px;
 }

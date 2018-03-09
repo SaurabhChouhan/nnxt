@@ -147,7 +147,7 @@ class ReleaseDetailList extends Component {
                             </div>
                         </div>
                         <div className="col-md-3">
-                            <div className="releaseSelect">
+                            <div >
                                 <select className="form-control" onChange={(flag) =>
                                     this.onFlagChange(flag.target.value)
                                 }>
@@ -165,7 +165,7 @@ class ReleaseDetailList extends Component {
                             </div>
                         </div>
                         <div className="col-md-3">
-                            <div className="releaseSelect">
+                            <div >
                                 <select className="form-control"
                                         onChange={(status) => this.onStatusChange(status.target.value)}>
                                     <option value="all">All Status</option>

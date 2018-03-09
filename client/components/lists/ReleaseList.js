@@ -2,8 +2,9 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-
+import {ReleaseProjectSearchFormContainer} from '../../containers'
 import {withRouter} from 'react-router-dom'
+
 
 
 class ReleaseList extends Component {
@@ -99,29 +100,8 @@ class ReleaseList extends Component {
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
                     <div className="col-md-12 pad">
-                        <div className="col-md-6 pad">
-                            <div className="search">
-                                <input type="text" className="form-control" placeholder="Search Project Names"/>
-                                <button type="submit" className="btn searchBtn"><i className="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div className="col-md-3">
-                            <div className="estimation">
-                                <select className="form-control" onChange={(status) =>
-                                    this.props.changeReleaseStatus(status.target.value)
-                                }>
-                                    <option value="all">All</option>
-                                    <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
-                                    <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                    <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                    <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                    <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                    <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+                        <ReleaseProjectSearchFormContainer/>
 
-                                </select>
-                            </div>
-                        </div>
                     </div>
                     <div className="estimation">
                         <BootstrapTable options={this.options} data={this.props.releases}
@@ -162,8 +142,3 @@ class ReleaseList extends Component {
 }
 
 export default withRouter(ReleaseList)
-
-
-/*<TableHeaderColumn columnTitle width='10px' dataField='status'
-                                               dataFormat={this.formatStatus}
-                                               columnClassName={this.columnClassStatusFormat}></TableHeaderColumn>*/

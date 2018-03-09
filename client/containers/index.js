@@ -86,3 +86,4 @@ export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPl
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleaseDetailListContainer} from './lists/ReleaseDetailListContainer'
 export {default as ReleaseTaskDetailPageContainer} from './pages/ReleaseTaskDetailPageContainer'
+export {default as ReleaseProjectSearchFormContainer} from './forms/ReleaseProjectSearchFormContainer'
