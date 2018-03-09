@@ -1,17 +1,17 @@
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
 import {number, required} from './validation'
-import {renderMultiselect, renderSelect, renderText, renderTextArea} from './fields'
+import {renderText, renderTextArea} from './fields'
 import * as logger from '../../clientLogger'
 import {connect} from "react-redux";
 import * as SC from "../../../server/serverconstants"
 
 let EstimationSuggestTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation, loggedInUserRole, pristine, submitting,reset} = props
-    let isLeftDisable = true, isRightDisable = false;
+    const {pristine, submitting, reset, change} = props
+    const {loggedInUserRole, readOnly} = props
     return <form onSubmit={props.handleSubmit}>
-        <div className="col-md-6">
+        <div className="col-md-5">
             <div className="row">
 
                 <Field name="estimation._id" component="input" type="hidden"/>
@@ -45,7 +45,14 @@ let EstimationSuggestTaskForm = (props) => {
             </div>
 
         </div>
-        <div className="col-md-6">
+        <div className="col-md-2 ">
+            <button type="button" className="suggestCopy btn-link" onClick={() => {
+                change("name", readOnly.name)
+                change("estimatedHours", readOnly.estimatedHours)
+                change("description", readOnly.description)
+            }}><i className="glyphicon glyphicon-arrow-right"></i></button>
+        </div>
+        <div className="col-md-5">
             <div className="row">
 
                 <div className="col-md-6">
@@ -97,9 +104,15 @@ const selector = formValueSelector('estimation-suggest-task')
 
 EstimationSuggestTaskForm = connect(
     state => {
-        const loggedInUserRole = selector(state, 'loggedInUserRole')
+        const loggedInUserRole = selector(state, 'loggedInUserRole', 'readOnly.name')
+        const readOnly = {
+            name: selector(state, 'readOnly.name'),
+            estimatedHours: selector(state, 'readOnly.estimatedHours'),
+            description: selector(state, 'readOnly.description')
+        }
         return {
-            loggedInUserRole
+            loggedInUserRole,
+            readOnly
         }
     }
 )(EstimationSuggestTaskForm)
