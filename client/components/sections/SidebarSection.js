@@ -26,6 +26,7 @@ const SidebarSection = (props) => <section className="sidebar">
                     }}>Technology</Link></li>
                     <li><Link to="/app-home/estimation" onClick={() => {
                         props.dispatch(A.getAllEstimationsFromServer())
+                        props.dispatch(A.getAllProjectsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
                     }}>Estimation</Link></li>
                     <li><Link to="/app-home/raise_leave" onClick={() => {
@@ -35,8 +36,9 @@ const SidebarSection = (props) => <section className="sidebar">
                        // props.dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                     }}>Raise-leave</Link></li>
                    <li><Link to="/app-home/attendance" onClick={() => {
+                       props.dispatch(A.getAttendanceSettingFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.ATTENDANCE_SETTING_FORM))
-                        props.dispatch(A.getAttendanceSettingFromServer())
+
                     }}>Attendance Setting</Link></li>
                     <li><Link to="/app-home/release" onClick={() => {
                         props.dispatch(A.getAllReleaseFromServer("all"))

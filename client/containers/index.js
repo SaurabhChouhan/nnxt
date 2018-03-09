@@ -52,6 +52,7 @@ export {default as EstimationSuggestTaskFormContainer} from './forms/EstimationS
 export {default as EstimationSuggestFeatureFormContainer} from './forms/EstimationSuggestFeatureFormContainer'
 export {default as EstimationProjectAwardFormContainer} from './forms/EstimationProjectAwardFormContainer'
 export {default as EstimationFilterFormContainer} from './forms/EstimationFilterFormContainer'
+export {default as EstimationSearchFormContainer} from './forms/EstimationSearchFormContainer'
 
 
 

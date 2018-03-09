@@ -75,6 +75,7 @@ export const renderSelect = ({
                                  options,
                                  readOnly = false,
                                  noneOptionText = 'Select ...',
+                                 noneOptionValue = '',
                                  showNoneOption = true,
                                  displayField = 'name',
                                  disabled = false,
@@ -94,7 +95,7 @@ export const renderSelect = ({
         <select {...input}
                 className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
                 disabled={disabled} readOnly={readOnly}>
-            {showNoneOption && <option value="">{noneOptionText}</option>}
+            {showNoneOption && <option value={noneOptionValue}>{noneOptionText}</option>}
             {
                 options && options.map(option => {
 

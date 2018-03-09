@@ -1,5 +1,4 @@
 import * as AC from "./actionConsts"
-import {initialize} from "redux-form"
 
 
 export const addAttendanceSetting = (attendanceSetting) => ({
@@ -25,7 +24,7 @@ export const addAttendanceSettingOnServer = (formInput) => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
+            if (json.success && json.data) {
                     dispatch(addAttendanceSetting(json.data))
                 }
                 return json
@@ -50,9 +49,9 @@ export const getAttendanceSettingFromServer = () => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
-                    dispatch(initialize('attendance-setting', json.data))
-                    dispatch(addAttendanceSetting(json.data))
+            if (json.success && json.data) {
+                dispatch(initialize('attendance-setting', json.data))
+                dispatch(addAttendanceSetting(json.data))
                 }
                 return json
             }
