@@ -46,7 +46,9 @@ let EstimationSuggestTaskForm = (props) => {
 
         </div>
         <div className="col-md-2 ">
-            <button type="button" className="suggestCopy btn-link" onClick={() => {
+            <button type="button" className="suggestCopy btn-link"
+                    title="Copy Task Details"
+                    onClick={() => {
                 change("name", readOnly.name)
                 change("estimatedHours", readOnly.estimatedHours)
                 change("description", readOnly.description)

@@ -39,7 +39,9 @@ let EstimationSuggestFeatureForm = (props) => {
 
         </div>
         <div className="col-md-2 ">
-            <button type="button" className="suggestCopy btn-link" onClick={() => {
+            <button type="button" className="suggestCopy btn-link"
+                    title="Copy Feature Details"
+                    onClick={() => {
                 change("name", readOnly.name)
                 change("description", readOnly.description)
             }}><i className="glyphicon glyphicon-arrow-right"></i></button>
