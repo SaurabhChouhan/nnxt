@@ -785,10 +785,11 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let thisTaskWithRepoAlreadyExist = await EstimationTaskModel.findOne({
-        "repo._id": repositoryTask._id,
-        "estimation._id": estimation._id
-    })
+    /*  let thisTaskWithRepoAlreadyExist = await EstimationTaskModel.findOne({
+          "repo._id": repositoryTask._id,
+          "estimation._id": estimation._id
+      })
+      */
     if (thisTaskWithRepoAlreadyExist)
         throw new AppError('This task is already part of estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
