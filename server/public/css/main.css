@@ -531,13 +531,12 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 .estimationSearchBtn {
     background: #FF534F;
     color: #fff;
-    padding: 2.1% 2%;
-    font-size: 15px;
+    padding: 1.4% 2%;
+    font-size: 18px;
     position: absolute;
     right: 0;
-    top: 0;
+    top: 4px;
     transition: 0.8s;
-    margin-top: 2px;
 }
 
 .searchBtn:hover {
