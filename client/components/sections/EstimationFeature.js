@@ -61,7 +61,7 @@ class EstimationFeature extends React.PureComponent {
              */
 
 
-           //condition for feature approval
+            //condition for feature approval
             if (feature.status === SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED], estimationStatus)) {
 
                 if (!(feature.estimator.changeRequested
@@ -129,7 +129,7 @@ class EstimationFeature extends React.PureComponent {
             if (feature.estimator.changeRequested) {
                 if (feature.negotiator.changeGranted) {
                     // estimator has requested change which negotiator has granted
-                    buttons.push(editView && feature.addedInThisIteration ?
+                    buttons.push(editView ?
                         <img key="granted_edit" src="/images/granted_edit.png"
                              onClick={() => {
                                  this.props.toggleGrantEdit(feature)
@@ -138,7 +138,7 @@ class EstimationFeature extends React.PureComponent {
                 } else {
                     // estimator has requested change but negotiator has not granted it till now
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, heRequestedEditFeature')
-                    buttons.push(editView && feature.addedInThisIteration ?
+                    buttons.push(editView ?
                         <img key="he_requested_edit" src="/images/he_requested_edit.png"
                              onClick={() => {
                                  this.props.toggleGrantEdit(feature)
@@ -208,7 +208,7 @@ class EstimationFeature extends React.PureComponent {
                                 <img key="he_granted_edit_disable" src="/images/he_granted_edit_disable.png"/>)
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
-                            buttons.push(editView && feature.addedInThisIteration  ?
+                            buttons.push(editView ?
                                 <img key="requested_edit" src="/images/requested_edit.png"
                                      onClick={() => {
                                          this.props.toggleEditRequest(feature)
@@ -287,7 +287,7 @@ class EstimationFeature extends React.PureComponent {
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'can request edit, request_edit')
-                    buttons.push(editView && feature.addedInThisIteration ?
+                    buttons.push(editView ?
                         <img key="request_edit" src="/images/request_edit.png"
                              onClick={() => {
                                  this.props.toggleEditRequest(feature)
@@ -354,7 +354,7 @@ class EstimationFeature extends React.PureComponent {
                                  title="Approved"/>
                         </div>}
 
-                        {feature && !feature.addedFromThisEstimation &&
+                        {feature.repo && !feature.repo.addedFromThisEstimation &&
                         <div className="flagStrip">
                             <img key="repo_flag" src="/images/repo_flag.png"></img>
                         </div>
@@ -483,7 +483,6 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
 
         toggleEditRequest: (values) => {
-            console.log("feature toggleEditRequest : ",values)
             return dispatch(A.requestForFeatureEditPermissionOnServer(values._id)).then(json => {
                 if (json.success) {
 
