@@ -96,7 +96,8 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     estimationFeature.estimation = featureInput.estimation
     estimationFeature.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
-    //estimationFeature.repo._id = repositoryFeature._id
+    estimationFeature.repo = {}
+    estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
 
     if (!_.isEmpty(featureInput.notes)) {
@@ -477,6 +478,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.estimator.description = repositoryFeature.description
     estimationFeature.estimation = estimation
+    estimationFeature.repo = {}
     estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = false
     estimationFeature.technologies = repositoryFeature.technologies
@@ -563,7 +565,8 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.estimator.description = repositoryFeature.description
     estimationFeature.estimation = estimation
-    //estimationFeature.repo._id = repositoryFeature._id
+    estimationFeature.repo = {}
+    estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
     estimationFeature.technologies = repositoryFeature.technologies
 
