@@ -434,10 +434,10 @@ estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, esti
 
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+/*
     if (!task.repo.addedFromThisEstimation)
         throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
-
+*/
     task.estimator.removalRequested = !task.estimator.removalRequested
     task.estimator.changedInThisIteration = true
 
