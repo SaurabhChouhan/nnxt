@@ -546,11 +546,11 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let existingFeatureCount = await EstimationFeatureModel.count({
+   /* let existingFeatureCount = await EstimationFeatureModel.count({
         "repo._id": repositoryFeature._id,
         "estimation._id": estimation._id
     })
-
+*/
 
     if (existingFeatureCount > 0)
         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
@@ -584,6 +584,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
         estimationTask.initiallyEstimated = true
         estimationTask.estimation = estimation
         estimationTask.technologies = estimation.technologies
+        estimationTask.repo = {}
         //estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = true
         estimationTask.feature._id = estimationFeature._id
@@ -714,6 +715,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
         newFeature.negotiator.estimatedHours = 0
 
     newFeature.estimation = estimation
+    newFeature.repo = {}
     newFeature.repo._id = repo._id
     newFeature.repo.addedFromThisEstimation = false
 
@@ -776,6 +778,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
         newFeature.negotiator.estimatedHours = 0
 
     newFeature.estimation = estimation
+    newFeature.repo = {}
     //newFeature.repo._id = repo._id
     newFeature.repo.addedFromThisEstimation = true
 
