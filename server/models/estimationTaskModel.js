@@ -112,6 +112,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
     estimationTask.feature = taskInput.feature
+    estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
 
@@ -172,6 +173,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
+    estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
@@ -750,6 +752,7 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
     estimationTask.initiallyEstimated = true
     estimationTask.estimation = estimation
     estimationTask.technologies = estimation.technologies
+    estimationTask.repo = {}
     estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = false
 
@@ -804,6 +807,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     estimationTask.initiallyEstimated = true
     estimationTask.estimation = estimation
     estimationTask.technologies = estimation.technologies
+    estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
 
@@ -858,6 +862,7 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
 
     taskFromRepositoryObj.estimation = estimation
     taskFromRepositoryObj.technologies = estimation.technologies
+    taskFromRepositoryObj.repo = {}
     taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = false
     return await EstimationTaskModel.create(taskFromRepositoryObj)
@@ -909,6 +914,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
 
     taskFromRepositoryObj.estimation = estimation
     taskFromRepositoryObj.technologies = estimation.technologies
+    taskFromRepositoryObj.repo = {}
     //taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = true
     return await EstimationTaskModel.create(taskFromRepositoryObj)
