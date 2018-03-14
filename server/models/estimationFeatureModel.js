@@ -19,6 +19,7 @@ let estimationFeatureSchema = mongoose.Schema({
     status: {type: String, enum: [SC.STATUS_APPROVED, SC.STATUS_PENDING], required: true, default: SC.STATUS_PENDING},
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
+    canApprove: {type: Boolean, default: false},
     initiallyEstimated: {type: Boolean, required: true},
     isDeleted: {type: Boolean, default: false},
     created: Date,
@@ -91,6 +92,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     estimationFeature.estimator.estimatedHours = featureInput.estimatedHours
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
+    estimationFeature.canApprove = false
     estimationFeature.owner = SC.OWNER_ESTIMATOR
     estimationFeature.initiallyEstimated = true
     estimationFeature.estimation = featureInput.estimation
@@ -145,6 +147,7 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     estimationFeature.negotiator.changeSuggested = true
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
+    estimationFeature.canApprove = false
     estimationFeature.owner = SC.OWNER_NEGOTIATOR
     estimationFeature.initiallyEstimated = true
     estimationFeature.estimation = featureInput.estimation
@@ -230,6 +233,7 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     // As estimator has peformed edit, reset changeRequested and grant edit flags
     estimationFeature.estimator.changeRequested = false
     estimationFeature.negotiator.changeGranted = false
+    estimationFeature.canApprove = false
 
     estimationFeature.updated = Date.now()
 
@@ -292,6 +296,7 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     estimationFeature.negotiator.name = featureInput.name
     if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_NEGOTIATOR)
         estimationFeature.negotiator.changedInThisIteration = true
+        estimationFeature.canApprove = false
     estimationFeature.negotiator.description = featureInput.description
     estimationFeature.negotiator.changeSuggested = true // This will allow estimator to see updated changes as suggestions
     estimationFeature.updated = Date.now()
@@ -473,6 +478,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
 
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
+    estimationFeature.canApprove  = false
     estimationFeature.owner = SC.OWNER_ESTIMATOR
     estimationFeature.initiallyEstimated = true
 
@@ -561,6 +567,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
 
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
+    estimationFeature.canApprove = false
     estimationFeature.owner = SC.OWNER_ESTIMATOR
     estimationFeature.initiallyEstimated = true
 
@@ -631,6 +638,7 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
 
     feature.estimator.changeRequested = !feature.estimator.changeRequested
     feature.estimator.changedInThisIteration = true
+    feature.canApprove = false
     return await feature.save()
 }
 
@@ -662,6 +670,7 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
 
 
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
+    feature.canApprove = false
     feature.updated = Date.now()
     return await feature.save()
 }
@@ -705,6 +714,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
 
     newFeature.status = SC.STATUS_PENDING
     newFeature.addedInThisIteration = true
+    newFeature.canApprove = false
     newFeature.changedKeyInformation = true
     newFeature.owner = SC.OWNER_NEGOTIATOR
     newFeature.initiallyEstimated = true
@@ -771,6 +781,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
     newFeature.changedKeyInformation = true
     newFeature.owner = SC.OWNER_NEGOTIATOR
     newFeature.initiallyEstimated = true
+    newFeature.canApprove = true
 
     newFeature.negotiator.name = repo.name
     newFeature.negotiator.description = repo.description
@@ -816,6 +827,7 @@ estimationFeatureSchema.statics.requestRemovalFeatureByEstimator = async (featur
 
     feature.estimator.removalRequested = !feature.estimator.removalRequested
     feature.estimator.changedInThisIteration = true
+    feature.canApprove = false
 
     return await feature.save()
 

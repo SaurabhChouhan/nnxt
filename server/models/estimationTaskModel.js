@@ -19,6 +19,7 @@ let estimationTaskSchema = mongoose.Schema({
     status: {type: String, enum: [SC.STATUS_APPROVED, SC.STATUS_PENDING], required: true, default: SC.STATUS_PENDING},
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
+    canApprove: {type: Boolean, default: false},
     initiallyEstimated: {type: Boolean, required: true},
     isDeleted: {type: Boolean, default: false},
     created: Date,
@@ -106,6 +107,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
     estimationTask.status = SC.STATUS_PENDING
     estimationTask.addedInThisIteration = true
+    estimationTask.canApprove = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
     estimationTask.initiallyEstimated = true
     estimationTask.estimation = taskInput.estimation
@@ -170,6 +172,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     estimationTask.addedInThisIteration = true
     estimationTask.owner = SC.OWNER_NEGOTIATOR
     estimationTask.initiallyEstimated = true
+    estimationTask.canApprove = false
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
@@ -242,6 +245,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
+    estimationTask.canApprove = false
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR) {
         estimationTask.estimator.changedInThisIteration = true
         estimationTask.estimator.changedKeyInformation = true
@@ -303,6 +307,7 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
     estimationTask.feature = taskInput.feature ? taskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.negotiator.name = taskInput.name
+    estimationTask.canApprove = false
     estimationTask.negotiator.description = taskInput.description
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_NEGOTIATOR)
@@ -366,7 +371,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
     if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}}, {"canApprove": false})
     }
 
     // As task is moved please update repository as well to note this change
@@ -374,6 +379,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
     //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
 
     task.feature = feature
+    task.canApprove = false
     task.updated = Date.now()
     if (!task.addedInThisIteration || task.owner != SC.OWNER_ESTIMATOR)
         task.estimator.changedInThisIteration = true
@@ -404,7 +410,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
     if (task.estimator.estimatedHours)
-        await EstimationFeatureModel.updateOne({_id: task.feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
+        await EstimationFeatureModel.updateOne({_id: task.feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}}, {"canApprove": false})
 
     let feature = await EstimationFeatureModel.findById(task.feature._id)
     //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
@@ -473,6 +479,7 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
 
     task.estimator.changeRequested = !task.estimator.changeRequested
     task.estimator.changedInThisIteration = true
+    task.canApprove = false
     return await task.save()
 }
 
@@ -503,7 +510,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
     if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}})
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}}, {"canApprove": false})
     }
 
     //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
@@ -547,7 +554,7 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
 
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
         if (task.estimator.estimatedHours)
-            await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}}, {"canApprove": false})
 
     }
     task.isDeleted = true
@@ -625,7 +632,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, n
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
     if (task.estimator.estimatedHours)
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}})
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}}, {"canApprove": false})
 
     //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
 
@@ -666,6 +673,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
+    task.canApprove = false
     task.updated = Date.now()
     return await task.save()
 }
@@ -748,6 +756,7 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
     estimationTask.estimator.description = repositoryTask.description
     estimationTask.status = SC.STATUS_PENDING
     estimationTask.addedInThisIteration = true
+    estimationTask.canApprove = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
     estimationTask.initiallyEstimated = true
     estimationTask.estimation = estimation
@@ -803,6 +812,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     estimationTask.estimator.description = repositoryTask.description
     estimationTask.status = SC.STATUS_PENDING
     estimationTask.addedInThisIteration = true
+    estimationTask.canApprove = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
     estimationTask.initiallyEstimated = true
     estimationTask.estimation = estimation
@@ -857,6 +867,7 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
     taskFromRepositoryObj.estimator.description = repositoryTask.description
     taskFromRepositoryObj.status = SC.STATUS_PENDING
     taskFromRepositoryObj.addedInThisIteration = true
+    taskFromRepositoryObj.canApprove = false
     taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
     taskFromRepositoryObj.initiallyEstimated = true
 
@@ -911,6 +922,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
     taskFromRepositoryObj.addedInThisIteration = true
     taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
     taskFromRepositoryObj.initiallyEstimated = true
+    taskFromRepositoryObj.canApprove = false
 
     taskFromRepositoryObj.estimation = estimation
     taskFromRepositoryObj.technologies = estimation.technologies
