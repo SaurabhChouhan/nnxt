@@ -4,7 +4,6 @@ import {renderText} from './fields'
 import * as SC from '../../../server/serverconstants'
 
 let ReleaseProjectSearchForm = (props) => {
-    const {releaseProject} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-6 pad">
             <div className="search">

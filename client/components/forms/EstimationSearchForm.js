@@ -18,7 +18,7 @@ let EstimationSearchForm = (props) => {
                 options={projects}
                 displayField="name"
                 valueField="_id"
-                noneOptionText = "All"
+                noneOptionText = "All Projects"
                 noneOptionValue = "All"
                 onChange={(event, newValue, oldValue) => {
                     props.filterEstimationByProject(newValue)
