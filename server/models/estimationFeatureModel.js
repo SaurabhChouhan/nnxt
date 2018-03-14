@@ -97,7 +97,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     estimationFeature.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
     estimationFeature.repo = {}
-    estimationFeature.repo._id = repositoryFeature._id
+    //estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
 
     if (!_.isEmpty(featureInput.notes)) {
@@ -150,8 +150,9 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     estimationFeature.estimation = featureInput.estimation
     estimationFeature.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
+    estimationFeature.repo = {}
     //estimationFeature.repo._id = repositoryFeature._id
-    //estimationFeature.repo.addedFromThisEstimation = true
+    estimationFeature.repo.addedFromThisEstimation = true
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
@@ -497,6 +498,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
         estimationTask.initiallyEstimated = true
         estimationTask.estimation = estimation
         estimationTask.technologies = estimation.technologies
+        estimationTask.repo = {}
         estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = false
         estimationTask.feature._id = estimationFeature._id
