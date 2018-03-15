@@ -553,16 +553,16 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    /* let existingFeatureCount = await EstimationFeatureModel.count({
+/*
+     let existingFeatureCount = await EstimationFeatureModel.count({
          "repo._id": repositoryFeature._id,
          "estimation._id": estimation._id
      })
- */
+
 
     if (existingFeatureCount > 0)
         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
+*/
     let estimationFeature = new EstimationFeatureModel()
 
     estimationFeature.status = SC.STATUS_PENDING
