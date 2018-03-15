@@ -55,11 +55,7 @@ class EstimationTask extends React.PureComponent {
 
             if (task.status === SC.STATUS_PENDING && _.includes([ SC.STATUS_REVIEW_REQUESTED], estimationStatus) ) {
 
-                if (!(task.estimator.changeRequested
-                        || task.estimator.removalRequested
-                        || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
-                        || _.isEmpty(task.estimator.name)
-                        || _.isEmpty(task.estimator.description))) {
+                if (task.canApprove) {
                     buttons.push(editView ?
                         <img key="approve" src="/images/approve.png"
                              onClick={() => {

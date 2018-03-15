@@ -64,11 +64,7 @@ class EstimationFeature extends React.PureComponent {
             //condition for feature approval
             if (feature.status === SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED], estimationStatus)) {
 
-                if (!(feature.estimator.changeRequested
-                        || feature.estimator.removalRequested
-                        || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
-                        || _.isEmpty(feature.estimator.name)
-                        || _.isEmpty(feature.estimator.description))) {
+                if (feature.canApprove) {
                     buttons.push(editView ?
                         <img key="approve" src="/images/approve.png"
                              onClick={() => {
