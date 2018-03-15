@@ -14,7 +14,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    releaseProject: state.release.all,
 })
 
 const ReleaseProjectSearchFormContainer = connect(

@@ -96,6 +96,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     estimationFeature.estimation = featureInput.estimation
     estimationFeature.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
+    estimationFeature.repo = {}
     //estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
 
@@ -149,8 +150,9 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     estimationFeature.estimation = featureInput.estimation
     estimationFeature.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
+    estimationFeature.repo = {}
     //estimationFeature.repo._id = repositoryFeature._id
-    //estimationFeature.repo.addedFromThisEstimation = true
+    estimationFeature.repo.addedFromThisEstimation = true
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
     estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
@@ -477,6 +479,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.estimator.description = repositoryFeature.description
     estimationFeature.estimation = estimation
+    estimationFeature.repo = {}
     estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = false
     estimationFeature.technologies = repositoryFeature.technologies
@@ -495,6 +498,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
         estimationTask.initiallyEstimated = true
         estimationTask.estimation = estimation
         estimationTask.technologies = estimation.technologies
+        estimationTask.repo = {}
         estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = false
         estimationTask.feature._id = estimationFeature._id
@@ -544,11 +548,11 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let existingFeatureCount = await EstimationFeatureModel.count({
+   /* let existingFeatureCount = await EstimationFeatureModel.count({
         "repo._id": repositoryFeature._id,
         "estimation._id": estimation._id
     })
-
+*/
 
     if (existingFeatureCount > 0)
         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
@@ -563,7 +567,8 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.estimator.description = repositoryFeature.description
     estimationFeature.estimation = estimation
-    //estimationFeature.repo._id = repositoryFeature._id
+    estimationFeature.repo = {}
+    estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
     estimationFeature.technologies = repositoryFeature.technologies
 
@@ -581,6 +586,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
         estimationTask.initiallyEstimated = true
         estimationTask.estimation = estimation
         estimationTask.technologies = estimation.technologies
+        estimationTask.repo = {}
         //estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = true
         estimationTask.feature._id = estimationFeature._id
@@ -711,6 +717,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
         newFeature.negotiator.estimatedHours = 0
 
     newFeature.estimation = estimation
+    newFeature.repo = {}
     newFeature.repo._id = repo._id
     newFeature.repo.addedFromThisEstimation = false
 
@@ -773,6 +780,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
         newFeature.negotiator.estimatedHours = 0
 
     newFeature.estimation = estimation
+    newFeature.repo = {}
     //newFeature.repo._id = repo._id
     newFeature.repo.addedFromThisEstimation = true
 
