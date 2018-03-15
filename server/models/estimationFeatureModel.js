@@ -1,12 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {
-    estimationEstimatorAddFeatureStruct,
-    estimationEstimatorUpdateFeatureStruct,
-    estimationNegotiatorAddFeatureStruct,
-    estimationNegotiatorUpdateFeatureStruct,
-    validate,
-} from "../validation"
+import * as V from "../validation"
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import {EstimationModel, EstimationTaskModel, RepositoryModel} from "./"
@@ -58,7 +52,7 @@ let estimationFeatureSchema = mongoose.Schema({
 
 
 estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, estimator) => {
-    validate(featureInput, estimationEstimatorAddFeatureStruct)
+    V.validate(featureInput, V.estimationEstimatorAddFeatureStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await EstimationModel.findById(featureInput.estimation._id)
@@ -113,7 +107,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 }
 
 estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, negotiator) => {
-    validate(featureInput, estimationNegotiatorAddFeatureStruct)
+    V.validate(featureInput, V.estimationNegotiatorAddFeatureStruct)
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await EstimationModel.findById(featureInput.estimation._id)
@@ -171,7 +165,7 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
 
 
 estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, estimator) => {
-    validate(featureInput, estimationEstimatorUpdateFeatureStruct)
+    V.validate(featureInput, V.estimationEstimatorUpdateFeatureStruct)
 
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -253,7 +247,7 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
 }
 
 estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput, negotiator) => {
-    validate(featureInput, estimationNegotiatorUpdateFeatureStruct)
+    V.validate(featureInput, V.estimationNegotiatorUpdateFeatureStruct)
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)

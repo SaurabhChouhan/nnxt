@@ -11,7 +11,7 @@ import {
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
-import {estimationInitiationStruct, estimationUpdationStruct, validate} from "../validation"
+import * as V from '../validation'
 import _ from 'lodash'
 
 mongoose.Promise = global.Promise
@@ -178,7 +178,7 @@ estimationSchema.statics.getById = async estimationID => {
 estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
 
     // validate input
-    validate(estimationInput, estimationInitiationStruct)
+    V.validate(estimationInput, V.estimationInitiationStruct)
 
     // enhance estimation input as per requirement
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
@@ -218,7 +218,7 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
 estimationSchema.statics.updateEstimationByNegotiator = async (estimationInput, negotiator) => {
 
     // validate input
-    validate(estimationInput, estimationUpdationStruct)
+    V.validate(estimationInput, V.estimationUpdationStruct)
     let estimation = await EstimationModel.findById(estimationInput._id)
     // enhance estimation input as per requirement
     if (!estimation)
@@ -493,7 +493,10 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let pendingTasksCount = await EstimationTaskModel.count({"estimation._id": estimationID, status: SC.STATUS_PENDING})
+    let pendingTasksCount = await EstimationTaskModel.count({
+        "estimation._id": estimation._id,
+        status: SC.STATUS_PENDING
+    })
     let pendingFeaturesCount = await EstimationFeatureModel.count({
         "estimation._id": estimation._id,
         status: SC.STATUS_PENDING

@@ -2,13 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
 import * as SC from "../serverconstants"
-import {
-    estimationEstimatorAddTaskStruct,
-    estimationEstimatorUpdateTaskStruct,
-    estimationNegotiatorAddTaskStruct,
-    estimationNegotiatorUpdateTaskStruct,
-    validate
-} from "../validation"
+import * as V from "../validation"
 import {userHasRole} from "../utils"
 import {EstimationFeatureModel, EstimationModel, RepositoryModel} from "./"
 import _ from 'lodash'
@@ -65,7 +59,7 @@ let estimationTaskSchema = mongoose.Schema({
 })
 
 estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) => {
-    validate(taskInput, estimationEstimatorAddTaskStruct)
+    V.validate(taskInput, V.estimationEstimatorAddTaskStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await EstimationModel.findById(taskInput.estimation._id)
@@ -129,7 +123,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
 }
 
 estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator) => {
-    validate(taskInput, estimationNegotiatorAddTaskStruct)
+    V.validate(taskInput, V.estimationNegotiatorAddTaskStruct)
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -195,7 +189,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
 
 
 estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator) => {
-    validate(taskInput, estimationEstimatorUpdateTaskStruct)
+    V.validate(taskInput, V.estimationEstimatorUpdateTaskStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -276,7 +270,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
 
 estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiator) => {
-    validate(taskInput, estimationNegotiatorUpdateTaskStruct)
+    V.validate(taskInput, V.estimationNegotiatorUpdateTaskStruct)
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
