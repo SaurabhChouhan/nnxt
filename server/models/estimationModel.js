@@ -100,7 +100,7 @@ estimationSchema.statics.getAllActive = async (user) => {
         let negotiatorEstimations = await EstimationModel.find({
             isArchived: false,
             isDeleted: false,
-            "negotiator._id": user._id
+            "negotiator._id": mongoose.Types.ObjectId(user._id)
         }, {
             description: 1,
             project: 1,
