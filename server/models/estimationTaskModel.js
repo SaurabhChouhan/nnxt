@@ -706,14 +706,11 @@ estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (task.estimator.changeRequested
-        || task.estimator.removalRequested
-        || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
-        || _.isEmpty(task.estimator.name)
-        || _.isEmpty(task.estimator.description))
+    if (!(task.canApprove))
         throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
     task.status = SC.STATUS_APPROVED
+    task.canApprove = false
     task.updated = Date.now()
     return await task.save()
 }

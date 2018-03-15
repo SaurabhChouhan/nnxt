@@ -329,7 +329,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
-    if (feature.estimator.changeRequested || feature.estimator.removalRequested || _.isEmpty(feature.estimator.name) || _.isEmpty(feature.estimator.description))
+    if (!(feature.canApprove))
         throw new AppError('Cannot approve feature as either name/description is not not there or there are pending requests from Estimator', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
     let taskCountOfFeature = await EstimationTaskModel.count({
@@ -356,6 +356,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
 
+    feature.canApprove = false
     feature.status = SC.STATUS_APPROVED
     feature.updated = Date.now()
     return await feature.save()
@@ -498,6 +499,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
         estimationTask.initiallyEstimated = true
         estimationTask.estimation = estimation
         estimationTask.technologies = estimation.technologies
+        estimationTask.canApprove = false
         estimationTask.repo = {}
         estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = false
@@ -587,6 +589,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
         estimationTask.initiallyEstimated = true
         estimationTask.estimation = estimation
         estimationTask.technologies = estimation.technologies
+        estimationTask.canApprove = false
         estimationTask.repo = {}
         //estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = true
