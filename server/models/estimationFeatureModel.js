@@ -781,7 +781,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
     newFeature.changedKeyInformation = true
     newFeature.owner = SC.OWNER_NEGOTIATOR
     newFeature.initiallyEstimated = true
-    newFeature.canApprove = true
+    newFeature.canApprove = false
 
     newFeature.negotiator.name = repo.name
     newFeature.negotiator.description = repo.description
