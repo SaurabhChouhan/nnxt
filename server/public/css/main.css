@@ -415,7 +415,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 
 .feature-expanded {
     background: #E3E6ED;
-    overflow: scroll;
+    overflow-y: scroll;
     max-height: 500px;
 }
 
@@ -425,7 +425,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 
 .task-expanded {
     background: #F6E5DD;
-    overflow: scroll;
+    overflow-y: scroll;
     max-height: 500px;
 }
 
