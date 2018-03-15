@@ -234,12 +234,12 @@ class EstimationTask extends React.PureComponent {
         if (loggedInUserRole === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) ||
             loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
 
-            if (editView) {
+            if (editView && task.repo.addedFromThisEstimation) {
                 if (task.feature && task.feature._id) {
                     // This task is part of some feature so add move out of feature button
                     buttons
                         .push(
-                            <img className="div-hover"  key="move_outof_feature" src="/images/move_outof_feature.png"
+                            <img className="div-hover"  key="move_out_of_feature" src="/images/move_outof_feature.png"
                                  onClick={() => this.props.moveTaskOutOfFeature(task)}/>)
                 }
 
@@ -252,7 +252,7 @@ class EstimationTask extends React.PureComponent {
             }
             else {
                 if (task.feature && task.feature._id) {
-                    buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature_disable.png"/>)
+                    buttons.push(<img key="move_out_of_feature" src="/images/move_outof_feature_disable.png"/>)
                 } else {
                     buttons.push(<img key="move_to_feature" src="/images/move_to_feature_disable.png"/>)
 
