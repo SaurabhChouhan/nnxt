@@ -531,13 +531,12 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 .estimationSearchBtn {
     background: #FF534F;
     color: #fff;
-    padding: 2.1% 2%;
-    font-size: 15px;
+    padding: 1.4% 2%;
+    font-size: 18px;
     position: absolute;
     right: 0;
-    top: 0;
+    top: 4px;
     transition: 0.8s;
-    margin-top: 2px;
 }
 
 .searchBtn:hover {
@@ -1020,19 +1019,21 @@ td.rejRowColor {
     border: 1px solid #CBCED5;
     width: 100%;
     position: relative;
-    min-height: 30px;
+    min-height: 10px;
     padding: 6px;
     padding-left: 15px;
     margin: 0;
+    float: left;
 }
 
 .repositoryTask .RepositoryHeading {
     border: 1px solid #CBCED5;
     width: 100%;
     position: relative;
-    height: 30px;
+    min-height: 10px;
     padding: 6px;
     padding-left: 15px;
+    float: left;
 }
 
 .RepositoryHeading i {
@@ -1459,22 +1460,26 @@ td.rejRowColor {
 }
 
 .repotext h5 {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
     float: left;
     margin: 3px;
+    width: 16em;
 }
 
 .estimationForm {
     margin-top: 16px;
 }
+
 .releaseSelect {
     margin-top: 20px;
 }
+
 .suggestCopy {
     margin-top: 150px;
     margin-left: 40px;
 }
+
 .suggestCopy i {
     color: #F65A4F;
     font-size: 21px;
