@@ -631,6 +631,7 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
 
     estimation.statusHistory = existingEstimationStatusHistory
     estimation.status = SC.STATUS_APPROVED
+    estimation.canApprove = false
     estimation.updated = Date.now()
 
     return await estimation.save()
