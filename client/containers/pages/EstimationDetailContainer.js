@@ -95,8 +95,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (json.success) {
             NotificationManager.success("Estimation approved successfully")
         } else {
-            if (json.code == EC.INVALID_OPERATION)
-                NotificationManager.error("Estimation already approved")
+            if (json.code == EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR)
+                NotificationManager.error("Estimation has some pending request")
             else
                 NotificationManager.error("Estimation approve failed")
         }

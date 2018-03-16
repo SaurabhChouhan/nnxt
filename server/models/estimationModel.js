@@ -615,8 +615,8 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
     })
 
 
-    if (pendingTasksCount > 0 || pendingFeaturesCount > 0)
-        throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if (pendingTasksCount > 0 || pendingFeaturesCount > 0 || !estimation.canApprove)
+        throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
 
     let statusHistory = {}
     statusHistory.name = negotiator.firstName + ' ' + negotiator.lastName
