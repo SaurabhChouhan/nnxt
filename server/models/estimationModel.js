@@ -24,6 +24,7 @@ let estimationSchema = mongoose.Schema({
     },
     technologies: [String],
     description: String,
+    canApprove: {type: Boolean, default: false},
     created: Date,
     updated: Date,
     estimator: {
@@ -291,6 +292,7 @@ Task of feature are checked and updated by Estimator that ist can be approved or
 estimationSchema.statics.canApprove = async (estimationID, estimator) => {
     try {
         let estimationTaskPromises
+        let EstimationPendingFeatures
 
         let EstimationTasks = await EstimationTaskModel.find({"estimation._id": estimationID}, {"isDeleted": false})
         if (!EstimationTasks || !(EstimationTasks.length)) {
@@ -319,10 +321,10 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
         }
         if (EstimationTasks && EstimationTasks.length) {
 
-            let EstimationFeatures = await EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
-            if (EstimationFeatures && EstimationFeatures.length) {
+            EstimationPendingFeatures = await EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
+            if (EstimationPendingFeatures && EstimationPendingFeatures.length) {
                 console.log("bk2 before ")
-                let estimationFeaturePromises = EstimationFeatures.map(async feature => {
+                let estimationFeaturePromises = EstimationPendingFeatures.map(async feature => {
                     if (feature.estimator.changeRequested
                         || feature.estimator.removalRequested
                         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
@@ -362,10 +364,30 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                 console.log("estimationFeaturePromises----", estimationFeaturePromises)
 
                 let estimationFeatures = await Promise.all(estimationFeaturePromises)
-                console.log("estimationFeatures----", estimationFeatures)
-                return estimationFeatures
+
             }
         }
+        let isEstimationTaskPending = await EstimationTaskModel.count({
+            "estimation._id": estimationID,
+            "isDeleted": false,
+            "status": SC.STATUS_PENDING
+        })
+        let isEstimationFeaturePending = await EstimationFeatureModel.count({
+            "estimation._id": estimationID,
+            "isDeleted": false,
+            "status": SC.STATUS_PENDING
+        })
+        if (isEstimationTaskPending == 0 && isEstimationFeaturePending == 0) {
+            console.log("Estimation Can approve Before")
+           let a =  await EstimationModel.updateOne({_id: estimationID}, {"canApprove": true}).then(() => {
+                return new Promise((resolve, reject) => {
+                    return resolve(true)
+                })
+            })
+            console.log("Estimation Can approve After", a)
+            return a
+        }
+        else return EstimationPendingFeatures
     }
     catch (e) {
         console.log("can approve error : ", e)

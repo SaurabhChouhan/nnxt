@@ -10,7 +10,8 @@ class EstimationDetail extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showEstimationRequestDialog: false
+            showEstimationRequestDialog: false,
+            showEstimationApproveDialog: false
         };
     }
 
@@ -18,8 +19,14 @@ class EstimationDetail extends Component {
         this.setState({
             showEstimationRequestDialog: false,
             showEstimationReviewDialog: false,
-            showEstimationChangeDialog: false
+            showEstimationChangeDialog: false,
+            showEstimationApproveDialog: false
         })
+    }
+
+    onConfirmEstimationApprove() {
+        this.setState({showEstimationApproveDialog: false})
+        this.props.estimationApprove(this.props.estimation)
     }
 
     onConfirmEstimationRequest() {
@@ -45,23 +52,51 @@ class EstimationDetail extends Component {
         return <div>
             <div className="col-md-8 pad">
                 <div className="col-md-12 estimateheader">
-                    <div className="col-md-5 pad">
+                    {estimation.canApprove ? <div className="col-md-5 pad">
+
+                        <div className="col-md-6 backarrow">
+                            <h5>
+                                <button className="btn-link" onClick={() => {
+                                    this.props.history.push("/app-home/estimation")
+                                    this.props.estimationGoBack()
+                                }}><i className="glyphicon glyphicon-arrow-left"></i></button>
+
+                                <b>{estimation.project ? estimation.project.name : ''}</b>
+                            </h5>
+                        </div>
+                        <div className="col-md-6">
+                            <button className="btn approveBtn"
+                                    onClick={() => this.setState({showEstimationApproveDialog: true})}>Approve
+                                Estimation
+                            </button>
+                        </div>
+                    </div> : <div className="col-md-5 pad">
+
                         <div className="backarrow">
                             <h5>
                                 <button className="btn-link" onClick={() => {
                                     this.props.history.push("/app-home/estimation")
-                                    this.props.EstimationGoBack()
+                                    this.props.estimationGoBack()
                                 }}><i className="glyphicon glyphicon-arrow-left"></i></button>
 
                                 <b>{estimation.project ? estimation.project.name : ''}</b>
                             </h5>
                         </div>
                     </div>
+
+
+                    }
                     {
                         this.state.showEstimationRequestDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmEstimationRequest.bind(this)}
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
                                             body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
+                    }
+                    {
+                        this.state.showEstimationApproveDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmEstimationApprove.bind(this)}
+                                            title="Estimation Approve" onClose={this.onClose.bind(this)}
+                                            body="Are you sure you want to approve this estimation. Please confirm!"/>
                     }
 
                     {
