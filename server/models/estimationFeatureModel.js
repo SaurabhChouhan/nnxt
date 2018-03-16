@@ -152,8 +152,8 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
     //estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
     // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
-    estimationFeature.estimator.name = featureInput.name
-    estimationFeature.estimator.description = featureInput.description
+    //estimationFeature.estimator.name = featureInput.name
+    //estimationFeature.estimator.description = featureInput.description
     if (!_.isEmpty(featureInput.notes)) {
         estimationFeature.notes = featureInput.notes.map(n => {
             n.name = negotiator.fullName
