@@ -289,46 +289,87 @@ estimationSchema.statics.request = async (estimationID, negotiator) => {
 Task of feature are checked and updated by Estimator that ist can be approved or not
 */
 estimationSchema.statics.canApprove = async (estimationID, estimator) => {
-    let EstimationTasks = await EstimationTaskModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
-    if (!EstimationTasks || !(EstimationTasks.length)) {
-        return []
-    }
-    let estimationTaskPromises = EstimationTasks.map(async task => {
-        if (task.estimator.changeRequested
-            || task.estimator.removalRequested
-            || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
-            || _.isEmpty(task.estimator.name)
-            || _.isEmpty(task.estimator.description)) {
-            return EstimationTaskModel.updateOne({_id: task._id}, {"canApprove": false})
-        } else await EstimationTaskModel.updateOne({_id: task._id}, {"canApprove": true})
+    try {
+        let estimationTaskPromises
 
-    })
+        let EstimationTasks = await EstimationTaskModel.find({"estimation._id": estimationID}, {"isDeleted": false})
+        if (!EstimationTasks || !(EstimationTasks.length)) {
+            return new Promise((resolve, reject) => {
+                return resolve(false)
+            })
+        }
 
-    let estimationTasks = await Promise.all(estimationTaskPromises)
+        let EstimationPendingTasks = await EstimationTaskModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
+        let estimationTasks
 
-    if (estimationTasks && estimationTasks.length) {
+        if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
+            estimationTaskPromises = EstimationPendingTasks.map(async task => {
+                if (task.estimator.changeRequested
+                    || task.estimator.removalRequested
+                    || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+                    || _.isEmpty(task.estimator.name)
+                    || _.isEmpty(task.estimator.description)) {
+                    return EstimationTaskModel.updateOne({_id: task._id}, {"canApprove": false})
+                } else return EstimationTaskModel.updateOne({_id: task._id}, {"canApprove": true})
 
-        let EstimationFeatures = await EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
+            })
+            console.log("bk1 before ")
+            estimationTasks = await Promise.all(estimationTaskPromises)
+            console.log("estimation tasks found bk 1", estimationTasks)
+        }
+        if (EstimationTasks && EstimationTasks.length) {
 
-        let estimationFeaturePromises = EstimationFeatures.map(async feature => {
-            if (feature.estimator.changeRequested
-                || feature.estimator.removalRequested
-                || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
-                || _.isEmpty(feature.estimator.name)
-                || _.isEmpty(feature.estimator.description)) {
-                await EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false})
-            } else {
-                let countPendingTask = await EstimationTaskModel.find({"feature._id": feature._id}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
-                if (countPendingTask) {
-                    await EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false})
-                }
-                else await EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": true})
+            let EstimationFeatures = await EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
+            if (EstimationFeatures && EstimationFeatures.length) {
+                console.log("bk2 before ")
+                let estimationFeaturePromises = EstimationFeatures.map(async feature => {
+                    if (feature.estimator.changeRequested
+                        || feature.estimator.removalRequested
+                        || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
+                        || _.isEmpty(feature.estimator.name)
+                        || _.isEmpty(feature.estimator.description)) {
+                        console.log("bk 6")
+                        return EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false})
+                    } else {
+                        console.log("bk 5")
+                        return new Promise((resolve, reject) => {
+                            console.log("bk 7")
+                            EstimationTaskModel.count({
+                                "feature._id": feature._id,
+                                "isDeleted": false,
+                                "status": SC.STATUS_PENDING
+                            }).then((count) => {
+                                console.log("count is ", count)
+                                if (count) {
+                                    console.log("bk3")
+                                    EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false}).then(() => {
+                                        resolve(true)
+                                    })
+                                }
+                                else {
+                                    console.log("bk4")
+                                    EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": true}).then(() => {
+                                        resolve(true)
+                                    })
+                                }
+
+                            }).catch(error => {
+                                console.log("count has errors ", error)
+                            })
+                        })
+                    }
+                })
+                console.log("estimationFeaturePromises----", estimationFeaturePromises)
+
+                let estimationFeatures = await Promise.all(estimationFeaturePromises)
+                console.log("estimationFeatures----", estimationFeatures)
+                return estimationFeatures
             }
-        })
-
-        let estimationFeatures = await Promise.all(estimationFeaturePromises)
+        }
     }
-    return true
+    catch (e) {
+        console.log("can approve error : ", e)
+    }
 }
 
 estimationSchema.statics.requestReview = async (estimationID, estimator) => {
@@ -345,8 +386,8 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError('Only estimations with status [' + SC.STATUS_ESTIMATION_REQUESTED + "," + SC.STATUS_CHANGE_REQUESTED + "] can be requested for review", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    await EstimationModel.canApprove(estimation._id, estimator)
-
+    let result = await EstimationModel.canApprove(estimation._id, estimator)
+    console.log("can Approve Result", result)
     await EstimationTaskModel.update({
         "estimation._id": estimation._id,
         "owner": SC.OWNER_NEGOTIATOR
