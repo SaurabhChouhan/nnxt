@@ -89,8 +89,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.ESTIMATION_INITIATE_DIALOG))
         dispatch(initialize('estimation-initiate', estimation))
     },
-    EstimationGoBack: (event) =>
-        dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
+    estimationGoBack: (event) => dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST)),
+
+    estimationApprove: (estimation) => dispatch(A.approveEstimationOnServer(estimation._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Estimation approved successfully")
+        } else {
+            if (json.code == EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR)
+                NotificationManager.error("Estimation has some pending request")
+            else
+                NotificationManager.error("Estimation approve failed")
+        }
+    })
 
 
 })

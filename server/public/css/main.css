@@ -635,7 +635,7 @@ table th {
 
 .backarrow b {
     font-size: 20px;
-    padding: 18px;
+    padding: 8px;
 }
 
 .dropdownoption {
@@ -1483,4 +1483,24 @@ td.rejRowColor {
 .suggestCopy i {
     color: #F65A4F;
     font-size: 21px;
+}
+
+.approveBtn {
+    background: #26C16F;
+    color: #fff;
+    padding: 0.5% 7%;
+    font-size: 20px;
+    border: 2px solid #26C16F;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    transition: 0.8s;
+    border-radius: 0;
+    margin-left: -30px;
+}
+
+
+button.approveBtn:hover {
+    background: none;
+    color: #26C16F;
+    border: 2px solid #26C16F;
 }

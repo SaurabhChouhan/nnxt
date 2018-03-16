@@ -763,3 +763,32 @@ export const approveFeatureByNegotiatorOnServer = (featureID) => {
             })
     }
 }
+
+
+export const approveEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/approve", {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    //dispatch(editEstimation(json.data))
+                    // During Approve,  flags of tasks/feature may also change so select this estimation again to get latest data
+                    dispatch(getEstimationFromServer(estimationID))
+
+                }
+                return json
+            })
+    }
+}
+
+
