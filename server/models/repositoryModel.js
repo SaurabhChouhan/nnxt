@@ -3,9 +3,8 @@ import AppError from '../AppError'
 import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
-import {validate, repositoryAddTaskStruct, repositoryUpdateTaskAndFeatureStruct} from "../validation"
-import {EstimationModel, EstimationFeatureModel} from "./"
-import _ from 'lodash'
+import * as V from '../validation'
+import {EstimationModel} from "./"
 
 mongoose.Promise = global.Promise
 
@@ -77,7 +76,7 @@ repositorySchema.statics.getFeature = async (repositoryFeatureID) => {
 
 repositorySchema.statics.addTask = async (taskInput, user) => {
 
-    validate(taskInput, repositoryAddTaskStruct)
+    V.validate(taskInput, V.repositoryAddTaskStruct)
 
     taskInput.status = SC.STATUS_PENDING
     taskInput.isFeature = false
@@ -99,7 +98,7 @@ repositorySchema.statics.addFeature = async (featureInput, user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
         throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add feature to repository", EC.INVALID_USER, HTTP_BAD_REQUEST)
 
-    validate(featureInput, repositoryAddTaskStruct)
+    V.validate(featureInput, V.repositoryAddTaskStruct)
 
     const estimation = await EstimationModel.findById(featureInput.estimation._id)
     if (!estimation)
@@ -119,7 +118,7 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR) && !userHasRole(user, SC.ROLE_ESTIMATOR)))
         throw new AppError('Only user with any of the roles [' + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can update feature to repository", EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    validate(featureInput, repositoryUpdateTaskAndFeatureStruct)
+    V.validate(featureInput, V.repositoryUpdateTaskAndFeatureStruct)
     const repositoryFeature = await RepositoryModel.findById(featureInput._id)
     if (!repositoryFeature)
         throw new AppError('Feature not found in Repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
