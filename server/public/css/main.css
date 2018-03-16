@@ -1497,3 +1497,10 @@ td.rejRowColor {
     border-radius: 0;
     margin-left: -30px;
 }
+
+
+button.approveBtn:hover {
+    background: none;
+    color: #26C16F;
+    border: 2px solid #26C16F;
+}
