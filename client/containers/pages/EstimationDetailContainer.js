@@ -89,10 +89,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.ESTIMATION_INITIATE_DIALOG))
         dispatch(initialize('estimation-initiate', estimation))
     },
-    estimationGoBack: (event) =>
-        dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST)),
+    estimationGoBack: (event) => dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST)),
 
-    estimationApprove: (event) =>console.log("Estimation Approved")
+    estimationApprove: (estimation) => dispatch(A.approveEstimationOnServer(estimation._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Estimation approved successfully")
+        } else {
+            if (json.code == EC.INVALID_OPERATION)
+                NotificationManager.error("Estimation already approved")
+            else
+                NotificationManager.error("Estimation approve failed")
+        }
+    })
 
 
 })
