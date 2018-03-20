@@ -49,14 +49,14 @@ class EstimationTask extends React.PureComponent {
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
-
+console.log("inside aapproval",task.estimator.changedKeyInformation)
 
             //condition for task approval
 
-            if (task.status === SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED], estimationStatus)) {
+            if (task.status === SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED], estimationStatus)&& !task.estimator.changedKeyInformation) {
 
                 if (task.canApprove) {
-                    buttons.push(editView ?
+                    buttons.push(editView  ?
                         <img className="div-hover" key="approve" src="/images/approve.png" title="Approve"
                              onClick={() => {
                                  this.props.approveTask(task)
@@ -133,7 +133,9 @@ class EstimationTask extends React.PureComponent {
                         <img key="he_requested_edit_disable" src="/images/he_requested_edit_disable.png"
                              title="Edit-Requested"/>)
                 }
+
             }
+
 
 
             // Third button shown to negotiator would be related to removal request (by estimator)/ delete button
@@ -163,7 +165,7 @@ class EstimationTask extends React.PureComponent {
         } else if (loggedInUserRole === SC.ROLE_ESTIMATOR) {
             if (task.addedInThisIteration && task.owner === SC.OWNER_ESTIMATOR) {
                 // As estimator has added this task in this iteration only, he/she would be able to edit/delete it without any restrictions
-                buttons.push(editView && task.repo.addedFromThisEstimation ?
+                buttons.push(editView && task.repo.addedFromThisEstimation  ?
                     <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
                          onClick={() => {
                              this.props.editTask(task, loggedInUserRole)
@@ -232,7 +234,7 @@ class EstimationTask extends React.PureComponent {
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                        buttons.push(editView && task.repo.addedFromThisEstimation ?
+                        buttons.push(editView && task.repo.addedFromThisEstimation  ?
                             <img className="div-hover" key="requested_edit" src="/images/requested_edit.png"
                                  title="Edit-Requested"
                                  onClick={() => {
@@ -244,13 +246,24 @@ class EstimationTask extends React.PureComponent {
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                    buttons.push(editView && task.repo.addedFromThisEstimation ?
+                    if(task.status!==SC.STATUS_APPROVED){
+                    buttons.push(editView && task.repo.addedFromThisEstimation  ?
+                        <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
+                             onClick={() => {
+                                 this.props.editTask(task)
+                             }}/> :
+                        <img key="edit_disable" src="/images/edit_disable.png" title="Edit"/>)}
+                   /*buttons.push(editView && task.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="request_edit" src="/images/request_edit.png" title="EditRequest"
                              onClick={() => {
                                  this.props.toggleEditRequest(task)
                              }}/> :
-                        <img key="request_edit_disable" src="/images/request_edit_disable.png" title="Edit-Request"/>)
+                        <img key="request_edit_disable" src="/images/request_edit_disable.png" title="Edit-Request"/>)*/
+
+
                 }
+
+
                 // Third button is related to removal request
                 if (task.estimator.removalRequested) {
                     // Estimator has requested removal
