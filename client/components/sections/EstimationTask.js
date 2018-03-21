@@ -38,25 +38,25 @@ class EstimationTask extends React.PureComponent {
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'task owner ', task.owner)
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
-
+        console.log("estimationStaus", estimationStatus)
         let editView = false
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
             editView = true
 
         if (task.status === SC.STATUS_APPROVED) {
-            editView = false
+            editView = true
         }
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
-console.log("inside aapproval",task.estimator.changedKeyInformation)
+            console.log("inside aapproval", task.estimator.changedKeyInformation)
 
             //condition for task approval
 
-            if (task.status === SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED], estimationStatus)&& !task.estimator.changedKeyInformation) {
+            if (task.status === SC.STATUS_PENDING && _.includes([SC.STATUS_REVIEW_REQUESTED], estimationStatus) && !task.estimator.changedKeyInformation) {
 
                 if (task.canApprove) {
-                    buttons.push(editView  ?
+                    buttons.push(editView ?
                         <img className="div-hover" key="approve" src="/images/approve.png" title="Approve"
                              onClick={() => {
                                  this.props.approveTask(task)
@@ -101,7 +101,7 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
             }
             else {
                 // Show normal suggestion button
-                buttons.push(editView && task.repo.addedFromThisEstimation ?
+                buttons.push(editView && task.repo.addedFromThisEstimation && task.status !== SC.STATUS_APPROVED ?
                     <img className="div-hover" key="suggestion" src="/images/suggestion.png" title="Suggestion"
                          onClick={() => {
                              this.props.openTaskSuggestionForm(task, loggedInUserRole)
@@ -137,7 +137,6 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
             }
 
 
-
             // Third button shown to negotiator would be related to removal request (by estimator)/ delete button
             if (task.estimator.removalRequested) {
                 // Estimator has requested removal, negotiator will directly delete task if he wants to
@@ -151,7 +150,7 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
                          title="Delete-Requested"/>)
             } else {
                 // Negotiator can delete any task during its review without getting permission from estimator
-                buttons.push(editView ?
+                buttons.push(editView && task.status !== SC.STATUS_APPROVED ?
                     <img className="div-hover" key="delete" src="/images/delete.png" title="Delete"
                          onClick={() => {
                              this.setState({showTaskDeletionDialog: true})
@@ -165,7 +164,7 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
         } else if (loggedInUserRole === SC.ROLE_ESTIMATOR) {
             if (task.addedInThisIteration && task.owner === SC.OWNER_ESTIMATOR) {
                 // As estimator has added this task in this iteration only, he/she would be able to edit/delete it without any restrictions
-                buttons.push(editView && task.repo.addedFromThisEstimation  ?
+                buttons.push(editView && task.repo.addedFromThisEstimation ?
                     <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
                          onClick={() => {
                              this.props.editTask(task, loggedInUserRole)
@@ -234,7 +233,7 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                        buttons.push(editView && task.repo.addedFromThisEstimation  ?
+                        buttons.push(editView && task.repo.addedFromThisEstimation ?
                             <img className="div-hover" key="requested_edit" src="/images/requested_edit.png"
                                  title="Edit-Requested"
                                  onClick={() => {
@@ -246,44 +245,52 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
                 } else {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'can request edit, request_edit')
-                    if(task.status!==SC.STATUS_APPROVED){
-                    buttons.push(editView && task.repo.addedFromThisEstimation  ?
-                        <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
-                             onClick={() => {
-                                 this.props.editTask(task)
-                             }}/> :
-                        <img key="edit_disable" src="/images/edit_disable.png" title="Edit"/>)}
-                   /*buttons.push(editView && task.repo.addedFromThisEstimation ?
-                        <img className="div-hover" key="request_edit" src="/images/request_edit.png" title="EditRequest"
-                             onClick={() => {
-                                 this.props.toggleEditRequest(task)
-                             }}/> :
-                        <img key="request_edit_disable" src="/images/request_edit_disable.png" title="Edit-Request"/>)*/
+                    if (task.status !== SC.STATUS_APPROVED) {
+                        buttons.push(editView && task.repo.addedFromThisEstimation ?
+                            <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
+                                 onClick={() => {
+                                     this.props.editTask(task)
+                                 }}/> :
+                            <img key="edit_disable" src="/images/edit_disable.png" title="Edit"/>)
+                    }
+                    else {
+                        buttons.push(editView && task.repo.addedFromThisEstimation ?
+                            <img className="div-hover" key="request_edit" src="/images/request_edit.png"
+                                 title="EditRequest"
+                                 onClick={() => {
+                                     this.props.toggleEditRequest(task)
+                                 }}/> :
+                            <img key="request_edit_disable" src="/images/request_edit_disable.png"
+                                 title="Edit-Request"/>)
 
-
+                    }
                 }
 
 
                 // Third button is related to removal request
-                if (task.estimator.removalRequested) {
-                    // Estimator has requested removal
-                    buttons.push(editView ?
-                        <img className="div-hover" key="requested_delete" src="/images/requested_delete.png"
-                             title="Delete-Requested"
-                             onClick={() => {
-                                 this.props.toggleDeleteRequest(task)
-                             }}/> :
-                        <img key="requested_delete_disable" src="/images/requested_delete_disable.png"
-                             title="Delete-Requested"/>)
-                } else {
-                    // Estimator can request removal
-                    buttons.push(editView ?
-                        <img className="div-hover" key="request_delete" src="/images/request_delete.png"
-                             title="Delete-Request"
-                             onClick={() => {
-                                 this.props.toggleDeleteRequest(task)
-                             }}/> :
-                        <img key="request_delete_disable" src="/images/request_delete_disable.png" title="Delete"/>)
+                if (task.status === SC.STATUS_APPROVED) {
+
+                    if (task.estimator.removalRequested) {
+                        // Estimator has requested removal
+                        buttons.push(editView ?
+                            <img className="div-hover" key="requested_delete" src="/images/requested_delete.png"
+                                 title="Delete-Requested"
+                                 onClick={() => {
+                                     this.props.toggleDeleteRequest(task)
+                                 }}/> :
+                            <img key="requested_delete_disable" src="/images/requested_delete_disable.png"
+                                 title="Delete-Requested"/>)
+                    } else {
+                        // Estimator can request removal
+                        buttons.push(editView ?
+                            <img className="div-hover" key="request_delete" src="/images/request_delete.png"
+                                 title="Delete-Request"
+                                 onClick={() => {
+                                     this.props.toggleDeleteRequest(task)
+                                 }}/> :
+                            <img key="request_delete_disable" src="/images/request_delete_disable.png"
+                                 title="Delete-Request"/>)
+                    }
                 }
             }
         }
@@ -292,7 +299,7 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
             loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
 
             if (editView) {
-                if (task.feature && task.feature._id && task.repo.addedFromThisEstimation) {
+                if (task.feature && task.feature._id && task.repo.addedFromThisEstimation && task.status !== SC.STATUS_APPROVED) {
                     // This task is part of some feature so add move out of feature button
                     buttons
                         .push(
@@ -305,12 +312,19 @@ console.log("inside aapproval",task.estimator.changedKeyInformation)
                                       title="Move out of feature"/>)
                 }
                 else {
-                    // This task is an individual task so add move to feature button
-                    buttons.push(<img className="div-hover" key="move_to_feature" src="/images/move_to_feature.png"
-                                      title="Move to feature"
-                                      onClick={() => {
-                                          this.props.moveToFeature(task);
-                                      }}/>)
+                    if (task.status !== SC.STATUS_APPROVED) {
+                        // This task is an individual task so add move to feature button
+                        buttons.push(<img className="div-hover" key="move_to_feature" src="/images/move_to_feature.png"
+                                          title="Move to feature"
+                                          onClick={() => {
+                                              this.props.moveToFeature(task);
+                                          }}/>)
+                    }
+                    else {
+                        buttons.push(<img key="move_to_feature" src="/images/move_to_feature_disable.png"
+                                          title="Move to feature"/>)
+
+                    }
                 }
             }
             else {
