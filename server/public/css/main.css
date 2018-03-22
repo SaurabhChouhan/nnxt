@@ -635,7 +635,7 @@ table th {
 
 .backarrow b {
     font-size: 20px;
-    padding: 8px;
+    padding: 3px;
 }
 
 .dropdownoption {
@@ -1498,9 +1498,12 @@ td.rejRowColor {
     margin-left: -30px;
 }
 
-
 button.approveBtn:hover {
     background: none;
     color: #26C16F;
     border: 2px solid #26C16F;
+}
+
+.estimationBackArrow {
+    padding: 0px;
 }

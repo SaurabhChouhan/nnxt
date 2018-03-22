@@ -55,35 +55,35 @@ class EstimationDetail extends Component {
                     {estimation.canApprove && estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
                         <div className="col-md-5 pad">
 
-                        <div className="col-md-6 backarrow">
-                            <h5>
-                                <button className="btn-link" onClick={() => {
-                                    this.props.history.push("/app-home/estimation")
-                                    this.props.estimationGoBack()
-                                }}><i className="glyphicon glyphicon-arrow-left"></i></button>
+                            <div className="col-md-6 backarrow estimationBackArrow">
+                                <h5>
+                                    <button title="Go Back" className="btn-link pad" onClick={() => {
+                                        this.props.history.push("/app-home/estimation")
+                                        this.props.estimationGoBack()
+                                    }}><i className="glyphicon glyphicon-arrow-left"></i></button>
 
-                                <b>{estimation.project ? estimation.project.name : ''}</b>
-                            </h5>
-                        </div>
-                        <div className="col-md-6">
-                            <button className="btn approveBtn"
-                                    onClick={() => this.setState({showEstimationApproveDialog: true})}>Approve
-                                Estimation
-                            </button>
-                        </div>
-                    </div> : <div className="col-md-5 pad">
+                                    <b>{estimation.project ? estimation.project.name : ''}</b>
+                                </h5>
+                            </div>
+                            <div className="col-md-6">
+                                <button className="btn approveBtn"
+                                        onClick={() => this.setState({showEstimationApproveDialog: true})}>Approve
+                                    Estimation
+                                </button>
+                            </div>
+                        </div> : <div className="col-md-5 pad">
 
-                        <div className="backarrow">
-                            <h5>
-                                <button className="btn-link" onClick={() => {
-                                    this.props.history.push("/app-home/estimation")
-                                    this.props.estimationGoBack()
-                                }}><i className="glyphicon glyphicon-arrow-left"></i></button>
+                            <div title="Go Back" className="backarrow estimationBackArrow">
+                                <h5>
+                                    <button className="btn-link pad" onClick={() => {
+                                        this.props.history.push("/app-home/estimation")
+                                        this.props.estimationGoBack()
+                                    }}><i className="glyphicon glyphicon-arrow-left"></i></button>
 
-                                <b>{estimation.project ? estimation.project.name : ''}</b>
-                            </h5>
+                                    <b>{estimation.project ? estimation.project.name : ''}</b>
+                                </h5>
+                            </div>
                         </div>
-                    </div>
 
 
                     }

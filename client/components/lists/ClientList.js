@@ -73,8 +73,8 @@ class ClientList extends Component {
                                 <BootstrapTable options={this.options} data={this.props.clients}
                                                 striped={true}
                                                 hover={true}>
-                                    <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                                    <TableHeaderColumn dataField='name'>Client Name</TableHeaderColumn>
+                                    <TableHeaderColumn  columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
+                                    <TableHeaderColumn  columnTitle dataField='name'>Client Name</TableHeaderColumn>
                                     <TableHeaderColumn width="15%" dataField='editButton' dataFormat={this.viewEditButton.bind(this)} >Edit Client
                                     </TableHeaderColumn>
                                     <TableHeaderColumn width="15%" dataField='deleteButton' dataFormat={this.viewDeleteButton.bind(this)} >Delete Client
