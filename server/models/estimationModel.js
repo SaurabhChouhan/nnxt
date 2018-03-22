@@ -607,10 +607,12 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
 
     let pendingTasksCount = await EstimationTaskModel.count({
         "estimation._id": estimation._id,
+        "isDeleted" :false,
         status: SC.STATUS_PENDING
     })
     let pendingFeaturesCount = await EstimationFeatureModel.count({
         "estimation._id": estimation._id,
+        "isDeleted" :false,
         status: SC.STATUS_PENDING
     })
 

@@ -19,10 +19,10 @@ class RepositoryFeatureDetailPage extends Component {
         const {showHistory} = this.state
         return (
             <div className="col-md-12">
-                <div className="col-md-6">
+                <div className="col-md-10">
                     <h3 className="repo-detail-header">{feature.name} </h3>
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-2">
                     <h3 className="repo-detail-hour">{feature.estimatedHours ? '(' + feature.estimatedHours + ')' : '(00)'} </h3>
                 </div>
                 <div className="col-md-12">
