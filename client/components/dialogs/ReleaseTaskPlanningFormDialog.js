@@ -3,9 +3,12 @@ import React from 'react'
 import {ReleaseTaskPlanningFormContainer} from "../../containers"
 
 const ReleaseTaskPlanningFormDialog = (props) => {
-    return <Modal show={props.show} onHide={props.close}>
+    return <Modal className="estimationModal" show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
-            <h3>Add Task Planning</h3>
+            <div className="clearfix ModalHeading">
+                <div className="col-md-1 ModalSideLabel"></div>
+                <h3>Add Task Planning</h3>
+            </div>
         </ModalHeader>
         <ModalBody>
             <ReleaseTaskPlanningFormContainer/>

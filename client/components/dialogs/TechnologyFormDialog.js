@@ -3,9 +3,12 @@ import React from 'react'
 import {TechnologyFormContainer} from "../../containers"
 
 const technologyFormDialog = (props) => {
-    return <Modal show={props.show} onHide={props.close}>
+    return <Modal   className="estimationModal"  show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
-            <h3>Add Technology</h3>
+            <div className="clearfix ModalHeading">
+                <div className="col-md-1 ModalSideLabel"></div>
+                <h3>Add Technology</h3>
+            </div>
         </ModalHeader>
         <ModalBody>
             <TechnologyFormContainer/>
