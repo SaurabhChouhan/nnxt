@@ -93,14 +93,13 @@ class EstimationFeature extends React.PureComponent {
                         <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png" title="Suggestion-Incoming"/>)
                 }
                 else if (feature.status !== SC.STATUS_APPROVED) {
-
                     buttons.push(editView && !feature.negotiator.changeSuggested ?
-                        <img className="div-hover" key="suggestion_incoming" src="/images/suggestion_outgoing.png"
+                        <img className="div-hover" key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                              title="Suggestion-Outgoing"
                              onClick={() => {
                                  this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
                              }}/> :
-                        <img key="suggestion_incoming_disable" src="/images/suggestion_outgoing_disable.png"
+                        <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"
                              title="Suggestion-Outgoing"/>)
                 }
                 else {
@@ -296,6 +295,17 @@ class EstimationFeature extends React.PureComponent {
                                      }}/> : <img key="request_delete_disable" src="/images/request_delete_disable.png"
                                                  title="Delete-Request"/>)
                         }
+                    }
+                    else {
+
+                        buttons.push(editView ?
+                            <img className="div-hover" key="delete" src="/images/delete.png" title="Delete"
+                                 onClick={() => {
+                                     this.setState({showFeatureDeletionDialog: true})
+                                     this.setState({featureDeletion: feature})
+                                     // this.props.deleteFeature(feature)
+                                 }}/> :
+                            <img key="delete_disable" src="/images/delete_disable.png" title="Delete"/>)
                     }
                 }
             }

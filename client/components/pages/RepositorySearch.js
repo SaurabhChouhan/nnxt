@@ -127,7 +127,7 @@ class RepositorySearch extends Component {
                     </div>*/}
                 </div>
 
-                <div className="col-md-11">
+                <div className="col-md-12">
                     <ReactTags
                         classNames=
                             {{
