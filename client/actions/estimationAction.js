@@ -735,12 +735,15 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
         ).then(
             json => {
                 if (json.success) {
+                    dispatch(canFeatureApprove(json.data.feature._id))
                     dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })
     }
 }
+
+
 export const approveFeatureByNegotiatorOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/approve', {
@@ -792,3 +795,25 @@ export const approveEstimationOnServer = (estimationID) => {
 }
 
 
+
+export const canFeatureApprove = (FeatureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/feature/' + FeatureID + '/can-approve', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}

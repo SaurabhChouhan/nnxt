@@ -318,6 +318,15 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
     }
 })
 
+
+estimationRouter.put('/feature/:featureID/can-approve', async ctx => {
+    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        return await EstimationFeatureModel.canApproveFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve feature", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
 // noinspection Annotator
 estimationRouter.put('/project-awarded', async ctx => {
     if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
