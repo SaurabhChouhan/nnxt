@@ -391,7 +391,6 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
     let taskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
         "feature._id": feature._id
-
     })
 
     if (taskCountOfFeature == 0)
@@ -412,8 +411,7 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
 
-    feature.canApprove = false
-    feature.status = SC.STATUS_APPROVED
+    feature.canApprove = true
     feature.updated = Date.now()
     return await feature.save()
 }
