@@ -735,7 +735,9 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(canFeatureApprove(json.data.feature._id))
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(canFeatureApprove(json.data.feature._id))
+                    }
                     dispatch(updateEstimationTask(json.data))
                 }
                 return json
@@ -761,7 +763,9 @@ export const approveFeatureByNegotiatorOnServer = (featureID) => {
                 if (json.success) {
                     console.log("check the response data")
                     dispatch(updateEstimationFeature(json.data))
-                    dispatch(canApproveEstimationOnServer(json.data.estimation._id))
+                    if (json.data && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canApproveEstimationOnServer(json.data.estimation._id))
+                    }
                 }
                 return json
             })
