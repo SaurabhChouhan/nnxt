@@ -296,17 +296,7 @@ class EstimationFeature extends React.PureComponent {
                                                  title="Delete-Request"/>)
                         }
                     }
-                    else {
 
-                        buttons.push(editView ?
-                            <img className="div-hover" key="delete" src="/images/delete.png" title="Delete"
-                                 onClick={() => {
-                                     this.setState({showFeatureDeletionDialog: true})
-                                     this.setState({featureDeletion: feature})
-                                     // this.props.deleteFeature(feature)
-                                 }}/> :
-                            <img key="delete_disable" src="/images/delete_disable.png" title="Delete"/>)
-                    }
                 }
             }
 
