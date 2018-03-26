@@ -91,13 +91,13 @@ class EstimationTask extends React.PureComponent {
             else if (task.status !== SC.STATUS_APPROVED) {
 
                 buttons.push(editView && !task.negotiator.changeSuggested ?
-                    <img className="div-hover" key="suggestion_incoming" src="/images/suggestion_outgoing.png"
-                         title="Suggestion-Outgoing"
+                    <img className="div-hover" key="suggestion_incoming" src="/images/suggestion_incoming.png"
+                         title="Suggestion-Incoming"
                          onClick={() => {
                              this.props.openTaskSuggestionForm(task, loggedInUserRole)
                          }}/> :
-                    <img key="suggestion_incoming_disable" src="/images/suggestion_outgoing_disable.png"
-                         title="Suggestion-Outgoing"/>)
+                    <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"
+                         title="Suggestion-Incoming"/>)
             }
             else {
                 // Show normal suggestion button
@@ -268,7 +268,7 @@ class EstimationTask extends React.PureComponent {
 
 
                 // Third button is related to removal request
-                if (task.status === SC.STATUS_APPROVED) {
+                if (task.status !== SC.STATUS_APPROVED) {
 
                     if (task.estimator.removalRequested) {
                         // Estimator has requested removal
