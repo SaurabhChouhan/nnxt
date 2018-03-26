@@ -735,12 +735,15 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
         ).then(
             json => {
                 if (json.success) {
+                    dispatch(canFeatureApprove(json.data.feature._id))
                     dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })
     }
 }
+
+
 export const approveFeatureByNegotiatorOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/approve', {
@@ -758,6 +761,7 @@ export const approveFeatureByNegotiatorOnServer = (featureID) => {
                 if (json.success) {
                     console.log("check the response data")
                     dispatch(updateEstimationFeature(json.data))
+                    dispatch(canApproveEstimationOnServer(json.data.estimation._id))
                 }
                 return json
             })
@@ -791,4 +795,53 @@ export const approveEstimationOnServer = (estimationID) => {
     }
 }
 
+
+
+export const canFeatureApprove = (FeatureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/feature/' + FeatureID + '/can-approve', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const canApproveEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/can-approve", {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                    // During Approve,  flags of tasks/feature may also change so select this estimation again to get latest data
+                    //dispatch(getEstimationFromServer(estimationID))
+
+                }
+                return json
+            })
+    }
+}
 
