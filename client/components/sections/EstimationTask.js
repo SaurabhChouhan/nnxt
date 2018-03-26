@@ -506,7 +506,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
     },
     moveToFeature: (task) => {
         dispatch(A.showComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
-        dispatch(initialize("MoveTaskInFeatureForm", task))
+        dispatch(initialize("move-task-in-feature", task))
     },
     moveTaskOutOfFeature: (task) => {
         dispatch(A.moveTaskOutOfFeatureOnServer(task)).then(json => {

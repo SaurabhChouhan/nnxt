@@ -23,7 +23,7 @@ let MoveTaskInFeatureForm = (props) => {
 }
 
 MoveTaskInFeatureForm = reduxForm({
-    form: 'MoveTaskInFeatureForm'
+    form: 'move-task-in-feature'
 })(MoveTaskInFeatureForm)
 
 export default MoveTaskInFeatureForm
