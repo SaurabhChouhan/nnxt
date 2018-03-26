@@ -188,7 +188,7 @@ class EstimationFeature extends React.PureComponent {
                     // As feature is either not added by estimator or is not added in this iteration hence he has no direct permission to edit/delete task
                     if (feature.estimator.changedKeyInformation) {
                         // Estimator has changed key information so show estimator icon to notify that
-                        buttons.push(editView && feature.repo.addedFromThisEstimation ?
+                        buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                             <img className="div-hover" key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                  title="Suggestion-Outgoing"
                                  onClick={() => {
@@ -255,7 +255,7 @@ class EstimationFeature extends React.PureComponent {
                         // Estimator has not requested change and has no permission to change task either so he can request change
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'can request edit, request_edit')
                         if (feature.status !== SC.STATUS_APPROVED) {
-                            buttons.push(editView && feature.repo.addedFromThisEstimation ?
+                            buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                                 <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
                                      onClick={() => {
                                          this.props.showEditFeatureForm(feature)
@@ -366,7 +366,7 @@ class EstimationFeature extends React.PureComponent {
                     // Estimator has not requested change and has no permission to change task either so he can request change
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'can request edit, request_edit')
                     if(feature.status === SC.STATUS_APPROVED){
-                    buttons.push(!editView && feature.repo.addedFromThisEstimation ?
+                    buttons.push(!editView && feature.repo && feature.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="request_edit" src="/images/request_edit.png" title="Edit-Request"
                              onClick={() => {
                                  this.props.toggleEditRequest(feature)
@@ -375,7 +375,7 @@ class EstimationFeature extends React.PureComponent {
 
                      )}
                         else {
-                        buttons.push(editView && feature.repo.addedFromThisEstimation ?
+                        buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                             <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
                                  onClick={() => {
                                      this.props.showEditFeatureForm(feature)
