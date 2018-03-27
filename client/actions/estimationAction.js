@@ -265,6 +265,12 @@ export const requestForTaskEditPermissionOnServer = (taskID) => {
                 if (json.success) {
                     // As json.data would contain complete updated task just fire update redux action
                     dispatch(updateEstimationTask(json.data))
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(canNotApproveFeatureOnServer(json.data.feature._id, false))
+                    }
+                    if (json.data && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, false))
+                    }
                 }
                 return json
             })
@@ -289,6 +295,9 @@ export const requestForFeatureEditPermissionOnServer = (featureID) => {
                 if (json.success) {
                     // As json.data would contain complete updated feature just fire update redux action
                     dispatch(updateEstimationFeature(json.data))
+                    if (json.data && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, false))
+                    }
                 }
                 return json
             })
@@ -338,8 +347,9 @@ export const requestForTaskDeletePermissionOnServer = (taskID) => {
                     if (json.data && json.data.feature && json.data.feature._id) {
                         dispatch(canNotApproveFeatureOnServer(json.data.feature._id, false))
                     }
-                    if (json.data && json.data.estimation && json.data.estimation._id)
+                    if (json.data && json.data.estimation && json.data.estimation._id) {
                         dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, false))
+                    }
                 }
                 return json
             })
@@ -622,6 +632,12 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(canNotApproveFeatureOnServer(json.data.feature._id, true))
+                    }
+                    if (json.data && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, true))
+                    }
                 }
                 return json
             })
@@ -645,6 +661,10 @@ export const grantEditPermissionOfFeatureOnServer = (featureId) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationFeature(json.data))
+                   
+                    if (json.data && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, true))
+                    }
                 }
 
                 return json
