@@ -124,7 +124,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
 
 estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorAddTaskStruct)
-
+    let estimationFeatureObj
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await EstimationModel.findById(taskInput.estimation._id)
@@ -136,7 +136,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
 
-        let estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
+         estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -187,6 +187,9 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     await estimationTask.save()
     if (estimation && estimation.canApprove) {
         estimationTask.isEstimationCanApprove = true
+    }
+    if(estimationFeatureObj && estimationFeatureObj.canApprove){
+        estimationTask.isFeatureCanApprove = true
     }
     return estimationTask
 }
