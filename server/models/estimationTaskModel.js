@@ -680,6 +680,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
     task.canApprove = false
+    task.status = SC.STATUS_PENDING
     task.updated = Date.now()
     return await task.save()
 }
