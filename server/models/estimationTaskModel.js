@@ -184,7 +184,11 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         })
     }
 
-    return await estimationTask.save()
+    await estimationTask.save()
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    return estimationTask
 }
 
 

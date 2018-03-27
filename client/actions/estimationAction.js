@@ -148,7 +148,7 @@ export const initiateEstimationOnServer = (estimation) => {
 export const updateEstimationOnServer = (estimation) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/update', {
-                method: 'post',
+                method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
