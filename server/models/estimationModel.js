@@ -678,6 +678,44 @@ estimationSchema.statics.canApproveEstimationByNegotiator = async (estimationID,
 
 
 
+estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimationID, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+ /*   if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    let pendingTasksCount = await EstimationTaskModel.count({
+        "estimation._id": estimation._id,
+        "isDeleted" :false,
+        status: SC.STATUS_PENDING
+    })
+
+    let pendingFeaturesCount = await EstimationFeatureModel.count({
+        "estimation._id": estimation._id,
+        "isDeleted" :false,
+        status: SC.STATUS_PENDING
+    })
+
+
+    if (pendingTasksCount > 0 || pendingFeaturesCount > 0 )
+        throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+*/
+    estimation.canApprove = false
+    estimation.updated = Date.now()
+
+    return await estimation.save()
+}
+
+
+
 estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, negotiator) => {
 
     if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))

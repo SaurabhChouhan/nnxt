@@ -736,7 +736,7 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
             json => {
                 if (json.success) {
                     if (json.data && json.data.feature && json.data.feature._id) {
-                        dispatch(canFeatureApprove(json.data.feature._id))
+                        dispatch(canApproveFeatureOnServer(json.data.feature._id))
                     }
                     dispatch(updateEstimationTask(json.data))
                 }
@@ -801,7 +801,7 @@ export const approveEstimationOnServer = (estimationID) => {
 
 
 
-export const canFeatureApprove = (FeatureID) => {
+export const canApproveFeatureOnServer = (FeatureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/feature/' + FeatureID + '/can-approve', {
                 method: 'put',
@@ -843,6 +843,51 @@ export const canApproveEstimationOnServer = (estimationID) => {
                     // During Approve,  flags of tasks/feature may also change so select this estimation again to get latest data
                     //dispatch(getEstimationFromServer(estimationID))
 
+                }
+                return json
+            })
+    }
+}
+
+export const canNotApproveFeatureOnServer = (FeatureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/feature/' + FeatureID + '/can-not-approve', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
+export const canNotApproveEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/can-not-approve", {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
                 }
                 return json
             })

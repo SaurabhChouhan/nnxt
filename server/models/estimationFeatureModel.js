@@ -420,6 +420,51 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
 }
 
 
+estimationFeatureSchema.statics.canNotApproveFeatureByNegotiator = async (featureID, negotiator) => {
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureID)
+    if (!feature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    /*
+      if (!estimation.negotiator._id == negotiator._id)
+          throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
+
+      let taskCountOfFeature = await EstimationTaskModel.count({
+          "estimation._id": feature.estimation._id,
+          "feature._id": feature._id
+      })
+
+      if (taskCountOfFeature == 0)
+          throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+
+
+      if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
+          throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
+
+      }
+      let pendingTaskCountOfFeature = await EstimationTaskModel.count({
+          "estimation._id": feature.estimation._id,
+          "feature._id": feature._id,
+          status: {$in: [SC.STATUS_PENDING]}
+      })
+
+      if (pendingTaskCountOfFeature != 0)
+          throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+  */
+
+    feature.canApprove = false
+    feature.updated = Date.now()
+    return await feature.save()
+}
+
+
 estimationFeatureSchema.statics.deleteFeatureByEstimator = async (paramsInput, estimator) => {
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
