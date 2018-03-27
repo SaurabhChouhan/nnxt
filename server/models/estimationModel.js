@@ -677,8 +677,7 @@ estimationSchema.statics.canApproveEstimationByNegotiator = async (estimationID,
 }
 
 
-
-estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimationID, negotiator) => {
+estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimationID, isGranted, user) => {
     let estimation = await EstimationModel.findById(estimationID)
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -708,6 +707,11 @@ estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimation
     if (pendingTasksCount > 0 || pendingFeaturesCount > 0 )
         throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
 */
+    if (isGranted && userHasRole(user, SC.ROLE_NEGOTIATOR && estimation.negotiator._id != user._id)) {
+        estimation.status = SC.STATUS_REVIEW_REQUESTED
+    } else if (isGranted && userHasRole(user, SC.ROLE_ESTIMATOR && estimation.estimator._id != user._id)) {
+        estimation.status = SC.STATUS_CHANGE_REQUESTED
+    }
     estimation.canApprove = false
     estimation.updated = Date.now()
 

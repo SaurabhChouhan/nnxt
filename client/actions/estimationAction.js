@@ -164,7 +164,6 @@ export const updateEstimationOnServer = (estimation) => {
                  //   console.log("estimation update", json.data)
                       dispatch(editEstimation(json.data))
                 }
-
                 return json
             })
     }
@@ -336,6 +335,11 @@ export const requestForTaskDeletePermissionOnServer = (taskID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(canNotApproveFeatureOnServer(json.data.feature._id, false))
+                    }
+                    if (json.data && json.data.estimation && json.data.estimation._id)
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, false))
                 }
                 return json
             })
@@ -849,9 +853,9 @@ export const canApproveEstimationOnServer = (estimationID) => {
     }
 }
 
-export const canNotApproveFeatureOnServer = (FeatureID) => {
+export const canNotApproveFeatureOnServer = (FeatureID, grant) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/feature/' + FeatureID + '/can-not-approve', {
+        return fetch('/api/estimations/feature/' + FeatureID + '/can-not-approve/' + grant + '/is-granted', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -871,9 +875,9 @@ export const canNotApproveFeatureOnServer = (FeatureID) => {
     }
 }
 
-export const canNotApproveEstimationOnServer = (estimationID) => {
+export const canNotApproveEstimationOnServer = (estimationID, grant) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/' + estimationID + "/can-not-approve", {
+        return fetch('/api/estimations/' + estimationID + '/can-not-approve/' + grant + '/is-granted', {
                 method: 'put',
                 credentials: "include",
                 headers: {

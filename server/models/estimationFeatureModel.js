@@ -420,10 +420,8 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
 }
 
 
-estimationFeatureSchema.statics.canNotApproveFeatureByNegotiator = async (featureID, negotiator) => {
+estimationFeatureSchema.statics.canNotApproveFeatureByNegotiator = async (featureID, isGranted, negotiator) => {
 
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
@@ -433,6 +431,9 @@ estimationFeatureSchema.statics.canNotApproveFeatureByNegotiator = async (featur
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     /*
+     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
       if (!estimation.negotiator._id == negotiator._id)
           throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
@@ -459,6 +460,9 @@ estimationFeatureSchema.statics.canNotApproveFeatureByNegotiator = async (featur
           throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
   */
 
+    if (isGranted) {
+        feature.status = SC.STATUS_PENDING
+    }
     feature.canApprove = false
     feature.updated = Date.now()
     return await feature.save()
@@ -774,6 +778,7 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
 
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
     feature.canApprove = false
+    feature.status = SC.STATUS_PENDING
     feature.updated = Date.now()
     return await feature.save()
 }
