@@ -52,7 +52,7 @@ estimationRouter.post('/initiate', async ctx => {
 
 
 //update estimation by negotiator
-estimationRouter.post('/update', async ctx => {
+estimationRouter.put('/update', async ctx => {
     // Return expected schema
     if (ctx.schemaRequested)
         return generateSchema(V.estimationInitiationStruct)

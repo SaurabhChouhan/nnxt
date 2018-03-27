@@ -161,7 +161,11 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
         })
     }
 
-    return await estimationFeature.save()
+    await estimationFeature.save()
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
+    return estimationFeature
 }
 
 
@@ -312,7 +316,11 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
             tags: featureInput.tags
         }, negotiator)
     }
-    return await estimationFeature.save()
+    await estimationFeature.save()
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
+    return estimationFeature
 }
 
 
