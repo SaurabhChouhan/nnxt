@@ -4,6 +4,8 @@ import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 import * as EC from "../../../server/errorcodes";
+import * as SC from "../../../server/serverconstants";
+
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
@@ -27,7 +29,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => {
     let features = []
     if (state.estimation && state.estimation.features && Array.isArray(state.estimation.features) && state.estimation.features.length) {
-        features = state.estimation.features.filter(f => (f.repo && f.repo.addedFromThisEstimation == true) || f.repo == undefined)
+        features = state.estimation.features.filter(f => f.status != SC.STATUS_APPROVED && (f.repo && f.repo.addedFromThisEstimation == true) || f.repo == undefined)
     }
     return {
         features
