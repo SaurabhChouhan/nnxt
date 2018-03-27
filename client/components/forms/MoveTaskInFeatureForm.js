@@ -5,8 +5,7 @@ import {Field, reduxForm} from 'redux-form'
 
 
 let MoveTaskInFeatureForm = (props) => {
-    const {estimator, handleSubmit, pristine, submitting, reset} = props
-    console.log("estimator.name",estimator.name)
+    const {handleSubmit, pristine, submitting, reset} = props
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-4">
