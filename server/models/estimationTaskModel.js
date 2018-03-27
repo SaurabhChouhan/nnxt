@@ -280,6 +280,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
 estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorUpdateTaskStruct)
+    let estimationFeatureObj
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -300,6 +301,18 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    if (estimationTask.feature && estimationTask.feature._id) {
+        estimationFeatureObj = await EstimationFeatureModel.findById(estimationTask.feature._id)
+        if (!estimationFeatureObj)
+            throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+        if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
+            throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        if (!estimationTask.estimator.estimatedHours) {
+            estimationTask.estimator.estimatedHours = 0
+        }
+        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours}})
+    }
 
     /*
     if
@@ -336,8 +349,14 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
         mergeAllNotes = taskInput.notes
     }
     estimationTask.notes = mergeAllNotes
-    return await estimationTask.save()
-
+    await estimationTask.save()
+    if (estimationFeatureObj && estimationFeatureObj.canApprove) {
+        estimationTask.isFeatureCanApprove = true
+    }
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    return estimationTask
 }
 
 

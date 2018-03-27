@@ -496,7 +496,12 @@ export const updateTaskToEstimationOnServer = (task) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
-                    
+                    if (json.data && json.data.isEstimationCanApprove && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, false))
+                    }
+                    if (json.data && json.data.isFeatureCanApprove && json.data.feature && json.data.feature._id) {
+                        dispatch(canNotApproveFeatureOnServer(json.data.feature._id, false))
+                    }
                 }
                 return json
             })
@@ -521,6 +526,9 @@ export const addFeatureToEstimationOnServer = (feature) => {
             json => {
                 if (json.success) {
                     dispatch(addEstimationFeature(json.data))
+                    if (json.data && json.data.isEstimationCanApprove && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, false))
+                    }
                 }
                 return json
             })
@@ -545,6 +553,9 @@ export const updateFeatureToEstimationOnServer = (feature) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationFeature(json.data))
+                    if (json.data && json.data.isEstimationCanApprove && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, false))
+                    }
                 }
                 return json
             })
