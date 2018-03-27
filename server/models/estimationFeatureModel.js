@@ -161,7 +161,11 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
         })
     }
 
-    return await estimationFeature.save()
+    await estimationFeature.save()
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
+    return estimationFeature
 }
 
 
@@ -191,12 +195,15 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
     /**
      * Check to see if this task is added by estimator or not
      */
-    if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.addedInThisIteration && !estimationFeature.negotiator.changeSuggested && !estimationFeature.negotiator.changeGranted) {
-        // this means that estimator has added this feature in past iteration and negotiator has not given permission to edit this feature
-        throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.negotiator.changeSuggested && !estimationFeature.negotiator.changeGranted) {
-        // this means that negotiator is owner of this feature and has not given permission to edit this feature
-        throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    if (estimationFeature.status != SC.STATUS_PENDING) {
+        if (estimationFeature.owner == SC.OWNER_ESTIMATOR && !estimationFeature.addedInThisIteration && !estimationFeature.negotiator.changeSuggested && !estimationFeature.negotiator.changeGranted) {
+            // this means that estimator has added this feature in past iteration and negotiator has not given permission to edit this feature
+            throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        } else if (estimationFeature.owner == SC.OWNER_NEGOTIATOR && !estimationFeature.negotiator.changeSuggested && !estimationFeature.negotiator.changeGranted) {
+            // this means that negotiator is owner of this feature and has not given permission to edit this feature
+            throw new AppError('Not allowed to update feature as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        }
+
     }
 
 
@@ -309,7 +316,11 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
             tags: featureInput.tags
         }, negotiator)
     }
-    return await estimationFeature.save()
+    await estimationFeature.save()
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
+    return estimationFeature
 }
 
 
@@ -409,6 +420,55 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
 
 
     feature.canApprove = true
+    feature.updated = Date.now()
+    return await feature.save()
+}
+
+
+estimationFeatureSchema.statics.canNotApproveFeatureByNegotiator = async (featureID, isGranted, negotiator) => {
+
+
+    let feature = await EstimationFeatureModel.findById(featureID)
+    if (!feature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    /*
+     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+      if (!estimation.negotiator._id == negotiator._id)
+          throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
+
+      let taskCountOfFeature = await EstimationTaskModel.count({
+          "estimation._id": feature.estimation._id,
+          "feature._id": feature._id
+      })
+
+      if (taskCountOfFeature == 0)
+          throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+
+
+      if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
+          throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
+
+      }
+      let pendingTaskCountOfFeature = await EstimationTaskModel.count({
+          "estimation._id": feature.estimation._id,
+          "feature._id": feature._id,
+          status: {$in: [SC.STATUS_PENDING]}
+      })
+
+      if (pendingTaskCountOfFeature != 0)
+          throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+  */
+
+    if (isGranted) {
+        feature.status = SC.STATUS_PENDING
+    }
+    feature.canApprove = false
     feature.updated = Date.now()
     return await feature.save()
 }
@@ -723,6 +783,7 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
 
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
     feature.canApprove = false
+    feature.status = SC.STATUS_PENDING
     feature.updated = Date.now()
     return await feature.save()
 }

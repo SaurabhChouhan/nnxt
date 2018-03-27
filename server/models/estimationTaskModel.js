@@ -124,7 +124,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
 
 estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorAddTaskStruct)
-
+    let estimationFeatureObj
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await EstimationModel.findById(taskInput.estimation._id)
@@ -136,7 +136,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
 
-        let estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
+         estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -184,7 +184,14 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         })
     }
 
-    return await estimationTask.save()
+    await estimationTask.save()
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    if(estimationFeatureObj && estimationFeatureObj.canApprove){
+        estimationTask.isFeatureCanApprove = true
+    }
+    return estimationTask
 }
 
 
@@ -196,12 +203,14 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     let estimationTask = await EstimationTaskModel.findById(taskInput._id)
     if (!estimationTask)
         throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
-        throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
-        throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    if (estimationTask.status != SC.STATUS_PENDING) {
+        if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
+            throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
+            throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        }
     }
+
 
     let estimation = await EstimationModel.findById(estimationTask.estimation._id)
     if (!estimation)
@@ -271,6 +280,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
 estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorUpdateTaskStruct)
+    let estimationFeatureObj
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -291,6 +301,18 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    if (estimationTask.feature && estimationTask.feature._id) {
+        estimationFeatureObj = await EstimationFeatureModel.findById(estimationTask.feature._id)
+        if (!estimationFeatureObj)
+            throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+        if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
+            throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        if (!estimationTask.estimator.estimatedHours) {
+            estimationTask.estimator.estimatedHours = 0
+        }
+        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours}})
+    }
 
     /*
     if
@@ -327,8 +349,14 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
         mergeAllNotes = taskInput.notes
     }
     estimationTask.notes = mergeAllNotes
-    return await estimationTask.save()
-
+    await estimationTask.save()
+    if (estimationFeatureObj && estimationFeatureObj.canApprove) {
+        estimationTask.isFeatureCanApprove = true
+    }
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    return estimationTask
 }
 
 
@@ -678,6 +706,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
     task.canApprove = false
+    task.status = SC.STATUS_PENDING
     task.updated = Date.now()
     return await task.save()
 }

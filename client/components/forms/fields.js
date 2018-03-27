@@ -78,6 +78,7 @@ export const renderSelect = ({
                                  noneOptionValue = '',
                                  showNoneOption = true,
                                  displayField = 'name',
+                                 optionalDisplayField = 'name',
                                  disabled = false,
                                  valueField = "_id",
                                  hoverEnabledMsg,
@@ -100,7 +101,7 @@ export const renderSelect = ({
                 options && options.map(option => {
 
                         return <option value={_.get(option, valueField)}
-                                       key={option[valueField]}>{_.get(option, displayField)}</option>
+                                       key={option[valueField]}>{_.get(option, displayField) ? _.get(option, displayField) : _.get(option, optionalDisplayField)}</option>
                     }
                 )
             }
