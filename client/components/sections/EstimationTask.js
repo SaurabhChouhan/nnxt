@@ -292,6 +292,33 @@ class EstimationTask extends React.PureComponent {
                                  title="Delete-Request"/>)
                     }
                 }
+                else {
+
+                    if (task.estimator.removalRequested) {
+                        // Estimator has requested removal
+                        console.log("Inside estimator Approved", editView)
+                        buttons.push(editView ?
+                            <img className="div-hover" key="requested_delete" src="/images/requested_delete.png"
+                                 title="Delete-Requested"
+                                 onClick={() => {
+                                     this.props.toggleDeleteRequest(task)
+                                 }}/> :
+                            <img key="requested_delete_disable" src="/images/requested_delete_disable.png"
+                                 title="Delete-Requested"/>)
+                    } else {
+                        // Estimator can request removal
+                        console.log("Inside estimator Approved", editView)
+                        buttons.push(editView ?
+                            <img className="div-hover" key="request_delete" src="/images/request_delete.png"
+                                 title="Delete-Request"
+                                 onClick={() => {
+                                     this.props.toggleDeleteRequest(task)
+                                 }}/> :
+                            <img key="request_delete_disable" src="/images/request_delete_disable.png"
+                                 title="Delete-Request"/>)
+                    }
+                }
+
             }
         }
 

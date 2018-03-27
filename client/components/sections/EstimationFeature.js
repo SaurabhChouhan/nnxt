@@ -119,15 +119,32 @@ class EstimationFeature extends React.PureComponent {
 /*second button*/
           //request delete permission by estimator to negotiator by me
             if (feature.estimator.removalRequested) {
-                // Estimator has requested removal
+                if(feature.status!==SC.STATUS_APPROVED) {
+                    console.log("inside only negotiator editView", editView)
+                    console.log("inside only negotiator feature.estimator.removalRequested", feature.estimator.removalRequested)
+                    // Estimator has requested removal
                     buttons.push(editView ?
                         <img className="div-hover" key="he_requested_delete" src="/images/he_requested_delete.png"
                              title="Delete-Requested"
-                         onClick={() => {
-                             this.props.deleteFeature(feature)
-                         }}/> :
+                             onClick={() => {
+                                 this.props.deleteFeature(feature)
+                             }}/> :
                         <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"
                              title="Delete-Requested"/>)
+                }
+                else{
+                    console.log("inside only negotiator editView Approved", editView)
+                    console.log("inside only negotiator feature.estimator.removalRequested Approved", feature.estimator.removalRequested)
+                    // Estimator has requested removal
+                    buttons.push(!editView ?
+                        <img className="div-hover" key="he_requested_delete" src="/images/he_requested_delete.png"
+                             title="Delete-Requested"
+                             onClick={() => {
+                                 this.props.deleteFeature(feature)
+                             }}/> :
+                        <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"
+                             title="Delete-Requested"/>)
+                }
             } else {
                 buttons.push(editView ?
                     <img className="div-hover" key="delete" src="/images/delete.png" title="Delete"
@@ -283,6 +300,9 @@ class EstimationFeature extends React.PureComponent {
                     /*Third button*/
                     if (feature.status !== SC.STATUS_APPROVED) {
                         if (feature.estimator.removalRequested) {
+                            console.log("reuested Delete estimator feature.estimator.removalRequested",feature.estimator.removalRequested)
+                            console.log("reuested Delete estimator editView",editView)
+
                             // Estimator has requested removal
                             buttons.push(editView ?
                                 <img className="div-hover" key="requested_delete" src="/images/requested_delete.png"
@@ -294,6 +314,8 @@ class EstimationFeature extends React.PureComponent {
                                      title="Delete-Requested"/>)
                         } else {
                             // Estimator can request removal
+                            console.log("reuested Delete estimator feature.estimator.removalRequested",feature.estimator.removalRequested)
+                            console.log("reuested Delete estimator editView",editView)
                             buttons.push(editView ?
                                 <img className="div-hover" key="request_delete" src="/images/request_delete.png"
                                      title="Delete-Request"
@@ -303,7 +325,34 @@ class EstimationFeature extends React.PureComponent {
                                                  title="Delete-Request"/>)
                         }
                     }
+                    else{
+                        if (feature.estimator.removalRequested) {
+                            console.log("reuested Delete estimator feature.estimator.removalRequested_Approve",feature.estimator.removalRequested)
+                            console.log("reuested Delete estimator editView_Approve",editView)
 
+                            // Estimator has requested removal
+                            buttons.push(!editView ?
+                                <img className="div-hover" key="requested_delete" src="/images/requested_delete.png"
+                                     title="Delete-Requested"
+                                     onClick={() => {
+                                         this.props.toggleDeleteRequest(feature)
+                                     }}/> :
+                                <img key="requested_delete_disable" src="/images/requested_delete_disable.png"
+                                     title="Delete-Requested"/>)
+                        }
+                        else {
+                            console.log("reuested Delete estimator feature.estimator.removalRequested Approved", feature.estimator.removalRequested)
+                            console.log("reuested Delete estimator editView Approved", editView)
+                            buttons.push(!editView ?
+                                <img className="div-hover" key="request_delete" src="/images/request_delete.png"
+                                     title="Delete-Request"
+                                     onClick={() => {
+                                         this.props.toggleDeleteRequest(feature)
+                                     }}/> : <img key="request_delete_disable" src="/images/request_delete_disable.png"
+                                                 title="Delete-Request"/>)
+                        }
+
+                    }
                 }
             }
 
@@ -399,17 +448,35 @@ class EstimationFeature extends React.PureComponent {
                 /*third button*/
                 
                     if (feature.estimator.removalRequested) {
-                        // Estimator has requested removal
-                    buttons.push(editView ?
-                            <img className="div-hover" key="he_requested_delete" src="/images/requested_delete.png"
-                                 title="Delete-Requested"
-                                 onClick={() => {
-                                     this.props.toggleDeleteRequest(feature)
-                                 }}/> :
-                            <img key="he_requested_delete_disable" src="/images/requested_delete_disable.png"
-                                 title="Delete-Requested"/>)
-                    } else {
+                        if (feature.status!==SC.STATUS_APPROVED) {
+                            // Estimator has requested removal
+                            console.log("reuested Delete negotiator feature.estimator.removalRequested", feature.estimator.removalRequested)
+                            console.log("reuested Delete Negotiator editView", editView)
+                            buttons.push(editView ?
+                                <img className="div-hover" key="he_requested_delete" src="/images/requested_delete.png"
+                                     title="Delete-Requested"
+                                     onClick={() => {
+                                         this.props.toggleDeleteRequest(feature)
+                                     }}/> :
+                                <img key="he_requested_delete_disable" src="/images/requested_delete_disable.png"
+                                     title="Delete-Requested"/>)
+                        }
+                        else {
+                            console.log("reuested Delete negotiator feature.estimator.removalRequested Approve", feature.estimator.removalRequested)
+                            console.log("reuested Delete Negotiator editView Approve", editView)
+                            buttons.push(!editView ?
+                                <img className="div-hover" key="he_requested_delete" src="/images/requested_delete.png"
+                                     title="Delete-Requested"
+                                     onClick={() => {
+                                         this.props.toggleDeleteRequest(feature)
+                                     }}/> :
+                                <img key="he_requested_delete_disable" src="/images/requested_delete_disable.png"
+                                     title="Delete-Requested"/>)
+                        }
+                    }else if (feature.status!==SC.STATUS_APPROVED){
                         // Estimator can request removal
+
+                        console.log("reuested Delete Negotiator editView",editView)
                     buttons.push(editView ?
                             <img className="div-hover" key="request_delete" src="/images/request_delete.png"
                                  title="Delete-Request"
@@ -419,6 +486,16 @@ class EstimationFeature extends React.PureComponent {
                             <img key="request_delete_disable" src="/images/request_delete_disable.png"
                                  title="Delete-Request"/>)
                     }
+                    else{
+                        console.log("reuested Delete Negotiator editView after approval",editView)
+                        buttons.push(!editView ?
+                            <img className="div-hover" key="request_delete" src="/images/request_delete.png"
+                                 title="Delete-Request"
+                                 onClick={() => {
+                                     this.props.toggleDeleteRequest(feature)
+                                 }}/> :
+                            <img key="request_delete_disable" src="/images/request_delete_disable.png"
+                                 title="Delete-Request"/>)                    }
                
             }
         }
