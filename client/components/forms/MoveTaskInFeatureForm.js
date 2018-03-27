@@ -1,9 +1,7 @@
 import {required} from "./validation"
 import React from 'react'
 import {renderSelect} from "./fields"
-import {Field, formValueSelector, reduxForm} from 'redux-form'
-
-import {connect} from "react-redux";
+import {Field, reduxForm} from 'redux-form'
 
 
 let MoveTaskInFeatureForm = (props) => {
@@ -34,16 +32,5 @@ let MoveTaskInFeatureForm = (props) => {
 MoveTaskInFeatureForm = reduxForm({
     form: 'move-task-in-feature'
 })(MoveTaskInFeatureForm)
-
-const selector = formValueSelector('move-task-in-feature')
-
-MoveTaskInFeatureForm = connect(
-    state => {
-        const estimator = selector(state, 'estimator')
-        return {
-            estimator
-        }
-    }
-)(MoveTaskInFeatureForm)
 
 export default MoveTaskInFeatureForm
