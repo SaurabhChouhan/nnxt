@@ -247,6 +247,7 @@ estimationSchema.statics.updateEstimationByNegotiator = async (estimationInput, 
     estimation.project = project
     estimation.client = project.client
     estimation.estimator = estimator
+    estimation.description = estimationInput.description
     estimation.negotiator = negotiator
     estimation.technologies = estimationInput.technologies
     estimation.features = undefined
