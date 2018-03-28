@@ -86,7 +86,7 @@ class EstimationTask extends React.PureComponent {
                              title="Suggestion-Incoming"/>)
                 } else {
                     // Show normal suggestion button
-                    buttons.push(editView && task.repo && task.repo.addedFromThisEstimation && task.status !== SC.STATUS_APPROVED ?
+                    buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="suggestion" src="/images/suggestion.png" title="Suggestion"
                              onClick={() => {
                                  this.props.openTaskSuggestionForm(task, loggedInUserRole)
@@ -171,7 +171,7 @@ class EstimationTask extends React.PureComponent {
 
             } else {
                 if (task.status === SC.STATUS_PENDING) {
-                    if (task.estimator.changedKeyInformation) {
+                    if (task.estimator.changedKeyInformation || (task.addedInThisIteration && task.owner == SC.OWNER_ESTIMATOR)) {
                         // Estimator has changed key information so show estimator icon to notify that
                         buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
                             <img className="div-hover" key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
@@ -181,7 +181,7 @@ class EstimationTask extends React.PureComponent {
                                  }}/> :
                             <img key="suggestion_outgoing_disable" src="/images/suggestion_outgoing_disable.png"
                                  title="Suggestion-Outgoing"/>)
-                    } else if (task.negotiator.changeSuggested) {
+                    } else if (task.negotiator.changeSuggested || (task.addedInThisIteration && task.owner == SC.OWNER_NEGOTIATOR)) {
                         // Negotiator has suggested changes in previous iteration so show that
                         buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
                             <img className="div-hover" key="suggestion_incoming" src="/images/suggestion_incoming.png"
