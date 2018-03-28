@@ -5,13 +5,13 @@ import {Field, reduxForm} from 'redux-form'
 
 
 let MoveTaskInFeatureForm = (props) => {
-    const {handleSubmit, pristine, submitting, reset} = props
+    const {handleSubmit, pristine, submitting, reset, features} = props
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-4">
 
                 <Field name="_id" component="input" type="hidden"/>
-                <Field name="feature_id" component={renderSelect} label={"Feature :"} options={props.features}
+                <Field name="feature_id" component={renderSelect} label={"Feature :"} options={features}
                        validate={[required]}
                        displayField="estimator.name"
                        optionalDisplayField="negotiator.name"

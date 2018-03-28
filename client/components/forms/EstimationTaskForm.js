@@ -1,14 +1,14 @@
-import {reduxForm, Field, formValueSelector} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
-import {required, number} from './validation'
-import {renderText, renderTextArea, renderSelect, renderMultiselect} from './fields'
+import {number, required} from './validation'
+import {renderSelect, renderText, renderTextArea} from './fields'
 import * as logger from '../../clientLogger'
 import {connect} from "react-redux";
 
 let EstimationTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
-    const {estimation, _id,reset} = props
-    return <form onSubmit={props.handleSubmit}>
+    const {estimation, _id, reset, features, handleSubmit} = props
+    return <form onSubmit={handleSubmit}>
         <div className="row">
 
             <Field name="estimation._id" component="input" type="hidden"/>
@@ -33,8 +33,10 @@ let EstimationTaskForm = (props) => {
         {!_id &&
         <div className="row">
             <div className="col-md-6">
-                <Field name="feature._id" component={renderSelect} label={"Feature:"} options={props.features}
-                       displayField={"estimator.name"}/>
+                <Field name="feature_id" component={renderSelect} label={"Feature :"} options={features}
+                       displayField="estimator.name"
+                       optionalDisplayField="negotiator.name"
+                />
             </div>
         </div>
         }
