@@ -11,7 +11,8 @@ let MoveTaskInFeatureForm = (props) => {
             <div className="col-md-4">
 
                 <Field name="_id" component="input" type="hidden"/>
-                <Field name="feature_id" component={renderSelect} label={"Feature :"} options={features}
+                <Field name="featureID" component={renderSelect} label={"Feature :"} options={features}
+                       valueField="_id"
                        validate={[required]}
                        displayField="estimator.name"
                        optionalDisplayField="negotiator.name"

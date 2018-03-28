@@ -33,7 +33,8 @@ let EstimationTaskForm = (props) => {
         {!_id &&
         <div className="row">
             <div className="col-md-6">
-                <Field name="feature_id" component={renderSelect} label={"Feature :"} options={features}
+                <Field name="feature._id" component={renderSelect} label={"Feature :"} options={features}
+                       valueField="_id"
                        displayField="estimator.name"
                        optionalDisplayField="negotiator.name"
                 />
