@@ -8,7 +8,7 @@ let MoveTaskInFeatureForm = (props) => {
     const {handleSubmit, pristine, submitting, reset, features} = props
     return <form onSubmit={handleSubmit}>
         <div className="row">
-            <div className="col-md-4">
+            <div className="col-md-9">
 
                 <Field name="_id" component="input" type="hidden"/>
                 <Field name="feature_id" component={renderSelect} label={"Feature :"} options={features}
@@ -17,7 +17,7 @@ let MoveTaskInFeatureForm = (props) => {
                        optionalDisplayField="negotiator.name"
                 />
 
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn"> Submit</button>
+                <button type="submit" disabled={pristine || submitting} className="btn customBtn moveInBtnSpace"> Submit</button>
                 <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>
                     Reset
                 </button>
