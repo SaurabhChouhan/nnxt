@@ -396,9 +396,6 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
     if (!estimation.negotiator._id == negotiator._id)
         throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
 
-    if (!(feature.canApprove))
-        throw new AppError('Cannot approve feature as either name/description is not not there or there are pending requests from Estimator', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
-
     let taskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
         "feature._id": feature._id
@@ -410,8 +407,8 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
 
     if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
         throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
-
     }
+
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
         "feature._id": feature._id,
