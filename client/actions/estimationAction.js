@@ -650,10 +650,11 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
+
                     if (json.data && json.data.feature && json.data.feature._id) {
                         dispatch(canNotApproveFeatureOnServer(json.data.feature._id, true))
                     }
-                    if (json.data && json.data.estimation && json.data.estimation._id) {
+                    if (json.data && json.data.estimation && json.data.isEstimationCanApprove && json.data.estimation._id) {
                         dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, true))
                     }
                 }
@@ -679,8 +680,8 @@ export const grantEditPermissionOfFeatureOnServer = (featureId) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationFeature(json.data))
-                   
-                    if (json.data && json.data.estimation && json.data.estimation._id) {
+
+                    if (json.data && json.data.isEstimationCanApprove && json.data.estimation && json.data.estimation._id) {
                         dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, true))
                     }
                 }

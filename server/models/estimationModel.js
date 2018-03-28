@@ -709,8 +709,6 @@ estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimation
 */
     if (isGranted && userHasRole(user, SC.ROLE_NEGOTIATOR && estimation.negotiator._id != user._id)) {
         estimation.status = SC.STATUS_REVIEW_REQUESTED
-    } else if (isGranted && userHasRole(user, SC.ROLE_ESTIMATOR && estimation.estimator._id != user._id)) {
-        estimation.status = SC.STATUS_CHANGE_REQUESTED
     }
     estimation.canApprove = false
     estimation.updated = Date.now()
