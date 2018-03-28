@@ -4,6 +4,7 @@ import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
@@ -37,10 +38,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({
-    estimation: state.estimation.selected,
-    features:state.estimation.features
-})
+const mapStateToProps = (state, ownProps) => {
+    let features = []
+    if (state.estimation && state.estimation.features && Array.isArray(state.estimation.features) && state.estimation.features.length) {
+        features = state.estimation.features.filter(f => f.status != SC.STATUS_APPROVED && (f.repo && f.repo.addedFromThisEstimation == true) || f.repo == undefined)
+    }
+    return {
+        estimation: state.estimation.selected,
+        features
+    }
+
+}
 
 const EstimationTaskFormContainer = connect(
     mapStateToProps,

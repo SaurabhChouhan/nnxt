@@ -600,7 +600,6 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
 
     let task = await EstimationTaskModel.findById(paramsInput.taskID)
 
-    console.log("task filtered", task)
 
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -612,15 +611,6 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
     if (estimation.negotiator._id != negotiator._id)
         throw new AppError('Not an negtotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-
-    if (!task.estimator.removalRequested) {
-
-        if (task.owner != SC.OWNER_NEGOTIATOR)
-            throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-        /*  if (!task.addedInThisIteration)
-              throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)*/
-    }
 
 
     if (task.feature && task.feature._id) {
@@ -702,13 +692,29 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
     if (!task.repo.addedFromThisEstimation)
         throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+    let estimationFeatureObj
+    if (task.feature && task.feature._id) {
+        estimationFeatureObj = await EstimationFeatureModel.findById(task.feature._id)
+        if (!estimationFeatureObj)
+            throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+        if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
+            throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+       }
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
     task.canApprove = false
     task.status = SC.STATUS_PENDING
     task.updated = Date.now()
-    return await task.save()
+    await task.save()
+
+    if (estimationFeatureObj && estimationFeatureObj.canApprove) {
+        task.isFeatureCanApprove = true
+    }
+    if (estimation && estimation.canApprove) {
+        task.isEstimationCanApprove = true
+    }
+    return task
 }
 
 
