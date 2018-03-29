@@ -99,6 +99,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
+    estimationTask.negotiator.estimatedHours = 0
     estimationTask.status = SC.STATUS_PENDING
     estimationTask.addedInThisIteration = true
     estimationTask.canApprove = false
@@ -143,7 +144,8 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-        // As task is being added by negotiator there would not be any change in estimated hours of feature as this would just be considered as suggestions
+        // As task is being added by negotiator there would be any change in estimated hours of feature as this would just be considered as suggestions
+        await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours}})
     }
 
     /* let repositoryTask = await RepositoryModel.addTask({
@@ -209,6 +211,10 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
             throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
         }
+    }
+    if (!estimationTask.negotiator.estimatedHours) {
+        estimationTask.negotiator.estimatedHours = 0
+
     }
 
 
@@ -310,8 +316,10 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         if (!estimationTask.estimator.estimatedHours) {
             estimationTask.estimator.estimatedHours = 0
+
         }
-        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours}})
+
+        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours}}, {"canApprove": false})
     }
 
     /*

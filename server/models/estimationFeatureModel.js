@@ -37,6 +37,7 @@ let estimationFeatureSchema = mongoose.Schema({
     negotiator: {
         name: {type: String},
         description: {type: String},
+        estimatedHours: {type: Number, default: 0},
         changeSuggested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
