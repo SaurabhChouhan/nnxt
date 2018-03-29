@@ -83,18 +83,6 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
 
-    /* let repositoryTask = repositoryTask = await RepositoryModel.addTask({
-         name: taskInput.name,
-         description: taskInput.description,
-         estimation: {
-             _id: estimation._id.toString()
-         },
-         feature: taskInput.feature,
-         createdBy: estimator,
-         technologies: estimation.technologies, // Technologies of estimation would be copied directly to tasks
-         tags: taskInput.tags
-     }, estimator)*/
-
     let estimationTask = new EstimationTaskModel()
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
@@ -148,17 +136,6 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours}})
     }
 
-    /* let repositoryTask = await RepositoryModel.addTask({
-         name: taskInput.name,
-         description: taskInput.description,
-         estimation: {
-             _id: estimation._id.toString()
-         },
-         feature: taskInput.feature,
-         createdBy: negotiator,
-         technologies: estimation.technologies
-     }, negotiator)*/
-
     let estimationTask = new EstimationTaskModel()
     estimationTask.negotiator.name = taskInput.name
     estimationTask.negotiator.description = taskInput.description
@@ -187,6 +164,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     }
 
     await estimationTask.save()
+    estimationTask = estimationTask.toObject()
     if (estimation && estimation.canApprove) {
         estimationTask.isEstimationCanApprove = true
     }
@@ -358,6 +336,7 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     }
     estimationTask.notes = mergeAllNotes
     await estimationTask.save()
+    estimationTask = estimationTask.toObject()
     if (estimationFeatureObj && estimationFeatureObj.canApprove) {
         estimationTask.isFeatureCanApprove = true
     }
@@ -716,6 +695,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
     task.updated = Date.now()
     await task.save()
 
+    task = task.toObject()
     if (estimationFeatureObj && estimationFeatureObj.canApprove) {
         task.isFeatureCanApprove = true
     }
