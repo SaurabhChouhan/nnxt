@@ -32,7 +32,7 @@ class EstimationTask extends React.PureComponent {
     }
 
     render() {
-        const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask} = this.props
+        const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask, fromRepoWithFeature} = this.props
         let buttons = [];
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
@@ -93,6 +93,30 @@ class EstimationTask extends React.PureComponent {
                              }}/> :
                         <img key="suggestion_disable" src="/images/suggestion_disable.png" title="Suggestion"/>)
                 }
+
+                // Second button shown to negotiator would be related to removal request (by estimator)/ delete button
+                if (task.estimator.removalRequested) {
+                    // Estimator has requested removal, negotiator will directly delete task if he wants to
+                    buttons.push(editView && (!fromRepoWithFeature) ?
+                        <img className="div-hover" key="he_requested_delete" src="/images/he_requested_delete.png"
+                             title="Delete-Requested"
+                             onClick={() => {
+                                 this.props.deleteTask(task)
+                             }}/> :
+                        <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"
+                             title="Delete-Requested"/>)
+                } else {
+                    // Negotiator can delete any task during its review without getting permission from estimator
+                    buttons.push(editView && (!fromRepoWithFeature) ?
+                        <img className="div-hover" key="delete" src="/images/delete.png" title="Delete"
+                             onClick={() => {
+                                 this.setState({showTaskDeletionDialog: true})
+                                 this.setState({taskDeletion: task})
+                                 //this.props.deleteTask(task)
+                             }}/> :
+                        <img key="delete_disable" src="/images/delete_disable.png" title="Delete"/>)
+                }
+
             }
 
             // If status is approved
@@ -127,30 +151,6 @@ class EstimationTask extends React.PureComponent {
             }
 
 
-            // Third button shown to negotiator would be related to removal request (by estimator)/ delete button
-            if (task.estimator.removalRequested) {
-                // Estimator has requested removal, negotiator will directly delete task if he wants to
-                buttons.push(editView ?
-                    <img className="div-hover" key="he_requested_delete" src="/images/he_requested_delete.png"
-                         title="Delete-Requested"
-                         onClick={() => {
-                             this.props.deleteTask(task)
-                         }}/> :
-                    <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"
-                         title="Delete-Requested"/>)
-            } else {
-                // Negotiator can delete any task during its review without getting permission from estimator
-                buttons.push(editView && task.status !== SC.STATUS_APPROVED ?
-                    <img className="div-hover" key="delete" src="/images/delete.png" title="Delete"
-                         onClick={() => {
-                             this.setState({showTaskDeletionDialog: true})
-                             this.setState({taskDeletion: task})
-                             //this.props.deleteTask(task)
-                         }}/> :
-                    <img key="delete_disable" src="/images/delete_disable.png" title="Delete"/>)
-            }
-
-
         } else if (loggedInUserRole === SC.ROLE_ESTIMATOR) {
             if (task.addedInThisIteration && task.owner === SC.OWNER_ESTIMATOR) {
                 // As estimator has added this task in this iteration only, he/she would be able to edit/delete it without any restrictions
@@ -160,7 +160,7 @@ class EstimationTask extends React.PureComponent {
                              this.props.editTask(task, loggedInUserRole)
                          }}/> :
                     <img key="edit_disable" src="/images/edit_disable.png" title="Edit"/>)
-                buttons.push(editView ?
+                buttons.push(editView && (!fromRepoWithFeature) ?
                     <img className="div-hover" key="delete" src="/images/delete.png" title="Delete"
                          onClick={() => {
                              this.setState({showTaskDeletionDialog: true})
@@ -208,7 +208,7 @@ class EstimationTask extends React.PureComponent {
 
                     if (task.estimator.removalRequested) {
                         // Estimator has requested removal
-                        buttons.push(editView ?
+                        buttons.push(editView && (!fromRepoWithFeature) ?
                             <img className="div-hover" key="requested_delete" src="/images/requested_delete.png"
                                  title="Delete-Requested"
                                  onClick={() => {
@@ -218,7 +218,7 @@ class EstimationTask extends React.PureComponent {
                                  title="Delete-Requested"/>)
                     } else {
                         // Estimator can request removal
-                        buttons.push(editView ?
+                        buttons.push(editView && (!fromRepoWithFeature) ?
                             <img className="div-hover" key="request_delete" src="/images/request_delete.png"
                                  title="Delete-Request"
                                  onClick={() => {
@@ -426,7 +426,8 @@ EstimationTask.propTypes = {
 
 EstimationTask.defaultProps = {
     expanded: false,
-    isFeatureTask: false
+    isFeatureTask: false,
+    fromRepoWithFeature: false
 }
 
 EstimationTask = connect(null, (dispatch, ownProps) => ({
