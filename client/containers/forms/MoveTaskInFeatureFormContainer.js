@@ -9,7 +9,7 @@ import * as SC from "../../../server/serverconstants";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
-        return dispatch(A.moveTaskIntoFeatureOnServer(formValues._id,formValues.feature_id)).then(json => {
+        return dispatch(A.moveTaskIntoFeatureOnServer(formValues._id, formValues.featureID)).then(json => {
             if (json.success) {
                 NotificationManager.success('Task Moved Successfully')
                 dispatch(A.hideComponent(COC.MOVE_TASK_TO_FEATURE_FORM_DIALOG))
