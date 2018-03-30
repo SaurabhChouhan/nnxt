@@ -1513,3 +1513,37 @@ button.approveBtn:hover {
 label{
     font-size: 17px;
 }
+
+.col-lg-4 {
+    width: 40%;
+    margin-left: -27px;
+    margin-bottom: 25px;
+}
+
+.col-lg-8 {
+
+    width: 0%;
+}
+
+.estimationSearchSection {
+    right: 0%;
+    position: absolute;
+    margin-top: -7px;
+}
+
+.estimationSearchProject {
+    margin-left: 35px;
+    margin-top: -1px;
+
+}
+
+.estimationSearchStatus {
+    margin-top: 20px;
+    margin-left: 14px;
+
+}
+
+.estimationSearchInitiateBtn {
+    margin-left: 36px;
+
+}

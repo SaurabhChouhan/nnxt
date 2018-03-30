@@ -1,15 +1,15 @@
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
-import {renderSelect, renderText} from './fields'
+import {renderSelect} from './fields'
 
 let EstimationSearchForm = (props) => {
     const {projects} = props
 
     return <form className="estimationForm">
-        <div className="col-md-4">
+        <div className="col-md-12 estimationSearchProject">
             <Field
                 name="projectID"
-                className="form-control"
+                className="form-control "
                 component={renderSelect}
                 placeholder="Select Project Name"
                 options={projects}

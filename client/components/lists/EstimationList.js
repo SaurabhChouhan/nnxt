@@ -99,14 +99,14 @@ class EstimationList extends Component {
         return (
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
-                    <div className="col-md-12 pad">
-                        <div className="col-md-3">
+                    <div className="col-md-8 estimationSearchSection">
+                        <div className="col-md-4">
 
                             <EstimationSearchFormContainer/>
 
                         </div>
-                        <div className="col-md-3">
-                            <select className="form-control" onChange={(status) =>
+                        <div className="col-md-4">
+                            <select className="form-control estimationSearchStatus" onChange={(status) =>
                                 this.props.filterEstimationStatus(status.target.value)
                             }>
                                 <option value="all">All Status</option>
@@ -124,10 +124,10 @@ class EstimationList extends Component {
                         </div>
 
 
-                        <div className="col-md-3">
-                            <div className="estimation">
+                        <div className="col-md-4">
+                            <div className="estimation ">
                                 {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                                <button className="btn customBtn"
+                                <button className="btn customBtn estimationSearchInitiateBtn"
                                         onClick={() => this.props.showEstimationInitiateForm()}>Initiate Estimation
                                 </button>}
                             </div>
