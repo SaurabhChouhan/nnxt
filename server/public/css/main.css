@@ -1559,3 +1559,22 @@ label{
     margin-top: -8px;
 
 }
+
+.releaseDetailSearchFlag {
+    margin-left: 67px;
+    margin-top: 28px;
+    position: absolute;
+    width: 86%;
+
+}
+
+.releaseDetailSearchContent {
+    float: right;
+}
+
+.releaseDetailSearchStatus {
+    margin-top: 28px;
+    position: absolute;
+    width: 82%;
+    margin-left: 58px;
+}

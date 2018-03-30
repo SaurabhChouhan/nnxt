@@ -102,7 +102,7 @@ class ReleaseList extends Component {
                             */}
                         <div className="estimation releaseSelect  releaseSearchStatus">
                             <select className="form-control" onChange={(status) =>
-                                props.changeReleaseStatus(status.target.value)
+                                this.props.changeReleaseStatus(status.target.value)
                             }>
                                 <option value="all">All Status</option>
                                 <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
