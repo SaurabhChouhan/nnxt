@@ -165,7 +165,7 @@ class EstimationFeature extends React.PureComponent {
                 //First Button
 
 
-                if (feature.addedInThisIteration) {
+                if (feature.addedInThisIteration && !feature.estimator.changedKeyInformation) {
                     if (feature.owner == SC.OWNER_ESTIMATOR) {
                         // Show direct edit and delete button if estimator currently added that feature
                         buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?

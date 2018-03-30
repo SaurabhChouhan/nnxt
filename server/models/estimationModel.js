@@ -380,7 +380,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
         })
         if (isEstimationTaskPending == 0 && isEstimationFeaturePending == 0) {
             console.log("Estimation Can approve Before")
-           let a =  await EstimationModel.updateOne({_id: estimationID}, {"canApprove": true}).then(() => {
+            let a = await EstimationModel.updateOne({_id: estimationID}, {"canApprove": true}).then(() => {
                 return new Promise((resolve, reject) => {
                     return resolve(true)
                 })
@@ -608,12 +608,12 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
 
     let pendingTasksCount = await EstimationTaskModel.count({
         "estimation._id": estimation._id,
-        "isDeleted" :false,
+        "isDeleted": false,
         status: SC.STATUS_PENDING
     })
     let pendingFeaturesCount = await EstimationFeatureModel.count({
         "estimation._id": estimation._id,
-        "isDeleted" :false,
+        "isDeleted": false,
         status: SC.STATUS_PENDING
     })
 
@@ -657,18 +657,18 @@ estimationSchema.statics.canApproveEstimationByNegotiator = async (estimationID,
 
     let pendingTasksCount = await EstimationTaskModel.count({
         "estimation._id": estimation._id,
-        "isDeleted" :false,
+        "isDeleted": false,
         status: SC.STATUS_PENDING
     })
 
     let pendingFeaturesCount = await EstimationFeatureModel.count({
         "estimation._id": estimation._id,
-        "isDeleted" :false,
+        "isDeleted": false,
         status: SC.STATUS_PENDING
     })
 
 
-    if (pendingTasksCount > 0 || pendingFeaturesCount > 0 )
+    if (pendingTasksCount > 0 || pendingFeaturesCount > 0)
         throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
 
     estimation.canApprove = true
@@ -683,32 +683,33 @@ estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimation
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
- /*   if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    /*   if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+           throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (estimation.negotiator._id != negotiator._id)
-        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+       if (estimation.negotiator._id != negotiator._id)
+           throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+       if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+           throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let pendingTasksCount = await EstimationTaskModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted" :false,
-        status: SC.STATUS_PENDING
-    })
+       let pendingTasksCount = await EstimationTaskModel.count({
+           "estimation._id": estimation._id,
+           "isDeleted" :false,
+           status: SC.STATUS_PENDING
+       })
 
-    let pendingFeaturesCount = await EstimationFeatureModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted" :false,
-        status: SC.STATUS_PENDING
-    })
+       let pendingFeaturesCount = await EstimationFeatureModel.count({
+           "estimation._id": estimation._id,
+           "isDeleted" :false,
+           status: SC.STATUS_PENDING
+       })
 
 
-    if (pendingTasksCount > 0 || pendingFeaturesCount > 0 )
-        throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
-*/
+       if (pendingTasksCount > 0 || pendingFeaturesCount > 0 )
+           throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+   */
     if (isGranted && userHasRole(user, SC.ROLE_NEGOTIATOR && estimation.negotiator._id != user._id)) {
+        console.log("Estimation Can-Not Approve isGranted", isGranted, "  estimation.status ", estimation.status)
         estimation.status = SC.STATUS_REVIEW_REQUESTED
     }
     estimation.canApprove = false
@@ -716,7 +717,6 @@ estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimation
 
     return await estimation.save()
 }
-
 
 
 estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, negotiator) => {
