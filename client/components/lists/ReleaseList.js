@@ -97,10 +97,10 @@ class ReleaseList extends Component {
         return (
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
-                    <div className="col-md-12 pad">
+                    <div className="col-md-4  releaseSearchContent ">
                         {/*  <ReleaseProjectSearchFormContainer/>
                             */}
-                        <div className="estimation releaseSelect">
+                        <div className="estimation releaseSelect  releaseSearchStatus">
                             <select className="form-control" onChange={(status) =>
                                 props.changeReleaseStatus(status.target.value)
                             }>
