@@ -102,14 +102,14 @@ userSchema.statics.saveUser = async usrObj => {
     usrObj.password = await bcrypt.hash(usrObj.password, 10)
     let totalUsers = await UserModel.count()
     usrObj.employeeCode = "AIPL-"+(totalUsers+1)
-   
+  /*/
     if (_.isEmpty(usrObj.dateJoined))
         throw new AppError("Joining date is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     //usrObj.dateJoined = Date.now();//assuming joining date is same as created date for now
     if (_.isEmpty(usrObj.designation))
         throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-
+*/
     return await UserModel.create(usrObj)
 }
 
