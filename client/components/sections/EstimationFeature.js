@@ -49,9 +49,6 @@ class EstimationFeature extends React.PureComponent {
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
             editView = true
 
-        if (feature.status === SC.STATUS_APPROVED) {
-            editView = false
-        }
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
 
@@ -254,7 +251,7 @@ class EstimationFeature extends React.PureComponent {
                     if (feature.negotiator.changeGranted) {
                         // estimator has requested change which negotiator has granted
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
-                        buttons.push(!editView && feature.repo && feature.repo.addedFromThisEstimation ?
+                        buttons.push(editView ?
                             <img className="div-hover" key="he_granted_re_open" src="/images/he_granted_edit.png"
                                  title="Reopen-Granted"
                                  onClick={() => {
@@ -264,7 +261,7 @@ class EstimationFeature extends React.PureComponent {
                                  title="Reopen-Granted"/>)
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
-                        buttons.push(!editView && feature.repo && feature.repo.addedFromThisEstimation ?
+                        buttons.push(editView ?
                             <img className="div-hover" key="requested_re_open" src="/images/requested_edit.png"
                                  title="Reopen-Requested"
                                  onClick={() => {
@@ -274,7 +271,7 @@ class EstimationFeature extends React.PureComponent {
                                  title="Reopen-Requested"/>)
                     }
                 } else {
-                    buttons.push(!editView && feature.repo && feature.repo.addedFromThisEstimation ?
+                    buttons.push(editView ?
                         <img className="div-hover" key="request_re_open" src="/images/request_edit.png"
                              title="Reopen-Request"
                              onClick={() => {
@@ -408,7 +405,6 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
 
         showFeatureSuggestionForm: (values, loggedInUserRole) => {
-            console.log("showFeatureSuggestionForm feature", values)
             // Can be called by both estimator and negotiator
             let feature = {
                 loggedInUserRole: loggedInUserRole,
@@ -433,8 +429,6 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 feature.readOnly.description = values.negotiator.description
 
             }
-            console.log("feature", feature)
-
             dispatch(initialize("estimation-suggest-feature", feature))
             dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG))
 
@@ -442,7 +436,6 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
 
 
         deleteFeature: (feature) => {
-            console.log("delete feature", feature)
             return dispatch(A.deleteFeatureByEstimatorOnServer(feature.estimation._id, feature._id)).then(json => {
                 if (json.success) {
                     NotificationManager.success("Feature Deleted successfully")
