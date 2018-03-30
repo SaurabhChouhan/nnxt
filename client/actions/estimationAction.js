@@ -98,9 +98,9 @@ export const addFilteredEstimation = (filter) => ({
     filter: filter
 })
 
-export const getAllEstimationsFromServer = () => {
+export const getAllEstimationsFromServer = (projectID, status) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations', {
+        return fetch('/api/estimations/project/' + projectID + '/status/' + status, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -129,7 +129,7 @@ export const initiateEstimationOnServer = (estimation) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(estimation)
+                body: JSON.stringify(estimation)
             }
         ).then(
             response => response.json()
@@ -161,8 +161,8 @@ export const updateEstimationOnServer = (estimation) => {
         ).then(
             json => {
                 if (json.success) {
-                 //   console.log("estimation update", json.data)
-                      dispatch(editEstimation(json.data))
+                    //   console.log("estimation update", json.data)
+                    dispatch(editEstimation(json.data))
                 }
                 return json
             })
@@ -841,7 +841,6 @@ export const approveEstimationOnServer = (estimationID) => {
             })
     }
 }
-
 
 
 export const canApproveFeatureOnServer = (FeatureID) => {

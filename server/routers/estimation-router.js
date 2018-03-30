@@ -12,8 +12,8 @@ let estimationRouter = new Router({
 })
 
 // noinspection Annotator
-estimationRouter.get("/", async ctx => {
-    return await EstimationModel.getAllActive(ctx.state.user)
+estimationRouter.get("/project/:projectID/status/:status", async ctx => {
+    return await EstimationModel.getAllActive(ctx.params.projectID, ctx.params.status, ctx.state.user)
 })
 
 // noinspection Annotator
