@@ -6,7 +6,7 @@ const mapStateToProps = (state, ownProps) => ({
     loggedInUserRole: state.estimation.selected.loggedInUserRole,
     expandedFeatureID: state.estimation.expandedFeatureID,
     expandedTaskID: state.estimation.expandedTaskID,
-    filter:state.estimation.filter
+    filter: state.estimation.filter
 })
 
 const EstimationFeaturesContainer = connect(
