@@ -504,6 +504,9 @@ export const updateTaskToEstimationOnServer = (task) => {
                     }
                     if (json.data && json.data.isFeatureCanApprove && json.data.feature && json.data.feature._id) {
                         dispatch(canNotApproveFeatureOnServer(json.data.feature._id, false))
+                    } else if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(getFeatureFromServer(json.data.feature._id))
+
                     }
                 }
                 return json
