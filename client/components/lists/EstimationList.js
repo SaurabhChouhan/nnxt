@@ -114,7 +114,7 @@ class EstimationList extends Component {
                     <div className="col-md-8 estimationSearchSection">
                         <div className="col-md-4">
                             <select
-                                className="form-control " onChange={(projectID) =>
+                                className="form-control estimationSearchProject " onChange={(projectID) =>
                                 this.filterEstimationByProject(projectID.target.value)
                             }>
                                 {<option value="all">{'All Projects'}</option>}
