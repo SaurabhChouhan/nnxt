@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(showComponent(CLIENT_FORM_DIALOG)),
             dispatch(initialize('client', client))
     },
-    deleteClient:(clientID) => dispatch(deleteClientOnServer(clientID)).then(json => {
+    deleteClient: (clientID) => dispatch(deleteClientOnServer(clientID)).then(json => {
         if (json.success) {
             NotificationManager.success('Client Removed Successfully')
         } else {

@@ -11,9 +11,9 @@ export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASES_TASK,
     releasePlans: releasePlans
 })
-export const addReleaseTaskPlanning = ( taskPlanning ) => ({
+export const addReleaseTaskPlanning = (taskPlanning) => ({
     type: AC.ADD_RELEASES_TASK_PLANNING,
-    taskPlanning :  taskPlanning
+    taskPlanning: taskPlanning
 })
 
 export const releaseProjectSelected = (project) => ({
@@ -29,18 +29,19 @@ export const releaseTaskPlanSelected = (taskPlan) => ({
 export const addTaskPlanningToState = (taskPlan) => {
     taskPlan.localId = localId++
     return {
-    type: AC.ADD_TASK_PLANNING_TO_STATE,
-    taskPlan: taskPlan
-}}
+        type: AC.ADD_TASK_PLANNING_TO_STATE,
+        taskPlan: taskPlan
+    }
+}
 
 export const deleteTaskPlanningFromState = (planId) => ({
     type: AC.DELETE_TASK_PLAN_FROM_STATE,
     planId: planId
 })
 
-export const addDeveloperFilteredData = ( developerPlanned ) => ({
+export const addDeveloperFilteredData = (developerPlanned) => ({
     type: AC.ADD_DEVELOPER_FILTERED,
-    developerPlanned :  developerPlanned
+    developerPlanned: developerPlanned
 })
 
 export const getAllReleaseFromServer = (status) => {

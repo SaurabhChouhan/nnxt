@@ -215,6 +215,7 @@ export function showUserInfo() {
         dispatch(initialize('user-profile', getState().user.loggedIn))
     }
 }
+
 export const updateUserSettingsOnServer = (user) => {
     return function (dispatch, getState) {
         return fetch('/api/users',

@@ -3,7 +3,7 @@ import * as AC from "../actions/actionConsts";
 let initialState = {
     all: [],
     selected: {},
-    leaveTypes:[],
+    leaveTypes: [],
 
 }
 

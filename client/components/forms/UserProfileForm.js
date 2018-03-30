@@ -15,7 +15,7 @@ import moment from "moment/moment";
 
 const passwordMatch = (value, values) => {
 
-    console.log("password match",values.password)
+    console.log("password match", values.password)
     return (value != values.password) ? `both password field should be same ` : undefined
 }
 
@@ -27,7 +27,7 @@ class UserProfileForm extends Component {
     render() {
         const {handleSubmit, pristine, reset, submitting, addUser, editUser, changeCredentials} = this.props;
 
-        console.log("render called for user profile form container",this.props)
+        console.log("render called for user profile form container", this.props)
         return <div className="col-md-8">
             <div className="col-md-12">
                 <div className="col-md-12 pad">
@@ -86,7 +86,7 @@ class UserProfileForm extends Component {
 
                                     <Field name="confirmPassword" label="Confirm Password :"
                                            placeholder={"confirm Password"}
-                                           validate={[passwordLength,passwordMatch]} component={renderField}
+                                           validate={[passwordLength, passwordMatch]} component={renderField}
                                            type="password"/>
                                 </div>
                             </div>
@@ -109,7 +109,7 @@ class UserProfileForm extends Component {
                             <div className="row">
                                 <div className="col-md-6">
                                     <Field name="employeeCode" label={"code :"} placeholder={"Employee-Code"}
-                                           component={renderText}   readOnly={true} />
+                                           component={renderText} readOnly={true}/>
                                 </div>
                                 <div className="col-md-6">
 

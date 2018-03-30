@@ -41,16 +41,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_FEATURE_FORM_DIALOG))
                 } else {
                     if (values.loggedInUserRole == SC.ROLE_NEGOTIATOR) {
-                        if (json.code == EC.ACCESS_DENIED){
+                        if (json.code == EC.ACCESS_DENIED) {
                             throw new SubmissionError({name: "You dont have permission "})
                             NotificationManager.error("Feature Suggestion Failed You dont have permission from Estimator")
                         }
                         NotificationManager.error("Update Feature Suggestion Failed")
                     }
 
-                    else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR)
-                    {
-                        if (json.code == EC.ACCESS_DENIED){
+                    else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR) {
+                        if (json.code == EC.ACCESS_DENIED) {
                             NotificationManager.error("Feature Suggestion Failed You dont have permission from Negotiator")
                         }
                         NotificationManager.error("Feature Addition Failed")
@@ -63,8 +62,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({
-})
+const mapStateToProps = (state, ownProps) => ({})
 
 const EstimationSuggestFeatureFormContainer = connect(
     mapStateToProps,

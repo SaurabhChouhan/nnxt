@@ -7,16 +7,16 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-            logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_SUBMIT, "values:", values)
-            return dispatch(A.addProjectAwardOnServer(values)).then(json => {
-                if (json.success) {
-                    NotificationManager.success("Project Awarded")
-                    // hide dialog
-                    dispatch(A.hideComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
-                } else {
-                    NotificationManager.error("Project Awardation Failed")
-                }
-            })
+        logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_SUBMIT, "values:", values)
+        return dispatch(A.addProjectAwardOnServer(values)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Project Awarded")
+                // hide dialog
+                dispatch(A.hideComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
+            } else {
+                NotificationManager.error("Project Awardation Failed")
+            }
+        })
     }
 })
 const mapStateToProps = (state) => {

@@ -6,8 +6,10 @@ import {initialize, SubmissionError} from 'redux-form'
 import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showAdminUserEditForm: (user) => {dispatch(showComponentHideOthers(ADMIN_USER_FORM)),
-                                    dispatch(initialize('admin-user', user))},
+    showAdminUserEditForm: (user) => {
+        dispatch(showComponentHideOthers(ADMIN_USER_FORM)),
+            dispatch(initialize('admin-user', user))
+    },
     deleteAdminUser: (userId) => dispatch(deleteUserOnServer(userId)).then(json => {
         if (json.success) {
             NotificationManager.success('User Deleted Successfully')

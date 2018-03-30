@@ -71,7 +71,7 @@ taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput, us
 }
 
 taskPlanningSchema.statics.getTaskPlanningDetails = async (taskId, user) => {
-    return await TaskPlanningModel.find({"task._id":taskId})
+    return await TaskPlanningModel.find({"task._id": taskId})
 }
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     if (!employeeId)

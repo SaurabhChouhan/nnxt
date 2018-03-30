@@ -100,12 +100,12 @@ let
                             console.log("negotiator repository", repository)
                             if (repository) {
                                 if (t.repo)
-                                if (!t.repo.addedFromThisEstimation) {
-                                    return (expandedTaskID === t._id) ?
-                                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
-                                                        expanded="true"/> :
-                                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                                }
+                                    if (!t.repo.addedFromThisEstimation) {
+                                        return (expandedTaskID === t._id) ?
+                                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                                            expanded="true"/> :
+                                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                                    }
                             }
 
                             if (suggestions) {

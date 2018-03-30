@@ -301,7 +301,7 @@ estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput,
     estimationFeature.negotiator.name = featureInput.name
     if (!estimationFeature.addedInThisIteration || estimationFeature.owner != SC.OWNER_NEGOTIATOR)
         estimationFeature.negotiator.changedInThisIteration = true
-        estimationFeature.canApprove = false
+    estimationFeature.canApprove = false
     estimationFeature.negotiator.description = featureInput.description
     estimationFeature.negotiator.changeSuggested = true // This will allow estimator to see updated changes as suggestions
     estimationFeature.updated = Date.now()
@@ -359,7 +359,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
         throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
 
-    if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
+    if (!feature.estimator.estimatedHours && !feature.estimator.estimatedHours > 0) {
         throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
 
     }
@@ -408,7 +408,7 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
         throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
 
-    if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
+    if (!feature.estimator.estimatedHours && !feature.estimator.estimatedHours > 0) {
         throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
     }
 
@@ -589,7 +589,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
 
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
-    estimationFeature.canApprove  = false
+    estimationFeature.canApprove = false
     estimationFeature.owner = SC.OWNER_ESTIMATOR
     estimationFeature.initiallyEstimated = true
 
@@ -667,15 +667,15 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-   /* let existingFeatureCount = await EstimationFeatureModel.count({
-        "repo._id": repositoryFeature._id,
-        "estimation._id": estimation._id
-    })
+    /* let existingFeatureCount = await EstimationFeatureModel.count({
+         "repo._id": repositoryFeature._id,
+         "estimation._id": estimation._id
+     })
 
 
-    if (existingFeatureCount > 0)
-        throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-*/
+     if (existingFeatureCount > 0)
+         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+ */
     let estimationFeature = new EstimationFeatureModel()
 
     estimationFeature.status = SC.STATUS_PENDING
@@ -806,7 +806,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     /**
      * TODO: Uncomment this code when feature approve functionality if available in repository
      if (!_.includes([SC.STATUS_APPROVED], repositoryFeature.status))
-        throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+     throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
      **/
 
     if (!Array.isArray(repositoryFeature.tasks) || repositoryFeature.tasks.length === 0) {
@@ -837,7 +837,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     estimationFeature.owner = SC.OWNER_NEGOTIATOR
     estimationFeature.initiallyEstimated = true
     estimationFeature.canApprove = false
-estimationFeature.changedKeyInformation = true
+    estimationFeature.changedKeyInformation = true
 
     estimationFeature.negotiator.name = repositoryFeature.name
     estimationFeature.negotiator.description = repositoryFeature.description
@@ -903,7 +903,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
     /**
      * TODO: Uncomment this code when feature approve functionality if available in repository
      if (!_.includes([SC.STATUS_APPROVED], repositoryFeature.status))
-        throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+     throw new AppError('Repository not ready to usable (Not approved)', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
      **/
 
     if (!Array.isArray(repositoryFeature.tasks) || repositoryFeature.tasks.length === 0) {

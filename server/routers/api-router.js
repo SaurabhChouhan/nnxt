@@ -1,5 +1,18 @@
 import Router from 'koa-router'
-import {publicRouter, userRouter, permissionRouter, roleRouter, clientRouter, estimationRouter, projectRouter, technologyRouter,repositoryRouter,leaveRouter, attendanceRouter,releaseRouter} from "./"
+import {
+    publicRouter,
+    userRouter,
+    permissionRouter,
+    roleRouter,
+    clientRouter,
+    estimationRouter,
+    projectRouter,
+    technologyRouter,
+    repositoryRouter,
+    leaveRouter,
+    attendanceRouter,
+    releaseRouter
+} from "./"
 import {isAuthenticated, isAdmin, isSuperAdmin} from "../utils"
 import AppError from '../AppError'
 import {ACCESS_DENIED} from "../errorcodes"
@@ -18,7 +31,7 @@ const apiRouter = new Router({
 apiRouter.use(publicRouter.routes())
 
 apiRouter.use(async (ctx, next) => {
-    if (ctx.request.query && typeof(ctx.request.query.schema)!= 'undefined') {
+    if (ctx.request.query && typeof(ctx.request.query.schema) != 'undefined') {
         // User is requesting schema for this API
         ctx.schemaRequested = true
         return await next()
@@ -27,6 +40,6 @@ apiRouter.use(async (ctx, next) => {
     } else {
         throw new AppError("Access Denied", ACCESS_DENIED, 403)
     }
-}, userRouter.routes(), permissionRouter.routes(), roleRouter.routes(), clientRouter.routes(), estimationRouter.routes(), projectRouter.routes(), technologyRouter.routes(),leaveRouter.routes(),repositoryRouter.routes(),attendanceRouter.routes(),releaseRouter.routes())
+}, userRouter.routes(), permissionRouter.routes(), roleRouter.routes(), clientRouter.routes(), estimationRouter.routes(), projectRouter.routes(), technologyRouter.routes(), leaveRouter.routes(), repositoryRouter.routes(), attendanceRouter.routes(), releaseRouter.routes())
 
 export default apiRouter

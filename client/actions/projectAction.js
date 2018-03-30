@@ -1,7 +1,6 @@
 import * as AC from "./actionConsts"
 
 
-
 export const addProjects = (projects) => ({
     type: AC.ADD_PROJECTS,
     projects: projects
@@ -112,7 +111,7 @@ export const editProjectOnServer = (project) => {
             }
         ).then(json => {
                 if (json.success) {
-                    console.log("Yor are now fatchning jason data",json.data)
+                    console.log("Yor are now fatchning jason data", json.data)
                     dispatch(editProject(json.data))
                 }
                 return json

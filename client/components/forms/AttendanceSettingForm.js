@@ -24,7 +24,8 @@ let AttendanceSettingForm = (props) => {
                             <Field name="dayStartTime" placeholder={"day start Time"} component={renderText}
                                    label={"Day Start Time :"} validate={[required, number]}/>
 
-                            <Field name="dayEndTime" placeholder={"day end Time"} component={renderText} validate={[required, number]}
+                            <Field name="dayEndTime" placeholder={"day end Time"} component={renderText}
+                                   validate={[required, number]}
                                    label={"Day End Time :"}/>
 
                             <button type="submit" className="btn customBtn">Submit</button>

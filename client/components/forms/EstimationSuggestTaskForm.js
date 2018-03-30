@@ -49,10 +49,10 @@ let EstimationSuggestTaskForm = (props) => {
             <button type="button" className="suggestCopy btn-link"
                     title="Copy Task Details"
                     onClick={() => {
-                change("name", readOnly.name)
-                change("estimatedHours", readOnly.estimatedHours)
-                change("description", readOnly.description)
-            }}><i className="glyphicon glyphicon-arrow-right"></i></button>
+                        change("name", readOnly.name)
+                        change("estimatedHours", readOnly.estimatedHours)
+                        change("description", readOnly.description)
+                    }}><i className="glyphicon glyphicon-arrow-right"></i></button>
         </div>
         <div className="col-md-5">
             <div className="row">
@@ -92,7 +92,9 @@ let EstimationSuggestTaskForm = (props) => {
                 <button type="submit" disabled={pristine || submitting} className="btn customBtn">Save</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>Reset</button>
+                <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>
+                    Reset
+                </button>
             </div>
         </div>
     </form>

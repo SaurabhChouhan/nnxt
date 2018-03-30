@@ -20,6 +20,7 @@ class ReleaseDetailList extends Component {
         this.onStatusChange = this.onStatusChange.bind(this)
 
     }
+
     onFlagChange(flag) {
         this.setState({flag: flag})
         this.props.changeReleaseFlag(this.props.release, this.state.status, flag)

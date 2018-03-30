@@ -21,27 +21,29 @@ let EstimationProjectAwardForm = (props) => {
 
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}  validate={[number]}/>
+                    <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}
+                           validate={[number]}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="releaseVersionName" component={renderText} validate={[required]} label={"Name (Relese Version):"}/>
+                    <Field name="releaseVersionName" component={renderText} validate={[required]}
+                           label={"Name (Relese Version):"}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-4">
                     <Field name="devStartDate" component={renderDateTimePicker}
                            min={moment()} showTime={false}
-                           label={"Expected Start Date For Developer:"} validate={[required]} />
+                           label={"Expected Start Date For Developer:"} validate={[required]}/>
                 </div>
                 <div className="col-md-4">
                     <Field name="devReleaseDate" component={renderDateTimePicker}
                            min={moment()} showTime={false}
-                           label={"Expected Developer Release Date:"} validate={[required]} />
+                           label={"Expected Developer Release Date:"} validate={[required]}/>
                 </div>
                 <div className="col-md-4">
-                    <Field name="clientReleaseDate"  component={renderDateTimePicker}
+                    <Field name="clientReleaseDate" component={renderDateTimePicker}
                            min={moment()} showTime={false}
-                           label={"Expected Client Release Date:"} validate={[required]} />
+                           label={"Expected Client Release Date:"} validate={[required]}/>
                 </div>
             </div>
             <div className="col-md-12">
@@ -71,7 +73,9 @@ let EstimationProjectAwardForm = (props) => {
                 <button type="submit" disabled={pristine || submitting} className="btn customBtn">Submit</button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="button" disabled={pristine || submitting} onClick={reset} className="btn customBtn">Reset</button>
+                <button type="button" disabled={pristine || submitting} onClick={reset} className="btn customBtn">
+                    Reset
+                </button>
             </div>
         </div>
     </form>

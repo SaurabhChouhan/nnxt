@@ -12,7 +12,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         logger.debug(logger.TECHNOLOGY_FORM_CONNECT, "onSubmit:values:")
         dispatch(A.showComponent(COC.TECHNOLOGY_FORM_DIALOG))
     },
-    deleteTechnology:(TechnologyID) => dispatch(deleteTechnologyOnServer(TechnologyID)).then(json => {
+    deleteTechnology: (TechnologyID) => dispatch(deleteTechnologyOnServer(TechnologyID)).then(json => {
         if (json.success) {
             NotificationManager.success('Technology Removed Successfully')
         } else {

@@ -10,7 +10,7 @@ const attendanceSettingReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_UPDATE_ATTENDENCE_SETTING:
             return Object.assign({}, state, {
-                    selected:Object.assign(action.attendanceSetting)
+                selected: Object.assign(action.attendanceSetting)
             })
 
         default:

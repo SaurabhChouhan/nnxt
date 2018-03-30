@@ -9,9 +9,9 @@ let clientRouter = new Router({
 })
 
 clientRouter.post('/', async ctx => {
-    if(ctx.schemaRequested)
+    if (ctx.schemaRequested)
         return generateSchema(clientAdditionStruct)
-    
+
     validate(ctx.request.body, clientAdditionStruct)
     return await ClientModel.saveClient(ctx.request.body)
 })

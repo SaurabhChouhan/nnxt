@@ -14,8 +14,10 @@ class AdminRoleForm extends Component {
             </div>,
             <form key="AdminRoleForm" onSubmit={this.props.handleSubmit}>
 
-                <Field name="name" component={renderText} label="Roles:" valueField="_id" disabled={true} readOnly={true} textField="name"/>
-                <Field name="permissions" component={renderMultiselect} label="permission:" data={this.props.permissionOptions}
+                <Field name="name" component={renderText} label="Roles:" valueField="_id" disabled={true}
+                       readOnly={true} textField="name"/>
+                <Field name="permissions" component={renderMultiselect} label="permission:"
+                       data={this.props.permissionOptions}
                        valueField="_id" textField="name"/>
                 <div className={'col-md-12'}>
                     <div className={'col-md-2'}>

@@ -37,6 +37,6 @@ const mapStateToProps = (state) => ({
 const RepositoryTaskDetailPageContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)( RepositoryTaskDetailPage)
+)(RepositoryTaskDetailPage)
 
 export default RepositoryTaskDetailPageContainer

@@ -18,8 +18,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }),
             dispatch(A.getRepositoryFromServer(estimation.technologies, 'all'))
     },
-    getAllEstimations: (projectID,status) => {
-      dispatch(A.getAllEstimationsFromServer(projectID,status))
+    getAllEstimations: (projectID, status) => {
+        dispatch(A.getAllEstimationsFromServer(projectID, status))
     }
 })
 

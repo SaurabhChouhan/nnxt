@@ -11,16 +11,18 @@ class TechnologyList extends Component {
         super(props)
         this.state = {
             showTechnologyDeletionDialog: false,
-            addRow:null
+            addRow: null
 
 
         }
 
     }
+
     onClose() {
         this.setState({showTechnologyDeletionDialog: false})
-        console.log("onClose",this.state.showTechnologyDeletionDialog)
+        console.log("onClose", this.state.showTechnologyDeletionDialog)
     }
+
     OkConfimationForDeleteTechnology() {
         this.setState({showTechnologyDeletionDialog: false})
         this.props.deleteTechnology(this.state.addRow)
@@ -30,8 +32,8 @@ class TechnologyList extends Component {
 
 
         return (<button className="fa fa-trash btn btn-custom" type="button" onClick={() => {
-                 this.setState({showTechnologyDeletionDialog: true}),
-                 this.setState({addRow:row._id})
+                this.setState({showTechnologyDeletionDialog: true}),
+                    this.setState({addRow: row._id})
             }}>
 
             </button>
@@ -48,37 +50,39 @@ class TechnologyList extends Component {
                                 body={CM.DELETE_TECHNOLOGY_BODY}/>
             }
 
-            <div key="technology_list" className="clearfix">
+                <div key="technology_list" className="clearfix">
 
 
-                <div className="col-md-12">
-                    <div className="col-md-12 pad">
+                    <div className="col-md-12">
+                        <div className="col-md-12 pad">
 
-                        <div className="col-md-12">
-                            <button className="btn customBtn"
-                                    onClick={() => this.props.showTechnologyAdditionForm()}>Add Technology
-                            </button>
+                            <div className="col-md-12">
+                                <button className="btn customBtn"
+                                        onClick={() => this.props.showTechnologyAdditionForm()}>Add Technology
+                                </button>
 
-                        <div className="technology">
+                                <div className="technology">
 
-                            <BootstrapTable options={this.options} data={this.props.technologies}
-                                            striped={true}
-                                            hover={true}>
-                                <TableHeaderColumn columnTitle isKey dataField='_id'
-                                                   hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='name'>Technology Name</TableHeaderColumn>
+                                    <BootstrapTable options={this.options} data={this.props.technologies}
+                                                    striped={true}
+                                                    hover={true}>
+                                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                           hidden={true}>ID</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='name'>Technology
+                                            Name</TableHeaderColumn>
 
-                                <TableHeaderColumn width="30%" dataField='button' dataFormat={this.viewButton.bind(this)} >Delete
-                            </TableHeaderColumn>
+                                        <TableHeaderColumn width="30%" dataField='button'
+                                                           dataFormat={this.viewButton.bind(this)}>Delete
+                                        </TableHeaderColumn>
 
-                            </BootstrapTable>
+                                    </BootstrapTable>
+                                </div>
+
+                            </div>
+
                         </div>
-
-                        </div>
-
                     </div>
                 </div>
-            </div>
             </div>
         )
     }

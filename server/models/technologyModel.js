@@ -21,7 +21,7 @@ technologySchema.statics.saveTechnology = async (technologyInput) => {
     return await TechnologyModel.create(technologyInput)
 }
 
-technologySchema.statics.delete = async (id)=> {
+technologySchema.statics.delete = async (id) => {
     let response = await TechnologyModel.findById(id).remove()
     return response
 }
