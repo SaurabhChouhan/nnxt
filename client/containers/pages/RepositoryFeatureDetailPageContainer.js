@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         } else {
             if (json.code == EC.ALREADY_EXISTS)
                 NotificationManager.error("Feature Already Added ")
-            else  NotificationManager.error("Feature Addition Failed")
+            else NotificationManager.error("Feature Addition Failed")
 
         }
     }),
@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         } else {
             if (json.code == EC.ALREADY_EXISTS)
                 NotificationManager.error("Feature Already Available")
-            else  NotificationManager.error("Feature Addition Failed")
+            else NotificationManager.error("Feature Addition Failed")
 
         }
     })
@@ -42,6 +42,6 @@ const mapStateToProps = (state) => ({
 const RepositoryFeatureDetailPageContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)( RepositoryFeatureDetailPage)
+)(RepositoryFeatureDetailPage)
 
 export default RepositoryFeatureDetailPageContainer

@@ -18,7 +18,9 @@ let MoveTaskInFeatureForm = (props) => {
                        optionalDisplayField="negotiator.name"
                 />
 
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn moveInBtnSpace"> Submit</button>
+                <button type="submit" disabled={pristine || submitting} className="btn customBtn moveInBtnSpace">
+                    Submit
+                </button>
                 <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>
                     Reset
                 </button>

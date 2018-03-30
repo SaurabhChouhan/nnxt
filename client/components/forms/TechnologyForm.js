@@ -5,7 +5,7 @@ import React from 'react'
 import * as logger from "../../clientLogger";
 
 
-let TechnologyForm=(props)=> {
+let TechnologyForm = (props) => {
     logger.debug(logger.TECHNOLOGY_FORM_RENDER, "onSubmit: props:", props)
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
@@ -21,8 +21,8 @@ let TechnologyForm=(props)=> {
     </form>
 }
 
-TechnologyForm =reduxForm({
-    form:'technology'
+TechnologyForm = reduxForm({
+    form: 'technology'
 })(TechnologyForm)
 
 export default TechnologyForm

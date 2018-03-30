@@ -20,27 +20,26 @@ let ReleaseTaskPlanningForm = (props) => {
                        showTime={false}
                        label={" Date :"} validate={[required]}/>
                 <Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
-                       label={"Estimated Hours:"} validate={[required,number]}/>
+                       label={"Estimated Hours:"} validate={[required, number]}/>
 
                 <Field name="employee.name" component="input" type="hidden"/>
                 <Field name="employee._id" placeholder={"Name of Developer"}
-                       onChange={(event, newValue, oldValue) =>
-                       {
+                       onChange={(event, newValue, oldValue) => {
                            let employee = team.find(e => e._id == newValue)
-                           change("employee.name",employee.name)
+                           change("employee.name", employee.name)
                        }}
                        component={renderSelect} options={team}
                        label={"Developer Name:"} validate={[required]}/>
             </div>
 
-                <div className="col-md-12">
-                    <div className="col-md-4">
-                        <button type="submit" className="btn customBtn">Save To Local</button>
-                    </div>
-                    <div className="col-md-4">
-                        <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
-                    </div>
+            <div className="col-md-12">
+                <div className="col-md-4">
+                    <button type="submit" className="btn customBtn">Save To Local</button>
                 </div>
+                <div className="col-md-4">
+                    <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
+                </div>
+            </div>
 
         </div>
 

@@ -35,7 +35,7 @@ let employeeStatisticsSchema = mongoose.Schema({
     ]
 })
 
-employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeStatisticsInput,user) => {
+employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeStatisticsInput, user) => {
     return await EmployeeStatisticsModel.create(EmployeeStatisticsInput)
 }
 

@@ -4,7 +4,7 @@ import {EstimationTasks} from "../../components"
 const mapStateToProps = (state, ownProps) => ({
     tasks: state.estimation.tasks,
     expandedTaskID: state.estimation.expandedTaskID,
-    filter:state.estimation.filter
+    filter: state.estimation.filter
 
 })
 

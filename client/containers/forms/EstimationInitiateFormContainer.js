@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
     estimators: state.user.all,
     projects: state.project.all,
-    technologies: state.technology.all.map(t=> t.name)
+    technologies: state.technology.all.map(t => t.name)
 })
 
 const EstimationInitiateFormContainer = connect(

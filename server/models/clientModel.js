@@ -40,37 +40,36 @@ clientSchema.statics.exists = async name => {
     return false
 }
 
-clientSchema.statics.delete = async (id)=> {
+clientSchema.statics.delete = async (id) => {
     let response = await ClientModel.findById(id).remove()
     return response
 }
-clientSchema.statics.deleteClient = async (id)=> {
+clientSchema.statics.deleteClient = async (id) => {
     let client = await ClientModel.findById(id)
-    let response=undefined
+    let response = undefined
 
-    if (client.canHardDelete){
+    if (client.canHardDelete) {
         response = await ClientModel.findById(id).remove()
     }
-    else{
+    else {
         response = await ClientModel.findById(id)
-        client.isDeleted=true
+        client.isDeleted = true
         response = await client.save()
     }
 
     return response
 }
 clientSchema.statics.editClient = async clientInput => {
-    console.log("check the project Input data",clientInput)
+    console.log("check the project Input data", clientInput)
     let client = await ClientModel.findById(clientInput._id)
     //let count = await ProjectModel.count({'name': projectInput.name, 'client._id': projectInput.client._id})
-    if (await ClientModel.exists(clientInput.name))
-    {
-        throw new AppError("Client [" + client._id+ "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+    if (await ClientModel.exists(clientInput.name)) {
+        throw new AppError("Client [" + client._id + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
     }
 
-        client.name = clientInput.name
+    client.name = clientInput.name
 
-        return await client.save()
+    return await client.save()
 
 }
 

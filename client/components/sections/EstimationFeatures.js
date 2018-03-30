@@ -8,20 +8,20 @@ let EstimationFeatures = (props) => {
         features: undefined
     })
     const {repository, estimator, negotiator, changeRequested, grantPermission, suggestions} = props.filter
-    const {expandedFeatureID,loggedInUserRole} = props
-       
+    const {expandedFeatureID, loggedInUserRole} = props
+
     return Array.isArray(props.features) && props.features.map((f, idx) => {
 
         if (!f) {
             return <span></span>
         }
-        if (estimator && changeRequested &&repository && grantPermission && suggestions && negotiator) {
+        if (estimator && changeRequested && repository && grantPermission && suggestions && negotiator) {
             return (expandedFeatureID === f._id) ?
                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded={true}/> :
                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
         }
         else {
-            if (estimator || changeRequested ||repository || grantPermission || suggestions || negotiator) {
+            if (estimator || changeRequested || repository || grantPermission || suggestions || negotiator) {
 
                 if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
 
@@ -55,15 +55,14 @@ let EstimationFeatures = (props) => {
                     }
 
                     //feature added from repository
-                    if (repository)
-                    {
-                        if(f.repo)
-                        if (!f.repo.addedFromThisEstimation) {
-                            return (expandedFeatureID === f._id) ?
-                                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
-                                                   expanded="true"/> :
-                                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
-                        }
+                    if (repository) {
+                        if (f.repo)
+                            if (!f.repo.addedFromThisEstimation) {
+                                return (expandedFeatureID === f._id) ?
+                                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                                       expanded="true"/> :
+                                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+                            }
                     }
                 }
                 else {
@@ -94,13 +93,14 @@ let EstimationFeatures = (props) => {
                         }
 
                         if (repository) {
-                            if(f.repo)
-                            if (!f.repo.addedFromThisEstimation) {
-                                return (expandedFeatureID === f._id) ?
-                                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
-                                                       expanded="true"/> :
-                                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
-                            }
+                            if (f.repo)
+                                if (!f.repo.addedFromThisEstimation) {
+                                    return (expandedFeatureID === f._id) ?
+                                        <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                                           expanded="true"/> :
+                                        <EstimationFeature feature={f} index={idx}
+                                                           key={"feature" + idx} {...childProps}/>
+                                }
                         }
                         if (suggestions) {
                             if (f.estimator.changedInThisIteration && f.estimator.changedKeyInformation) {
@@ -127,9 +127,6 @@ let EstimationFeatures = (props) => {
                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
             }
         }
-
-
-
 
 
     })

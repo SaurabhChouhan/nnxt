@@ -24,6 +24,6 @@ const mapStateToProps = (state) => ({
 const RaiseLeaveListDetailContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)( RaiseLeaveDeatilPage)
+)(RaiseLeaveDeatilPage)
 
 export default RaiseLeaveListDetailContainer

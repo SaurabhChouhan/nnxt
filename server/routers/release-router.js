@@ -28,11 +28,11 @@ releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empfla
 })
 
 releaseRouter.put("/plan-task/", async ctx => {
-       let planTask = await TaskPlanningModel.addTaskPlanningDetails(ctx.request.body, ctx.state.user)
-       if (!planTask) {
-           throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-       }
-       return planTask
+    let planTask = await TaskPlanningModel.addTaskPlanningDetails(ctx.request.body, ctx.state.user)
+    if (!planTask) {
+        throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    return planTask
 })
 
 releaseRouter.get("/task-plans/:taskId", async ctx => {
@@ -70,8 +70,6 @@ releaseRouter.post("/employee-statistics/", async ctx => {
 releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
 })
-
-
 
 
 export default releaseRouter

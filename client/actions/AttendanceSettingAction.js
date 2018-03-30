@@ -24,7 +24,7 @@ export const addAttendanceSettingOnServer = (formInput) => {
                 return response.json()
             }
         ).then(json => {
-            if (json.success && json.data) {
+                if (json.success && json.data) {
                     dispatch(addAttendanceSetting(json.data))
                 }
                 return json
@@ -49,9 +49,9 @@ export const getAttendanceSettingFromServer = () => {
                 return response.json()
             }
         ).then(json => {
-            if (json.success && json.data) {
-                dispatch(initialize('attendance-setting', json.data))
-                dispatch(addAttendanceSetting(json.data))
+                if (json.success && json.data) {
+                    dispatch(initialize('attendance-setting', json.data))
+                    dispatch(addAttendanceSetting(json.data))
                 }
                 return json
             }

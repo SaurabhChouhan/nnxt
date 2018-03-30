@@ -8,7 +8,7 @@ import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        if(values._id){
+        if (values._id) {
             values.estimatedHours = Number(values.estimatedHours)
             logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
             dispatch(A.updateTaskToEstimationOnServer(values)).then(json => {
@@ -21,7 +21,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 }
             })
         }
-        else{
+        else {
             values.estimatedHours = Number(values.estimatedHours)
             logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
             dispatch(A.addTaskToEstimationOnServer(values)).then(json => {

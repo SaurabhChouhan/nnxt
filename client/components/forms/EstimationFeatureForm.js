@@ -7,7 +7,7 @@ import {connect} from "react-redux";
 
 let EstimationFeatureForm = (props) => {
     logger.debug(logger.ESTIMATION_FEATURE_FORM_RENDER, props)
-    const {estimation, _id,reset} = props
+    const {estimation, _id, reset} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 

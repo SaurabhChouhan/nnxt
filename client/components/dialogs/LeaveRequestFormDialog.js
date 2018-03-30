@@ -3,7 +3,7 @@ import React from 'react'
 import {LeaveRequestFormContainer} from "../../containers"
 
 const LeaveRequestFormDialog = (props) => {
-    return <Modal  className="estimationModal" show={props.show} onHide={props.close}>
+    return <Modal className="estimationModal" show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
             <div className="clearfix ModalHeading">
                 <div className="col-md-1 ModalSideLabel"></div>

@@ -14,12 +14,11 @@ let ReleaseDeveloperFilterForm = (props) => {
 
         <div className="col-md-4">
             <Field name="employeeId" placeholder={"Name of Developer"}
-                   onChange={(event, newValue, oldValue) =>
-                   {
+                   onChange={(event, newValue, oldValue) => {
                        props.getDeveloperDetails(newValue, startDate, endDate)
                    }}
                    component={renderSelect} options={team}
-                   label={"Developer Name:"} />
+                   label={"Developer Name:"}/>
 
         </div>
         <div className="col-md-6">
@@ -29,8 +28,8 @@ let ReleaseDeveloperFilterForm = (props) => {
                            props.getDeveloperDetails(employeeId, newValue, endDate)
                        }}
                        showTime={false}
-                       max = {endDate}
-                       label={" From :"} />
+                       max={endDate}
+                       label={" From :"}/>
             </div>
             <div className="col-md-6">
                 <Field name="endDate" placeholder={" End Date"} component={renderDateTimePicker}
@@ -38,7 +37,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                            props.getDeveloperDetails(employeeId, startDate, newValue)
                        }}
                        showTime={false}
-                       min = {startDate}
+                       min={startDate}
                        label={" To :"}/>
             </div>
 

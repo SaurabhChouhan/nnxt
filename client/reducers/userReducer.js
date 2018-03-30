@@ -17,7 +17,7 @@ let initialState = {
     authenticationFailed: false,
     loginError: undefined,
     all: [],
-    userWithRoleCategory:{},
+    userWithRoleCategory: {},
     selected: {}
 }
 

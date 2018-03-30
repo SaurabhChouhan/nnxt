@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 }
                 return json
             })
-        }else{
+        } else {
             return dispatch(editClientOnServer(values)).then(response => {
                 if (response.success) {
                     dispatch(A.hideComponent(COC.CLIENT_FORM_DIALOG)),
@@ -40,9 +40,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({
-
-})
+const mapStateToProps = (state, ownProps) => ({})
 
 const ClientFormContainer = connect(
     null,

@@ -1507,10 +1507,12 @@ button.approveBtn:hover {
 .estimationBackArrow {
     padding: 0px;
 }
-.moveInBtnSpace{
+
+.moveInBtnSpace {
     margin-right: 30px;
 }
-label{
+
+label {
     font-size: 17px;
 }
 

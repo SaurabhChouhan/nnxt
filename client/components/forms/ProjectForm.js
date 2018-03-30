@@ -4,8 +4,8 @@ import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import * as logger from "../../clientLogger";
 
-let ProjectForm=(props)=> {
-    console.log("You are project Form",props)
+let ProjectForm = (props) => {
+    console.log("You are project Form", props)
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-4">
@@ -15,7 +15,7 @@ let ProjectForm=(props)=> {
                 <Field name="client._id" component={renderSelect} label={"Client :"} options={props.clients}
                        validate={[required]}/>
 
-                <button type="submit" className="btn customBtn"> Submit </button>
+                <button type="submit" className="btn customBtn"> Submit</button>
 
             </div>
 
@@ -24,8 +24,8 @@ let ProjectForm=(props)=> {
     </form>
 }
 
-ProjectForm =reduxForm({
-    form:'project'
+ProjectForm = reduxForm({
+    form: 'project'
 })(ProjectForm)
 
 export default ProjectForm

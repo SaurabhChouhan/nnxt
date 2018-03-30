@@ -17,8 +17,7 @@ let employeeDaysSchema = mongoose.Schema({
 })
 
 
-
-employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput,user) => {
+employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput, user) => {
     return await EmployeeDaysModel.create(EmployeeDaysInput)
 }
 employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {

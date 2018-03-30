@@ -33,6 +33,17 @@ estimationRouter.get("/:estimationID", async ctx => {
     }
     return estimation
 })
+// noinspection Annotator
+estimationRouter.get("/feature/:featureID", async ctx => {
+    let estimationFeature = await EstimationFeatureModel.getById(ctx.params.featureID)
+    if (!estimationFeature) {
+        throw new AppError("Not allowed to see estimation details", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+    estimationFeature = estimationFeature.toObject()
+    estimationFeature.tasks = []
+    return estimationFeature
+})
+
 
 // noinspection Annotator
 /**

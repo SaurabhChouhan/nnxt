@@ -11,17 +11,19 @@ class ClientList extends Component {
         super(props)
         this.state = {
             showClientDeletionDialog: false,
-            addRow:null
+            addRow: null
         }
 
     }
+
     onClose() {
         this.setState({showClientDeletionDialog: false})
-        console.log("onClose",this.state.showClientDeletionDialog)
+        console.log("onClose", this.state.showClientDeletionDialog)
     }
+
     OkConfimationForDeletingClient() {
         this.setState({showClientDeletionDialog: false})
-        console.log("ok confirmation id,",this.state.addRow)
+        console.log("ok confirmation id,", this.state.addRow)
         this.props.deleteClient(this.state.addRow)
     }
 
@@ -30,13 +32,14 @@ class ClientList extends Component {
 
         return (<button className="fa fa-trash btn btn-custom " type="button" onClick={() => {
                 this.setState({showClientDeletionDialog: true}),
-                    this.setState({addRow:row._id})
+                    this.setState({addRow: row._id})
             }}>
 
             </button>
         )
 
     }
+
     viewEditButton(cell, row, enumObject, rowIndex) {
 
 
@@ -57,37 +60,40 @@ class ClientList extends Component {
                                 title={CM.DELETE_CLIENT} onClose={this.onClose.bind(this)}
                                 body={CM.DELETE_CLIENT_BODY}/>
             }
-            <div key="client_list" className="clearfix">
+                <div key="client_list" className="clearfix">
 
 
-                <div className="col-md-12">
-                    <div className="col-md-12 pad">
+                    <div className="col-md-12">
+                        <div className="col-md-12 pad">
 
-                        <div className="col-md-12">
-                            <button className="btn customBtn"
-                                    onClick={() => this.props.showClientCreationForm()}>Create Client
-                            </button>
+                            <div className="col-md-12">
+                                <button className="btn customBtn"
+                                        onClick={() => this.props.showClientCreationForm()}>Create Client
+                                </button>
 
-                            <div className="client">
+                                <div className="client">
 
-                                <BootstrapTable options={this.options} data={this.props.clients}
-                                                striped={true}
-                                                hover={true}>
-                                    <TableHeaderColumn  columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                                    <TableHeaderColumn  columnTitle dataField='name'>Client Name</TableHeaderColumn>
-                                    <TableHeaderColumn width="15%" dataField='editButton' dataFormat={this.viewEditButton.bind(this)} >Edit Client
-                                    </TableHeaderColumn>
-                                    <TableHeaderColumn width="15%" dataField='deleteButton' dataFormat={this.viewDeleteButton.bind(this)} >Delete Client
-                                    </TableHeaderColumn>
+                                    <BootstrapTable options={this.options} data={this.props.clients}
+                                                    striped={true}
+                                                    hover={true}>
+                                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                           hidden={true}>ID</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='name'>Client Name</TableHeaderColumn>
+                                        <TableHeaderColumn width="15%" dataField='editButton'
+                                                           dataFormat={this.viewEditButton.bind(this)}>Edit Client
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn width="15%" dataField='deleteButton'
+                                                           dataFormat={this.viewDeleteButton.bind(this)}>Delete Client
+                                        </TableHeaderColumn>
 
-                                </BootstrapTable>
+                                    </BootstrapTable>
+                                </div>
+
                             </div>
 
                         </div>
-
                     </div>
                 </div>
-            </div>
 
             </div>
 

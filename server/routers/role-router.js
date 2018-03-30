@@ -64,7 +64,7 @@ roleRouter.put('/', async ctx => {
         }
 
         role = await RoleModel.editRole(role)
-        role.permissions = role.permissions.filter(p=> p.configurable)
+        role.permissions = role.permissions.filter(p => p.configurable)
         return role
     } else {
         throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)

@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         console.log("You are in project initiate Form container ", values)
         if (!values._id) {
-            return dispatch(A.addProjectOnServer(values)).then(json=>{
+            return dispatch(A.addProjectOnServer(values)).then(json => {
                 if (json.success) {
                     NotificationManager.success('Project Added Successfully')
                     dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG))
@@ -29,11 +29,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 }
                 return json
             })
-        }else{
+        } else {
             return dispatch(editProjectOnServer(values)).then(response => {
                 if (response.success) {
                     dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG)),
-                    NotificationManager.success('Project Updated Successfully')
+                        NotificationManager.success('Project Updated Successfully')
                 } else {
                     NotificationManager.error('Project Updated Failed');
                     if (response.code == EC.ALREADY_EXISTS)
@@ -42,7 +42,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 return json
             })
         }
-
 
 
     }

@@ -16,16 +16,16 @@ export const selectFeatureFromRepository = (feature) => ({
     feature: feature
 })
 
-export const getRepositoryFromServer = (technologies,type,searchText) => {
+export const getRepositoryFromServer = (technologies, type, searchText) => {
     return (dispatch, getState) => {
-        return fetch('/api/repositories/search',{
+        return fetch('/api/repositories/search', {
                 method: 'post',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify({"technologies":technologies,"type":type,"searchText":searchText})
+                body: JSON.stringify({"technologies": technologies, "type": type, "searchText": searchText})
             }
         ).then(
             response => response.json()

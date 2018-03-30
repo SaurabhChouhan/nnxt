@@ -5,9 +5,9 @@ let initialState = {
     all: [],
     allReleases: [],
     selected: {},
-    selectedTaskPlan:{},
-    taskPlanning:[],
-    developerPlanned:[]
+    selectedTaskPlan: {},
+    taskPlanning: [],
+    developerPlanned: []
 }
 
 const clientReducer = (state = initialState, action) => {
@@ -27,7 +27,7 @@ const clientReducer = (state = initialState, action) => {
 
         case AC.ADD_TASK_PLANNING_TO_STATE:
             return Object.assign({}, state, {
-                taskPlanning : [...state.taskPlanning,action.taskPlan]
+                taskPlanning: [...state.taskPlanning, action.taskPlan]
             })
 
         case AC.DELETE_TASK_PLAN_FROM_STATE:

@@ -6,7 +6,7 @@ class Tab extends React.Component {
         return (
             <li className={this.props.isActive ? "active" : null}>
                 <Link onClick={this.props.handleClick}
-                      to={this.props.match.url + this.props.data.url}>{this.props.data.displayName?this.props.data.displayName:this.props.data.name}</Link>
+                      to={this.props.match.url + this.props.data.url}>{this.props.data.displayName ? this.props.data.displayName : this.props.data.name}</Link>
             </li>
 
         );

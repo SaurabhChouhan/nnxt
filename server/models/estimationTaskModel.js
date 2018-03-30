@@ -125,7 +125,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
 
-         estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
+        estimationFeatureObj = await EstimationFeatureModel.findById(taskInput.feature._id)
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -168,7 +168,7 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
     if (estimation && estimation.canApprove) {
         estimationTask.isEstimationCanApprove = true
     }
-    if(estimationFeatureObj && estimationFeatureObj.canApprove){
+    if (estimationFeatureObj && estimationFeatureObj.canApprove) {
         estimationTask.isFeatureCanApprove = true
     }
     return estimationTask
@@ -454,10 +454,10 @@ estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, esti
 
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-/*
-    if (!task.repo.addedFromThisEstimation)
-        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
-*/
+    /*
+        if (!task.repo.addedFromThisEstimation)
+            throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+    */
     task.estimator.removalRequested = !task.estimator.removalRequested
     task.estimator.changedInThisIteration = true
 
@@ -599,7 +599,6 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
         throw new AppError('Not an negtotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
 
-
     if (task.feature && task.feature._id) {
         let feature = await EstimationFeatureModel.findById(task.feature._id)
         if (!feature)
@@ -687,7 +686,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-       }
+    }
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
     task.canApprove = false
