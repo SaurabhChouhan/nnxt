@@ -3,7 +3,6 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import _ from 'lodash'
-import {EstimationSearchFormContainer} from '../../containers'
 
 class EstimationList extends Component {
 
@@ -12,12 +11,25 @@ class EstimationList extends Component {
         this.options = {
             onRowClick: this.onRowClick.bind(this)
         }
+        this.state = {
+            status: 'all',
+            projectID: 'all'
+        }
+        this.filterEstimationByProject = this.filterEstimationByProject.bind(this);
     }
 
     onRowClick(row) {
         this.props.history.push("/app-home/estimation-detail")
         this.props.estimationSelected(row)
 
+    }
+
+    filterEstimationStatus(status) {
+        this.props.getAllEstimations(this.state.projectID, status)
+    }
+
+    filterEstimationByProject(projectID) {
+        this.props.getAllEstimations(projectID, this.state.status)
     }
 
     formatProject(project) {
@@ -101,13 +113,24 @@ class EstimationList extends Component {
                 <div className="col-md-12">
                     <div className="col-md-8 estimationSearchSection">
                         <div className="col-md-4">
+                            <select
+                                className="form-control " onChange={(projectID) =>
+                                this.filterEstimationByProject(projectID.target.value)
+                            }>
+                                {<option value="all">{'All Projects'}</option>}
+                                {
+                                    projects && projects.map(option => {
 
-                            <EstimationSearchFormContainer/>
-
+                                            return <option value={_.get(option, "_id")}
+                                                           key={option["_id"]}>{_.get(option, 'name')}</option>
+                                        }
+                                    )
+                                }
+                            </select>
                         </div>
                         <div className="col-md-4">
                             <select className="form-control estimationSearchStatus" onChange={(status) =>
-                                this.props.filterEstimationStatus(status.target.value)
+                                this.filterEstimationStatus(status.target.value)
                             }>
                                 <option value="all">All Status</option>
                                 <option value={SC.STATUS_ESTIMATION_REQUESTED}>{SC.STATUS_ESTIMATION_REQUESTED}</option>

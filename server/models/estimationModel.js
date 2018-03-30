@@ -67,7 +67,7 @@ let estimationSchema = mongoose.Schema({
 })
 
 
-estimationSchema.statics.getAllActive = async (user) => {
+estimationSchema.statics.getAllActive = async (projectID, status, user) => {
 
     console.log("user id is ", user._id)
     let estimations = []
@@ -113,7 +113,20 @@ estimationSchema.statics.getAllActive = async (user) => {
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
-    return estimations
+    if (status == "all" && projectID == 'all') {
+
+        return estimations
+
+    } else if (status == "all") {
+
+        return estimations.filter(estimation => estimation.project._id == projectID)
+
+    } else if (projectID == 'all') {
+
+        return estimations.filter(estimation => estimation.status == status)
+
+    } else return estimations.filter(estimation => estimation.status == status && estimation.project._id == projectID)
+
 }
 
 estimationSchema.statics.getById = async estimationID => {
