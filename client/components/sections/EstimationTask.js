@@ -38,14 +38,9 @@ class EstimationTask extends React.PureComponent {
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'task owner ', task.owner)
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
-        console.log("estimationStaus", estimationStatus)
         let editView = false
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
             editView = true
-
-        if (task.status === SC.STATUS_APPROVED) {
-            editView = true
-        }
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
@@ -230,13 +225,11 @@ class EstimationTask extends React.PureComponent {
 
 
                 }
-
                 else if (task.status === SC.STATUS_APPROVED) {
                     // As task is approved by negotiator hence he has no direct permission to edit/delete task so estimator has to raise re-open request
                     /**
                      * Single button shown to estimator would be related to Reopen request/grants
                      */
-                    console.log("task is approved in estimator field ")
                     if (task.estimator.changeRequested) {
                         if (task.negotiator.changeGranted) {
                             // estimator has requested change which negotiator has granted
@@ -264,7 +257,6 @@ class EstimationTask extends React.PureComponent {
                         }
                     } else {
                         //request for reopen by estimator on approved task
-                        console.log("task is approved in estimator field can request re open ")
                         // Estimator can request Reopen
                         buttons.push(editView ?
                             <img className="div-hover" key="request_re_open" src="/images/request_edit.png"

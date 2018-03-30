@@ -244,7 +244,6 @@ const estimationReducer = (state = initialState, action) => {
                     }
 
 
-
                 })
             }
             else {
