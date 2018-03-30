@@ -1547,3 +1547,15 @@ label{
     margin-left: 36px;
 
 }
+
+.releaseSearchStatus {
+    position: absolute;
+
+}
+
+.releaseSearchContent {
+    float: right;
+    margin-right: 296px;
+    margin-top: -8px;
+
+}

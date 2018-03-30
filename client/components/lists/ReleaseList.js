@@ -6,7 +6,6 @@ import {ReleaseProjectSearchFormContainer} from '../../containers'
 import {withRouter} from 'react-router-dom'
 
 
-
 class ReleaseList extends Component {
 
     constructor(props) {
@@ -98,12 +97,29 @@ class ReleaseList extends Component {
         return (
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
-                    <div className="col-md-12 pad">
-                        <ReleaseProjectSearchFormContainer/>
+                    <div className="col-md-4  releaseSearchContent ">
+                        {/*  <ReleaseProjectSearchFormContainer/>
+                            */}
+                        <div className="estimation releaseSelect  releaseSearchStatus">
+                            <select className="form-control" onChange={(status) =>
+                                props.changeReleaseStatus(status.target.value)
+                            }>
+                                <option value="all">All Status</option>
+                                <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
+                                <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                                <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                                <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                                <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                                <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+
+                            </select>
+                        </div>
 
                     </div>
                     <div className="estimation">
                         <BootstrapTable options={this.options} data={this.props.releases}
+                                        multiColumnSearch={true}
+                                        search={true}
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
