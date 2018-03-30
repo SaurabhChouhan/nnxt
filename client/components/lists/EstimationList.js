@@ -100,13 +100,31 @@ class EstimationList extends Component {
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
                     <div className="col-md-12 pad">
-                        <div className="col-md-9 pad">
+                        <div className="col-md-3">
 
-                                <EstimationSearchFormContainer/>
+                            <EstimationSearchFormContainer/>
 
                         </div>
+                        <div className="col-md-3">
+                            <select className="form-control" onChange={(status) =>
+                                this.props.filterEstimationStatus(status.target.value)
+                            }>
+                                <option value="all">All Status</option>
+                                <option value={SC.STATUS_ESTIMATION_REQUESTED}>{SC.STATUS_ESTIMATION_REQUESTED}</option>
+                                <option value={SC.STATUS_INITIATED}>{SC.STATUS_INITIATED}</option>
+                                <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                <option value={SC.STATUS_APPROVED}>{SC.STATUS_APPROVED}</option>
+                                <option value={SC.STATUS_REVIEW_REQUESTED}>{SC.STATUS_REVIEW_REQUESTED}</option>
+                                <option value={SC.STATUS_CHANGE_REQUESTED}>{SC.STATUS_CHANGE_REQUESTED}</option>
+                                <option value={SC.STATUS_REOPENED}>{SC.STATUS_REOPENED}</option>
+                                <option value={SC.STATUS_PROJECT_AWARDED}>{SC.STATUS_PROJECT_AWARDED}</option>
+                                <option value={SC.STATUS_REJECTED}>{SC.STATUS_REJECTED}</option>
 
-                        <div className="col-md-3 pad">
+                            </select>
+                        </div>
+
+
+                        <div className="col-md-3">
                             <div className="estimation">
                                 {this.props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
                                 <button className="btn customBtn"
@@ -117,12 +135,15 @@ class EstimationList extends Component {
                     </div>
                     <div className="estimation">
                         <BootstrapTable options={this.options} data={this.props.estimations}
+                                        multiColumnSearch={true}
+                                        search={true}
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle width='10px' dataField='status'
                                                dataFormat={this.formatStatus}
                                                columnClassName={this.columnClassStatusFormat}></TableHeaderColumn>
-                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle isKey dataField='_id' searchable={false}
+                                               hidden={true}>ID</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='project'
                                                dataFormat={this.formatProject.bind(this)}>Project
                                 Name</TableHeaderColumn>

@@ -16,7 +16,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getEstimationFromServer(estimation._id)).then(json => {
             dispatch(A.showComponentHideOthers(COC.ESTIMATION_DETAIL_PAGE))
         }),
-        dispatch(A.getRepositoryFromServer(estimation.technologies,'all'))
+            dispatch(A.getRepositoryFromServer(estimation.technologies, 'all'))
+    },
+    filterEstimationStatus: (status) => {
+        console.log("filterEstimationStatus", status)
     }
 })
 
