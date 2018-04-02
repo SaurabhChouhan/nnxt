@@ -52,6 +52,11 @@ let estimationFeatureSchema = mongoose.Schema({
 })
 
 
+estimationFeatureSchema.statics.getById = async (featureID) => {
+    return await EstimationFeatureModel.findById(featureID)
+}
+
+
 estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, estimator) => {
     V.validate(featureInput, V.estimationEstimatorAddFeatureStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
@@ -105,6 +110,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
     }
 
     return await estimationFeature.save()
+}
 }
 
 
@@ -1031,8 +1037,6 @@ estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, ne
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Negotiator has status as [" + estimation.status + "]. Negotiator can only ReOpen Feature into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let featureTasks
     let FeatureTasks = await EstimationTaskModel.find({'feature._id': featureID})

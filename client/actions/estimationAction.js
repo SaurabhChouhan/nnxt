@@ -1007,7 +1007,7 @@ export const reOpenTaskOnServer = (TaskID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
-                    if (json.data && json.data.isFeatureUpdated && json.data.feature && json.data.feature._id) {
+                    if (json.data && json.data.feature && json.data.feature._id) {
                         dispatch(getFeatureFromServer(json.data.feature._id))
                     }
                 }
