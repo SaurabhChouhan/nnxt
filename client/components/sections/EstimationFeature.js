@@ -152,6 +152,15 @@ class EstimationFeature extends React.PureComponent {
                              title="Reopen-Requested"/>)
                 }
             }
+            else{
+                buttons.push(editView  ?
+                    <img className="div-hover" key="re-open" src="/images/edit.png" title="Reopen"
+                         onClick={() => {
+                             this.props.reOpenFeature(task)
+                         }}/> :
+                    <img key="re-open_disable" src="/images/edit_disable.png" title="Reopen"/>)
+
+            }
         }
         else if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
 
@@ -494,6 +503,17 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 }
             })
         },
+    reOpenFeature: (values) => {
+        return dispatch(A.reOpenFeatureOnServer(values._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Feature ReOpen")
+            }
+            else {
+                NotificationManager.error('Feature  Not ReOpen')
+            }
+
+        })
+    },
         approveFeature: (values) => {
             return dispatch(A.approveFeatureByNegotiatorOnServer(values._id)).then(json => {
                 if (json.success) {
