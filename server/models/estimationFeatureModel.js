@@ -111,7 +111,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
     return await estimationFeature.save()
 }
-}
+
 
 
 estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, negotiator) => {
