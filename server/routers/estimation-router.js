@@ -461,6 +461,15 @@ estimationRouter.put('/feature/:featureID/reOpen', async ctx => {
     if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
         return await EstimationFeatureModel.reOpenFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
     } else {
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen Feature into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
+
+estimationRouter.put('/task/:taskID/reOpen', async ctx => {
+    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        return await EstimationTaskModel.reOpenTaskByNegotiator(ctx.params.taskID, ctx.state.user)
+    } else {
         throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpwn task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })

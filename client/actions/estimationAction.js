@@ -943,6 +943,30 @@ export const canNotApproveFeatureOnServer = (FeatureID, grant) => {
 }
 
 
+export const canNotApproveEstimationOnServer = (estimationID, grant) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + '/can-not-approve/' + grant + '/is-granted', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
 export const reOpenFeatureOnServer = (FeatureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/feature/' + FeatureID + '/reOpen', {
@@ -966,26 +990,26 @@ export const reOpenFeatureOnServer = (FeatureID) => {
 }
 
 
-export const canNotApproveEstimationOnServer = (estimationID, grant) => {
+export const reOpenTaskOnServer = (TaskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/' + estimationID + '/can-not-approve/' + grant + '/is-granted', {
+        return fetch('/api/estimations/task/' + TaskID + '/reOpen', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
+                }
             }
         ).then(
             response => response.json()
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(editEstimation(json.data))
+                    dispatch(updateEstimationTask(json.data))
                 }
                 return json
             })
     }
 }
+
 
