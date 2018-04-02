@@ -942,6 +942,30 @@ export const canNotApproveFeatureOnServer = (FeatureID, grant) => {
     }
 }
 
+
+export const reOpenFeatureOnServer = (FeatureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/feature/' + FeatureID + '/reOpen', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
 export const canNotApproveEstimationOnServer = (estimationID, grant) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/can-not-approve/' + grant + '/is-granted', {
