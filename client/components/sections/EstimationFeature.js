@@ -156,7 +156,7 @@ class EstimationFeature extends React.PureComponent {
                 buttons.push(editView  ?
                     <img className="div-hover" key="re-open" src="/images/edit.png" title="Reopen"
                          onClick={() => {
-                             this.props.reOpenFeature(task)
+                             this.props.reOpenFeature(feature)
                          }}/> :
                     <img key="re-open_disable" src="/images/edit_disable.png" title="Reopen"/>)
 

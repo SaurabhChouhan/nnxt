@@ -352,6 +352,11 @@ estimationTaskSchema.statics.getAllTaskOfEstimation = async (estimation_id) => {
     return tasksOfEstimation
 }
 
+estimationTaskSchema.statics.getAllTaskOfFeature = async (featureID) => {
+    let tasksOfFeature = await EstimationTaskModel.find({"feature._id": featureID})
+    return tasksOfFeature
+}
+
 
 estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featureID, estimator) => {
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))

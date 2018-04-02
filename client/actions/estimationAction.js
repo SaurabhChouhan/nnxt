@@ -98,6 +98,12 @@ export const addFilteredEstimation = (filter) => ({
     filter: filter
 })
 
+export const updateEstimationTasksOfFeature = (tasks, featureID) => ({
+    type: AC.UPDATE_ESTIMATION_TASKS_OF_FEATURE,
+    tasks: tasks,
+    featureID: featureID
+})
+
 export const getAllEstimationsFromServer = (projectID, status) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/project/' + projectID + '/status/' + status, {
@@ -983,6 +989,7 @@ export const reOpenFeatureOnServer = (FeatureID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationFeature(json.data))
+                    dispatch(getAllTasksOfFeature(json.data._id))
                 }
                 return json
             })
@@ -1006,6 +1013,29 @@ export const reOpenTaskOnServer = (TaskID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getAllTasksOfFeature = (featureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/tasks-of-feature/' + featureID, {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationTasksOfFeature(json.data, featureID))
                 }
                 return json
             })

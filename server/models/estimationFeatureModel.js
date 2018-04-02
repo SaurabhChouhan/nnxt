@@ -1042,14 +1042,9 @@ estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, ne
         })
         featureTasks = await Promise.all(featurePendingTasks)
     }
-    feature.estimator.removalRequested = !feature.estimator.removalRequested
     feature.status = SC.STATUS_PENDING
     feature.canApprove = false
-
-    await feature.save()
-    feature = feature.toObject()
-    feature.tasks = featureTasks
-    return feature
+    return await feature.save()
 }
 
 

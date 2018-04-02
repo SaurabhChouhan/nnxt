@@ -93,6 +93,21 @@ const estimationReducer = (state = initialState, action) => {
                 }) : null
             })
 
+
+        case AC.UPDATE_ESTIMATION_TASKS_OF_FEATURE:
+            // feature is updated with updated tasks lists
+            return Object.assign({}, state, {
+                features: Array.isArray(state.features) ? state.features.map(item => {
+                    if (item._id == action.featureID) {
+                        console.log("break pt 1",action.tasks)
+                        return Object.assign({}, item, {
+                                tasks: Array.isArray(action.tasks) ? action.tasks.filter(t => t.isDeleted == false) : []
+                            }
+                        )
+                    } else return item
+                }) : null
+            })
+
             
         case AC.MOVE_TASK_IN_FEATURE:
             return Object.assign({}, state, {
