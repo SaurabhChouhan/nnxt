@@ -20,7 +20,8 @@ class EstimationDetail extends Component {
             showEstimationRequestDialog: false,
             showEstimationReviewDialog: false,
             showEstimationChangeDialog: false,
-            showEstimationApproveDialog: false
+            showEstimationApproveDialog: false,
+            showEstimationReopenDialog: false
         })
     }
 
@@ -42,6 +43,11 @@ class EstimationDetail extends Component {
     onConfirmChangeRequest() {
         this.setState({showEstimationChangeDialog: false})
         this.props.sendChangeRequest(this.props.estimation)
+    }
+
+    onConfirmReopen() {
+        this.setState({showEstimationReopenDialog: false})
+        this.props.reopenEstimation(this.props.estimation)
     }
 
 
@@ -71,7 +77,8 @@ class EstimationDetail extends Component {
                                     Estimation
                                 </button>
                             </div>
-                        </div> : <div className="col-md-5 pad">
+                        </div>
+                        : <div className="col-md-5 pad">
 
                             <div title="Go Back" className="backarrow estimationBackArrow">
                                 <h5>
@@ -113,6 +120,12 @@ class EstimationDetail extends Component {
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
                                             body="You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"/>
                     }
+                    {
+                        this.state.showEstimationReopenDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmReopen.bind(this)}
+                                            title="Estimation Reopen" onClose={this.onClose.bind(this)}
+                                            body="Are you sure you want to reopen this estimation. Please confirm!"/>
+                    }
 
 
                     <div className="col-md-3">
@@ -123,7 +136,14 @@ class EstimationDetail extends Component {
                                 Estimation
                             </button>
                         }
+                        {
 
+                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_APPROVED &&
+                            <button className="btn reopenBtn"
+                                    onClick={() => this.setState({showEstimationReopenDialog: true})}>Reopen
+                                Estimation
+                            </button>
+                        }
                         {
                             estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_REVIEW_REQUESTED &&
                             <button className="btn customBtn"
