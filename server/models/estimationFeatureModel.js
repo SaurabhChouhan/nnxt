@@ -1047,7 +1047,7 @@ estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, ne
         featureTasks = await Promise.all(featurePendingTasks)
     }
     feature.status = SC.STATUS_PENDING
-    feature.canApprove = false
+    feature.canApprove = true
     return await feature.save()
 }
 
