@@ -132,33 +132,33 @@ class EstimationFeature extends React.PureComponent {
                 if (feature.negotiator.changeGranted) {
                     // estimator has requested Reopen which negotiator has granted
                     buttons.push(editView ?
-                        <img className="div-hover" key="granted_re_open" src="/images/granted_edit.png"
+                        <img className="div-hover" key="granted_reopen" src="/images/reopen_granted.png"
                              title="Reopen-Granted"
                              onClick={() => {
                                  this.props.toggleGrantEdit(feature)
                              }}/> :
-                        <img key="granted_re_open_disable" src="/images/granted_edit_disable.png"
+                        <img key="granted_reopen_disable" src="/images/reopen_granted_disable.png"
                              title="Reopen-Granted"/>)
                 } else {
                     // estimator has requested change but negotiator has not granted it till now
                     logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, heRequestedEditFeature')
                     buttons.push(editView ?
-                        <img className="div-hover" key="he_requested_re_open" src="/images/he_requested_edit.png"
+                        <img className="div-hover" key="he_requested_reopen" src="/images/he_requested_reopen.png"
                              title="Reopen-Requested"
                              onClick={() => {
                                  this.props.toggleGrantEdit(feature)
                              }}/> :
-                        <img key="he_requested_re_open_disable" src="/images/he_requested_edit_disable.png"
+                        <img key="he_requested_reopen_disable" src="/images/he_requested_reopen_disable.png"
                              title="Reopen-Requested"/>)
                 }
             }
-            else{
-                buttons.push(editView  ?
-                    <img className="div-hover" key="re-open" src="/images/edit.png" title="Reopen"
+            else {
+                buttons.push(editView ?
+                    <img className="div-hover" key="reopen" src="/images/reopen.png" title="Reopen"
                          onClick={() => {
                              this.props.reOpenFeature(task)
                          }}/> :
-                    <img key="re-open_disable" src="/images/edit_disable.png" title="Reopen"/>)
+                    <img key="reopen_disable" src="/images/reopen_disable.png" title="Reopen"/>)
 
             }
         }
@@ -261,32 +261,32 @@ class EstimationFeature extends React.PureComponent {
                         // estimator has requested change which negotiator has granted
                         logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'changeRequested/changeGranted, he_granted_edit')
                         buttons.push(editView ?
-                            <img className="div-hover" key="he_granted_re_open" src="/images/he_granted_edit.png"
+                            <img className="div-hover" key="he_granted_reopen" src="/images/he_granted_reopen.png"
                                  title="Reopen-Granted"
                                  onClick={() => {
                                      this.props.showEditFeatureForm(feature)
                                  }}/> :
-                            <img key="he_granted_re_open_disable" src="/images/he_granted_edit_disable.png"
+                            <img key="he_granted_reopen_disable" src="/images/he_granted_reopen_disable.png"
                                  title="Reopen-Granted"/>)
                     } else {
                         // estimator has requested change but negotiator has not granted it till now
                         buttons.push(editView ?
-                            <img className="div-hover" key="requested_re_open" src="/images/requested_edit.png"
+                            <img className="div-hover" key="requested_reopen" src="/images/reopen_requested.png"
                                  title="Reopen-Requested"
                                  onClick={() => {
                                      this.props.toggleEditRequest(feature)
                                  }}/> :
-                            <img key="requested_re_open_disable" src="/images/requested_edit_disable.png"
+                            <img key="requested_reopen_disable" src="/images/reopen_requested_disable.png"
                                  title="Reopen-Requested"/>)
                     }
                 } else {
                     buttons.push(editView ?
-                        <img className="div-hover" key="request_re_open" src="/images/request_edit.png"
+                        <img className="div-hover" key="request_reopen" src="/images/reopen_request.png"
                              title="Reopen-Request"
                              onClick={() => {
                                  this.props.toggleEditRequest(feature)
                              }}/> :
-                        <img key="request_re_open_disable" src="/images/request_edit_disable.png"
+                        <img key="request_reopen_disable" src="/images/reopen_request_disable.png"
                              title="Reopen-Request"/>)
                 }
             }
@@ -503,17 +503,17 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 }
             })
         },
-    reOpenFeature: (values) => {
-        return dispatch(A.reOpenFeatureOnServer(values._id)).then(json => {
-            if (json.success) {
-                NotificationManager.success("Feature ReOpen")
-            }
-            else {
-                NotificationManager.error('Feature  Not ReOpen')
-            }
+        reOpenFeature: (values) => {
+            return dispatch(A.reOpenFeatureOnServer(values._id)).then(json => {
+                if (json.success) {
+                    NotificationManager.success("Feature ReOpen")
+                }
+                else {
+                    NotificationManager.error('Feature  Not ReOpen')
+                }
 
-        })
-    },
+            })
+        },
         approveFeature: (values) => {
             return dispatch(A.approveFeatureByNegotiatorOnServer(values._id)).then(json => {
                 if (json.success) {
