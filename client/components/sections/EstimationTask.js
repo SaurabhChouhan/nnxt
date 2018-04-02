@@ -143,6 +143,16 @@ class EstimationTask extends React.PureComponent {
                     }
 
                 }
+                else
+                    {
+                    buttons.push(editView  ?
+                        <img className="div-hover" key="re-open" src="/images/edit.png" title="Reopen"
+                             onClick={() => {
+                                 this.props.reOpenTask(task)
+                             }}/> :
+                        <img key="reopen_disable" src="/images/edit_disable.png" title="Reopen"/>)
+
+                }
             }
 
 
@@ -560,6 +570,17 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
 
         dispatch(initialize("estimation-suggest-task", task))
         dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
+    },
+    reOpenTask: (values) => {
+        return dispatch(A.reOpenTaskOnServer(values._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Task ReOpen")
+            }
+            else {
+                NotificationManager.error('Task Not  ReOpen')
+            }
+
+        })
     },
 
     expandTask: (taskId) => {
