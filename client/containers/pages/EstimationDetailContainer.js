@@ -100,7 +100,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             else
                 NotificationManager.error("Estimation approve failed")
         }
-    })
+    }),
+    reopenEstimation: (estimation) =>
+        console.log("reopenEstimation")
 
 
 })
