@@ -45,6 +45,16 @@ estimationRouter.get("/feature/:featureID", async ctx => {
 })
 
 
+
+estimationRouter.get('/tasks-of-feature/:featureID', async ctx => {
+    if (isAuthenticated(ctx)) {
+        return await EstimationTaskModel.getAllTaskOfFeature(ctx.params.featureID)
+    } else {
+        throw new AppError("Not authenticated user.", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
+
 // noinspection Annotator
 /**
  * Initiate estimation by Negotiator
@@ -444,6 +454,8 @@ estimationRouter.post('/features/estimation/:estimationID/repository-feature-cop
         throw new AppError("Only user with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can copy feature from repo into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
+
+
 estimationRouter.put('/features/:featureID/request-removal', async ctx => {
     if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
         return await EstimationFeatureModel.requestRemovalFeatureByEstimator(ctx.params.featureID, ctx.state.user)
@@ -453,4 +465,24 @@ estimationRouter.put('/features/:featureID/request-removal', async ctx => {
         throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can request removal task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
+
+
+estimationRouter.put('/feature/:featureID/reOpen', async ctx => {
+    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        return await EstimationFeatureModel.reOpenFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen Feature into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
+
+estimationRouter.put('/task/:taskID/reOpen', async ctx => {
+    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        return await EstimationTaskModel.reOpenTaskByNegotiator(ctx.params.taskID, ctx.state.user)
+    } else {
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpwn task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
+
 export default estimationRouter
