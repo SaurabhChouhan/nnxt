@@ -46,15 +46,6 @@ estimationRouter.get("/feature/:featureID", async ctx => {
 
 
 
-estimationRouter.get('/tasks-of-feature/:featureID', async ctx => {
-    if (isAuthenticated(ctx)) {
-        return await EstimationTaskModel.getAllTaskOfFeature(ctx.params.featureID)
-    } else {
-        throw new AppError("Not authenticated user.", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-})
-
-
 // noinspection Annotator
 /**
  * Initiate estimation by Negotiator

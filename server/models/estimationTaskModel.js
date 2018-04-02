@@ -352,10 +352,6 @@ estimationTaskSchema.statics.getAllTaskOfEstimation = async (estimation_id) => {
     return tasksOfEstimation
 }
 
-estimationTaskSchema.statics.getAllTaskOfFeature = async (featureID) => {
-    let tasksOfFeature = await EstimationTaskModel.find({"feature._id": featureID})
-    return tasksOfFeature
-}
 
 
 estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featureID, estimator) => {
@@ -965,7 +961,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
 }
 
 
-estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator) => {
+estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, featureID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -983,14 +979,18 @@ estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator)
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Negotiator has status as [" + estimation.status + "]. Negotiator can only ReOpen task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
+    if (estimation.negotiator._id != negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
 
     task.status = SC.STATUS_PENDING
     task.canApprove = true
-    return await task.save()
-
+     await task.save()
+    task = task.toObject()
+    if (featureID) {
+        await EstimationFeatureModel.updateOne({"_id": featureID}, {"status": SC.STATUS_PENDING}, {"canApprove": false})
+        task.isFeatureUpdated = true
+    }
 
 }
 
