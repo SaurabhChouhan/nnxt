@@ -15,7 +15,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(showComponent(PROJECT_FORM_DIALOG)),
         dispatch(initialize('project', project))},
     showProjectCreationForm: () => {
-        console.log("show Project init form caled")
         //dispatch(A.getAllClientsFromServer()),
         dispatch(A.showComponent(COC.PROJECT_FORM_DIALOG))
     },
