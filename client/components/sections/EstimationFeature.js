@@ -20,6 +20,7 @@ class EstimationFeature extends React.PureComponent {
         super(props)
         this.state = {
             showFeatureDeletionDialog: false,
+            showTaskDeletionRequestedDialog: false,
             featureDeletion: undefined
         }
 
@@ -27,11 +28,20 @@ class EstimationFeature extends React.PureComponent {
 
     onClose() {
         this.setState({showFeatureDeletionDialog: false})
+        this.setState({showTaskDeletionRequestedDialog: false})
+
     }
 
     onConfirmFeatureDelete() {
         this.setState({showFeatureDeletionDialog: false})
         this.props.deleteFeature(this.state.featureDeletion);
+    }
+
+    onConfirmTaskDeleteRequest() {
+        this.setState({showTaskDeletionRequestedDialog: false})
+        this.props.deleteFeature(this.props.feature)
+
+
     }
 
 
@@ -111,7 +121,7 @@ class EstimationFeature extends React.PureComponent {
                         <img className="div-hover" key="he_requested_delete" src="/images/he_requested_delete.png"
                              title="Delete-Requested"
                              onClick={() => {
-                                 this.props.deleteFeature(feature)
+                                 this.setState({showTaskDeletionRequestedDialog: true})
                              }}/> :
                         <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"
                              title="Delete-Requested"/>)
@@ -301,11 +311,18 @@ class EstimationFeature extends React.PureComponent {
                 </div>
 
                 <div className="col-md-3">
-                    <div>{this.state.showFeatureDeletionDialog &&
-                    <ConfirmationDialog show={true} onConfirm={this.onConfirmFeatureDelete.bind(this)}
-                                        title={CM.DELETE_FEATURE} onClose={this.onClose.bind(this)}
-                                        body={CM.DELETE_FEATURE_BODY}/>
-                    }
+                    <div>
+                        {
+                            this.state.showTaskDeletionRequestedDialog &&
+                            <ConfirmationDialog show={true} onConfirm={this.onConfirmTaskDeleteRequest.bind(this)}
+                                                title={CM.DELETE_TASK} onClose={this.onClose.bind(this)}
+                                                body={CM.DELETE_TASK_BODY}/>
+                        }
+                        {this.state.showFeatureDeletionDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmFeatureDelete.bind(this)}
+                                            title={CM.DELETE_FEATURE} onClose={this.onClose.bind(this)}
+                                            body={CM.DELETE_FEATURE_BODY}/>
+                        }
 
                         {feature.owner == SC.OWNER_ESTIMATOR && feature.addedInThisIteration &&
                         <div className="flagStrip">
