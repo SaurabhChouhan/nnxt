@@ -52,6 +52,11 @@ let estimationFeatureSchema = mongoose.Schema({
 })
 
 
+estimationFeatureSchema.statics.getById = async (featureID) => {
+    return await EstimationFeatureModel.findById(featureID)
+}
+
+
 estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, estimator) => {
     V.validate(featureInput, V.estimationEstimatorAddFeatureStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
@@ -106,6 +111,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
     return await estimationFeature.save()
 }
+
 
 
 estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, negotiator) => {
@@ -1009,6 +1015,45 @@ estimationFeatureSchema.statics.requestRemovalFeatureByEstimator = async (featur
     return await feature.save()
 
 
+}
+
+
+estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, negotiator) => {
+
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let feature = await EstimationFeatureModel.findById(featureID)
+    let featurePendingTasks
+
+    if (!feature)
+        throw new AppError('feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Negotiator has status as [" + estimation.status + "]. Negotiator can only ReOpen Feature into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+
+    let featureTasks
+    let FeatureTasks = await EstimationTaskModel.find({'feature._id': featureID})
+    if (FeatureTasks && Array.isArray(FeatureTasks) && FeatureTasks.length) {
+        featurePendingTasks = FeatureTasks.map(t => {
+            return EstimationTaskModel.updateOne({_id: t._id}, {"canApprove": true}, {"status": SC.STATUS_PENDING})
+        })
+        featureTasks = await Promise.all(featurePendingTasks)
+    }
+    feature.status = SC.STATUS_PENDING
+    feature.canApprove = true
+    await feature.save()
+    feature = feature.toObject()
+    if (estimation && estimation.canApprove) {
+        feature.isEstimationCanApprove = true
+    }
+    return feature
 }
 
 

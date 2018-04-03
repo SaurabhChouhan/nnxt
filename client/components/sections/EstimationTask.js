@@ -122,25 +122,34 @@ class EstimationTask extends React.PureComponent {
                         // estimator has requested Reopen which negotiator has granted
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_Reopen')
                         buttons.push(editView ?
-                            <img className="div-hover" key="granted_re_open" src="/images/granted_edit.png"
+                            <img className="div-hover" key="granted_reopen" src="/images/reopen_granted.png"
                                  title="Reopen-Granted"
                                  onClick={() => {
                                      this.props.toggleGrantEdit(task)
                                  }}/> :
-                            <img key="granted_re_open_disable" src="/images/granted_edit_disable.png"
+                            <img key="granted_reopen_disable" src="/images/reopen_granted_disable.png"
                                  title="Reopen-Granted"/>)
                     } else {
                         // estimator has requested Reopen but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
                         buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
-                            <img className="div-hover" key="he_requested_re_open" src="/images/he_requested_edit.png"
+                            <img className="div-hover" key="he_requested_reopen" src="/images/he_requested_reopen.png"
                                  title="Reopen-Requested"
                                  onClick={() => {
                                      this.props.toggleGrantEdit(task)
                                  }}/> :
-                            <img key="he_requested_re_open_disable" src="/images/he_requested_edit_disable.png"
+                            <img key="he_requested_reopen_disable" src="/images/he_requested_reopen_disable.png"
                                  title="Reopen-Requested"/>)
                     }
+
+                }
+                else {
+                    buttons.push(editView ?
+                        <img className="div-hover" key="reopen" src="/images/reopen.png" title="Reopen"
+                             onClick={() => {
+                                 this.props.reOpenTask(task)
+                             }}/> :
+                        <img key="reopen_disable" src="/images/reopen_disable.png" title="Reopen"/>)
 
                 }
             }
@@ -235,36 +244,36 @@ class EstimationTask extends React.PureComponent {
                             // estimator has requested change which negotiator has granted
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/changeGranted, he_granted_re_open')
                             buttons.push(editView ?
-                                <img className="div-hover" key="he_granted_re_open" src="/images/he_granted_edit.png"
+                                <img className="div-hover" key="he_granted_reopen" src="/images/he_granted_reopen.png"
                                      title="Reopen-Granted"
                                      onClick={() => {
                                          //Re-Open
                                          this.props.editTask(task)
                                      }}/> :
-                                <img key="he_granted_re_open_disable" src="/images/he_granted_edit_disable.png"
+                                <img key="he_granted_reopen_disable" src="/images/he_granted_reopen_disable.png"
                                      title="Reopen-Granted"/>)
                         } else {
                             // estimator has requested change but negotiator has not granted it till now
                             logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_re_open')
                             buttons.push(editView ?
-                                <img className="div-hover" key="requested_re_open" src="/images/requested_edit.png"
+                                <img className="div-hover" key="requested_reopen" src="/images/reopen_requested.png"
                                      title="Reopen-Requested"
                                      onClick={() => {
                                          this.props.toggleEditRequest(task)
                                      }}/> :
-                                <img key="requested_re_open_disable" src="/images/requested_edit_disable.png"
+                                <img key="requested_reopen_disable" src="/images/reopen_requested_disable.png"
                                      title="Reopen-Requested"/>)
                         }
                     } else {
                         //request for reopen by estimator on approved task
                         // Estimator can request Reopen
                         buttons.push(editView ?
-                            <img className="div-hover" key="request_re_open" src="/images/request_edit.png"
+                            <img className="div-hover" key="request_reopen" src="/images/reopen_request.png"
                                  title="Reopen-Request"
                                  onClick={() => {
                                      this.props.toggleEditRequest(task)
                                  }}/> :
-                            <img key="request_re_open_disable" src="/images/request_edit_disable.png"
+                            <img key="request_reopen_disable" src="/images/reopen_request_disable.png"
                                  title="Reopen-Request"/>)
                     }
                 }
@@ -560,6 +569,17 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
 
         dispatch(initialize("estimation-suggest-task", task))
         dispatch(A.showComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
+    },
+    reOpenTask: (values) => {
+        return dispatch(A.reOpenTaskOnServer(values._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success("Task ReOpen")
+            }
+            else {
+                NotificationManager.error('Task Not  ReOpen')
+            }
+
+        })
     },
 
     expandTask: (taskId) => {

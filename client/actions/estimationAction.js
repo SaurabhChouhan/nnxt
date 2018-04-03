@@ -98,6 +98,7 @@ export const addFilteredEstimation = (filter) => ({
     filter: filter
 })
 
+
 export const getAllEstimationsFromServer = (projectID, status) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/project/' + projectID + '/status/' + status, {
@@ -161,7 +162,6 @@ export const updateEstimationOnServer = (estimation) => {
         ).then(
             json => {
                 if (json.success) {
-                    //   console.log("estimation update", json.data)
                     dispatch(editEstimation(json.data))
                 }
                 return json
@@ -616,7 +616,6 @@ export const getFeatureFromServer = (featureID) => {
 
 
 export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
-    console.log("task id ", taskID, " feature id ", featureID)
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + taskID + '/features/' + featureID, {
                 method: 'put',
@@ -632,7 +631,9 @@ export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
             json => {
                 if (json.success) {
                     dispatch(moveTaskInFeature(json.data))
-
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(getFeatureFromServer(json.data.feature._id))
+                    }
                 }
                 return json
             })
@@ -655,7 +656,10 @@ export const moveTaskOutOfFeatureOnServer = (task) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(moveTaskOutOfFeature(json.data, task.feature._id))
+                    if (task && task.feature && task.feature._id) {
+                        dispatch(getFeatureFromServer(task.feature._id))
+                        dispatch(moveTaskOutOfFeature(json.data, task.feature._id))
+                    }
                 }
                 return json
             })
@@ -680,7 +684,7 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
 
-                    if (json.data && json.data.feature && json.data.feature._id) {
+                    if (json.data && json.data.feature && json.data.isFeatureCanApprove && json.data.feature._id) {
                         dispatch(canNotApproveFeatureOnServer(json.data.feature._id, true))
                     }
                     if (json.data && json.data.estimation && json.data.isEstimationCanApprove && json.data.estimation._id) {
@@ -760,7 +764,6 @@ export const addProjectAwardOnServer = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("ProjectAward", json.data)
                     dispatch(updateSelectedEstimation(json.data))
                 }
 
@@ -809,6 +812,8 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
                 if (json.success) {
                     if (json.data && json.data.feature && json.data.feature._id) {
                         dispatch(canApproveFeatureOnServer(json.data.feature._id))
+                    } else if (json.data && json.data.estimation && json.data.estimation._id) {
+                        dispatch(canApproveEstimationOnServer(json.data.estimation._id))
                     }
                     dispatch(updateEstimationTask(json.data))
                 }
@@ -833,7 +838,6 @@ export const approveFeatureByNegotiatorOnServer = (featureID) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("check the response data")
                     dispatch(updateEstimationFeature(json.data))
                     if (json.data && json.data.estimation && json.data.estimation._id) {
                         dispatch(canApproveEstimationOnServer(json.data.estimation._id))
@@ -942,6 +946,7 @@ export const canNotApproveFeatureOnServer = (FeatureID, grant) => {
     }
 }
 
+
 export const canNotApproveEstimationOnServer = (estimationID, grant) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/can-not-approve/' + grant + '/is-granted', {
@@ -964,4 +969,66 @@ export const canNotApproveEstimationOnServer = (estimationID, grant) => {
             })
     }
 }
+
+
+export const reOpenFeatureOnServer = (FeatureID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/feature/' + FeatureID + '/reOpen', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationFeature(json.data))
+                    if (json.data && json.data.estimation && json.data.isEstimationCanApprove && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, true))
+                    }
+                }
+                return json
+            })
+    }
+}
+
+
+export const reOpenTaskOnServer = (TaskID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/task/' + TaskID + '/reOpen', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateEstimationTask(json.data))
+                    if (json.data && json.data.feature && json.data.isFeatureApproved && json.data.feature._id) {
+                        dispatch(getFeatureFromServer(json.data.feature._id))
+
+                    } else if (json.data && json.data.feature && json.data.isFeatureCanApprove && json.data.feature._id) {
+                        dispatch(canNotApproveFeatureOnServer(json.data.feature._id, true))
+
+                    }
+                    if (json.data && json.data.estimation && json.data.isEstimationCanApprove && json.data.estimation._id) {
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, true))
+                    }
+
+                }
+                return json
+            })
+    }
+}
+
+
 
