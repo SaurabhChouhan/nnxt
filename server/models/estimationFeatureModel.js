@@ -1048,7 +1048,12 @@ estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, ne
     }
     feature.status = SC.STATUS_PENDING
     feature.canApprove = true
-    return await feature.save()
+    await feature.save()
+    feature = feature.toObject()
+    if (estimation && estimation.canApprove) {
+        feature.isEstimationCanApprove = true
+    }
+    return feature
 }
 
 

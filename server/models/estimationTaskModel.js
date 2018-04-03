@@ -525,8 +525,8 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
         throw new AppError('task cant be moved as it is already appooved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
-    if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}}, {"canApprove": false})
+    if (task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours}}, {"canApprove": false})
     }
 
     //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
@@ -970,7 +970,7 @@ estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let task = await EstimationTaskModel.findById(taskID)
-    let taskPendingTasks
+    let estimationFeatureObj
 
     if (!task)
         throw new AppError('task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -979,19 +979,39 @@ estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    if (estimation.status == SC.STATUS_APPROVED)
+        throw new AppError('Estimation is already approved task can not be reopen ', EC.HTTP_BAD_REQUEST)
+
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Negotiator has status as [" + estimation.status + "]. Negotiator can only ReOpen task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (estimation.negotiator._id != negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     if (task && task.feature && task.feature._id) {
+        estimationFeatureObj = await EstimationFeatureModel.findById(task.feature._id)
+        if (!estimationFeatureObj)
+            throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
         await EstimationFeatureModel.updateOne({"_id": task.feature._id}, {"status": SC.STATUS_PENDING}, {"canApprove": false})
     }
 
     task.status = SC.STATUS_PENDING
     task.canApprove = true
-    return await task.save()
+    await task.save()
+    task = task.toObject()
 
+    if (estimationFeatureObj && estimationFeatureObj.canApprove) {
+        task.isFeatureCanApprove = true
+    }
+    if (estimationFeatureObj && estimationFeatureObj.status == SC.STATUS_APPROVED) {
+        task.isFeatureApproved = true
+    }
+
+    if (estimation && estimation.canApprove) {
+        task.isEstimationCanApprove = true
+    }
+
+    return task
 
 }
 
