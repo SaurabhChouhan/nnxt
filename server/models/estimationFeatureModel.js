@@ -407,7 +407,8 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
 
     let taskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
-        "feature._id": feature._id
+        "feature._id": feature._id,
+        "isDeleted": false
     })
 
     if (taskCountOfFeature == 0)
@@ -421,6 +422,7 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
         "feature._id": feature._id,
+        "isDeleted": false,
         status: {$in: [SC.STATUS_PENDING]}
     })
 
