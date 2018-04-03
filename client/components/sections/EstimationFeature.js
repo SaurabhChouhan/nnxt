@@ -309,7 +309,10 @@ class EstimationFeature extends React.PureComponent {
                 }}>
                     <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
                 </div>
-
+                <div className="errorClass">
+                    <img key="exclaimation" src="/images/exclamation.png"
+                         title="Error"></img>
+                </div>
                 <div className="col-md-3">
                     <div>
                         {

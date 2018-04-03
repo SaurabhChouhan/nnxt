@@ -1601,3 +1601,6 @@ label {
 .infoHighliter {
     color: red;
 }
+.errorClass{
+    margin:10px 0px 0px 10px;
+}
