@@ -162,7 +162,6 @@ export const updateEstimationOnServer = (estimation) => {
         ).then(
             json => {
                 if (json.success) {
-                    //   console.log("estimation update", json.data)
                     dispatch(editEstimation(json.data))
                 }
                 return json
@@ -617,7 +616,6 @@ export const getFeatureFromServer = (featureID) => {
 
 
 export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
-    console.log("task id ", taskID, " feature id ", featureID)
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + taskID + '/features/' + featureID, {
                 method: 'put',
@@ -633,6 +631,9 @@ export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
             json => {
                 if (json.success) {
                     dispatch(moveTaskInFeature(json.data))
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(getFeatureFromServer(json.data.feature._id))
+                    }
                 }
                 return json
             })
@@ -655,7 +656,10 @@ export const moveTaskOutOfFeatureOnServer = (task) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(moveTaskOutOfFeature(json.data, task.feature._id))
+                    if (task && task.feature && task.feature._id) {
+                        dispatch(getFeatureFromServer(task.feature._id))
+                        dispatch(moveTaskOutOfFeature(json.data, task.feature._id))
+                    }
                 }
                 return json
             })
@@ -760,7 +764,6 @@ export const addProjectAwardOnServer = (formInput) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("ProjectAward", json.data)
                     dispatch(updateSelectedEstimation(json.data))
                 }
 
@@ -835,7 +838,6 @@ export const approveFeatureByNegotiatorOnServer = (featureID) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("check the response data")
                     dispatch(updateEstimationFeature(json.data))
                     if (json.data && json.data.estimation && json.data.estimation._id) {
                         dispatch(canApproveEstimationOnServer(json.data.estimation._id))
