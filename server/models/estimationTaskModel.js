@@ -219,7 +219,10 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
         if (!estimationTask.estimator.estimatedHours) {
             estimationTask.estimator.estimatedHours = 0
         }
-        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours - estimationTask.estimator.estimatedHours}}, {"canApprove": false})
+        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
+            $inc: {"estimator.estimatedHours": taskInput.estimatedHours - estimationTask.estimator.estimatedHours},
+            "canApprove": false
+        })
     }
 
     if (estimationTask.repo && estimationTask.repo._id) {
@@ -297,7 +300,10 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
         }
 
-        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours}}, {"canApprove": false})
+        await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
+            $inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours},
+            "canApprove": false
+        })
     }
 
     /*
@@ -382,7 +388,10 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
     if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": task.estimator.estimatedHours}}, {"canApprove": false})
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+            "canApprove": false
+        })
     }
 
     // As task is moved please update repository as well to note this change
@@ -422,7 +431,8 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
     if (task.estimator.estimatedHours)
-        await EstimationFeatureModel.updateOne({_id: task.feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}}, {"canApprove": false})
+        await EstimationFeatureModel.updateOne({_id: task.feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+            "canApprove": false})
 
     let feature = await EstimationFeatureModel.findById(task.feature._id)
     //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
@@ -526,7 +536,10 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
     if (task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours}}, {"canApprove": false})
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+            "canApprove": false
+        })
     }
 
     //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
@@ -571,7 +584,10 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
 
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
         if (task.estimator.estimatedHours)
-            await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}}, {"canApprove": false})
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false
+            })
 
     }
     task.isDeleted = true
@@ -640,8 +656,11 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, n
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
-    if (task.estimator.estimatedHours)
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"estimator.estimatedHours": -task.estimator.estimatedHours}}, {"canApprove": false})
+    if (task.negotiator.estimatedHours)
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+            "canApprove": false
+        })
 
     //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
 
@@ -992,7 +1011,10 @@ estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator)
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-        await EstimationFeatureModel.updateOne({"_id": task.feature._id}, {"status": SC.STATUS_PENDING}, {"canApprove": false})
+        await EstimationFeatureModel.updateOne({"_id": task.feature._id}, {
+            "status": SC.STATUS_PENDING,
+            "canApprove": false
+        })
     }
 
     task.status = SC.STATUS_PENDING
