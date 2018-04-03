@@ -17,6 +17,7 @@ class EstimationTask extends React.PureComponent {
         super(props)
         this.state = {
             showTaskDeletionDialog: false,
+            showTaskDeletionRequestedDialog: false,
             taskDeletion: undefined
         }
 
@@ -24,6 +25,7 @@ class EstimationTask extends React.PureComponent {
 
     onClose() {
         this.setState({showTaskDeletionDialog: false})
+        this.setState({showTaskDeletionRequestedDialog: false})
     }
 
     onConfirmTaskDelete() {
@@ -31,8 +33,15 @@ class EstimationTask extends React.PureComponent {
         this.props.deleteTask(this.state.taskDeletion);
     }
 
+    onConfirmTaskDeleteRequest() {
+        this.setState({showTaskDeletionRequestedDialog: false})
+        this.props.deleteTask(this.props.task)
+
+    }
+
     render() {
         const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask, fromRepoWithFeature} = this.props
+        console.log("  this.state ", this.state)
         let buttons = [];
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
@@ -96,10 +105,12 @@ class EstimationTask extends React.PureComponent {
                         <img className="div-hover" key="he_requested_delete" src="/images/he_requested_delete.png"
                              title="Delete-Requested"
                              onClick={() => {
-                                 this.props.deleteTask(task)
+                                 this.setState({showTaskDeletionRequestedDialog: true})
+
                              }}/> :
                         <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"
                              title="Delete-Requested"/>)
+
                 } else {
                     // Negotiator can delete any task during its review without getting permission from estimator
                     buttons.push(editView && (!fromRepoWithFeature) ?
@@ -113,6 +124,7 @@ class EstimationTask extends React.PureComponent {
                 }
 
             }
+
 
             // If status is approved
             if (task.status === SC.STATUS_APPROVED) {
@@ -280,6 +292,7 @@ class EstimationTask extends React.PureComponent {
             }
         }
 
+
         if (loggedInUserRole === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) ||
             loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
 
@@ -340,11 +353,19 @@ class EstimationTask extends React.PureComponent {
                 <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
             </div>
             <div className="col-md-3">
-                <div>{this.state.showTaskDeletionDialog &&
-                <ConfirmationDialog show={true} onConfirm={this.onConfirmTaskDelete.bind(this)}
-                                    title={CM.DELETE_TASK} onClose={this.onClose.bind(this)}
-                                    body={CM.DELETE_TASK_BODY}/>
-                }
+
+                <div>
+                    {
+                        this.state.showTaskDeletionRequestedDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmTaskDeleteRequest.bind(this)}
+                                            title={CM.DELETE_TASK} onClose={this.onClose.bind(this)}
+                                            body={CM.DELETE_TASK_BODY}/>
+                    }
+                    {this.state.showTaskDeletionDialog &&
+                    <ConfirmationDialog show={true} onConfirm={this.onConfirmTaskDelete.bind(this)}
+                                        title={CM.DELETE_TASK} onClose={this.onClose.bind(this)}
+                                        body={CM.DELETE_TASK_BODY}/>
+                    }
                     {task.owner == SC.OWNER_ESTIMATOR && task.addedInThisIteration && <div className="flagStrip">
                         <img key="estimator_new_flag" src="/images/estimator_new_flag.png" title="Added by Estimator"/>
                     </div>}
