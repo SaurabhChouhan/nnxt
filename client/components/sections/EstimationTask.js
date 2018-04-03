@@ -420,10 +420,17 @@ class EstimationTask extends React.PureComponent {
             }}>
                 <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
             </div>
-            <div className="col-md-3">
-                <h4>Estimated:</h4>
-                <h4>&nbsp;{task.estimator.estimatedHours} {task.estimator.estimatedHours && 'hrs.'}</h4>
-            </div>
+            {task.estimator.estimatedHours ?
+                <div className="col-md-3">
+                    <h4>Estimated:</h4>
+                    <h4>&nbsp;{task.estimator.estimatedHours} {task.estimator.estimatedHours && 'hrs.'}</h4>
+                </div> :
+                <div className="col-md-3 infoHighliter">
+                    <h4>Estimated:</h4>
+                    <h4>&nbsp;{task.estimator.estimatedHours} {task.estimator.estimatedHours && 'hrs.'}</h4>
+                </div>
+            }
+
             <div className="col-md-3">
                 <h4>Suggested:</h4>
                 <h4>&nbsp;{task.negotiator.estimatedHours} {task.negotiator.estimatedHours && 'hrs.'}</h4>

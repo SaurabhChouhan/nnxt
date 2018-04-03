@@ -375,7 +375,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                         })
                     }
                 })
-                console.log("estimationFeaturePromises----", estimationFeaturePromises)
+
 
                 let estimationFeatures = await Promise.all(estimationFeaturePromises)
 
