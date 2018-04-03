@@ -366,15 +366,13 @@ class EstimationFeature extends React.PureComponent {
             }}>
                 <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
-            {feature.estimator.estimatedHours ?
-                <div className="col-md-3 ">
+            {
+                <div
+                    className={feature.estimator && feature.estimator.estimatedHours ? "col-md-3 " : "col-md-3 infoHighliter"}>
                     <h4>Estimated:</h4>
                     <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
-                </div> :
-                <div className="col-md-3 infoHighliter">
-                    <h4>Estimated:</h4>
-                    <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
-                </div>}
+                </div>
+            }
             <div className="col-md-3">
                 <h4>Suggested:</h4>
                 <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
