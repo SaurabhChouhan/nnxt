@@ -1601,3 +1601,6 @@ label {
 .infoHighliter {
     color: red;
 }
+.suggestionUser{
+    height: 75px;
+}
