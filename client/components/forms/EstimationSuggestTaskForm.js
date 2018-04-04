@@ -61,7 +61,7 @@ let EstimationSuggestTaskForm = (props) => {
                     <Field
                         name="name"
                         component={renderText}
-                        label={"Name:"}
+                        label={"Task Name:"}
                         validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
                     />
                 </div>
@@ -69,7 +69,7 @@ let EstimationSuggestTaskForm = (props) => {
                     <Field
                         name="estimatedHours"
                         component={renderText}
-                        label={"Estimated Hours:"}
+                        label={"Task Estimated Hours:"}
                         validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required, number] : [number]}
                     />
                 </div>
@@ -79,7 +79,7 @@ let EstimationSuggestTaskForm = (props) => {
                     <Field
                         name="description"
                         component={renderTextArea}
-                        label="Description:"
+                        label="Task Description:"
                         rows="10"
                         validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
                     />
