@@ -695,11 +695,13 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
 
     estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.estimator.description = repositoryFeature.description
+    estimationFeature.estimator.estimatedHours = repositoryFeature.estimatedHours ? repositoryFeature.estimatedHours : 0
     estimationFeature.estimation = estimation
     estimationFeature.repo = {}
     estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
     estimationFeature.technologies = repositoryFeature.technologies
+
 
     // Iterate on tasks and add all the tasks into estimation
 
@@ -708,6 +710,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
         let estimationTask = new EstimationTaskModel()
         // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
         estimationTask.estimator.name = repositoryTask.name
+        estimationTask.estimator.estimatedHours = repositoryTask.estimatedHours
         estimationTask.estimator.description = repositoryTask.description
         estimationTask.status = SC.STATUS_PENDING
         estimationTask.addedInThisIteration = true
@@ -940,6 +943,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
     estimationFeature.owner = SC.OWNER_NEGOTIATOR
     estimationFeature.initiallyEstimated = true
     estimationFeature.changedKeyInformation = true
+    estimationFeature.canApprove = false
 
     estimationFeature.negotiator.name = repositoryFeature.name
     estimationFeature.negotiator.description = repositoryFeature.description
@@ -967,6 +971,7 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
         estimationTask.owner = SC.OWNER_NEGOTIATOR
         estimationTask.initiallyEstimated = true
         estimationTask.estimation = estimation
+        estimationTask.canApprove = false
         estimationTask.technologies = estimation.technologies
         estimationTask.repo = {}
         //estimationTask.repo._id = repositoryTask._id

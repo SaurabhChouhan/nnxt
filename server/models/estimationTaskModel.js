@@ -624,7 +624,10 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
 
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
         if (task.negotiator.estimatedHours)
-            await EstimationFeatureModel.updateOne({_id: feature._id}, {$inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours}})
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                "canApprove": false
+            })
 
     }
     task.isDeleted = true
@@ -866,6 +869,10 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
+    if (repositoryTask.estimatedHours)
+        estimationTask.negotiator.estimatedHours = repositoryTask.estimatedHours
+    else
+        estimationTask.negotiator.estimatedHours = 0
 
     return await estimationTask.save()
 
@@ -912,6 +919,7 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
     let taskFromRepositoryObj = new EstimationTaskModel()
     taskFromRepositoryObj.estimator.name = repositoryTask.name
     taskFromRepositoryObj.estimator.description = repositoryTask.description
+    taskFromRepositoryObj.estimator.estimatedHours = repositoryTask.estimatedHours
     taskFromRepositoryObj.status = SC.STATUS_PENDING
     taskFromRepositoryObj.addedInThisIteration = true
     taskFromRepositoryObj.canApprove = false
@@ -964,8 +972,9 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
 
     // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
     let taskFromRepositoryObj = new EstimationTaskModel()
-    taskFromRepositoryObj.estimator.name = repositoryTask.name
-    taskFromRepositoryObj.estimator.description = repositoryTask.description
+    taskFromRepositoryObj.negotiator.name = repositoryTask.name
+    taskFromRepositoryObj.negotiator.description = repositoryTask.description
+    taskFromRepositoryObj.negotiator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
     taskFromRepositoryObj.status = SC.STATUS_PENDING
     taskFromRepositoryObj.addedInThisIteration = true
     taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
@@ -977,6 +986,7 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
     taskFromRepositoryObj.repo = {}
     //taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = true
+
     return await EstimationTaskModel.create(taskFromRepositoryObj)
 }
 
