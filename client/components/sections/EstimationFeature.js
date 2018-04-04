@@ -311,9 +311,10 @@ class EstimationFeature extends React.PureComponent {
                         <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
 
                     </div>
-                    {feature.status===SC.STATUS_PENDING ? <div className="col-md-1">
-                        <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
-                             title="Error"></img>
+                    {feature.status === SC.STATUS_PENDING && feature.canApprove == false ? <div className="col-md-1">
+                        <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"
+                             title={feature.estimator && feature.estimator.name ? feature.estimator.description ? feature.estimator.estimatedHours ? feature.tasks && feature.tasks ? "Any task of this feature is not approve/ Some changes is done in this iteration" : "Feature is not having any task" : "Feature is not having estimated hours by estimator" : "Feature is not having description by estimator" : "Feature is not having name by estimator"}
+                        ></img>
                     </div>: null}
 
                 </div>
