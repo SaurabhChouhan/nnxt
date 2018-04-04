@@ -357,8 +357,8 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
 
     let taskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
-        "feature._id": feature._id
-
+        "feature._id": feature._id,
+        "isDeleted": false
     })
 
     if (taskCountOfFeature == 0)

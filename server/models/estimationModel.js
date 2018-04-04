@@ -650,7 +650,10 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
     estimation.canApprove = false
     estimation.updated = Date.now()
 
-    return await estimation.save()
+    await estimation.save()
+    estimation = estimation.toObject()
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 }
 
 
@@ -777,6 +780,45 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
 
     return await estimation.save()
 }
+
+estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_APPROVED], estimation.status))
+        throw new AppError("Only estimations with status [" + SC.STATUS_APPROVED + "] can reopen by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+
+    let statusHistory = {}
+    statusHistory.name = negotiator.firstName + ' ' + negotiator.lastName
+    statusHistory.status = SC.STATUS_REVIEW_REQUESTED
+    statusHistory.date = Date.now()
+
+    let existingEstimationStatusHistory = estimation.statusHistory
+    if (existingEstimationStatusHistory && existingEstimationStatusHistory.length > 0)
+        existingEstimationStatusHistory.push(statusHistory)
+    else
+        existingEstimationStatusHistory = [statusHistory]
+
+    estimation.statusHistory = existingEstimationStatusHistory
+    estimation.status = SC.STATUS_REVIEW_REQUESTED
+    estimation.canApprove = true
+    estimation.updated = Date.now()
+
+    await estimation.save()
+    estimation = estimation.toObject()
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
+}
+
+
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel

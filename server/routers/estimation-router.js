@@ -471,7 +471,16 @@ estimationRouter.put('/task/:taskID/reOpen', async ctx => {
     if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
         return await EstimationTaskModel.reOpenTaskByNegotiator(ctx.params.taskID, ctx.state.user)
     } else {
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpwn task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
+
+estimationRouter.put('/:estimationID/reopen', async ctx => {
+    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        return await EstimationModel.reOpenEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can reopen estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 
