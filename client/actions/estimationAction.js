@@ -1030,5 +1030,29 @@ export const reOpenTaskOnServer = (TaskID) => {
     }
 }
 
+export const reopenEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/reopen", {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
+
+                }
+                return json
+            })
+    }
+}
+
 
 

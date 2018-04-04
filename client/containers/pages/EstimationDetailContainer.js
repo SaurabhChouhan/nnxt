@@ -101,8 +101,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 NotificationManager.error("Estimation approve failed")
         }
     }),
-    reopenEstimation: (estimation) =>
-        console.log("reopenEstimation")
+    reopenEstimation: (estimation) => dispatch(A.reopenEstimationOnServer(estimation._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Estimation Reopen successfully")
+        }
+            else{
+                NotificationManager.error("Estimation not reopened")
+        }
+    })
 
 
 })
