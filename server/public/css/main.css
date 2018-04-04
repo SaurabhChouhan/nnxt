@@ -1601,6 +1601,9 @@ label {
 .infoHighliter {
     color: red;
 }
+.suggestionUser{
+    height: 75px;
+}
 .errorClass{
     margin:10px 0px 0px 10px;
 }

@@ -311,10 +311,11 @@ class EstimationFeature extends React.PureComponent {
                         <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
 
                     </div>
-                    <div className="col-md-1">
+                    {feature.status===SC.STATUS_PENDING ? <div className="col-md-1">
                         <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
-                                                   title="Error"></img>
-                    </div>
+                             title="Error"></img>
+                    </div>: null}
+
                 </div>
 
 

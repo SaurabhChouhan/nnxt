@@ -9,92 +9,114 @@ import * as SC from "../../../server/serverconstants"
 let EstimationSuggestTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
-    const {loggedInUserRole, readOnly} = props
+    const {loggedInUserRole, estimation, readOnly} = props
     return <form onSubmit={props.handleSubmit}>
-        <div className="col-md-5">
-            <div className="row">
-
-                <Field name="estimation._id" component="input" type="hidden"/>
-                <Field name="_id" component="input" type="hidden"/>
-
-                <div className="col-md-6">
-                    <Field name="readOnly.name"
-                           readOnly={true}
-                           component={renderText}
-                           label={"Task Name:"}
-                    />
+        <div className="col-md-12">
+            <div className="col-md-5">
+                <div className="col-md-1">
+                    {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                        <img key="estimator" className="suggestionUser div-hover" src="/images/estimator.png"
+                             title="Estimator End"/> :
+                        estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                            <img key="negotiator" className="suggestionUser div-hover" src="/images/negotiator.png"
+                                 title="Negotiator End"/> : null
+                    }
                 </div>
-                <div className="col-md-6">
-                    <Field name="readOnly.estimatedHours"
-                           component={renderText}
-                           readOnly={true}
-                           label={"Task Estimated Hours:"}
-                    />
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-md-12">
-                    <Field name="readOnly.description"
-                           readOnly={true}
-                           component={renderTextArea}
-                           rows="10"
-                           label="Task Description:"
-                    />
-                </div>
+                <div className="col-md-11">
+                    <div className="row">
 
-            </div>
+                        <Field name="estimation._id" component="input" type="hidden"/>
+                        <Field name="_id" component="input" type="hidden"/>
 
-        </div>
-        <div className="col-md-2 ">
-            <button type="button" className="suggestCopy btn-link"
-                    title="Copy Task Details"
-                    onClick={() => {
-                        change("name", readOnly.name)
-                        change("estimatedHours", readOnly.estimatedHours)
-                        change("description", readOnly.description)
-                    }}><i className="glyphicon glyphicon-arrow-right"></i></button>
-        </div>
-        <div className="col-md-5">
-            <div className="row">
-
-                <div className="col-md-6">
-                    <Field
-                        name="name"
-                        component={renderText}
-                        label={"Task Name:"}
-                        validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
-                    />
-                </div>
-                <div className="col-md-6">
-                    <Field
-                        name="estimatedHours"
-                        component={renderText}
-                        label={"Task Estimated Hours:"}
-                        validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required, number] : [number]}
-                    />
+                        <div className="col-md-6">
+                            <Field name="readOnly.name"
+                                   readOnly={true}
+                                   component={renderText}
+                                   label={"Task Name:"}
+                            />
+                        </div>
+                        <div className="col-md-6">
+                            <Field name="readOnly.estimatedHours"
+                                   component={renderText}
+                                   readOnly={true}
+                                   label={"Task Estimated Hours:"}
+                            />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-12">
+                            <Field name="readOnly.description"
+                                   readOnly={true}
+                                   component={renderTextArea}
+                                   rows="10"
+                                   label="Task Description:"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div className="row">
-                <div className="col-md-12">
-                    <Field
-                        name="description"
-                        component={renderTextArea}
-                        label="Task Description:"
-                        rows="10"
-                        validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
-                    />
+            <div className="col-md-2 ">
+                <button type="button" className="suggestCopy btn-link"
+                        title="Copy Task Details"
+                        onClick={() => {
+                            change("name", readOnly.name)
+                            change("estimatedHours", readOnly.estimatedHours)
+                            change("description", readOnly.description)
+                        }}><i className="glyphicon glyphicon-arrow-right"></i></button>
+            </div>
+            <div className="col-md-5">
+                <div className="col-md-1">
+                    {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                        <img key="estimator" className="suggestionUser div-hover" src="/images/estimator.png"
+                             title="Estimator End"/> :
+                        estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                            <img key="negotiator" className="suggestionUser div-hover" src="/images/negotiator.png"
+                                 title="Negotiator End"/> : null
+                    }
                 </div>
+                <div className="col-md-11">
+                    <div className="row">
 
+                        <div className="col-md-6">
+                            <Field
+                                name="name"
+                                component={renderText}
+                                label={"Task Name:"}
+                                validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
+                            />
+                        </div>
+                        <div className="col-md-6">
+                            <Field
+                                name="estimatedHours"
+                                component={renderText}
+                                label={"Task Estimated Hours:"}
+                                validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required, number] : [number]}
+                            />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-12">
+                            <Field
+                                name="description"
+                                component={renderTextArea}
+                                label="Task Description:"
+                                rows="10"
+                                validate={loggedInUserRole == SC.ROLE_ESTIMATOR ? [required] : []}
+                            />
+                        </div>
+
+                    </div>
+                </div>
             </div>
-        </div>
-        <div className="row initiatEstimation">
-            <div className="col-md-6 text-center">
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn">Save</button>
-            </div>
-            <div className="col-md-6 text-center">
-                <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>
-                    Reset
-                </button>
+            <div className="row initiatEstimation">
+                <div className="col-md-6 text-center">
+                    <button type="submit" disabled={pristine || submitting} className="btn customBtn">Save</button>
+                </div>
+                <div className="col-md-6 text-center">
+                    <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>
+                        Reset
+                    </button>
+                </div>
             </div>
         </div>
     </form>
