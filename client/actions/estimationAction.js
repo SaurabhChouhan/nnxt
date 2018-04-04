@@ -321,6 +321,9 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
             json => {
                 if (json.success) {
                     dispatch(deleteEstimationTask(json.data))
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(getFeatureFromServer(json.data.feature._id))
+                    }
                 }
                 return json
             })
@@ -772,6 +775,7 @@ export const addProjectAwardOnServer = (formInput) => {
     }
 }
 
+
 export const requestForFeatureDeletePermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/request-removal', {
@@ -898,6 +902,7 @@ export const canApproveFeatureOnServer = (FeatureID) => {
     }
 }
 
+
 export const canApproveEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/can-approve", {
@@ -923,6 +928,7 @@ export const canApproveEstimationOnServer = (estimationID) => {
             })
     }
 }
+
 
 export const canNotApproveFeatureOnServer = (FeatureID, grant) => {
     return (dispatch, getState) => {
