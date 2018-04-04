@@ -372,6 +372,7 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
         "feature._id": feature._id,
+        "isDeleted": false,
         status: {$in: [SC.STATUS_PENDING]}
     })
 
@@ -407,7 +408,8 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
 
     let taskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
-        "feature._id": feature._id
+        "feature._id": feature._id,
+        "isDeleted": false
     })
 
     if (taskCountOfFeature == 0)
@@ -421,6 +423,7 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
         "feature._id": feature._id,
+        "isDeleted": false,
         status: {$in: [SC.STATUS_PENDING]}
     })
 
@@ -1042,7 +1045,7 @@ estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, ne
     let FeatureTasks = await EstimationTaskModel.find({'feature._id': featureID})
     if (FeatureTasks && Array.isArray(FeatureTasks) && FeatureTasks.length) {
         featurePendingTasks = FeatureTasks.map(t => {
-            return EstimationTaskModel.updateOne({_id: t._id}, {"canApprove": true}, {"status": SC.STATUS_PENDING})
+            return EstimationTaskModel.updateOne({_id: t._id}, {"canApprove": true, "status": SC.STATUS_PENDING})
         })
         featureTasks = await Promise.all(featurePendingTasks)
     }
