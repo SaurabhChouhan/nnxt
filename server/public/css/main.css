@@ -952,7 +952,6 @@ td.rejRowColor {
 }
 
 .content-section {
-    display: flex;
     max-height: 600px;
     overflow-y: scroll;
 }
@@ -1597,4 +1596,11 @@ label {
     position: absolute;
     width: 82%;
     margin-left: 58px;
+}
+
+.infoHighliter {
+    color: red;
+}
+.errorClass{
+    margin:10px 0px 0px 10px;
 }

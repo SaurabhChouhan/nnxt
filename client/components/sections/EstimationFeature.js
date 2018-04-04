@@ -20,6 +20,7 @@ class EstimationFeature extends React.PureComponent {
         super(props)
         this.state = {
             showFeatureDeletionDialog: false,
+            showTaskDeletionRequestedDialog: false,
             featureDeletion: undefined
         }
 
@@ -27,11 +28,20 @@ class EstimationFeature extends React.PureComponent {
 
     onClose() {
         this.setState({showFeatureDeletionDialog: false})
+        this.setState({showTaskDeletionRequestedDialog: false})
+
     }
 
     onConfirmFeatureDelete() {
         this.setState({showFeatureDeletionDialog: false})
         this.props.deleteFeature(this.state.featureDeletion);
+    }
+
+    onConfirmTaskDeleteRequest() {
+        this.setState({showTaskDeletionRequestedDialog: false})
+        this.props.deleteFeature(this.props.feature)
+
+
     }
 
 
@@ -111,7 +121,7 @@ class EstimationFeature extends React.PureComponent {
                         <img className="div-hover" key="he_requested_delete" src="/images/he_requested_delete.png"
                              title="Delete-Requested"
                              onClick={() => {
-                                 this.props.deleteFeature(feature)
+                                 this.setState({showTaskDeletionRequestedDialog: true})
                              }}/> :
                         <img key="he_requested_delete_disable" src="/images/he_requested_delete_disable.png"
                              title="Delete-Requested"/>)
@@ -294,18 +304,34 @@ class EstimationFeature extends React.PureComponent {
 
         return <div className={expanded ? 'feature-expanded' : 'feature'}>
             <div className="col-md-12 pad">
-                <div className="col-md-9 div-hover" onClick={() => {
-                    this.props.expandFeature(feature._id)
-                }}>
-                    <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
+                <div className="col-md-9">
+                    <div className="col-md-11 div-hover" onClick={() => {
+                        this.props.expandFeature(feature._id)
+                    }}>
+                        <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
+
+                    </div>
+                    {feature.status===SC.STATUS_PENDING ? <div className="col-md-1">
+                        <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
+                             title="Error"></img>
+                    </div>: null}
+
                 </div>
 
+
                 <div className="col-md-3">
-                    <div>{this.state.showFeatureDeletionDialog &&
-                    <ConfirmationDialog show={true} onConfirm={this.onConfirmFeatureDelete.bind(this)}
-                                        title={CM.DELETE_FEATURE} onClose={this.onClose.bind(this)}
-                                        body={CM.DELETE_FEATURE_BODY}/>
-                    }
+                    <div>
+                        {
+                            this.state.showTaskDeletionRequestedDialog &&
+                            <ConfirmationDialog show={true} onConfirm={this.onConfirmTaskDeleteRequest.bind(this)}
+                                                title={CM.DELETE_TASK} onClose={this.onClose.bind(this)}
+                                                body={CM.DELETE_TASK_BODY}/>
+                        }
+                        {this.state.showFeatureDeletionDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmFeatureDelete.bind(this)}
+                                            title={CM.DELETE_FEATURE} onClose={this.onClose.bind(this)}
+                                            body={CM.DELETE_FEATURE_BODY}/>
+                        }
 
                         {feature.owner == SC.OWNER_ESTIMATOR && feature.addedInThisIteration &&
                         <div className="flagStrip">
@@ -349,10 +375,13 @@ class EstimationFeature extends React.PureComponent {
             }}>
                 <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
-            <div className="col-md-3">
-                <h4>Estimated:</h4>
-                <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
-            </div>
+            {
+                <div
+                    className={feature.estimator && feature.estimator.estimatedHours ? "col-md-3 " : "col-md-3 infoHighliter"}>
+                    <h4>Estimated:</h4>
+                    <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
+                </div>
+            }
             <div className="col-md-3">
                 <h4>Suggested:</h4>
                 <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
