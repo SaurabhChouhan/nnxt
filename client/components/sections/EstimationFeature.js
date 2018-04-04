@@ -552,6 +552,8 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 else {
                     if (json.code == EC.TASK_APPROVAL_ERROR) {
                         NotificationManager.error('First All the task of feature should be approved')
+                    } else if (json.code == EC.FEATURE_APPROVAL_ERROR) {
+                        NotificationManager.error('First details of feature should be filled on estimator')
                     }
                     else {
                         NotificationManager.error('Feature Not Approved')

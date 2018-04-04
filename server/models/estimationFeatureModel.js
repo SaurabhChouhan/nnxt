@@ -355,6 +355,14 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     if (!(feature.canApprove))
         throw new AppError('Cannot approve feature as either name/description is not not there or there are pending requests from Estimator', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
+    if (feature.estimator.changeRequested
+        || feature.estimator.removalRequested
+        || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
+        || _.isEmpty(feature.estimator.name)
+        || _.isEmpty(feature.estimator.description)) {
+        throw new AppError('Feature Details are not available at estimator end, cannot approve', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+    }
+
     let taskCountOfFeature = await EstimationTaskModel.count({
         "estimation._id": feature.estimation._id,
         "feature._id": feature._id,
@@ -429,6 +437,14 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
 
     if (pendingTaskCountOfFeature != 0)
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+
+    if (feature.estimator.changeRequested
+        || feature.estimator.removalRequested
+        || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
+        || _.isEmpty(feature.estimator.name)
+        || _.isEmpty(feature.estimator.description)) {
+        throw new AppError('Feature Details are not available at estimator end, cannot approve', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+    }
 
 
     feature.canApprove = true
@@ -509,6 +525,11 @@ estimationFeatureSchema.statics.deleteFeatureByEstimator = async (paramsInput, e
     if (!feature.addedInThisIteration)
         throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
+    await EstimationTaskModel.update(
+        {"feature._id": feature._id},
+        {$set: {"status": SC.STATUS_PENDING, "isDeleted": true}},
+        {multi: true}).exec()
+
     feature.isDeleted = true
     feature.estimator.changedInThisIteration = true
     feature.updated = Date.now()
@@ -538,16 +559,12 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     if (!feature.estimator.removalRequested) {
         if (feature.owner != SC.OWNER_NEGOTIATOR)
             throw new AppError('You are not owner of this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-        /*if (!feature.addedInThisIteration)
-            throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)*/
     }
 
-    /*if (feature.owner != SC.OWNER_NEGOTIATOR)
-        throw new AppError('You are not owner of this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-    if (!feature.addedInThisIteration)
-        throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)*/
+    await EstimationTaskModel.update(
+        {"feature._id": feature._id},
+        {$set: {"status": SC.STATUS_PENDING, "isDeleted": true}},
+        {multi: true}).exec()
 
     feature.isDeleted = true
     feature.negotiator.changedInThisIteration = true
