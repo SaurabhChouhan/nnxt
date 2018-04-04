@@ -350,7 +350,13 @@ class EstimationTask extends React.PureComponent {
 
         return <div className={expanded ? 'task-expanded' : 'task'}>
             <div className="col-md-9">
-                <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
+                <div className="col-md-11">
+                    <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
+                </div>
+                {task.status===SC.STATUS_PENDING ? <div className="col-md-1">
+                    <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
+                         title="Error"></img>
+                </div>: null}
             </div>
             <div className="col-md-3">
 
