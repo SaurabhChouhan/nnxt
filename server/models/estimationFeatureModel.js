@@ -715,7 +715,6 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     estimationFeature.estimator.estimatedHours = repositoryFeature.estimatedHours ? repositoryFeature.estimatedHours : 0
     estimationFeature.estimation = estimation
     estimationFeature.repo = {}
-    estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
     estimationFeature.technologies = repositoryFeature.technologies
 
