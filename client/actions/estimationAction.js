@@ -409,6 +409,9 @@ export const addTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) 
             json => {
                 if (json.success) {
                     dispatch(addEstimationTask(json.data))
+                    if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
+                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                    }
                 }
                 return json
             })
@@ -432,6 +435,9 @@ export const copyTaskFromRepositoryToEstimationOnServer = (estimationID, taskID)
             json => {
                 if (json.success) {
                     dispatch(addEstimationTask(json.data))
+                    if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
+                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                    }
                 }
                 return json
             })
@@ -455,6 +461,9 @@ export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featu
             json => {
                 if (json.success) {
                     dispatch(addEstimationFeature(json.data))
+                    if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
+                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                    }
                 }
                 return json
             })
@@ -478,6 +487,9 @@ export const copyFeatureFromRepositoryToEstimationOnServer = (estimationID, feat
             json => {
                 if (json.success) {
                     dispatch(addEstimationFeature(json.data))
+                    if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
+                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                    }
                 }
                 return json
             })

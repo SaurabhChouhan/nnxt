@@ -815,7 +815,13 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
     estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = false
 
-    return await estimationTask.save()
+    await estimationTask.save()
+
+    estimationTask = estimationTask.toObject()
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    return estimationTask
 
 }
 
@@ -876,7 +882,13 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     else
         estimationTask.estimator.estimatedHours = 0
 
-    return await estimationTask.save()
+    await estimationTask.save()
+    estimationTask = estimationTask.toObject()
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    return estimationTask
+
 
 }
 
@@ -933,7 +945,12 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
     taskFromRepositoryObj.repo = {}
     taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = false
-    return await EstimationTaskModel.create(taskFromRepositoryObj)
+    let taskFromRepo = await EstimationTaskModel.create(taskFromRepositoryObj)
+    taskFromRepo = taskFromRepo.toObject()
+    if (estimation && estimation.canApprove) {
+        taskFromRepo.isEstimationCanApprove = true
+    }
+    return taskFromRepo
 }
 
 
@@ -989,7 +1006,13 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
     //taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = true
 
-    return await EstimationTaskModel.create(taskFromRepositoryObj)
+    let taskFromRepo = await EstimationTaskModel.create(taskFromRepositoryObj)
+    taskFromRepo = taskFromRepo.toObject()
+    if (estimation && estimation.canApprove) {
+        taskFromRepo.isEstimationCanApprove = true
+    }
+    return taskFromRepo
+
 }
 
 

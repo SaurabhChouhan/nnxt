@@ -656,6 +656,10 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     await estimationFeature.save()
     estimationFeature = estimationFeature.toObject()
     estimationFeature.tasks = estimationTasks
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
+    return taskFromRepo
     return estimationFeature
 
     // In case repository feature has tasks as well we would be
@@ -749,6 +753,9 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     await estimationFeature.save()
     estimationFeature = estimationFeature.toObject()
     estimationFeature.tasks = estimationTasks
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
     return estimationFeature
 
     // In case repository feature has tasks as well we would be
@@ -908,6 +915,9 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     await estimationFeature.save()
     estimationFeature = estimationFeature.toObject()
     estimationFeature.tasks = estimationTasks
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
     return estimationFeature
 
     // In case repository feature has tasks as well we would be
@@ -1003,6 +1013,9 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
     await estimationFeature.save()
     estimationFeature = estimationFeature.toObject()
     estimationFeature.tasks = estimationTasks
+    if (estimation && estimation.canApprove) {
+        estimationFeature.isEstimationCanApprove = true
+    }
     return estimationFeature
 
     // In case repository feature has tasks as well we would be
