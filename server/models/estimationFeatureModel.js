@@ -1065,12 +1065,6 @@ estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, ne
 
     let featureTasks
     let FeatureTasks = await EstimationTaskModel.find({'feature._id': featureID})
-    if (FeatureTasks && Array.isArray(FeatureTasks) && FeatureTasks.length) {
-        featurePendingTasks = FeatureTasks.map(t => {
-            return EstimationTaskModel.updateOne({_id: t._id}, {"canApprove": true, "status": SC.STATUS_PENDING})
-        })
-        featureTasks = await Promise.all(featurePendingTasks)
-    }
     feature.status = SC.STATUS_PENDING
     feature.canApprove = true
     await feature.save()
