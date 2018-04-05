@@ -519,8 +519,6 @@ estimationFeatureSchema.statics.deleteFeatureByEstimator = async (paramsInput, e
     if (estimation.estimator._id != estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (feature.owner != SC.OWNER_ESTIMATOR)
-        throw new AppError('You are not owner of this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     if (!feature.addedInThisIteration)
         throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
@@ -556,10 +554,6 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     if (estimation.negotiator._id != negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (!feature.estimator.removalRequested) {
-        if (feature.owner != SC.OWNER_NEGOTIATOR)
-            throw new AppError('You are not owner of this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    }
 
     await EstimationTaskModel.update(
         {"feature._id": feature._id},

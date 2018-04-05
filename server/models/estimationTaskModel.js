@@ -573,9 +573,6 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
     if (estimation.estimator._id != estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (task.owner != SC.OWNER_ESTIMATOR)
-        throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
     if (!task.addedInThisIteration)
         throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
@@ -588,6 +585,11 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
         if (task.estimator.estimatedHours)
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false
+            })
+        if (task.negotiator.estimatedHours)
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
                 "canApprove": false
             })
 
@@ -627,6 +629,12 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
         if (task.negotiator.estimatedHours)
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                "canApprove": false
+            })
+
+        if (task.estimator.estimatedHours)
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
                 "canApprove": false
             })
 
