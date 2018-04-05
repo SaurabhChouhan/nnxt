@@ -25,10 +25,13 @@ class EstimationList extends Component {
     }
 
     filterEstimationStatus(status) {
+        this.setState({status:status})
         this.props.getAllEstimations(this.state.projectID, status)
     }
 
     filterEstimationByProject(projectID) {
+
+        this.setState({projectID:projectID})
         this.props.getAllEstimations(projectID, this.state.status)
     }
 
