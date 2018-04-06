@@ -72,9 +72,7 @@ yearlyHolidaysSchema.statics.createHolidayYear = async holidayModel => {
 }
 
 yearlyHolidaysSchema.statics.addHolidayToYear = async (holidayYearID, holidayObj) => {
-    console.log("adding holiday to year...", holidayObj);
     let holidayYear = await YearlyHolidaysModel.findById(holidayYearID)
-    console.log("holiday year is ", holidayYear.calenderYear);
     if (!holidayYear)
         throw new AppError("Invalid holiday year.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
@@ -95,9 +93,7 @@ yearlyHolidaysSchema.statics.updateHolidayToYear = async (holidayYearID, holiday
 
 }
 yearlyHolidaysSchema.statics.deleteHolidayFromYear = async (holidayYearID, holidayObj) => {
-    console.log("removing holiday from year...", holidayObj);
     let holidayYear = await YearlyHolidaysModel.findById(holidayYearID)
-    console.log(" holiday year is ", holidayYear.calenderYear);
 
     if (!holidayYear)
         throw new AppError("Invalid holiday year.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)

@@ -20,7 +20,6 @@ class TechnologyList extends Component {
 
     onClose() {
         this.setState({showTechnologyDeletionDialog: false})
-        console.log("onClose", this.state.showTechnologyDeletionDialog)
     }
 
     OkConfimationForDeleteTechnology() {

@@ -60,7 +60,6 @@ class RaiseLeaveList extends Component {
     }
 
     formatLeaveType(leaveType) {
-        console.log("leaveType ", leaveType)
         if (leaveType)
             return leaveType.name
         return ''
@@ -71,8 +70,7 @@ class RaiseLeaveList extends Component {
 
         return (<button className="fa fa-remove btn btn-custom " type="button"
                         disabled={(row.status == "cancelled") ? true : false} onClick={() => {
-                console.log("delete button call", row)
-                this.props.cancelRaiseLeaveRequestCall(row)
+               return this.props.cancelRaiseLeaveRequestCall(row)
             }}>
 
             </button>

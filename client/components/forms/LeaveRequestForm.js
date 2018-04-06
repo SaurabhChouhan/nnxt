@@ -11,7 +11,6 @@ import * as logger from "../../clientLogger";
 
 let LeaveRequestForm = (props) => {
 
-    console.log("You are leave request Form", props.leaveTypes.name)
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-6">

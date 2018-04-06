@@ -427,7 +427,6 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    console.log("task feature id is ", task.feature._id)
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
     if (task.estimator.estimatedHours)
@@ -558,7 +557,6 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
 
 
 estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimator) => {
-    //console.log("deleteTaskByEstimator for paramsInput ", paramsInput)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -1028,9 +1026,6 @@ estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator)
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-    console.log("userHasRole(negotiator, SC.ROLE_NEGOTIATOR)", userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let task = await EstimationTaskModel.findById(taskID)
     let estimationFeatureObj

@@ -11,7 +11,6 @@ class RaiseLeaveDeatilPage extends Component {
 
     render() {
         const {raiseLeave} = this.props
-        console.log("raiseLeave", raiseLeave)
         return (
             <div>
                 <div className="col-md-12">

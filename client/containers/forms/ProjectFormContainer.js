@@ -15,7 +15,6 @@ import ProjectList from "../../components/lists/ProjectList";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        console.log("You are in project initiate Form container ", values)
         if (!values._id) {
             return dispatch(A.addProjectOnServer(values)).then(json => {
                 if (json.success) {

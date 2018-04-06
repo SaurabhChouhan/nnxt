@@ -58,7 +58,6 @@ class Tabs extends Component {
 
         let permissions = this.props.loggedInUser.permissions
 
-        console.log("permissions ", permissions)
 
 
         if (permissions.includes(EDIT_PROFILE)) {

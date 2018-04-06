@@ -1,18 +1,18 @@
 import React, {Component} from 'react'
-import {Route, Redirect} from 'react-router-dom'
+import {Redirect, Route} from 'react-router-dom'
 import {NotificationContainer} from 'react-notifications'
 import {
     AdminHomeContainer,
-    SuperAdminHomeContainer,
     AppHomeContainer,
     HomeContainer,
+    SuperAdminHomeContainer
 } from '../containers'
 
 class AppRouter extends Component {
     render() {
         return ([<NotificationContainer key="notification"/>,
                 <Route key="home_route" exact path="/" render={(props) => {
-                    console.log(this.props.loggedInUser)
+
                     if (this.props.isAuthenticated && this.props.loggedInUser) {
                         if (this.props.loggedInUser.isSuperAdmin)
                             return <Redirect to="/super-admin"/>

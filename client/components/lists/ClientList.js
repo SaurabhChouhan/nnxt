@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
-import * as SC from '../../../server/serverconstants'
 import * as CM from "../../clientMsg"
 
 class ClientList extends Component {
@@ -18,12 +17,10 @@ class ClientList extends Component {
 
     onClose() {
         this.setState({showClientDeletionDialog: false})
-        console.log("onClose", this.state.showClientDeletionDialog)
     }
 
     OkConfimationForDeletingClient() {
         this.setState({showClientDeletionDialog: false})
-        console.log("ok confirmation id,", this.state.addRow)
         this.props.deleteClient(this.state.addRow)
     }
 

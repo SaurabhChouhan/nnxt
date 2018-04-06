@@ -24,7 +24,6 @@ leaveTypesSchema.statics.getAllActiveLeaveTypes = async () => {
 }
 
 leaveTypesSchema.statics.saveLeaveType = async (leaveTypeInput) => {
-    //console.log("saveLeaveType data ",leaveTypeInput)
     return await LeaveTypeModel.create(leaveTypeInput)
 }
 

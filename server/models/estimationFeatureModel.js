@@ -624,7 +624,6 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     // Iterate on tasks and add all the tasks into estimation
 
     let estimationTaskPromises = repositoryFeature.tasks.map(async repositoryTask => {
-        console.log("inside ", repositoryTask._id)
         let estimationTask = new EstimationTaskModel()
         // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
         estimationTask.estimator.name = repositoryTask.name
@@ -719,7 +718,6 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     // Iterate on tasks and add all the tasks into estimation
 
     let estimationTaskPromises = repositoryFeature.tasks.map(async repositoryTask => {
-        console.log("inside ", repositoryTask._id)
         let estimationTask = new EstimationTaskModel()
         // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
         estimationTask.estimator.name = repositoryTask.name
@@ -883,7 +881,6 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     // Iterate on tasks and add all the tasks into estimation
 
     let estimationTaskPromises = repositoryFeature.tasks.map(async repositoryTask => {
-        console.log("inside ", repositoryTask._id)
         let estimationTask = new EstimationTaskModel()
         // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
         estimationTask.estimator.name = repositoryTask.name
@@ -980,7 +977,6 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
     // Iterate on tasks and add all the tasks into estimation
 
     let estimationTaskPromises = repositoryFeature.tasks.map(async repositoryTask => {
-        console.log("inside ", repositoryTask._id)
         let estimationTask = new EstimationTaskModel()
         // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
         estimationTask.estimator.name = repositoryTask.name

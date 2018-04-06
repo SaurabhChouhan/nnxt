@@ -60,7 +60,6 @@ clientSchema.statics.deleteClient = async (id) => {
     return response
 }
 clientSchema.statics.editClient = async clientInput => {
-    console.log("check the project Input data", clientInput)
     let client = await ClientModel.findById(clientInput._id)
     //let count = await ProjectModel.count({'name': projectInput.name, 'client._id': projectInput.client._id})
     if (await ClientModel.exists(clientInput.name)) {

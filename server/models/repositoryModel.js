@@ -27,7 +27,7 @@ let repositorySchema = mongoose.Schema({
 
 repositorySchema.statics.isTaskExists = async (name) => {
     let count = await RepositoryModel.count({'name': name})
-    console.log("count is ", count)
+
     if (count > 0)
         return true
     return false
@@ -35,7 +35,6 @@ repositorySchema.statics.isTaskExists = async (name) => {
 
 repositorySchema.statics.isFeatureExists = async (name) => {
     let count = await RepositoryModel.count({'name': name, 'isFeature': true})
-    console.log("count is ", count)
     if (count > 0)
         return true
     return false
@@ -125,7 +124,7 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
     // check to see if estimation from where this feature was added is same a sent in feature
 
     if (featureInput.estimation._id == repositoryFeature.estimation._id) {
-        console.log("repository would be changed")
+        //repository would be changed
         repositoryFeature.name = featureInput.name
         repositoryFeature.description = featureInput.description
         repositoryFeature.technologies = featureInput.technologies
@@ -133,7 +132,7 @@ repositorySchema.statics.updateFeature = async (featureInput, user) => {
         await repositoryFeature.save()
         return true
     } else {
-        console.log("No changes to feature in repository as feature does not belong to estimation")
+        //No changes to feature in repository as feature does not belong to estimation
         return false
     }
 }
@@ -153,7 +152,7 @@ repositorySchema.statics.updateTask = async (repo_id, taskInput, user) => {
         repositoryTask.tags = taskInput.tags
         return await repositoryTask.save()
     } else {
-        console.log("No changes in repository as estimation id do not match")
+        //No changes in repository as estimation id do not match
         return false
     }
 }
@@ -165,7 +164,7 @@ repositorySchema.statics.moveTaskToFeature = async (repositoryTaskID, repository
         throw new AppError('Task not found in repository')
 
     if (repositoryTask.estimation._id.toString() != estimationID.toString()) {
-        console.log("No changes in repository as estimation of task mismatches with current estimation")
+        //No changes in repository as estimation of task mismatches with current estimation
         return false
     }
 
@@ -175,7 +174,7 @@ repositorySchema.statics.moveTaskToFeature = async (repositoryTaskID, repository
         throw new AppError('Feature not found in repository')
 
     if (repositoryFeature.estimation._id.toString() != estimationID.toString()) {
-        console.log("No changes in repository as estimation of feature mismatches with current estimation")
+        //No changes in repository as estimation of feature mismatches with current estimation
         return false
     }
 
@@ -185,7 +184,7 @@ repositorySchema.statics.moveTaskToFeature = async (repositoryTaskID, repository
             repositoryFeature.tasks.push(repositoryTask)
             repositoryFeature.save()
         } else {
-            console.log("Task already part of feature")
+            //Task already part of feature
             return false
         }
     } else {
@@ -203,7 +202,7 @@ repositorySchema.statics.moveTaskOutOfFeature = async (repositoryTaskID, reposit
         throw new AppError('Task not found in repository')
 
     if (repositoryTask.estimation._id.toString() != estimationID.toString()) {
-        console.log("No changes in repository as estimation of task mismatches with current estimation")
+        //No changes in repository as estimation of task mismatches with current estimation
         return false
     }
 
@@ -213,7 +212,7 @@ repositorySchema.statics.moveTaskOutOfFeature = async (repositoryTaskID, reposit
         throw new AppError('Feature not found in repository')
 
     if (repositoryFeature.estimation._id.toString() != estimationID.toString()) {
-        console.log("No changes in repository as estimation of feature mismatches with current estimation")
+        //No changes in repository as estimation of feature mismatches with current estimation
         return false
     }
 
@@ -223,11 +222,11 @@ repositorySchema.statics.moveTaskOutOfFeature = async (repositoryTaskID, reposit
             repositoryFeature.tasks.remove(repositoryTask._id)
             repositoryFeature.save()
         } else {
-            console.log("Task not part of feature cannot move out")
+            //Task not part of feature cannot move out
             return false
         }
     } else {
-        console.log("Task not part of feature cannot move out")
+        //Task not part of feature cannot move out
         return false
     }
 
@@ -260,7 +259,7 @@ repositorySchema.statics.searchRepositories = async (filterObj) => {
             }
         })
     } else {
-        console.log("search for all")
+        //search for all
     }
 
     // TODO: Later on we need to paginate search rather than returning all tasks features of repository

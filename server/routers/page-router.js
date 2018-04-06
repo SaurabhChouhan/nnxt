@@ -26,7 +26,6 @@ pageRouter.get('/logout', ctx => {
 
 pageRouter.get('/super-admin', async ctx => {
 
-    console.log("/super admin ", ctx.state.user)
 
     if (!isSuperAdmin(ctx))
         return ctx.redirect('/')

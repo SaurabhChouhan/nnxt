@@ -4,7 +4,6 @@ import {required, email} from './validation'
 import {renderLoginField} from "./fields";
 
 let LoginForm = (props) => {
-    console.log("loginForm->props ", props)
     return <div>
         <div className="col-md-12 loginsection">
             <div className="col-md-5 login_img ">

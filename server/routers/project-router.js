@@ -23,7 +23,6 @@ projectRouter.delete("/:id", async ctx => {
     return await ProjectModel.softDelete(ctx.params.id)
 })
 projectRouter.put('/', async ctx => {
-    console.log("You aere in project routerr edit project", ctx.request.body)
     return await ProjectModel.editProject(ctx.request.body)
 })
 export default projectRouter

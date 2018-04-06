@@ -5,7 +5,6 @@ import React from 'react'
 import * as logger from "../../clientLogger";
 
 let ProjectForm = (props) => {
-    console.log("You are project Form", props)
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-4">

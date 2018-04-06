@@ -22,8 +22,6 @@ attendanceSettingsSchema.statics.get = async (loggedInUser) => {
 }
 
 attendanceSettingsSchema.statics.updateSetting = async (newSettings, loggedInUser) => {
-    console.log("logged in settings are ", newSettings)
-
     let attendanceSetting = await AttendanceSettingsModel.findOne()
 
     if (!attendanceSetting) {

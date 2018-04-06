@@ -5,7 +5,6 @@ import * as COC from '../../components/componentConsts'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
-        console.log("get the form values", formValues)
         dispatch(A.addFilteredEstimation(formValues))
         dispatch(A.hideComponent(COC.ESTIMATION_FILTER_DIALOG))
     }

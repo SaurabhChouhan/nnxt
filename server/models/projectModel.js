@@ -74,7 +74,6 @@ projectSchema.statics.softDelete = async (id) => {
     return response
 }
 projectSchema.statics.editProject = async projectInput => {
-    console.log("check the project Input data", projectInput)
     let project = await ProjectModel.findById(projectInput._id)
     //let count = await ProjectModel.count({'name': projectInput.name, 'client._id': projectInput.client._id})
     if (await ProjectModel.exists(projectInput.name, projectInput.client._id)) {

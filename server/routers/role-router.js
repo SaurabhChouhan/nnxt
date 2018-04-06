@@ -44,7 +44,7 @@ roleRouter.put('/', async ctx => {
 
         let roleInput = ctx.request.body
         let role = await RoleModel.findById(roleInput._id).lean()
-        console.log("found role as ", role.permissions)
+
 
         if (!_.isEmpty(role.permissions)) {
             role.permissions = role.permissions.map(p => {

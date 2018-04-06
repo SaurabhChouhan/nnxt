@@ -41,7 +41,6 @@ class EstimationTask extends React.PureComponent {
 
     render() {
         const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask, fromRepoWithFeature} = this.props
-        console.log("  this.state ", this.state)
         let buttons = [];
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)

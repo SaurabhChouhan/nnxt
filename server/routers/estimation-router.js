@@ -409,7 +409,6 @@ estimationRouter.post('/tasks/estimation/:estimationID/repository-task/:taskID',
  * Add feature from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/features/estimation/:estimationID/repository-feature/:featureID', async ctx => {
-    console.log("I am here")
     if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
         return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
     } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
@@ -436,7 +435,6 @@ estimationRouter.post('/tasks/estimation/:estimationID/repository-task-copy/:tas
  * Copy feature from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/features/estimation/:estimationID/repository-feature-copy/:featureID', async ctx => {
-    console.log("I am here")
     if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
         return await EstimationFeatureModel.copyFeatureFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
     } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
