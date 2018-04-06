@@ -28,7 +28,7 @@ let AttendanceSettingForm = (props) => {
                                    validate={[required, number]}
                                    label={"Day End Time :"}/>
 
-                            <button type="submit" className="btn customBtn">Submit</button>
+                            <button type="submit" disabled={pristine || submitting} className="btn customBtn">Submit</button>
 
                             <button type="button" disabled={pristine || submitting} className="btn squareButton"
                                     onClick={reset}>Reset

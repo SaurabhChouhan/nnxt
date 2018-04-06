@@ -1,13 +1,13 @@
 import {renderCheckBox} from "./fields"
-import {Field, reduxForm, reset} from 'redux-form'
+import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import * as SC from "../../../server/serverconstants";
 
 
 let EstimationFilterForm = (props) => {
+    const {handleSubmit, pristine, reset, submitting} = props;
 
-
-    return <form onSubmit={props.handleSubmit}>
+    return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
 
@@ -45,10 +45,14 @@ let EstimationFilterForm = (props) => {
 
         <div className="row">
             <div className="col-md-6 text-right">
-                <button type="submit" className="btn customBtn">Apply filter</button>
+                <button type="submit" disabled={pristine || submitting} className="btn customBtn">
+                    Apply filter
+                </button>
             </div>
             <div className="col-md-6 text-left">
-                <button type="button" className="btn customBtn" onClick={reset}>Clear filter</button>
+                <button type="button" className="btn customBtn" disabled={pristine || submitting} onClick={reset}>
+                    Clear filter
+                </button>
             </div>
 
         </div>

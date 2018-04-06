@@ -1,5 +1,5 @@
 import {required} from "./validation"
-import {renderDateTimePicker, renderDateTimePickerString, renderSelect, renderText, renderTextArea} from "./fields"
+import {renderDateTimePicker, renderSelect, renderTextArea} from "./fields"
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import moment from 'moment'
@@ -7,11 +7,10 @@ import momentLocalizer from 'react-widgets-moment'
 
 moment.locale('en')
 momentLocalizer()
-import * as logger from "../../clientLogger";
 
 let LeaveRequestForm = (props) => {
-
-    return <form onSubmit={props.handleSubmit}>
+    const {pristine, submitting, reset, handleSubmit} = props
+    return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
                 <Field name="user.user._id" component="input" type="hidden"/>
@@ -37,7 +36,7 @@ let LeaveRequestForm = (props) => {
                 <Field width="80%" name="description" validate={[required]} component={renderTextArea}
                        label="Description:"/>
 
-                <button type="submit" className="btn customBtn"> Submit</button>
+                <button type="submit" disabled={pristine || submitting} className="btn customBtn"> Submit</button>
             </div>
 
         </div>
