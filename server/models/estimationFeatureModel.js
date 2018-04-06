@@ -653,7 +653,6 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     if (estimation && estimation.canApprove) {
         estimationFeature.isEstimationCanApprove = true
     }
-    return taskFromRepo
     return estimationFeature
 
     // In case repository feature has tasks as well we would be
