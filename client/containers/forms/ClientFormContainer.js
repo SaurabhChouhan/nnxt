@@ -1,12 +1,12 @@
 import {connect} from 'react-redux'
 import {ClientForm} from "../../components"
 import * as logger from '../../clientLogger'
+import * as A from "../../actions"
 import {addClientOnServer, editClientOnServer} from "../../actions"
 import {SubmissionError} from "redux-form";
 import * as EC from "../../../server/errorcodes";
 import {NotificationManager} from "react-notifications";
 import * as COC from "../../components/componentConsts";
-import * as A from "../../actions";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {

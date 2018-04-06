@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
-import {Field, reduxForm, formValueSelector} from 'redux-form'
-import {renderText, renderTextArea, renderMultiselect} from './fields'
-import {required, email, passwordLength} from "./validation"
+import {Field, formValueSelector, reduxForm} from 'redux-form'
+import {renderMultiselect, renderText} from './fields'
+import {email, passwordLength, required} from "./validation"
 import {connect} from 'react-redux'
 import * as logger from '../../clientLogger'
 

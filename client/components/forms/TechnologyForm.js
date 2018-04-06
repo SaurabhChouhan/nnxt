@@ -1,5 +1,5 @@
 import {required} from "./validation"
-import {renderSelect, renderText} from "./fields"
+import {renderText} from "./fields"
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import * as logger from "../../clientLogger";

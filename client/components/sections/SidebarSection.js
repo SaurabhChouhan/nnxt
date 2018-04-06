@@ -1,5 +1,4 @@
 import React from 'react'
-import {SidebarSideSection} from "./"
 import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
 

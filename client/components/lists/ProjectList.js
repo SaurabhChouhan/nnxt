@@ -3,9 +3,6 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
 import * as CM from "../../clientMsg"
-import * as SC from '../../../server/serverconstants'
-import {showComponentHideOthers} from "../../actions";
-import {PROJECT_FORM_DIALOG} from "../componentConsts";
 
 class ProjectList extends Component {
 

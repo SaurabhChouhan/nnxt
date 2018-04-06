@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import Header from '../sections/Header'
-import Tabs from '../sections/Tabs'
-import {Sidebar, ContentMain} from "../sections"
+import {ContentMain, Sidebar} from "../sections"
 
 class AppHome extends Component {
     render() {

@@ -1,15 +1,10 @@
 import {connect} from 'react-redux'
 import {RoleForm} from "../../components"
-import {formValueSelector, getFormSyncErrors, reset} from 'redux-form'
+import {change, formValueSelector, getFormSyncErrors, initialize, SubmissionError} from 'redux-form'
 import {ROLE_LIST} from "../../components/componentConsts"
-import {ALREADY_EXISTS} from "../../../server/errorcodes"
-import {SubmissionError, initialize, change} from 'redux-form'
+import * as EC from "../../../server/errorcodes"
 import {NotificationManager} from 'react-notifications'
-import {
-    addRoleOnServer,
-    editRoleOnServer,
-    showComponentHideOthers
-} from "../../actions"
+import * as A from "../../actions"
 
 
 let selector = formValueSelector('role')
@@ -17,18 +12,18 @@ let selector = formValueSelector('role')
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
         if (!formValues._id) {
-            return dispatch(addRoleOnServer(formValues)).then(response => {
+            return dispatch(A.addRoleOnServer(formValues)).then(response => {
                 if (response.success) {
                     NotificationManager.success("Role added successfully")
                     /*
                     dispatch(reset('role'))
                     dispatch(reset('role-permission'))
                     */
-                    dispatch(showComponentHideOthers(ROLE_LIST))
+                    dispatch(A.showComponentHideOthers(ROLE_LIST))
 
                 } else {
                     NotificationManager.error("Role addition failed")
-                    if (response.code && response.code == ALREADY_EXISTS) {
+                    if (response.code && response.code == EC.ALREADY_EXISTS) {
                         // role already exists throw SubmissionError to show appropriate error
                         throw new SubmissionError({name: 'Role already exists'})
                     }
@@ -36,10 +31,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             })
         } else {
             // Role is edited
-            return dispatch(editRoleOnServer(formValues)).then(response => {
+            return dispatch(A.editRoleOnServer(formValues)).then(response => {
                 if (response.success) {
                     NotificationManager.success("Role edited successfully")
-                    dispatch(showComponentHideOthers(ROLE_LIST))
+                    dispatch(A.showComponentHideOthers(ROLE_LIST))
                 } else {
                     NotificationManager.error("Role edit failed")
                     throw new SubmissionError({name: 'Role already exists'})
@@ -47,7 +42,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             })
         }
     },
-    showRoleList: () => dispatch(showComponentHideOthers(ROLE_LIST)),
+    showRoleList: () => dispatch(A.showComponentHideOthers(ROLE_LIST)),
     editPermission: (permission, idx) => {
         dispatch(change('role', 'selectedPermission', permission))
         dispatch(initialize('role-permission', permission))

@@ -2,10 +2,6 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
-import {ConfirmationDialog} from "../index";
-import * as SC from '../../../server/serverconstants'
-import {showComponentHideOthers} from "../../actions";
-import {PROJECT_FORM_DIALOG} from "../componentConsts";
 
 class RaiseLeaveList extends Component {
 

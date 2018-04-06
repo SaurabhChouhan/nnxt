@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
-import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../index";
 import * as CM from "../../clientMsg"
 
