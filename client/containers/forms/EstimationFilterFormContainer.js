@@ -11,15 +11,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-
-    loggedInUser: state.user.loggedIn,
+    estimation: state.estimation.selected,
     initialValues: {
-        "repository": state.estimation.filter.repository,
-        "estimator": state.estimation.filter.estimator,
-        "negotiator": state.estimation.filter.negotiator,
-        "changeRequested": state.estimation.filter.changeRequested,
-        "grantPermission": state.estimation.filter.grantPermission,
-        "suggestions": state.estimation.filter.suggestions,
+        "changedByNegotiator": state.estimation.filter.changedByNegotiator,
+        "changedByEstimator": state.estimation.filter.changedByEstimator,
+        "permissionRequested": state.estimation.filter.permissionRequested,
+        "permissionGranted": state.estimation.filter.permissionGranted
     }
 
 })

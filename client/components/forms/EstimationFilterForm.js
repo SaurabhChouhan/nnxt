@@ -6,56 +6,43 @@ import * as SC from "../../../server/serverconstants";
 
 let EstimationFilterForm = (props) => {
     const {handleSubmit, pristine, reset, submitting} = props;
+    const {estimation} = props;
 
     return <form onSubmit={handleSubmit}>
-        <div className="row">
-            <div className="col-md-6">
-
-                <Field name="repository" component={renderCheckBox} label={"Repository:"}/>
-            </div>
-            <div className="col-md-6">
-                {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}
-                />}
-
-                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}
-                />}
-
-
-            </div>
-
-        </div>
-        <div className="row">
-            <div className="col-md-6">
-                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="grantPermission" component={renderCheckBox} label={"Permission Granted:"}
-                />}
-
-                {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                <Field name="changeRequested" component={renderCheckBox} label={"Change-Request:"}
-                />}
-            </div>
-            <div className="col-md-6">
-                <Field name="suggestions" component={renderCheckBox} label={"Suggestion:"}
+        <div className="col-md-12">
+            {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR &&
+            <div className="col-md-12">
+                <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You:"}/>
+                <Field name="changedByEstimator" component={renderCheckBox}
+                       label={"Changed By :" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                />
+                <Field name="permissionRequested" component={renderCheckBox}
+                       label={"Requested Permissions"}
+                />
+                <Field name="permissionGranted" component={renderCheckBox}
+                       label={"Granted Permissions"}
                 />
             </div>
+            }
+            {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR &&
+            <div className="col-md-12">
+                <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
+                <Field name="changedByNegotiator" component={renderCheckBox}
+                       label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                />
+                <Field name="permissionRequested" component={renderCheckBox}
+                       label={"Requested Permissions"}
+                />
+                <Field name="permissionGranted" component={renderCheckBox}
+                       label={"Granted Permissions"}
+                />
+            </div>
+            }
+
 
         </div>
 
-        <div className="row">
-            <div className="col-md-6 text-right">
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn">
-                    Apply filter
-                </button>
-            </div>
-            <div className="col-md-6 text-left">
-                <button type="button" className="btn customBtn" disabled={pristine || submitting} onClick={reset}>
-                    Clear filter
-                </button>
-            </div>
 
-        </div>
 
     </form>
 }

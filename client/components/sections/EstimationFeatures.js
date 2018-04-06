@@ -1,6 +1,5 @@
 import React from 'react'
 import {EstimationFeature} from "../"
-import * as SC from "../../../server/serverconstants";
 
 
 let EstimationFeatures = (props) => {
@@ -10,15 +9,24 @@ let EstimationFeatures = (props) => {
     const {repository, estimator, negotiator, changeRequested, grantPermission, suggestions} = props.filter
     const {expandedFeatureID, loggedInUserRole} = props
 
-    return Array.isArray(props.features) && props.features.map((f, idx) => {
+    return Array.isArray(props.features) && props.features.map((f, idx) => (expandedFeatureID === f._id) ?
+        <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded={true}/> :
+        <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+
+)}
+
+export default EstimationFeatures
+
+
+
+
+{/*
 
         if (!f) {
             return <span></span>
         }
         if (estimator && changeRequested && repository && grantPermission && suggestions && negotiator) {
-            return (expandedFeatureID === f._id) ?
-                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded={true}/> :
-                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+
         }
         else {
             if (estimator || changeRequested || repository || grantPermission || suggestions || negotiator) {
@@ -129,7 +137,6 @@ let EstimationFeatures = (props) => {
         }
 
 
-    })
-}
+   */
 
-export default EstimationFeatures
+}
