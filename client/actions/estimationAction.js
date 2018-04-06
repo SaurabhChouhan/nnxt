@@ -410,7 +410,7 @@ export const addTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) 
                 if (json.success) {
                     dispatch(addEstimationTask(json.data))
                     if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
-                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id))
                     }
                 }
                 return json
@@ -436,7 +436,7 @@ export const copyTaskFromRepositoryToEstimationOnServer = (estimationID, taskID)
                 if (json.success) {
                     dispatch(addEstimationTask(json.data))
                     if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
-                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id))
                     }
                 }
                 return json
@@ -462,7 +462,7 @@ export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featu
                 if (json.success) {
                     dispatch(addEstimationFeature(json.data))
                     if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
-                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id))
                     }
                 }
                 return json
@@ -488,7 +488,7 @@ export const copyFeatureFromRepositoryToEstimationOnServer = (estimationID, feat
                 if (json.success) {
                     dispatch(addEstimationFeature(json.data))
                     if (json.data && json.data.estimation && json.data.estimation._id && json.data.isEstimationCanApprove) {
-                        dispatch(getEstimationFromServer(json.data.estimation._id))
+                        dispatch(canNotApproveEstimationOnServer(json.data.estimation._id))
                     }
                 }
                 return json
