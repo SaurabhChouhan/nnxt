@@ -5,6 +5,7 @@ import {renderMultiselect, renderText} from './fields'
 class AdminRoleForm extends Component {
 
     render() {
+        const {handleSubmit, pristine, reset, submitting} = this.props;
         return [
             <div key="AdminRoleFormBackButton">
                 <button type="button"
@@ -12,7 +13,7 @@ class AdminRoleForm extends Component {
                     <i className="glyphicon glyphicon-arrow-left"></i>
                 </button>
             </div>,
-            <form key="AdminRoleForm" onSubmit={this.props.handleSubmit}>
+            <form key="AdminRoleForm" onSubmit={handleSubmit}>
 
                 <Field name="name" component={renderText} label="Roles:" valueField="_id" disabled={true}
                        readOnly={true} textField="name"/>
@@ -21,8 +22,13 @@ class AdminRoleForm extends Component {
                        valueField="_id" textField="name"/>
                 <div className={'col-md-12'}>
                     <div className={'col-md-2'}>
-                        <button type="submit" className="btn squareButton">
+                        <button type="submit" disabled={pristine || submitting} className="btn squareButton">
                             Update
+                        </button>
+                    </div>
+                    <div className={'col-md-2'}>
+                        <button type="button" disabled={pristine || submitting} className="btn squareButton"
+                                onClick={reset}>Reset
                         </button>
                     </div>
                 </div>

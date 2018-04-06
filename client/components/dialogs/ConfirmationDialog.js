@@ -1,4 +1,4 @@
-import {Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, Button} from 'react-bootstrap'
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle} from 'react-bootstrap'
 import React from 'react'
 
 const ConfirmationDialog = (props) => {

@@ -1,13 +1,15 @@
 import {connect} from 'react-redux'
-import {editUserOnServer, updateUserSettingsOnServer} from "../../actions"
+import {initialize} from 'redux-form'
+import * as A from "../../actions"
 import {UserProfileForm} from "../../components"
 import * as logger from '../../clientLogger'
 import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-        return dispatch(updateUserSettingsOnServer(values)).then(json => {
+        return dispatch(A.updateUserSettingsOnServer(values)).then(json => {
             if (json.success) {
+                dispatch(initialize('user-profile', json.data))
                 NotificationManager.success('User Profile Updated Successfully')
             }
             else {

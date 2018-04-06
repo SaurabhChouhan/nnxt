@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Field, reduxForm, formValueSelector} from 'redux-form'
+import {Field, reduxForm} from 'redux-form'
 import {renderField, renderMultiselect} from './fields'
 import {required} from "./validation";
 
@@ -10,6 +10,7 @@ class AdminUserForm extends Component {
     }
 
     render() {
+        const {handleSubmit, pristine, reset, submitting} = this.props;
         return [
             <div key="AdminUserFormBackButton">
                 <button type="button"
@@ -29,7 +30,14 @@ class AdminUserForm extends Component {
                         <Field name="email" label="Email:" component={renderField} type="email"/>
                         <Field name="password" label="Password:" component={renderField} type="password"/>
                         <button type="submit"
-                                className="btn btn-submit"> {(!this.props._id && "Add") || (this.props._id && "Update")} </button>
+                                disabled={pristine || submitting}
+                                className="btn btn-submit"> {(!this.props._id && "Add") || (this.props._id && "Update")}
+                        </button>
+
+                        <button type="button" disabled={pristine || submitting} className="btn squareButton"
+                                onClick={reset}>Reset
+                        </button>
+
                     </div>
                 </div>
             </form>

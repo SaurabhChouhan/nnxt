@@ -1,6 +1,4 @@
 import * as AC from "./actionConsts";
-import {DELETE_PERMISSION} from "./actionConsts";
-import {deletePermission} from "./permissionAction";
 
 export const addTechnologies = (technologies) => ({
     type: AC.ADD_TECHNOLOGIES,

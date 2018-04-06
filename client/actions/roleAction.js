@@ -1,34 +1,29 @@
-import {
-    ADD_ROLE,
-    ADD_ROLES,
-    EDIT_ROLE,
-    DELETE_ROLE,
-    ADMIN_EDITING_ROLE
-} from "./actionConsts"
+import * as AC from "./actionConsts"
+
 
 export const addAllRoles = (roles) => ({
-        type: ADD_ROLES,
+        type: AC.ADD_ROLES,
         roles: roles
     }
 )
 
 export const addRole = (role) => ({
-    type: ADD_ROLE,
+    type: AC.ADD_ROLE,
     role: role
 })
 
 export const editRole = (role) => ({
-    type: EDIT_ROLE,
+    type: AC.EDIT_ROLE,
     role: role
 })
 
 export const deleteRole = (role) => ({
-    type: DELETE_ROLE,
+    type: AC.DELETE_ROLE,
     role: role
 })
 
 export const adminEditingRole = (role) => ({
-    type: ADMIN_EDITING_ROLE,
+    type: AC.ADMIN_EDITING_ROLE,
     role: role
 })
 

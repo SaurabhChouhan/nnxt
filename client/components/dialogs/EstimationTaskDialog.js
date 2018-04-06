@@ -1,4 +1,4 @@
-import {Modal, ModalHeader, ModalTitle, ModalBody} from 'react-bootstrap'
+import {Modal, ModalBody, ModalHeader} from 'react-bootstrap'
 import React from 'react'
 import {EstimationTaskFormContainer} from "../../containers"
 
