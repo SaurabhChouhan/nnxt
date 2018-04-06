@@ -1,6 +1,5 @@
 import React from 'react'
-import {SidebarSideSection} from "./"
-import {SidebarSection} from './'
+import {SidebarSection, SidebarSideSection} from "./"
 
 const Sidebar = (props) => <div className="sidebar-wrapper">
     <div className="web_logo">

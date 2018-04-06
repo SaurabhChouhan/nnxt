@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import Dialog from 'react-bootstrap-dialog'
-import {ROLE_ADMIN} from "../../clientconstants"
 import _ from 'lodash'
 
 class RoleList extends Component {

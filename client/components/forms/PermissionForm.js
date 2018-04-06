@@ -1,11 +1,11 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderText, renderTextArea} from './fields'
+import {renderText} from './fields'
 import {required} from "./validation"
 
 class PermissionForm extends Component {
-
     render() {
+        const {handleSubmit} = this.props
         return [
             <div key="PermissionFormBackButton">
                 <button type="button"
@@ -13,7 +13,7 @@ class PermissionForm extends Component {
                     <i className="glyphicon glyphicon-arrow-left"></i>
                 </button>
             </div>,
-            <form key="PermissionForm" onSubmit={this.props.handleSubmit}>
+            <form key="PermissionForm" onSubmit={handleSubmit}>
                 <div className="row">
                     <div className="col-md-4">
                         <Field name="name" placeholder={"Name of permission"} component={renderText}

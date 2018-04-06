@@ -99,4 +99,4 @@ export {default as ReleaseTaskDetailPage} from './pages/ReleaseTaskDetailPage'
 
 
 //Raise Leave
-export {default as RaiseLeaveDeatilPage} from './pages/RaiseLeaveDeatilPage'
+export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'

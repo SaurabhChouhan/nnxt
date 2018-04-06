@@ -1,8 +1,7 @@
 import React, {Component} from 'react'
 import moment from 'moment'
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 
-class RaiseLeaveDeatilPage extends Component {
+class RaiseLeaveDetailPage extends Component {
     constructor(props) {
         super(props)
 
@@ -55,4 +54,4 @@ class RaiseLeaveDeatilPage extends Component {
 
 }
 
-export default RaiseLeaveDeatilPage
+export default RaiseLeaveDetailPage

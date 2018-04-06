@@ -5,13 +5,6 @@ import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 import * as EC from "../../../server/errorcodes";
 import {SubmissionError} from "redux-form";
-import {PASSWORD_NOT_MATCHED} from "../../../server/errorcodes";
-import {EMAIL_ALREADY_USED} from "../../../server/errorcodes";
-import {showComponentHideOthers} from "../../actions/appAction";
-import {editUserOnServer} from "../../actions";
-import {ADMIN_USER_LIST} from "../../components/componentConsts";
-import {editProjectOnServer} from "../../actions";
-import ProjectList from "../../components/lists/ProjectList";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
@@ -29,7 +22,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 return json
             })
         } else {
-            return dispatch(editProjectOnServer(values)).then(response => {
+            return dispatch(A.editProjectOnServer(values)).then(response => {
                 if (response.success) {
                     dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG)),
                         NotificationManager.success('Project Updated Successfully')

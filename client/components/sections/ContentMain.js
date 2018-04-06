@@ -7,17 +7,18 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     RaiseLeaveListContainer,
-    ReleaseListContainer,
-    TechnologyListContainer,
-    UserProfileFormContainer,
     ReleaseDetailListContainer,
-    ReleaseTaskDetailPageContainer
+    ReleaseListContainer,
+    ReleaseTaskDetailPageContainer,
+    TechnologyListContainer,
+    UserProfileFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
 import {
     ClientFormDialog,
     EstimationFeatureDialog,
+    EstimationFilterDialog,
     EstimationInitiateDialog,
     EstimationProjectAwardDialog,
     EstimationSuggestFeatureDialog,
@@ -27,13 +28,10 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
+    ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
-    ReleaseList,
-    EstimationFilterDialog,
     RepositoryTaskDetailDialog,
-    TechnologyFormDialog,
-    ReleaseTaskPlanningFormDialog
-
+    TechnologyFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'

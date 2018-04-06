@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import {RaiseLeaveDeatilPage} from '../../components'
+import {RaiseLeaveDetailPage} from '../../components'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
@@ -24,6 +24,6 @@ const mapStateToProps = (state) => ({
 const RaiseLeaveListDetailContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(RaiseLeaveDeatilPage)
+)(RaiseLeaveDetailPage)
 
 export default RaiseLeaveListDetailContainer

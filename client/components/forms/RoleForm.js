@@ -1,20 +1,17 @@
 import React from 'react'
 import {
-    reduxForm,
+    arrayInsert,
+    arrayPush,
+    arrayRemove,
+    change,
     Field,
     Form,
-    FieldArray,
-    formValueSelector,
-    change,
-    arrayPush,
-    reset,
-    arrayRemove,
-    arrayInsert
+    reduxForm,
+    reset
 } from 'redux-form'
-import {renderText, renderSelect, renderCheckBox} from "./fields"
+import {renderCheckBox, renderSelect, renderText} from "./fields"
 import {required} from "./validation"
 import {connect} from 'react-redux'
-import _ from 'lodash'
 
 let PermissionRow = (props) => {
     if (props.permission) {
