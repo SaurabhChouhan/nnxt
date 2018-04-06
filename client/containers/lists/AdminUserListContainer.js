@@ -1,16 +1,16 @@
 import {connect} from 'react-redux'
 import {AdminUserList} from "../../components"
-import {showComponentHideOthers, deleteUserOnServer} from "../../actions";
-import {ADMIN_USER_FORM} from "../../components/componentConsts";
 import {initialize, SubmissionError} from 'redux-form'
 import {NotificationManager} from "react-notifications";
+import * as A from "../../actions";
+import * as COC from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showAdminUserEditForm: (user) => {
-        dispatch(showComponentHideOthers(ADMIN_USER_FORM)),
+        dispatch(A.showComponentHideOthers(COC.ADMIN_USER_FORM)),
             dispatch(initialize('admin-user', user))
     },
-    deleteAdminUser: (userId) => dispatch(deleteUserOnServer(userId)).then(json => {
+    deleteAdminUser: (userId) => dispatch(A.deleteUserOnServer(userId)).then(json => {
         if (json.success) {
             NotificationManager.success('User Deleted Successfully')
         } else {
@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             throw new SubmissionError({users: "User Deletion Failed"})
         }
     }),
-    showAdminUserForm: () => dispatch(showComponentHideOthers(ADMIN_USER_FORM))
+    showAdminUserForm: () => dispatch(A.showComponentHideOthers(COC.ADMIN_USER_FORM))
 })
 
 const mapStateToProps = (state, ownProps) => {

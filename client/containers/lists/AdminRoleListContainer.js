@@ -1,14 +1,12 @@
 import {connect} from 'react-redux'
 import {AdminRoleList} from "../../components"
-import {showComponentHideOthers} from "../../actions"
-import {ADMIN_ROLE_FORM} from "../../components/componentConsts";
-import {initialize, SubmissionError} from 'redux-form'
-import {adminEditingRole} from "../../actions/roleAction";
+import * as COC from "../../components/componentConsts";
+import * as A from "../../actions";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     editPermissionsOfRole: (role) => {
-        dispatch(showComponentHideOthers(ADMIN_ROLE_FORM))
-        dispatch(adminEditingRole(role))
+        dispatch(A.showComponentHideOthers(COC.ADMIN_ROLE_FORM))
+        dispatch(A.adminEditingRole(role))
     },
 })
 
