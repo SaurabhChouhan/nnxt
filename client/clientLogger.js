@@ -1,5 +1,5 @@
-import {DEV_ENV, PROD_ENV} from "../server/serverconstants"
-import {DEBUG_LEVEL, INFO_LEVEL, WARNING_LEVEL, ERROR_LEVEL} from "./clientconstants"
+import * as SC from "../server/serverconstants"
+import * as CC from "./clientconstants"
 
 /*
 LOG LEVEL
@@ -70,15 +70,15 @@ export const ATTENDENCE_SETTING_FORM_CONNECT = 'AttendenceForm->connect():'
 
 let traceCodes = [ESTIMATION_TASK_RENDER, ESTIMATION_FEATURE_RENDER, ESTIMATION_FEATURE_DETAIL_RENDER]
 //let traceCodes = undefined
-let logLevel = DEBUG_LEVEL
+let logLevel = CC.DEBUG_LEVEL
 
-if (process.env.NODE_ENV == PROD_ENV) {
+if (process.env.NODE_ENV == SC.PROD_ENV) {
     traceCodes = undefined
-    logLevel = ERROR_LEVEL
+    logLevel = CC.ERROR_LEVEL
 }
 
 const debug = (...params) => {
-    if (logLevel === DEBUG_LEVEL) {
+    if (logLevel === CC.DEBUG_LEVEL) {
         if (traceCodes && traceCodes.indexOf(params[0]) != -1)
             console.log("DEBUG:", ...params)
         else if (!traceCodes) {
@@ -88,7 +88,7 @@ const debug = (...params) => {
 }
 
 let info = (...params) => {
-    if (logLevel === DEBUG_LEVEL || logLevel === INFO_LEVEL) {
+    if (logLevel === CC.DEBUG_LEVEL || logLevel === CC.INFO_LEVEL) {
         if (traceCodes && traceCodes.indexOf(params[0]) != -1)
             console.log("INFO:", ...params)
         else if (!traceCodes) {
@@ -98,7 +98,7 @@ let info = (...params) => {
 }
 
 let warn = (...params) => {
-    if (logLevel === DEBUG_LEVEL || logLevel === INFO_LEVEL || logLevel === WARNING_LEVEL) {
+    if (logLevel === CC.DEBUG_LEVEL || logLevel === CC.INFO_LEVEL || logLevel === CC.WARNING_LEVEL) {
         if (traceCodes && traceCodes.indexOf(params[0]) != -1)
             console.log("WARN:", ...params)
         else if (!traceCodes) {
@@ -108,7 +108,7 @@ let warn = (...params) => {
 }
 
 let error = (...params) => {
-    if (logLevel === DEBUG_LEVEL || logLevel === INFO_LEVEL || logLevel === WARNING_LEVEL || logLevel === ERROR_LEVEL) {
+    if (logLevel === CC.DEBUG_LEVEL || logLevel === CC.INFO_LEVEL || logLevel === CC.WARNING_LEVEL || logLevel === CC.ERROR_LEVEL) {
         if (traceCodes && traceCodes.indexOf(params[0]) != -1)
             console.log("ERROR:", ...params)
         else if (!traceCodes) {

@@ -1,6 +1,6 @@
 import {connect} from 'react-redux'
 import PermissionForm from "../../components/forms/PermissionForm"
-import * as CC from "../../components/componentConsts";
+import * as COC from "../../components/componentConsts";
 import {NotificationManager} from 'react-notifications'
 import {SubmissionError} from 'redux-form'
 import * as EC from "../../../server/errorcodes";
@@ -11,7 +11,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (!values._id)
             return dispatch(A.addPermissionOnServer(values)).then(json => {
                     if (json.success) {
-                        dispatch(A.showComponentHideOthers(CC.PERMISSION_LIST))
+                        dispatch(A.showComponentHideOthers(COC.PERMISSION_LIST))
                         NotificationManager.success('Permission Added!')
                     } else {
                         NotificationManager.error('Permission Not Added!')
@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else
             return dispatch(A.editPermissionOnServer(values)).then(json => {
                     if (json.success) {
-                        dispatch(A.showComponentHideOthers(CC.PERMISSION_LIST))
+                        dispatch(A.showComponentHideOthers(COC.PERMISSION_LIST))
                         NotificationManager.success('Permission Edited Successfully')
                     } else {
                         NotificationManager.error('Permission Edit Failed!')
@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 }
             )
     },
-    showPermissionList: () => dispatch(A.showComponentHideOthers(CC.PERMISSION_LIST))
+    showPermissionList: () => dispatch(A.showComponentHideOthers(COC.PERMISSION_LIST))
 })
 
 const mapStateToProps = (state, ownProps) => ({})

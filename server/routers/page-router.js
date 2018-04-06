@@ -1,15 +1,14 @@
 import React from 'react'
 import Router from 'koa-router'
-import {isSuperAdmin, isAdmin, isAuthenticated} from "../utils";
-import {createStore, applyMiddleware} from 'redux'
+import {isAdmin, isAuthenticated, isSuperAdmin} from "../utils";
+import {createStore} from 'redux'
 import reducers from '../../client/reducers'
 import {StaticRouter} from 'react-router-dom'
 import ReactDomServer from 'react-dom/server'
 import {Provider} from 'react-redux'
-import {addLoginUser, addSSRFlag} from "../../client/actions"
 import AppRouterContainer from '../../client/containers/AppRouterContainer'
 import PermissionModel from '../models/permissionModel'
-import {addAllPermissions} from "../../client/actions/permissionAction";
+import * as A from "../../client/actions";
 
 const pageRouter = new Router()
 
@@ -33,9 +32,9 @@ pageRouter.get('/super-admin', async ctx => {
     let permissions = await PermissionModel.getAll()
 
     let store = createStore(reducers)
-    store.dispatch(addLoginUser(ctx.state.user))
-    store.dispatch(addSSRFlag())
-    store.dispatch(addAllPermissions(permissions))
+    store.dispatch(A.addLoginUser(ctx.state.user))
+    store.dispatch(A.addSSRFlag())
+    store.dispatch(A.addAllPermissions(permissions))
     const initialState = store.getState()
     const context = {}
 
@@ -60,9 +59,9 @@ pageRouter.get('/admin', async ctx => {
         return ctx.redirect('/')
     let permissions = await PermissionModel.getAll()
     let store = createStore(reducers)
-    store.dispatch(addLoginUser(ctx.state.user))
-    store.dispatch(addSSRFlag())
-    store.dispatch(addAllPermissions(permissions))
+    store.dispatch(A.addLoginUser(ctx.state.user))
+    store.dispatch(A.addSSRFlag())
+    store.dispatch(A.addAllPermissions(permissions))
     const initialState = store.getState()
     const context = {}
 
@@ -96,8 +95,8 @@ pageRouter.get('/app-home', async ctx => {
     //let permissions = await PermissionModel.getAll()
 
     let store = createStore(reducers)
-    store.dispatch(addLoginUser(ctx.state.user))
-    store.dispatch(addSSRFlag())
+    store.dispatch(A.addLoginUser(ctx.state.user))
+    store.dispatch(A.addSSRFlag())
     //store.dispatch(addAllPermissions(permissions))
     const initialState = store.getState()
     const context = {}

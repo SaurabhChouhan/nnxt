@@ -1,11 +1,11 @@
 import {
-    RoleModel,
-    PermissionModel,
-    UserModel,
     ClientModel,
-    ProjectModel,
     LeaveTypeModel,
-    RepositoryModel
+    PermissionModel,
+    ProjectModel,
+    RepositoryModel,
+    RoleModel,
+    UserModel
 } from "../models"
 
 import * as CC from '../../client/clientconstants'

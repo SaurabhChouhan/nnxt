@@ -5,14 +5,13 @@ import {connect} from "react-redux";
 import {TechnologyList} from "../../components";
 import {NotificationManager} from "react-notifications";
 import {SubmissionError} from "redux-form";
-import {deleteTechnologyOnServer} from "../../actions";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showTechnologyAdditionForm: () => {
         logger.debug(logger.TECHNOLOGY_FORM_CONNECT, "onSubmit:values:")
         dispatch(A.showComponent(COC.TECHNOLOGY_FORM_DIALOG))
     },
-    deleteTechnology: (TechnologyID) => dispatch(deleteTechnologyOnServer(TechnologyID)).then(json => {
+    deleteTechnology: (TechnologyID) => dispatch(A.deleteTechnologyOnServer(TechnologyID)).then(json => {
         if (json.success) {
             NotificationManager.success('Technology Removed Successfully')
         } else {

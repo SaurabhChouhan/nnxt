@@ -1,8 +1,4 @@
 import mongoose from 'mongoose'
-import AppError from "../AppError"
-import {userHasRole} from "../utils"
-import * as SC from "../serverconstants"
-import * as EC from "../errorcodes"
 
 mongoose.Promise = global.Promise
 

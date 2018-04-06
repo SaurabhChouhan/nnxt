@@ -4,14 +4,14 @@ import {NotificationManager} from "react-notifications";
 import {SubmissionError} from "redux-form";
 import * as EC from "../../../server/errorcodes";
 import * as A from "../../actions";
-import * as CC from "../../components/componentConsts";
+import * as COC from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         if (!values._id) {
             return dispatch(A.addUserOnServer(values)).then((json) => {
                     if (json.success) {
-                        dispatch(A.showComponentHideOthers(CC.USER_LIST))
+                        dispatch(A.showComponentHideOthers(COC.USER_LIST))
                         NotificationManager.success('User Added Successful');
                     } else {
                         NotificationManager.error('User Added Failed');
@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else {
             return dispatch(A.editUserOnServer(values)).then((json) => {
                     if (json.success) {
-                        dispatch(A.showComponentHideOthers(CC.USER_LIST))
+                        dispatch(A.showComponentHideOthers(COC.USER_LIST))
                         NotificationManager.success('User Updated Successful');
                     } else {
                         NotificationManager.error('User Updated Failed');

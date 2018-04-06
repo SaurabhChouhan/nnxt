@@ -1,4 +1,4 @@
-import {RequiredString, validate, ObjectId} from "./index"
+import {ObjectId, RequiredString} from "./index"
 import t from 'tcomb-validation'
 
 export const repositoryAddTaskStruct = t.struct({

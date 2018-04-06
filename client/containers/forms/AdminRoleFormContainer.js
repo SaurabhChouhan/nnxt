@@ -1,6 +1,6 @@
 import {connect} from 'react-redux'
 import {AdminRoleForm} from "../../components"
-import {ADMIN_ROLE_LIST} from "../../components/componentConsts";
+import * as COC from "../../components/componentConsts";
 import {NotificationManager} from 'react-notifications'
 import * as A from "../../actions"
 
@@ -8,14 +8,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (role) => {
         return dispatch(A.editRoleOnServer(role)).then((json) => {
             if (json.success) {
-                dispatch(A.showComponentHideOthers(ADMIN_ROLE_LIST))
+                dispatch(A.showComponentHideOthers(COC.ADMIN_ROLE_LIST))
                 NotificationManager.success('Role And Permission Updated')
             } else {
                 NotificationManager.error('Role And Permission Update Failed')
             }
         })
     },
-    showRoleList: () => dispatch(A.showComponentHideOthers(ADMIN_ROLE_LIST))
+    showRoleList: () => dispatch(A.showComponentHideOthers(COC.ADMIN_ROLE_LIST))
 
 
 })

@@ -1,9 +1,5 @@
 import Router from 'koa-router'
-import {isAuthenticated, userHasRole} from "../utils"
-import AppError from '../AppError'
-import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
 import {AttendanceSettingsModel} from "../models"
-import * as SC from '../serverconstants'
 
 /**
  * This router would contain all API routes

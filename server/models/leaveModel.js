@@ -3,7 +3,6 @@ import AppError from '../AppError'
 import moment from 'moment'
 import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
-import {userHasRole} from "../utils";
 import {LeaveTypeModel} from "../models";
 
 mongoose.Promise = global.Promise

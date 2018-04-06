@@ -1,21 +1,21 @@
 import Router from 'koa-router'
 import {
-    publicRouter,
-    userRouter,
-    permissionRouter,
-    roleRouter,
+    attendanceRouter,
     clientRouter,
     estimationRouter,
-    projectRouter,
-    technologyRouter,
-    repositoryRouter,
     leaveRouter,
-    attendanceRouter,
-    releaseRouter
+    permissionRouter,
+    projectRouter,
+    publicRouter,
+    releaseRouter,
+    repositoryRouter,
+    roleRouter,
+    technologyRouter,
+    userRouter
 } from "./"
-import {isAuthenticated, isAdmin, isSuperAdmin} from "../utils"
+import {isAuthenticated} from "../utils"
 import AppError from '../AppError'
-import {ACCESS_DENIED} from "../errorcodes"
+import * as EC from "../errorcodes"
 
 /**
  * This router would contain all API routes
@@ -38,7 +38,7 @@ apiRouter.use(async (ctx, next) => {
     } else if (isAuthenticated(ctx)) {
         return await next()
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, 403)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, 403)
     }
 }, userRouter.routes(), permissionRouter.routes(), roleRouter.routes(), clientRouter.routes(), estimationRouter.routes(), projectRouter.routes(), technologyRouter.routes(), leaveRouter.routes(), repositoryRouter.routes(), attendanceRouter.routes(), releaseRouter.routes())
 

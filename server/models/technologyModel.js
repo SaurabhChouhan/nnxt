@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
-import {validate, technologyAdditionStruct} from "../validation"
+import * as V from "../validation"
 
 
 let technologySchema = mongoose.Schema({
@@ -14,7 +14,7 @@ technologySchema.statics.getAllActive = async () => {
 }
 
 technologySchema.statics.saveTechnology = async (technologyInput) => {
-    validate(technologyInput, technologyAdditionStruct)
+    V.validate(technologyInput, V.technologyAdditionStruct)
     if (await TechnologyModel.exists(technologyInput.name)) {
         throw new AppError("Technology with name [" + technologyInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }

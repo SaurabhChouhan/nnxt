@@ -2,7 +2,7 @@ import {connect} from 'react-redux'
 import {AdminUserForm} from "../../components"
 import {addUserOnServer, editUserOnServer} from "../../actions"
 import {showComponentHideOthers} from "../../actions/appAction";
-import {ADMIN_USER_LIST} from "../../components/componentConsts";
+import * as COC from "../../components/componentConsts";
 import * as EC from "../../../server/errorcodes";
 import {NotificationManager} from "react-notifications";
 import {formValueSelector, SubmissionError} from "redux-form";
@@ -14,7 +14,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (!values._id) {
             return dispatch(addUserOnServer(values)).then(response => {
                 if (response.success) {
-                    dispatch(showComponentHideOthers(ADMIN_USER_LIST))
+                    dispatch(showComponentHideOthers(COC.ADMIN_USER_LIST))
                     NotificationManager.success('User Added Successfully')
                 } else {
                     NotificationManager.error('User Added Failed');
@@ -29,7 +29,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             // Role is edited
             return dispatch(editUserOnServer(values)).then(response => {
                 if (response.success) {
-                    dispatch(showComponentHideOthers(ADMIN_USER_LIST))
+                    dispatch(showComponentHideOthers(COC.ADMIN_USER_LIST))
                     NotificationManager.success('User Updated Successfully')
                 } else {
                     NotificationManager.error('User Updated Failed');

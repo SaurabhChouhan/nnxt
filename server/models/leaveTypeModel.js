@@ -1,9 +1,4 @@
 import mongoose from 'mongoose'
-import AppError from '../AppError'
-import * as ErrorCodes from '../errorcodes'
-import {HTTP_BAD_REQUEST} from "../errorcodes";
-import {NOT_FOUND} from "../errorcodes";
-import {ALREADY_EXISTS} from "../errorcodes";
 
 mongoose.Promise = global.Promise
 

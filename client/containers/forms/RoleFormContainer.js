@@ -1,7 +1,7 @@
 import {connect} from 'react-redux'
 import {RoleForm} from "../../components"
 import {change, formValueSelector, getFormSyncErrors, initialize, SubmissionError} from 'redux-form'
-import {ROLE_LIST} from "../../components/componentConsts"
+import * as COC from "../../components/componentConsts"
 import * as EC from "../../../server/errorcodes"
 import {NotificationManager} from 'react-notifications'
 import * as A from "../../actions"
@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     dispatch(reset('role'))
                     dispatch(reset('role-permission'))
                     */
-                    dispatch(A.showComponentHideOthers(ROLE_LIST))
+                    dispatch(A.showComponentHideOthers(COC.ROLE_LIST))
 
                 } else {
                     NotificationManager.error("Role addition failed")
@@ -34,7 +34,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             return dispatch(A.editRoleOnServer(formValues)).then(response => {
                 if (response.success) {
                     NotificationManager.success("Role edited successfully")
-                    dispatch(A.showComponentHideOthers(ROLE_LIST))
+                    dispatch(A.showComponentHideOthers(COC.ROLE_LIST))
                 } else {
                     NotificationManager.error("Role edit failed")
                     throw new SubmissionError({name: 'Role already exists'})
@@ -42,7 +42,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             })
         }
     },
-    showRoleList: () => dispatch(A.showComponentHideOthers(ROLE_LIST)),
+    showRoleList: () => dispatch(A.showComponentHideOthers(COC.ROLE_LIST)),
     editPermission: (permission, idx) => {
         dispatch(change('role', 'selectedPermission', permission))
         dispatch(initialize('role-permission', permission))

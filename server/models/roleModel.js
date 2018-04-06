@@ -1,15 +1,8 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import {UserModel} from '../models'
-import {
-    ALREADY_EXISTS,
-    IDENTIFIER_MISSING,
-    HTTP_BAD_REQUEST,
-    HTTP_FORBIDDEN,
-    UNEXPECTED_ERROR,
-    HTTP_SERVER_ERROR
-} from "../errorcodes"
-import {ROLE_SUPER_ADMIN} from "../serverconstants"
+import * as EC from "../errorcodes"
+import * as SC from "../serverconstants"
 
 mongoose.Promise = global.Promise
 
@@ -34,7 +27,7 @@ roleSchema.statics.getAllBasic = async () => {
 roleSchema.statics.getWithConfigurablePerms = async () => {
     return await RoleModel.aggregate({
             $match: {
-                'name': {$nin: [ROLE_SUPER_ADMIN]}
+                'name': {$nin: [SC.ROLE_SUPER_ADMIN]}
             }
         }, {
             $project: {
@@ -53,17 +46,17 @@ roleSchema.statics.getWithConfigurablePerms = async () => {
 
 roleSchema.statics.saveRole = async (roleInput) => {
     if (await RoleModel.exists(roleInput.name)) {
-        throw new AppError("Role [" + roleInput.name + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+        throw new AppError("Role [" + roleInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
     return await RoleModel.create(roleInput)
 }
 
 roleSchema.statics.editRole = async (roleInput) => {
     if (!roleInput._id)
-        throw new AppError("Identifier required for edit", IDENTIFIER_MISSING, HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for edit", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     let count = await RoleModel.count({'name': roleInput.name, '_id': {$ne: roleInput._id}})
     if (count > 0) {
-        throw new AppError("Role [" + roleInput.name + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+        throw new AppError("Role [" + roleInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
     let userUpdate = await UserModel.updateAddedRole(roleInput)
     await RoleModel.replaceOne({_id: roleInput._id}, roleInput)
@@ -72,7 +65,7 @@ roleSchema.statics.editRole = async (roleInput) => {
 
 roleSchema.statics.deleteRole = async (roleID) => {
     if (!roleID)
-        throw new AppError("Identifier required for delete", IDENTIFIER_MISSING, HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     let userDelete = await UserModel.deleteAddedRole(roleID)
     return await RoleModel.findByIdAndRemove(roleID).exec()
 }

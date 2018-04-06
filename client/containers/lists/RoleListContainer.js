@@ -1,20 +1,19 @@
 import {connect} from 'react-redux'
 import {RoleList} from "../../components"
-import {getAllPermissionsFromServer, deleteRoleOnServer} from "../../actions"
-import {showComponentHideOthers} from "../../actions/appAction";
-import {ROLE_FORM} from "../../components/componentConsts";
+import * as A from "../../actions"
+import * as COC from "../../components/componentConsts";
 import {initialize} from 'redux-form'
 import {deleteRole} from "../../actions/roleAction";
 import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showRoleForm: () => dispatch(showComponentHideOthers(ROLE_FORM)),
+    showRoleForm: () => dispatch(A.showComponentHideOthers(COC.ROLE_FORM)),
     editRole: (role) => {
         dispatch(initialize("role", role))
-        dispatch(showComponentHideOthers(ROLE_FORM))
+        dispatch(A.showComponentHideOthers(COC.ROLE_FORM))
     },
     deleteRole:(roleID) => {
-        dispatch(deleteRoleOnServer(roleID)).then(json => {
+        dispatch(A.deleteRoleOnServer(roleID)).then(json => {
             if (json.success) {
                 dispatch(deleteRole(json.data))
                 NotificationManager.success('Role Deleted Successfully')

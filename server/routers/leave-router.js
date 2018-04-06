@@ -1,6 +1,6 @@
 import Router from 'koa-router'
 import {LeaveModel, LeaveTypeModel} from "../models"
-import {leaveRequestAdditionStruct, generateSchema, validate} from "../validation"
+import * as V from "../validation"
 
 
 const leaveRouter = new Router({
@@ -9,7 +9,7 @@ const leaveRouter = new Router({
 
 leaveRouter.post("/", async ctx => {
 
-    validate(ctx.request.body, leaveRequestAdditionStruct)
+    V.validate(ctx.request.body, V.leaveRequestAdditionStruct)
 
     return await LeaveModel.saveLeave(ctx.request.body, ctx.state.user)
 })
