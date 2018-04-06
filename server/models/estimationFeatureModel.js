@@ -806,15 +806,16 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
     if (!feature.addedInThisIteration || feature.owner != SC.OWNER_NEGOTIATOR)
         feature.negotiator.changedInThisIteration = true
 
-    if (feature.repo && !feature.repo.addedFromThisEstimation)
-        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
-
-
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
-    feature.canApprove = false
+    feature.canApprove = true
     feature.status = SC.STATUS_PENDING
     feature.updated = Date.now()
-    return await feature.save()
+     await feature.save()
+    feature = feature.toObject()
+    if (estimation && estimation.canApprove){
+        feature.isEstimationCanApprove = true
+    }
+    return feature
 }
 
 

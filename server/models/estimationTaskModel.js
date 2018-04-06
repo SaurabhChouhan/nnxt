@@ -717,18 +717,20 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+        await EstimationFeatureModel.updateOne({"_id": task.feature._id}, {
+            "status": SC.STATUS_PENDING,
+            "canApprove": false
+        })
     }
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
-    task.canApprove = false
+    task.canApprove = true
     task.status = SC.STATUS_PENDING
     task.updated = Date.now()
     await task.save()
 
     task = task.toObject()
-    if (estimationFeatureObj && estimationFeatureObj.canApprove) {
-        task.isFeatureCanApprove = true
-    }
     if (estimation && estimation.canApprove) {
         task.isEstimationCanApprove = true
     }
