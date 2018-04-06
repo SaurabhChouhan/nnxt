@@ -14,7 +14,8 @@ let TechnologyForm = (props) => {
                        label={"Technology Name:"} validate={[required]}/>
 
 
-                <button type="submit" className="btn customBtn">Submit</button>
+                <button type="submit" disabled={props.pristine || props.submitting} className="btn customBtn">Submit
+                </button>
             </div>
         </div>
 

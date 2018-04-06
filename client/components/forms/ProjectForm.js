@@ -14,7 +14,8 @@ let ProjectForm = (props) => {
                 <Field name="client._id" component={renderSelect} label={"Client :"} options={props.clients}
                        validate={[required]}/>
 
-                <button type="submit" className="btn customBtn"> Submit</button>
+                <button type="submit" disabled={props.pristine || props.submitting} className="btn customBtn"> Submit
+                </button>
 
             </div>
 
