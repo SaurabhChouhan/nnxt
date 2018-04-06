@@ -1,10 +1,8 @@
 import Router from 'koa-router'
 import passport from 'koa-passport'
-import logger from '../logger'
-import {UserModel, RoleModel} from "../models"
+import {UserModel} from "../models"
 import AppError from '../AppError'
-import {LOGIN_FAILED} from '../errorcodes'
-import {ROLE_APP_USER} from '../serverconstants'
+import * as EC from '../errorcodes'
 
 
 /**
@@ -22,7 +20,7 @@ publicRouter.post('/login', async (ctx, next) => {
         }
         if (!user) {
             console.log("***info***", info, "*****status*****", status)
-            throw new AppError(info.message, LOGIN_FAILED, 401)
+            throw new AppError(info.message, EC.LOGIN_FAILED, 401)
         }
 
         // remove password information from user

@@ -1,10 +1,8 @@
 import {connect} from 'react-redux'
 import {AttendenceSettingForm} from "../../components"
 import * as logger from '../../clientLogger'
-import {initialize, SubmissionError} from "redux-form"
-import * as EC from "../../../server/errorcodes"
+import {initialize} from "redux-form"
 import {NotificationManager} from "react-notifications"
-import * as COC from "../../components/componentConsts"
 import * as A from "../../actions"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -26,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({})
 
 const AttendanceSettingFormContainer = connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps
 )(AttendenceSettingForm)
 

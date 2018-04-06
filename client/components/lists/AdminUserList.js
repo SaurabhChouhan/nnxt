@@ -1,8 +1,6 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import Dialog from 'react-bootstrap-dialog'
-import {NotificationManager} from 'react-notifications'
-import {ROLE_ADMIN} from "../../clientconstants"
 
 class AdminUserList extends Component {
 

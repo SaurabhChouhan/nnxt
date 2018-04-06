@@ -20,12 +20,9 @@ let
                     <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
             }
             else {
-                console.log("loggedInUserRole at task", loggedInUserRole)
                 if (estimator || changeRequested || repository || grantPermission || suggestions || negotiator) {
                     if (loggedInUserRole == SC.ROLE_ESTIMATOR) {
-                        console.log("estimation Role", t)
                         //when owner of task is estimator
-                        console.log("estimator OWNER_ESTIMATOR", estimator)
                         if (estimator) {
                             if (t.owner === SC.OWNER_ESTIMATOR)
                                 return (expandedTaskID === t._id) ?
@@ -35,7 +32,6 @@ let
 
                         }
 
-                        console.log("suggestions", suggestions)
                         //when negotiator ask for suggestion
                         if (suggestions) {
                             if (t.negotiator.changedInThisIteration && t.negotiator.changeSuggested) {
@@ -46,7 +42,6 @@ let
                             }
                         }
 
-                        console.log("grantPermission", grantPermission)
                         //when negotiator grant the permission
                         if (grantPermission) {
                             if (t.negotiator.changedInThisIteration && t.negotiator.changeGranted) {
@@ -57,7 +52,6 @@ let
                             }
                         }
 
-                        console.log("repository", repository)
                         //added from repository
                         if (repository) {
                             if (t.repo)
@@ -73,7 +67,6 @@ let
                     else {
                         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
-                            console.log("negotiator OWNER_NEGOTIATOR ROLE_NEGOTIATOR", negotiator)
                             //task owner is negotiator
                             if (negotiator) {
                                 if (t.owner === SC.OWNER_NEGOTIATOR)
@@ -84,7 +77,6 @@ let
 
                             }
 
-                            console.log("negotiator changeRequested", changeRequested)
                             //when estimator asked for change request on task
                             if (changeRequested) {
                                 if (t.estimator.changedInThisIteration) {
@@ -97,7 +89,6 @@ let
                                 }
 
                             }
-                            console.log("negotiator repository", repository)
                             if (repository) {
                                 if (t.repo)
                                     if (!t.repo.addedFromThisEstimation) {
@@ -125,7 +116,6 @@ let
                     }
                 } else {
                     // when all are false show all
-                    console.log("show all task", t)
                     return (expandedTaskID === t._id) ?
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps} expanded="true"/> :
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />

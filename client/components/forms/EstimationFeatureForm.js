@@ -1,4 +1,4 @@
-import {reduxForm, Field, Form, formValueSelector} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
 import {required} from './validation'
 import {renderText, renderTextArea} from './fields'
@@ -7,8 +7,8 @@ import {connect} from "react-redux";
 
 let EstimationFeatureForm = (props) => {
     logger.debug(logger.ESTIMATION_FEATURE_FORM_RENDER, props)
-    const {estimation, _id, reset} = props
-    return <form onSubmit={props.handleSubmit}>
+    const {_id, reset, pristine, submitting, handleSubmit} = props
+    return <form onSubmit={handleSubmit}>
         <div className="row">
 
             <Field name="estimation._id" component="input" type="hidden"/>
@@ -28,10 +28,15 @@ let EstimationFeatureForm = (props) => {
         </div>
         <div className="row initiatEstimation">
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">{_id ? "Update" : "Submit"}</button>
+                <button type="submit" disabled={pristine || submitting}
+                        className="btn customBtn">
+                    {_id ? "Update" : "Submit"}
+                </button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
+                <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>
+                    Reset
+                </button>
             </div>
         </div>
     </form>

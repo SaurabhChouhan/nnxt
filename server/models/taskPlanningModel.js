@@ -79,8 +79,6 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
 
     let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        console.log("fromDate", fromDate, "toDate", toDate)
-        console.log("date type of ", typeof fromDate)
         taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrAfter(fromDate) && moment(tp.planningDate).isSameOrBefore(toDate))
     }
     else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {

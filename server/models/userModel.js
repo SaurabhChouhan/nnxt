@@ -123,7 +123,6 @@ userSchema.statics.verifyUser = async (email, password) => {
     // verify password
     let result = await bcrypt.compare(password, user.password)
 
-    console.log("bcrypt result is ", result)
     if (!result)
         return false
 
@@ -215,7 +214,6 @@ userSchema.statics.verifyUser = async (email, password) => {
 
 
 userSchema.statics.editUser = async userObj => {
-    console.log("user object ", userObj)
 
     // Find object by passed id
     let storedUser = await UserModel.findById(userObj._id)
@@ -230,10 +228,8 @@ userSchema.statics.editUser = async userObj => {
     }
 
     if (userObj.password) {
-        console.log("password is changed")
         // this means password is changed
         if (userObj.confirmPassword && userObj.password == userObj.confirmPassword) {
-            console.log("plain password is [" + userObj.password + "]")
             userObj.password = await bcrypt.hash(userObj.password, 10)
             console.log("encrypted password is ", userObj.password)
 

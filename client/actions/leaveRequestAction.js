@@ -1,6 +1,4 @@
 import * as AC from "./actionConsts"
-import {editProject} from "./projectAction";
-import {addClients} from "./clientAction";
 
 
 export const addLeaveRequests = (leaveRequests) => ({

@@ -1,8 +1,6 @@
 import Router from 'koa-router'
 import {ProjectModel} from "../models"
-import {validate, projectAdditionStruct, generateSchema} from "../validation"
-import permissionRouter from "./permission-router";
-import PermissionModel from "../models/permissionModel";
+import * as V from "../validation"
 
 let projectRouter = new Router({
     prefix: "projects"
@@ -10,9 +8,9 @@ let projectRouter = new Router({
 
 projectRouter.post("/", async ctx => {
     if (ctx.schemaRequested)
-        return generateSchema(projectAdditionStruct)
+        return V.generateSchema(V.projectAdditionStruct)
 
-    validate(ctx.request.body, projectAdditionStruct)
+    V.validate(ctx.request.body, V.projectAdditionStruct)
     return await ProjectModel.saveProject(ctx.request.body)
 })
 
@@ -23,7 +21,6 @@ projectRouter.delete("/:id", async ctx => {
     return await ProjectModel.softDelete(ctx.params.id)
 })
 projectRouter.put('/', async ctx => {
-    console.log("You aere in project routerr edit project", ctx.request.body)
     return await ProjectModel.editProject(ctx.request.body)
 })
 export default projectRouter

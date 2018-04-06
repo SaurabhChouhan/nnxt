@@ -1,8 +1,4 @@
 import mongoose from 'mongoose'
-import AppError from "../AppError"
-import {userHasRole} from "../utils"
-import * as SC from "../serverconstants"
-import * as EC from "../errorcodes"
 
 mongoose.Promise = global.Promise
 
@@ -22,8 +18,6 @@ attendanceSettingsSchema.statics.get = async (loggedInUser) => {
 }
 
 attendanceSettingsSchema.statics.updateSetting = async (newSettings, loggedInUser) => {
-    console.log("logged in settings are ", newSettings)
-
     let attendanceSetting = await AttendanceSettingsModel.findOne()
 
     if (!attendanceSetting) {

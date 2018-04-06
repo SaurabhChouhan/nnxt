@@ -1,29 +1,24 @@
-import {
-    ADD_PERMISSIONS,
-    ADD_PERMISSION,
-    EDIT_PERMISSION,
-    DELETE_PERMISSION,
-} from "./actionConsts"
+import * as AC from './actionConsts'
 import * as logger from '../clientLogger'
 
 
 export const addAllPermissions = (permissions) => ({
-        type: ADD_PERMISSIONS,
+        type: AC.ADD_PERMISSIONS,
         permissions: permissions
     }
 )
 
 export const addPermission = (permission) => ({
-    type: ADD_PERMISSION,
+    type: AC.ADD_PERMISSION,
     permission: permission
 })
 
 export const editPermission = (permission) => ({
-    type: EDIT_PERMISSION,
+    type: AC.EDIT_PERMISSION,
     permission: permission
 })
 export const deletePermission = (PermissionID) => ({
-    type: DELETE_PERMISSION,
+    type: AC.DELETE_PERMISSION,
     PermissionID: PermissionID
 })
 

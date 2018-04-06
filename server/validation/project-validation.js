@@ -1,4 +1,4 @@
-import {RequiredString, validate} from "./index"
+import {RequiredString} from "./index"
 import t from 'tcomb-validation'
 
 export let projectAdditionStruct = t.struct({

@@ -69,10 +69,8 @@ let estimationSchema = mongoose.Schema({
 
 estimationSchema.statics.getAllActive = async (projectID, status, user) => {
 
-    console.log("user id is ", user._id)
     let estimations = []
     if (userHasRole(user, SC.ROLE_ESTIMATOR)) {
-        console.log("user has estimator role")
         // Estimator would only see those estimations that don't have initiated status and this user is estimator
         let estimatorEstimations = await EstimationModel.find({
             isArchived: false,
@@ -89,14 +87,12 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
             status: 1
         })
 
-        console.log("estimator estimations ", estimatorEstimations)
 
         estimations = [...estimatorEstimations]
 
     }
 
     if (userHasRole(user, SC.ROLE_NEGOTIATOR)) {
-        console.log("user has negotiator role")
         // Negotiator would only see all estimations where he is negotiator
         let negotiatorEstimations = await EstimationModel.find({
             isArchived: false,
@@ -131,7 +127,6 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
 
 estimationSchema.statics.getById = async estimationID => {
 
-    console.log("finding estimation with id ", estimationID)
     //return await EstimationModel.findById(estimationID)
     // this API would return more details about selected estimation
     let estimations = await EstimationModel.aggregate({
@@ -704,7 +699,6 @@ estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimation
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (isGranted && userHasRole(user, SC.ROLE_NEGOTIATOR && estimation.negotiator._id != user._id)) {
-        console.log("Estimation Can-Not Approve isGranted", isGranted, "  estimation.status ", estimation.status)
         estimation.status = SC.STATUS_REVIEW_REQUESTED
     }
     estimation.canApprove = false

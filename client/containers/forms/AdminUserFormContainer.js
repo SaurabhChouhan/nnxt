@@ -2,8 +2,8 @@ import {connect} from 'react-redux'
 import {AdminUserForm} from "../../components"
 import {addUserOnServer, editUserOnServer} from "../../actions"
 import {showComponentHideOthers} from "../../actions/appAction";
-import {ADMIN_USER_LIST} from "../../components/componentConsts";
-import {ALREADY_EXISTS, EMAIL_ALREADY_USED, PASSWORD_NOT_MATCHED} from "../../../server/errorcodes";
+import * as COC from "../../components/componentConsts";
+import * as EC from "../../../server/errorcodes";
 import {NotificationManager} from "react-notifications";
 import {formValueSelector, SubmissionError} from "redux-form";
 
@@ -14,11 +14,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (!values._id) {
             return dispatch(addUserOnServer(values)).then(response => {
                 if (response.success) {
-                    dispatch(showComponentHideOthers(ADMIN_USER_LIST))
+                    dispatch(showComponentHideOthers(COC.ADMIN_USER_LIST))
                     NotificationManager.success('User Added Successfully')
                 } else {
                     NotificationManager.error('User Added Failed');
-                    if (json.code && json.code == ALREADY_EXISTS) {
+                    if (json.code && json.code == EC.ALREADY_EXISTS) {
                         // role already exists throw SubmissionError to show appropriate error
                         throw new SubmissionError({email: 'Email already exists'})
                     }
@@ -29,15 +29,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             // Role is edited
             return dispatch(editUserOnServer(values)).then(response => {
                 if (response.success) {
-                    dispatch(showComponentHideOthers(ADMIN_USER_LIST))
+                    dispatch(showComponentHideOthers(COC.ADMIN_USER_LIST))
                     NotificationManager.success('User Updated Successfully')
                 } else {
                     NotificationManager.error('User Updated Failed');
-                    if (json.code && json.code == EMAIL_ALREADY_USED) {
+                    if (json.code && json.code == EC.EMAIL_ALREADY_USED) {
                         throw new SubmissionError({email: 'Email already exists'})
                         // role already exists throw SubmissionError to show appropriate error
                     }
-                    else if (json.code && json.code == PASSWORD_NOT_MATCHED) {
+                    else if (json.code && json.code == EC.PASSWORD_NOT_MATCHED) {
                         throw new SubmissionError({password: 'Password not matched'})
                     }
                     throw new SubmissionError({users: "User edit failed!"})

@@ -1,10 +1,10 @@
-import {reduxForm, Field, Form} from 'redux-form'
+import {Field, Form, reduxForm} from 'redux-form'
 import React from 'react'
-import {required, email} from './validation'
+import {email, required} from './validation'
 import {renderLoginField} from "./fields";
 
 let LoginForm = (props) => {
-    console.log("loginForm->props ", props)
+    const {handleSubmit, errorMsg} = props
     return <div>
         <div className="col-md-12 loginsection">
             <div className="col-md-5 login_img ">
@@ -18,11 +18,11 @@ let LoginForm = (props) => {
                 <p className="text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc ex risus,
                     pharetra et efficitur non,
                     tristique ac elit.</p>
-                <Form onSubmit={props.handleSubmit}>
-                    {props.errorMsg &&
+                <Form onSubmit={handleSubmit}>
+                    {errorMsg &&
                     <div style={{width: "100%", textAlign: "center"}}>
                         <span className="validation-error"
-                              style={{fontSize: '20px'}}>{props.errorMsg}</span>
+                              style={{fontSize: '20px'}}>{errorMsg}</span>
                     </div>}
                     <Field name="username" component={renderLoginField} label="Username :"
                            validate={[required, email]}/>
@@ -33,7 +33,8 @@ let LoginForm = (props) => {
                         <span className="pull-right"> <a href="#"><u>Forgot password ?</u></a><br/></span>
                     </div>
                     <div className="col-md-12">
-                        <button type="submit" className="btn  login-btn">Submit</button>
+                        <button type="submit" className="btn  login-btn">Submit
+                        </button>
                     </div>
                     <div className="col-md-12"><label className="signupoption">Do you have an account ? <a href="#"><u>
                         Sign Up</u></a></label></div>

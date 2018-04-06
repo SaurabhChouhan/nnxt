@@ -1,26 +1,21 @@
 import {connect} from 'react-redux'
 import UserForm from "../../components/forms/UserForm"
-import {addUserOnServer, editUserOnServer} from "../../actions"
-import {showComponentHideOthers} from "../../actions/appAction";
-import {USER_LIST} from "../../components/componentConsts";
 import {NotificationManager} from "react-notifications";
 import {SubmissionError} from "redux-form";
-import {
-    ALREADY_EXISTS,
-    EMAIL_ALREADY_USED,
-    PASSWORD_NOT_MATCHED
-} from "../../../server/errorcodes";
+import * as EC from "../../../server/errorcodes";
+import * as A from "../../actions";
+import * as COC from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         if (!values._id) {
-            return dispatch(addUserOnServer(values)).then((json) => {
+            return dispatch(A.addUserOnServer(values)).then((json) => {
                     if (json.success) {
-                        dispatch(showComponentHideOthers(USER_LIST))
+                        dispatch(A.showComponentHideOthers(COC.USER_LIST))
                         NotificationManager.success('User Added Successful');
                     } else {
                         NotificationManager.error('User Added Failed');
-                        if (json.code && json.code == ALREADY_EXISTS) {
+                        if (json.code && json.code == EC.ALREADY_EXISTS) {
                             // role already exists throw SubmissionError to show appropriate error
                             throw new SubmissionError({email: 'Email already exists'})
                         }
@@ -30,17 +25,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             )
         }
         else {
-            return dispatch(editUserOnServer(values)).then((json) => {
+            return dispatch(A.editUserOnServer(values)).then((json) => {
                     if (json.success) {
-                        dispatch(showComponentHideOthers(USER_LIST))
+                        dispatch(A.showComponentHideOthers(COC.USER_LIST))
                         NotificationManager.success('User Updated Successful');
                     } else {
                         NotificationManager.error('User Updated Failed');
-                        if (json.code && json.code == EMAIL_ALREADY_USED) {
+                        if (json.code && json.code == EC.EMAIL_ALREADY_USED) {
                             throw new SubmissionError({email: 'Email already exists'})
                             // role already exists throw SubmissionError to show appropriate error
                         }
-                        else if (json.code && json.code == PASSWORD_NOT_MATCHED) {
+                        else if (json.code && json.code == EC.PASSWORD_NOT_MATCHED) {
                             throw new SubmissionError({password: 'Password not matched'})
                         }
                         else throw new SubmissionError(json.errors)
@@ -50,7 +45,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         }
     },
-    showUserList: () => dispatch(showComponentHideOthers(USER_LIST))
+    showUserList: () => dispatch(A.showComponentHideOthers(CC.USER_LIST))
 })
 
 const mapStateToProps = (state, ownProps) => ({

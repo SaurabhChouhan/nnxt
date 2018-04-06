@@ -1,10 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import * as ErrorCodes from '../errorcodes'
-import {HTTP_BAD_REQUEST} from "../errorcodes";
-import {NOT_FOUND} from "../errorcodes";
-import ProjectModel from "./projectModel";
-import {ALREADY_EXISTS} from "../errorcodes";
+import * as EC from '../errorcodes'
 
 mongoose.Promise = global.Promise
 
@@ -25,7 +21,7 @@ clientSchema.statics.getAllActive = async () => {
 
 clientSchema.statics.saveClient = async clientInput => {
     if (await ClientModel.exists(clientInput.name)) {
-        throw new AppError("Client with name [" + clientInput.name + "] already exists", ErrorCodes.ALREADY_EXISTS, ErrorCodes.HTTP_BAD_REQUEST)
+        throw new AppError("Client with name [" + clientInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
 
     return await ClientModel.create(clientInput)
@@ -33,7 +29,7 @@ clientSchema.statics.saveClient = async clientInput => {
 
 clientSchema.statics.exists = async name => {
     if (!name)
-        throw new AppError("ClientModel->exists() method needs non-null name parameter", ErrorCodes.BAD_ARGUMENTS)
+        throw new AppError("ClientModel->exists() method needs non-null name parameter", EC.BAD_ARGUMENTS)
     let count = await ClientModel.count({'name': name})
     if (count > 0)
         return true
@@ -60,11 +56,10 @@ clientSchema.statics.deleteClient = async (id) => {
     return response
 }
 clientSchema.statics.editClient = async clientInput => {
-    console.log("check the project Input data", clientInput)
     let client = await ClientModel.findById(clientInput._id)
     //let count = await ProjectModel.count({'name': projectInput.name, 'client._id': projectInput.client._id})
     if (await ClientModel.exists(clientInput.name)) {
-        throw new AppError("Client [" + client._id + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+        throw new AppError("Client [" + client._id + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
 
     client.name = clientInput.name

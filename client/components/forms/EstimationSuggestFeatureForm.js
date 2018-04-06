@@ -9,7 +9,7 @@ import * as SC from '../../../server/serverconstants'
 let EstimationSuggestFeatureForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
-    const {loggedInUserRole, estimation, readOnly} = props
+    const {estimation, readOnly} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-12">
             <div className="col-md-5">

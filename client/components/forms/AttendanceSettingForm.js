@@ -2,15 +2,15 @@ import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
 import {renderText} from './fields'
 import {number, required} from "./validation"
-import * as logger from '../../clientLogger'
 
 
 let AttendanceSettingForm = (props) => {
+    const {handleSubmit, pristine, reset, submitting} = props;
 
     return <div className="col-md-8">
         <div className="col-md-12 pad">
             <div className="col-md-12">
-                <form onSubmit={props.handleSubmit}>
+                <form onSubmit={handleSubmit}>
                     <div className="row">
                         <div className="col-md-6">
                             <Field name="minFullDayHours" placeholder={"minimum full day hours"}
@@ -28,9 +28,13 @@ let AttendanceSettingForm = (props) => {
                                    validate={[required, number]}
                                    label={"Day End Time :"}/>
 
-                            <button type="submit" className="btn customBtn">Submit</button>
+                            <button type="submit" disabled={pristine || submitting}
+                                    className="btn customBtn moveInBtnSpace">Submit
+                            </button>
 
-
+                            <button type="button" disabled={pristine || submitting} className="btn customBtn"
+                                    onClick={reset}>Reset
+                            </button>
                         </div>
                     </div>
 

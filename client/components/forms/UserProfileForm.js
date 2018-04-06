@@ -1,21 +1,11 @@
 import React, {Component} from 'react'
-import {Field, reduxForm, formValueSelector} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {connect} from 'react-redux'
-import {
-    renderText,
-    renderTextArea,
-    renderMultiselect,
-    renderField,
-    renderSelect,
-    renderDateTimePickerString, renderDateTimePicker
-} from './fields'
-import {required, email, passwordLength, number} from "./validation"
-import moment from "moment/moment";
+import {renderDateTimePicker, renderField, renderText, renderTextArea} from './fields'
+import {email, number, passwordLength, required} from "./validation"
 
 
 const passwordMatch = (value, values) => {
-
-    console.log("password match", values.password)
     return (value != values.password) ? `both password field should be same ` : undefined
 }
 
@@ -25,9 +15,8 @@ class UserProfileForm extends Component {
     }
 
     render() {
-        const {handleSubmit, pristine, reset, submitting, addUser, editUser, changeCredentials} = this.props;
+        const {handleSubmit, pristine, reset, submitting} = this.props;
 
-        console.log("render called for user profile form container", this.props)
         return <div className="col-md-8">
             <div className="col-md-12">
                 <div className="col-md-12 pad">
@@ -35,7 +24,7 @@ class UserProfileForm extends Component {
                     <div className="col-md-12">
 
 
-                        <form key="userProfileForm" onSubmit={this.props.handleSubmit}>
+                        <form key="userProfileForm" onSubmit={handleSubmit}>
 
 
                             {/*firstname lastName*/}
@@ -120,10 +109,14 @@ class UserProfileForm extends Component {
                             </div>
                             <div className="row updateUserProfile">
                                 <div className="col-md-6 text-right">
-                                    <button type="submit" className="btn customBtn">Update</button>
+                                    <button type="submit" disabled={pristine || submitting} className="btn customBtn">
+                                        Update
+                                    </button>
                                 </div>
                                 <div className="col-md-6 text-left">
-                                    <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
+                                    <button type="button" disabled={pristine || submitting} className="btn customBtn"
+                                            onClick={reset}>Reset
+                                    </button>
                                 </div>
                             </div>
 

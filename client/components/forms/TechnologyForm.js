@@ -1,5 +1,5 @@
 import {required} from "./validation"
-import {renderSelect, renderText} from "./fields"
+import {renderText} from "./fields"
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import * as logger from "../../clientLogger";
@@ -14,7 +14,8 @@ let TechnologyForm = (props) => {
                        label={"Technology Name:"} validate={[required]}/>
 
 
-                <button type="submit" className="btn customBtn">Submit</button>
+                <button type="submit" disabled={props.pristine || props.submitting} className="btn customBtn">Submit
+                </button>
             </div>
         </div>
 

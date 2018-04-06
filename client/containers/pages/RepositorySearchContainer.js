@@ -1,6 +1,5 @@
 import {connect} from 'react-redux'
 import {RepositorySearch} from '../../components'
-import * as EC from '../../../server/errorcodes'
 import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
 

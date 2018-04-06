@@ -1,5 +1,4 @@
 import Koa from 'koa'
-import Router from 'koa-router'
 import koaBody from 'koa-body'
 import views from 'koa-views'
 import cookie from 'koa-cookie'
@@ -10,22 +9,11 @@ import noConfig from 'no-config'
 import confFile from './config'
 import co from 'co'
 import mongoose from 'mongoose'
-import {userRouter} from "./routers"
-import {UserModel, RoleModel, PermissionModel} from "./models"
+import {apiRouter, pageRouter} from "./routers"
 import {addInitialData, addNNXTData} from "./utils/setupdata"
-import {
-    PROD_ENV,
-    DEV_ENV,
-    ROLE_ADMIN,
-    ROLE_SUPER_ADMIN,
-    ROLE_APP_USER,
-    SUPER_ADMIN_EMAIL,
-    ADMIN_EMAIL,
-    APP_USER_EMAIL
-} from "./serverconstants"
+import {PROD_ENV} from "./serverconstants"
 import path from 'path'
 import logger from './logger'
-import {apiRouter, pageRouter} from "./routers"
 import {HTTP_SERVER_ERROR} from "./errorcodes"
 
 

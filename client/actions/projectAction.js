@@ -111,7 +111,6 @@ export const editProjectOnServer = (project) => {
             }
         ).then(json => {
                 if (json.success) {
-                    console.log("Yor are now fatchning jason data", json.data)
                     dispatch(editProject(json.data))
                 }
                 return json

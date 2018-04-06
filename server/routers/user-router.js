@@ -1,6 +1,6 @@
 import Router from 'koa-router'
 import {UserModel} from "../models"
-import {ACCESS_DENIED, HTTP_FORBIDDEN} from '../errorcodes'
+import * as EC from '../errorcodes'
 import {isAdmin, isAuthenticated, isSuperAdmin} from "../utils"
 import AppError from '../AppError'
 
@@ -21,7 +21,7 @@ userRouter.post('/', async ctx => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
         return await UserModel.saveUser(ctx.request.body)
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
 })
@@ -35,11 +35,11 @@ userRouter.put('/', async ctx => {
         if (userInput._id == ctx.state.user._id) {
             return await UserModel.editUser(userInput)
         } else {
-            throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+            throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
         }
 
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 
@@ -47,7 +47,7 @@ userRouter.del('/:id', async (ctx, next) => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
         return await UserModel.deleteUser(ctx.params.id)
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 

@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {generateSchema, technologyAdditionStruct} from "../validation"
+import * as V from "../validation"
 import {TechnologyModel} from "../models"
 
 let technologyRouter = new Router({
@@ -9,7 +9,7 @@ let technologyRouter = new Router({
 
 technologyRouter.post("/", async ctx => {
     if (ctx.schemaRequested)
-        return generateSchema(technologyAdditionStruct)
+        return V.generateSchema(V.technologyAdditionStruct)
     return await TechnologyModel.saveTechnology(ctx.request.body)
 })
 

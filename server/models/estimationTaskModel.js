@@ -427,7 +427,6 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    console.log("task feature id is ", task.feature._id)
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
     if (task.estimator.estimatedHours)
@@ -558,7 +557,6 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
 
 
 estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimator) => {
-    //console.log("deleteTaskByEstimator for paramsInput ", paramsInput)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -573,9 +571,6 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
     if (estimation.estimator._id != estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (task.owner != SC.OWNER_ESTIMATOR)
-        throw new AppError('You are not owner of this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
     if (!task.addedInThisIteration)
         throw new AppError('You are not allowed to delete this task', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
@@ -588,6 +583,11 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
         if (task.estimator.estimatedHours)
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false
+            })
+        if (task.negotiator.estimatedHours)
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
                 "canApprove": false
             })
 
@@ -627,6 +627,12 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
         if (task.negotiator.estimatedHours)
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                "canApprove": false
+            })
+
+        if (task.estimator.estimatedHours)
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
                 "canApprove": false
             })
 
@@ -815,7 +821,13 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
     estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = false
 
-    return await estimationTask.save()
+    await estimationTask.save()
+
+    estimationTask = estimationTask.toObject()
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    return estimationTask
 
 }
 
@@ -876,7 +888,13 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
     else
         estimationTask.estimator.estimatedHours = 0
 
-    return await estimationTask.save()
+    await estimationTask.save()
+    estimationTask = estimationTask.toObject()
+    if (estimation && estimation.canApprove) {
+        estimationTask.isEstimationCanApprove = true
+    }
+    return estimationTask
+
 
 }
 
@@ -933,7 +951,12 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
     taskFromRepositoryObj.repo = {}
     taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = false
-    return await EstimationTaskModel.create(taskFromRepositoryObj)
+    let taskFromRepo = await EstimationTaskModel.create(taskFromRepositoryObj)
+    taskFromRepo = taskFromRepo.toObject()
+    if (estimation && estimation.canApprove) {
+        taskFromRepo.isEstimationCanApprove = true
+    }
+    return taskFromRepo
 }
 
 
@@ -989,7 +1012,13 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
     //taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = true
 
-    return await EstimationTaskModel.create(taskFromRepositoryObj)
+    let taskFromRepo = await EstimationTaskModel.create(taskFromRepositoryObj)
+    taskFromRepo = taskFromRepo.toObject()
+    if (estimation && estimation.canApprove) {
+        taskFromRepo.isEstimationCanApprove = true
+    }
+    return taskFromRepo
+
 }
 
 
@@ -997,9 +1026,6 @@ estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator)
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-    console.log("userHasRole(negotiator, SC.ROLE_NEGOTIATOR)", userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     let task = await EstimationTaskModel.findById(taskID)
     let estimationFeatureObj

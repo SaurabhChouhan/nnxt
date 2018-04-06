@@ -1,5 +1,4 @@
-import {ADD_PROJECTS, ADD_PROJECT} from "../actions/actionConsts"
-import * as AC from "../actions/actionConsts";
+import * as AC from "../actions/actionConsts"
 
 let initialState = {
     all: [],

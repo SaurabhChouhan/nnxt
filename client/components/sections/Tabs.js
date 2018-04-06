@@ -3,49 +3,38 @@ import PropTypes from 'prop-types'
 import Tab from '../tabs/Tab'
 import {Loader} from 'react-loaders'
 import {Route} from 'react-router-dom'
-import {initialize} from 'redux-form'
 import {
-    PERMISSION_TAB,
-    ROLE_TAB,
-    PERMISSION_FORM,
-    PERMISSION_LIST,
-    ROLE_FORM,
-    ROLE_LIST,
-    USER_TAB,
-    USER_FORM,
-    USER_LIST,
-    ADMIN_USER_FORM,
-    ADMIN_USER_LIST,
-    ADMIN_USER_TAB,
-    USER_PROFILE_TAB,
-    USER_PROFILE_FORM,
     ADMIN_PERMISSION_TAB,
     ADMIN_ROLE_FORM,
-    ADMIN_ROLE_LIST
+    ADMIN_ROLE_LIST,
+    PERMISSION_FORM,
+    PERMISSION_LIST,
+    PERMISSION_TAB,
+    ROLE_FORM,
+    ROLE_LIST,
+    ROLE_TAB,
+    USER_FORM,
+    USER_LIST,
+    USER_PROFILE_FORM,
+    USER_PROFILE_TAB,
+    USER_TAB
 } from "../componentConsts"
 
-import {MANAGE_PERMISSIONS, MANAGE_ROLES, EDIT_PROFILE, LIST_USERS, EDIT_ROLE_PERMISSIONS} from "../../clientconstants"
+import {EDIT_PROFILE, EDIT_ROLE_PERMISSIONS, LIST_USERS, MANAGE_PERMISSIONS, MANAGE_ROLES} from "../../clientconstants"
 import {showComponentHideOthers} from "../../actions/appAction"
 import {
-    PermissionListContainer,
+    AdminRoleFormContainer,
+    AdminRoleListContainer,
     PermissionFormContainer,
-    TabSectionContainer,
+    PermissionListContainer,
     RoleFormContainer,
     RoleListContainer,
+    TabSectionContainer,
     UserFormContainer,
     UserListContainer,
-    AdminUserListContainer,
-    AdminUserFormContainer,
-    UserProfileFormContainer,
-    AdminRoleFormContainer,
-    AdminRoleListContainer
+    UserProfileFormContainer
 } from "../../containers"
-import {
-    getAllPermissionsFromServer,
-    getAllRolesFromServer,
-    getAllUsersFromServer,
-    showUserInfo
-} from "../../actions";
+import {getAllPermissionsFromServer, getAllRolesFromServer, getAllUsersFromServer, showUserInfo} from "../../actions";
 import * as logger from '../../clientLogger'
 
 
@@ -58,7 +47,6 @@ class Tabs extends Component {
 
         let permissions = this.props.loggedInUser.permissions
 
-        console.log("permissions ", permissions)
 
 
         if (permissions.includes(EDIT_PROFILE)) {

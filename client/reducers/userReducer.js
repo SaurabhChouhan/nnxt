@@ -1,14 +1,5 @@
-import {
-    ADD_LOGIN_USER,
-    ADD_USER,
-    ADD_USERS,
-    ADD_USERS_WITH_ROLE_CATEGORY,
-    DELETE_USER,
-    EDIT_USER,
-    LOGIN_FAILED,
-    UPDATE_USER_PROFILE_STATE
-} from "../actions/actionConsts"
-import {ROLE_ADMIN, ROLE_APP_USER, ROLE_SUPER_ADMIN} from "../../server/serverconstants";
+import * as AC from "../actions/actionConsts"
+import * as SC from "../../server/serverconstants";
 
 
 let initialState = {
@@ -23,29 +14,29 @@ let initialState = {
 
 export const userReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_USERS:
+        case AC.ADD_USERS:
             return Object.assign({}, state, {all: action.users})
-        case ADD_USERS_WITH_ROLE_CATEGORY:
+        case AC.ADD_USERS_WITH_ROLE_CATEGORY:
             return Object.assign({}, state, {userWithRoleCategory: action.users})
-        case ADD_USER:
+        case AC.ADD_USER:
             return Object.assign({}, state, {all: [...state.all, action.user]})
-        case EDIT_USER:
+        case AC.EDIT_USER:
             return Object.assign({}, state, {
                 all: state.all.map(item => item._id == action.user._id ? action.user : item)
             })
-        case DELETE_USER:
+        case AC.DELETE_USER:
             return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.userID)})
-        case ADD_LOGIN_USER:
+        case AC.ADD_LOGIN_USER:
             if (action.user) {
                 let isSuperAdmin = false
                 let isAdmin = false
                 let isAppUser = false
                 if (action.user && Array.isArray(action.user.roles)) {
-                    if (action.user.roles.findIndex(r => r.name === ROLE_SUPER_ADMIN) != -1)
+                    if (action.user.roles.findIndex(r => r.name === SC.ROLE_SUPER_ADMIN) != -1)
                         isSuperAdmin = true
-                    if (action.user.roles.findIndex(r => r.name === ROLE_ADMIN) != -1)
+                    if (action.user.roles.findIndex(r => r.name === SC.ROLE_ADMIN) != -1)
                         isAdmin = true
-                    if (action.user.roles.findIndex(r => r.name === ROLE_APP_USER) != -1)
+                    if (action.user.roles.findIndex(r => r.name === SC.ROLE_APP_USER) != -1)
                         isAppUser = true
                 }
 
@@ -56,12 +47,12 @@ export const userReducer = (state = initialState, action) => {
                 })
             } else
                 return state
-        case LOGIN_FAILED:
+        case AC.LOGIN_FAILED:
             return Object.assign({}, state, {
                 isAuthenticated: false,
                 loginError: action.error
             })
-        case UPDATE_USER_PROFILE_STATE:
+        case AC.UPDATE_USER_PROFILE_STATE:
             return Object.assign({}, state, {
                 loggedIn: (true) ?
                     Object.assign({}, {

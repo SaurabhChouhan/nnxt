@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
-import {ALREADY_EXISTS, HTTP_BAD_REQUEST, IDENTIFIER_MISSING} from "../errorcodes"
+import * as EC from "../errorcodes"
 import AppError from '../AppError'
-import {RoleModel, UserModel} from '../models'
+import {RoleModel} from '../models'
 
 mongoose.Promise = global.Promise
 
@@ -17,11 +17,11 @@ permissionSchema.statics.getAll = async () => {
 
 permissionSchema.statics.savePermission = async permissionInput => {
     if (!permissionInput.name)
-        throw new AppError("permission missing", HTTP_BAD_REQUEST)
+        throw new AppError("permission missing", EC.HTTP_BAD_REQUEST)
 
 
     if (await PermissionModel.exists(permissionInput.name))
-        throw new AppError("Permission [" + permissionInput.name + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+        throw new AppError("Permission [" + permissionInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     return await PermissionModel.create(permissionInput)
 }
 
@@ -30,7 +30,7 @@ permissionSchema.statics.editPermission = async permissionInput => {
     let permission = await PermissionModel.findById(permissionInput._id)
     let count = await PermissionModel.count({'name': permissionInput.name, '_id': {$ne: permission._id}})
     if (count > 0) {
-        throw new AppError("Permission [" + permissionInput.name + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+        throw new AppError("Permission [" + permissionInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
     if (permission) {
         permission.name = permissionInput.name
@@ -42,7 +42,7 @@ permissionSchema.statics.editPermission = async permissionInput => {
 
 permissionSchema.statics.deletePermission = async (permissionID) => {
     if (!permissionID)
-        throw new AppError("Identifier required for delete", IDENTIFIER_MISSING, HTTP_BAD_REQUEST)
+        throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     let roleDelete = await RoleModel.deleteAddedPermission(permissionID)
     return await PermissionModel.findByIdAndRemove(permissionID).exec()
 }

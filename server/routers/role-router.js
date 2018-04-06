@@ -1,8 +1,7 @@
 import Router from 'koa-router'
 import {RoleModel} from '../models'
-import {isSuperAdmin, isAdmin} from "../utils"
-import {ROLE_ADMIN, ROLE_SUPER_ADMIN} from "../serverconstants"
-import {ACCESS_DENIED, HTTP_FORBIDDEN} from "../errorcodes"
+import {isAdmin, isSuperAdmin} from "../utils"
+import * as EC from "../errorcodes"
 import AppError from '../AppError'
 import _ from 'lodash'
 
@@ -19,7 +18,7 @@ roleRouter.get('/', async ctx => {
     } else if (isSuperAdmin(ctx)) {
         return await RoleModel.getAll()
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 
@@ -28,7 +27,7 @@ roleRouter.post('/', async ctx => {
     if (isSuperAdmin(ctx)) {
         return await RoleModel.saveRole(ctx.request.body)
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
 })
@@ -44,7 +43,7 @@ roleRouter.put('/', async ctx => {
 
         let roleInput = ctx.request.body
         let role = await RoleModel.findById(roleInput._id).lean()
-        console.log("found role as ", role.permissions)
+
 
         if (!_.isEmpty(role.permissions)) {
             role.permissions = role.permissions.map(p => {
@@ -67,7 +66,7 @@ roleRouter.put('/', async ctx => {
         role.permissions = role.permissions.filter(p => p.configurable)
         return role
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 
@@ -75,7 +74,7 @@ roleRouter.del('/:id', async ctx => {
     if (isSuperAdmin(ctx)) {
         return await RoleModel.deleteRole(ctx.params.id)
     } else {
-        throw new AppError("Access Denied", ACCESS_DENIED, HTTP_FORBIDDEN)
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 

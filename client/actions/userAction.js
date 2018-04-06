@@ -1,52 +1,43 @@
 import {initialize} from 'redux-form'
-import {
-    ADD_LOGIN_USER,
-    ADD_USER,
-    ADD_USERS,
-    ADD_USERS_WITH_ROLE_CATEGORY,
-    DELETE_USER,
-    EDIT_USER,
-    LOGIN_FAILED,
-    UPDATE_USER_PROFILE_STATE
-} from "./actionConsts"
+import * as AC from "./actionConsts"
 
 
 export const addLoginUser = (user) => ({
-    type: ADD_LOGIN_USER,
+    type: AC.ADD_LOGIN_USER,
     user: user
 })
 
 export const loginFailed = (error) => ({
-    type: LOGIN_FAILED,
+    type: AC.LOGIN_FAILED,
     error: error
 })
 
 export const addAllUsers = (users) => ({
-    type: ADD_USERS,
+    type: AC.ADD_USERS,
     users: users
 })
 
 export const addUsersWithRoleCategory = (users) => ({
-    type: ADD_USERS_WITH_ROLE_CATEGORY,
+    type: AC.ADD_USERS_WITH_ROLE_CATEGORY,
     users: users
 })
 
 export const addUser = (user) => ({
-    type: ADD_USER,
+    type: AC.ADD_USER,
     user: user
 })
 
 export const editUser = (user) => ({
-    type: EDIT_USER,
+    type: AC.EDIT_USER,
     user: user
 })
 
 export const deleteUser = (userID) => ({
-    type: DELETE_USER,
+    type: AC.DELETE_USER,
     userID: userID
 })
 export const updateUserProfileState = (user) => ({
-    type: UPDATE_USER_PROFILE_STATE,
+    type: AC.UPDATE_USER_PROFILE_STATE,
     user: user
 })
 
@@ -235,8 +226,6 @@ export const updateUserSettingsOnServer = (user) => {
         ).then(json => {
                 if (json.success) {
                     dispatch(updateUserProfileState(json.data))
-                    dispatch(initialize('user-profile', json.data))
-
                 }
                 return json
             }

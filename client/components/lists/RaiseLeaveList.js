@@ -2,10 +2,6 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
-import {ConfirmationDialog} from "../index";
-import * as SC from '../../../server/serverconstants'
-import {showComponentHideOthers} from "../../actions";
-import {PROJECT_FORM_DIALOG} from "../componentConsts";
 
 class RaiseLeaveList extends Component {
 
@@ -60,7 +56,6 @@ class RaiseLeaveList extends Component {
     }
 
     formatLeaveType(leaveType) {
-        console.log("leaveType ", leaveType)
         if (leaveType)
             return leaveType.name
         return ''
@@ -71,8 +66,7 @@ class RaiseLeaveList extends Component {
 
         return (<button className="fa fa-remove btn btn-custom " type="button"
                         disabled={(row.status == "cancelled") ? true : false} onClick={() => {
-                console.log("delete button call", row)
-                this.props.cancelRaiseLeaveRequestCall(row)
+               return this.props.cancelRaiseLeaveRequestCall(row)
             }}>
 
             </button>

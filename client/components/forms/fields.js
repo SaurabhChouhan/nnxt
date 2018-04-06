@@ -239,25 +239,20 @@ export const renderDateTimePickerString = ({
 
     const parse = event => {
         if (event) {
-            //console.log("renderDateTimePickerString: event ", event)
             if (showCalendar) {
                 if (showTime) {
                     if (typeof(event) === 'object' && event.target && event.target.value) {
-                        //console.log("renderDateTimePickerString: event.target.value  ", event.target.value)
                         let v = moment(event.target.value).format('YYYY-MM-DD')
                         return v
                     } else {
-                        //console.log("renderDateTimePickerString: event  ", event)
                         let v = moment(event).format('YYYY-MM-DD')
                         return v
                     }
                 } else {
                     if (typeof(event) === 'object' && event.target && event.target.value) {
-                        //console.log("renderDateTimePickerString: event.target.value  ", event.target.value)
                         let v = moment(event.target.value).format('YYYY-MM-DD')
                         return v
                     } else {
-                        //console.log("renderDateTimePickerString: event  ", event)
                         let v = moment(event).format('YYYY-MM-DD')
                         return v
                     }

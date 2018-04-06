@@ -4,11 +4,6 @@ import {ClientModel} from "./"
 import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import {userHasRole} from "../utils"
-import {HTTP_BAD_REQUEST} from "../errorcodes";
-import {ALREADY_EXISTS} from "../errorcodes";
-import PermissionModel from "./permissionModel";
-import {RoleModel} from "./index";
-import {NOT_FOUND} from "../errorcodes";
 
 
 mongoose.Promise = global.Promise
@@ -74,17 +69,16 @@ projectSchema.statics.softDelete = async (id) => {
     return response
 }
 projectSchema.statics.editProject = async projectInput => {
-    console.log("check the project Input data", projectInput)
     let project = await ProjectModel.findById(projectInput._id)
     //let count = await ProjectModel.count({'name': projectInput.name, 'client._id': projectInput.client._id})
     if (await ProjectModel.exists(projectInput.name, projectInput.client._id)) {
-        throw new AppError("Project [" + project.client._id + "] already exists", ALREADY_EXISTS, HTTP_BAD_REQUEST)
+        throw new AppError("Project [" + project.client._id + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
     if (project) {
         project.name = projectInput.name
         let client = await ClientModel.findById(projectInput.client._id)
         if (!client) {
-            throw new AppError("Client Not Found", NOT_FOUND, HTTP_BAD_REQUEST)
+            throw new AppError("Client Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         }
         project.client = client
         return await project.save()

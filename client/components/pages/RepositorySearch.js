@@ -1,7 +1,5 @@
 import React, {Component} from 'react'
 import {WithContext as ReactTags} from 'react-tag-input';
-import {required} from "../forms/validation";
-import {renderText} from "../forms/fields";
 
 class RepositorySearch extends Component {
     constructor(props) {

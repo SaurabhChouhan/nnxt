@@ -7,8 +7,8 @@ import {connect} from 'react-redux'
 
 let EstimationInitiateForm = (props) => {
     logger.debug(logger.ESTIMATION_INITIATE_FORM_RENDER, props)
-    const {reset, _id} = props
-    return <form onSubmit={props.handleSubmit}>
+    const {reset, _id, pristine, submitting, handleSubmit} = props
+    return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
                 <Field name="_id" component="input" className="form-control" type="hidden"></Field>
@@ -34,10 +34,15 @@ let EstimationInitiateForm = (props) => {
         </div>
         <div className="row initiatEstimation">
             <div className="col-md-6 text-center">
-                <button type="submit" className="btn customBtn">{(!_id && "Submit") || (_id && "Update")}</button>
+                <button type="submit" disabled={pristine || submitting}
+                        className="btn customBtn">
+                    {(!_id && "Submit") || (_id && "Update")}
+                </button>
             </div>
             <div className="col-md-6 text-center">
-                <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
+                <button type="button" disabled={pristine || submitting} className="btn customBtn" onClick={reset}>
+                    Reset
+                </button>
             </div>
         </div>
     </form>

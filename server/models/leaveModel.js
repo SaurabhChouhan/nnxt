@@ -3,7 +3,6 @@ import AppError from '../AppError'
 import moment from 'moment'
 import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
-import {userHasRole} from "../utils";
 import {LeaveTypeModel} from "../models";
 
 mongoose.Promise = global.Promise
@@ -38,7 +37,6 @@ let leaveSchema = mongoose.Schema({
 
 leaveSchema.statics.saveLeave = async (leaveInput,user) => {
 
-    console.log("leaveInput ", leaveInput)
     const leaveType = await LeaveTypeModel.findById(leaveInput.leaveType._id)
     if (!leaveType)
         throw new AppError("Leave type not fount", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -71,7 +69,6 @@ leaveSchema.statics.saveLeave = async (leaveInput,user) => {
     //note:- this case for current date raise leave
         leaveDaysCount = 1
 
-    console.log("leaveDaysCount ", leaveDaysCount)
     leaveInput.startDate = startDateMoment
     leaveInput.endDate = endDateMoment
     leaveInput.numberOfLeaveDays = leaveDaysCount
@@ -90,7 +87,6 @@ leaveSchema.statics.getAllActive = async (loggedInUser) => {
 }
 
 leaveSchema.statics.cancelLeaveRequest = async (inputLeaveRequest) => {
-    console.log("check the leave request Input data", inputLeaveRequest)
     let leaveRequest = await LeaveModel.findById(inputLeaveRequest._id)
 
     if (!leaveRequest) {
