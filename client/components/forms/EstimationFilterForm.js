@@ -13,7 +13,7 @@ let EstimationFilterForm = (props) => {
             {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR &&
             <div className="col-md-12 filterTextWithFlag">
                 <div>
-                    <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You:"}/>
+                    <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You"}/>
                     <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
                          className="filterFlag"
                          title="Suggested by Negotiator"/>
@@ -26,14 +26,6 @@ let EstimationFilterForm = (props) => {
                          className="filterFlag"
                          title="Added by Negotiator"/>
 
-                </div>
-                <div>
-                    <Field name="permissionRequested" component={renderCheckBox}
-                           label={"Requested Permissions"}
-                    />
-                    <img key="estimator_requested_permission_flag" src="/images/request_flag.png"
-                         className="filterFlag"
-                         title="Requested by Estimator"/>
                 </div>
                 <div>
                     <Field name="changedByEstimator" component={renderCheckBox}
@@ -52,6 +44,15 @@ let EstimationFilterForm = (props) => {
 
                 </div>
                 <div>
+                    <Field name="permissionRequested" component={renderCheckBox}
+                           label={"Requested Permissions"}
+                    />
+                    <img key="estimator_requested_permission_flag" src="/images/request_flag.png"
+                         className="filterFlag"
+                         title="Requested by Estimator"/>
+                </div>
+
+                <div>
                     <Field name="addedFromRepository" component={renderCheckBox}
                            label={"Added From Repository"}
                     />
@@ -64,14 +65,14 @@ let EstimationFilterForm = (props) => {
             <div className="col-md-12 filterTextWithFlag">
 
                 <div>
-                    <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
+                    <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You"}/>
                     <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
                          className="filterFlag"
                          title="Changed by Estimator"/>
                 </div>
                 <div>
                     <Field name="addedByEstimator" component={renderCheckBox}
-                           label={"Changed By You:"}
+                           label={"Currently Added By You"}
                     />
                     <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
                          className="filterFlag" title="Added by Estimator"/>
