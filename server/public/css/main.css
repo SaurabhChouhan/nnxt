@@ -1118,6 +1118,10 @@ td.rejRowColor {
     width: 80%;
 }
 
+.filterDialog .modal-dialog {
+    width: 40%;
+}
+
 .tagInputFieldClass {
     height: 35px;
     width: 100%;
@@ -1601,19 +1605,25 @@ label {
 .infoHighliter {
     color: red;
 }
-.suggestionUser{
+
+.suggestionUser {
     height: 75px;
 }
-.errorClass{
-    margin:10px 0px 0px 10px;
+
+.errorClass {
+    margin: 10px 0px 0px 10px;
 }
-.filterFlagEstimator {
+
+.filterFlag {
     margin-top: -32px;
     margin-left: -30px;
-    width: 8%;
+    width: 3%;
 }
-.filterFlagNegotiator {
-    margin-top: -32px;
-    margin-left: -30px;
-    width: 6%;
+
+.filterTextWithFlag {
+    left: 24%;
+}
+
+.FilterBtn {
+    margin: 6px 48px;
 }
