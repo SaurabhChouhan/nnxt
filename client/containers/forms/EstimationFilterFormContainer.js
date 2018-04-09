@@ -7,6 +7,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
         dispatch(A.addFilteredEstimation(formValues))
         dispatch(A.hideComponent(COC.ESTIMATION_FILTER_DIALOG))
+    },
+    clearFilter: () => {
+        dispatch(A.hideComponent(COC.ESTIMATION_FILTER_DIALOG))
+
+        dispatch(A.clearFilterFromEstimation())
     }
 })
 
