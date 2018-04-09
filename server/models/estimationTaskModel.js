@@ -508,8 +508,6 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
             "canApprove": false
         })
     }
-    if (!task.repo.addedFromThisEstimation)
-        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
 
     task.estimator.changeRequested = !task.estimator.changeRequested
     task.estimator.changedInThisIteration = true

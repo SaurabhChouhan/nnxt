@@ -780,9 +780,6 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (feature.repo && !feature.repo.addedFromThisEstimation)
-        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
-
     feature.estimator.changeRequested = !feature.estimator.changeRequested
     feature.estimator.requestedInThisIteration = true
     feature.canApprove = false
