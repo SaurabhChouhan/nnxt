@@ -12,42 +12,73 @@ let EstimationFilterForm = (props) => {
         <div className="col-md-12">
             {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR &&
             <div className="col-md-12">
-                <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You:"}/>
-                <Field name="changedByEstimator" component={renderCheckBox}
-                       label={"Changed By :" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
-                />
-                <Field name="permissionRequested" component={renderCheckBox}
-                       label={"Requested Permissions"}
-                />
-                <Field name="permissionGranted" component={renderCheckBox}
-                       label={"Granted Permissions"}
-                />
+                <div className="col-md-5">
+                    <div>
+                        <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You:"}/>
+                        <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
+                             className="filterFlagEstimator"
+                             title="Suggested by Negotiator"/>
+                    </div>
+                    <div>
+                        <Field name="permissionRequested" component={renderCheckBox}
+                               label={"Requested Permissions"}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-7">
+                    <div>
+                        <Field name="changedByEstimator" component={renderCheckBox}
+                               label={"Changed By :" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                        />
+                        <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
+                             className="filterFlagNegotiator"
+                             title="Changed by Estimator"/>
+                    </div>
+                    <div>
+                        <Field name="permissionGranted" component={renderCheckBox}
+                               label={"Granted Permissions"}
+                        />
+                    </div>
+                </div>
             </div>
             }
             {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR &&
             <div className="col-md-12">
                 <div className="col-md-5">
-                <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
-                    <Field name="permissionRequested" component={renderCheckBox}
-                           label={"Requested Permissions"}
-                    />
+                    <div>
+                        <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
+                        <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
+                             className="filterFlagEstimator"
+                             title="Changed by Estimator"/>
+                    </div>
+                    <div>
+                        <Field name="permissionRequested" component={renderCheckBox}
+                               label={"Requested Permissions"}
+                        />
+                    </div>
                 </div>
                 <div className="col-md-7">
-                <Field name="changedByNegotiator" component={renderCheckBox}
-                       label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
-                />
-
-                <Field name="permissionGranted" component={renderCheckBox}
-                       label={"Granted Permissions"}
-                />
-            </div>
+                    <div>
+                        <Field name="changedByNegotiator" component={renderCheckBox}
+                               label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                        />
+                        <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
+                             className="filterFlagNegotiator"
+                             title="Suggested by Negotiator"/>
+                    </div>
+                    <div>
+                        <Field name="permissionGranted" component={renderCheckBox}
+                               label={"Granted Permissions"}
+                        />
+                    </div>
+                </div>
             </div>
 
             }
             <button type="submit" disabled={pristine || submitting} className="btn customBtn moveInBtnSpace ">
-               Apply Filter
+                Apply Filter
             </button>
-            <button type="button" disabled={pristine || submitting} className="btn customBtn"
+            <button type="button" className="btn customBtn "
                     onClick={() => props.clearFilter()}>Clear Filter
             </button>
         </div>

@@ -1607,3 +1607,13 @@ label {
 .errorClass{
     margin:10px 0px 0px 10px;
 }
+.filterFlagEstimator {
+    margin-top: -32px;
+    margin-left: -30px;
+    width: 8%;
+}
+.filterFlagNegotiator {
+    margin-top: -32px;
+    margin-left: -30px;
+    width: 6%;
+}
