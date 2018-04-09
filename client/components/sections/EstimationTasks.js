@@ -2,22 +2,74 @@ import React from 'react'
 import {EstimationTask} from "../"
 import * as SC from '../../../server/serverconstants'
 
-let
-    EstimationTasks = (props) => {
+let EstimationTasks = (props) => {
         // tasks array should not be passed to task as it keeps changes and will cause re-render
         let childProps = Object.assign({}, props, {
             tasks: undefined
         })
-        const {estimator, changeRequested, repository, grantPermission, suggestions, negotiator} = props.filter
-        const {expandedTaskID, loggedInUserRole} = props
-        return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {
+    const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository, addedByNegotiator, addedByEstimator} = props.filter
+    const {expandedTaskID} = props
+    return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {
+            {
+                if (changedByNegotiator && changedByEstimator && permissionRequested && addedFromRepository) {
+                    return (expandedTaskID === t._id) ?
+                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                        expanded={true}/> :
+                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                } else {
+                    if (changedByNegotiator && t.negotiator && t.negotiator.changeSuggested) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (changedByEstimator && t.estimator && t.estimator.changedKeyInformation) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (permissionRequested && ((t.estimator && t.estimator.removalRequested) || (t.estimator && t.estimator.changeRequested))) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (addedFromRepository && t.repo && !t.repo.addedFromThisEstimation) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (addedByNegotiator && t.addedInThisIteration && t.owner == SC.OWNER_NEGOTIATOR) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (addedByEstimator && t.addedInThisIteration && t.owner == SC.OWNER_ESTIMATOR) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                }
+            }
+
+        }
+    )
+}
+
+export default EstimationTasks
+
+
+{/*
+
+        {
 
             if (estimator && changeRequested && repository && grantPermission && suggestions && negotiator) {
                 // by default show all
-                return (expandedTaskID === t._id) ?
-                    <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
-                                    expanded={true}/> :
-                    <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                return
             }
             else {
                 if (estimator || changeRequested || repository || grantPermission || suggestions || negotiator) {
@@ -128,5 +180,5 @@ let
 
     }
 
-
-export default EstimationTasks
+*/
+}

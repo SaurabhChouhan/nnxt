@@ -1,24 +1,79 @@
 import React from 'react'
 import {EstimationFeature} from "../"
-import * as SC from "../../../server/serverconstants";
-
+import * as SC from '../../../server/serverconstants'
 
 let EstimationFeatures = (props) => {
     let childProps = Object.assign({}, props, {
         features: undefined
     })
-    const {repository, estimator, negotiator, changeRequested, grantPermission, suggestions} = props.filter
-    const {expandedFeatureID, loggedInUserRole} = props
+    const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository, addedByNegotiator, addedByEstimator} = props.filter
+    const {expandedFeatureID} = props
 
     return Array.isArray(props.features) && props.features.map((f, idx) => {
+        if (!f) {
+            return <span></span>
+        }
+        if (changedByNegotiator && changedByEstimator && permissionRequested && addedFromRepository) {
+            return (expandedFeatureID === f._id) ?
+                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                   expanded={true}/> :
+                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+        } else {
+            if (changedByNegotiator && f.negotiator && ( f.negotiator.changeSuggested || f.negotiator.changedInThisIteration)) {
+                return (expandedFeatureID === f._id) ?
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                       expanded={true}/> :
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+            }
+            if (changedByEstimator && f.estimator && ( f.estimator.changedKeyInformation || f.estimator.changedInThisIteration)) {
+                return (expandedFeatureID === f._id) ?
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                       expanded={true}/> :
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+            }
+            if (permissionRequested && f.estimator && ((f.estimator.removalRequested) || (f.estimator.changeRequested) || (f.tasks && Array.isArray(f.tasks) && f.tasks.length && f.tasks.findIndex(t => ((t.estimator && t.estimator.removalRequested) || (t.estimator && t.estimator.changeRequested))) != -1))) {
+                return (expandedFeatureID === f._id) ?
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                       expanded={true}/> :
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+            }
+            if (addedFromRepository && (( f.repo && !f.repo.addedFromThisEstimation) || (f.tasks && Array.isArray(f.tasks) && f.tasks.length && f.tasks.findIndex(t => t.repo && !t.repo.addedFromThisEstimation) != -1))) {
+                return (expandedFeatureID === f._id) ?
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                       expanded={true}/> :
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+            }
+            if (addedByNegotiator && ((f.addedInThisIteration && f.owner == SC.OWNER_NEGOTIATOR) || (f.tasks && Array.isArray(f.tasks) && f.tasks.length && f.tasks.findIndex(t => t.addedInThisIteration && t.owner == SC.OWNER_NEGOTIATOR) != -1))) {
+                return (expandedFeatureID === f._id) ?
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                       expanded={true}/> :
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+            }
+            if (addedByEstimator && ((f.addedInThisIteration && f.owner == SC.OWNER_ESTIMATOR) || (f.tasks && Array.isArray(f.tasks) && f.tasks.length && f.tasks.findIndex(t => t.addedInThisIteration && t.owner == SC.OWNER_ESTIMATOR) != -1))) {
+                return (expandedFeatureID === f._id) ?
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
+                                       expanded={true}/> :
+                    <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+            }
+
+        }
+    }
+
+
+)}
+
+export default EstimationFeatures
+
+
+
+
+{/*
 
         if (!f) {
             return <span></span>
         }
         if (estimator && changeRequested && repository && grantPermission && suggestions && negotiator) {
-            return (expandedFeatureID === f._id) ?
-                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps} expanded={true}/> :
-                <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
+
         }
         else {
             if (estimator || changeRequested || repository || grantPermission || suggestions || negotiator) {
@@ -129,7 +184,6 @@ let EstimationFeatures = (props) => {
         }
 
 
-    })
-}
+   */
 
-export default EstimationFeatures
+}

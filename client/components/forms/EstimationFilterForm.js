@@ -6,57 +6,121 @@ import * as SC from "../../../server/serverconstants";
 
 let EstimationFilterForm = (props) => {
     const {handleSubmit, pristine, reset, submitting} = props;
+    const {estimation} = props;
 
     return <form onSubmit={handleSubmit}>
-        <div className="row">
-            <div className="col-md-6">
+        <div className="col-md-12">
+            {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR &&
+            <div className="col-md-12 filterTextWithFlag">
+                <div>
+                    <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You"}/>
+                    <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
+                         className="filterFlag"
+                         title="Suggested by Negotiator"/>
+                </div>
+                <div>
+                    <Field name="addedByNegotiator" component={renderCheckBox}
+                           label={"Currently Added By You"}
+                    />
+                    <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"
+                         className="filterFlag"
+                         title="Added by Negotiator"/>
 
-                <Field name="repository" component={renderCheckBox} label={"Repository:"}/>
+                </div>
+                <div>
+                    <Field name="changedByEstimator" component={renderCheckBox}
+                           label={"Changed By : " + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                    />
+                    <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
+                         className="filterFlag"
+                         title="Changed by Estimator"/>
+                </div>
+                <div>
+                    <Field name="addedByEstimator" component={renderCheckBox}
+                           label={"Currently Added By: " + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                    />
+                    <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
+                         className="filterFlag" title="Added by Estimator"/>
+
+                </div>
+                <div>
+                    <Field name="permissionRequested" component={renderCheckBox}
+                           label={"Requested Permissions"}
+                    />
+                    <img key="estimator_requested_permission_flag" src="/images/request_flag.png"
+                         className="filterFlag"
+                         title="Requested by Estimator"/>
+                </div>
+
+                <div>
+                    <Field name="addedFromRepository" component={renderCheckBox}
+                           label={"Added From Repository"}
+                    />
+                    <img key="repo_flag" src="/images/repo_flag.png" className="filterFlag"
+                         title="From Repository"/>
+                </div>
             </div>
-            <div className="col-md-6">
-                {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                <Field name="negotiator" component={renderCheckBox} label={"Negotiator:"}
-                />}
+            }
+            {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR &&
+            <div className="col-md-12 filterTextWithFlag">
 
-                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="estimator" component={renderCheckBox} label={"Estimator:"}
-                />}
+                <div>
+                    <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You"}/>
+                    <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
+                         className="filterFlag"
+                         title="Changed by Estimator"/>
+                </div>
+                <div>
+                    <Field name="addedByEstimator" component={renderCheckBox}
+                           label={"Currently Added By You"}
+                    />
+                    <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
+                         className="filterFlag" title="Added by Estimator"/>
+                </div>
+                <div>
+                    <Field name="permissionRequested" component={renderCheckBox}
+                           label={"Requested Permissions"}
+                    />
+                    <img key="estimator_requested_permission_flag" src="/images/request_flag.png"
+                         className="filterFlag"
+                         title="Requested by Estimator"/>
+                </div>
+                <div>
+                    <Field name="changedByNegotiator" component={renderCheckBox}
+                           label={"Suggested By : " + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                    />
+                    <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
+                         className="filterFlag"
+                         title="Suggested by Negotiator"/>
+                </div>
+                <div>
+                    <Field name="addedByNegotiator" component={renderCheckBox}
+                           label={"Currently Added By: " + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                    />
+                    <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"
+                         className="filterFlag"
+                         title="Added by Negotiator"/>
 
+                </div>
+
+                <div>
+                    <Field name="addedFromRepository" component={renderCheckBox}
+                           label={"Added From Repository"}
+                    />
+                    <img key="repo_flag" src="/images/repo_flag.png" className="filterFlag"
+                         title="From Repository"/>
+                </div>
 
             </div>
 
+            }
+            <button type="submit" disabled={pristine || submitting} className="btn customBtn  FilterBtn ">
+                Apply Filter
+            </button>
+            <button type="button" className="btn customBtn "
+                    onClick={() => props.clearFilter()}>Clear Filter
+            </button>
         </div>
-        <div className="row">
-            <div className="col-md-6">
-                {props.loggedInUser.roleNames.includes(SC.ROLE_ESTIMATOR) &&
-                <Field name="grantPermission" component={renderCheckBox} label={"Permission Granted:"}
-                />}
-
-                {props.loggedInUser.roleNames.includes(SC.ROLE_NEGOTIATOR) &&
-                <Field name="changeRequested" component={renderCheckBox} label={"Change-Request:"}
-                />}
-            </div>
-            <div className="col-md-6">
-                <Field name="suggestions" component={renderCheckBox} label={"Suggestion:"}
-                />
-            </div>
-
-        </div>
-
-        <div className="row">
-            <div className="col-md-6 text-right">
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn">
-                    Apply filter
-                </button>
-            </div>
-            <div className="col-md-6 text-left">
-                <button type="button" className="btn customBtn" disabled={pristine || submitting} onClick={reset}>
-                    Clear filter
-                </button>
-            </div>
-
-        </div>
-
     </form>
 }
 

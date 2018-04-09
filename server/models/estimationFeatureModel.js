@@ -32,7 +32,8 @@ let estimationFeatureSchema = mongoose.Schema({
         changeRequested: {type: Boolean, default: false},
         changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
-        changedInThisIteration: {type: Boolean, default: false}
+        changedInThisIteration: {type: Boolean, default: false},
+        requestedInThisIteration: {type: Boolean, default: false}
     },
     negotiator: {
         name: {type: String},
@@ -778,7 +779,7 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
         throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
 
     feature.estimator.changeRequested = !feature.estimator.changeRequested
-    feature.estimator.changedInThisIteration = true
+    feature.estimator.requestedInThisIteration = true
     feature.canApprove = false
     return await feature.save()
 }
@@ -806,15 +807,16 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
     if (!feature.addedInThisIteration || feature.owner != SC.OWNER_NEGOTIATOR)
         feature.negotiator.changedInThisIteration = true
 
-    if (feature.repo && !feature.repo.addedFromThisEstimation)
-        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
-
-
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
-    feature.canApprove = false
+    feature.canApprove = true
     feature.status = SC.STATUS_PENDING
     feature.updated = Date.now()
-    return await feature.save()
+     await feature.save()
+    feature = feature.toObject()
+    if (estimation && estimation.canApprove){
+        feature.isEstimationCanApprove = true
+    }
+    return feature
 }
 
 
@@ -1035,7 +1037,7 @@ estimationFeatureSchema.statics.requestRemovalFeatureByEstimator = async (featur
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     feature.estimator.removalRequested = !feature.estimator.removalRequested
-    feature.estimator.changedInThisIteration = true
+    feature.estimator.requestedInThisIteration = true
     feature.canApprove = false
 
     return await feature.save()

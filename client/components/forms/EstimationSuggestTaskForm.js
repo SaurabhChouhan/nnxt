@@ -9,7 +9,8 @@ import * as SC from "../../../server/serverconstants"
 let EstimationSuggestTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
-    const {loggedInUserRole, estimation, readOnly} = props
+    const {loggedInUserRole, isFromRepo, estimation, readOnly} = props
+    console.log("EstimationSuggestTaskForm isFromRepo-", isFromRepo)
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-12">
             <div className="col-md-5">
@@ -80,6 +81,7 @@ let EstimationSuggestTaskForm = (props) => {
                         <div className="col-md-6">
                             <Field
                                 name="name"
+                                readOnly={isFromRepo}
                                 component={renderText}
                                 label={"Task Name:"}
                                 validate={required}
@@ -98,6 +100,7 @@ let EstimationSuggestTaskForm = (props) => {
                         <div className="col-md-12">
                             <Field
                                 name="description"
+                                readOnly={isFromRepo}
                                 component={renderTextArea}
                                 label="Task Description:"
                                 rows="10"
@@ -130,7 +133,7 @@ const selector = formValueSelector('estimation-suggest-task')
 
 EstimationSuggestTaskForm = connect(
     state => {
-        const loggedInUserRole = selector(state, 'loggedInUserRole', 'readOnly.name')
+        const {loggedInUserRole, isFromRepo} = selector(state, 'loggedInUserRole', 'isFromRepo')
         const readOnly = {
             name: selector(state, 'readOnly.name'),
             estimatedHours: selector(state, 'readOnly.estimatedHours'),
@@ -138,7 +141,8 @@ EstimationSuggestTaskForm = connect(
         }
         return {
             loggedInUserRole,
-            readOnly
+            readOnly,
+            isFromRepo
         }
     }
 )(EstimationSuggestTaskForm)

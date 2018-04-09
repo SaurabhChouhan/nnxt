@@ -7,19 +7,23 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formValues) => {
         dispatch(A.addFilteredEstimation(formValues))
         dispatch(A.hideComponent(COC.ESTIMATION_FILTER_DIALOG))
+    },
+    clearFilter: () => {
+        dispatch(A.hideComponent(COC.ESTIMATION_FILTER_DIALOG))
+
+        dispatch(A.clearFilterFromEstimation())
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-
-    loggedInUser: state.user.loggedIn,
+    estimation: state.estimation.selected,
     initialValues: {
-        "repository": state.estimation.filter.repository,
-        "estimator": state.estimation.filter.estimator,
-        "negotiator": state.estimation.filter.negotiator,
-        "changeRequested": state.estimation.filter.changeRequested,
-        "grantPermission": state.estimation.filter.grantPermission,
-        "suggestions": state.estimation.filter.suggestions,
+        "changedByNegotiator": state.estimation.filter.changedByNegotiator,
+        "changedByEstimator": state.estimation.filter.changedByEstimator,
+        "permissionRequested": state.estimation.filter.permissionRequested,
+        "addedFromRepository": state.estimation.filter.addedFromRepository,
+        "addedByNegotiator": state.estimation.filter.addedByNegotiator,
+        "addedByEstimator": state.estimation.filter.addedByEstimator
     }
 
 })

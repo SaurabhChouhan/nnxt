@@ -83,7 +83,7 @@ class EstimationFeature extends React.PureComponent {
                 if (feature.negotiator.changeSuggested || (feature.addedInThisIteration && feature.owner == SC.OWNER_NEGOTIATOR)) {
                     /*first button*/
                     // As negotiator has requested change, means he has added/changed his suggestions during this iteration, show appropriate suggestion button
-                    buttons.push(editView ?
+                    buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                              title="Suggestion-Outgoing"
                              onClick={() => {
@@ -94,7 +94,7 @@ class EstimationFeature extends React.PureComponent {
                 } else if (feature.estimator.changedKeyInformation || (feature.addedInThisIteration && feature.owner == SC.OWNER_ESTIMATOR)) {
 
                     // Estimator has changed key information in previous iteration, so show that to negotiator
-                    buttons.push(editView ?
+                    buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="suggestion_incoming" src="/images/suggestion_incoming.png"
                              title="Suggestion-Incoming"
                              onClick={() => {
@@ -104,7 +104,7 @@ class EstimationFeature extends React.PureComponent {
                              title="Suggestion-Incoming"/>)
                 }
                 else {
-                    buttons.push(editView ?
+                    buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="suggestion" src="/images/suggestion.png" title="Suggestion"
                              onClick={() => {
                                  this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
@@ -200,7 +200,7 @@ class EstimationFeature extends React.PureComponent {
                             <img key="delete_disable" src="/images/delete_disable.png" title="Delete"/>)
                     } else if (feature.owner == SC.OWNER_NEGOTIATOR) {
                         // Show Suggestion button if negotiator currently added that feature
-                        buttons.push(editView ?
+                        buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                             <img className="div-hover" key="suggestion_incoming"
                                  src="/images/suggestion_incoming.png" title="Suggestion-Incoming"
                                  onClick={() => {
@@ -224,7 +224,7 @@ class EstimationFeature extends React.PureComponent {
                     logger.debug(logger.ESTIMATION_FEATURE_BUTTONS, 'negotiator requested change, he_requested_edit button')
                     // Negotiator has requested change
 
-                    buttons.push(editView ?
+                    buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="suggestion_incoming"
                              src="/images/suggestion_incoming.png" title="Suggestion-Incoming"
                              onClick={() => {
@@ -233,7 +233,7 @@ class EstimationFeature extends React.PureComponent {
                         <img key="suggestion_incoming_disable" src="/images/suggestion_incoming_disable.png"
                              title="Suggestion-Incoming"/>)
                 } else {
-                    buttons.push(editView ?
+                    buttons.push(editView && feature.repo && feature.repo.addedFromThisEstimation ?
                         <img className="div-hover" key="suggestion" src="/images/suggestion.png" title="Suggestion"
                              onClick={() => {
                                  this.props.showFeatureSuggestionForm(feature, loggedInUserRole)
@@ -311,7 +311,8 @@ class EstimationFeature extends React.PureComponent {
                         <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
 
                     </div>
-                    {feature.status === SC.STATUS_PENDING && feature.canApprove == false ? <div className="col-md-1">
+                    {editView && feature.status === SC.STATUS_PENDING && feature.canApprove == false ?
+                        <div className="col-md-1">
                         <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"
                              title={feature.estimator && feature.estimator.name ? feature.estimator.description ? feature.estimator.estimatedHours ? feature.tasks && feature.tasks ? "Any task of this feature is not approved/ Some changes is done in this iteration" : "Feature is not having any task" : "Feature is not having estimated hours by estimator" : "Feature is not having description by estimator" : "Feature is not having name by estimator"}
                         ></img>
@@ -354,6 +355,11 @@ class EstimationFeature extends React.PureComponent {
                         {feature.negotiator.changedInThisIteration && <div className="flagStrip">
                             <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
                                  title="Edited by Negotiator"></img>
+                        </div>}
+                        {feature.estimator && feature.estimator.requestedInThisIteration &&
+                        <div className="flagStrip">
+                            <img key="request_flag" src="/images/request_flag.png"
+                                 title="Added by Estimator"></img>
                         </div>}
 
                         {feature.status === SC.STATUS_APPROVED &&
