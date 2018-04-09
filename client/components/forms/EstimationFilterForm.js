@@ -14,10 +14,19 @@ let EstimationFilterForm = (props) => {
             <div className="col-md-12">
                 <div className="col-md-5">
                     <div>
-                <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You:"}/>
+                        <Field name="changedByNegotiator" component={renderCheckBox} label={"Suggested By You:"}/>
                         <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
                              className="filterFlagEstimator"
                              title="Suggested by Negotiator"/>
+                    </div>
+                    <div>
+                        <Field name="addedByNegotiator" component={renderCheckBox}
+                               label={"Currently Added By You"}
+                        />
+                        <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"
+                             className="filterFlagEstimator"
+                             title="Added by Negotiator"/>
+
                     </div>
                     <div>
                         <Field name="permissionRequested" component={renderCheckBox}
@@ -27,24 +36,28 @@ let EstimationFilterForm = (props) => {
                 </div>
                 <div className="col-md-7">
                     <div>
-                <Field name="changedByEstimator" component={renderCheckBox}
-                       label={"Changed By :" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
-                />
+                        <Field name="changedByEstimator" component={renderCheckBox}
+                               label={"Changed By :" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                        />
                         <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
                              className="filterFlagNegotiator"
                              title="Changed by Estimator"/>
                     </div>
                     <div>
-                 <Field name="addedFromRepository" component={renderCheckBox}
-                       label={"Added From Repository"}
-                />
-                <Field name="addedByNegotiator" component={renderCheckBox}
-                       label={"Currently Added By You"}
-                />
-                <Field name="addedByEstimator" component={renderCheckBox}
-                       label={"Currently Added By" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
-                />
-            </div>
+                        <Field name="addedByEstimator" component={renderCheckBox}
+                               label={"Currently Added By" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                        />
+                        <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
+                             className="filterFlagNegotiator" title="Added by Estimator"/>
+
+                    </div>
+                    <div>
+                        <Field name="addedFromRepository" component={renderCheckBox}
+                               label={"Added From Repository"}
+                        />
+                        <img key="repo_flag" src="/images/repo_flag.png" className="filterFlagNegotiator"
+                             title="From Repository"/>
+                    </div>
                 </div>
             </div>
             }
@@ -52,39 +65,56 @@ let EstimationFilterForm = (props) => {
             <div className="col-md-12">
                 <div className="col-md-5">
                     <div>
-                <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
+                        <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
                         <img key="estimator_edit_flag" src="/images/estimator_edit_flag.png"
                              className="filterFlagEstimator"
                              title="Changed by Estimator"/>
                     </div>
                     <div>
-                    <Field name="permissionRequested" component={renderCheckBox}
-                           label={"Requested Permissions"}
-                    />
-                </div>
+                        <Field name="addedByEstimator" component={renderCheckBox}
+                               label={"Changed By You:"}
+                        />
+                        <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
+                             className="filterFlagEstimator" title="Added by Estimator"/>
+                    </div>
+                    <div>
+                        <Field name="permissionRequested" component={renderCheckBox}
+                               label={"Requested Permissions"}
+                        />
+                    </div>
                 </div>
                 <div className="col-md-7">
                     <div>
-                <Field name="changedByNegotiator" component={renderCheckBox}
-                       label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
-                />
+                        <Field name="changedByNegotiator" component={renderCheckBox}
+                               label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                        />
+                        <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
+                             className="filterFlagNegotiator"
+                             title="Suggested by Negotiator"/>
+                    </div>
+                    <div>
+                        <Field name="addedByNegotiator" component={renderCheckBox}
+                               label={"Currently Added By" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                        />
+                        <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"
+                             className="filterFlagNegotiator"
+                             title="Added by Negotiator"/>
 
-                   <Field name="addedFromRepository" component={renderCheckBox}
-                           label={"Added From Repository"}
-                />
-                    <Field name="addedByNegotiator" component={renderCheckBox}
-                           label={"Currently Added By You"}
-                    />
-                    <Field name="addedByEstimator" component={renderCheckBox}
-                           label={"Currently Added By" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
-                    />
-            </div>
-            </div>
+                    </div>
+
+                    <div>
+                        <Field name="addedFromRepository" component={renderCheckBox}
+                               label={"Added From Repository"}
+                        />
+                        <img key="repo_flag" src="/images/repo_flag.png" className="filterFlagNegotiator"
+                             title="From Repository"/>
+                    </div>
+                </div>
             </div>
 
             }
             <button type="submit" disabled={pristine || submitting} className="btn customBtn moveInBtnSpace ">
-               Apply Filter
+                Apply Filter
             </button>
             <button type="button" className="btn customBtn "
                     onClick={() => props.clearFilter()}>Clear Filter
