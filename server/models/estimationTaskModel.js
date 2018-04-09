@@ -296,12 +296,9 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        if (!estimationTask.estimator.estimatedHours) {
-            estimationTask.estimator.estimatedHours = 0
-        }
 
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
-            $inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours},
+            $inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours ? estimationTask.negotiator.estimatedHours : 0},
             "canApprove": false,
             "negotiator.changedInThisIteration": true
         })
@@ -322,7 +319,9 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_NEGOTIATOR)
         estimationTask.negotiator.changedInThisIteration = true
     estimationTask.negotiator.changeSuggested = true
-
+    if (!estimationTask.estimator.estimatedHours) {
+        estimationTask.estimator.estimatedHours = 0
+    }
     estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {
