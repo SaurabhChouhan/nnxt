@@ -11,7 +11,9 @@ let initialState = {
         changedByNegotiator: true,
         changedByEstimator: true,
         permissionRequested: true,
-        addedFromRepository: true
+        addedFromRepository: true,
+        addedByNegotiator: true,
+        addedByEstimator: true
     }
 
 }
@@ -181,7 +183,9 @@ const estimationReducer = (state = initialState, action) => {
                     changedByNegotiator: true,
                     changedByEstimator: true,
                     permissionRequested: true,
-                    addedFromRepository: true
+                    addedFromRepository: true,
+                    addedByNegotiator: true,
+                    addedByEstimator: true
                 }
             })
 
@@ -253,7 +257,9 @@ const estimationReducer = (state = initialState, action) => {
                         changedByNegotiator: action.filter && action.filter.changedByNegotiator ? true : false,
                         changedByEstimator: action.filter && action.filter.changedByEstimator ? true : false,
                         permissionRequested: action.filter && action.filter.permissionRequested ? true : false,
-                        addedFromRepository: action.filter && action.filter.addedFromRepository ? true : false
+                        addedFromRepository: action.filter && action.filter.addedFromRepository ? true : false,
+                        addedByEstimator: action.filter && action.filter.addedByEstimator ? true : false,
+                        addedByNegotiator: action.filter && action.filter.addedByNegotiator ? true : false
                     }
                 })
 
@@ -264,7 +270,9 @@ const estimationReducer = (state = initialState, action) => {
                     changedByNegotiator: true,
                     changedByEstimator: true,
                     permissionRequested: true,
-                    addedFromRepository: true
+                    addedFromRepository: true,
+                    addedByNegotiator: true,
+                    addedByEstimator: true
                 }
             })
 

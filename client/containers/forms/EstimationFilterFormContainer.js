@@ -21,7 +21,9 @@ const mapStateToProps = (state, ownProps) => ({
         "changedByNegotiator": state.estimation.filter.changedByNegotiator,
         "changedByEstimator": state.estimation.filter.changedByEstimator,
         "permissionRequested": state.estimation.filter.permissionRequested,
-        "addedFromRepository": state.estimation.filter.addedFromRepository
+        "addedFromRepository": state.estimation.filter.addedFromRepository,
+        "addedByNegotiator": state.estimation.filter.addedByNegotiator,
+        "addedByEstimator": state.estimation.filter.addedByEstimator
     }
 
 })

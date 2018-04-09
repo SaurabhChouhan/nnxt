@@ -1,12 +1,13 @@
 import React from 'react'
 import {EstimationTask} from "../"
+import * as SC from '../../../server/serverconstants'
 
 let EstimationTasks = (props) => {
         // tasks array should not be passed to task as it keeps changes and will cause re-render
         let childProps = Object.assign({}, props, {
             tasks: undefined
         })
-    const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository} = props.filter
+    const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository, addedByNegotiator, addedByEstimator} = props.filter
         const {expandedTaskID, loggedInUserRole} = props
     return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {
             {
@@ -35,6 +36,18 @@ let EstimationTasks = (props) => {
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                     }
                     if (addedFromRepository && t.repo && !t.repo.addedFromThisEstimation) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (addedByNegotiator && t.addedInThisIteration && t.owner == SC.OWNER_NEGOTIATOR) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (addedByEstimator && t.addedInThisIteration && t.owner == SC.OWNER_ESTIMATOR) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
