@@ -8,7 +8,7 @@ let EstimationTasks = (props) => {
             tasks: undefined
         })
     const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository, addedByNegotiator, addedByEstimator} = props.filter
-        const {expandedTaskID, loggedInUserRole} = props
+    const {expandedTaskID} = props
     return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {
             {
                 if (changedByNegotiator && changedByEstimator && permissionRequested && addedFromRepository) {

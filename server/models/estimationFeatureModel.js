@@ -32,7 +32,8 @@ let estimationFeatureSchema = mongoose.Schema({
         changeRequested: {type: Boolean, default: false},
         changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
-        changedInThisIteration: {type: Boolean, default: false}
+        changedInThisIteration: {type: Boolean, default: false},
+        requestedInThisIteration: {type: Boolean, default: false}
     },
     negotiator: {
         name: {type: String},
