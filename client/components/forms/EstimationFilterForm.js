@@ -71,7 +71,7 @@ let EstimationFilterForm = (props) => {
                 </div>
                 <div>
                     <Field name="addedByEstimator" component={renderCheckBox}
-                           label={"Changed By You:"}
+                           label={"Currently Added By You:"}
                     />
                     <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
                          className="filterFlag" title="Added by Estimator"/>
