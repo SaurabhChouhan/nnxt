@@ -356,6 +356,11 @@ class EstimationFeature extends React.PureComponent {
                             <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
                                  title="Edited by Negotiator"></img>
                         </div>}
+                        {feature.estimator && feature.estimator.requestedInThisIteration &&
+                        <div className="flagStrip">
+                            <img key="request_flag" src="/images/request_flag.png"
+                                 title="Added by Estimator"></img>
+                        </div>}
 
                         {feature.status === SC.STATUS_APPROVED &&
                         <div className="flagStrip">
