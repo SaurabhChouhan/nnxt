@@ -38,12 +38,13 @@ let EstimationFilterForm = (props) => {
                 />
             </div>
             }
-
-
+            <button type="submit" disabled={pristine || submitting} className="btn squareButton">
+               Apply Filter
+            </button>
+            <button type="button" disabled={pristine || submitting} className="btn squareButton"
+                    onClick={reset}>Clear Filter
+            </button>
         </div>
-
-
-
     </form>
 }
 
