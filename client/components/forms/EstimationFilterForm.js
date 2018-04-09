@@ -26,22 +26,28 @@ let EstimationFilterForm = (props) => {
             }
             {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR &&
             <div className="col-md-12">
-                <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
-                <Field name="changedByNegotiator" component={renderCheckBox}
-                       label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
-                />
-                <Field name="permissionRequested" component={renderCheckBox}
-                       label={"Requested Permissions"}
-                />
-                <Field name="permissionGranted" component={renderCheckBox}
-                       label={"Granted Permissions"}
-                />
+                <div className="col-md-5">
+                    <Field name="changedByEstimator" component={renderCheckBox} label={"Changed By You:"}/>
+                    <Field name="permissionRequested" component={renderCheckBox}
+                           label={"Requested Permissions"}
+                    />
+                </div>
+                <div className="col-md-7">
+                    <Field name="changedByNegotiator" component={renderCheckBox}
+                           label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                    />
+
+                    <Field name="permissionGranted" component={renderCheckBox}
+                           label={"Granted Permissions"}
+                    />
+                </div>
             </div>
+
             }
-            <button type="submit" disabled={pristine || submitting} className="btn squareButton">
-               Apply Filter
+            <button type="submit" disabled={pristine || submitting} className="btn customBtn moveInBtnSpace ">
+                Apply Filter
             </button>
-            <button type="button" disabled={pristine || submitting} className="btn squareButton"
+            <button type="button" disabled={pristine || submitting} className="btn customBtn"
                     onClick={reset}>Clear Filter
             </button>
         </div>
