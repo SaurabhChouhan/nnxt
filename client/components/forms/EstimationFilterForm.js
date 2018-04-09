@@ -19,8 +19,14 @@ let EstimationFilterForm = (props) => {
                 <Field name="permissionRequested" component={renderCheckBox}
                        label={"Requested Permissions"}
                 />
-                <Field name="permissionGranted" component={renderCheckBox}
-                       label={"Granted Permissions"}
+                <Field name="addedFromRepository" component={renderCheckBox}
+                       label={"Added From Repository"}
+                />
+                <Field name="addedByNegotiator" component={renderCheckBox}
+                       label={"Currently Added By You"}
+                />
+                <Field name="addedByEstimator" component={renderCheckBox}
+                       label={"Currently Added By" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
                 />
             </div>
             }
@@ -36,10 +42,15 @@ let EstimationFilterForm = (props) => {
                 <Field name="changedByNegotiator" component={renderCheckBox}
                        label={"Suggested By :" + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
                 />
-
-                <Field name="permissionGranted" component={renderCheckBox}
-                       label={"Granted Permissions"}
+                    <Field name="addedFromRepository" component={renderCheckBox}
+                           label={"Added From Repository"}
                 />
+                    <Field name="addedByNegotiator" component={renderCheckBox}
+                           label={"Currently Added By You"}
+                    />
+                    <Field name="addedByEstimator" component={renderCheckBox}
+                           label={"Currently Added By" + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                    />
             </div>
             </div>
 

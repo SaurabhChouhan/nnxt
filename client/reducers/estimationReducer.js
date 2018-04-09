@@ -11,7 +11,7 @@ let initialState = {
         changedByNegotiator: true,
         changedByEstimator: true,
         permissionRequested: true,
-        permissionGranted: true
+        addedFromRepository: true
     }
 
 }
@@ -181,7 +181,7 @@ const estimationReducer = (state = initialState, action) => {
                     changedByNegotiator: true,
                     changedByEstimator: true,
                     permissionRequested: true,
-                    permissionGranted: true
+                    addedFromRepository: true
                 }
             })
 
@@ -253,7 +253,7 @@ const estimationReducer = (state = initialState, action) => {
                         changedByNegotiator: action.filter && action.filter.changedByNegotiator ? true : false,
                         changedByEstimator: action.filter && action.filter.changedByEstimator ? true : false,
                         permissionRequested: action.filter && action.filter.permissionRequested ? true : false,
-                        permissionGranted: action.filter && action.filter.permissionGranted ? true : false
+                        addedFromRepository: action.filter && action.filter.addedFromRepository ? true : false
                     }
                 })
 
@@ -264,7 +264,7 @@ const estimationReducer = (state = initialState, action) => {
                     changedByNegotiator: true,
                     changedByEstimator: true,
                     permissionRequested: true,
-                    permissionGranted: true
+                    addedFromRepository: true
                 }
             })
 

@@ -6,12 +6,44 @@ let EstimationTasks = (props) => {
         let childProps = Object.assign({}, props, {
             tasks: undefined
         })
-        const {estimator, changeRequested, repository, grantPermission, suggestions, negotiator} = props.filter
+    const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository} = props.filter
         const {expandedTaskID, loggedInUserRole} = props
-    return Array.isArray(props.tasks) && props.tasks.map((t, idx) => (expandedTaskID === t._id) ?
-        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
-                        expanded={true}/> :
-        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+    return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {
+            {
+                if (changedByNegotiator && changedByEstimator && permissionRequested && addedFromRepository) {
+                    return (expandedTaskID === t._id) ?
+                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                        expanded={true}/> :
+                        <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                } else {
+                    if (changedByNegotiator && t.negotiator && t.negotiator.changeSuggested) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (changedByEstimator && t.estimator && t.estimator.changedKeyInformation) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (permissionRequested && ((t.estimator && t.estimator.removalRequested) || (t.estimator && t.estimator.changeRequested))) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                    if (addedFromRepository && t.repo && !t.repo.addedFromThisEstimation) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
+                    }
+                }
+            }
+
+        }
     )
 }
 
