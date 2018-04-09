@@ -466,6 +466,11 @@ estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, esti
 
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    if (task && task.feature && task.feature._id) {
+        await EstimationFeatureModel.updateOne({_id: task.feature._id}, {
+            $set: {"estimator.requestedInThisIteration": true}
+        })
+    }
     /*
         if (!task.repo.addedFromThisEstimation)
             throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
@@ -500,7 +505,7 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
 
     if (task && task.feature && task.feature._id) {
         await EstimationFeatureModel.updateOne({_id: task.feature._id}, {
-            $set: {"estimator.changedInThisIteration": true},
+            $set: {"estimator.requestedInThisIteration": true},
             "canApprove": false
         })
     }

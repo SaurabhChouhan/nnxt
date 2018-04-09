@@ -779,7 +779,7 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
         throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
 
     feature.estimator.changeRequested = !feature.estimator.changeRequested
-    feature.estimator.changedInThisIteration = true
+    feature.estimator.requestedInThisIteration = true
     feature.canApprove = false
     return await feature.save()
 }
@@ -1037,7 +1037,7 @@ estimationFeatureSchema.statics.requestRemovalFeatureByEstimator = async (featur
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     feature.estimator.removalRequested = !feature.estimator.removalRequested
-    feature.estimator.changedInThisIteration = true
+    feature.estimator.requestedInThisIteration = true
     feature.canApprove = false
 
     return await feature.save()
