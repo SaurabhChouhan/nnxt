@@ -69,7 +69,7 @@ class EstimationTask extends React.PureComponent {
                 // First button shown to negotiator would be suggestion button (kind of edit button)
                 if (task.negotiator.changeSuggested || (task.addedInThisIteration && task.owner == SC.OWNER_NEGOTIATOR)) {
                     // Negotiator has suggested changes in this iteration so show that to negotiator,
-                    buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
+                    buttons.push(editView ?
                         <img className="div-hover" key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                              title="Suggestion-Outgoing "
                              onClick={() => {
@@ -79,7 +79,7 @@ class EstimationTask extends React.PureComponent {
                              title="Suggestion-Outgoing "/>)
                 } else if (task.estimator.changedKeyInformation || (task.addedInThisIteration && task.owner === SC.OWNER_ESTIMATOR)) {
                     // Estimator has changed key information in previous iteration, so show that to negotiator
-                    buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
+                    buttons.push(editView ?
                         <img className="div-hover" key="suggestion_incoming" src="/images/suggestion_incoming.png"
                              title="Suggestion-Incoming "
                              onClick={() => {
@@ -89,7 +89,7 @@ class EstimationTask extends React.PureComponent {
                              title="Suggestion-Incoming"/>)
                 } else {
                     // Show normal suggestion button
-                    buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
+                    buttons.push(editView ?
                         <img className="div-hover" key="suggestion" src="/images/suggestion.png" title="Suggestion"
                              onClick={() => {
                                  this.props.openTaskSuggestionForm(task, loggedInUserRole)
@@ -169,7 +169,7 @@ class EstimationTask extends React.PureComponent {
         } else if (loggedInUserRole === SC.ROLE_ESTIMATOR) {
             if (task.addedInThisIteration && task.owner === SC.OWNER_ESTIMATOR) {
                 // As estimator has added this task in this iteration only, he/she would be able to edit/delete it without any restrictions
-                buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
+                buttons.push(editView ?
                     <img className="div-hover" key="edit" src="/images/edit.png" title="Edit"
                          onClick={() => {
                              this.props.editTask(task, loggedInUserRole)
@@ -188,7 +188,7 @@ class EstimationTask extends React.PureComponent {
                 if (task.status === SC.STATUS_PENDING) {
                     if (task.estimator.changedKeyInformation || (task.addedInThisIteration && task.owner == SC.OWNER_ESTIMATOR)) {
                         // Estimator has changed key information so show estimator icon to notify that
-                        buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
+                        buttons.push(editView ?
                             <img className="div-hover" key="suggestion_outgoing" src="/images/suggestion_outgoing.png"
                                  title="Suggestion-Outgoing"
                                  onClick={() => {
@@ -198,7 +198,7 @@ class EstimationTask extends React.PureComponent {
                                  title="Suggestion-Outgoing"/>)
                     } else if (task.negotiator.changeSuggested || (task.addedInThisIteration && task.owner == SC.OWNER_NEGOTIATOR)) {
                         // Negotiator has suggested changes in previous iteration so show that
-                        buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
+                        buttons.push(editView ?
                             <img className="div-hover" key="suggestion_incoming" src="/images/suggestion_incoming.png"
                                  title="Suggestion-Incoming"
                                  onClick={() => {
@@ -209,7 +209,7 @@ class EstimationTask extends React.PureComponent {
                     }
                     else {
                         // Negotiator has not suggested any changes in this iteration so show that
-                        buttons.push(editView && task.repo && task.repo.addedFromThisEstimation && !task.negotiator.changeSuggested ?
+                        buttons.push(editView && !task.negotiator.changeSuggested ?
                             <img className="div-hover" key="suggestion" src="/images/suggestion.png"
                                  title="suggestion"
                                  onClick={() => {
@@ -572,6 +572,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
             loggedInUserRole: loggedInUserRole,
             readOnly: {}
         }
+        task.isFromRepo = values.repo && !values.repo.addedFromThisEstimation ? true : false
         task._id = values._id
         task.estimation = values.estimation
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
