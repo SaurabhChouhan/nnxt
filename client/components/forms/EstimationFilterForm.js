@@ -41,8 +41,8 @@ let EstimationFilterForm = (props) => {
             <button type="submit" disabled={pristine || submitting} className="btn squareButton">
                Apply Filter
             </button>
-            <button type="button" disabled={pristine || submitting} className="btn squareButton"
-                    onClick={reset}>Clear Filter
+            <button type="button" className="btn squareButton"
+                    onClick={() => props.clearFilter()}>Clear Filter
             </button>
         </div>
     </form>

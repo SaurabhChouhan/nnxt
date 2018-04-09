@@ -98,6 +98,10 @@ export const addFilteredEstimation = (filter) => ({
     filter: filter
 })
 
+export const clearFilterFromEstimation = () => ({
+    type: AC.CLEAR_FILTER_FROM_ESTIMATION
+})
+
 
 export const getAllEstimationsFromServer = (projectID, status) => {
     return (dispatch, getState) => {
