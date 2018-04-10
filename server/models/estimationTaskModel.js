@@ -389,6 +389,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
     if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+            "estimator.changedInThisIteration": true,
             "canApprove": false
         })
     }
@@ -431,6 +432,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
     if (task.estimator.estimatedHours)
         await EstimationFeatureModel.updateOne({_id: task.feature._id}, {
             $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+            "estimator.changedInThisIteration": true,
             "canApprove": false
         })
 
@@ -547,6 +549,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
     if (task.negotiator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+            "negotiator.changedInThisIteration": true,
             "canApprove": false
         })
     }
@@ -689,6 +692,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, n
     if (task.negotiator.estimatedHours)
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+            "negotiator.changedInThisIteration": true,
             "canApprove": false
         })
 
@@ -725,7 +729,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
     if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
         task.negotiator.changedInThisIteration = true
-    
+
     let estimationFeatureObj
     if (task.feature && task.feature._id) {
         estimationFeatureObj = await EstimationFeatureModel.findById(task.feature._id)
