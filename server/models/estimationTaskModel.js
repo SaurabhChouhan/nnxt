@@ -647,11 +647,16 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
                 "canApprove": false
             })
         }
-        if (task.estimator.removalRequested && (await EstimationTaskModel.count({
-                "feature._id": feature._id,
-                "isDeleted": false,
-                "estimator.removalRequested": true
-            }) <= 1)) {
+        if (task.estimator.removalRequested && (
+                await EstimationTaskModel.count({
+                    "feature._id": feature._id,
+                    "isDeleted": false,
+                    "estimator.removalRequested": true
+                }) + await EstimationTaskModel.count({
+                    "feature._id": feature._id,
+                    "isDeleted": false,
+                    "estimator.changeRequested": true
+                })) <= 1) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $set: {"estimator.requestedInThisIteration": false}
             })
