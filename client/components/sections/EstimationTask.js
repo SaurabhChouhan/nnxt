@@ -501,10 +501,12 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         })
     },
     editTask: (values, loggedInUserRole) => {
+
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
         let task = {}
         task._id = values._id
         task.estimation = values.estimation
+        task.isFromRepo = values.repo && !values.repo.addedFromThisEstimation ? true : false
         if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
             task.name = values.estimator.name
             task.description = values.estimator.description
