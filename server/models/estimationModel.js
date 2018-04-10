@@ -23,6 +23,7 @@ let estimationSchema = mongoose.Schema({
         enum: [SC.STATUS_INITIATED, SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_REVIEW_REQUESTED, SC.STATUS_CHANGE_REQUESTED, SC.STATUS_APPROVED, SC.STATUS_REOPENED, SC.STATUS_PROJECT_AWARDED]
     },
     technologies: [String],
+    estimatedHours: {type: Number},
     description: String,
     canApprove: {type: Boolean, default: false},
     created: Date,

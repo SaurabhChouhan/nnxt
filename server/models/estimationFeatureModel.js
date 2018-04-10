@@ -388,7 +388,20 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     if (pendingTaskCountOfFeature != 0)
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
+    feature.negotiator.name = task.estimator.name
+    feature.negotiator.description = task.estimator.description
+    feature.negotiator.estimatedHours = task.estimator.estimatedHours
 
+
+    feature.negotiator.changeSuggested = false
+    feature.negotiator.changeGranted = false
+    feature.negotiator.changedInThisIteration = false
+
+    feature.estimator.changeRequested = false
+    feature.estimator.changedKeyInformation = false
+    feature.estimator.removalRequested = false
+    feature.estimator.changedInThisIteration = false
+    feature.estimator.requestedInThisIteration = false
     feature.canApprove = false
     feature.status = SC.STATUS_APPROVED
     feature.updated = Date.now()
