@@ -638,11 +638,22 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
                 "canApprove": false
             })
 
-        if (task.estimator.estimatedHours)
+        if (task.estimator.estimatedHours) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
                 "canApprove": false
             })
+        }
+        if (task.estimator.removalRequested && (await EstimationTaskModel.count({
+                "feature._id": feature._id,
+                "isDeleted": false,
+                "estimator.removalRequested": true
+            }) <= 1)) {
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $set: {"estimator.requestedInThisIteration": false}
+            })
+        }
+
 
     }
     task.isDeleted = true
@@ -714,9 +725,7 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
     if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
         task.negotiator.changedInThisIteration = true
-
-    if (!task.repo.addedFromThisEstimation)
-        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+    
     let estimationFeatureObj
     if (task.feature && task.feature._id) {
         estimationFeatureObj = await EstimationFeatureModel.findById(task.feature._id)
