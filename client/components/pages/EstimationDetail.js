@@ -56,7 +56,7 @@ class EstimationDetail extends Component {
         logger.debug(logger.ESTIMATION_DETAIL_RENDER, this.props)
         const {estimation} = this.props;
         let editView = false
-        if (estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) || estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)) {
+        if ((estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status)) || (estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))) {
             editView = true
         }
 
@@ -85,7 +85,7 @@ class EstimationDetail extends Component {
                         </div>
                         : <div className="col-md-5 pad">
 
-                            <div title="Go Back" className="backarrow estimationBackArrow">
+                            <div title="Go Back" className="col-md-5 backarrow estimationBackArrow">
                                 <h5>
                                     <button className="btn-link pad" onClick={() => {
                                         this.props.history.push("/app-home/estimation")
@@ -95,6 +95,14 @@ class EstimationDetail extends Component {
                                     <b>{estimation.project ? estimation.project.name : ''}</b>
                                 </h5>
                             </div>
+                            {
+                                (_.includes([SC.STATUS_INITIATED], estimation.status) && estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ) &&
+                                <button type="button" className="btn customBtn" onClick={() => {
+                                    this.props.editEstimationInitiateForm(estimation)
+                                }
+                                }>Edit Estimation</button>
+
+                            }
                         </div>
 
 
@@ -169,27 +177,28 @@ class EstimationDetail extends Component {
                         < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
                             this.props.deleteEstimation(estimation)
                         }
-                        }><i className="fa fa-trash btn iconClr "></i></button>
+                        }><i className="fa fa-trash iconClr "></i></button>
                     </div>
+
                     <div className="col-md-3 pad ">
                         <div className="estimationfileoption">
                             <ul className="list-unstyled">
+                                {(_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_APPROVED, SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED, SC.STATUS_REOPENED], estimation.status))
+                                &&
+                                < button type="button" className="btn customBtn filterAlign" onClick={() => {
+                                    this.props.estimationFilterForm()
+                                }
+                                }>filter</button>
+                                }
+
                                 <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
                                 <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
                                 <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
                                 <li><a href=""> <i className="glyphicon glyphicon-option-vertical pull-right">
                                 </i></a>
                                 </li>
-                                {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && (estimation.status == SC.STATUS_INITIATED) ?
-                                    <button type="button" className="btn customBtn" onClick={() => {
-                                        this.props.editEstimationInitiateForm(estimation)
-                                    }
-                                    }>Edit Estimation</button> :
-                                    < button type="button" className="btn customBtn" onClick={() => {
-                                        this.props.estimationFilterForm()
-                                    }
-                                    }>filter</button>
-                                }
+
+
                             </ul>
                         </div>
                     </div>
