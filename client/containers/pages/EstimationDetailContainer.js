@@ -91,7 +91,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     estimationGoBack: (event) => {
-            dispatch(A.getAllEstimationsFromServer('all', 'all')),
+        dispatch(A.getAllEstimationsFromServer('all', 'all')),
             dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
     },
 
@@ -110,8 +110,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (json.success) {
             NotificationManager.success("Estimation Reopen successfully")
         }
-            else{
-                NotificationManager.error("Estimation not reopened")
+        else {
+            NotificationManager.error("Estimation not reopened")
+        }
+    }),
+
+
+    deleteEstimation: (estimation) => dispatch(A.deleteEstimationOnServer(estimation._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Estimation Deleted successfully")
+        }
+        else {
+            NotificationManager.error("Estimation Deletion failed")
         }
     })
 
