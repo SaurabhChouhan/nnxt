@@ -647,7 +647,7 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
                 "canApprove": false
             })
         }
-        if (task.estimator.removalRequested && (
+        if ((task.estimator.removalRequested || task.estimator.changeRequested ) && (
                 await EstimationTaskModel.count({
                     "feature._id": feature._id,
                     "isDeleted": false,
@@ -737,6 +737,22 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 
     let estimationFeatureObj
     if (task.feature && task.feature._id) {
+        if ((
+                await EstimationTaskModel.count({
+                    "feature._id": task.feature._id,
+                    "isDeleted": false,
+                    "estimator.removalRequested": true
+                })
+                + await EstimationTaskModel.count({
+                    "feature._id": task.feature._id,
+                    "isDeleted": false,
+                    "estimator.changeRequested": true
+                })
+            ) <= 1) {
+            await EstimationFeatureModel.updateOne({_id: task.feature._id}, {
+                $set: {"estimator.requestedInThisIteration": false}
+            })
+        }
         estimationFeatureObj = await EstimationFeatureModel.findById(task.feature._id)
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
