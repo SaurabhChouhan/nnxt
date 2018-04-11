@@ -3,6 +3,7 @@ import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../"
 import {EstimationFeaturesContainer, EstimationTasksContainer, RepositorySearchContainer} from "../../containers"
 import * as logger from '../../clientLogger'
+import _ from 'lodash'
 
 
 class EstimationDetail extends Component {
@@ -52,9 +53,13 @@ class EstimationDetail extends Component {
 
 
     render() {
-
         logger.debug(logger.ESTIMATION_DETAIL_RENDER, this.props)
-        const {estimation} = this.props
+        const {estimation} = this.props;
+        let editView = false
+        if (estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) || estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status)) {
+            editView = true
+        }
+
         return <div>
             <div className="col-md-8 pad">
                 <div className="col-md-12 estimateheader">
@@ -231,11 +236,13 @@ class EstimationDetail extends Component {
                 </div>
                 <div className="col-md-12">
                     <EstimationFeaturesContainer estimationStatus={estimation.status}
+                                                 editView={editView}
                                                  loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
                 <br/>
                 <div className="col-md-12">
                     <EstimationTasksContainer estimationStatus={estimation.status}
+                                              editView={editView}
                                               loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
                 {(estimation.status == SC.STATUS_APPROVED) && (estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR) &&
@@ -248,7 +255,7 @@ class EstimationDetail extends Component {
                 </div>}
             </div>
             <div className="col-md-4 estimationsection pad">
-                <RepositorySearchContainer/>
+                <RepositorySearchContainer editView={editView}/>
             </div>
         </div>
     }

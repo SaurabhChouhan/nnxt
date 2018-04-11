@@ -46,18 +46,13 @@ class EstimationFeature extends React.PureComponent {
 
 
     render() {
-        const {feature, loggedInUserRole, estimationStatus, index, expanded, expandedTaskID} = this.props
+        const {feature, loggedInUserRole, estimationStatus, index, expanded, expandedTaskID, editView} = this.props
 
         let buttons = [];
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'task owner ', feature.owner)
         logger.debug(logger.ESTIMATION_FEATURE_RENDER, this.props)
-
-        let editView = false
-
-        if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
-            editView = true
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
@@ -422,15 +417,18 @@ class EstimationFeature extends React.PureComponent {
     }
 }
 
-EstimationFeature.propTypes = {
+EstimationFeature
+    .propTypes = {
     feature: PropTypes.object.isRequired,
     loggedInUserRole: PropTypes.string.isRequired,
     estimationStatus: PropTypes.string.isRequired,
     expanded: PropTypes.bool
 }
 
-EstimationFeature.defaultProps = {
-    expanded: false
+EstimationFeature
+    .defaultProps = {
+    expanded: false,
+    editView: false
 }
 
 

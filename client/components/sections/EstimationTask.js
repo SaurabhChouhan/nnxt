@@ -40,15 +40,13 @@ class EstimationTask extends React.PureComponent {
     }
 
     render() {
-        const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask, fromRepoWithFeature} = this.props
+        const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask, fromRepoWithFeature, editView} = this.props
         let buttons = [];
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'task owner ', task.owner)
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
-        let editView = false
-        if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
-            editView = true
+
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
@@ -456,6 +454,7 @@ EstimationTask.propTypes = {
 
 EstimationTask.defaultProps = {
     expanded: false,
+    editView: false,
     isFeatureTask: false,
     fromRepoWithFeature: false
 }
