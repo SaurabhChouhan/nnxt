@@ -160,7 +160,13 @@ class EstimationDetail extends Component {
                         }
 
                     </div>
-                    <div className="col-md-4 pad">
+                    <div className="col-md-1">
+                        < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
+                            this.props.deleteEstimation(estimation)
+                        }
+                        }><i className="fa fa-trash btn iconClr "></i></button>
+                    </div>
+                    <div className="col-md-3 pad ">
                         <div className="estimationfileoption">
                             <ul className="list-unstyled">
                                 <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>

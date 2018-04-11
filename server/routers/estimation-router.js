@@ -32,6 +32,12 @@ estimationRouter.get("/:estimationID", async ctx => {
     }
     return estimation
 })
+
+// noinspection Annotator
+estimationRouter.del("/:estimationID", async ctx => {
+    let estimation = await EstimationModel.deleteEstimationById(ctx.params.estimationID, ctx.state.user)
+    return estimation
+})
 // noinspection Annotator
 estimationRouter.get("/feature/:featureID", async ctx => {
     let estimationFeature = await EstimationFeatureModel.getById(ctx.params.featureID)

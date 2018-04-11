@@ -223,6 +223,22 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
 
 
 /**
+ * Estimation is deleted by Negotiator
+ * @param estimationInput
+ */
+estimationSchema.statics.deleteEstimationById = async (estimationID, negotiator) => {
+
+    // enhance estimation input as per requirement
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    await EstimationTaskModel.remove({"estimation._id": estimationID})
+    await EstimationFeatureModel.remove({"estimation._id": estimationID})
+    await EstimationModel.remove({"_id": estimationID})
+    return estimationID
+}
+
+
+/**
  * Estimation is Updated by Negotiator
  * @param estimationInput
  */

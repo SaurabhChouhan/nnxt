@@ -102,6 +102,11 @@ export const clearFilterFromEstimation = () => ({
     type: AC.CLEAR_FILTER_FROM_ESTIMATION
 })
 
+export const deleteEstimation = (estimationID) => ({
+    type: AC.DELETE_ESTIMATION,
+    estimationID: estimationID
+})
+
 
 export const getAllEstimationsFromServer = (projectID, status) => {
     return (dispatch, getState) => {
@@ -167,6 +172,29 @@ export const updateEstimationOnServer = (estimation) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const deleteEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID, {
+                method: 'del',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(deleteEstimation(estimationID))
                 }
                 return json
             })
@@ -305,7 +333,8 @@ export const requestForFeatureEditPermissionOnServer = (featureID) => {
 
 export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/' + estimationID + '/tasks/' + taskID, {
+        return fetch('/api/estimations/' + estimationID + '/' +
+            '/' + taskID, {
                 method: 'delete',
                 credentials: "include",
                 headers: {
