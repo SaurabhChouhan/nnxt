@@ -67,6 +67,7 @@ export const addUserOnServer = (formInput) => {
     }
 }
 
+
 export const getAllUsersFromServer = () => {
     return function (dispatch, getState) {
         return fetch('/api/users',
@@ -92,6 +93,7 @@ export const getAllUsersFromServer = () => {
     }
 }
 
+
 export const getUsersWithRoleCategoryFromServer = () => {
     return function (dispatch, getState) {
         return fetch('/api/users/role-category',
@@ -116,6 +118,7 @@ export const getUsersWithRoleCategoryFromServer = () => {
         )
     }
 }
+
 
 //update user
 export const editUserOnServer = (user) => {
@@ -201,11 +204,13 @@ export const loginUserOnServer = (formInput) => {
     }
 }
 
-export function showUserInfo() {
+
+export const showUserInfo = () => {
     return function (dispatch, getState) {
         dispatch(initialize('user-profile', getState().user.loggedIn))
     }
 }
+
 
 export const updateUserSettingsOnServer = (user) => {
     return function (dispatch, getState) {

@@ -16,16 +16,26 @@ export const userReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_USERS:
             return Object.assign({}, state, {all: action.users})
+
+
         case AC.ADD_USERS_WITH_ROLE_CATEGORY:
             return Object.assign({}, state, {userWithRoleCategory: action.users})
+
+
         case AC.ADD_USER:
             return Object.assign({}, state, {all: [...state.all, action.user]})
+
+
         case AC.EDIT_USER:
             return Object.assign({}, state, {
                 all: state.all.map(item => item._id == action.user._id ? action.user : item)
             })
+
+
         case AC.DELETE_USER:
             return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.userID)})
+
+
         case AC.ADD_LOGIN_USER:
             if (action.user) {
                 let isSuperAdmin = false
@@ -47,11 +57,15 @@ export const userReducer = (state = initialState, action) => {
                 })
             } else
                 return state
+
+
         case AC.LOGIN_FAILED:
             return Object.assign({}, state, {
                 isAuthenticated: false,
                 loginError: action.error
             })
+
+
         case AC.UPDATE_USER_PROFILE_STATE:
             return Object.assign({}, state, {
                 loggedIn: (true) ?
@@ -72,6 +86,8 @@ export const userReducer = (state = initialState, action) => {
 
 
             })
+
+
         default:
             return state
     }
