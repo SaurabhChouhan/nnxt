@@ -1627,3 +1627,9 @@ label {
 .FilterBtn {
     margin: 6px 48px;
 }
+.suggestionRepo{
+
+    margin-left: 48px;
+    margin-top: 120px;
+    position: absolute;
+}

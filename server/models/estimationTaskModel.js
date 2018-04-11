@@ -296,12 +296,9 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
 
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        if (!estimationTask.estimator.estimatedHours) {
-            estimationTask.estimator.estimatedHours = 0
-        }
 
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
-            $inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours},
+            $inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours ? estimationTask.negotiator.estimatedHours : 0},
             "canApprove": false,
             "negotiator.changedInThisIteration": true
         })
@@ -322,7 +319,9 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_NEGOTIATOR)
         estimationTask.negotiator.changedInThisIteration = true
     estimationTask.negotiator.changeSuggested = true
-
+    if (!estimationTask.estimator.estimatedHours) {
+        estimationTask.estimator.estimatedHours = 0
+    }
     estimationTask.updated = Date.now()
 
     if (!_.isEmpty(taskInput.notes)) {
@@ -390,6 +389,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
     if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+            "estimator.changedInThisIteration": true,
             "canApprove": false
         })
     }
@@ -432,6 +432,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
     if (task.estimator.estimatedHours)
         await EstimationFeatureModel.updateOne({_id: task.feature._id}, {
             $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+            "estimator.changedInThisIteration": true,
             "canApprove": false
         })
 
@@ -509,8 +510,6 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
             "canApprove": false
         })
     }
-    if (!task.repo.addedFromThisEstimation)
-        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
 
     task.estimator.changeRequested = !task.estimator.changeRequested
     task.estimator.changedInThisIteration = true
@@ -550,6 +549,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, feat
     if (task.negotiator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+            "negotiator.changedInThisIteration": true,
             "canApprove": false
         })
     }
@@ -641,11 +641,27 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
                 "canApprove": false
             })
 
-        if (task.estimator.estimatedHours)
+        if (task.estimator.estimatedHours) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
                 "canApprove": false
             })
+        }
+        if (task.estimator.removalRequested && (
+                await EstimationTaskModel.count({
+                    "feature._id": feature._id,
+                    "isDeleted": false,
+                    "estimator.removalRequested": true
+                }) + await EstimationTaskModel.count({
+                    "feature._id": feature._id,
+                    "isDeleted": false,
+                    "estimator.changeRequested": true
+                })) <= 1) {
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $set: {"estimator.requestedInThisIteration": false}
+            })
+        }
+
 
     }
     task.isDeleted = true
@@ -681,6 +697,7 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, n
     if (task.negotiator.estimatedHours)
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+            "negotiator.changedInThisIteration": true,
             "canApprove": false
         })
 
@@ -718,8 +735,6 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
     if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
         task.negotiator.changedInThisIteration = true
 
-    if (!task.repo.addedFromThisEstimation)
-        throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
     let estimationFeatureObj
     if (task.feature && task.feature._id) {
         estimationFeatureObj = await EstimationFeatureModel.findById(task.feature._id)
@@ -774,7 +789,20 @@ estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator
 
     if (!(task.canApprove))
         throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
-
+    task.negotiator.name = task.estimator.name
+    task.negotiator.description = task.estimator.description
+    task.negotiator.estimatedHours = task.estimator.estimatedHours
+    task.negotiator.changeSuggested = false
+    task.negotiator.changeGranted = false
+    task.negotiator.changedInThisIteration = false
+    task.negotiator.isMovedToFeature = false
+    task.negotiator.isMovedOutOfFeature = false
+    task.estimatorchangeRequested = false
+    task.estimatorchangedKeyInformation = false
+    task.estimatorremovalRequested = false
+    task.estimatorchangedInThisIteration = false
+    task.estimatorisMovedToFeature = false
+    task.estimatorisMovedOutOfFeature = false
     task.status = SC.STATUS_APPROVED
     task.canApprove = false
     task.updated = Date.now()
@@ -823,6 +851,9 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
     estimationTask.estimator.name = repositoryTask.name
     estimationTask.estimator.description = repositoryTask.description
     estimationTask.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
+    estimationTask.negotiator.name = repositoryTask.name
+    estimationTask.negotiator.description = repositoryTask.description
+    estimationTask.negotiator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
     estimationTask.status = SC.STATUS_PENDING
     estimationTask.addedInThisIteration = true
     estimationTask.canApprove = false
@@ -953,6 +984,9 @@ estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimati
     taskFromRepositoryObj.estimator.name = repositoryTask.name
     taskFromRepositoryObj.estimator.description = repositoryTask.description
     taskFromRepositoryObj.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
+    taskFromRepositoryObj.negotiator.name = repositoryTask.name
+    taskFromRepositoryObj.negotiator.description = repositoryTask.description
+    taskFromRepositoryObj.negotiator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
     taskFromRepositoryObj.status = SC.STATUS_PENDING
     taskFromRepositoryObj.addedInThisIteration = true
     taskFromRepositoryObj.canApprove = false

@@ -143,7 +143,7 @@ class EstimationTask extends React.PureComponent {
                     } else {
                         // estimator has requested Reopen but negotiator has not granted it till now
                         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'changeRequested/not granted, requested_edit')
-                        buttons.push(editView && task.repo && task.repo.addedFromThisEstimation ?
+                        buttons.push(editView ?
                             <img className="div-hover" key="he_requested_reopen" src="/images/he_requested_reopen.png"
                                  title="Reopen-Requested"
                                  onClick={() => {
@@ -501,10 +501,12 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         })
     },
     editTask: (values, loggedInUserRole) => {
+
         dispatch(A.showComponent(COC.ESTIMATION_TASK_DIALOG))
         let task = {}
         task._id = values._id
         task.estimation = values.estimation
+        task.isFromRepo = values.repo && !values.repo.addedFromThisEstimation ? true : false
         if (loggedInUserRole != SC.ROLE_NEGOTIATOR) {
             task.name = values.estimator.name
             task.description = values.estimator.description

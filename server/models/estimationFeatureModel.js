@@ -388,7 +388,20 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     if (pendingTaskCountOfFeature != 0)
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
+    feature.negotiator.name = feature.estimator.name
+    feature.negotiator.description = feature.estimator.description
+    feature.negotiator.estimatedHours = feature.estimator.estimatedHours
 
+
+    feature.negotiator.changeSuggested = false
+    feature.negotiator.changeGranted = false
+    feature.negotiator.changedInThisIteration = false
+
+    feature.estimator.changeRequested = false
+    feature.estimator.changedKeyInformation = false
+    feature.estimator.removalRequested = false
+    feature.estimator.changedInThisIteration = false
+    feature.estimator.requestedInThisIteration = false
     feature.canApprove = false
     feature.status = SC.STATUS_APPROVED
     feature.updated = Date.now()
@@ -615,7 +628,11 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     estimationFeature.initiallyEstimated = true
 
     estimationFeature.estimator.name = repositoryFeature.name
+    estimationFeature.negotiator.name = repositoryFeature.name
+    estimationFeature.estimator.estimatedHours = repositoryFeature.estimatedHours ? estimatedHours : 0
+    estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours ? estimatedHours : 0
     estimationFeature.estimator.description = repositoryFeature.description
+    estimationFeature.negotiator.description = repositoryFeature.description
     estimationFeature.estimation = estimation
     estimationFeature.repo = {}
     estimationFeature.repo._id = repositoryFeature._id
@@ -629,6 +646,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
         // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
         estimationTask.estimator.name = repositoryTask.name
         estimationTask.estimator.description = repositoryTask.description
+        estimationTask.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
         estimationTask.status = SC.STATUS_PENDING
         estimationTask.addedInThisIteration = true
         estimationTask.owner = SC.OWNER_ESTIMATOR
@@ -775,9 +793,6 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
     if (!estimation.estimator._id == estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (feature.repo && !feature.repo.addedFromThisEstimation)
-        throw new AppError('Feature is From Repository ', EC.FEATURE_FROM_REPOSITORY_ERROR)
-
     feature.estimator.changeRequested = !feature.estimator.changeRequested
     feature.estimator.requestedInThisIteration = true
     feature.canApprove = false
@@ -868,7 +883,11 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     estimationFeature.changedKeyInformation = true
 
     estimationFeature.negotiator.name = repositoryFeature.name
+    estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.negotiator.description = repositoryFeature.description
+    estimationFeature.estimator.description = repositoryFeature.description
+    estimationFeature.estimator.estimatedHours = repositoryFeature.estimatedHours ? repositoryFeature.estimatedHours : 0
+    estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours ? repositoryFeature.estimatedHours : 0
     estimationFeature.estimation = estimation
     estimationFeature.repo = {}
     estimationFeature.repo._id = repositoryFeature._id
@@ -887,6 +906,7 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
         // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
         estimationTask.estimator.name = repositoryTask.name
         estimationTask.estimator.description = repositoryTask.description
+        estimationTask.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
         estimationTask.status = SC.STATUS_PENDING
         estimationTask.addedInThisIteration = true
         estimationTask.owner = SC.OWNER_NEGOTIATOR

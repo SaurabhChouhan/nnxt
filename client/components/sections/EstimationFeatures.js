@@ -19,7 +19,7 @@ let EstimationFeatures = (props) => {
                                    expanded={true}/> :
                 <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}/>
         } else {
-            if (changedByNegotiator && f.negotiator && ( f.negotiator.changeSuggested || f.negotiator.changedInThisIteration)) {
+            if (changedByNegotiator && f.negotiator && ( f.negotiator.changeSuggested || f.negotiator.changedInThisIteration) && (!f.addedInThisIteration)) {
                 return (expandedFeatureID === f._id) ?
                     <EstimationFeature feature={f} index={idx} key={"feature" + idx} {...childProps}
                                        expanded={true}/> :

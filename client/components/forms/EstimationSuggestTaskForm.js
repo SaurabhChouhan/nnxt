@@ -57,6 +57,10 @@ let EstimationSuggestTaskForm = (props) => {
                 </div>
             </div>
             <div className="col-md-2 ">
+
+                {isFromRepo &&
+                    <img key="repo_flag" src="/images/repo_flag.png" className="suggestionRepo" title="From Repository"/>
+                }
                 <button type="button" className="suggestCopy btn-link"
                         title="Copy Task Details"
                         onClick={() => {

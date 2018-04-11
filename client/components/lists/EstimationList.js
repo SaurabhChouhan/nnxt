@@ -25,13 +25,13 @@ class EstimationList extends Component {
     }
 
     filterEstimationStatus(status) {
-        this.setState({status:status})
+        this.setState({status: status})
         this.props.getAllEstimations(this.state.projectID, status)
     }
 
     filterEstimationByProject(projectID) {
 
-        this.setState({projectID:projectID})
+        this.setState({projectID: projectID})
         this.props.getAllEstimations(projectID, this.state.status)
     }
 
@@ -177,7 +177,7 @@ class EstimationList extends Component {
                                                dataFormat={this.formatClient.bind(this)}>Client</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='technologies'
                                                dataFormat={this.formatTechnologies.bind(this)}>Technologies</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='totalHours'
+                            <TableHeaderColumn columnTitle dataField='estimatedHours'
                                                dataFormat={this.formatClient.bind(this)}>Total Hours</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='description'
                                                dataFormat={this.formatProjectDescription.bind(this)}>Project
