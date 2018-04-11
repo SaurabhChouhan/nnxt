@@ -356,7 +356,7 @@ class EstimationTask extends React.PureComponent {
                     <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
                          title={task.estimator && task.estimator.name ? task.estimator.description ? task.estimator.estimatedHours ? " Some changes is done in this iteration" : "Task is not having estimated hours by estimator" : "Task is not having description by estimator" : "Task is not having name by estimator"}
                     ></img>
-                </div>: null}
+                </div> : null}
             </div>
             <div className="col-md-3">
 
@@ -491,7 +491,10 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
     toggleDeleteRequest: (values) => {
         return dispatch(A.requestForTaskDeletePermissionOnServer(values._id)).then(json => {
             if (json.success) {
-                NotificationManager.success("Task Delete requested successfully")
+                if (json.data && json.data.estimator && json.data.estimator.removalRequested)
+                    NotificationManager.success("Delete request on Task raised...")
+                else
+                    NotificationManager.success("Delete request on Task cleared...")
             } else {
                 if (json.code == EC.INVALID_OPERATION)
                     NotificationManager.error("Task Delete already requested")

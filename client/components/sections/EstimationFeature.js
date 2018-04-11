@@ -313,10 +313,10 @@ class EstimationFeature extends React.PureComponent {
                     </div>
                     {editView && feature.status === SC.STATUS_PENDING && feature.canApprove == false ?
                         <div className="col-md-1">
-                        <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"
-                             title={feature.estimator && feature.estimator.name ? feature.estimator.description ? feature.estimator.estimatedHours ? feature.tasks && feature.tasks ? "Any task of this feature is not approved/ Some changes is done in this iteration" : "Feature is not having any task" : "Feature is not having estimated hours by estimator" : "Feature is not having description by estimator" : "Feature is not having name by estimator"}
-                        ></img>
-                    </div>: null}
+                            <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"
+                                 title={feature.estimator && feature.estimator.name ? feature.estimator.description ? feature.estimator.estimatedHours ? feature.tasks && feature.tasks ? "Any task of this feature is not approved/ Some changes is done in this iteration" : "Feature is not having any task" : "Feature is not having estimated hours by estimator" : "Feature is not having description by estimator" : "Feature is not having name by estimator"}
+                            ></img>
+                        </div> : null}
 
                 </div>
 
@@ -530,7 +530,10 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
         toggleDeleteRequest: (values) => {
             return dispatch(A.requestForFeatureDeletePermissionOnServer(values._id)).then(json => {
                 if (json.success) {
-                    NotificationManager.success("Feature Delete requested successfully")
+                    if (json.data && json.data.estimator && json.data.estimator.removalRequested)
+                        NotificationManager.success("Delete request on Feature raised...")
+                    else
+                        NotificationManager.success("Delete request on Feature cleared...")
                 } else {
                     if (json.code == EC.INVALID_OPERATION)
                         NotificationManager.error("Feature Delete already requested")
