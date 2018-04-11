@@ -502,9 +502,9 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 if (json.success) {
 
                     if (json.data && json.data.estimator && json.data.estimator.changeRequested)
-                        NotificationManager.success("Edit request on Feature raised...")
+                        NotificationManager.success("Reopen request on Feature raised...")
                     else
-                        NotificationManager.success("Edit request on Feature cleared...")
+                        NotificationManager.success("Reopen request on Feature cleared...")
                 } else {
                     NotificationManager.error("Unknown error occurred")
                 }
@@ -517,9 +517,9 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
             return dispatch(A.grantEditPermissionOfFeatureOnServer(values._id)).then(json => {
                 if (json.success) {
                     if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
-                        NotificationManager.success("Edit permission on Feature granted...")
+                        NotificationManager.success("Reopen permission on Feature granted...")
                     else
-                        NotificationManager.success("Edit permission on Feature not granted...")
+                        NotificationManager.success("Reopen permission on Feature not granted...")
                 }
                 else {
                     NotificationManager.error('Permission Grant Failed')

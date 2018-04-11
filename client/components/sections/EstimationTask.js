@@ -466,9 +466,9 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
             if (json.success) {
 
                 if (json.data && json.data.estimator && json.data.estimator.changeRequested)
-                    NotificationManager.success("Edit request on Task raised...")
+                    NotificationManager.success("Reopen request on Task raised...")
                 else
-                    NotificationManager.success("Edit request on Task cleared...")
+                    NotificationManager.success("Reopen request on Task cleared...")
             } else {
                 NotificationManager.error("Unknown error occurred")
             }
@@ -543,9 +543,9 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         return dispatch(A.grantEditPermissionOfTaskOnServer(values._id)).then(json => {
             if (json.success) {
                 if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
-                    NotificationManager.success("Edit permission on task granted...")
+                    NotificationManager.success("Reopen permission on task granted...")
                 else
-                    NotificationManager.success("Edit permission on task not granted...")
+                    NotificationManager.success("Reopen permission on task not granted...")
             }
             else {
                 NotificationManager.error('Permission Grant Failed')
