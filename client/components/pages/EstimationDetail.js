@@ -12,7 +12,8 @@ class EstimationDetail extends Component {
         super(props)
         this.state = {
             showEstimationRequestDialog: false,
-            showEstimationApproveDialog: false
+            showEstimationApproveDialog: false,
+            showEstimationDeleteDialog: false
         };
     }
 
@@ -22,7 +23,8 @@ class EstimationDetail extends Component {
             showEstimationReviewDialog: false,
             showEstimationChangeDialog: false,
             showEstimationApproveDialog: false,
-            showEstimationReopenDialog: false
+            showEstimationReopenDialog: false,
+            showEstimationDeleteDialog: false
         })
     }
 
@@ -49,6 +51,16 @@ class EstimationDetail extends Component {
     onConfirmReopen() {
         this.setState({showEstimationReopenDialog: false})
         this.props.reopenEstimation(this.props.estimation)
+    }
+
+    onConfirmDelete() {
+        this.setState({showEstimationDeleteDialog: false})
+        this.props.deleteEstimation(this.props.estimation).then(json => {
+            if (json.success) {
+                this.props.history.push("/app-home/estimation")
+                this.props.estimationGoBack()
+            }
+        })
     }
 
 
@@ -139,6 +151,12 @@ class EstimationDetail extends Component {
                                             title="Estimation Reopen" onClose={this.onClose.bind(this)}
                                             body="Are you sure you want to reopen this estimation. Please confirm!"/>
                     }
+                    {
+                        this.state.showEstimationDeleteDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmDelete.bind(this)}
+                                            title="Estimation Delete" onClose={this.onClose.bind(this)}
+                                            body="Are you sure you want to delete this estimation. Please confirm!"/>
+                    }
 
 
                     <div className="col-md-3">
@@ -175,12 +193,8 @@ class EstimationDetail extends Component {
                     </div>
                     <div className="col-md-1">
                         < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
-                            this.props.deleteEstimation(estimation).then(json => {
-                                if (json.success) {
-                                    this.props.history.push("/app-home/estimation")
-                                    this.props.estimationGoBack()
-                                }
-                            })
+                            this.setState({showEstimationDeleteDialog: true})
+
                         }
                         }><i className="fa fa-trash iconClr "></i></button>
                     </div>
