@@ -82,8 +82,8 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         // As task is being added into feature estimated hours of task would be added into current estimated hours of feature
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
-    if (taskInput.estimation && taskInput.estimation._id) {
-        await EstimationModel.updateOne({_id: taskInput.estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
+    if (.estimation && estimation._id) {
+        await EstimationModel.updateOne({_id: estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
     }
 
     let estimationTask = new EstimationTaskModel()
@@ -138,8 +138,8 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
         // As task is being added by negotiator there would be any change in estimated hours of feature as this would just be considered as suggestions
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours}})
     }
-    if (taskInput.estimation && taskInput.estimation._id) {
-        await EstimationModel.updateOne({_id: taskInput.estimation._id}, {$inc: {"suggestedHours": taskInput.estimatedHours}})
+    if (estimation && estimation._id) {
+        await EstimationModel.updateOne({_id: estimation._id}, {$inc: {"suggestedHours": taskInput.estimatedHours}})
     }
 
     let estimationTask = new EstimationTaskModel()
@@ -236,7 +236,7 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
     if (estimation && estimation._id) {
         console.log("Inside estimation Update")
-        await EstimationModel.updateOne({_id: estimation}, {
+        await EstimationModel.updateOne({_id: estimation._id}, {
             $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours}
         })
     }
@@ -907,6 +907,12 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
     })
     if (thisTaskWithRepoAlreadyExist)
         throw new AppError('This task is already part of estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    if(estimation && estimation._id && repositoryTask.estimatedHours && repositoryTask.estimatedHours>0){
+         await EstimationModel.updateOne({_id: estimation._id}, {
+            $inc: {"estimatedHours": repositoryTask.estimatedHours }
+        })
+    }
 
     let estimationTask = new EstimationTaskModel()
     // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
