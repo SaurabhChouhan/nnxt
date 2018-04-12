@@ -399,13 +399,15 @@ class EstimationFeature extends React.PureComponent {
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...{
                             fromRepoWithFeature: feature.repo && !feature.repo.addedFromThisEstimation ? true : false,
                             estimationStatus,
-                            loggedInUserRole
+                            loggedInUserRole,
+                            editView
                         }}
                                         expanded={true}/> :
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...{
                             fromRepoWithFeature: feature.repo && !feature.repo.addedFromThisEstimation ? true : false,
                             estimationStatus,
-                            loggedInUserRole
+                            loggedInUserRole,
+                            editView
                         }} />)
                 }
             </div>
