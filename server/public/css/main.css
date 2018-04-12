@@ -1647,4 +1647,7 @@ label {
 .filterAlign {
     margin-right: 13px;
 }
+i.iconClr:hover{
+    color: #F65A4F !important;
+}
 
