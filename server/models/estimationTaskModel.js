@@ -228,15 +228,16 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
 
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
-            $inc: {"estimator.estimatedHours": taskInput.estimatedHours - estimationTask.estimator.estimatedHours},
+            $inc: {"estimator.estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
             "canApprove": false,
             "estimator.changedInThisIteration": true
         })
     }
 
     if (estimation && estimation._id) {
+        console.log("Inside estimation Update")
         await EstimationModel.updateOne({_id: estimation}, {
-            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : 0}
+            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours}
         })
     }
 
@@ -312,14 +313,14 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
-            $inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours ? estimationTask.negotiator.estimatedHours : 0},
+            $inc: {"negotiator.estimatedHours": estimationTask.negotiator.estimatedHours ? taskInput.estimatedHours - estimationTask.negotiator.estimatedHours : taskInput.estimatedHours},
             "canApprove": false,
             "negotiator.changedInThisIteration": true
         })
     }
     if (estimation && estimation._id) {
         await EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"suggestedHours": estimationTask.negotiator.estimatedHours ? taskInput.estimatedHours - estimationTask.negotiator.estimatedHours : 0}
+            $inc: {"suggestedHours": estimationTask.negotiator.estimatedHours ? taskInput.estimatedHours - estimationTask.negotiator.estimatedHours : taskInput.estimatedHours}
         })
     }
 
