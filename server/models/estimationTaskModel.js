@@ -82,7 +82,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         // As task is being added into feature estimated hours of task would be added into current estimated hours of feature
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
-    if (.estimation && estimation._id) {
+    if (estimation && estimation._id) {
         await EstimationModel.updateOne({_id: estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
     }
 
