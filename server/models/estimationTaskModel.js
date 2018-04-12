@@ -611,29 +611,47 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
             throw new AppError('Feature that this task is associated with is not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
-        if (task.estimator.estimatedHours)
+        if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
                 "canApprove": false
             })
-        if (task.negotiator.estimatedHours)
+        } else if (task.estimator.estimatedHours) {
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false
+            })
+        } else if (task.negotiator.estimatedHours) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
                 "canApprove": false
             })
+        }
 
     }
-    if (task.estimation && task.estimation._id && task.estimatedHours) {
+    if (estimation && estimation._id) {
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours and suggested hours of estimation
-        await EstimationModel.updateOne({_id: feature._id}, {
-            $inc: {
-                "estimatedHours": -task.estimatedHours,
-            },
-            $inc: {
-                "suggestedHours": -task.estimatedHours
-            },
-            "canApprove": false
-        })
+
+        if (task.negotiator.estimatedHours && task.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {
+                    "estimatedHours": -task.estimator.estimatedHours,
+                    "suggestedHours": -task.negotiator.estimatedHours
+                },
+                "canApprove": false
+            })
+
+        } else if (task.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {"estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false
+            })
+        } else if (task.negotiator.estimatedHours) {
+            await EstimationModel.updateOne({_id: feature._id}, {
+                $inc: {"suggestedHours": -task.negotiator.estimatedHours},
+                "canApprove": false
+            })
+        }
 
     }
     task.isDeleted = true
@@ -668,18 +686,29 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
             throw new AppError('Feature that this task is associated with is not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours and suggested hours of feature
-        if (task.negotiator.estimatedHours)
+        if (task.negotiator.estimatedHours && task.estimator.estimatedHours) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
-                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                $inc: {
+                    "negotiator.estimatedHours": -task.negotiator.estimatedHours,
+                    "estimator.estimatedHours": -task.estimator.estimatedHours
+                },
                 "canApprove": false
             })
 
-        if (task.estimator.estimatedHours) {
+        } else if (task.estimator.estimatedHours) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
                 "canApprove": false
             })
+        } else if (task.negotiator.estimatedHours) {
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "negotiator.estimatedHours": -task.negotiator.estimatedHours
+                },
+                "canApprove": false
+            })
         }
+
         if ((task.estimator.removalRequested || task.estimator.changeRequested ) && (
                 await EstimationTaskModel.count({
                     "feature._id": feature._id,
@@ -697,17 +726,29 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
 
 
     }
-    if (task.estimation && task.estimation._id && task.estimatedHours) {
+    if (estimation && estimation._id) {
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours and suggested hours of estimation
-        await EstimationModel.updateOne({_id: feature._id}, {
-            $inc: {
-                "estimatedHours": -task.estimator.estimatedHours,
-            },
-            $inc: {
-                "suggestedHours": -task.negotiator.estimatedHours
-            },
-            "canApprove": false
-        })
+
+        if (task.negotiator.estimatedHours && task.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {
+                    "estimatedHours": -task.estimator.estimatedHours,
+                    "suggestedHours": -task.negotiator.estimatedHours
+                },
+                "canApprove": false
+            })
+
+        } else if (task.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {"estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false
+            })
+        } else if (task.negotiator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {"suggestedHours": -task.negotiator.estimatedHours},
+                "canApprove": false
+            })
+        }
 
     }
     task.isDeleted = true
