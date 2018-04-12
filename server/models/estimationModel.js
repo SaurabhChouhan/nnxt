@@ -24,6 +24,7 @@ let estimationSchema = mongoose.Schema({
     },
     technologies: [String],
     estimatedHours: {type: Number},
+    suggestedHours: {type: Number},
     description: String,
     canApprove: {type: Boolean, default: false},
     created: Date,
@@ -85,7 +86,9 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status: 1
+            status: 1,
+            estimatedHours: 1,
+            suggestedHours: 1
         })
 
 
@@ -106,7 +109,9 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status: 1
+            status: 1,
+            estimatedHours:1,
+            suggestedHours:1
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
@@ -206,6 +211,8 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
         throw new AppError('Estimator not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     estimationInput.status = SC.STATUS_INITIATED
+    estimationInput.estimatedHours = 0
+    estimationInput.suggestedHours = 0
     estimationInput.project = project
     estimationInput.client = project.client
     estimationInput.estimator = estimator

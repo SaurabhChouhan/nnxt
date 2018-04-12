@@ -82,6 +82,9 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
         // As task is being added into feature estimated hours of task would be added into current estimated hours of feature
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"estimator.estimatedHours": taskInput.estimatedHours}})
     }
+    if (taskInput.estimation && taskInput.estimation._id) {
+        await EstimationModel.updateOne({_id: taskInput.estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
+    }
 
     let estimationTask = new EstimationTaskModel()
     estimationTask.estimator.name = taskInput.name
@@ -134,6 +137,9 @@ estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator)
 
         // As task is being added by negotiator there would be any change in estimated hours of feature as this would just be considered as suggestions
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours}})
+    }
+    if (taskInput.estimation && taskInput.estimation._id) {
+        await EstimationModel.updateOne({_id: taskInput.estimation._id}, {$inc: {"suggestedHours": taskInput.estimatedHours}})
     }
 
     let estimationTask = new EstimationTaskModel()
@@ -225,6 +231,11 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
             "estimator.changedInThisIteration": true
         })
     }
+    if (estimation && estimation._id) {
+        await EstimationModel.updateOne({_id: estimation}, {
+            $inc: {"estimatedHours": taskInput.estimatedHours - estimationTask.estimator.estimatedHours ? estimationTask.estimator.estimatedHours : 0}
+        })
+    }
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
@@ -301,6 +312,11 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
             $inc: {"negotiator.estimatedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours ? estimationTask.negotiator.estimatedHours : 0},
             "canApprove": false,
             "negotiator.changedInThisIteration": true
+        })
+    }
+    if (estimationTask.estimation && estimationTask.estimation._id) {
+        await EstimationModel.updateOne({_id: estimationTask.estimation._id}, {
+            $inc: {"suggestedHours": taskInput.estimatedHours - estimationTask.negotiator.estimatedHours ? estimationTask.negotiator.estimatedHours : 0}
         })
     }
 

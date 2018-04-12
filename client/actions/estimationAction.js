@@ -333,8 +333,7 @@ export const requestForFeatureEditPermissionOnServer = (featureID) => {
 
 export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/' + estimationID + '/' +
-            '/' + taskID, {
+        return fetch('/api/estimations/' + estimationID + '/tasks/' + taskID, {
                 method: 'delete',
                 credentials: "include",
                 headers: {
@@ -725,7 +724,7 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
-                    if (json.data && json.data.feature  && json.data.feature._id) {
+                    if (json.data && json.data.feature && json.data.feature._id) {
                         dispatch(canNotApproveFeatureOnServer(json.data.feature._id, true))
                     }
                     if (json.data && json.data.estimation && json.data.isEstimationCanApprove && json.data.estimation._id) {
