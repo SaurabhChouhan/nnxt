@@ -238,6 +238,17 @@ estimationSchema.statics.deleteEstimationById = async (estimationID, negotiator)
     // enhance estimation input as per requirement
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    let estimation = await EstimationModel.findById(estimationID)
+    // enhance estimation input as per requirement
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_INITIATED], estimation.status))
+        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + " or " + SC.STATUS_INITIATED + "] can delete Estimation", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('You are not a negotiator of this Estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
     await EstimationTaskModel.remove({"estimation._id": estimationID})
     await EstimationFeatureModel.remove({"estimation._id": estimationID})
     await EstimationModel.remove({"_id": estimationID})
