@@ -200,7 +200,7 @@ const estimationReducer = (state = initialState, action) => {
 
 
         case AC.DELETE_ESTIMATION:
-            return Object.assign({}, state, {estimations: state.estimations.filter(item => item._id != action.estimationID)})
+            return Object.assign({}, state, {estimation: state.all && state.all.length ? state.all.filter(item => item._id != action.estimationID) : []})
 
 
         case AC.DELETE_ESTIMATION_FEATURE:

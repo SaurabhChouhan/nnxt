@@ -123,6 +123,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else {
             NotificationManager.error("Estimation Deletion failed")
         }
+        return json
     })
 
 
