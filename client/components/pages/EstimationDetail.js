@@ -175,7 +175,12 @@ class EstimationDetail extends Component {
                     </div>
                     <div className="col-md-1">
                         < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
-                            this.props.deleteEstimation(estimation)
+                            this.props.deleteEstimation(estimation).then(json => {
+                                if (json.success) {
+                                    this.props.history.push("/app-home/estimation")
+                                    this.props.estimationGoBack()
+                                }
+                            })
                         }
                         }><i className="fa fa-trash iconClr "></i></button>
                     </div>

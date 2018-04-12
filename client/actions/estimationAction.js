@@ -181,8 +181,8 @@ export const updateEstimationOnServer = (estimation) => {
 
 export const deleteEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
-        return fetch('/api/estimations/' + estimationID, {
-                method: 'del',
+        return fetch('/api/estimations/' + estimationID + "/delete", {
+            method: 'delete',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',

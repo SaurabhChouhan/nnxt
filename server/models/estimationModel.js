@@ -234,7 +234,7 @@ estimationSchema.statics.deleteEstimationById = async (estimationID, negotiator)
     await EstimationTaskModel.remove({"estimation._id": estimationID})
     await EstimationFeatureModel.remove({"estimation._id": estimationID})
     await EstimationModel.remove({"_id": estimationID})
-    return estimationID
+    return {estimationID}
 }
 
 
