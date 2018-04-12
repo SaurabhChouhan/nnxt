@@ -244,7 +244,7 @@ class EstimationDetail extends Component {
                     </div>
 
                     <div className="col-md-2 text-right esTime">
-                        <b>8 Hrs</b>
+                        <b>{estimation.estimatedHours}</b>
                         <div className="clock">
                             <i className="fa fa-clock-o "></i>
                         </div>
