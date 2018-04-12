@@ -710,12 +710,20 @@ span.tag.new {
     font-size: 24px;
     color: #29CAC8;
     float: right;
+    position: absolute;
+    margin-left: -29px;
 }
-
+.suggestedclock i {
+    font-size: 24px;
+    color: #F3B54B;
+    float: right;
+    position: absolute;
+    margin-left: -29px;
+}
 .esTime b {
     font-size: 15px;
     float: right;
-    margin-left: 5%;
+    margin-left: -36%;
     padding-top: 2px;
 }
 
