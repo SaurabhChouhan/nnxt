@@ -46,18 +46,13 @@ class EstimationFeature extends React.PureComponent {
 
 
     render() {
-        const {feature, loggedInUserRole, estimationStatus, index, expanded, expandedTaskID} = this.props
+        const {feature, loggedInUserRole, estimationStatus, index, expanded, expandedTaskID, editView} = this.props
 
         let buttons = [];
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'task owner ', feature.owner)
         logger.debug(logger.ESTIMATION_FEATURE_RENDER, this.props)
-
-        let editView = false
-
-        if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
-            editView = true
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
@@ -313,10 +308,10 @@ class EstimationFeature extends React.PureComponent {
                     </div>
                     {editView && feature.status === SC.STATUS_PENDING && feature.canApprove == false ?
                         <div className="col-md-1">
-                        <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"
-                             title={feature.estimator && feature.estimator.name ? feature.estimator.description ? feature.estimator.estimatedHours ? feature.tasks && feature.tasks ? "Any task of this feature is not approved/ Some changes is done in this iteration" : "Feature is not having any task" : "Feature is not having estimated hours by estimator" : "Feature is not having description by estimator" : "Feature is not having name by estimator"}
-                        ></img>
-                    </div>: null}
+                            <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"
+                                 title={feature.estimator && feature.estimator.name ? feature.estimator.description ? feature.estimator.estimatedHours ? feature.tasks && feature.tasks ? "Any task of this feature is not approved/ Some changes is done in this iteration" : "Feature is not having any task" : "Feature is not having estimated hours by estimator" : "Feature is not having description by estimator" : "Feature is not having name by estimator"}
+                            ></img>
+                        </div> : null}
 
                 </div>
 
@@ -404,13 +399,15 @@ class EstimationFeature extends React.PureComponent {
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...{
                             fromRepoWithFeature: feature.repo && !feature.repo.addedFromThisEstimation ? true : false,
                             estimationStatus,
-                            loggedInUserRole
+                            loggedInUserRole,
+                            editView
                         }}
                                         expanded={true}/> :
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...{
                             fromRepoWithFeature: feature.repo && !feature.repo.addedFromThisEstimation ? true : false,
                             estimationStatus,
-                            loggedInUserRole
+                            loggedInUserRole,
+                            editView
                         }} />)
                 }
             </div>
@@ -422,15 +419,18 @@ class EstimationFeature extends React.PureComponent {
     }
 }
 
-EstimationFeature.propTypes = {
+EstimationFeature
+    .propTypes = {
     feature: PropTypes.object.isRequired,
     loggedInUserRole: PropTypes.string.isRequired,
     estimationStatus: PropTypes.string.isRequired,
     expanded: PropTypes.bool
 }
 
-EstimationFeature.defaultProps = {
-    expanded: false
+EstimationFeature
+    .defaultProps = {
+    expanded: false,
+    editView: false
 }
 
 
@@ -502,9 +502,9 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
                 if (json.success) {
 
                     if (json.data && json.data.estimator && json.data.estimator.changeRequested)
-                        NotificationManager.success("Edit request on Feature raised...")
+                        NotificationManager.success("Reopen request on Feature raised...")
                     else
-                        NotificationManager.success("Edit request on Feature cleared...")
+                        NotificationManager.success("Reopen request on Feature cleared...")
                 } else {
                     NotificationManager.error("Unknown error occurred")
                 }
@@ -517,9 +517,9 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
             return dispatch(A.grantEditPermissionOfFeatureOnServer(values._id)).then(json => {
                 if (json.success) {
                     if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
-                        NotificationManager.success("Edit permission on Feature granted...")
+                        NotificationManager.success("Reopen permission on Feature granted...")
                     else
-                        NotificationManager.success("Edit permission on Feature not granted...")
+                        NotificationManager.success("Reopen permission on Feature not granted...")
                 }
                 else {
                     NotificationManager.error('Permission Grant Failed')
@@ -530,7 +530,10 @@ EstimationFeature = connect(null, (dispatch, ownProps) => ({
         toggleDeleteRequest: (values) => {
             return dispatch(A.requestForFeatureDeletePermissionOnServer(values._id)).then(json => {
                 if (json.success) {
-                    NotificationManager.success("Feature Delete requested successfully")
+                    if (json.data && json.data.estimator && json.data.estimator.removalRequested)
+                        NotificationManager.success("Delete request on Feature raised...")
+                    else
+                        NotificationManager.success("Delete request on Feature cleared...")
                 } else {
                     if (json.code == EC.INVALID_OPERATION)
                         NotificationManager.error("Feature Delete already requested")

@@ -3,6 +3,7 @@ import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../"
 import {EstimationFeaturesContainer, EstimationTasksContainer, RepositorySearchContainer} from "../../containers"
 import * as logger from '../../clientLogger'
+import _ from 'lodash'
 
 
 class EstimationDetail extends Component {
@@ -11,7 +12,8 @@ class EstimationDetail extends Component {
         super(props)
         this.state = {
             showEstimationRequestDialog: false,
-            showEstimationApproveDialog: false
+            showEstimationApproveDialog: false,
+            showEstimationDeleteDialog: false
         };
     }
 
@@ -21,7 +23,8 @@ class EstimationDetail extends Component {
             showEstimationReviewDialog: false,
             showEstimationChangeDialog: false,
             showEstimationApproveDialog: false,
-            showEstimationReopenDialog: false
+            showEstimationReopenDialog: false,
+            showEstimationDeleteDialog: false
         })
     }
 
@@ -50,11 +53,25 @@ class EstimationDetail extends Component {
         this.props.reopenEstimation(this.props.estimation)
     }
 
+    onConfirmDelete() {
+        this.setState({showEstimationDeleteDialog: false})
+        this.props.deleteEstimation(this.props.estimation).then(json => {
+            if (json.success) {
+                this.props.history.push("/app-home/estimation")
+                this.props.estimationGoBack()
+            }
+        })
+    }
+
 
     render() {
-
         logger.debug(logger.ESTIMATION_DETAIL_RENDER, this.props)
-        const {estimation} = this.props
+        const {estimation} = this.props;
+        let editView = false
+        if ((estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status)) || (estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))) {
+            editView = true
+        }
+
         return <div>
             <div className="col-md-8 pad">
                 <div className="col-md-12 estimateheader">
@@ -80,7 +97,7 @@ class EstimationDetail extends Component {
                         </div>
                         : <div className="col-md-5 pad">
 
-                            <div title="Go Back" className="backarrow estimationBackArrow">
+                            <div title="Go Back" className="col-md-5 backarrow estimationBackArrow">
                                 <h5>
                                     <button className="btn-link pad" onClick={() => {
                                         this.props.history.push("/app-home/estimation")
@@ -90,6 +107,14 @@ class EstimationDetail extends Component {
                                     <b>{estimation.project ? estimation.project.name : ''}</b>
                                 </h5>
                             </div>
+                            {
+                                (_.includes([SC.STATUS_INITIATED], estimation.status) && estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ) &&
+                                <button type="button" className="btn customBtn" onClick={() => {
+                                    this.props.editEstimationInitiateForm(estimation)
+                                }
+                                }>Edit Estimation</button>
+
+                            }
                         </div>
 
 
@@ -126,6 +151,12 @@ class EstimationDetail extends Component {
                                             title="Estimation Reopen" onClose={this.onClose.bind(this)}
                                             body="Are you sure you want to reopen this estimation. Please confirm!"/>
                     }
+                    {
+                        this.state.showEstimationDeleteDialog &&
+                        <ConfirmationDialog show={true} onConfirm={this.onConfirmDelete.bind(this)}
+                                            title="Estimation Delete" onClose={this.onClose.bind(this)}
+                                            body="Are you sure you want to delete this estimation. Please confirm!"/>
+                    }
 
 
                     <div className="col-md-3">
@@ -160,25 +191,33 @@ class EstimationDetail extends Component {
                         }
 
                     </div>
-                    <div className="col-md-4 pad">
+                    <div className="col-md-1">
+                        < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
+                            this.setState({showEstimationDeleteDialog: true})
+
+                        }
+                        }><i className="fa fa-trash iconClr "></i></button>
+                    </div>
+
+                    <div className="col-md-3 pad ">
                         <div className="estimationfileoption">
                             <ul className="list-unstyled">
+                                {(_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_APPROVED, SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED, SC.STATUS_REOPENED], estimation.status))
+                                &&
+                                < button type="button" className="btn customBtn filterAlign" onClick={() => {
+                                    this.props.estimationFilterForm()
+                                }
+                                }>filter</button>
+                                }
+
                                 <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
                                 <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
                                 <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
                                 <li><a href=""> <i className="glyphicon glyphicon-option-vertical pull-right">
                                 </i></a>
                                 </li>
-                                {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && (estimation.status == SC.STATUS_INITIATED) ?
-                                    <button type="button" className="btn customBtn" onClick={() => {
-                                        this.props.editEstimationInitiateForm(estimation)
-                                    }
-                                    }>Edit Estimation</button> :
-                                    < button type="button" className="btn customBtn" onClick={() => {
-                                        this.props.estimationFilterForm()
-                                    }
-                                    }>filter</button>
-                                }
+
+
                             </ul>
                         </div>
                     </div>
@@ -219,7 +258,7 @@ class EstimationDetail extends Component {
                     </div>
 
                     <div className="col-md-2 text-right esTime">
-                        <b>8 Hrs</b>
+                        <b>{estimation.estimatedHours}</b>
                         <div className="clock">
                             <i className="fa fa-clock-o "></i>
                         </div>
@@ -231,11 +270,13 @@ class EstimationDetail extends Component {
                 </div>
                 <div className="col-md-12">
                     <EstimationFeaturesContainer estimationStatus={estimation.status}
+                                                 editView={editView}
                                                  loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
                 <br/>
                 <div className="col-md-12">
                     <EstimationTasksContainer estimationStatus={estimation.status}
+                                              editView={editView}
                                               loggedInUserRole={estimation.loggedInUserRole}/>
                 </div>
                 {(estimation.status == SC.STATUS_APPROVED) && (estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR) &&
@@ -248,7 +289,7 @@ class EstimationDetail extends Component {
                 </div>}
             </div>
             <div className="col-md-4 estimationsection pad">
-                <RepositorySearchContainer/>
+                <RepositorySearchContainer editView={editView}/>
             </div>
         </div>
     }

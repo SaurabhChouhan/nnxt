@@ -7,6 +7,7 @@ let EstimationTasks = (props) => {
         let childProps = Object.assign({}, props, {
             tasks: undefined
         })
+
     const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository, addedByNegotiator, addedByEstimator} = props.filter
     const {expandedTaskID} = props
     return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {

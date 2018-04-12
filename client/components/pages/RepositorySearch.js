@@ -63,6 +63,7 @@ class RepositorySearch extends Component {
 
     render() {
         const {tags, suggestions} = this.state;
+        const {editView, repository} = this.props
         return (
             <div>
                 <div className="col-md-12 RepositoryHeading RepositorySideHeight">
@@ -150,7 +151,7 @@ class RepositorySearch extends Component {
                 <div className="col-md-12 Repo-padding">
 
                     {
-                        Array.isArray(this.props.repository) && this.props.repository.map((f, i) =>
+                        Array.isArray(repository) && repository.map((f, i) =>
                             (f.isFeature) ?
                                 <div key={"feature" + f._id} className="repository repositoryFeature div-hover">
                                     <div className="RepositoryHeading repotext" key={i} onClick={() => {

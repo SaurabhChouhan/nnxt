@@ -32,6 +32,23 @@ estimationRouter.get("/:estimationID", async ctx => {
     }
     return estimation
 })
+
+// noinspection Annotator
+// Delete Estimation
+
+estimationRouter.del("/:estimationID/delete", async ctx => {
+    console.log("estimation delete of ", ctx.params.estimationID)
+    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+        let estimation = await EstimationModel.deleteEstimationById(ctx.params.estimationID, ctx.state.user)
+        console.log("estimation delete", estimation)
+        return estimation
+    } else {
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can delete estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+
+})
+
 // noinspection Annotator
 estimationRouter.get("/feature/:featureID", async ctx => {
     let estimationFeature = await EstimationFeatureModel.getById(ctx.params.featureID)

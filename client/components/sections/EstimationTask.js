@@ -40,15 +40,13 @@ class EstimationTask extends React.PureComponent {
     }
 
     render() {
-        const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask, fromRepoWithFeature} = this.props
+        const {task, loggedInUserRole, estimationStatus, expanded, isFeatureTask, fromRepoWithFeature, editView} = this.props
         let buttons = [];
 
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'logged in user is ', loggedInUserRole)
         logger.debug(logger.ESTIMATION_TASK_BUTTONS, 'task owner ', task.owner)
         logger.debug(logger.ESTIMATION_TASK_RENDER, this.props)
-        let editView = false
-        if (loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) || loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus))
-            editView = true
+
 
         if (loggedInUserRole == SC.ROLE_NEGOTIATOR) {
 
@@ -356,7 +354,7 @@ class EstimationTask extends React.PureComponent {
                     <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
                          title={task.estimator && task.estimator.name ? task.estimator.description ? task.estimator.estimatedHours ? " Some changes is done in this iteration" : "Task is not having estimated hours by estimator" : "Task is not having description by estimator" : "Task is not having name by estimator"}
                     ></img>
-                </div>: null}
+                </div> : null}
             </div>
             <div className="col-md-3">
 
@@ -456,6 +454,7 @@ EstimationTask.propTypes = {
 
 EstimationTask.defaultProps = {
     expanded: false,
+    editView: false,
     isFeatureTask: false,
     fromRepoWithFeature: false
 }
@@ -466,9 +465,9 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
             if (json.success) {
 
                 if (json.data && json.data.estimator && json.data.estimator.changeRequested)
-                    NotificationManager.success("Edit request on Task raised...")
+                    NotificationManager.success("Reopen request on Task raised...")
                 else
-                    NotificationManager.success("Edit request on Task cleared...")
+                    NotificationManager.success("Reopen request on Task cleared...")
             } else {
                 NotificationManager.error("Unknown error occurred")
             }
@@ -491,7 +490,10 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
     toggleDeleteRequest: (values) => {
         return dispatch(A.requestForTaskDeletePermissionOnServer(values._id)).then(json => {
             if (json.success) {
-                NotificationManager.success("Task Delete requested successfully")
+                if (json.data && json.data.estimator && json.data.estimator.removalRequested)
+                    NotificationManager.success("Delete request on Task raised...")
+                else
+                    NotificationManager.success("Delete request on Task cleared...")
             } else {
                 if (json.code == EC.INVALID_OPERATION)
                     NotificationManager.error("Task Delete already requested")
@@ -540,9 +542,9 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
         return dispatch(A.grantEditPermissionOfTaskOnServer(values._id)).then(json => {
             if (json.success) {
                 if (json.data && json.data.negotiator && json.data.negotiator.changeGranted)
-                    NotificationManager.success("Edit permission on task granted...")
+                    NotificationManager.success("Reopen permission on task granted...")
                 else
-                    NotificationManager.success("Edit permission on task not granted...")
+                    NotificationManager.success("Reopen permission on task not granted...")
             }
             else {
                 NotificationManager.error('Permission Grant Failed')

@@ -89,7 +89,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.ESTIMATION_INITIATE_DIALOG))
         dispatch(initialize('estimation-initiate', estimation))
     },
-    estimationGoBack: (event) => dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST)),
+
+    estimationGoBack: (event) => {
+        dispatch(A.getAllEstimationsFromServer('all', 'all')),
+            dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
+    },
 
     estimationApprove: (estimation) => dispatch(A.approveEstimationOnServer(estimation._id)).then(json => {
         if (json.success) {
@@ -101,13 +105,25 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 NotificationManager.error("Estimation approve failed")
         }
     }),
+
     reopenEstimation: (estimation) => dispatch(A.reopenEstimationOnServer(estimation._id)).then(json => {
         if (json.success) {
             NotificationManager.success("Estimation Reopen successfully")
         }
-            else{
-                NotificationManager.error("Estimation not reopened")
+        else {
+            NotificationManager.error("Estimation not reopened")
         }
+    }),
+
+
+    deleteEstimation: (estimation) => dispatch(A.deleteEstimationOnServer(estimation._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Estimation Deleted successfully")
+        }
+        else {
+            NotificationManager.error("Estimation Deletion failed")
+        }
+        return json
     })
 
 

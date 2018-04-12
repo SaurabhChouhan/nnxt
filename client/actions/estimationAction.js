@@ -102,6 +102,11 @@ export const clearFilterFromEstimation = () => ({
     type: AC.CLEAR_FILTER_FROM_ESTIMATION
 })
 
+export const deleteEstimation = (estimationID) => ({
+    type: AC.DELETE_ESTIMATION,
+    estimationID: estimationID
+})
+
 
 export const getAllEstimationsFromServer = (projectID, status) => {
     return (dispatch, getState) => {
@@ -167,6 +172,29 @@ export const updateEstimationOnServer = (estimation) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const deleteEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/delete", {
+            method: 'delete',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(deleteEstimation(estimationID))
                 }
                 return json
             })
@@ -696,7 +724,7 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationTask(json.data))
-                    if (json.data && json.data.feature  && json.data.feature._id) {
+                    if (json.data && json.data.feature && json.data.feature._id) {
                         dispatch(canNotApproveFeatureOnServer(json.data.feature._id, true))
                     }
                     if (json.data && json.data.estimation && json.data.isEstimationCanApprove && json.data.estimation._id) {

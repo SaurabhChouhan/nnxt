@@ -822,13 +822,46 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
     if (!feature.addedInThisIteration || feature.owner != SC.OWNER_NEGOTIATOR)
         feature.negotiator.changedInThisIteration = true
 
+
+    if ((
+            await EstimationTaskModel.count({
+                "feature._id": feature._id,
+                "isDeleted": false,
+                "estimator.removalRequested": true
+            })
+            + await EstimationTaskModel.count({
+                "feature._id": feature._id,
+                "isDeleted": false,
+                "estimator.changeRequested": true
+            })
+            +
+            await EstimationFeatureModel.count({
+                "_id": feature._id,
+                "isDeleted": false,
+                "estimator.removalRequested": true
+            }) +
+            await EstimationFeatureModel.count({
+                "feature._id": feature._id,
+                "isDeleted": false,
+                "estimator.changeRequested": true
+            })) <= 1) {
+        console.log("estimator.requestedInThisIteration before update")
+        let a = await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $set: {"estimator.requestedInThisIteration": false}
+
+        })
+
+        console.log("estimator.requestedInThisIteration after update", a)
+    }
+
+
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
     feature.canApprove = true
     feature.status = SC.STATUS_PENDING
     feature.updated = Date.now()
-     await feature.save()
+    await feature.save()
     feature = feature.toObject()
-    if (estimation && estimation.canApprove){
+    if (estimation && estimation.canApprove) {
         feature.isEstimationCanApprove = true
     }
     return feature

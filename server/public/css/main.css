@@ -613,7 +613,7 @@ table th {
 }
 
 .estimationfileoption {
-    padding-top: 5%;
+    padding-top: 1%;
 }
 
 .estimationfileoption ul {
@@ -1627,9 +1627,27 @@ label {
 .FilterBtn {
     margin: 6px 48px;
 }
-.suggestionRepo{
+
+.suggestionRepo {
 
     margin-left: 48px;
     margin-top: 120px;
     position: absolute;
 }
+
+.deleteEstimationBtn {
+    margin-top: 5px;
+    font-size: 29px !important;
+}
+
+.iconClr {
+    color: #FFFFFF !important;
+}
+
+.filterAlign {
+    margin-right: 13px;
+}
+i.iconClr:hover{
+    color: #F65A4F !important;
+}
+

@@ -24,6 +24,7 @@ let estimationSchema = mongoose.Schema({
     },
     technologies: [String],
     estimatedHours: {type: Number},
+    suggestedHours: {type: Number},
     description: String,
     canApprove: {type: Boolean, default: false},
     created: Date,
@@ -85,7 +86,9 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status: 1
+            status: 1,
+            estimatedHours: 1,
+            suggestedHours: 1
         })
 
 
@@ -106,7 +109,9 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
             technologies: 1,
             estimator: 1,
             negotiator: 1,
-            status: 1
+            status: 1,
+            estimatedHours:1,
+            suggestedHours:1
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
@@ -206,6 +211,8 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
         throw new AppError('Estimator not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     estimationInput.status = SC.STATUS_INITIATED
+    estimationInput.estimatedHours = 0
+    estimationInput.suggestedHours = 0
     estimationInput.project = project
     estimationInput.client = project.client
     estimationInput.estimator = estimator
@@ -219,6 +226,33 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     let estimation = await EstimationModel.create(estimationInput)
     estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
     return estimation
+}
+
+
+/**
+ * Estimation is deleted by Negotiator
+ * @param estimationInput
+ */
+estimationSchema.statics.deleteEstimationById = async (estimationID, negotiator) => {
+
+    // enhance estimation input as per requirement
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    let estimation = await EstimationModel.findById(estimationID)
+    // enhance estimation input as per requirement
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_INITIATED], estimation.status))
+        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + " or " + SC.STATUS_INITIATED + "] can delete Estimation", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id != negotiator._id)
+        throw new AppError('You are not a negotiator of this Estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    await EstimationTaskModel.remove({"estimation._id": estimationID})
+    await EstimationFeatureModel.remove({"estimation._id": estimationID})
+    await EstimationModel.remove({"_id": estimationID})
+    return {estimationID}
 }
 
 
