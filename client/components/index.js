@@ -87,15 +87,15 @@ export {default as  RepositoryFeatureDetailDialog} from './dialogs/RepositoryFea
 
 //Release List
 export {default as ReleaseList} from './lists/ReleaseList'
-export {default as ReleaseDetailList} from './lists/ReleaseDetailList'
+export {default as ReleaseProjectTaskList} from './lists/ReleaseProjectTaskList'
 
 //Release Forms
 export {default as ReleaseDeveloperFilterForm} from './forms/ReleaseDeveloperFilterForm'
-export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPlanningFormDialog'
 export {default as ReleaseTaskPlanningForm} from './forms/ReleaseTaskPlanningForm'
+export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPlanningFormDialog'
 
 //Release Pages
-export {default as ReleaseTaskDetailPage} from './pages/ReleaseTaskDetailPage'
+export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'
 
 
 //Raise Leave

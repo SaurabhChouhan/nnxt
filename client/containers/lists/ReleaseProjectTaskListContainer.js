@@ -1,6 +1,6 @@
 import {connect} from 'react-redux'
 import * as A from '../../actions'
-import {ReleaseDetailList} from "../../components"
+import {ReleaseProjectTaskList} from "../../components"
 import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 
@@ -10,7 +10,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.releaseTaskPlanSelected(taskPlanning)),
             dispatch(A.addDeveloperFilteredData([])),
             dispatch(A.getAllTaskPlannedFromServer(taskPlanning.task._id))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_DETAIL_PAGE))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
     },
     ReleaseProjectGoBack: (event) => dispatch(A.showComponentHideOthers(COC.RELEASE_LIST)),
 
@@ -22,14 +22,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => {
     return {
         loggedInUser: state.user.loggedIn,
-        release: state.release.selected,
-        releasePlans: state.release.allReleses
+        selectedProject: state.release.selectedProject,
+        projectTasks: state.release.projectTasks
     }
 }
 
-const ReleaseDetailListContainer = withRouter(connect(
+const ReleaseProjectTaskListContainer = withRouter(connect(
     mapStateToProps,
     mapDispatchToProps
-)(ReleaseDetailList))
+)(ReleaseProjectTaskList))
 
-export default ReleaseDetailListContainer
+export default ReleaseProjectTaskListContainer

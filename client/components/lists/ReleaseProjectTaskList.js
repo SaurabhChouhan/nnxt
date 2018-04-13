@@ -5,7 +5,7 @@ import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 import {ReleaseTaskSearchFormContainer} from '../../containers'
 
-class ReleaseDetailList extends Component {
+class ReleaseProjectTaskList extends Component {
 
     constructor(props) {
         super(props);
@@ -23,18 +23,17 @@ class ReleaseDetailList extends Component {
 
     onFlagChange(flag) {
         this.setState({flag: flag})
-        this.props.changeReleaseFlag(this.props.release, this.state.status, flag)
+        this.props.changeReleaseFlag(this.props.selectedProject, this.state.status, flag)
     }
 
     onStatusChange(status) {
         this.setState({status: status})
-        this.props.changeReleaseStatus(this.props.release, status, this.state.flag)
+        this.props.changeReleaseStatus(this.props.selectedProject, status, this.state.flag)
     }
 
     onRowClick(row) {
+        this.props.history.push("/app-home/release-task-planning")
         this.props.taskPlanSelected(row)
-        this.props.history.push("/app-home/release-task-detail")
-
     }
 
     formatDate(row) {
@@ -85,7 +84,7 @@ class ReleaseDetailList extends Component {
 
     render() {
         let team = 0
-        const {release} = this.props
+        const {selectedProject, projectTasks} = this.props
         return (
             <div key="estimation_list" className="clearfix">
 
@@ -100,7 +99,7 @@ class ReleaseDetailList extends Component {
                         <div className="releaseTitle">
                             <span>Project Name</span></div>
                         <div className="releasecontent">
-                            <p>{release.project ? release.project.name : ''}</p>
+                            <p>{selectedProject.project ? selectedProject.project.name : ''}</p>
                         </div>
                     </div>
                     {/* <div className="col-md-3">
@@ -114,28 +113,28 @@ class ReleaseDetailList extends Component {
                         <div className="releaseTitle">
                             <span>Start Date</span></div>
                         <div className="releasecontent">
-                            <p>{release.initial ? moment(release.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span>End Date</span></div>
                         <div className="releasecontent">
-                            <p>{release.initial ? moment(release.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span>Release Date</span></div>
                         <div className="releasecontent">
-                            <p>{release.initial ? moment(release.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className=" col-md-2 releasefileoption">
                         <ul className="list-unstyled">
-                            <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
-                            <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
-                            <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
+                            <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
+                            <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
+                            <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </div>
 
@@ -146,20 +145,21 @@ class ReleaseDetailList extends Component {
                             <div className="releaseTeamManager"><span>Manager</span>
                             </div>
                             <div className="estimationuser tooltip"><span>M</span>
-                                <p className="tooltiptext">{release.manager ? release.manager.firstName : ''}</p>
+                                <p className="tooltiptext">{selectedProject.manager ? selectedProject.manager.firstName : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-2 pad ">
                             <div className="releaseTeamLeader"><span> Leader</span>
                             </div>
                             <div className="estimationuser tooltip"><span>L</span>
-                                <p className="tooltiptext">{release.leader ? release.leader.firstName : ''}</p></div>
+                                <p className="tooltiptext">{selectedProject.leader ? selectedProject.leader.firstName : ''}</p>
+                            </div>
                         </div>
                         <div className="col-md-8 pad ">
                             <div className="releaseTeam"><span>Team</span>
                             </div>
                             {
-                                release.team.map((teamMember, index) => {
+                                selectedProject.team.map((teamMember, index) => {
                                     return <div key={"teamMember" + index} className="estimationuser tooltip">
                                         <span>T{index + 1}</span>
                                         <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
@@ -209,7 +209,7 @@ class ReleaseDetailList extends Component {
                     </div>
 
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={this.props.releasePlans}
+                        <BootstrapTable options={this.options} data={projectTasks}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}
@@ -245,4 +245,4 @@ class ReleaseDetailList extends Component {
     }
 }
 
-export default withRouter(ReleaseDetailList)
+export default withRouter(ReleaseProjectTaskList)

@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import {ReleaseTaskDetailPage} from '../../components'
+import {ReleaseTaskPlanningPage} from '../../components'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {initialize} from 'redux-form'
@@ -40,21 +40,20 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Added")
     }),
     ReleaseTaskGoBack: (event) =>
-        dispatch(A.showComponentHideOthers(COC.RELEASE_DETAIL_LIST))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST))
 })
 
 
 const mapStateToProps = (state) => ({
-    loggedInUser: state.user.loggedIn,
-    releasePlan: state.release.selectedTaskPlan,
-    taskPlanning: state.release.taskPlanning,
+    taskPlan: state.release.selectedTask,
+    taskPlans: state.release.taskPlans,
     developerPlanned: state.release.developerPlanned,
     data: []
 })
 
-const ReleaseTaskDetailPageContainer = connect(
+const ReleaseTaskPlanningPageContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(ReleaseTaskDetailPage)
+)(ReleaseTaskPlanningPage)
 
-export default ReleaseTaskDetailPageContainer
+export default ReleaseTaskPlanningPageContainer

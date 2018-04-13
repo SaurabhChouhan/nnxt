@@ -4,7 +4,7 @@ import {withRouter} from 'react-router-dom'
 import moment from 'moment'
 import {ReleaseDeveloperFilterFormContainer} from '../../containers'
 
-class ReleaseTaskDetailPage extends Component {
+class ReleaseTaskPlanningPage extends Component {
 
     constructor(props) {
         super(props);
@@ -66,7 +66,7 @@ class ReleaseTaskDetailPage extends Component {
 
     render() {
         // const {release} = this.props
-        const {releasePlan, taskPlanning, developerPlanned} = this.props
+        const {taskPlan, taskPlans, developerPlanned} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -76,19 +76,19 @@ class ReleaseTaskDetailPage extends Component {
 
                                 <h5>
                                     <button className="btn-link" onClick={() => {
-                                        this.props.history.push("/app-home/release-project-detail")
+                                        this.props.history.push("/app-home/release-project-tasks")
                                         this.props.ReleaseTaskGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                                    <b>{releasePlan.task ? releasePlan.task.name : ''} </b></h5>
+                                    <b>{taskPlan.task ? taskPlan.task.name : ''} </b></h5>
                             </div>
                         </div>
                         <div className="col-md-4  releaseClock ">
-                            <i className="fa fa-clock-o "></i><b>{releasePlan.task ? releasePlan.task.estimatedHours : ''}
+                            <i className="fa fa-clock-o "></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
                             Hrs</b>
                         </div>
                     </div>
                     <div className="col-md-12 ">
-                        <div className=" releasecontent">
+                        <div className="releasecontent">
                             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ipsum sem, interdum et
                                 est id, pellentesque tempus leo. Nulla sagittis quam sapien, nec egestas. Nulla arcu
                                 odio.(Read More...)</p>
@@ -99,20 +99,16 @@ class ReleaseTaskDetailPage extends Component {
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn taskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan)}><i
+                                    onClick={() => this.props.showTaskPlanningCreationForm(taskPlan)}><i
                                 className="fa fa-plus-circle"></i>
-                                Add New Row
-                            </button>
-                        </div>
-                        <div className="col-md-4 planBtn">
-                            <button className="btn customBtn" onClick={() => this.props.planTask(taskPlanning)}>
                                 Plan Task
                             </button>
                         </div>
+
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={taskPlanning}
+                            <BootstrapTable options={this.options} data={taskPlans}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
@@ -250,4 +246,4 @@ class ReleaseTaskDetailPage extends Component {
 }
 
 
-export default withRouter(ReleaseTaskDetailPage)
+export default withRouter(ReleaseTaskPlanningPage)

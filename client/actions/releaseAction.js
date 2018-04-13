@@ -1,23 +1,26 @@
 import * as AC from './actionConsts'
 
-let localId = 1
-
-export const addReleases = (releases) => ({
-    type: AC.ADD_RELEASES,
-    releases: releases
+export const addReleaseProjects = (projects) => ({
+    type: AC.ADD_RELEASE_PROJECTS,
+    projects: projects
 })
 
-export const addReleasePlans = (releasePlans) => ({
-    type: AC.ADD_RELEASES_TASK,
-    releasePlans: releasePlans
+export const addReleasePlans = (releaseProjectTasks) => ({
+    type: AC.ADD_RELEASE_PROJECT_TASKS,
+    releaseProjectTasks: releaseProjectTasks
 })
-export const addReleaseTaskPlanning = (taskPlanning) => ({
-    type: AC.ADD_RELEASES_TASK_PLANNING,
-    taskPlanning: taskPlanning
+export const addReleaseTaskPlannings = (taskPlans) => ({
+    type: AC.ADD_RELEASE_TASK_PLANNINGS,
+    taskPlans: taskPlans
+})
+
+export const addReleaseTaskPlanningToState = (taskPlan) => ({
+    type: AC.ADD_RELEASE_TASK_PLANNING_TO_STATE,
+    taskPlan: taskPlan
 })
 
 export const releaseProjectSelected = (project) => ({
-    type: AC.ADD_RELEASE_PROJECT_SELECTED,
+    type: AC.RELEASE_PROJECT_SELECTED,
     project: project
 })
 
@@ -26,13 +29,6 @@ export const releaseTaskPlanSelected = (taskPlan) => ({
     taskPlan: taskPlan
 })
 
-export const addTaskPlanningToState = (taskPlan) => {
-    taskPlan.localId = localId++
-    return {
-        type: AC.ADD_TASK_PLANNING_TO_STATE,
-        taskPlan: taskPlan
-    }
-}
 
 export const deleteTaskPlanningFromState = (planId) => ({
     type: AC.DELETE_TASK_PLAN_FROM_STATE,
@@ -44,7 +40,7 @@ export const addDeveloperFilteredData = (developerPlanned) => ({
     developerPlanned: developerPlanned
 })
 
-export const getAllReleaseFromServer = (status) => {
+export const getAllReleaseProjectsFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {
                 method: 'get',
@@ -59,11 +55,12 @@ export const getAllReleaseFromServer = (status) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleases(json.data))
+                    dispatch(addReleaseProjects(json.data))
                 }
             })
     }
 }
+
 
 export const getAllTaskPlannedFromServer = (taskId) => {
     return (dispatch, getState) => {
@@ -80,7 +77,7 @@ export const getAllTaskPlannedFromServer = (taskId) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseTaskPlanning(json.data))
+                    dispatch(addReleaseTaskPlannings(json.data))
                 }
             })
     }
@@ -123,7 +120,7 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseTaskPlanning(json.data))
+                    dispatch(addReleaseTaskPlanningToState(json.data))
                 }
                 return json
             })
