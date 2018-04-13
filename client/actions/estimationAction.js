@@ -347,8 +347,8 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
             json => {
                 if (json.success) {
                     dispatch(deleteEstimationTask(json.data))
-                    if (json.data && json.data.feature && json.data.feature._id) {
-                        dispatch(getFeatureFromServer(json.data.feature._id))
+                    if (json.data && json.data.estimation && json.data.estimation._id) {
+                        dispatch(getEstimationFromServer(json.data.estimation._id))
                     }
                 }
                 return json

@@ -892,6 +892,27 @@ estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator
 
     if (!(task.canApprove))
         throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+
+    if (task.negotiator.estimatedHours != task.estimator.estimatedHours) {
+
+        if (estimation && estimation._id) {
+            await EstimationModel.updateOne({"_id": estimation._id}, {
+                $inc: {
+                    "suggestedHours": task.negotiator.estimatedHours ? task.estimator.estimatedHours - task.negotiator.estimatedHours : task.estimator.estimatedHours,
+                },
+            })
+        }
+        if (task.feature && task.feature._id) {
+            await EstimationFeatureModel.updateOne({"_id": task.feature._id}, {
+                $inc: {
+                    "negotiator.estimatedHours": task.negotiator.estimatedHours ? task.estimator.estimatedHours - task.negotiator.estimatedHours : task.estimator.estimatedHours,
+                },
+            })
+        }
+    }
+
+
+
     task.negotiator.name = task.estimator.name
     task.negotiator.description = task.estimator.description
     task.negotiator.estimatedHours = task.estimator.estimatedHours
