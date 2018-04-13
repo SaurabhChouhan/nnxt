@@ -32,9 +32,8 @@ class ReleaseProjectTaskList extends Component {
     }
 
     onRowClick(row) {
-        this.props.taskPlanSelected(row)
         this.props.history.push("/app-home/release-task-planning")
-
+        this.props.taskPlanSelected(row)
     }
 
     formatDate(row) {

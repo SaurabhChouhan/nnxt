@@ -5,9 +5,9 @@ export const addReleaseProjects = (projects) => ({
     projects: projects
 })
 
-export const addReleasePlans = (releasePlans) => ({
-    type: AC.ADD_RELEASES_TASK,
-    releasePlans: releasePlans
+export const addReleasePlans = (releaseProjectTasks) => ({
+    type: AC.ADD_RELEASE_PROJECT_TASKS,
+    releaseProjectTasks: releaseProjectTasks
 })
 export const addReleaseTaskPlanning = (taskPlan) => ({
     type: AC.ADD_RELEASE_TASK_PLANNING,

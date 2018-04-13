@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import {ReleaseTaskDetailPage} from '../../components'
+import {ReleaseTaskPlanningPage} from '../../components'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {initialize} from 'redux-form'
@@ -52,9 +52,9 @@ const mapStateToProps = (state) => ({
     data: []
 })
 
-const ReleaseTaskDetailPageContainer = connect(
+const ReleaseTaskPlanningPageContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(ReleaseTaskDetailPage)
+)(ReleaseTaskPlanningPage)
 
-export default ReleaseTaskDetailPageContainer
+export default ReleaseTaskPlanningPageContainer

@@ -95,7 +95,7 @@ export {default as ReleaseTaskPlanningForm} from './forms/ReleaseTaskPlanningFor
 export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPlanningFormDialog'
 
 //Release Pages
-export {default as ReleaseTaskDetailPage} from './pages/ReleaseTaskDetailPage'
+export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'
 
 
 //Raise Leave

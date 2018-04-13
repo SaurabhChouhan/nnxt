@@ -4,7 +4,7 @@ import {withRouter} from 'react-router-dom'
 import moment from 'moment'
 import {ReleaseDeveloperFilterFormContainer} from '../../containers'
 
-class ReleaseTaskDetailPage extends Component {
+class ReleaseTaskPlanningPage extends Component {
 
     constructor(props) {
         super(props);
@@ -246,4 +246,4 @@ class ReleaseTaskDetailPage extends Component {
 }
 
 
-export default withRouter(ReleaseTaskDetailPage)
+export default withRouter(ReleaseTaskPlanningPage)
