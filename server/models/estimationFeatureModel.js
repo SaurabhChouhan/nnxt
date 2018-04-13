@@ -388,6 +388,17 @@ estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, n
     if (pendingTaskCountOfFeature != 0)
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
+    if (feature.negotiator.estimatedHours != feature.estimator.estimatedHours) {
+
+        if (estimation && estimation._id) {
+            await EstimationModel.updateOne({"_id": estimation._id}, {
+                $inc: {
+                    "suggestedHours": feature.negotiator.estimatedHours ? feature.estimator.estimatedHours - feature.negotiator.estimatedHours : feature.estimator.estimatedHours,
+                },
+            })
+        }
+    }
+
     feature.negotiator.name = feature.estimator.name
     feature.negotiator.description = feature.estimator.description
     feature.negotiator.estimatedHours = feature.estimator.estimatedHours

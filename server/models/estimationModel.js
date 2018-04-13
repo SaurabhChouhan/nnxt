@@ -676,6 +676,7 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
         existingEstimationStatusHistory = [statusHistory]
 
     estimation.statusHistory = existingEstimationStatusHistory
+    estimation.suggestedHours = estimation.estimatedHours
     estimation.status = SC.STATUS_APPROVED
     estimation.canApprove = false
     estimation.updated = Date.now()
