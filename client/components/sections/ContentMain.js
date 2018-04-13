@@ -7,7 +7,7 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     RaiseLeaveListContainer,
-    ReleaseDetailListContainer,
+    ReleaseProjectTaskListContainer,
     ReleaseListContainer,
     ReleaseTaskDetailPageContainer,
     TechnologyListContainer,
@@ -210,11 +210,11 @@ class ContentMain extends Component {
         })
 
         routes.push({
-            url: "/release-project-detail",
+            url: "/release-project-tasks",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleaseDetailListContainer name={COC.RELEASE_DETAIL_LIST}/>
+                    <ReleaseProjectTaskListContainer name={COC.RELEASE_PROJECT_TASK_LIST}/>
                 </ContentSection>
 
             }

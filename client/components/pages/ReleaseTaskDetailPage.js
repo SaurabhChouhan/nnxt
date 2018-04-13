@@ -66,7 +66,7 @@ class ReleaseTaskDetailPage extends Component {
 
     render() {
         // const {release} = this.props
-        const {releasePlan, taskPlanning, developerPlanned} = this.props
+        const {releasePlan, taskPlans, developerPlanned} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -76,7 +76,7 @@ class ReleaseTaskDetailPage extends Component {
 
                                 <h5>
                                     <button className="btn-link" onClick={() => {
-                                        this.props.history.push("/app-home/release-project-detail")
+                                        this.props.history.push("/app-home/release-project-tasks")
                                         this.props.ReleaseTaskGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                                     <b>{releasePlan.task ? releasePlan.task.name : ''} </b></h5>
@@ -104,15 +104,11 @@ class ReleaseTaskDetailPage extends Component {
                                 Add New Row
                             </button>
                         </div>
-                        <div className="col-md-4 planBtn">
-                            <button className="btn customBtn" onClick={() => this.props.planTask(taskPlanning)}>
-                                Plan Task
-                            </button>
-                        </div>
+
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={taskPlanning}
+                            <BootstrapTable options={this.options} data={taskPlans}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id'

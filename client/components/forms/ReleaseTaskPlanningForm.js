@@ -8,7 +8,7 @@ import momentLocalizer from 'react-widgets-moment'
 moment.locale('en')
 momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
-    const {change, team, handleSubmit, reset} = props
+    const {change, team, handleSubmit, submitting, pristine, reset} = props
 
     return <form onSubmit={handleSubmit}>
         <div className="row">
@@ -34,10 +34,12 @@ let ReleaseTaskPlanningForm = (props) => {
 
             <div className="col-md-12">
                 <div className="col-md-4">
-                    <button type="submit" className="btn customBtn">Save To Local</button>
+                    <button type="submit" className="btn customBtn" disabled={submitting || pristine}>Plan Task</button>
                 </div>
                 <div className="col-md-4">
-                    <button type="button" className="btn customBtn" onClick={reset}>Reset</button>
+                    <button type="button" className="btn customBtn" disabled={submitting || pristine} onClick={reset}>
+                        Reset
+                    </button>
                 </div>
             </div>
 
