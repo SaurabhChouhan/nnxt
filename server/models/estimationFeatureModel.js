@@ -628,11 +628,13 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
     estimationFeature.initiallyEstimated = true
 
     estimationFeature.estimator.name = repositoryFeature.name
-    estimationFeature.negotiator.name = repositoryFeature.name
-    estimationFeature.estimator.estimatedHours = repositoryFeature.estimatedHours ? estimatedHours : 0
-    estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours ? estimatedHours : 0
     estimationFeature.estimator.description = repositoryFeature.description
+    estimationFeature.estimator.estimatedHours = repositoryFeature.estimatedHours ? estimatedHours : 0
+
+    estimationFeature.negotiator.name = repositoryFeature.name
     estimationFeature.negotiator.description = repositoryFeature.description
+    estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours ? estimatedHours : 0
+
     estimationFeature.estimation = estimation
     estimationFeature.repo = {}
     estimationFeature.repo._id = repositoryFeature._id
@@ -647,6 +649,11 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByEstimator = async (est
         estimationTask.estimator.name = repositoryTask.name
         estimationTask.estimator.description = repositoryTask.description
         estimationTask.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
+
+        estimationTask.negotiator.name = repositoryTask.name
+        estimationTask.negotiator.description = repositoryTask.description
+        estimationTask.negotiator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
+
         estimationTask.status = SC.STATUS_PENDING
         estimationTask.addedInThisIteration = true
         estimationTask.owner = SC.OWNER_ESTIMATOR
@@ -916,11 +923,13 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
     estimationFeature.changedKeyInformation = true
 
     estimationFeature.negotiator.name = repositoryFeature.name
-    estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.negotiator.description = repositoryFeature.description
+    estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours ? repositoryFeature.estimatedHours : 0
+
+
+    estimationFeature.estimator.name = repositoryFeature.name
     estimationFeature.estimator.description = repositoryFeature.description
     estimationFeature.estimator.estimatedHours = repositoryFeature.estimatedHours ? repositoryFeature.estimatedHours : 0
-    estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours ? repositoryFeature.estimatedHours : 0
     estimationFeature.estimation = estimation
     estimationFeature.repo = {}
     estimationFeature.repo._id = repositoryFeature._id
@@ -940,6 +949,10 @@ estimationFeatureSchema.statics.addFeatureFromRepositoryByNegotiator = async (es
         estimationTask.estimator.name = repositoryTask.name
         estimationTask.estimator.description = repositoryTask.description
         estimationTask.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
+
+        estimationTask.negotiator.name = repositoryTask.name
+        estimationTask.negotiator.description = repositoryTask.description
+        estimationTask.negotiator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
         estimationTask.status = SC.STATUS_PENDING
         estimationTask.addedInThisIteration = true
         estimationTask.owner = SC.OWNER_NEGOTIATOR

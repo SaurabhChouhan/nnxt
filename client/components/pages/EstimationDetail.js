@@ -231,11 +231,11 @@ class EstimationDetail extends Component {
                         <div className="estimationuser"><span>E</span></div>
                         <div className="estimationuser"><span>N</span></div>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-2">
                         <div className="logo">
                             <img src="/images/react.png"/>
                             <img src="/images/mongodb.png"/>
-                            <img src="/images/node.png"/>
+                            {/*  <img src="/images/node.png"/>*/}
 
                         </div>
                     </div>
@@ -247,22 +247,34 @@ class EstimationDetail extends Component {
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showAddTaskForm(estimation)}><i
                                 className="fa fa-plus-circle"></i>
-                                Add task
+                                Add Task
                             </button>
                             <button type="button" className="btn featurebtn"
                                     onClick={() => this.props.showAddFeatureForm(estimation)}
                             ><i className="fa fa-plus-circle"></i>
-                                Add feature
+                                Add Feature
                             </button>
                         </form>}
                     </div>
+                    <div className="col-md-3">
 
-                    <div className="col-md-2 text-right esTime">
-                        <b>{estimation.estimatedHours}</b>
-                        <div className="clock">
-                            <i className="fa fa-clock-o "></i>
+                        <div className="col-md-6  esTime">
+                            <b>{estimation.suggestedHours + " Hrs"}</b>
+                            <div className="suggestedclock">
+                                <i className="fa fa-clock-o "></i>
+                            </div>
+
+                        </div>
+                        <div className="col-md-6  esTime">
+                            <b>{estimation.estimatedHours + " Hrs"}</b>
+                            <div className="clock">
+                                <i className="fa fa-clock-o "></i>
+                            </div>
+
                         </div>
                     </div>
+
+
                 </div>
 
                 <div className=" col-md-12">
