@@ -40,7 +40,7 @@ const SidebarSection = (props) => <section className="sidebar">
 
                     }}>Attendance Setting</Link></li>
                     <li><Link to="/app-home/release" onClick={() => {
-                        props.dispatch(A.getAllReleaseFromServer("all"))
+                        props.dispatch(A.getAllReleaseProjectsFromServer("all"))
                         props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
                     }}>Release</Link></li>
                 </ul>

@@ -47,27 +47,20 @@ let taskPlanningSchema = mongoose.Schema({
 
 taskPlanningSchema.statics.addTaskPlanningDetails = async (taskPlanningInput, user) => {
 
-    if (taskPlanningInput && Array.isArray(taskPlanningInput) && taskPlanningInput.length > 0) {
-        let taskPlanningPromises = taskPlanningInput.map(async task => {
-            let taskPlanning = new TaskPlanningModel()
-            if (!task._id) {
-                taskPlanning.created = Date.now()
-                taskPlanning.planningDate = moment(task.planningDate)
-                taskPlanning.planningDateString = task.planningDate
-                taskPlanning.task = task.task
-                taskPlanning.release = task.release
-                taskPlanning.releasePlan = task.releasePlan
-                taskPlanning.employee = task.employee
-                taskPlanning.flags = task.flags
-                taskPlanning.planning = task.planning
-                taskPlanning.report = task.report
-                return await taskPlanning.save()
-            }
-            else return task
-        })
-        return await Promise.all(taskPlanningPromises)
-    }
-    else return []
+    let taskPlanning = new TaskPlanningModel()
+    taskPlanning.created = Date.now()
+    taskPlanning.planningDate = moment(taskPlanningInput.planningDate)
+    taskPlanning.planningDateString = taskPlanningInput.planningDate
+    taskPlanning.task = taskPlanningInput.task
+    taskPlanning.release = taskPlanningInput.release
+    taskPlanning.releasePlan = taskPlanningInput.releasePlan
+    taskPlanning.employee = taskPlanningInput.employee
+    taskPlanning.flags = taskPlanningInput.flags
+    taskPlanning.planning = taskPlanningInput.planning
+    taskPlanning.report = taskPlanningInput.report
+
+    return await taskPlanning.save()
+
 }
 
 taskPlanningSchema.statics.getTaskPlanningDetails = async (taskId, user) => {
