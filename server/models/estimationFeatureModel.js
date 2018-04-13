@@ -612,7 +612,7 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
                 "canApprove": false
             })
         } else if (feature.negotiator.estimatedHours) {
-            await EstimationModel.updateOne({_id: feature._id}, {
+            await EstimationModel.updateOne({_id: estimation._id}, {
                 $inc: {"suggestedHours": -feature.negotiator.estimatedHours},
                 "canApprove": false
             })
