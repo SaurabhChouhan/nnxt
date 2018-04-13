@@ -4,10 +4,7 @@ import {ReleaseList} from "../../components"
 import * as COC from '../../components/componentConsts'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    changeReleaseStatus: (status) => {
-        if (status)
-            return dispatch(A.getAllReleaseFromServer(status))
-    },
+    changeReleaseStatus: (status) => dispatch(A.getAllReleaseProjectsFromServer(status)),
     projectSelected: (release) => {
         dispatch(A.releaseProjectSelected(release))
         dispatch(A.getTaskReleaseFromServer(release, "all", "all"))

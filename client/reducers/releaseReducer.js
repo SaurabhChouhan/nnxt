@@ -12,8 +12,8 @@ let initialState = {
 
 const clientReducer = (state = initialState, action) => {
     switch (action.type) {
-        case AC.ADD_RELEASES:
-            return Object.assign({}, state, {all: action.releases})
+        case AC.ADD_RELEASE_PROJECTS:
+            return Object.assign({}, state, {all: action.projects ? action.projects : []})
 
         case AC.RELEASE_PROJECT_SELECTED:
             return Object.assign({}, state, {

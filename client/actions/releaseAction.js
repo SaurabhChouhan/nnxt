@@ -1,8 +1,8 @@
 import * as AC from './actionConsts'
 
-export const addReleases = (releases) => ({
-    type: AC.ADD_RELEASES,
-    releases: releases
+export const addReleaseProjects = (projects) => ({
+    type: AC.ADD_RELEASE_PROJECTS,
+    projects: projects
 })
 
 export const addReleasePlans = (releasePlans) => ({
@@ -35,7 +35,7 @@ export const addDeveloperFilteredData = (developerPlanned) => ({
     developerPlanned: developerPlanned
 })
 
-export const getAllReleaseFromServer = (status) => {
+export const getAllReleaseProjectsFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {
                 method: 'get',
@@ -50,11 +50,12 @@ export const getAllReleaseFromServer = (status) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleases(json.data))
+                    dispatch(addReleaseProjects(json.data))
                 }
             })
     }
 }
+
 
 export const getAllTaskPlannedFromServer = (taskId) => {
     return (dispatch, getState) => {
