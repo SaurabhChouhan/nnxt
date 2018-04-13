@@ -299,7 +299,7 @@ const addNNXTUsers = async () => {
     }
 
     let negotiatorRole = await RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
-    // create estimator user
+    // create negotitor user
     if (!await UserModel.exists('negotiator1@test.com')) {
         await UserModel.saveUser({
             email: 'negotiator1@test.com',
@@ -325,16 +325,125 @@ const addNNXTUsers = async () => {
             dateJoined: '01-01-2018'
         })
     }
-
-    if (!await UserModel.exists('negotiator3@test.com')) {
+    let managerRole = await RoleModel.findOne({name: SC.ROLE_MANAGER}).lean()
+    // create manager user
+    if (!await UserModel.exists('manger1@test.com')) {
         await UserModel.saveUser({
-            email: 'negotiator3@test.com',
-            firstName: "Negotiator-3",
-            lastName: "Three",
-            roles: [negotiatorRole],
-            password: "negotiator",
+            email: 'manger1@test.com',
+            firstName: "Manager-1",
+            lastName: "One",
+            roles: [managerRole],
+            password: "manger",
             employeeCode: 'emp-006',
             designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await UserModel.exists('manger2@test.com')) {
+        await UserModel.saveUser({
+            email: 'manger2@test.com',
+            firstName: "Manager-2",
+            lastName: "Two",
+            roles: [managerRole],
+            password: "manger",
+            employeeCode: 'emp-007',
+            designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await UserModel.exists('manger3@test.com')) {
+        await UserModel.saveUser({
+            email: 'manger3@test.com',
+            firstName: "Manager-3",
+            lastName: "Three",
+            roles: [managerRole],
+            password: "manger",
+            employeeCode: 'emp-008',
+            designation: SC.DESIGNATION_MANAGER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    let leaderRole = await RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
+    // create manager user
+    if (!await UserModel.exists('leader1@test.com')) {
+        await UserModel.saveUser({
+            email: 'leader1@test.com',
+            firstName: "Leader-1",
+            lastName: "One",
+            roles: [leaderRole],
+            password: "leader",
+            employeeCode: 'emp-009',
+            designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await UserModel.exists('leader2@test.com')) {
+        await UserModel.saveUser({
+            email: 'leader2@test.com',
+            firstName: "Leader-2",
+            lastName: "Two",
+            roles: [leaderRole],
+            password: "leader",
+            employeeCode: 'emp-010',
+            designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await UserModel.exists('leader3@test.com')) {
+        await UserModel.saveUser({
+            email: 'leader3@test.com',
+            firstName: "Leader-3",
+            lastName: "Three",
+            roles: [leaderRole],
+            password: "leader",
+            employeeCode: 'emp-011',
+            designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    let developerRole = await RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
+    // create manager user
+    if (!await UserModel.exists('leader1@test.com')) {
+        await UserModel.saveUser({
+            email: 'developer1@test.com',
+            firstName: "Developer-1",
+            lastName: "One",
+            roles: [developerRole],
+            password: "developer",
+            employeeCode: 'emp-012',
+            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await UserModel.exists('developer2@test.com')) {
+        await UserModel.saveUser({
+            email: 'developer2@test.com',
+            firstName: "Developer-2",
+            lastName: "Two",
+            roles: [leaderRole],
+            password: "developer",
+            employeeCode: 'emp-013',
+            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await UserModel.exists('developer3@test.com')) {
+        await UserModel.saveUser({
+            email: 'developer3@test.com',
+            firstName: "Developer-3",
+            lastName: "Three",
+            roles: [leaderRole],
+            password: "developer",
+            employeeCode: 'emp-014',
+            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
             dateJoined: '01-01-2018'
         })
     }
