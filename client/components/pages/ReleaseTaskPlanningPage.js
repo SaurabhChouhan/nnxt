@@ -101,7 +101,7 @@ class ReleaseTaskPlanningPage extends Component {
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showTaskPlanningCreationForm(taskPlan)}><i
                                 className="fa fa-plus-circle"></i>
-                                Add New Row
+                                Plan Task
                             </button>
                         </div>
 
