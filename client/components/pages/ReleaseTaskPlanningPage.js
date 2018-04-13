@@ -66,7 +66,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
         // const {release} = this.props
-        const {releasePlan, taskPlans, developerPlanned} = this.props
+        const {taskPlan, taskPlans, developerPlanned} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -79,11 +79,11 @@ class ReleaseTaskPlanningPage extends Component {
                                         this.props.history.push("/app-home/release-project-tasks")
                                         this.props.ReleaseTaskGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                                    <b>{releasePlan.task ? releasePlan.task.name : ''} </b></h5>
+                                    <b>{taskPlan.task ? taskPlan.task.name : ''} </b></h5>
                             </div>
                         </div>
                         <div className="col-md-4  releaseClock ">
-                            <i className="fa fa-clock-o "></i><b>{releasePlan.task ? releasePlan.task.estimatedHours : ''}
+                            <i className="fa fa-clock-o "></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
                             Hrs</b>
                         </div>
                     </div>
@@ -99,7 +99,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn taskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan)}><i
+                                    onClick={() => this.props.showTaskPlanningCreationForm(taskPlan)}><i
                                 className="fa fa-plus-circle"></i>
                                 Add New Row
                             </button>

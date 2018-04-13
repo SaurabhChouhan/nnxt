@@ -45,8 +45,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    loggedInUser: state.user.loggedIn,
-    releasePlan: state.release.selectedTaskPlan,
+    taskPlan: state.release.selectedTask,
     taskPlans: state.release.taskPlans,
     developerPlanned: state.release.developerPlanned,
     data: []
