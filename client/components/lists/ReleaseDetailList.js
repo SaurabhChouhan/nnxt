@@ -133,9 +133,9 @@ class ReleaseDetailList extends Component {
                     </div>
                     <div className=" col-md-2 releasefileoption">
                         <ul className="list-unstyled">
-                            <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
-                            <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
-                            <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
+                            <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
+                            <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
+                            <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </div>
 
