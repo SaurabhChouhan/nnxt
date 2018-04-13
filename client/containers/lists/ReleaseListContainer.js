@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => {
     return {
         loggedInUser: state.user.loggedIn,
-        releases: state.release.all
+        projects: state.release.all
 
 
     }

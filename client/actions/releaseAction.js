@@ -1,7 +1,5 @@
 import * as AC from './actionConsts'
 
-let localId = 1
-
 export const addReleases = (releases) => ({
     type: AC.ADD_RELEASES,
     releases: releases
@@ -11,13 +9,13 @@ export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASES_TASK,
     releasePlans: releasePlans
 })
-export const addReleaseTaskPlanning = (taskPlanning) => ({
-    type: AC.ADD_RELEASES_TASK_PLANNING,
-    taskPlanning: taskPlanning
+export const addReleaseTaskPlanning = (taskPlan) => ({
+    type: AC.ADD_RELEASE_TASK_PLANNING,
+    taskPlans: taskPlan
 })
 
 export const releaseProjectSelected = (project) => ({
-    type: AC.ADD_RELEASE_PROJECT_SELECTED,
+    type: AC.RELEASE_PROJECT_SELECTED,
     project: project
 })
 
@@ -26,13 +24,6 @@ export const releaseTaskPlanSelected = (taskPlan) => ({
     taskPlan: taskPlan
 })
 
-export const addTaskPlanningToState = (taskPlan) => {
-    taskPlan.localId = localId++
-    return {
-        type: AC.ADD_TASK_PLANNING_TO_STATE,
-        taskPlan: taskPlan
-    }
-}
 
 export const deleteTaskPlanningFromState = (planId) => ({
     type: AC.DELETE_TASK_PLAN_FROM_STATE,

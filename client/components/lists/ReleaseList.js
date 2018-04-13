@@ -94,17 +94,17 @@ class ReleaseList extends Component {
     }
 
     render() {
+        const {projects} = this.props
         return (
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
                     <div className="col-md-4  releaseSearchContent ">
-                        {/*  <ReleaseProjectSearchFormContainer/>
-                            */}
                         <div className="estimation releaseSelect  releaseSearchStatus">
                             <select className="form-control" onChange={(status) =>
                                 this.props.changeReleaseStatus(status.target.value)
                             }>
                                 <option value="all">All Status</option>
+
                                 <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
                                 <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
                                 <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
@@ -117,37 +117,48 @@ class ReleaseList extends Component {
 
                     </div>
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={this.props.releases}
+                        <BootstrapTable options={this.options} data={projects}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}
                                         hover={true}>
-                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                            </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='created'
                                                dataFormat={this.formatCreatedDate.bind(this)}>
-                                Created </TableHeaderColumn>
+                                Created
+                            </TableHeaderColumn>
                             <TableHeaderColumn columnTitle={"Project Name"} dataField='project'
                                                dataFormat={this.formateProjectName.bind(this)}>
-                                Project </TableHeaderColumn>
+                                Project
+                            </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='manager'
-                                               dataFormat={this.formatManager.bind(this)}> Manager
+                                               dataFormat={this.formatManager.bind(this)}>
+                                Manager
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='leader'
-                                               dataFormat={this.formatLeader.bind(this)}> Leader
+                                               dataFormat={this.formatLeader.bind(this)}>
+                                Leader
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatHours.bind(this)}> Billed Hours
+                                               dataFormat={this.formatHours.bind(this)}>
+                                Billed Hours
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatStartDate.bind(this)}>Start
-                                Date</TableHeaderColumn>
+                                               dataFormat={this.formatStartDate.bind(this)}>
+                                Start Date
+                            </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatEndDate.bind(this)}>End
-                                Date</TableHeaderColumn>
+                                               dataFormat={this.formatEndDate.bind(this)}>
+                                End Date
+                            </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatReleaseDate.bind(this)}>Release
-                                Date</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
+                                               dataFormat={this.formatReleaseDate.bind(this)}>
+                                Release Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='status'>
+                                Status
+                            </TableHeaderColumn>
                         </BootstrapTable>
                     </div>
                 </div>
