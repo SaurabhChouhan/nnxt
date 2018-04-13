@@ -161,9 +161,10 @@ export const renderLoginField = ({
 export const renderMultiselect = ({
                                       input,
                                       data,
-                                      valueField,
+                                      valueField = "_id",
                                       disabled = false,
-                                      textField, label,
+                                      textField = "name",
+                                      label,
                                       placeholder,
                                       meta: {touched, error, warning}
                                   }) =>

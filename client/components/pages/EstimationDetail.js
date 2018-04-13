@@ -192,11 +192,15 @@ class EstimationDetail extends Component {
 
                     </div>
                     <div className="col-md-1">
-                        < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
-                            this.setState({showEstimationDeleteDialog: true})
+                        {
+                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && (estimation.status == SC.STATUS_INITIATED || estimation.status == SC.STATUS_REVIEW_REQUESTED) &&
+                            < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
+                                this.setState({showEstimationDeleteDialog: true})
 
+                            }
+                            }><i className="fa fa-trash iconClr "></i></button>
                         }
-                        }><i className="fa fa-trash iconClr "></i></button>
+
                     </div>
 
                     <div className="col-md-3 pad ">
