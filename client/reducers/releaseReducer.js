@@ -33,14 +33,14 @@ const clientReducer = (state = initialState, action) => {
                 selectedTask: action.taskPlan
             })
 
-        case AC.ADD_RELEASE_TASK_PLANNING:
+        case AC.ADD_RELEASE_TASK_PLANNINGS:
             // Stores task planning details on Release section of selected tasks
             return Object.assign({}, state, {
-                taskPlans: action.taskPlans ? action.taskPlans : action.taskPlans
+                taskPlans: action.taskPlans
             })
 
 
-        case AC.ADD_TASK_PLANNING_TO_STATE:
+        case AC.ADD_RELEASE_TASK_PLANNING_TO_STATE:
             // Add task planning to planning list
             return Object.assign({}, state, {
                 taskPlans: [...state.taskPlans, action.taskPlan]
@@ -53,12 +53,13 @@ const clientReducer = (state = initialState, action) => {
             })
 
 
-        /*
-         case AC.ADD_DEVELOPER_FILTERED:
+        case AC.ADD_DEVELOPER_FILTERED:
+            // Developer planning details according to date time selection
               return Object.assign({}, state, {
                   developerPlanned: action.developerPlanned
               })
-  */
+
+
         default:
             return state
     }

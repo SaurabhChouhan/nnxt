@@ -9,9 +9,14 @@ export const addReleasePlans = (releaseProjectTasks) => ({
     type: AC.ADD_RELEASE_PROJECT_TASKS,
     releaseProjectTasks: releaseProjectTasks
 })
-export const addReleaseTaskPlanning = (taskPlan) => ({
-    type: AC.ADD_RELEASE_TASK_PLANNING,
-    taskPlans: taskPlan
+export const addReleaseTaskPlannings = (taskPlans) => ({
+    type: AC.ADD_RELEASE_TASK_PLANNINGS,
+    taskPlans: taskPlans
+})
+
+export const addReleaseTaskPlanningToState = (taskPlan) => ({
+    type: AC.ADD_RELEASE_TASK_PLANNING_TO_STATE,
+    taskPlan: taskPlan
 })
 
 export const releaseProjectSelected = (project) => ({
@@ -72,7 +77,7 @@ export const getAllTaskPlannedFromServer = (taskId) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseTaskPlanning(json.data))
+                    dispatch(addReleaseTaskPlannings(json.data))
                 }
             })
     }
@@ -115,7 +120,7 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseTaskPlanning(json.data))
+                    dispatch(addReleaseTaskPlanningToState(json.data))
                 }
                 return json
             })

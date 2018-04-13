@@ -88,7 +88,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                     </div>
                     <div className="col-md-12 ">
-                        <div className=" releasecontent">
+                        <div className="releasecontent">
                             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ipsum sem, interdum et
                                 est id, pellentesque tempus leo. Nulla sagittis quam sapien, nec egestas. Nulla arcu
                                 odio.(Read More...)</p>
