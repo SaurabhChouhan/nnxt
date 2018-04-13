@@ -22,7 +22,7 @@ let EstimationProjectAwardForm = (props) => {
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}
-                           validate={[number]}/>
+                           validate={[required, number]}/>
                 </div>
                 <div className="col-md-6">
                     <Field name="releaseVersionName" component={renderText} validate={[required]}
@@ -43,27 +43,41 @@ let EstimationProjectAwardForm = (props) => {
                 <div className="col-md-4">
                     <Field name="clientReleaseDate" component={renderDateTimePicker}
                            min={moment()} showTime={false}
-                           label={"Expected Client Release Date:"} validate={[required]}/>
+                           label={"Expected Client Release Date:"} validate={required}/>
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="manager._id" component={renderSelect} label={"Manager Of Release:"}
-                           options={Managers} valueField="_id" displayField="firstName"
+                    <Field name="manager._id"
+                           component={renderSelect}
+                           label={"Manager Of Release:"}
+                           options={Managers}
+                           validate={required}
+                           valueField="_id"
+                           displayField="firstName"
                     />
                 </div>
                 <div className="col-md-6">
 
-                    <Field name="leader._id" component={renderSelect} label={"Leader Of Release:"}
-                           options={Leaders} valueField="_id" displayField="firstName"
+                    <Field name="leader._id"
+                           component={renderSelect}
+                           label={"Leader Of Release:"}
+                           options={Leaders}
+                           validate={required}
+                           valueField="_id"
+                           displayField="firstName"
                     />
                 </div>
             </div>
 
             <div className="col-md-12">
                 <Field name="team"
-                       component={renderMultiselect} label={"Planned Employees For Release:"}
-                       data={Team} textField="firstName"
+                       component={renderMultiselect}
+                       label={"Planned Employees For Release:"}
+                       data={Team}
+                       validate={required}
+                       textField="name"
+                       valueField="_id"
                 />
             </div>
 
