@@ -622,7 +622,7 @@ table th {
 
 .estimationfileoption li {
     display: inline-block;
-    margin-right: 5%;
+    margin-right: 4%;
 }
 
 .estimationfileoption li:nth-last-child(1) {
@@ -782,14 +782,14 @@ span.tag.new {
 button.taskbtn {
     background-color: #fff;
     color: #F6B841;
-    font-size: 21px;
+    font-size: 19px;
     float: right;
     margin-top: -7px;
 }
 
 button.featurebtn {
     float: right;
-    font-size: 21px;
+    font-size: 19px;
     background-color: #fff;
     color: #6F7888;
     margin-top: -7px;
