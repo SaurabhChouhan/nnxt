@@ -409,7 +409,7 @@ const addNNXTUsers = async () => {
 
     let developerRole = await RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
     // create manager user
-    if (!await UserModel.exists('leader1@test.com')) {
+    if (!await UserModel.exists('developer1@test.com')) {
         await UserModel.saveUser({
             email: 'developer1@test.com',
             firstName: "Developer-1",
@@ -427,7 +427,7 @@ const addNNXTUsers = async () => {
             email: 'developer2@test.com',
             firstName: "Developer-2",
             lastName: "Two",
-            roles: [leaderRole],
+            roles: [developerRole],
             password: "developer",
             employeeCode: 'emp-013',
             designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
@@ -440,7 +440,7 @@ const addNNXTUsers = async () => {
             email: 'developer3@test.com',
             firstName: "Developer-3",
             lastName: "Three",
-            roles: [leaderRole],
+            roles: [developerRole],
             password: "developer",
             employeeCode: 'emp-014',
             designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
