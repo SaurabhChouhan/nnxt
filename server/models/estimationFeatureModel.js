@@ -537,6 +537,32 @@ estimationFeatureSchema.statics.deleteFeatureByEstimator = async (paramsInput, e
     if (!feature.addedInThisIteration)
         throw new AppError('You are not allowed to delete this feature', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
+
+    if (estimation && estimation._id) {
+        // As task is removed we have to subtract hours ($inc with minus) of this feature from overall estimated hours and suggested hours of estimation
+
+        if (feature.negotiator.estimatedHours && feature.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {
+                    "estimatedHours": -feature.estimator.estimatedHours,
+                    "suggestedHours": -feature.negotiator.estimatedHours
+                },
+                "canApprove": false
+            })
+
+        } else if (feature.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {"estimatedHours": -feature.estimator.estimatedHours},
+                "canApprove": false
+            })
+        } else if (feature.negotiator.estimatedHours) {
+            await EstimationModel.updateOne({_id: feature._id}, {
+                $inc: {"suggestedHours": -feature.negotiator.estimatedHours},
+                "canApprove": false
+            })
+        }
+    }
+
     await EstimationTaskModel.update(
         {"feature._id": feature._id},
         {$set: {"status": SC.STATUS_PENDING, "isDeleted": true}},
@@ -568,6 +594,30 @@ estimationFeatureSchema.statics.deleteFeatureByNegotiator = async (paramsInput, 
     if (estimation.negotiator._id != negotiator._id)
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
+    if (estimation && estimation._id) {
+        // As task is removed we have to subtract hours ($inc with minus) of this feature from overall estimated hours and suggested hours of estimation
+
+        if (feature.negotiator.estimatedHours && feature.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {
+                    "estimatedHours": -feature.estimator.estimatedHours,
+                    "suggestedHours": -feature.negotiator.estimatedHours
+                },
+                "canApprove": false
+            })
+
+        } else if (feature.estimator.estimatedHours) {
+            await EstimationModel.updateOne({_id: estimation._id}, {
+                $inc: {"estimatedHours": -feature.estimator.estimatedHours},
+                "canApprove": false
+            })
+        } else if (feature.negotiator.estimatedHours) {
+            await EstimationModel.updateOne({_id: feature._id}, {
+                $inc: {"suggestedHours": -feature.negotiator.estimatedHours},
+                "canApprove": false
+            })
+        }
+    }
 
     await EstimationTaskModel.update(
         {"feature._id": feature._id},
