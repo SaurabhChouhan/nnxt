@@ -36,6 +36,7 @@ co(async () => {
 
     if (conf.server.dropDatabase) {
         logger.warn("DROP DATABASE CONFIGURATION IS ON!!! PLEASE RESET IF DON'T INTEND TO DROP DATABASE IN NEXT SERVER START")
+        logger.info("DROPPING DATABASE")
         try {
             let names = await connection.db.listCollections().toArray()
             try {

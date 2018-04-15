@@ -5,11 +5,13 @@ import {
     ProjectModel,
     RepositoryModel,
     RoleModel,
-    UserModel
+    UserModel,
+    TechnologyModel
 } from "../models"
 
 import * as CC from '../../client/clientconstants'
 import * as SC from '../serverconstants'
+import logger from '../logger'
 
 export const addInitialData = async () => {
 
@@ -207,10 +209,12 @@ export const addNNXTData = async () => {
     await addClients()
     await addProjects()
     await addLeaveTypes()
+    await addTechnologies()
     await addRepositoryTasksAndFeatures()
 }
 
 const addRolesPermissions = async () => {
+    logger.info("SETTING UP ROLES/PERMISSIONS ...")
 
     let editProfile = await PermissionModel.findOne({name: CC.EDIT_PROFILE}).lean()
     let permissions = []
@@ -257,6 +261,7 @@ const addRolesPermissions = async () => {
 }
 
 const addNNXTUsers = async () => {
+    logger.info("SETTING UP USERS ...")
     let estimatorRole = await RoleModel.findOne({name: SC.ROLE_ESTIMATOR}).lean()
     // create estimator user
     if (!await UserModel.exists('estimator1@test.com')) {
@@ -329,11 +334,11 @@ const addNNXTUsers = async () => {
     // create manager user
     if (!await UserModel.exists('manger1@test.com')) {
         await UserModel.saveUser({
-            email: 'manger1@test.com',
+            email: 'manager1@test.com',
             firstName: "Manager-1",
             lastName: "One",
             roles: [managerRole],
-            password: "manger",
+            password: "manager",
             employeeCode: 'emp-006',
             designation: SC.DESIGNATION_MANAGER,
             dateJoined: '01-01-2018'
@@ -342,11 +347,11 @@ const addNNXTUsers = async () => {
 
     if (!await UserModel.exists('manger2@test.com')) {
         await UserModel.saveUser({
-            email: 'manger2@test.com',
+            email: 'manager2@test.com',
             firstName: "Manager-2",
             lastName: "Two",
             roles: [managerRole],
-            password: "manger",
+            password: "manager",
             employeeCode: 'emp-007',
             designation: SC.DESIGNATION_MANAGER,
             dateJoined: '01-01-2018'
@@ -355,11 +360,11 @@ const addNNXTUsers = async () => {
 
     if (!await UserModel.exists('manger3@test.com')) {
         await UserModel.saveUser({
-            email: 'manger3@test.com',
+            email: 'manager3@test.com',
             firstName: "Manager-3",
             lastName: "Three",
             roles: [managerRole],
-            password: "manger",
+            password: "manager",
             employeeCode: 'emp-008',
             designation: SC.DESIGNATION_MANAGER,
             dateJoined: '01-01-2018'
@@ -450,6 +455,7 @@ const addNNXTUsers = async () => {
 }
 
 const addClients = async () => {
+    logger.info("SETTING UP CLIENTS ...")
     if (!await ClientModel.exists('Zaib')) {
         await ClientModel.saveClient({
             name: 'Zaib'
@@ -470,6 +476,7 @@ const addClients = async () => {
 }
 
 const addProjects = async () => {
+    logger.info("SETTING UP PROJECTS ...")
     let zaib = await ClientModel.findOne({name: 'Zaib'})
 
     if (zaib) {
@@ -527,6 +534,7 @@ const addProjects = async () => {
 }
 
 const addLeaveTypes = async () => {
+    logger.info("SETTING UP LEAVE DATA...")
     let cl = await LeaveTypeModel.findOne({name: 'Casual leave (CL)'})
     if (!cl) {
         await LeaveTypeModel.saveLeaveType({
@@ -560,11 +568,50 @@ const addLeaveTypes = async () => {
     }
 }
 
+const addTechnologies = async () => {
+    logger.info("SETTING UP TECHNOLOGIES ...")
+    if (!await TechnologyModel.exists('React')) {
+        await TechnologyModel.saveTechnology({
+            name: 'React'
+        })
+    }
+    if (!await TechnologyModel.exists('Koa')) {
+        await TechnologyModel.saveTechnology({
+            name: 'Koa'
+        })
+    }
+    if (!await TechnologyModel.exists('Node')) {
+        await TechnologyModel.saveTechnology({
+            name: 'Node'
+        })
+    }
+    if (!await TechnologyModel.exists('iOS')) {
+        await TechnologyModel.saveTechnology({
+            name: 'iOS'
+        })
+    }
+    if (!await TechnologyModel.exists('Android')) {
+        await TechnologyModel.saveTechnology({
+            name: 'Android'
+        })
+    }
+    if (!await TechnologyModel.exists('Mac')) {
+        await TechnologyModel.saveTechnology({
+            name: 'Mac'
+        })
+    }
+    if (!await TechnologyModel.exists('React Native')) {
+        await TechnologyModel.saveTechnology({
+            name: 'React Native'
+        })
+    }
+}
+
 // This method would add tasks and features in repository
 const addRepositoryTasksAndFeatures = async () => {
-    let taskIdsForFeature=[];
+    logger.info("SETTING UP REPOSITORY TASKS/FEATURES ...")
+    let taskIdsForFeature = []
     if (!await RepositoryModel.isTaskExists('Simple Login (AJAX) using Passport.js API (Node/Koa)')) {
-        console.log("Adding repository task")
         await RepositoryModel.addTask({
             name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
             description: `Create an API that uses passport.js to authenticate against local database (mongodb)
@@ -584,7 +631,6 @@ const addRepositoryTasksAndFeatures = async () => {
     }
 
     if (!await RepositoryModel.isTaskExists('Registration API (Node/Koa) basic details')) {
-        console.log("Adding repository task")
         await RepositoryModel.addTask({
             name: 'Registration API (Node/Koa) basic details',
             description: `Create an API that takes basic details of user (name/email etc) and store details 
@@ -603,8 +649,7 @@ const addRepositoryTasksAndFeatures = async () => {
     }
 
     if (!await RepositoryModel.isTaskExists('Login page (username/password) - React')) {
-        console.log("Adding repository task")
-        let userLoginTask=await RepositoryModel.addTask({
+        let userLoginTask = await RepositoryModel.addTask({
             name: 'Login page (username/password) - React',
             description: `Create a login page using React 
             - Create a login component with a redux form having two fields username/password
@@ -622,13 +667,12 @@ const addRepositoryTasksAndFeatures = async () => {
             technologies: ['React', 'Redux'],
             tags: ['Simple Login']
         })
-        if(userLoginTask)
-        taskIdsForFeature.push({'_id':userLoginTask._id})
+        if (userLoginTask)
+            taskIdsForFeature.push({'_id': userLoginTask._id})
     }
 
     if (!await RepositoryModel.isTaskExists('Registration page (basic details) - React')) {
-        console.log("Adding repository task")
-        let userRegistrationTask=await RepositoryModel.addTask({
+        let userRegistrationTask = await RepositoryModel.addTask({
             name: 'Registration page (basic details) - React',
             description: `Create a registration page with basic details of user
             Fields:
@@ -648,11 +692,10 @@ const addRepositoryTasksAndFeatures = async () => {
             technologies: ['Koa', 'Node', 'Mongodb'],
             tags: ['Registration', 'basic fields']
         })
-        if(userRegistrationTask)
-            taskIdsForFeature.push({'_id':userRegistrationTask._id})
+        if (userRegistrationTask)
+            taskIdsForFeature.push({'_id': userRegistrationTask._id})
     }
     if (!await RepositoryModel.isFeatureExists('User Login and registration (basic details) - React')) {
-        console.log("Adding repository task")
         await RepositoryModel.create({
             name: 'User Login and registration (basic details) - React',
             description: `Create a login and registration page with basic details of user
@@ -671,8 +714,8 @@ const addRepositoryTasksAndFeatures = async () => {
             isPartOfEstimation: false,
             hasHistory: false,
             technologies: ['Koa', 'Node', 'Mongodb'],
-            tags: ['Login','Registration', 'basic fields'],
-            tasks:taskIdsForFeature
+            tags: ['Login', 'Registration', 'basic fields'],
+            tasks: taskIdsForFeature
         })
     }
 }
