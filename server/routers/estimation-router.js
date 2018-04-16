@@ -10,6 +10,19 @@ let estimationRouter = new Router({
     prefix: "estimations"
 })
 
+
+const getLoggedInUsersRoleInEstimation = async (ctx, estimationID) => {
+    let estimation = await EstimationModel.getById(ctx.params.estimationID)
+    if (estimation) {
+        // check to see role of logged in user in this estimation
+        if (estimation.estimator._id == ctx.state.user._id)
+            return SC.ROLE_ESTIMATOR
+        else if (estimation.negotiator._id == ctx.state.user._id)
+            return SC.ROLE_NEGOTIATOR
+    }
+    return undefined
+}
+
 // noinspection Annotator
 estimationRouter.get("/project/:projectID/status/:status", async ctx => {
     return await EstimationModel.getAllActive(ctx.params.projectID, ctx.params.status, ctx.state.user)
@@ -61,7 +74,6 @@ estimationRouter.get("/feature/:featureID", async ctx => {
 })
 
 
-
 // noinspection Annotator
 /**
  * Initiate estimation by Negotiator
@@ -86,7 +98,7 @@ estimationRouter.put('/update', async ctx => {
         return V.generateSchema(V.estimationInitiationStruct)
 
     if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can update initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
     return await EstimationModel.updateEstimationByNegotiator(ctx.request.body, ctx.state.user)
 })
@@ -97,8 +109,10 @@ estimationRouter.put('/update', async ctx => {
  * Used for making estimation request by Negotiator
  */
 estimationRouter.put('/:estimationID/request', async ctx => {
-    if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can request estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    console.log("Role of user in this estimation is ", role)
+    if (role != SC.ROLE_NEGOTIATOR)
+        throw new AppError("Cannot request estimation, not a negotiator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
 })
 
