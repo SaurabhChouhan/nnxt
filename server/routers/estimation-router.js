@@ -172,18 +172,8 @@ estimationRouter.get('/task/:estimationID', async ctx => {
  * Add a new feature to estimation
  */
 estimationRouter.post('/features', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationEstimatorAddFeatureStruct)
-        return await EstimationFeatureModel.addFeatureByEstimator(ctx.request.body, ctx.state.user)
-
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationNegotiatorAddFeatureStruct)
-        return await EstimationFeatureModel.addFeatureByNegotiator(ctx.request.body, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add features into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    console.log("user state is ", ctx.state.user)
+    return await EstimationFeatureModel.addFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 // noinspection Annotator

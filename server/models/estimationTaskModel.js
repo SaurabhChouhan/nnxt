@@ -58,23 +58,10 @@ let estimationTaskSchema = mongoose.Schema({
     }]
 })
 
-
-const getLoggedInUsersRoleInEstimation = async (estimationID, user) => {
-    let estimation = await EstimationModel.getById(estimationID)
-    if (estimation) {
-        // check to see role of logged in user in this estimation
-        if (estimation.estimator._id == user._id)
-            return SC.ROLE_ESTIMATOR
-        else if (estimation.negotiator._id == user._id)
-            return SC.ROLE_NEGOTIATOR
-    }
-    return undefined
-}
-
 estimationTaskSchema.statics.addTask = async (taskInput, user, schemaRequested) => {
     if (!taskInput || !taskInput.estimation || !taskInput.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    let role = await getLoggedInUsersRoleInEstimation(taskInput.estimation._id, user)
+    let role = await EstimationModel.getUserRoleInEstimation(taskInput.estimation._id, user)
     if (role === SC.ROLE_ESTIMATOR) {
         if (schemaRequested)
             return V.generateSchema(V.estimationEstimatorAddTaskStruct)

@@ -57,8 +57,24 @@ estimationFeatureSchema.statics.getById = async (featureID) => {
     return await EstimationFeatureModel.findById(featureID)
 }
 
+estimationFeatureSchema.statics.addFeature = async (featureInput, user, schemaRequested) => {
+    if (!featureInput || !featureInput.estimation || !featureInput.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let role = await EstimationModel.getUserRoleInEstimation(featureInput.estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationEstimatorAddFeatureStruct)
+        return await addFeatureByEstimator(featureInput, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationNegotiatorAddFeatureStruct)
+        return await addFeatureByNegotiator(featureInput, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
 
-estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, estimator) => {
+
+const addFeatureByEstimator = async (featureInput, estimator) => {
     V.validate(featureInput, V.estimationEstimatorAddFeatureStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -68,24 +84,6 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    //let repositoryFeature = undefined
-
-    /**
-     * As no repo id is sent, this means that this is a new feature, hence save this feature into repository
-     * @type {{addedFromThisEstimation: boolean}}
-     */
-
-    /*repositoryFeature = await RepositoryModel.addFeature({
-        name: featureInput.name,
-        description: featureInput.description,
-        estimation: {
-            _id: estimation._id.toString()
-        },
-        createdBy: estimator,
-        technologies: estimation.technologies,
-        tags: featureInput.tags
-    }, estimator)*/
 
     let estimationFeature = new EstimationFeatureModel()
     estimationFeature.estimator.name = featureInput.name
@@ -115,7 +113,7 @@ estimationFeatureSchema.statics.addFeatureByEstimator = async (featureInput, est
 
 
 
-estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, negotiator) => {
+const addFeatureByNegotiator = async (featureInput, negotiator) => {
     V.validate(featureInput, V.estimationNegotiatorAddFeatureStruct)
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -125,23 +123,6 @@ estimationFeatureSchema.statics.addFeatureByNegotiator = async (featureInput, ne
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    /* let repositoryFeature = await RepositoryModel.addFeature({
-         name: featureInput.name,
-         description: featureInput.description,
-         estimation: {
-             _id: estimation._id.toString()
-         },
-         createdBy: negotiator,
-         technologies: estimation.technologies,
-         tags: featureInput.tags
-     }, negotiator)
-
-     featureInput.repo = {
-         _id: repositoryFeature._id,
-         addedFromThisEstimation: true
-     } */
-
 
     let estimationFeature = new EstimationFeatureModel()
     estimationFeature.negotiator.name = featureInput.name
