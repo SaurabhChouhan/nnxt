@@ -12,7 +12,7 @@ let estimationRouter = new Router({
 
 
 const getLoggedInUsersRoleInEstimation = async (ctx, estimationID) => {
-    let estimation = await EstimationModel.getById(ctx.params.estimationID)
+    let estimation = await EstimationModel.getById(estimationID)
     if (estimation) {
         // check to see role of logged in user in this estimation
         if (estimation.estimator._id == ctx.state.user._id)
@@ -134,18 +134,7 @@ estimationRouter.put('/:estimationID/change-request', async ctx => {
  * Add a new task to estimation
  */
 estimationRouter.post('/tasks', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationEstimatorAddTaskStruct)
-        return await EstimationTaskModel.addTaskByEstimator(ctx.request.body, ctx.state.user)
-
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationNegotiatorAddTaskStruct)
-        return await EstimationTaskModel.addTaskByNegotiator(ctx.request.body, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.addTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 // noinspection Annotator

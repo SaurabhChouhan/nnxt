@@ -58,7 +58,36 @@ let estimationTaskSchema = mongoose.Schema({
     }]
 })
 
-estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) => {
+
+const getLoggedInUsersRoleInEstimation = async (estimationID, user) => {
+    let estimation = await EstimationModel.getById(estimationID)
+    if (estimation) {
+        // check to see role of logged in user in this estimation
+        if (estimation.estimator._id == user._id)
+            return SC.ROLE_ESTIMATOR
+        else if (estimation.negotiator._id == user._id)
+            return SC.ROLE_NEGOTIATOR
+    }
+    return undefined
+}
+
+estimationTaskSchema.statics.addTask = async (taskInput, user, schemaRequested) => {
+    if (!taskInput || !taskInput.estimation || !taskInput.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let role = await getLoggedInUsersRoleInEstimation(taskInput.estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationEstimatorAddTaskStruct)
+        return await addTaskByEstimator(taskInput, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationNegotiatorAddTaskStruct)
+        return await addTaskByNegotiator(taskInput, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+const addTaskByEstimator = async (taskInput, estimator) => {
     V.validate(taskInput, V.estimationEstimatorAddTaskStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -114,7 +143,7 @@ estimationTaskSchema.statics.addTaskByEstimator = async (taskInput, estimator) =
     return await estimationTask.save()
 }
 
-estimationTaskSchema.statics.addTaskByNegotiator = async (taskInput, negotiator) => {
+const addTaskByNegotiator = async (taskInput, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorAddTaskStruct)
     let estimationFeatureObj
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
@@ -912,7 +941,6 @@ estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator
     }
 
 
-
     task.negotiator.name = task.estimator.name
     task.negotiator.description = task.estimator.description
     task.negotiator.estimatedHours = task.estimator.estimatedHours
@@ -970,9 +998,9 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
     if (thisTaskWithRepoAlreadyExist)
         throw new AppError('This task is already part of estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
-    if(estimation && estimation._id && repositoryTask.estimatedHours && repositoryTask.estimatedHours>0){
-         await EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"estimatedHours": repositoryTask.estimatedHours }
+    if (estimation && estimation._id && repositoryTask.estimatedHours && repositoryTask.estimatedHours > 0) {
+        await EstimationModel.updateOne({_id: estimation._id}, {
+            $inc: {"estimatedHours": repositoryTask.estimatedHours}
         })
     }
 
