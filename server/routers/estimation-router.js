@@ -10,6 +10,19 @@ let estimationRouter = new Router({
     prefix: "estimations"
 })
 
+
+const getLoggedInUsersRoleInEstimation = async (ctx, estimationID) => {
+    let estimation = await EstimationModel.getById(estimationID)
+    if (estimation) {
+        // check to see role of logged in user in this estimation
+        if (estimation.estimator._id == ctx.state.user._id)
+            return SC.ROLE_ESTIMATOR
+        else if (estimation.negotiator._id == ctx.state.user._id)
+            return SC.ROLE_NEGOTIATOR
+    }
+    return undefined
+}
+
 // noinspection Annotator
 estimationRouter.get("/project/:projectID/status/:status", async ctx => {
     return await EstimationModel.getAllActive(ctx.params.projectID, ctx.params.status, ctx.state.user)
@@ -61,7 +74,6 @@ estimationRouter.get("/feature/:featureID", async ctx => {
 })
 
 
-
 // noinspection Annotator
 /**
  * Initiate estimation by Negotiator
@@ -86,7 +98,7 @@ estimationRouter.put('/update', async ctx => {
         return V.generateSchema(V.estimationInitiationStruct)
 
     if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can update initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
     return await EstimationModel.updateEstimationByNegotiator(ctx.request.body, ctx.state.user)
 })
@@ -97,8 +109,10 @@ estimationRouter.put('/update', async ctx => {
  * Used for making estimation request by Negotiator
  */
 estimationRouter.put('/:estimationID/request', async ctx => {
-    if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can request estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    console.log("Role of user in this estimation is ", role)
+    if (role != SC.ROLE_NEGOTIATOR)
+        throw new AppError("Cannot request estimation, not a negotiator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
 })
 
@@ -120,18 +134,7 @@ estimationRouter.put('/:estimationID/change-request', async ctx => {
  * Add a new task to estimation
  */
 estimationRouter.post('/tasks', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationEstimatorAddTaskStruct)
-        return await EstimationTaskModel.addTaskByEstimator(ctx.request.body, ctx.state.user)
-
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationNegotiatorAddTaskStruct)
-        return await EstimationTaskModel.addTaskByNegotiator(ctx.request.body, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.addTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 // noinspection Annotator
@@ -169,18 +172,8 @@ estimationRouter.get('/task/:estimationID', async ctx => {
  * Add a new feature to estimation
  */
 estimationRouter.post('/features', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationEstimatorAddFeatureStruct)
-        return await EstimationFeatureModel.addFeatureByEstimator(ctx.request.body, ctx.state.user)
-
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationNegotiatorAddFeatureStruct)
-        return await EstimationFeatureModel.addFeatureByNegotiator(ctx.request.body, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add features into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    console.log("user state is ", ctx.state.user)
+    return await EstimationFeatureModel.addFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 // noinspection Annotator

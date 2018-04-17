@@ -848,6 +848,20 @@ estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, neg
     return estimation
 }
 
+estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) => {
+    let estimation = await EstimationModel.getById(estimationID)
+    console.log("user in getuser role in estimation ", user)
+    if (estimation) {
+        // check to see role of logged in user in this estimation
+        if (estimation.estimator._id == user._id)
+            return SC.ROLE_ESTIMATOR
+        else if (estimation.negotiator._id == user._id)
+            return SC.ROLE_NEGOTIATOR
+    }
+    return undefined
+}
+
+
 
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
