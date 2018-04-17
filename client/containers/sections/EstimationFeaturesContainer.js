@@ -3,7 +3,6 @@ import {EstimationFeatures} from "../../components"
 
 const mapStateToProps = (state, ownProps) => ({
     features: state.estimation.features,
-    loggedInUserRole: state.estimation.selected.loggedInUserRole,
     expandedFeatureID: state.estimation.expandedFeatureID,
     expandedTaskID: state.estimation.expandedTaskID,
     filter: state.estimation.filter
