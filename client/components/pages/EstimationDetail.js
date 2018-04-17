@@ -143,7 +143,10 @@ class EstimationDetail extends Component {
                         this.state.showEstimationReviewDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmReviewRequest.bind(this)}
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
-                                            body="You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"/>
+                                            body={this.props.estimation && this.props.estimation.canApprove ? "You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!" :
+                                                "There are some tasks/features that have information missing which would prevent Negotiator from approving them during his review. Press 'Cancel' to add missing information or press Confirm to send Estimation for review"
+                                            }
+                        />
                     }
                     {
                         this.state.showEstimationReopenDialog &&
