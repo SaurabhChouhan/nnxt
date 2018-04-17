@@ -8,7 +8,7 @@ import momentLocalizer from 'react-widgets-moment'
 moment.locale('en')
 momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
-    const {change, team, handleSubmit, submitting, pristine, reset} = props
+    const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
 
     return <form onSubmit={handleSubmit}>
         <div className="row">
