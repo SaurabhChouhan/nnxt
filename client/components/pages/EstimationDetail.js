@@ -206,8 +206,7 @@ class EstimationDetail extends Component {
                     <div className="col-md-3 pad ">
                         <div className="estimationfileoption">
                             <ul className="list-unstyled">
-                                {(_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_APPROVED, SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED, SC.STATUS_REOPENED], estimation.status))
-                                &&
+                                {editView &&
                                 < button type="button" className="btn customBtn filterAlign" onClick={() => {
                                     this.props.estimationFilterForm()
                                 }

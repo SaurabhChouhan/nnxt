@@ -347,8 +347,8 @@ class EstimationTask extends React.PureComponent {
 
         return <div className={expanded ? 'task-expanded' : 'task'}>
             <div className="col-md-9">
-                <div className="col-md-11">
-                    <h4>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
+                <div className={task.estimator && task.estimator.name ? "col-md-11 " : "col-md-11 infoHighliter"}>
+                    <h4 title={task.estimator.name ? task.estimator.name : null}>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
                 </div>
                 {task.status === SC.STATUS_PENDING && task.canApprove == false ? <div className="col-md-1">
                     <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
@@ -416,12 +416,14 @@ class EstimationTask extends React.PureComponent {
                 </div>
 
             </div>
-            <div className="col-md-12  div-hover short-description" onClick={() => {
-                if (task && task._id && task.feature && task.feature._id) {
-                    this.props.expandTaskAndFeature(task.feature._id, task._id)
-                }
-                else this.props.expandTask(task._id)
-            }}>
+            <div
+                className={task.estimator.description ? "col-md-12  div-hover short-description" : "col-md-12  div-hover short-description infoHighliter"}
+                onClick={() => {
+                    if (task && task._id && task.feature && task.feature._id) {
+                        this.props.expandTaskAndFeature(task.feature._id, task._id)
+                    }
+                    else this.props.expandTask(task._id)
+                }}>
                 <p>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
             </div>
 
