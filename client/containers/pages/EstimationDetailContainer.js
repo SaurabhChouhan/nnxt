@@ -131,8 +131,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    userRoleInThisEstimation: state.estimation && state.estimation.loggedInUserRole ? state.estimation.loggedInUserRole : null,
+
+    userRoleInThisEstimation: state.estimation && state.estimation.selected.loggedInUserRole ? state.estimation.selected.loggedInUserRole : null,
     estimation: state.estimation.selected
+    
 })
 
 const EstimationDetailContainer = withRouter(connect(
