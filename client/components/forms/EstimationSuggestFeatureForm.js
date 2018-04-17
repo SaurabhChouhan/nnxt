@@ -23,6 +23,12 @@ let EstimationSuggestFeatureForm = (props) => {
                     }
                 </div>
                 <div className="col-md-11">
+                    {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                        <h4 className="estimatorClr">Estimator</h4> :
+                        estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                            <h4 className="negotiatorClr">Negotiator</h4> : null
+                    }
+
                     <div className="row">
 
                         <Field name="estimation._id" component="input" type="hidden"/>
@@ -71,6 +77,11 @@ let EstimationSuggestFeatureForm = (props) => {
                     }
                 </div>
                 <div className="col-md-11">
+                    {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                        <h4 className="estimatorClr">{estimation.loggedInUserRole}</h4> :
+                        estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                            <h4 className="negotiatorClr">{estimation.loggedInUserRole}</h4> : null
+                    }
                     <div className="row">
 
                         <div className="col-md-6">
