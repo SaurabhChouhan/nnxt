@@ -57,6 +57,8 @@ estimationFeatureSchema.statics.getById = async (featureID) => {
     return await EstimationFeatureModel.findById(featureID)
 }
 
+
+// add feature
 estimationFeatureSchema.statics.addFeature = async (featureInput, user, schemaRequested) => {
     if (!featureInput || !featureInput.estimation || !featureInput.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -74,6 +76,7 @@ estimationFeatureSchema.statics.addFeature = async (featureInput, user, schemaRe
 }
 
 
+// add feature by estimator
 const addFeatureByEstimator = async (featureInput, estimator) => {
     V.validate(featureInput, V.estimationEstimatorAddFeatureStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
@@ -112,7 +115,7 @@ const addFeatureByEstimator = async (featureInput, estimator) => {
 }
 
 
-
+// add feature by negotiator
 const addFeatureByNegotiator = async (featureInput, negotiator) => {
     V.validate(featureInput, V.estimationNegotiatorAddFeatureStruct)
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
@@ -158,6 +161,7 @@ const addFeatureByNegotiator = async (featureInput, negotiator) => {
     return estimationFeature
 }
 
+// update feature
 estimationFeatureSchema.statics.updateFeature = async (featureInput, user, schemaRequested) => {
     if (!featureInput || !featureInput.estimation || !featureInput.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -174,7 +178,7 @@ estimationFeatureSchema.statics.updateFeature = async (featureInput, user, schem
     throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 }
 
-
+// update feature by estimator
 const updateFeatureByEstimator = async (featureInput, estimator) => {
     V.validate(featureInput, V.estimationEstimatorUpdateFeatureStruct)
 
@@ -261,6 +265,7 @@ const updateFeatureByEstimator = async (featureInput, estimator) => {
 }
 
 
+// update feature by negotiator
 const updateFeatureByNegotiator = async (featureInput, negotiator) => {
     V.validate(featureInput, V.estimationNegotiatorUpdateFeatureStruct)
 
@@ -331,18 +336,37 @@ const updateFeatureByNegotiator = async (featureInput, negotiator) => {
 }
 
 
-estimationFeatureSchema.statics.approveFeatureByNegotiator = async (featureID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+// approve feature
+estimationFeatureSchema.statics.approveFeature = async (featureID, user) => {
 
     let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    if (!feature || !feature.estimation || !feature.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve feature", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await approveFeatureByNegotiator(feature, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+// approve feature by negotiator
+const approveFeatureByNegotiator = async (featureID, negotiator) => {
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -863,11 +887,7 @@ const requestReOpenPermissionOfFeatureByEstimator = async (feature, estimation, 
 }
 
 
-estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async (featureID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+estimationFeatureSchema.statics.grantReOpenPermissionOfFeature = async (featureID, user,) => {
     let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -875,6 +895,21 @@ estimationFeatureSchema.statics.grantEditPermissionOfFeatureByNegotiator = async
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can grant re-open permission of task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await grantEditPermissionOfFeatureByNegotiator(feature, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+const grantEditPermissionOfFeatureByNegotiator = async (feature, estimation, negotiator) => {
+
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only given grant edit permission to feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)

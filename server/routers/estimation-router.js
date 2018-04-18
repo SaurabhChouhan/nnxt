@@ -252,6 +252,7 @@ estimationRouter.put('/features/:featureID/request-edit', async ctx => {
  */
 estimationRouter.put('/tasks/:taskID/grant-edit', async ctx => {
     return await EstimationTaskModel.grantReOpenPermissionOfTask(ctx.params.taskID, ctx.state.user)
+
 })
 
 
@@ -261,36 +262,26 @@ estimationRouter.put('/tasks/:taskID/grant-edit', async ctx => {
  * or cancel this request
  */
 estimationRouter.put('/features/:featureID/grant-edit', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationFeatureModel.grantEditPermissionOfFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationFeatureModel.grantReOpenPermissionOfFeature(ctx.params.featureID, ctx.state.user)
+
 })
 
 // noinspection Annotator
 estimationRouter.put('/tasks/:taskID/approve', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.approveTaskByNegotiator(ctx.params.taskID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.approveTask(ctx.params.taskID, ctx.state.user)
 })
 
 // noinspection Annotator
 estimationRouter.put('/features/:featureID/approve', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationFeatureModel.approveFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve feature", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationFeatureModel.approveFeature(ctx.params.featureID, ctx.state.user)
 })
 
 
 // Used by negotiator to approve estimation
 // noinspection Annotator
 estimationRouter.put('/:estimationID/approve', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    if (role === SC.ROLE_NEGOTIATOR) {
         return await EstimationModel.approveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -300,7 +291,9 @@ estimationRouter.put('/:estimationID/approve', async ctx => {
 
 // Used by negotiator to check can approve estimation
 estimationRouter.put('/:estimationID/can-approve', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    if (role === SC.ROLE_NEGOTIATOR) {
         return await EstimationModel.canApproveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -318,12 +311,14 @@ estimationRouter.put('/feature/:featureID/can-approve', async ctx => {
 
 // Used by negotiator to change can not approve estimation
 estimationRouter.put('/:estimationID/can-not-approve/:isGranted/is-granted', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    if (role === SC.ROLE_NEGOTIATOR) {
         return await EstimationModel.canNotApproveEstimationByNegotiator(ctx.params.estimationID, ctx.params.isGranted, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
+
 
 // Used by negotiator to change can not approve feature
 estimationRouter.put('/feature/:featureID/can-not-approve/:isGranted/is-granted', async ctx => {
