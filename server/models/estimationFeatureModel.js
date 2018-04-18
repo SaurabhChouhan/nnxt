@@ -441,18 +441,32 @@ const approveFeatureByNegotiator = async (featureID, negotiator) => {
 }
 
 
-estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+//can approve feature
+estimationFeatureSchema.statics.canApproveFeature = async (featureID, user) => {
 
     let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    if (!feature || !feature.estimation || !feature.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can check can-approve feature", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await canApproveFeatureByNegotiator(feature, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+const canApproveFeatureByNegotiator = async (feature, estimation, negotiator) => {
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -498,46 +512,38 @@ estimationFeatureSchema.statics.canApproveFeatureByNegotiator = async (featureID
     return await feature.save()
 }
 
+//can Not approve feature
+estimationFeatureSchema.statics.canNotApproveFeature = async (featureID, isGranted, user) => {
 
-estimationFeatureSchema.statics.canNotApproveFeatureByNegotiator = async (featureID, isGranted, negotiator) => {
-
-
-    let feature = await EstimationFeatureModel.findById(featureID)
+    let feature = await
+        EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+    if (!feature || !feature.estimation || !feature.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await
+        EstimationModel.findOne({"_id": feature.estimation._id})
+
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    /*
-     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-      if (!estimation.negotiator._id == negotiator._id)
-          throw new AppError('You are not negotiator of this estimation', EC.INVALID_USER, EC.HTTP_FORBIDDEN)
-
-      let taskCountOfFeature = await EstimationTaskModel.count({
-          "estimation._id": feature.estimation._id,
-          "feature._id": feature._id
-      })
-
-      if (taskCountOfFeature == 0)
-          throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
 
-      if(!feature.estimator.estimatedHours && !feature.estimator.estimatedHours>0){
-          throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
+    let role = await
+        EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can change to  can-not-approve feature", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await canNotApproveFeatureByNegotiator(feature, estimation, isGranted, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
 
-      }
-      let pendingTaskCountOfFeature = await EstimationTaskModel.count({
-          "estimation._id": feature.estimation._id,
-          "feature._id": feature._id,
-          status: {$in: [SC.STATUS_PENDING]}
-      })
+const canNotApproveFeatureByNegotiator = async (feature, estimation, isGranted, negotiator) => {
 
-      if (pendingTaskCountOfFeature != 0)
-          throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
-  */
+    if (!_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_INITIATED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + ',' + SC.STATUS_INITIATED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (isGranted) {
         feature.status = SC.STATUS_PENDING
