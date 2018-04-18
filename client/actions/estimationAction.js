@@ -148,7 +148,6 @@ export const initiateEstimationOnServer = (estimation) => {
                 if (json.success) {
                     dispatch(addEstimation(json.data))
                 }
-
                 return json
             })
     }
