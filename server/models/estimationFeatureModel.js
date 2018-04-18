@@ -773,15 +773,6 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add feature from repository into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    /* let existingFeatureCount = await EstimationFeatureModel.count({
-         "repo._id": repositoryFeature._id,
-         "estimation._id": estimation._id
-     })
-
-
-     if (existingFeatureCount > 0)
-         throw new AppError('This feature already added from repository', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
- */
     let estimationFeature = new EstimationFeatureModel()
 
     estimationFeature.status = SC.STATUS_PENDING
@@ -832,18 +823,10 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (es
         estimationFeature.isEstimationCanApprove = true
     }
     return estimationFeature
-
-    // In case repository feature has tasks as well we would be
-
-
-    //return await EstimationFeatureModel.create(estimationFeature)
 }
 
 
-estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = async (featureID, estimator) => {
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+estimationFeatureSchema.statics.requestReOpenPermissionOfFeature = async (featureID, user,) => {
     let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -851,6 +834,21 @@ estimationFeatureSchema.statics.requestEditPermissionOfFeatureByEstimator = asyn
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        return await requestReOpenPermissionOfFeatureByEstimator(feature, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "] can request edit permission task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+const requestReOpenPermissionOfFeatureByEstimator = async (feature, estimation, estimator) => {
+    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only request edit feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
