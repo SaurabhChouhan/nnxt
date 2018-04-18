@@ -46,10 +46,10 @@ const clientReducer = (state = initialState, action) => {
                 taskPlans: [...state.taskPlans, action.taskPlan]
             })
 
-        case AC.DELETE_TASK_PLAN_FROM_STATE:
+        case AC.DELETE_TASK_PLAN:
             // Delete task planning from planning list
             return Object.assign({}, state, {
-                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.filter(plan => plan._id != action.planId) : []
+                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.filter(plan => plan._id != action.planID) : []
             })
 
 

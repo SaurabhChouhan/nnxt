@@ -30,9 +30,9 @@ export const releaseTaskPlanSelected = (taskPlan) => ({
 })
 
 
-export const deleteTaskPlanningFromState = (planId) => ({
-    type: AC.DELETE_TASK_PLAN_FROM_STATE,
-    planId: planId
+export const deleteTaskPlanningFromState = (planID) => ({
+    type: AC.DELETE_TASK_PLAN,
+    planID: planID
 })
 
 export const addDeveloperFilteredData = (developerPlanned) => ({
@@ -143,8 +143,7 @@ export const deleteTaskPlanningFromServer = (taskPlanningID) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("deleteTaskPlanningFromState", json.data)
-                    // dispatch(deleteTaskPlanningFromState(json.data._id))
+                    dispatch(deleteTaskPlanningFromState(taskPlanningID))
                 }
                 return json
             })

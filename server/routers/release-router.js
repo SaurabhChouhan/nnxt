@@ -28,7 +28,11 @@ releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empfla
 })
 
 releaseRouter.put("/plan-task/", async ctx => {
-    return await TaskPlanningModel.addTaskPlanningDetails(ctx.request.body, ctx.state.user)
+    return await TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user)
+})
+
+releaseRouter.del("/plan-task/:planID", async ctx => {
+    return await TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
 })
 
 releaseRouter.get("/task-plans/:taskId", async ctx => {
