@@ -10,6 +10,8 @@ momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
     const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
 
+    console.log("initial", initial)
+
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
