@@ -82,9 +82,7 @@ estimationRouter.post('/initiate', async ctx => {
     // Return expected schema
     if (ctx.schemaRequested)
         return V.generateSchema(V.estimationUpdationStruct)
-
-    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body._id)
-    if (role === SC.ROLE_NEGOTIATOR) {
+    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
         return await EstimationModel.initiate(ctx.request.body, ctx.state.user)
     } else
         throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -146,7 +144,7 @@ estimationRouter.put('/:estimationID/change-request', async ctx => {
  */
 estimationRouter.get('/task/:estimationID', async ctx => {
     if (isAuthenticated(ctx)) {
-        return await EstimationTaskModel.getAllTasksOfEstimation(ctx.params.estimationID,ctx.state.user)
+        return await EstimationTaskModel.getAllTasksOfEstimation(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Not authenticated user.", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
