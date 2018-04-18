@@ -50,11 +50,10 @@ estimationRouter.get("/:estimationID", async ctx => {
 // Delete Estimation
 
 estimationRouter.del("/:estimationID/delete", async ctx => {
-    console.log("estimation delete of ", ctx.params.estimationID)
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        let estimation = await EstimationModel.deleteEstimationById(ctx.params.estimationID, ctx.state.user)
-        console.log("estimation delete", estimation)
-        return estimation
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    if (role === SC.ROLE_NEGOTIATOR) {
+        return await EstimationModel.deleteEstimationById(ctx.params.estimationID, ctx.state.user)
+
     } else {
         throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can delete estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -84,10 +83,13 @@ estimationRouter.post('/initiate', async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.estimationUpdationStruct)
 
-    if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body._id)
+    if (role === SC.ROLE_NEGOTIATOR) {
+        return await EstimationModel.initiate(ctx.request.body, ctx.state.user)
+    } else
         throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-    return await EstimationModel.initiate(ctx.request.body, ctx.state.user)
+
 })
 
 
@@ -97,10 +99,12 @@ estimationRouter.put('/update', async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.estimationInitiationStruct)
 
-    if (!hasRole(ctx, SC.ROLE_NEGOTIATOR))
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can update initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body._id)
+    if (role === SC.ROLE_NEGOTIATOR) {
+        return await EstimationModel.updateEstimationByNegotiator(ctx.request.body, ctx.state.user)
+    } else throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can update initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-    return await EstimationModel.updateEstimationByNegotiator(ctx.request.body, ctx.state.user)
+
 })
 
 
@@ -110,10 +114,10 @@ estimationRouter.put('/update', async ctx => {
  */
 estimationRouter.put('/:estimationID/request', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
-    console.log("Role of user in this estimation is ", role)
-    if (role != SC.ROLE_NEGOTIATOR)
-        throw new AppError("Cannot request estimation, not a negotiator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
+    if (role === SC.ROLE_NEGOTIATOR)
+        return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
+    else throw new AppError("Cannot request estimation, not a negotiator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
 })
 
 // noinspection Annotator
@@ -121,12 +125,31 @@ estimationRouter.put('/:estimationID/request', async ctx => {
  * User by Estimator to EstimationTaskDialog.js from Negotiator
  */
 estimationRouter.put('/:estimationID/review-request', async ctx => {
-    return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    if (role === SC.ROLE_ESTIMATOR)
+        return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
+    else throw new AppError("Cannot review-request estimation, not a estimator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 })
 
 // noinspection Annotator
 estimationRouter.put('/:estimationID/change-request', async ctx => {
-    return await EstimationModel.requestChange(ctx.params.estimationID, ctx.state.user)
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    if (role === SC.ROLE_NEGOTIATOR)
+        return await EstimationModel.requestChange(ctx.params.estimationID, ctx.state.user)
+    else throw new AppError("Cannot change-request estimation, not a negotiator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+})
+
+// noinspection Annotator
+/**
+ * Get all tasks of estimation by ID
+ */
+estimationRouter.get('/task/:estimationID', async ctx => {
+    if (isAuthenticated(ctx)) {
+        return await EstimationTaskModel.getAllTasksOfEstimation(ctx.params.estimationID,ctx.state.user)
+    } else {
+        throw new AppError("Not authenticated user.", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
 })
 
 // noinspection Annotator
@@ -146,25 +169,21 @@ estimationRouter.put('/tasks', async ctx => {
 
 })
 
-// noinspection Annotator
 /**
- * Get all tasks of estimation by ID
+ * Delete task to estimation
  */
-estimationRouter.get('/task/:estimationID', async ctx => {
-    if (isAuthenticated(ctx)) {
-        return await EstimationTaskModel.getAllTaskOfEstimation(ctx.params.estimationID)
-    } else {
-        throw new AppError("Not authenticated user.", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+estimationRouter.del('/:estimationID/tasks/:taskID', async ctx => {
+    return await EstimationTaskModel.deleteTask(ctx.params.taskID, ctx.params.estimationID, ctx.state.user)
 })
+
 
 // noinspection Annotator
 /**
  * Add a new feature to estimation
  */
 estimationRouter.post('/features', async ctx => {
-    console.log("user state is ", ctx.state.user)
     return await EstimationFeatureModel.addFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+
 })
 
 // noinspection Annotator
@@ -175,6 +194,7 @@ estimationRouter.put('/features', async ctx => {
     return await EstimationFeatureModel.updateFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
+
 
 // noinspection Annotator
 /**
@@ -200,29 +220,18 @@ estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
  * Request removal of task to estimation
  */
 estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationTaskModel.requestRemovalTaskByEstimator(ctx.params.taskID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return "not implemented"
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can request removal task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.requestRemovalTask(ctx.params.taskID, ctx.state.user)
 })
 
 
 // noinspection Annotator
 /**
- * request Edit/Update permission task by estimator to estimation
+ * request Re-Open permission of task by estimator to estimation
  * or cancel this request
  */
 estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationTaskModel.requestEditPermissionOfTaskByEstimator(ctx.params.taskID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return "not implemented"
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can request edit permission task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.requestReOpenPermissionOfTask(ctx.params.taskID, ctx.state.user)
+
 })
 
 
@@ -238,19 +247,6 @@ estimationRouter.put('/features/:featureID/request-edit', async ctx => {
         return "not implemented"
     } else {
         throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can request edit permission task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-})
-
-/**
- * Delete task to estimation
- */
-estimationRouter.del('/:estimationID/tasks/:taskID', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationTaskModel.deleteTaskByEstimator(ctx.params, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.deleteTaskByNegotiator(ctx.params, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add features into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
 

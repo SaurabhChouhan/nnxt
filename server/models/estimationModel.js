@@ -850,7 +850,7 @@ estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, neg
 
 estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) => {
     let estimation = await EstimationModel.getById(estimationID)
-    console.log("user in getuser role in estimation ", user)
+    console.log("user in get user role in estimation ", user)
     if (estimation) {
         // check to see role of logged in user in this estimation
         if (estimation.estimator._id == user._id)

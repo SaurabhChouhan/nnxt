@@ -60,9 +60,12 @@ let estimationTaskSchema = mongoose.Schema({
 })
 
 
-estimationTaskSchema.statics.getAllTaskOfEstimation = async (estimation_id) => {
-    let tasksOfEstimation = await EstimationTaskModel.find({"estimation._id": estimation_id})
-    return tasksOfEstimation
+estimationTaskSchema.statics.getAllTasksOfEstimation = async (estimationID, user) => {
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimationID, user)
+    if (role === SC.ROLE_ESTIMATOR || role === SC.ROLE_NEGOTIATOR)
+        return await EstimationTaskModel.find({"estimation._id": estimationID})
+
 }
 
 
@@ -591,18 +594,33 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
 }
 
 
-estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, estimator) => {
-
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+// request removal task
+estimationTaskSchema.statics.requestRemovalTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        return await requestRemovalTaskByEstimator(task, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "] can request removal task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// request removal task by estimator
+const requestRemovalTaskByEstimator = async (task, estimation, estimator) => {
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update removal task flag into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -614,31 +632,41 @@ estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, esti
             $set: {"estimator.requestedInThisIteration": true}
         })
     }
-    /*
-        if (!task.repo.addedFromThisEstimation)
-            throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
-    */
+
     task.estimator.removalRequested = !task.estimator.removalRequested
     task.estimator.changedInThisIteration = true
 
     return await task.save()
-
-    //const updatedTask = await task.save();
-    //return {removalRequested:updatedTask.estimator.removalRequested}
 }
 
-
-estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (taskID, estimator) => {
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+// request re-open task
+estimationTaskSchema.statics.requestReOpenPermissionOfTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        return await requestReOpenPermissionOfTaskByEstimator(task, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "] can request re-open task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+// request re-open task by estimator
+const requestReOpenPermissionOfTaskByEstimator = async (task, estimation, estimator) => {
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only request edit task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -657,22 +685,36 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
     task.estimator.changedInThisIteration = true
     task.canApprove = false
 
-
     return await task.save()
 }
 
-
-estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimator) => {
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let task = await EstimationTaskModel.findById(paramsInput.taskID)
+// delete task
+estimationTaskSchema.statics.deleteTask = async (taskID, estimationID, user) => {
+    let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": estimationID})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        return await deleteTaskByEstimator(task, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await deleteTaskByNegotiator(task, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// delete task by estimator
+estimationTaskSchema.statics.deleteTaskByEstimator = async (task, estimation, estimator) => {
 
     if (estimation.estimator._id != estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -736,23 +778,12 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
 }
 
 
-estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negotiator) => {
+// delete task by negotiator
+const deleteTaskByNegotiator = async (task, estimation, negotiator) => {
 
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let task = await EstimationTaskModel.findById(paramsInput.taskID)
-
-
-    if (!task)
-        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (estimation.negotiator._id != negotiator._id)
-        throw new AppError('Not an negtotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
 
     if (task.feature && task.feature._id) {
