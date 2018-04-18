@@ -1679,3 +1679,7 @@ i.iconClr:hover {
     margin-top: 0px;
 }
 
+.div-disable {
+
+    cursor: not-allowed;
+}
