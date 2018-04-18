@@ -1026,7 +1026,7 @@ estimationTaskSchema.statics.addTaskFromRepository = async (estimationID, reposi
     if (role === SC.ROLE_ESTIMATOR) {
         return await addTaskFromRepositoryByEstimator(estimationID, repositoryTaskID, user)
     } else if (role === SC.ROLE_NEGOTIATOR) {
-        return await approveTaskByNegotiator(estimationID, repositoryTaskID, user)
+        return await addTaskFromRepositoryByNegotiator(estimationID, repositoryTaskID, user)
     }
     throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 }
@@ -1173,7 +1173,20 @@ const addTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID,
 
 
 
-estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, estimator) => {
+// copy task from repo
+estimationTaskSchema.statics.copyTaskFromRepository = async (estimationID, repositoryTaskID, user) => {
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimationID, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        return await copyTaskFromRepositoryByEstimator(estimationID, repositoryTaskID, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await copyTaskFromRepositoryByNegotiator(estimationID, repositoryTaskID, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// copy task from repo by estimator
+const copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, estimator) => {
 
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -1246,7 +1259,8 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
 }
 
 
-estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
+// copy task from repo by negotiator
+const copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)

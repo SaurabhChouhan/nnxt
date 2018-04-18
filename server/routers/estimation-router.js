@@ -361,13 +361,9 @@ estimationRouter.post('/features/estimation/:estimationID/repository-feature/:fe
  * copy task from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/tasks/estimation/:estimationID/repository-task-copy/:taskID', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationTaskModel.copyTaskFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.copyTaskFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can copy task from repository into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+
+    return await EstimationTaskModel.copyTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
+
 })
 
 /**
