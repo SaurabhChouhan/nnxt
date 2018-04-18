@@ -1,8 +1,8 @@
 import {connect} from 'react-redux'
 import {ReleaseTaskPlanningPage} from '../../components'
+import {initialize} from 'redux-form'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
-import {initialize} from 'redux-form'
 import * as SC from '../../../server/serverconstants'
 import {NotificationManager} from 'react-notifications'
 
@@ -24,21 +24,30 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
     },
 
-    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromState(plan.localId)),
-    mergeTaskPlanningRow: (plan) => console.log(" mergeTaskPlanningRow"),
-
     planTask: (taskPlanning) => dispatch(A.addTaskPlanningOnServer(taskPlanning)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Added")
         }
-        else NotificationManager.error("Task Planning Added")
+        else NotificationManager.error("Task Planning Failed")
     }),
+
+    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Task Planning Deleted")
+        }
+        else NotificationManager.error("Task Planning Deletion Failed")
+    }),
+
+    mergeTaskPlanningRow: (plan) => console.log(" mergeTaskPlanningRow"),
+
+
     planTaskFilter: (taskPlanFilter) => dispatch(A.addTaskPlanningFiltersOnServer(taskPlanFilter)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Added")
         }
-        else NotificationManager.error("Task Planning Added")
+        else NotificationManager.error("Task Planning Failed")
     }),
+
     ReleaseTaskGoBack: (event) =>
         dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST))
 })

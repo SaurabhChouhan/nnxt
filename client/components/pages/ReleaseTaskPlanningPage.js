@@ -12,11 +12,8 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        if (row._id) {
-
-        }
-        else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
-                             onClick={() => {
+        return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+                        onClick={() => {
                                  this.props.deleteTaskPlanningRow(row)
                              }}></button>)
     }

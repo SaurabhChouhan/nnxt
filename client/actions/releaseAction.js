@@ -127,6 +127,30 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
     }
 }
 
+
+export const deleteTaskPlanningFromServer = (taskPlanningID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/plan-task/' + taskPlanningID, {
+                method: 'delete',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("deleteTaskPlanningFromState", json.data)
+                    // dispatch(deleteTaskPlanningFromState(json.data._id))
+                }
+                return json
+            })
+    }
+}
+
 export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, EndDate) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/task-plans/employee/' + employeeId + '/fromDate/' + StartDate + '/toDate/' + EndDate, {

@@ -10,8 +10,6 @@ momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
     const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
 
-    console.log("initial", initial)
-
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
@@ -20,6 +18,8 @@ let ReleaseTaskPlanningForm = (props) => {
 
                 <Field name="planningDate" placeholder={"Date"} component={renderDateTimePicker}
                        showTime={false}
+                       min={moment(initial.devStartDate)}
+                       max={moment(initial.devEndDate)}
                        label={" Date :"} validate={[required]}/>
                 <Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>
