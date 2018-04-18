@@ -4,6 +4,7 @@ import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
@@ -34,7 +35,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    estimators: state.user.all,
+    estimators: state.user.all && Array.isArray(state.user.all) && state.user.all.length ? state.user.all.filter(user =>
+        user.roles && user.roles.length ? user.roles.findIndex(r => r.name == SC.ROLE_ESTIMATOR) != -1 : false
+    ) : [],
     projects: state.project.all,
     technologies: state.technology.all.map(t => t.name)
 })

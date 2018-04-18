@@ -713,6 +713,7 @@ span.tag.new {
     position: absolute;
     margin-left: -25px;
 }
+
 .suggestedclock i {
     font-size: 24px;
     color: #F3B54B;
@@ -720,6 +721,7 @@ span.tag.new {
     position: absolute;
     margin-left: -29px;
 }
+
 .esTime b {
     font-size: 15px;
     float: right;
@@ -1655,7 +1657,29 @@ label {
 .filterAlign {
     margin-right: 13px;
 }
-i.iconClr:hover{
+
+i.iconClr:hover {
     color: #F65A4F !important;
 }
 
+.estimatorClr {
+    color: #5243D4;
+    text-decoration: underline;
+    font-weight: bold;
+    text-underline-position: under;
+    margin-top: 0px;
+
+}
+
+.negotiatorClr {
+    color: #EE7E4E;
+    text-decoration: underline;
+    font-weight: bold;
+    text-underline-position: under;
+    margin-top: 0px;
+}
+
+.div-disable {
+
+    cursor: not-allowed;
+}

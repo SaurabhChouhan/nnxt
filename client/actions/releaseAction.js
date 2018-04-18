@@ -30,9 +30,9 @@ export const releaseTaskPlanSelected = (taskPlan) => ({
 })
 
 
-export const deleteTaskPlanningFromState = (planId) => ({
-    type: AC.DELETE_TASK_PLAN_FROM_STATE,
-    planId: planId
+export const deleteTaskPlanningFromState = (planID) => ({
+    type: AC.DELETE_TASK_PLAN,
+    planID: planID
 })
 
 export const addDeveloperFilteredData = (developerPlanned) => ({
@@ -121,6 +121,29 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
             json => {
                 if (json.success) {
                     dispatch(addReleaseTaskPlanningToState(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const deleteTaskPlanningFromServer = (taskPlanningID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/plan-task/' + taskPlanningID, {
+                method: 'delete',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(deleteTaskPlanningFromState(taskPlanningID))
                 }
                 return json
             })

@@ -1,10 +1,11 @@
-import {Field, reduxForm} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
 import {renderDateTimePicker, renderMultiselect, renderSelect, renderText} from './fields'
 import * as logger from '../../clientLogger'
 import {number, required} from "./validation"
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
+import {connect} from 'react-redux'
 
 moment.locale('en')
 momentLocalizer()
@@ -12,7 +13,7 @@ momentLocalizer()
 let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
-    const {Team, Managers, Leaders} = props
+    const {Team, Managers, Leaders, devStartDate, devReleaseDate, clientReleaseDate} = props
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -32,17 +33,19 @@ let EstimationProjectAwardForm = (props) => {
             <div className="col-md-12">
                 <div className="col-md-4">
                     <Field name="devStartDate" component={renderDateTimePicker}
-                           min={moment()} showTime={false}
+                           min={moment()}
+                           max={devReleaseDate ? devReleaseDate : clientReleaseDate}
+                           showTime={false}
                            label={"Expected Start Date For Developer:"} validate={[required]}/>
                 </div>
                 <div className="col-md-4">
                     <Field name="devReleaseDate" component={renderDateTimePicker}
-                           min={moment()} showTime={false}
+                           min={devStartDate} showTime={false}
                            label={"Expected Developer Release Date:"} validate={[required]}/>
                 </div>
                 <div className="col-md-4">
                     <Field name="clientReleaseDate" component={renderDateTimePicker}
-                           min={moment()} showTime={false}
+                           min={devStartDate} showTime={false}
                            label={"Expected Client Release Date:"} validate={required}/>
                 </div>
             </div>
@@ -98,5 +101,19 @@ let EstimationProjectAwardForm = (props) => {
 EstimationProjectAwardForm = reduxForm({
     form: 'estimation-project-award'
 })(EstimationProjectAwardForm)
+
+const selector = formValueSelector('estimation-project-award')
+
+EstimationProjectAwardForm = connect(
+    state => {
+        const {devStartDate, devReleaseDate, clientReleaseDate} = selector(state, 'devStartDate', 'devReleaseDate', 'clientReleaseDate')
+        return {
+            devStartDate,
+            devReleaseDate,
+            clientReleaseDate
+        }
+    }
+)(EstimationProjectAwardForm)
+
 
 export default EstimationProjectAwardForm

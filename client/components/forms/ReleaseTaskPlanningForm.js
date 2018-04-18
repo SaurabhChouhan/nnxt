@@ -8,7 +8,7 @@ import momentLocalizer from 'react-widgets-moment'
 moment.locale('en')
 momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
-    const {change, team, handleSubmit, submitting, pristine, reset} = props
+    const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
 
     return <form onSubmit={handleSubmit}>
         <div className="row">
@@ -18,6 +18,8 @@ let ReleaseTaskPlanningForm = (props) => {
 
                 <Field name="planningDate" placeholder={"Date"} component={renderDateTimePicker}
                        showTime={false}
+                       min={moment(initial.devStartDate)}
+                       max={moment(initial.devEndDate)}
                        label={" Date :"} validate={[required]}/>
                 <Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>

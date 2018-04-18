@@ -66,16 +66,16 @@ class EstimationDetail extends Component {
 
     render() {
         logger.debug(logger.ESTIMATION_DETAIL_RENDER, this.props)
-        const {estimation} = this.props;
+        const {estimation, userRoleInThisEstimation} = this.props;
         let editView = false
-        if ((estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status)) || (estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))) {
+        if ((userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status)) || (userRoleInThisEstimation === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))) {
             editView = true
         }
 
         return <div>
             <div className="col-md-8 pad">
                 <div className="col-md-12 estimateheader">
-                    {estimation.canApprove && estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_REVIEW_REQUESTED ?
+                    {estimation.canApprove && userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && estimation.status === SC.STATUS_REVIEW_REQUESTED ?
                         <div className="col-md-5 pad">
 
                             <div className="col-md-6 backarrow estimationBackArrow">
@@ -108,7 +108,7 @@ class EstimationDetail extends Component {
                                 </h5>
                             </div>
                             {
-                                (_.includes([SC.STATUS_INITIATED], estimation.status) && estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ) &&
+                                (_.includes([SC.STATUS_INITIATED], estimation.status) && userRoleInThisEstimation === SC.ROLE_NEGOTIATOR ) &&
                                 <button type="button" className="btn customBtn" onClick={() => {
                                     this.props.editEstimationInitiateForm(estimation)
                                 }
@@ -143,7 +143,10 @@ class EstimationDetail extends Component {
                         this.state.showEstimationReviewDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmReviewRequest.bind(this)}
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
-                                            body="You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"/>
+                                            body={this.props.estimation && this.props.estimation.canApprove ? "You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!" :
+                                                "There are some tasks/features that have information missing which would prevent Negotiator from approving them during his review. Press 'Cancel' to add missing information or press Confirm to send Estimation for review"
+                                            }
+                        />
                     }
                     {
                         this.state.showEstimationReopenDialog &&
@@ -161,7 +164,7 @@ class EstimationDetail extends Component {
 
                     <div className="col-md-3">
                         {
-                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_INITIATED &&
+                            userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && estimation.status === SC.STATUS_INITIATED &&
                             <button className="btn customBtn"
                                     onClick={() => this.setState({showEstimationRequestDialog: true})}>Request
                                 Estimation
@@ -169,31 +172,31 @@ class EstimationDetail extends Component {
                         }
                         {
 
-                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_APPROVED &&
+                            userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && estimation.status === SC.STATUS_APPROVED &&
                             <button className="btn reopenBtn"
-                                    onClick={() => this.setState({showEstimationReopenDialog: true})}>Reopen
-                                Estimation
+                                    onClick={() => this.setState({showEstimationReopenDialog: true})}>Reopen Estimation
                             </button>
                         }
                         {
-                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && estimation.status == SC.STATUS_REVIEW_REQUESTED &&
+                            userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && estimation.status === SC.STATUS_REVIEW_REQUESTED &&
                             <button className="btn customBtn"
-                                    onClick={() => this.setState({showEstimationChangeDialog: true})}>Request Change
+                                    onClick={() => this.setState({showEstimationChangeDialog: true})}>
+                                Request Change
                             </button>
                         }
 
                         {
-                            estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && (estimation.status == SC.STATUS_ESTIMATION_REQUESTED || estimation.status == SC.STATUS_CHANGE_REQUESTED) &&
+                            userRoleInThisEstimation === SC.ROLE_ESTIMATOR && (estimation.status === SC.STATUS_ESTIMATION_REQUESTED || estimation.status === SC.STATUS_CHANGE_REQUESTED) &&
                             <button className="btn customBtn"
-                                    onClick={() => this.setState({showEstimationReviewDialog: true})}>Request
-                                Review
+                                    onClick={() => this.setState({showEstimationReviewDialog: true})}>
+                                Request Review
                             </button>
                         }
 
                     </div>
                     <div className="col-md-1">
                         {
-                            estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && (estimation.status == SC.STATUS_INITIATED || estimation.status == SC.STATUS_REVIEW_REQUESTED) &&
+                            userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && (estimation.status === SC.STATUS_INITIATED || estimation.status === SC.STATUS_REVIEW_REQUESTED) &&
                             < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
                                 this.setState({showEstimationDeleteDialog: true})
 
@@ -206,8 +209,7 @@ class EstimationDetail extends Component {
                     <div className="col-md-3 pad ">
                         <div className="estimationfileoption">
                             <ul className="list-unstyled">
-                                {(_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_APPROVED, SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED, SC.STATUS_REOPENED], estimation.status))
-                                &&
+                                {editView &&
                                 < button type="button" className="btn customBtn filterAlign" onClick={() => {
                                     this.props.estimationFilterForm()
                                 }
@@ -245,8 +247,8 @@ class EstimationDetail extends Component {
                     </div>
 
                     <div className="col-md-5">
-                        {(estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
-                            estimation.loggedInUserRole == SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+                        {(userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
+                            userRoleInThisEstimation === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
                         && <form>
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showAddTaskForm(estimation)}><i
@@ -287,15 +289,15 @@ class EstimationDetail extends Component {
                 <div className="col-md-12">
                     <EstimationFeaturesContainer estimationStatus={estimation.status}
                                                  editView={editView}
-                                                 loggedInUserRole={estimation.loggedInUserRole}/>
+                                                 loggedInUserRole={userRoleInThisEstimation}/>
                 </div>
                 <br/>
                 <div className="col-md-12">
                     <EstimationTasksContainer estimationStatus={estimation.status}
                                               editView={editView}
-                                              loggedInUserRole={estimation.loggedInUserRole}/>
+                                              loggedInUserRole={userRoleInThisEstimation}/>
                 </div>
-                {(estimation.status == SC.STATUS_APPROVED) && (estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR) &&
+                {(estimation.status === SC.STATUS_APPROVED) && (userRoleInThisEstimation === SC.ROLE_NEGOTIATOR) &&
                 <div className="col-md-12">
                     <button type="button" className="btn customBtn" onClick={
                         () => {

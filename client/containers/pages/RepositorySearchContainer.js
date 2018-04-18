@@ -26,7 +26,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    loggedInUser: state.user.loggedIn,
     repository: state.repository.all,
     estimation: state.estimation.selected
 })

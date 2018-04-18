@@ -300,10 +300,12 @@ class EstimationFeature extends React.PureComponent {
         return <div className={expanded ? 'feature-expanded' : 'feature'}>
             <div className="col-md-12 pad">
                 <div className="col-md-9">
-                    <div className="col-md-11 div-hover" onClick={() => {
-                        this.props.expandFeature(feature._id)
-                    }}>
-                        <h4>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
+                    <div
+                        className={feature.estimator && feature.estimator.name ? "col-md-11 div-hover " : "col-md-11 div-hover infoHighliter"}
+                        onClick={() => {
+                            this.props.expandFeature(feature._id)
+                        }}>
+                        <h4 title={feature.estimator && feature.estimator.name ? feature.estimator.name : null}>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
 
                     </div>
                     {editView && feature.status === SC.STATUS_PENDING && feature.canApprove == false ?
@@ -372,9 +374,11 @@ class EstimationFeature extends React.PureComponent {
                 </div>
 
             </div>
-            <div className="col-md-12 short-description" onClick={() => {
-                this.props.expandFeature(feature._id)
-            }}>
+            <div
+                className={feature.estimator.description ? "col-md-12 short-description" : "col-md-12 short-description infoHighliter"}
+                onClick={() => {
+                    this.props.expandFeature(feature._id)
+                }}>
                 <p>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
             {

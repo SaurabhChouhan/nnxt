@@ -87,43 +87,14 @@ class RepositorySearch extends Component {
 
                         <div className="col-md-2 repoArrow">
 
-                            <h5><img key="he_requested_delete" src="/images/go_button.png"
+                            <h5><img key="he_requested_delete" className={editView ? "div-hover" : "div-disable"}
+                                     src="/images/go_button.png"
                                      onClick={() => {
-                                         this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue, this.state.searchText)
+                                         if (editView)
+                                             this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue, this.state.searchText)
                                      }}/></h5>
                         </div>
                     </div>
-
-                    {/*<div  className="col-md-12">
-                        <div className="col-md-6">
-
-                            <div className="searchText">
-                                <input type="text" className="form-control" placeholder="Search Features/Tasks"
-                                       onChange={this.searchText}/>
-                            </div>
-
-                        </div>
-                        <div className="col-md-4">
-                            <div className="dropdownoption">
-                                <select className="form-control "
-                                        onChange={this.handleSelectChange}>
-                                    {
-                                        this.state.type.map((item, key) =>
-                                            <option value={item} key={key}>{item}</option>
-                                        )
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                        <div className="col-md-2">
-                            <div className="backarrow">
-                                <h5><img key="he_requested_delete" src="/images/go_button.png"
-                                         onClick={() => {
-                                             this.props.fetchRepositoryBasedOnDiffCriteria(this.state.tags, this.state.selectedValue)
-                                         }}/></h5>
-                            </div>
-                        </div>
-                    </div>*/}
                 </div>
 
                 <div className="col-md-12">
