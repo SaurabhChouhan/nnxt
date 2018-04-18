@@ -237,30 +237,21 @@ estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {
 
 // noinspection Annotator
 /**
- * request Edit/Update permission feature by estimator to estimation
+ * request ReOpen permission feature by estimator to estimation
  * or cancel this request
  */
 estimationRouter.put('/features/:featureID/request-edit', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationFeatureModel.requestEditPermissionOfFeatureByEstimator(ctx.params.featureID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return "not implemented"
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can request edit permission task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationFeatureModel.requestReOpenPermissionOfFeature(ctx.params.featureID, ctx.state.user)
+
 })
 
 // noinspection Annotator
 /**
- * Grant Edit/Update permission task by negotiator to estimation
+ * Grant ReOpen permission task by negotiator to estimation
  * or cancel this request
  */
 estimationRouter.put('/tasks/:taskID/grant-edit', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.grantEditPermissionOfTaskByNegotiator(ctx.params.taskID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can grant edit permission of task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.grantReOpenPermissionOfTask(ctx.params.taskID, ctx.state.user)
 })
 
 

@@ -864,8 +864,33 @@ const deleteTaskByNegotiator = async (task, estimation, negotiator) => {
 }
 
 
+// delete task
+estimationTaskSchema.statics.grantReOpenPermissionOfTask = async (taskID, user) => {
+    let task = await EstimationTaskModel.findById(taskID)
+    if (!task)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (taskID, negotiator) => {
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can grant reopen permission of task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await grantReOpenPermissionOfTaskByNegotiator(task, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+const grantReOpenPermissionOfTaskByNegotiator = async (taskID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
