@@ -332,14 +332,10 @@ estimationRouter.put('/project-awarded', async ctx => {
 })
 
 
-//soft delete feature by estimation
+//soft delete feature in estimation
 estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationFeatureModel.deleteFeatureByEstimator(ctx.params, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationFeatureModel.deleteFeatureByNegotiator(ctx.params, ctx.state.user)
+    return await EstimationFeatureModel.deleteFeature(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
 
-    } else throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + SC.ROLE_NEGOTIATOR + "] can delete features from estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 })
 
 // noinspection Annotator
@@ -347,13 +343,9 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
  * Add task from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/tasks/estimation/:estimationID/repository-task/:taskID', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationTaskModel.addTaskFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.addTaskFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add task from repository into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+
+    return await EstimationTaskModel.addTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
+
 })
 
 // noinspection Annotator
@@ -361,13 +353,8 @@ estimationRouter.post('/tasks/estimation/:estimationID/repository-task/:taskID',
  * Add feature from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/features/estimation/:estimationID/repository-feature/:featureID', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationFeatureModel.addFeatureFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationFeatureModel.addFeatureFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can add feature from repo into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationFeatureModel.addFeatureFromRepository(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
+
 })
 
 /**
