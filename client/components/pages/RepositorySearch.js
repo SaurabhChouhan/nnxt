@@ -69,21 +69,38 @@ class RepositorySearch extends Component {
                 <div className="col-md-12 RepositoryHeading RepositorySideHeight">
 
                     <div className="row">
-                        <div className="col-md-6 searchText">
-                            <input type="text" className="form-control" placeholder="Search Features/Tasks"
-                                   onChange={this.searchText}/>
-                        </div>
-                        <div className="col-md-4 dropdownoptionRepo">
-                            <select className="form-control div-hover"
+                        {editView ?
+                            <div className="col-md-6 searchText">
+                                <input type="text" className="form-control" placeholder="Search Features/Tasks"
+                                       onChange={this.searchText}/>
+                            </div> : <div className="col-md-6 searchText">
+                                <input type="text" className="form-control" placeholder="Search Features/Tasks"
+                                       onChange={this.searchText} disabled/>
+                            </div>}
+                        {editView ?
+                            <div className="col-md-4 dropdownoptionRepo">
+                                <select className="form-control div-hover"
 
-                                    onChange={this.handleSelectChange}>
-                                {
-                                    this.state.type.map((item, key) =>
-                                        <option value={item} key={key}>{item}</option>
-                                    )
-                                }
-                            </select>
-                        </div>
+                                        onChange={this.handleSelectChange}>
+                                    {
+                                        this.state.type.map((item, key) =>
+                                            <option value={item} key={key}>{item}</option>
+                                        )
+                                    }
+                                </select>
+                            </div> :
+                            <div className="col-md-4 dropdownoptionRepo">
+                                <select className="form-control div-hover"
+
+                                        onChange={this.handleSelectChange} disabled>
+                                    {
+                                        this.state.type.map((item, key) =>
+                                            <option value={item} key={key}>{item}</option>
+                                        )
+                                    }
+                                </select>
+                            </div>}
+
 
                         <div className="col-md-2 repoArrow">
 
@@ -118,46 +135,48 @@ class RepositorySearch extends Component {
                         handleAddition={this.handleAddition}
                         handleDrag={this.handleDrag}/>
                 </div>
+                {editView ?
+                    <div className="col-md-12 Repo-padding">
 
-                <div className="col-md-12 Repo-padding">
-
-                    {
-                        Array.isArray(repository) && repository.map((f, i) =>
-                            (f.isFeature) ?
-                                <div key={"feature" + f._id} className="repository repositoryFeature div-hover">
-                                    <div className="RepositoryHeading repotext" key={i} onClick={() => {
-                                        this.props.showFeatureDetailPage(f)
-                                    }}>
-                                        <div>
-                                            <div className="repositoryFeatureLable repotext"></div>
-                                            <h5>Feature: {f.name}</h5><i
-                                            className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span>
+                        {
+                            Array.isArray(repository) && repository.map((f, i) =>
+                                (f.isFeature) ?
+                                    <div key={"feature" + f._id} className="repository repositoryFeature div-hover">
+                                        <div className="RepositoryHeading repotext" key={i} onClick={() => {
+                                            this.props.showFeatureDetailPage(f)
+                                        }}>
+                                            <div>
+                                                <div className="repositoryFeatureLable repotext"></div>
+                                                <h5>Feature: {f.name}</h5><i
+                                                className="glyphicon glyphicon-option-vertical pull-right"></i><span
+                                                className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span>
+                                            </div>
+                                        </div>
+                                        <div className="RepositoryContent">
+                                            <p>{f.description}</p>
                                         </div>
                                     </div>
-                                    <div className="RepositoryContent">
-                                        <p>{f.description}</p>
-                                    </div>
-                                </div>
-                                :
-                                <div key={"task" + f._id} className="repository repositoryTask">
-                                    <div className="RepositoryHeading repotext div-hover" key={i} onClick={() => {
-                                        this.props.showTaskDetailPage(f)
-                                    }}>
-                                        <div>
-                                            <div className="repositoryTaskLable repotext"></div>
-                                            <h5>Task: {f.name}</h5><i
-                                            className="glyphicon glyphicon-option-vertical pull-right"></i><span
-                                            className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span>
+                                    :
+                                    <div key={"task" + f._id} className="repository repositoryTask">
+                                        <div className="RepositoryHeading repotext div-hover" key={i} onClick={() => {
+                                            this.props.showTaskDetailPage(f)
+                                        }}>
+                                            <div>
+                                                <div className="repositoryTaskLable repotext"></div>
+                                                <h5>Task: {f.name}</h5><i
+                                                className="glyphicon glyphicon-option-vertical pull-right"></i><span
+                                                className="pull-right">{f.estimatedHours ? '(' + task.estimatedHours + ' HRS)' : '(00 HRS)'} </span>
+                                            </div>
+                                        </div>
+                                        <div className="RepositoryContent">
+                                            <p>{f.description}</p>
                                         </div>
                                     </div>
-                                    <div className="RepositoryContent">
-                                        <p>{f.description}</p>
-                                    </div>
-                                </div>
-                        )
-                    }
-                </div>
+                            )
+                        }
+                    </div> : null
+
+                }
 
             </div>)
     }
