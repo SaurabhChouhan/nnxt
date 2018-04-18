@@ -142,17 +142,8 @@ estimationRouter.post('/tasks', async ctx => {
  * Update a new task to estimation
  */
 estimationRouter.put('/tasks', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationEstimatorUpdateTaskStruct)
-        return await EstimationTaskModel.updateTaskByEstimator(ctx.request.body, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationNegotiatorUpdateTaskStruct)
-        return await EstimationTaskModel.updateTaskByNegotiator(ctx.request.body, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can update task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.updateTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+
 })
 
 // noinspection Annotator
@@ -181,18 +172,8 @@ estimationRouter.post('/features', async ctx => {
  * Update a new features to estimation
  */
 estimationRouter.put('/features', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationEstimatorUpdateFeatureStruct)
-        return await EstimationFeatureModel.updateFeatureByEstimator(ctx.request.body, ctx.state.user)
+    return await EstimationFeatureModel.updateFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationNegotiatorUpdateFeatureStruct)
-        return await EstimationFeatureModel.updateFeatureByNegotiator(ctx.request.body, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can update features into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
 })
 
 // noinspection Annotator
@@ -200,13 +181,8 @@ estimationRouter.put('/features', async ctx => {
  * Update a move to feature to estimation
  */
 estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationTaskModel.moveTaskToFeatureByEstimator(ctx.params.taskID, ctx.params.featureID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.moveTaskToFeatureByNegotiator(ctx.params.taskID, ctx.params.featureID, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can move task to features into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.moveTaskToFeature(ctx.params.taskID, ctx.params.featureID, ctx.state.user)
+    
 })
 
 

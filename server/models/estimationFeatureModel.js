@@ -158,8 +158,24 @@ const addFeatureByNegotiator = async (featureInput, negotiator) => {
     return estimationFeature
 }
 
+estimationFeatureSchema.statics.updateFeature = async (featureInput, user, schemaRequested) => {
+    if (!featureInput || !featureInput.estimation || !featureInput.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let role = await EstimationModel.getUserRoleInEstimation(featureInput.estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationEstimatorAddFeatureStruct)
+        return await updateFeatureByEstimator(featureInput, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationNegotiatorAddFeatureStruct)
+        return await updateFeatureByNegotiator(featureInput, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
 
-estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, estimator) => {
+
+const updateFeatureByEstimator = async (featureInput, estimator) => {
     V.validate(featureInput, V.estimationEstimatorUpdateFeatureStruct)
 
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
@@ -245,7 +261,7 @@ estimationFeatureSchema.statics.updateFeatureByEstimator = async (featureInput, 
 }
 
 
-estimationFeatureSchema.statics.updateFeatureByNegotiator = async (featureInput, negotiator) => {
+const updateFeatureByNegotiator = async (featureInput, negotiator) => {
     V.validate(featureInput, V.estimationNegotiatorUpdateFeatureStruct)
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
