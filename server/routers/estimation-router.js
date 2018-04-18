@@ -182,7 +182,7 @@ estimationRouter.put('/features', async ctx => {
  */
 estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
     return await EstimationTaskModel.moveTaskToFeature(ctx.params.taskID, ctx.params.featureID, ctx.state.user)
-    
+
 })
 
 
@@ -191,13 +191,7 @@ estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
  * Update a move out of feature to estimation
  */
 estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationTaskModel.moveTaskOutOfFeatureByEstimator(ctx.params.taskID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.moveTaskOutOfFeatureByNegotiator(ctx.params.taskID, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can move task out of features into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.moveTaskOutOfFeature(ctx.params.taskID, ctx.state.user)
 })
 
 
