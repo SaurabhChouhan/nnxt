@@ -321,7 +321,8 @@ estimationRouter.put('/feature/:featureID/can-not-approve/:isGranted/is-granted'
 
 // noinspection Annotator
 estimationRouter.put('/project-awarded', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body.estimation._id)
+    if (role === SC.ROLE_NEGOTIATOR) {
         if (ctx.schemaRequested)
             return V.generateSchema(V.estimationProjectAwardByNegotiatorStruct)
         return await EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
