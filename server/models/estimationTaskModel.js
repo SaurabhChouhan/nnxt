@@ -714,7 +714,7 @@ estimationTaskSchema.statics.deleteTask = async (taskID, estimationID, user) => 
 }
 
 // delete task by estimator
-estimationTaskSchema.statics.deleteTaskByEstimator = async (task, estimation, estimator) => {
+const deleteTaskByEstimator = async (task, estimation, estimator) => {
 
     if (estimation.estimator._id != estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
