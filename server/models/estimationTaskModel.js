@@ -446,7 +446,7 @@ estimationTaskSchema.statics.moveTaskToFeature = async (taskID, featureID, user)
 
 
 // move task to feature by Estimator
-estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator) => {
+const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator) => {
 
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
@@ -478,7 +478,7 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (task, feature
 
 
 // move task to feature by Negotiator
-estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiator) => {
+const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiator) => {
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only move task to feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
