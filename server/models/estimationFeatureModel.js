@@ -555,12 +555,11 @@ const canNotApproveFeatureByNegotiator = async (feature, estimation, isGranted, 
 
 estimationFeatureSchema.statics.deleteFeature = async (estimationID, featureID, user) => {
 
-    let feature = await
-        EstimationFeatureModel.findById(featureID)
+    let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!feature || !feature.estimation || !feature.estimation._id || estimationID)
+    if (!feature || !feature.estimation || !feature.estimation._id || !estimationID)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await
