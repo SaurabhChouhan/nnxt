@@ -451,6 +451,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 }
 
 .feature p, .task p {
+    float: left;
     font-size: 1.3em;
     margin: 5px 0px 20px 10px;
     line-height: 1.3em;
