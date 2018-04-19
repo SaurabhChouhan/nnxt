@@ -515,7 +515,6 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
         task.negotiator.changedInThisIteration = true
     task.negotiator.isMovedToFeature = true
     task.negotiator.isMovedOutOfFeature = false
-
     return await task.save()
 }
 
@@ -624,13 +623,6 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
         })
     }
 
-
-    if (task.negotiator.estimatedHours)
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
-            "negotiator.changedInThisIteration": true,
-            "canApprove": false
-        })
 
 
     task.feature = null
