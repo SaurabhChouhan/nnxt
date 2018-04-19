@@ -14,6 +14,7 @@ let estimationTaskSchema = mongoose.Schema({
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     canApprove: {type: Boolean, default: false},
+    hasNoError: {type: Boolean, default: false},
     initiallyEstimated: {type: Boolean, required: true},
     isDeleted: {type: Boolean, default: false},
     created: Date,
@@ -58,6 +59,17 @@ let estimationTaskSchema = mongoose.Schema({
     }]
 })
 
+
+estimationTaskSchema.statics.getAllTasksOfEstimation = async (estimationID, user) => {
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimationID, user)
+    if (role === SC.ROLE_ESTIMATOR || role === SC.ROLE_NEGOTIATOR)
+        return await EstimationTaskModel.find({"estimation._id": estimationID})
+
+}
+
+
+// adding task to task model
 estimationTaskSchema.statics.addTask = async (taskInput, user, schemaRequested) => {
     if (!taskInput || !taskInput.estimation || !taskInput.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -74,6 +86,7 @@ estimationTaskSchema.statics.addTask = async (taskInput, user, schemaRequested) 
     throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 }
 
+// adding task by Estimator
 const addTaskByEstimator = async (taskInput, estimator) => {
     V.validate(taskInput, V.estimationEstimatorAddTaskStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
@@ -130,6 +143,7 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     return await estimationTask.save()
 }
 
+// adding task by Negotiator
 const addTaskByNegotiator = async (taskInput, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorAddTaskStruct)
     let estimationFeatureObj
@@ -196,8 +210,25 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
     return estimationTask
 }
 
+// updating task to task model
+estimationTaskSchema.statics.updateTask = async (taskInput, user, schemaRequested) => {
+    if (!taskInput || !taskInput.estimation || !taskInput.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let role = await EstimationModel.getUserRoleInEstimation(taskInput.estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationEstimatorUpdateTaskStruct)
+        return await updateTaskByEstimator(taskInput, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        if (schemaRequested)
+            return V.generateSchema(V.estimationNegotiatorUpdateTaskStruct)
+        return await updateTaskByNegotiator(taskInput, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
 
-estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator) => {
+// updating task by Estimator
+const updateTaskByEstimator = async (taskInput, estimator) => {
     V.validate(taskInput, V.estimationEstimatorUpdateTaskStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -214,7 +245,9 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
     }
     if (!estimationTask.negotiator.estimatedHours) {
         estimationTask.negotiator.estimatedHours = 0
-
+    }
+    if (!estimationTask.estimator.estimatedHours) {
+        estimationTask.estimator.estimatedHours = 0
     }
 
 
@@ -238,9 +271,6 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        if (!estimationTask.estimator.estimatedHours) {
-            estimationTask.estimator.estimatedHours = 0
-        }
 
 
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
@@ -296,8 +326,8 @@ estimationTaskSchema.statics.updateTaskByEstimator = async (taskInput, estimator
 
 }
 
-
-estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiator) => {
+// updating task by Negotiator
+const updateTaskByNegotiator = async (taskInput, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorUpdateTaskStruct)
     let estimationFeatureObj
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
@@ -340,12 +370,6 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
         })
     }
 
-    /*
-    if
-    (estimationTask.repo && estimationTask.repo._id) {
-        // find repo and update when task is updating
-        let repositoryTask = await RepositoryModel.updateTask(estimationTask.repo._id, taskInput, negotiator)
-    }*/
 
     estimationTask.feature = taskInput.feature ? taskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.negotiator.name = taskInput.name
@@ -388,52 +412,76 @@ estimationTaskSchema.statics.updateTaskByNegotiator = async (taskInput, negotiat
     return estimationTask
 }
 
-
-estimationTaskSchema.statics.getAllTaskOfEstimation = async (estimation_id) => {
-    let tasksOfEstimation = await EstimationTaskModel.find({"estimation._id": estimation_id})
-    return tasksOfEstimation
-}
-
-
-estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featureID, estimator) => {
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let feature = await EstimationFeatureModel.findById(featureID)
-
-    if (!feature)
-        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
+// move task to feature
+estimationTaskSchema.statics.moveTaskToFeature = async (taskID, featureID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let feature = await EstimationFeatureModel.findById(featureID)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+
+    let role = await EstimationModel.getUserRoleInEstimation(task.estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        return await moveTaskToFeatureByEstimator(task, feature, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+
+        return await moveTaskToFeatureByNegotiator(task, feature, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+// move task to feature by Estimator
+const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator) => {
+
+
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only move task to feature into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.estimator._id == estimator._id)
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
     if (feature.status === SC.STATUS_APPROVED) {
-        throw new AppError('Task can not be moved as it is already appooved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Task can not be moved as feature is already approved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
     }
-    // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
-    if (task.estimator.estimatedHours) {
+    // As task is being moved to feature, estimated hours and suggested hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
+    if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {
+                "estimator.estimatedHours": task.estimator.estimatedHours,
+                "negotiator.estimatedHours": task.negotiator.estimatedHours
+            },
+            "canApprove": false
+        })
+    } else if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
-            "estimator.changedInThisIteration": true,
+            "canApprove": false
+        })
+    } else if (task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
             "canApprove": false
         })
     }
 
-    // As task is moved please update repository as well to note this change
+    // As task is moved do not update repository to note this change
 
-    //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
-
+    // moved out by negotiator then clear its flag while move in to feature by estimator
+    if (task.negotiator.isMovedOutOfFeature && task.negotiator.changedInThisIteration) {
+        task.negotiator.isMovedOutOfFeature = false
+        task.negotiator.changedInThisIteration = false
+    }
     task.feature = feature
     task.canApprove = false
     task.updated = Date.now()
@@ -445,17 +493,83 @@ estimationTaskSchema.statics.moveTaskToFeatureByEstimator = async (taskID, featu
 }
 
 
-estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, estimator) => {
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+// move task to feature by Negotiator
+const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiator) => {
 
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only move task to feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+
+    if (feature.status === SC.STATUS_APPROVED) {
+        throw new AppError('task cant be moved as it is already approved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+    }
+    // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
+
+    if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {
+                "estimator.estimatedHours": task.estimator.estimatedHours,
+                "negotiator.estimatedHours": task.negotiator.estimatedHours
+            },
+            "canApprove": false
+        })
+    } else if (task.estimator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+            "canApprove": false
+        })
+    } else if (task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+            "canApprove": false
+        })
+    }
+
+    // moved out by estimator then clear its flag while move in to feature by negotiator
+    if (task.estimator.isMovedOutOfFeature && task.estimator.changedInThisIteration) {
+        task.estimator.isMovedOutOfFeature = false
+        task.estimator.changedInThisIteration = false
+    }
+    task.feature = feature
+    task.updated = Date.now()
+    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
+        task.negotiator.changedInThisIteration = true
+    task.negotiator.isMovedToFeature = true
+    task.negotiator.isMovedOutOfFeature = false
+    return await task.save()
+}
+
+
+// move task out of feature
+estimationTaskSchema.statics.moveTaskOutOfFeature = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(task.estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        return await moveTaskOutOfFeatureByEstimator(task, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+
+        return await moveTaskOutOfFeatureByNegotiator(task, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// move task out of feature by estimator
+const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
+
+    let feature = await EstimationFeatureModel.findById(task.feature._id)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update feature(Move task out of Feature) into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -465,16 +579,32 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
 
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
-    if (task.estimator.estimatedHours)
-        await EstimationFeatureModel.updateOne({_id: task.feature._id}, {
-            $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
-            "estimator.changedInThisIteration": true,
+
+    if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {
+                "estimator.estimatedHours": -task.estimator.estimatedHours,
+                "negotiator.estimatedHours": -task.negotiator.estimatedHours
+            },
             "canApprove": false
         })
+    } else if (task.estimator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+            "canApprove": false
+        })
+    } else if (task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+            "canApprove": false
+        })
+    }
 
-    let feature = await EstimationFeatureModel.findById(task.feature._id)
-    //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
-
+    // moved in by negotiator  then clear its flag while move out to feature by estimator
+    if (task.negotiator.isMovedToFeature && task.negotiator.changedInThisIteration) {
+        task.negotiator.isMovedToFeature = false
+        task.negotiator.changedInThisIteration = false
+    }
     task.feature = null
     task.updated = Date.now()
     task.estimator.isMovedToFeature = false
@@ -484,19 +614,85 @@ estimationTaskSchema.statics.moveTaskOutOfFeatureByEstimator = async (taskID, es
     return await task.save()
 }
 
+// move task out of feature by negotiator
+const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) => {
 
-estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, estimator) => {
+    let feature = await EstimationFeatureModel.findById(task.feature._id)
+    if (!feature)
+        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update feature(Move task out of feature) into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
+
+    if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {
+                "estimator.estimatedHours": -task.estimator.estimatedHours,
+                "negotiator.estimatedHours": -task.negotiator.estimatedHours
+            },
+            "canApprove": false
+        })
+    } else if (task.estimator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+            "canApprove": false
+        })
+    } else if (task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+            "canApprove": false
+        })
+    }
+
+
+    // moved in by estimator then clear its flag while move out to feature by negotiator
+    if (task.estimator.isMovedToFeature && task.estimator.changedInThisIteration) {
+        task.estimator.isMovedToFeature = false
+        task.estimator.changedInThisIteration = false
+    }
+
+    task.feature = null
+    task.updated = Date.now()
+    task.negotiator.isMovedToFeature = false
+    task.negotiator.isMovedOutOfFeature = true
+    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
+        task.negotiator.changedInThisIteration = true
+    return await task.save()
+}
+
+
+// request removal task
+estimationTaskSchema.statics.requestRemovalTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        return await requestRemovalTaskByEstimator(task, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "] can request removal task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// request removal task by estimator
+const requestRemovalTaskByEstimator = async (task, estimation, estimator) => {
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update removal task flag into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -508,31 +704,41 @@ estimationTaskSchema.statics.requestRemovalTaskByEstimator = async (taskID, esti
             $set: {"estimator.requestedInThisIteration": true}
         })
     }
-    /*
-        if (!task.repo.addedFromThisEstimation)
-            throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
-    */
+
     task.estimator.removalRequested = !task.estimator.removalRequested
     task.estimator.changedInThisIteration = true
 
     return await task.save()
-
-    //const updatedTask = await task.save();
-    //return {removalRequested:updatedTask.estimator.removalRequested}
 }
 
-
-estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (taskID, estimator) => {
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+// request re-open task
+estimationTaskSchema.statics.requestReOpenPermissionOfTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        return await requestReOpenPermissionOfTaskByEstimator(task, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "] can request re-open task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+// request re-open task by estimator
+const requestReOpenPermissionOfTaskByEstimator = async (task, estimation, estimator) => {
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only request edit task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -551,69 +757,36 @@ estimationTaskSchema.statics.requestEditPermissionOfTaskByEstimator = async (tas
     task.estimator.changedInThisIteration = true
     task.canApprove = false
 
-
     return await task.save()
 }
 
-
-estimationTaskSchema.statics.moveTaskToFeatureByNegotiator = async (taskID, featureID, negotiator) => {
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let feature = await EstimationFeatureModel.findById(featureID)
-    if (!feature)
-        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
+// delete task
+estimationTaskSchema.statics.deleteTask = async (taskID, estimationID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": estimationID})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only move task to feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
 
-    if (feature.status === SC.STATUS_APPROVED) {
-        throw new AppError('task cant be moved as it is already appooved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+        return await deleteTaskByEstimator(task, estimation, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await deleteTaskByNegotiator(task, estimation, user)
     }
-    // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
-    if (task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
-            "negotiator.changedInThisIteration": true,
-            "canApprove": false
-        })
-    }
-
-    //await RepositoryModel.moveTaskToFeature(task.repo._id, feature.repo._id, estimation._id)
-
-    task.feature = feature
-    task.updated = Date.now()
-    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
-        task.negotiator.changedInThisIteration = true
-    task.negotiator.isMovedToFeature = true
-    task.negotiator.isMovedOutOfFeature = false
-
-    return await task.save()
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 }
 
-
-estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimator) => {
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let task = await EstimationTaskModel.findById(paramsInput.taskID)
-    if (!task)
-        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+// delete task by estimator
+const deleteTaskByEstimator = async (task, estimation, estimator) => {
 
     if (estimation.estimator._id != estimator._id)
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -629,7 +802,10 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
         if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
-                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                $inc: {
+                    "estimator.estimatedHours": -task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": -task.negotiator.estimatedHours
+                },
                 "canApprove": false
             })
         } else if (task.estimator.estimatedHours) {
@@ -677,23 +853,12 @@ estimationTaskSchema.statics.deleteTaskByEstimator = async (paramsInput, estimat
 }
 
 
-estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negotiator) => {
+// delete task by negotiator
+const deleteTaskByNegotiator = async (task, estimation, negotiator) => {
 
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let task = await EstimationTaskModel.findById(paramsInput.taskID)
-
-
-    if (!task)
-        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let estimation = await EstimationModel.findOne({"_id": paramsInput.estimationID})
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (estimation.negotiator._id != negotiator._id)
-        throw new AppError('Not an negtotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
 
     if (task.feature && task.feature._id) {
@@ -774,60 +939,33 @@ estimationTaskSchema.statics.deleteTaskByNegotiator = async (paramsInput, negoti
 }
 
 
-estimationTaskSchema.statics.moveTaskOutOfFeatureByNegotiator = async (taskID, negotiator) => {
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+// grant reOpen permission of task
+estimationTaskSchema.statics.grantReOpenPermissionOfTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let feature = await EstimationFeatureModel.findById(task.feature._id)
-    if (!feature)
-        throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update feature(Move task out of feature) into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    if (!estimation.negotiator._id == negotiator._id)
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
-    if (task.negotiator.estimatedHours)
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
-            "negotiator.changedInThisIteration": true,
-            "canApprove": false
-        })
-
-    //await RepositoryModel.moveTaskOutOfFeature(task.repo._id, feature.repo._id, estimation._id)
-
-    task.feature = null
-    task.updated = Date.now()
-    task.negotiator.isMovedToFeature = false
-    task.negotiator.isMovedOutOfFeature = true
-    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
-        task.negotiator.changedInThisIteration = true
-    return await task.save()
-}
-
-
-estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (taskID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let task = await EstimationTaskModel.findById(taskID)
-    if (!task)
-        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can grant reopen permission of task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await grantReOpenPermissionOfTaskByNegotiator(task, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// grant reOpen permission of task by negotiator
+const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotiator) => {
 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only given grant edit permission to task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -883,25 +1021,33 @@ estimationTaskSchema.statics.grantEditPermissionOfTaskByNegotiator = async (task
 }
 
 
-estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+// approve task
+estimationTaskSchema.statics.approveTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
-
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (task.status == SC.STATUS_APPROVED)
-        throw new AppError('Task already approved', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (estimation.negotiator._id != negotiator._id)
-        throw new AppError('You are not a negotiator of estimation this task is part of', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await approveTaskByNegotiator(task, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+const approveTaskByNegotiator = async (task, estimation, negotiator) => {
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -948,8 +1094,19 @@ estimationTaskSchema.statics.approveTaskByNegotiator = async (taskID, negotiator
     return await task.save()
 }
 
+// add task from repo
+estimationTaskSchema.statics.addTaskFromRepository = async (estimationID, repositoryTaskID, user) => {
 
-estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, estimator) => {
+    let role = await EstimationModel.getUserRoleInEstimation(estimationID, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        return await addTaskFromRepositoryByEstimator(estimationID, repositoryTaskID, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await addTaskFromRepositoryByNegotiator(estimationID, repositoryTaskID, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+const addTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, estimator) => {
 
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -1021,7 +1178,89 @@ estimationTaskSchema.statics.addTaskFromRepositoryByEstimator = async (estimatio
 }
 
 
-estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, estimator) => {
+const addTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
+
+    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let repositoryTask = await RepositoryModel.findById(repositoryTaskID)
+    if (!repositoryTask)
+        throw new AppError('Task not found in repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /**
+     TODO: Need to uncomment code once we have repository task approval feature in place
+     if (!_.includes([SC.STATUS_APPROVED], repositoryTask.status))
+     throw new AppError('This repository task is not yet approved so cannot be added to this estimation', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+     **/
+
+    if (repositoryTask.isFeature)
+        throw new AppError('This is not a task but a feature', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can add task from repository into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "," + SC.STATUS_INITIATED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (!estimation.negotiator._id == negotiator._id)
+        throw new AppError('Not a Negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    let checkExistsCount = await EstimationTaskModel.count({
+        "repo._id": repositoryTask._id,
+        "isDeleted": false,
+        "estimation._id": estimation._id
+    })
+    if (checkExistsCount > 0)
+        throw new AppError('This task from repository already added', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    if (estimation && estimation._id && repositoryTask.estimatedHours && repositoryTask.estimatedHours > 0) {
+        await EstimationModel.updateOne({_id: estimation._id}, {
+            $inc: {"estimatedHours": repositoryTask.estimatedHours}
+        })
+    }
+    // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
+    let taskFromRepositoryObj = new EstimationTaskModel()
+    taskFromRepositoryObj.estimator.name = repositoryTask.name
+    taskFromRepositoryObj.estimator.description = repositoryTask.description
+    taskFromRepositoryObj.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
+    taskFromRepositoryObj.negotiator.name = repositoryTask.name
+    taskFromRepositoryObj.negotiator.description = repositoryTask.description
+    taskFromRepositoryObj.negotiator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
+    taskFromRepositoryObj.status = SC.STATUS_PENDING
+    taskFromRepositoryObj.addedInThisIteration = true
+    taskFromRepositoryObj.canApprove = false
+    taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
+    taskFromRepositoryObj.initiallyEstimated = true
+
+    taskFromRepositoryObj.estimation = estimation
+    taskFromRepositoryObj.technologies = estimation.technologies
+    taskFromRepositoryObj.repo = {}
+    taskFromRepositoryObj.repo._id = repositoryTask._id
+    taskFromRepositoryObj.repo.addedFromThisEstimation = false
+    let taskFromRepo = await EstimationTaskModel.create(taskFromRepositoryObj)
+    taskFromRepo = taskFromRepo.toObject()
+    if (estimation && estimation.canApprove) {
+        taskFromRepo.isEstimationCanApprove = true
+    }
+    return taskFromRepo
+}
+
+
+// copy task from repo
+estimationTaskSchema.statics.copyTaskFromRepository = async (estimationID, repositoryTaskID, user) => {
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimationID, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        return await copyTaskFromRepositoryByEstimator(estimationID, repositoryTaskID, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await copyTaskFromRepositoryByNegotiator(estimationID, repositoryTaskID, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// copy task from repo by estimator
+const copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, estimator) => {
 
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -1094,76 +1333,8 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByEstimator = async (estimati
 }
 
 
-estimationTaskSchema.statics.addTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let repositoryTask = await RepositoryModel.findById(repositoryTaskID)
-    if (!repositoryTask)
-        throw new AppError('Task not found in repository', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    /**
-     TODO: Need to uncomment code once we have repository task approval feature in place
-     if (!_.includes([SC.STATUS_APPROVED], repositoryTask.status))
-     throw new AppError('This repository task is not yet approved so cannot be added to this estimation', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-     **/
-
-    if (repositoryTask.isFeature)
-        throw new AppError('This is not a task but a feature', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let estimation = await EstimationModel.findById(estimationID)
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can add task from repository into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "," + SC.STATUS_INITIATED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    if (!estimation.negotiator._id == negotiator._id)
-        throw new AppError('Not a Negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let checkExistsCount = await EstimationTaskModel.count({
-        "repo._id": repositoryTask._id,
-        "isDeleted": false,
-        "estimation._id": estimation._id
-    })
-    if (checkExistsCount > 0)
-        throw new AppError('This task from repository already added', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
-    if (estimation && estimation._id && repositoryTask.estimatedHours && repositoryTask.estimatedHours > 0) {
-        await EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"estimatedHours": repositoryTask.estimatedHours}
-        })
-    }
-    // As task is added from repository its information can directly be copied into estimator section (even if it is being added by negotiator)
-    let taskFromRepositoryObj = new EstimationTaskModel()
-    taskFromRepositoryObj.estimator.name = repositoryTask.name
-    taskFromRepositoryObj.estimator.description = repositoryTask.description
-    taskFromRepositoryObj.estimator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
-    taskFromRepositoryObj.negotiator.name = repositoryTask.name
-    taskFromRepositoryObj.negotiator.description = repositoryTask.description
-    taskFromRepositoryObj.negotiator.estimatedHours = repositoryTask.estimatedHours ? repositoryTask.estimatedHours : 0
-    taskFromRepositoryObj.status = SC.STATUS_PENDING
-    taskFromRepositoryObj.addedInThisIteration = true
-    taskFromRepositoryObj.canApprove = false
-    taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
-    taskFromRepositoryObj.initiallyEstimated = true
-
-    taskFromRepositoryObj.estimation = estimation
-    taskFromRepositoryObj.technologies = estimation.technologies
-    taskFromRepositoryObj.repo = {}
-    taskFromRepositoryObj.repo._id = repositoryTask._id
-    taskFromRepositoryObj.repo.addedFromThisEstimation = false
-    let taskFromRepo = await EstimationTaskModel.create(taskFromRepositoryObj)
-    taskFromRepo = taskFromRepo.toObject()
-    if (estimation && estimation.canApprove) {
-        taskFromRepo.isEstimationCanApprove = true
-    }
-    return taskFromRepo
-}
-
-
-estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
+// copy task from repo by negotiator
+const copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID, negotiator) => {
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -1230,20 +1401,36 @@ estimationTaskSchema.statics.copyTaskFromRepositoryByNegotiator = async (estimat
 }
 
 
-estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+// reOpen task
+estimationTaskSchema.statics.reOpenTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
-    let estimationFeatureObj
-
     if (!task)
-        throw new AppError('task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await reOpenTaskByNegotiator(task, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+// reOpen task by negotiator
+const reOpenTaskByNegotiator = async (task, estimation, negotiator) => {
+
+    let estimationFeatureObj
 
     if (estimation.status == SC.STATUS_APPROVED)
         throw new AppError('Estimation is already approved task can not be reopen ', EC.HTTP_BAD_REQUEST)

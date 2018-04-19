@@ -659,10 +659,21 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
         "isDeleted": false,
         status: SC.STATUS_PENDING
     })
+    let availableTasksCount = await EstimationTaskModel.count({
+        "estimation._id": estimation._id,
+        "isDeleted": false
+    })
 
+    if (availableTasksCount == 0)
+        throw new AppError('Estimation approve failed as there are no tasks available', EC.NO_TASKS_ERROR, EC.HTTP_BAD_REQUEST)
 
     if (pendingTasksCount > 0 || pendingFeaturesCount > 0 || !estimation.canApprove)
         throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
+
+
+    if(estimation.estimatedHours == 0)
+    throw new AppError('Estimation approve failed as there is no estimated hours for estimator tasks/features', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
+
 
     let statusHistory = {}
     statusHistory.name = negotiator.firstName + ' ' + negotiator.lastName
@@ -701,6 +712,17 @@ estimationSchema.statics.canApproveEstimationByNegotiator = async (estimationID,
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if(estimation.estimatedHours == 0)
+        throw new AppError('Estimation approve failed as there is no estimated hours for estimator tasks/features', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
+
+    let availableTasksCount = await EstimationTaskModel.count({
+        "estimation._id": estimation._id,
+        "isDeleted": false
+    })
+
+    if (availableTasksCount == 0)
+        throw new AppError('Estimation approve failed as there are no tasks available', EC.NO_TASKS_ERROR, EC.HTTP_BAD_REQUEST)
 
     let pendingTasksCount = await EstimationTaskModel.count({
         "estimation._id": estimation._id,
@@ -849,8 +871,8 @@ estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, neg
 }
 
 estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) => {
-    let estimation = await EstimationModel.getById(estimationID)
-    console.log("user in getuser role in estimation ", user)
+    let estimation = await EstimationModel.findById(estimationID)
+    console.log("user in get user role in estimation ", user)
     if (estimation) {
         // check to see role of logged in user in this estimation
         if (estimation.estimator._id == user._id)

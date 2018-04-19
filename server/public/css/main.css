@@ -451,6 +451,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 }
 
 .feature p, .task p {
+    float: left;
     font-size: 1.3em;
     margin: 5px 0px 20px 10px;
     line-height: 1.3em;
@@ -719,7 +720,7 @@ span.tag.new {
     color: #F3B54B;
     float: right;
     position: absolute;
-    margin-left: -29px;
+    margin-left: -25px;
 }
 
 .esTime b {

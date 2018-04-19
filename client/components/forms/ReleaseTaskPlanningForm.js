@@ -18,8 +18,8 @@ let ReleaseTaskPlanningForm = (props) => {
 
                 <Field name="planningDate" placeholder={"Date"} component={renderDateTimePicker}
                        showTime={false}
-                       min={moment(initial.devStartDate)}
-                       max={moment(initial.devEndDate)}
+                       min={moment(initial.devStartDate).toDate()}
+                       max={moment(initial.devEndDate).toDate()}
                        label={" Date :"} validate={[required]}/>
                 <Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>
