@@ -481,11 +481,11 @@ const canApproveFeatureByNegotiator = async (feature, estimation, negotiator) =>
     })
 
     if (taskCountOfFeature == 0)
-        throw new AppError('There are no tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+        throw new AppError('There are no tasks in this feature, cannot approve', EC.NO_TASKS_ERROR, EC.HTTP_FORBIDDEN)
 
 
     if (!feature.estimator.estimatedHours && !feature.estimator.estimatedHours > 0) {
-        throw new AppError('Feature Estimated Hours should be greter than zero', EC.TASK_APPROVAL_ERROR, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Feature Estimated Hours should be greter than zero', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
     }
 
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
@@ -496,14 +496,14 @@ const canApproveFeatureByNegotiator = async (feature, estimation, negotiator) =>
     })
 
     if (pendingTaskCountOfFeature != 0)
-        throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+        throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.STILL_PENDING_TASKS_ERROR, EC.HTTP_FORBIDDEN)
 
     if (feature.estimator.changeRequested
         || feature.estimator.removalRequested
         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
         || _.isEmpty(feature.estimator.name)
         || _.isEmpty(feature.estimator.description)) {
-        throw new AppError('Feature Details are not available at estimator end, cannot approve', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
+        throw new AppError('Feature Details are not available at estimator end or any flag is open, cannot approve', EC.FEATURE_DETAIL_ERROR, EC.HTTP_FORBIDDEN)
     }
 
 
