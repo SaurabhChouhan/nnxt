@@ -156,6 +156,7 @@ estimationRouter.get('/task/:estimationID', async ctx => {
  */
 estimationRouter.post('/tasks', async ctx => {
     return await EstimationTaskModel.addTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+
 })
 
 // noinspection Annotator
@@ -210,6 +211,7 @@ estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
  */
 estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
     return await EstimationTaskModel.moveTaskOutOfFeature(ctx.params.taskID, ctx.state.user)
+
 })
 
 
@@ -219,6 +221,7 @@ estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
  */
 estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
     return await EstimationTaskModel.requestRemovalTask(ctx.params.taskID, ctx.state.user)
+
 })
 
 
@@ -267,11 +270,13 @@ estimationRouter.put('/features/:featureID/grant-edit', async ctx => {
 // noinspection Annotator
 estimationRouter.put('/tasks/:taskID/approve', async ctx => {
     return await EstimationTaskModel.approveTask(ctx.params.taskID, ctx.state.user)
+
 })
 
 // noinspection Annotator
 estimationRouter.put('/features/:featureID/approve', async ctx => {
     return await EstimationFeatureModel.approveFeature(ctx.params.featureID, ctx.state.user)
+
 })
 
 
@@ -289,7 +294,6 @@ estimationRouter.put('/:estimationID/approve', async ctx => {
 
 // Used by negotiator to check can approve estimation
 estimationRouter.put('/:estimationID/can-approve', async ctx => {
-
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
         return await EstimationModel.canApproveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
@@ -343,7 +347,6 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
  * Add task from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/tasks/estimation/:estimationID/repository-task/:taskID', async ctx => {
-
     return await EstimationTaskModel.addTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
 
 })
@@ -361,7 +364,6 @@ estimationRouter.post('/features/estimation/:estimationID/repository-feature/:fe
  * copy task from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/tasks/estimation/:estimationID/repository-task-copy/:taskID', async ctx => {
-
     return await EstimationTaskModel.copyTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
 
 })
@@ -370,47 +372,31 @@ estimationRouter.post('/tasks/estimation/:estimationID/repository-task-copy/:tas
  * Copy feature from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/features/estimation/:estimationID/repository-feature-copy/:featureID', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationFeatureModel.copyFeatureFromRepositoryByEstimator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationFeatureModel.copyFeatureFromRepositoryByNegotiator(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can copy feature from repo into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationFeatureModel.copyFeatureFromRepository(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
+
 })
 
 
 estimationRouter.put('/features/:featureID/request-removal', async ctx => {
-    if (hasRole(ctx, SC.ROLE_ESTIMATOR)) {
-        return await EstimationFeatureModel.requestRemovalFeatureByEstimator(ctx.params.featureID, ctx.state.user)
-    } else if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return "not implemented"
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "," + SC.ROLE_NEGOTIATOR + "] can request removal task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationFeatureModel.requestRemovalFeature(ctx.params.featureID, ctx.state.user)
+
 })
 
 
 estimationRouter.put('/feature/:featureID/reOpen', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationFeatureModel.reOpenFeatureByNegotiator(ctx.params.featureID, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen Feature into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationFeatureModel.reOpenFeature(ctx.params.featureID, ctx.state.user)
+
 })
 
 
 estimationRouter.put('/task/:taskID/reOpen', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationTaskModel.reOpenTaskByNegotiator(ctx.params.taskID, ctx.state.user)
-    } else {
-        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await EstimationTaskModel.reOpenTask(ctx.params.taskID, ctx.state.user)
 })
 
 
 estimationRouter.put('/:estimationID/reopen', async ctx => {
-    if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body.estimation._id)
+    if (role === SC.ROLE_NEGOTIATOR) {
         return await EstimationModel.reOpenEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can reopen estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)

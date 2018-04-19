@@ -515,23 +515,20 @@ const canApproveFeatureByNegotiator = async (feature, estimation, negotiator) =>
 //can Not approve feature
 estimationFeatureSchema.statics.canNotApproveFeature = async (featureID, isGranted, user) => {
 
-    let feature = await
-        EstimationFeatureModel.findById(featureID)
+    let feature = await EstimationFeatureModel.findById(featureID)
     if (!feature)
         throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!feature || !feature.estimation || !feature.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await
-        EstimationModel.findOne({"_id": feature.estimation._id})
+    let estimation = await  EstimationModel.findOne({"_id": feature.estimation._id})
 
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
 
-    let role = await
-        EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
     if (role === SC.ROLE_ESTIMATOR) {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can change to  can-not-approve feature", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     } else if (role === SC.ROLE_NEGOTIATOR) {
@@ -562,15 +559,13 @@ estimationFeatureSchema.statics.deleteFeature = async (estimationID, featureID, 
     if (!feature || !feature.estimation || !feature.estimation._id || !estimationID)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await
-        EstimationModel.findOne({"_id": estimationID})
+    let estimation = await EstimationModel.findOne({"_id": estimationID})
 
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
 
-    let role = await
-        EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
     if (role === SC.ROLE_ESTIMATOR) {
         return await deleteFeatureByEstimator(estimation, feature, user)
     } else if (role === SC.ROLE_NEGOTIATOR) {
@@ -675,18 +670,17 @@ const deleteFeatureByNegotiator = async (estimation, feature, negotiator) => {
 }
 
 // add feature from repository
-estimationFeatureSchema.statics.addFeatureFromRepository = async (estimationID, featureID, user) => {
+estimationFeatureSchema.statics.addFeatureFromRepository = async (estimationID, repoFeatureID, user) => {
 
 
     if (!estimationID)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let role = await
-        EstimationModel.getUserRoleInEstimation(estimationID, user)
+    let role = await  EstimationModel.getUserRoleInEstimation(estimationID, user)
     if (role === SC.ROLE_ESTIMATOR) {
-        return await addFeatureFromRepositoryByEstimator(estimationID, featureID, user)
+        return await addFeatureFromRepositoryByEstimator(estimationID, repoFeatureID, user)
     } else if (role === SC.ROLE_NEGOTIATOR) {
-        return await addFeatureFromRepositoryByNegotiator(estimationID, featureID, user)
+        return await addFeatureFromRepositoryByNegotiator(estimationID, repoFeatureID, user)
     }
     throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 }
@@ -909,8 +903,25 @@ const addFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFeat
 }
 
 
+// copy feature from repository
+estimationFeatureSchema.statics.copyFeatureFromRepository = async (estimationID, repoFeatureID, user) => {
 
-estimationFeatureSchema.statics.copyFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatureID, estimator) => {
+
+    if (!estimationID)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimationID, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        return await copyFeatureFromRepositoryByEstimator(estimationID, repoFeatureID, user)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await copyFeatureFromRepositoryByNegotiator(estimationID, repoFeatureID, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+// copy feature from repo by estimator
+const copyFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatureID, estimator) => {
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -1106,7 +1117,8 @@ const grantEditPermissionOfFeatureByNegotiator = async (feature, estimation, neg
     return feature
 }
 
-estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFeatureID, negotiator) => {
+// copy feature from repo by negotiator
+const copyFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFeatureID, negotiator) => {
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -1201,21 +1213,34 @@ estimationFeatureSchema.statics.copyFeatureFromRepositoryByNegotiator = async (e
     //return await EstimationFeatureModel.create(estimationFeature)
 }
 
-
-estimationFeatureSchema.statics.requestRemovalFeatureByEstimator = async (featureID, estimator) => {
-
-
-    if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+//request removal feature
+estimationFeatureSchema.statics.requestRemovalFeature = async (featureID, user) => {
 
     let feature = await EstimationFeatureModel.findById(featureID)
-
     if (!feature)
-        throw new AppError('feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!feature || !feature.estimation || !feature.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        return await requestRemovalFeatureByEstimator(feature, estimation, user)
+
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_ESTIMATOR + "] can request removal task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+//request removal feature by estimator
+const requestRemovalFeatureByEstimator = async (feature, estimation, estimator) => {
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only update removal task flag into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -1228,12 +1253,38 @@ estimationFeatureSchema.statics.requestRemovalFeatureByEstimator = async (featur
     feature.canApprove = false
 
     return await feature.save()
-
-
 }
 
 
-estimationFeatureSchema.statics.reOpenFeatureByNegotiator = async (featureID, negotiator) => {
+//reopen feature
+estimationFeatureSchema.statics.reOpenFeature = async (featureID, user) => {
+
+    let feature = await EstimationFeatureModel.findById(featureID)
+    if (!feature)
+        throw new AppError('Estimation feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!feature || !feature.estimation || !feature.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
+
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen Feature into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+
+        return await reOpenFeatureByNegotiator(feature, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+// reopen feature by negotiator
+const reOpenFeatureByNegotiator = async (featureID, negotiator) => {
 
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))

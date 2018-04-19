@@ -1379,20 +1379,36 @@ const copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID
 }
 
 
-estimationTaskSchema.statics.reOpenTaskByNegotiator = async (taskID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
+// reOpen task
+estimationTaskSchema.statics.reOpenTask = async (taskID, user) => {
     let task = await EstimationTaskModel.findById(taskID)
-    let estimationFeatureObj
-
     if (!task)
-        throw new AppError('task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    if (!task.estimation || !task.estimation._id)
+        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimation = await EstimationModel.findOne({"_id": task.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let role = await EstimationModel.getUserRoleInEstimation(estimation._id, user)
+    if (role === SC.ROLE_ESTIMATOR) {
+        throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can directly reOpen task into estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    } else if (role === SC.ROLE_NEGOTIATOR) {
+        return await reOpenTaskByNegotiator(task, estimation, user)
+    }
+    throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+}
+
+
+// reOpen task by negotiator
+const reOpenTaskByNegotiator = async (task, estimation, negotiator) => {
+
+    let estimationFeatureObj
 
     if (estimation.status == SC.STATUS_APPROVED)
         throw new AppError('Estimation is already approved task can not be reopen ', EC.HTTP_BAD_REQUEST)
