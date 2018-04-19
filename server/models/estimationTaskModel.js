@@ -273,7 +273,6 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
 
-
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
             $inc: {"estimator.estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
             "canApprove": false,
@@ -455,11 +454,23 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
     if (feature.status === SC.STATUS_APPROVED) {
         throw new AppError('Task can not be moved as feature is already approved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
     }
-    // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
-    if (task.estimator.estimatedHours) {
+    // As task is being moved to feature, estimated hours and suggested hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
+    if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {
+                "estimator.estimatedHours": task.estimator.estimatedHours,
+                "negotiator.estimatedHours": task.negotiator.estimatedHours
+            },
+            "canApprove": false
+        })
+    } else if (task.estimator.estimatedHours) {
         await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
-            "estimator.changedInThisIteration": true,
+            "canApprove": false
+        })
+    } else if (task.negotiator.estimatedHours) {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
             "canApprove": false
         })
     }
@@ -622,7 +633,6 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
             "canApprove": false
         })
     }
-
 
 
     task.feature = null
@@ -1214,7 +1224,6 @@ const addTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID,
     }
     return taskFromRepo
 }
-
 
 
 // copy task from repo
