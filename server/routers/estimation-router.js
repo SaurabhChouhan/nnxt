@@ -12,7 +12,7 @@ let estimationRouter = new Router({
 
 
 const getLoggedInUsersRoleInEstimation = async (ctx, estimationID) => {
-    let estimation = await EstimationModel.getById(estimationID)
+    let estimation = await EstimationModel.findById(estimationID)
     if (estimation) {
         // check to see role of logged in user in this estimation
         if (estimation.estimator._id == ctx.state.user._id)
@@ -42,6 +42,27 @@ estimationRouter.get("/:estimationID", async ctx => {
             throw new AppError("Not allowed to see estimation details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
         }
 
+    }
+    return estimation
+})
+
+
+// noinspection Annotator
+estimationRouter.get("/:estimationID/only", async ctx => {
+    let estimation = await EstimationModel.findById(ctx.params.estimationID)
+
+    estimation = estimation.toObject()
+    if (estimation) {
+        // check to see role of logged in user in this estimation
+        estimation.tasks = undefined
+        estimation.features = undefined
+        if (estimation.estimator._id == ctx.state.user._id)
+            estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
+        else if (estimation.negotiator._id == ctx.state.user._id)
+            estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+        else {
+            throw new AppError("Not allowed to see estimation details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        }
     }
     return estimation
 })
