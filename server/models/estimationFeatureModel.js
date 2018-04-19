@@ -363,10 +363,7 @@ estimationFeatureSchema.statics.approveFeature = async (featureID, user) => {
 
 
 // approve feature by negotiator
-const approveFeatureByNegotiator = async (featureID, negotiator) => {
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+const approveFeatureByNegotiator = async (feature, estimation, negotiator) => {
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve feature into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -1284,28 +1281,16 @@ estimationFeatureSchema.statics.reOpenFeature = async (featureID, user) => {
 }
 
 // reopen feature by negotiator
-const reOpenFeatureByNegotiator = async (featureID, negotiator) => {
-
-
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let feature = await EstimationFeatureModel.findById(featureID)
-    let featurePendingTasks
-
+const reOpenFeatureByNegotiator = async (feature, estimation, negotiator) => {
     if (!feature)
         throw new AppError('feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimation = await EstimationModel.findOne({"_id": feature.estimation._id})
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Negotiator has status as [" + estimation.status + "]. Negotiator can only ReOpen Feature into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-
-    let featureTasks
-    let FeatureTasks = await EstimationTaskModel.find({'feature._id': featureID})
     feature.status = SC.STATUS_PENDING
     feature.canApprove = true
     await feature.save()

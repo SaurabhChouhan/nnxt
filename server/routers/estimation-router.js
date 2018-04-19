@@ -395,7 +395,7 @@ estimationRouter.put('/task/:taskID/reOpen', async ctx => {
 
 
 estimationRouter.put('/:estimationID/reopen', async ctx => {
-    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body.estimation._id)
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
         return await EstimationModel.reOpenEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
     } else {
