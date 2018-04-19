@@ -477,6 +477,11 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
 
     // As task is moved do not update repository to note this change
 
+    // moved out by negotiator then clear its flag while move in to feature by estimator
+    if (task.negotiator.isMovedOutOfFeature && task.negotiator.changedInThisIteration) {
+        task.negotiator.isMovedOutOfFeature = false
+        task.negotiator.changedInThisIteration = false
+    }
     task.feature = feature
     task.canApprove = false
     task.updated = Date.now()
@@ -520,6 +525,11 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
         })
     }
 
+    // moved out by estimator then clear its flag while move in to feature by negotiator
+    if (task.estimator.isMovedOutOfFeature && task.estimator.changedInThisIteration) {
+        task.estimator.isMovedOutOfFeature = false
+        task.estimator.changedInThisIteration = false
+    }
     task.feature = feature
     task.updated = Date.now()
     if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
@@ -590,6 +600,11 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
         })
     }
 
+    // moved in by negotiator  then clear its flag while move out to feature by estimator
+    if (task.negotiator.isMovedToFeature && task.negotiator.changedInThisIteration) {
+        task.negotiator.isMovedToFeature = false
+        task.negotiator.changedInThisIteration = false
+    }
     task.feature = null
     task.updated = Date.now()
     task.estimator.isMovedToFeature = false
@@ -634,6 +649,12 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
         })
     }
 
+
+    // moved in by estimator then clear its flag while move out to feature by negotiator
+    if (task.estimator.isMovedToFeature && task.estimator.changedInThisIteration) {
+        task.estimator.isMovedToFeature = false
+        task.estimator.changedInThisIteration = false
+    }
 
     task.feature = null
     task.updated = Date.now()
