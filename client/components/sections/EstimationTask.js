@@ -290,36 +290,20 @@ class EstimationTask extends React.PureComponent {
         }
 
 
-        if (loggedInUserRole === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) ||
-            loggedInUserRole === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
+        if (loggedInUserRole === SC.ROLE_NEGOTIATOR && task.status === SC.STATUS_PENDING && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimationStatus) ||
+            loggedInUserRole === SC.ROLE_ESTIMATOR && task.status === SC.STATUS_PENDING && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimationStatus)) {
 
-            if (editView) {
-                if (task.feature && task.feature._id && task.repo && task.repo.addedFromThisEstimation && task.status !== SC.STATUS_APPROVED) {
+
+            if (editView && (!fromRepoWithFeature)) {
+                if (task.feature && task.feature._id) {
                     // This task is part of some feature so add move out of feature button
-                    buttons
-                        .push(
-                            <img className="div-hover" key="move_out_of_feature" src="/images/move_outof_feature.png"
-                                 title="Move out of feature"
-                                 onClick={() => this.props.moveTaskOutOfFeature(task)}/>)
-                }
-                else if (task.feature && task.feature._id) {
-                    buttons.push(<img key="move_out_of_feature" src="/images/move_outof_feature_disable.png"
-                                      title="Move out of feature"/>)
-                }
-                else {
-                    if (task.status !== SC.STATUS_APPROVED) {
-                        // This task is an individual task so add move to feature button
-                        buttons.push(<img className="div-hover" key="move_to_feature" src="/images/move_to_feature.png"
-                                          title="Move to feature"
-                                          onClick={() => {
-                                              this.props.moveToFeature(task);
-                                          }}/>)
-                    }
-                    else {
-                        buttons.push(<img key="move_to_feature" src="/images/move_to_feature_disable.png"
-                                          title="Move to feature"/>)
-
-                    }
+                    buttons.push(
+                        <img className="div-hover" key="move_out_of_feature" src="/images/move_outof_feature.png"
+                             title="Move out of feature"
+                             onClick={() => this.props.moveTaskOutOfFeature(task)}/>)
+                } else {
+                    buttons.push(<img key="move_to_feature" src="/images/move_to_feature_disable.png"
+                                      title="Move to feature"/>)
                 }
             }
             else {
@@ -333,10 +317,9 @@ class EstimationTask extends React.PureComponent {
                 }
             }
 
-
         } else {
             if (task.feature && task.feature._id) {
-                buttons.push(<img key="move_outof_feature" src="/images/move_outof_feature_disable.png"
+                buttons.push(<img key="move_out_of_feature" src="/images/move_outof_feature_disable.png"
                                   title="Move out of feature"/>)
             } else {
                 buttons.push(<img key="move_to_feature" src="/images/move_to_feature_disable.png"
@@ -344,7 +327,6 @@ class EstimationTask extends React.PureComponent {
 
             }
         }
-
         return <div className={expanded ? 'task-expanded' : 'task'}>
             <div className="col-md-9">
                 <div className={task.estimator && task.estimator.name ? "col-md-11 " : "col-md-11 infoHighliter"}>
