@@ -375,7 +375,7 @@ class EstimationFeature extends React.PureComponent {
 
             </div>
             <div
-                className={feature.estimator.description ? "col-md-12 short-description" : "col-md-12 short-description infoHighliter"}
+                className={feature.estimator.description ? "col-md-12 short-description  div-hover" : "col-md-12 short-description infoHighliter"}
                 onClick={() => {
                     this.props.expandFeature(feature._id)
                 }}>
@@ -385,12 +385,12 @@ class EstimationFeature extends React.PureComponent {
                 <div
                     className={feature.estimator && feature.estimator.estimatedHours ? "col-md-3 " : "col-md-3 infoHighliter"}>
                     <h4 title={feature.estimator && feature.estimator.estimatedHours ? feature.estimator.estimatedHours:"Feature is not having task inside it hence no Estimated Hours "}>Estimated:</h4>
-                    <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hours'}</h4>
+                    <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hrs'}</h4>
                 </div>
             }
             <div className="col-md-3">
                 <h4 title={feature.negotiator.estimatedHours ? feature.negotiator.estimatedHours:"feature is not having task inside it hence no Suggested Hours" }>Suggested:</h4>
-                <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hours'}</h4>
+                <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hrs'}</h4>
             </div>
 
             <div className="col-md-6 text-right estimationActions">

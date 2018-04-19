@@ -263,18 +263,17 @@ class EstimationDetail extends Component {
                         </form>}
                     </div>
                     <div className="col-md-3">
-
                         <div className="col-md-6  esTime">
-                            <b>{estimation.suggestedHours + " Hrs"}</b>
-                            <div className="suggestedclock">
-                                <i className="fa fa-clock-o "></i>
+                            <b>{estimation.estimatedHours + " Hrs"}</b>
+                            <div className="clock">
+                                <i className="fa fa-clock-o " title="estimated Hours"></i>
                             </div>
 
                         </div>
                         <div className="col-md-6  esTime">
-                            <b>{estimation.estimatedHours + " Hrs"}</b>
-                            <div className="clock">
-                                <i className="fa fa-clock-o "></i>
+                            <b>{estimation.suggestedHours + " Hrs"}</b>
+                            <div className="suggestedclock">
+                                <i className="fa fa-clock-o " title="Suggeted Hours"></i>
                             </div>
 
                         </div>
