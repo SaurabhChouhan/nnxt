@@ -100,7 +100,7 @@ class ReleaseList extends Component {
                 <div className="col-md-12">
                     <div className="col-md-4  releaseSearchContent ">
                         <div className="estimation releaseSelect  releaseSearchStatus">
-                            <select className="form-control" onChange={(status) =>
+                            <select className="form-control" title="Select Status" onChange={(status) =>
                                 this.props.changeReleaseStatus(status.target.value)
                             }>
                                 <option value="all">All Status</option>

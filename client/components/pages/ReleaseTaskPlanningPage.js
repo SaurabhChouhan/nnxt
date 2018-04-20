@@ -14,8 +14,8 @@ class ReleaseTaskPlanningPage extends Component {
     deleteCellButton(cell, row, enumObject, rowIndex) {
         return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
                         onClick={() => {
-                                 this.props.deleteTaskPlanningRow(row)
-                             }}></button>)
+                            this.props.deleteTaskPlanningRow(row)
+                        }}></button>)
     }
 
     actionCellButton(cell, row, enumObject, rowIndex) {
@@ -72,15 +72,17 @@ class ReleaseTaskPlanningPage extends Component {
                             <div className="backarrow">
 
                                 <h5>
-                                    <button className="btn-link" onClick={() => {
+                                    <button className="btn-link" title="Go Back" onClick={() => {
                                         this.props.history.push("/app-home/release-project-tasks")
                                         this.props.ReleaseTaskGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                                    <b>{taskPlan.task ? taskPlan.task.name : ''} </b></h5>
+                                    <b title={taskPlan.task ? taskPlan.task.name : ''}>{taskPlan.task ? taskPlan.task.name : ''} </b>
+                                </h5>
                             </div>
                         </div>
                         <div className="col-md-4  releaseClock ">
-                            <i className="fa fa-clock-o "></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
+                            <i className="fa fa-clock-o "
+                               title="Estimated Hours"></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
                             Hrs</b>
                         </div>
                     </div>
@@ -120,7 +122,7 @@ class ReleaseTaskPlanningPage extends Component {
                                 <TableHeaderColumn columnTitle dataField='report'
                                                    dataFormat={this.formatReport.bind(this)}>Reported
                                     Status</TableHeaderColumn>
-                                <TableHeaderColumn width="8%" dataField='button'
+                                <TableHeaderColumn columnTitle width="8%" dataField='button'
                                                    dataFormat={this.deleteCellButton.bind(this)}><i
                                     className="fa fa-trash"></i>
                                 </TableHeaderColumn>
