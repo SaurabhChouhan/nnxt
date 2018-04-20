@@ -353,10 +353,10 @@ class EstimationFeature extends React.PureComponent {
                             <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
                                  title="Edited by Negotiator"></img>
                         </div>}
-                        {feature.estimator && feature.estimator.requestedInThisIteration &&(feature.estimator.changeRequested || feature.estimator.removalRequested  )  &&
+                        {feature.estimator && feature.estimator.requestedInThisIteration && (feature.estimator.changeRequested || feature.estimator.removalRequested  ) &&
                         <div className="flagStrip">
                             <img key="request_flag" src="/images/request_flag.png"
-                                 title="Added by Estimator"></img>
+                                 title="Requested by Estimator"></img>
                         </div>}
 
                         {feature.status === SC.STATUS_APPROVED &&
@@ -379,17 +379,19 @@ class EstimationFeature extends React.PureComponent {
                 onClick={() => {
                     this.props.expandFeature(feature._id)
                 }}>
-                <p title={feature.estimator.description ? feature.estimator.description :"Feature is not having description by estimator"}>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
+                <p title={feature.estimator.description ? feature.estimator.description : "Feature is not having description by estimator"}>{feature.estimator.description ? feature.estimator.description : feature.negotiator.description}</p>
             </div>
             {
                 <div
                     className={feature.estimator && feature.estimator.estimatedHours ? "col-md-3 " : "col-md-3 infoHighliter"}>
-                    <h4 title={feature.estimator && feature.estimator.estimatedHours ? feature.estimator.estimatedHours:"Feature is not having task inside it hence no Estimated Hours "}>Estimated:</h4>
+                    <h4 title={feature.estimator && feature.estimator.estimatedHours ? feature.estimator.estimatedHours : "Feature is not having task inside it hence no Estimated Hours "}>
+                        Estimated:</h4>
                     <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hrs'}</h4>
                 </div>
             }
             <div className="col-md-3">
-                <h4 title={feature.negotiator.estimatedHours ? feature.negotiator.estimatedHours:"feature is not having task inside it hence no Suggested Hours" }>Suggested:</h4>
+                <h4 title={feature.negotiator.estimatedHours ? feature.negotiator.estimatedHours : "feature is not having task inside it hence no Suggested Hours"}>
+                    Suggested:</h4>
                 <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hrs'}</h4>
             </div>
 
