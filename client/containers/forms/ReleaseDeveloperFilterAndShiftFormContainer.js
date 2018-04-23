@@ -6,7 +6,7 @@ import {NotificationManager} from 'react-notifications'
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperDetails: (employeeId, StartDate, EndDate) => {
         if (!employeeId) {
-            NotificationManager.error("Please select employee")
+         return    NotificationManager.error("Please select employee")
         }
         else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
     }
