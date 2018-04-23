@@ -10,9 +10,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
         else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
     },
-    shiftTasksToFuture: (baseDate, daysToShift) => {
-        if (!baseDate && !daysToShift) {
-            if (!baseDate)
+    shiftTasksToFuture: (employeeId, baseDate, daysToShift) => {
+        if (!employeeId && !baseDate && !daysToShift) {
+            if (!employeeId)
+                return NotificationManager.error("Please select employee")
+            else if (!baseDate)
                 return NotificationManager.error("Please select base date")
 
             else if (!daysToShift)
@@ -21,9 +23,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else console.log("baseDate, daysToShift", baseDate, daysToShift)
     },
 
-    shiftTasksToPast: (baseDate, daysToShift) => {
-        if (!baseDate && !daysToShift) {
-            if (!baseDate)
+    shiftTasksToPast: (employeeId, baseDate, daysToShift) => {
+        if (!employeeId && !baseDate && !daysToShift) {
+            if (!employeeId)
+                return NotificationManager.error("Please select employee")
+            else if (!baseDate)
                 return NotificationManager.error("Please select base date")
 
             else if (!daysToShift)
@@ -68,7 +72,11 @@ const mapStateToProps = (state, ownProps) => {
         {"day": 30}
     ]
     return {
-        team: state.release.selectedProject && state.release.selectedProject.team ? state.release.selectedProject.team : [],
+        team: state.release.selectedProject && state.release.selectedProject.team ? [...state.release.selectedProject.team,
+            {
+            _id: "all",
+            "name": "All Developers"
+        }] : [],
         days
     }
 }
