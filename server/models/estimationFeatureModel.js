@@ -1103,7 +1103,7 @@ const grantEditPermissionOfFeatureByNegotiator = async (feature, estimation, neg
 
 
     feature.negotiator.changeGranted = !feature.negotiator.changeGranted
-    feature.canApprove = true
+    feature.canApprove = false
     feature.status = SC.STATUS_PENDING
     feature.updated = Date.now()
     await feature.save()
