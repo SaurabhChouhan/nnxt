@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
-import {ReleaseDeveloperFilterFormContainer} from '../../containers'
+import {ReleaseDeveloperFilterFormContainer,ReleaseTaskPlanningShiftFormContainer} from '../../containers'
 
 class ReleaseTaskPlanningPage extends Component {
 
@@ -127,29 +127,8 @@ class ReleaseTaskPlanningPage extends Component {
                             </BootstrapTable>
                         </div>
                     </div>
-                    <div className="col-md-12 planDivider">
-                        <div className="col-md-2 planDividerDate"><span>Base Date</span><input type="text"
-                                                                                               className="form-control"
-                                                                                               placeholder="Date"/>
-                        </div>
-                        <div className="col-md-2 planDividerDate"><span>Days to Shift</span>
-                            <select className="form-control">
-                                <option value="">01</option>
-                                <option value="">02</option>
-                                <option value="">03</option>
-                                <option value="">04</option>
-                            </select>
-                        </div>
-                        <div className="col-md-8 planDividerBtn">
-                            <form>
-                                <button className="btn customBtn Future">
-                                    Shift in Future
-                                </button>
-                                <button className="btn customBtn Past ">
-                                    Shift in Past
-                                </button>
-                            </form>
-                        </div>
+                    <div>
+                        <ReleaseTaskPlanningShiftFormContainer/>
                     </div>
                     <div className="col-md-12 planDateSlct">
                         <ReleaseDeveloperFilterFormContainer/>
