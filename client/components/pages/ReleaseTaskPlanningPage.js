@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
-import {ReleaseDeveloperFilterFormContainer,ReleaseTaskPlanningShiftFormContainer} from '../../containers'
+import {ReleaseDeveloperFilterAndShiftFormContainer} from '../../containers'
 
 class ReleaseTaskPlanningPage extends Component {
 
@@ -130,10 +130,8 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                     </div>
                     <div>
-                        <ReleaseTaskPlanningShiftFormContainer/>
-                    </div>
-                    <div className="col-md-12 planDateSlct">
-                        <ReleaseDeveloperFilterFormContainer/>
+
+                        <ReleaseDeveloperFilterAndShiftFormContainer/>
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">

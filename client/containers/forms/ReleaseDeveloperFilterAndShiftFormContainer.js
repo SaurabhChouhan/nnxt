@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import {ReleaseTaskPlanningShiftForm} from "../../components"
+import {ReleaseDeveloperFilterAndShiftForm} from "../../components"
 import * as A from "../../actions"
 import {NotificationManager} from 'react-notifications'
 
@@ -47,14 +47,15 @@ const mapStateToProps = (state, ownProps) => {
         {"day": 30}
     ]
     return {
+        team: state.release.selectedProject && state.release.selectedProject.team ? state.release.selectedProject.team : [],
         days
     }
 }
 
 
-const ReleaseTaskPlanningShiftFormContainer = connect(
+const ReleaseDeveloperFilterAndShiftFormContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(ReleaseTaskPlanningShiftForm)
+)(ReleaseDeveloperFilterAndShiftForm)
 
-export default ReleaseTaskPlanningShiftFormContainer
+export default ReleaseDeveloperFilterAndShiftFormContainer
