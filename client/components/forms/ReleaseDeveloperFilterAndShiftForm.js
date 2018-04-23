@@ -21,7 +21,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                        min={new Date()}
                 />
             </div>
-            <div className="col-md-3 planDividerDate"><span>Days to Shift</span>
+            <div className="col-md-2 planDividerDate"><span>Days to Shift</span>
                 <Field name="daysToShift" placeholder={"select days"}
                        displayField={"day"}
                        valueField={"day"}
@@ -31,8 +31,9 @@ let ReleaseDeveloperFilterForm = (props) => {
                        component={renderSelect} options={days}
                 />
             </div>
-            <div className="col-md-6 planDividerBtn">
-
+            <div className="col-md-7 planDividerBtn">
+                <div className="col-md-6">
+                <i className="glyphicon glyphicon-arrow-left pastArrow"></i>
                 <button
                     type="button"
                     className="btn customBtn Past"
@@ -40,7 +41,8 @@ let ReleaseDeveloperFilterForm = (props) => {
                         props.shiftTasksToPast(baseDate, daysToShift)
                     }}>
                     Shift in Past
-                </button>
+                </button></div>
+                <div className="col-md-6">
                 <button
                     type="button"
                     className="btn customBtn Future"
@@ -49,7 +51,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                     }}>
                     Shift in Future
                 </button>
-
+                    <i className="glyphicon glyphicon-arrow-right futureArrow"></i></div>
             </div>
         </div>
 
