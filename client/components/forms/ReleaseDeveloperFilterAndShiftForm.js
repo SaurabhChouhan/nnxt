@@ -8,7 +8,7 @@ import {connect} from 'react-redux'
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
-    const {change, days, team, handleSubmit, employeeId, startDate, endDate} = props
+    const {change, days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift} = props
 
     return <form onSubmit={handleSubmit}>
         <div className="col-md-12 planDivider">
@@ -22,7 +22,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                 />
             </div>
             <div className="col-md-3 planDividerDate"><span>Days to Shift</span>
-                <Field name="employeeId" placeholder={"select days"}
+                <Field name="daysToShift" placeholder={"select days"}
                        displayField={"day"}
                        valueField={"day"}
                        onChange={(event, newValue, oldValue) => {
@@ -33,10 +33,20 @@ let ReleaseDeveloperFilterForm = (props) => {
             </div>
             <div className="col-md-6 planDividerBtn">
 
-                <button className="btn customBtn Past ">
+                <button
+                    type="button"
+                    className="btn customBtn Past"
+                    onClick={() => {
+                        props.shiftTasksToPast(baseDate, daysToShift)
+                    }}>
                     Shift in Past
                 </button>
-                <button className="btn customBtn Future">
+                <button
+                    type="button"
+                    className="btn customBtn Future"
+                    onClick={() => {
+                        props.shiftTasksToFuture(baseDate, daysToShift)
+                    }}>
                     Shift in Future
                 </button>
 
@@ -85,11 +95,13 @@ const selector = formValueSelector('developer-filter')
 
 ReleaseDeveloperFilterForm = connect(
     state => {
-        const {employeeId, startDate, endDate} = selector(state, 'employeeId', 'startDate', 'endDate')
+        const {employeeId, startDate, endDate, baseDate, daysToShift} = selector(state, 'employeeId', 'startDate', 'endDate', 'baseDate', 'daysToShift')
         return {
             employeeId,
             startDate,
-            endDate
+            endDate,
+            baseDate,
+            daysToShift
         }
     }
 )(ReleaseDeveloperFilterForm)

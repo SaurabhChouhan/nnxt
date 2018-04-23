@@ -9,7 +9,28 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
          return    NotificationManager.error("Please select employee")
         }
         else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
-    }
+    },
+    shiftTasksToFuture: (baseDate, daysToShift) => {
+        if (!baseDate && !daysToShift) {
+            if (!baseDate)
+                return NotificationManager.error("Please select base date")
+
+            else if (!daysToShift)
+                return NotificationManager.error("Please select Number of days to shift")
+        }
+        else console.log("baseDate, daysToShift", baseDate, daysToShift)
+    },
+
+    shiftTasksToPast: (baseDate, daysToShift) => {
+        if (!baseDate && !daysToShift) {
+            if (!baseDate)
+                return NotificationManager.error("Please select base date")
+
+            else if (!daysToShift)
+                return NotificationManager.error("Please select Number of days to shift")
+        }
+        else console.log("baseDate, daysToShift", baseDate, daysToShift)
+    },
 
 })
 
