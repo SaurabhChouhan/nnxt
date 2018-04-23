@@ -25,6 +25,12 @@ class RepositorySearch extends Component {
 
     }
 
+    componentDidMount() {
+        console.log('Repository did mount.', this.props);
+        this.props.editView && this.props.getAllRepositoryData(this.props.estimation.technologies)
+    }
+
+
     handleSelectChange(e) {
         this.setState({selectedValue: e.target.value});
     }
