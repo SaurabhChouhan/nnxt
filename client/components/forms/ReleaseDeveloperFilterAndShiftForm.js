@@ -14,9 +14,6 @@ let ReleaseDeveloperFilterForm = (props) => {
         <div className="col-md-12 planDivider">
             <div className="col-md-3 planDividerDate"><span>Base Date</span>
                 <Field name="baseDate" placeholder={"select base date"} component={renderDateTimePicker}
-                       onChange={(event, newValue, oldValue) => {
-                           // props.getDeveloperDetails(employeeId, startDate, newValue)
-                       }}
                        showTime={false}
                        min={new Date()}
                 />
@@ -25,9 +22,6 @@ let ReleaseDeveloperFilterForm = (props) => {
                 <Field name="daysToShift" placeholder={"select days"}
                        displayField={"day"}
                        valueField={"day"}
-                       onChange={(event, newValue, oldValue) => {
-                           // props.getDeveloperDetails(newValue, startDate, endDate)
-                       }}
                        component={renderSelect} options={days}
                 />
             </div>
@@ -37,7 +31,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                     type="button"
                     className="btn customBtn Past"
                     onClick={() => {
-                        props.shiftTasksToPast(baseDate, daysToShift)
+                        props.shiftTasksToPast(employeeId, baseDate, daysToShift)
                     }}>
                     Shift in Past
                 </button>
@@ -45,7 +39,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                     type="button"
                     className="btn customBtn Future"
                     onClick={() => {
-                        props.shiftTasksToFuture(baseDate, daysToShift)
+                        props.shiftTasksToFuture(employeeId, baseDate, daysToShift)
                     }}>
                     Shift in Future
                 </button>
