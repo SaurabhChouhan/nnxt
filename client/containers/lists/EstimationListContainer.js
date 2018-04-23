@@ -13,10 +13,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     estimationSelected: (estimation) => {
         logger.debug(logger.ESTIMATION_LIST_CONNECT, "estimation:", estimation)
-        dispatch(A.getEstimationFromServer(estimation._id)).then(json => {
+        return dispatch(A.getEstimationFromServer(estimation._id)).then(json => {
             dispatch(A.showComponentHideOthers(COC.ESTIMATION_DETAIL_PAGE))
-        }),
-            dispatch(A.getRepositoryFromServer(estimation.technologies, 'all'))
+        })
     },
     getAllEstimations: (projectID, status) => {
         dispatch(A.getAllEstimationsFromServer(projectID, status))
