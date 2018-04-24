@@ -31,12 +31,17 @@ releaseRouter.put("/plan-task/", async ctx => {
     return await TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user)
 })
 
-releaseRouter.put("/employee/:employeeId/baseDate/:baseDate/daysToShift/:daysToShift/task/:taskID/shift-past/", async ctx => {
-    console.log("shift-past")
+releaseRouter.put("/shift-past/", async ctx => {
+
+    console.log("shift-past", ctx.request.body)
+
+    return []
 })
 
-releaseRouter.put("/employee/:employeeId/baseDate/:baseDate/daysToShift/:daysToShift/task/:taskID/shift-future/", async ctx => {
-    console.log("shift-future")
+releaseRouter.put("/shift-future/", async ctx => {
+    console.log("shift-future", ctx.request.body)
+    await TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
+    return []
 })
 
 releaseRouter.del("/plan-task/:planID", async ctx => {
@@ -44,9 +49,8 @@ releaseRouter.del("/plan-task/:planID", async ctx => {
 })
 
 releaseRouter.get("/task-plans/:taskId", async ctx => {
-    let taskPlans = await TaskPlanningModel.getTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
+    return await TaskPlanningModel.getTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
 
-    return taskPlans
 })
 
 releaseRouter.get("/task-plans/employee/:employeeId/fromDate/:fromDate/toDate/:toDate", async ctx => {

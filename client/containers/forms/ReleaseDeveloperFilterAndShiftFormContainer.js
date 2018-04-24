@@ -21,7 +21,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             else if (!daysToShift)
                 return NotificationManager.error("Please select Number of days to shift")
         }
-        else return dispatch(A.shiftTasksToFutureOnServer(employeeId, baseDate, daysToShift, taskID))
+        else return dispatch(A.shiftTasksToFutureOnServer({
+            employeeId: employeeId,
+            baseDate: baseDate,
+            daysToShift: daysToShift,
+            taskID: taskID
+        }))
     },
 
     shiftTasksToPast: (employeeId, baseDate, daysToShift, taskID) => {
@@ -34,7 +39,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             else if (!daysToShift)
                 return NotificationManager.error("Please select Number of days to shift")
         }
-        else return dispatch(A.shiftTasksToPastOnServer(employeeId, baseDate, daysToShift, taskID))
+        else return dispatch(A.shiftTasksToPastOnServer({
+            employeeId: employeeId,
+            baseDate: baseDate,
+            daysToShift: daysToShift,
+            taskID: taskID
+        }))
     },
 
 })

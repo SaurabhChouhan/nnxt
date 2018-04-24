@@ -172,15 +172,16 @@ export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, End
     }
 }
 
-export const shiftTasksToFutureOnServer = (employeeId, baseDate, daysToShift, taskID) => {
+export const shiftTasksToFutureOnServer = (shift) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/employee/' + employeeId + '/baseDate/' + baseDate + '/daysToShift/' + daysToShift + '/task/' + taskID + '/shift-future', {
+        return fetch('/api/releases/shift-future/', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                }
+                },
+            body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
@@ -196,15 +197,16 @@ export const shiftTasksToFutureOnServer = (employeeId, baseDate, daysToShift, ta
 }
 
 
-export const shiftTasksToPastOnServer = (employeeId, baseDate, daysToShift, taskID) => {
+export const shiftTasksToPastOnServer = (shift) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/employee/' + employeeId + '/baseDate/' + baseDate + '/daysToShift/' + daysToShift + '/task/' + taskID + '/shift-past', {
+        return fetch('/api/releases/shift-past/', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                }
+                },
+            body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
