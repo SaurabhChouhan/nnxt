@@ -11,7 +11,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
     },
 
-    shiftTasksToFuture: (employeeId, baseDate, daysToShift, taskID) => {
+    shiftTasksToFuture: (employeeId, baseDate, daysToShift, releasePlanID) => {
         if (!employeeId || !baseDate || !daysToShift) {
             if (!employeeId)
                 return NotificationManager.error("Please select employee")
@@ -25,11 +25,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             employeeId: employeeId,
             baseDate: baseDate,
             daysToShift: daysToShift,
-            taskID: taskID
-        }))
+            releasePlanID: releasePlanID
+        })).then(json => {
+            if (json.success) {
+                NotificationManager.success("Plan shifted to future")
+            }
+            else NotificationManager.error("Plan shifting failed")
+        })
     },
 
-    shiftTasksToPast: (employeeId, baseDate, daysToShift, taskID) => {
+    shiftTasksToPast: (employeeId, baseDate, daysToShift, releasePlanID) => {
         if (!employeeId || !baseDate || !daysToShift) {
             if (!employeeId)
                 return NotificationManager.error("Please select employee")
@@ -43,8 +48,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             employeeId: employeeId,
             baseDate: baseDate,
             daysToShift: daysToShift,
-            taskID: taskID
-        }))
+            releasePlanID: releasePlanID
+        })).then(json => {
+            if (json.success) {
+                NotificationManager.success("Plan shifted to past")
+            }
+            else NotificationManager.error("Plan shifting failed")
+        })
     },
 
 })
@@ -83,7 +93,7 @@ const mapStateToProps = (state, ownProps) => {
         {"day": 30}
     ]
     return {
-        task: state.release.selectedTask,
+        releasePlan: state.release.selectedTask,
         team: state.release.selectedProject && state.release.selectedProject.team ? [...state.release.selectedProject.team,
             {
                 "_id": "all",

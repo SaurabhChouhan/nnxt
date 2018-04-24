@@ -31,17 +31,16 @@ releaseRouter.put("/plan-task/", async ctx => {
     return await TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user)
 })
 
-releaseRouter.put("/shift-past/", async ctx => {
-
-    console.log("shift-past", ctx.request.body)
-
-    return []
-})
 
 releaseRouter.put("/shift-future/", async ctx => {
     console.log("shift-future", ctx.request.body)
-    await TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
-    return []
+   return await TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
+
+})
+
+releaseRouter.put("/shift-past/", async ctx => {
+    console.log("shift-past", ctx.request.body)
+    return await TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user)
 })
 
 releaseRouter.del("/plan-task/:planID", async ctx => {
@@ -49,7 +48,7 @@ releaseRouter.del("/plan-task/:planID", async ctx => {
 })
 
 releaseRouter.get("/task-plans/:taskId", async ctx => {
-    return await TaskPlanningModel.getTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
+    return await TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
 
 })
 

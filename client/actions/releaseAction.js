@@ -189,7 +189,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
             json => {
                 if (json.success) {
                     console.log("json.data", json.data)
-                    //   dispatch(addDeveloperFilteredData(json.data))
+                    dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
                 }
                 return json
             })
@@ -213,8 +213,7 @@ export const shiftTasksToPastOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("json.data", json.data)
-                    //   dispatch(addDeveloperFilteredData(json.data))
+                    dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
                 }
                 return json
             })
