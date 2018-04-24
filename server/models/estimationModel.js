@@ -27,6 +27,7 @@ let estimationSchema = mongoose.Schema({
     suggestedHours: {type: Number},
     description: String,
     canApprove: {type: Boolean, default: false},
+    hasError: {type: Boolean, default: true},
     created: Date,
     updated: Date,
     estimator: {

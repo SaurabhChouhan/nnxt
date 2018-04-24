@@ -137,7 +137,7 @@ const addTaskByEstimator = async (taskInput, estimator) => {
         || _.isEmpty(estimationTask.estimator.description)) {
         estimationTask.hasError = true
     } else estimationTask.hasError = false
-    
+
     estimationTask.repo.addedFromThisEstimation = true
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
@@ -278,6 +278,18 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+        if (await EstimationTaskModel.count({
+                "feature._id": estimationTask.feature._id,
+                "isDeleted": false,
+                "hasError": true
+            }) == 0) {
+            await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
+                $set: {"hasError": false}
+            })
+        } else await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
+            $set: {"hasError": true}
+        })
+
 
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
             $inc: {"estimator.estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
@@ -286,11 +298,27 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
         })
     }
 
-    if (estimation && estimation._id) {
-        console.log("Inside estimation Update")
-        await EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours}
+  if (estimation && estimation._id) {
+
+        let errorTaskCount = await EstimationTaskModel.count({
+            "estimation._id": estimation._id,
+            "isDeleted": false,
+            "hasError": true
         })
+        let errorFeatureCount = await EstimationFeatureModel.count({
+            "estimation._id": estimation._id,
+            "isDeleted": false,
+            "hasError": true
+        })
+      console.log("errorTaskCount",errorTaskCount)
+      console.log("errorFeatureCount",errorFeatureCount)
+
+        console.log("Inside estimation Update")
+        let bk1 = await EstimationModel.updateOne({_id: estimation._id}, {
+            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
+            "hasError": (errorTaskCount > 0 || errorFeatureCount > 0) ? true : false
+        })
+        console.log("bk1", bk1)
     }
 
     if (estimationTask.repo && estimationTask.repo._id) {
