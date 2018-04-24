@@ -375,7 +375,6 @@ const approveFeatureByNegotiator = async (feature, estimation, negotiator) => {
         throw new AppError('Cannot approve feature as either name/description is not not there or there are pending requests from Estimator', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
     if (feature.estimator.changeRequested
-        || feature.estimator.removalRequested
         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
         || _.isEmpty(feature.estimator.name)
         || _.isEmpty(feature.estimator.description)) {
@@ -496,7 +495,6 @@ const canApproveFeatureByNegotiator = async (feature, estimation, negotiator) =>
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.STILL_PENDING_TASKS_ERROR, EC.HTTP_FORBIDDEN)
 
     if (feature.estimator.changeRequested
-        || feature.estimator.removalRequested
         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
         || _.isEmpty(feature.estimator.name)
         || _.isEmpty(feature.estimator.description)) {
@@ -1247,7 +1245,7 @@ const requestRemovalFeatureByEstimator = async (feature, estimation, estimator) 
 
     feature.estimator.removalRequested = !feature.estimator.removalRequested
     feature.estimator.requestedInThisIteration = true
-    feature.canApprove = false
+    feature.canApprove = true
 
     return await feature.save()
 }
