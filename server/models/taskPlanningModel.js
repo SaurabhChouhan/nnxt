@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
+import AppError from '../AppError'
 import moment from 'moment'
 import * as EC from '../errorcodes'
 

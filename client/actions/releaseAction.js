@@ -172,3 +172,50 @@ export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, End
     }
 }
 
+export const shiftTasksToFutureOnServer = (employeeId, baseDate, daysToShift, taskID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/employee/' + employeeId + '/baseDate/' + baseDate + '/daysToShift/' + daysToShift + '/task/' + taskID + '/shift-future', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("json.data", json.data)
+                    //   dispatch(addDeveloperFilteredData(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const shiftTasksToPastOnServer = (employeeId, baseDate, daysToShift, taskID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/employee/' + employeeId + '/baseDate/' + baseDate + '/daysToShift/' + daysToShift + '/task/' + taskID + '/shift-past', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("json.data", json.data)
+                    //   dispatch(addDeveloperFilteredData(json.data))
+                }
+                return json
+            })
+    }
+}
+

@@ -10,8 +10,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
         else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
     },
-    shiftTasksToFuture: (employeeId, baseDate, daysToShift) => {
-        if (!employeeId && !baseDate && !daysToShift) {
+
+    shiftTasksToFuture: (employeeId, baseDate, daysToShift, taskID) => {
+        if (!employeeId || !baseDate || !daysToShift) {
             if (!employeeId)
                 return NotificationManager.error("Please select employee")
             else if (!baseDate)
@@ -20,11 +21,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             else if (!daysToShift)
                 return NotificationManager.error("Please select Number of days to shift")
         }
-        else console.log("baseDate, daysToShift", baseDate, daysToShift)
+        else return dispatch(A.shiftTasksToFutureOnServer(employeeId, baseDate, daysToShift, taskID))
     },
 
-    shiftTasksToPast: (employeeId, baseDate, daysToShift) => {
-        if (!employeeId && !baseDate && !daysToShift) {
+    shiftTasksToPast: (employeeId, baseDate, daysToShift, taskID) => {
+        if (!employeeId || !baseDate || !daysToShift) {
             if (!employeeId)
                 return NotificationManager.error("Please select employee")
             else if (!baseDate)
@@ -33,7 +34,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             else if (!daysToShift)
                 return NotificationManager.error("Please select Number of days to shift")
         }
-        else console.log("baseDate, daysToShift", baseDate, daysToShift)
+        else return dispatch(A.shiftTasksToPastOnServer(employeeId, baseDate, daysToShift, taskID))
     },
 
 })
@@ -72,10 +73,11 @@ const mapStateToProps = (state, ownProps) => {
         {"day": 30}
     ]
     return {
+        task: state.release.selectedTask,
         team: state.release.selectedProject && state.release.selectedProject.team ? [...state.release.selectedProject.team,
             {
-            _id: "all",
-            "name": "All Developers"
+                "_id": "all",
+                "name": "All developer of this task"
         }] : [],
         days
     }
