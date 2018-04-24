@@ -65,13 +65,51 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
 }
 
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
-
     return await TaskPlanningModel.remove({"_id": taskPlanID})
 
 }
 
 taskPlanningSchema.statics.getTaskPlanningDetails = async (taskId, user) => {
     return await TaskPlanningModel.find({"task._id": taskId})
+}
+
+taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
+
+    if (!planning.employeeId)
+        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let taskPlannings
+
+//    planning.employeeId
+//    planning.baseDate
+//    planning.daysToShift
+//    planning.taskID
+
+    if (planning.employeeId == 'all') {
+        taskPlannings = await TaskPlanningModel.update({
+            "releasePlan._id": planning.taskID,
+            "planningDate": moment(planning.baseDate).add("days", planning.daysToShift)
+        }, {multi: true}).exec()
+    } else {
+        console.log("emp selected")
+        console.log("moment(planning.baseDate).add planning.daysToShift)", moment(planning.baseDate).add(planning.daysToShift, "days"))
+        let a = await TaskPlanningModel.find({
+            "releasePlan._id": planning.taskID,
+            "planningDate": planning.baseDate,
+            "employee._id": planning.employeeId
+        })
+        console.log("a", a)
+        taskPlannings = await TaskPlanningModel.update({
+                "releasePlan._id": planning.taskID,
+                "planningDate": moment(planning.baseDate),
+                "employee._id": planning.employeeId
+            },
+            {$set: {"planningDate": moment(planning.baseDate).add("days", planning.daysToShift)}}, {multi: true}
+        ).exec()
+        console.log("taskPlannings", taskPlannings)
+    }
+
+
+    console.log("taskPlannings", taskPlannings)
 }
 
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
