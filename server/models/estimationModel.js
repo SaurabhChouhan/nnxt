@@ -362,6 +362,19 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
             estimationTasks = await Promise.all(estimationTaskPromises)
             console.log("estimation tasks found bk 1", estimationTasks)
         }
+        if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
+            estimationTaskPromises = EstimationPendingTasks.map(async task => {
+                if ((!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+                    || _.isEmpty(task.estimator.name)
+                    || _.isEmpty(task.estimator.description)) {
+                    return EstimationTaskModel.updateOne({_id: task._id}, {"hasError": true})
+                } else return EstimationTaskModel.updateOne({_id: task._id}, {"hasError": false})
+
+            })
+            console.log("hasError before ")
+            estimationTasks = await Promise.all(estimationTaskPromises)
+            console.log("estimation tasks found hasError", estimationTasks)
+        }
         if (EstimationTasks && EstimationTasks.length) {
 
             EstimationPendingFeatures = await EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})

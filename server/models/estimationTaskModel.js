@@ -14,7 +14,7 @@ let estimationTaskSchema = mongoose.Schema({
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     canApprove: {type: Boolean, default: false},
-    hasNoError: {type: Boolean, default: false},
+    hasError: {type: Boolean, default: true},
     initiallyEstimated: {type: Boolean, required: true},
     isDeleted: {type: Boolean, default: false},
     created: Date,
@@ -123,6 +123,7 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     estimationTask.status = SC.STATUS_PENDING
     estimationTask.addedInThisIteration = true
     estimationTask.canApprove = false
+    estimationTask.hasError = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
     estimationTask.initiallyEstimated = true
     estimationTask.estimation = taskInput.estimation
@@ -131,8 +132,13 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     estimationTask.feature = taskInput.feature
     estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
+    if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationTask.estimator.name)
+        || _.isEmpty(estimationTask.estimator.description)) {
+        estimationTask.hasError = true
+    } else estimationTask.hasError = false
+    
     estimationTask.repo.addedFromThisEstimation = true
-
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = estimator.fullName
@@ -298,6 +304,13 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
     estimationTask.canApprove = false
+
+    if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationTask.estimator.name)
+        || _.isEmpty(estimationTask.estimator.description)) {
+        estimationTask.hasError = true
+    } else estimationTask.hasError = false
+
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR) {
         estimationTask.estimator.changedInThisIteration = true
         estimationTask.estimator.changedKeyInformation = true
