@@ -1,16 +1,9 @@
 import {connect} from 'react-redux'
-import {ReleaseDeveloperFilterAndShiftForm} from "../../components"
+import {ReleaseDeveloperPlanShiftForm} from "../../components"
 import * as A from "../../actions"
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperDetails: (employeeId, StartDate, EndDate) => {
-        if (!employeeId) {
-         return    NotificationManager.error("Please select employee")
-        }
-        else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
-    },
-
     shiftTasksToFuture: (employeeId, baseDate, daysToShift, releasePlanID) => {
         if (!employeeId || !baseDate || !daysToShift) {
             if (!employeeId)
@@ -98,15 +91,15 @@ const mapStateToProps = (state, ownProps) => {
             {
                 "_id": "all",
                 "name": "All developer of this task"
-        }] : [],
+            }] : [],
         days
     }
 }
 
 
-const ReleaseDeveloperFilterAndShiftFormContainer = connect(
+const ReleaseDeveloperPlanShiftFormContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(ReleaseDeveloperFilterAndShiftForm)
+)(ReleaseDeveloperPlanShiftForm)
 
-export default ReleaseDeveloperFilterAndShiftFormContainer
+export default ReleaseDeveloperPlanShiftFormContainer
