@@ -331,10 +331,12 @@ class EstimationTask extends React.PureComponent {
         }
         return <div className={expanded ? 'task-expanded' : 'task'}>
             <div className="col-md-9">
-                <div className={task.estimator && task.estimator.name ? "col-md-11  div-hover " : "col-md-11 infoHighliter"}>
+                <div
+                    className={task.estimator && task.estimator.name ? "col-md-11  div-hover " : "col-md-11 infoHighliter"}>
                     <h4 title={task.estimator.name ? task.estimator.name : "Task is not having name by estimator"}>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
                 </div>
-                {task.status === SC.STATUS_PENDING && task.canApprove == false ? <div className="col-md-1">
+                {task.status === SC.STATUS_PENDING && task.hasError == true ? <div className="col-md-1">
+                    {console.log("task hasError",task.hasError)}
                     <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
                          title={task.estimator && task.estimator.name ? task.estimator.description ? task.estimator.estimatedHours ? " Some changes is done in this iteration" : "Task is not having estimated hours by estimator" : "Task is not having description by estimator" : "Task is not having name by estimator"}
                     ></img>
@@ -408,16 +410,18 @@ class EstimationTask extends React.PureComponent {
                     }
                     else this.props.expandTask(task._id)
                 }}>
-                <p title={task.estimator.description?task.estimator.description:"Task is not having description by estimator"}>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
+                <p title={task.estimator.description ? task.estimator.description : "Task is not having description by estimator"}>{task.estimator.description ? task.estimator.description : task.negotiator.description}</p>
             </div>
 
             <div className={task.estimator && task.estimator.estimatedHours ? "col-md-3" : "col-md-3 infoHighliter"}>
-                <h4  title={task.estimator && task.estimator.estimatedHours ? task.estimator.estimatedHours:"task is not having estimatedHours by estimator"}>Estimated:</h4>
+                <h4 title={task.estimator && task.estimator.estimatedHours ? task.estimator.estimatedHours : "task is not having estimatedHours by estimator"}>
+                    Estimated:</h4>
                 <h4>&nbsp;{task.estimator.estimatedHours} {task.estimator.estimatedHours && 'Hrs.'}</h4>
             </div>
 
             <div className="col-md-3">
-                <h4 title={task.negotiator.estimatedHours ? task.negotiator.estimatedHours:"Task is added by estimator hence no Suggested Hours" }>Suggested:</h4>
+                <h4 title={task.negotiator.estimatedHours ? task.negotiator.estimatedHours : "Task is added by estimator hence no Suggested Hours"}>
+                    Suggested:</h4>
                 <h4>&nbsp;{task.negotiator.estimatedHours} {task.negotiator.estimatedHours && 'Hrs.'}</h4>
             </div>
 

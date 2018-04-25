@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
-import {ReleaseDeveloperFilterFormContainer} from '../../containers'
+import {ReleaseDeveloperFilterAndShiftFormContainer} from '../../containers'
 
 class ReleaseTaskPlanningPage extends Component {
 
@@ -14,8 +14,8 @@ class ReleaseTaskPlanningPage extends Component {
     deleteCellButton(cell, row, enumObject, rowIndex) {
         return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
                         onClick={() => {
-                                 this.props.deleteTaskPlanningRow(row)
-                             }}></button>)
+                            this.props.deleteTaskPlanningRow(row)
+                        }}></button>)
     }
 
     actionCellButton(cell, row, enumObject, rowIndex) {
@@ -72,15 +72,17 @@ class ReleaseTaskPlanningPage extends Component {
                             <div className="backarrow">
 
                                 <h5>
-                                    <button className="btn-link" onClick={() => {
+                                    <button className="btn-link" title="Go Back" onClick={() => {
                                         this.props.history.push("/app-home/release-project-tasks")
                                         this.props.ReleaseTaskGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                                    <b>{taskPlan.task ? taskPlan.task.name : ''} </b></h5>
+                                    <b title={taskPlan.task ? taskPlan.task.name : ''}>{taskPlan.task ? taskPlan.task.name : ''} </b>
+                                </h5>
                             </div>
                         </div>
                         <div className="col-md-4  releaseClock ">
-                            <i className="fa fa-clock-o "></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
+                            <i className="fa fa-clock-o "
+                               title="Estimated Hours"></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
                             Hrs</b>
                         </div>
                     </div>
@@ -120,39 +122,16 @@ class ReleaseTaskPlanningPage extends Component {
                                 <TableHeaderColumn columnTitle dataField='report'
                                                    dataFormat={this.formatReport.bind(this)}>Reported
                                     Status</TableHeaderColumn>
-                                <TableHeaderColumn width="8%" dataField='button'
+                                <TableHeaderColumn columnTitle width="8%" dataField='button'
                                                    dataFormat={this.deleteCellButton.bind(this)}><i
                                     className="fa fa-trash"></i>
                                 </TableHeaderColumn>
                             </BootstrapTable>
                         </div>
                     </div>
-                    <div className="col-md-12 planDivider">
-                        <div className="col-md-2 planDividerDate"><span>Base Date</span><input type="text"
-                                                                                               className="form-control"
-                                                                                               placeholder="Date"/>
-                        </div>
-                        <div className="col-md-2 planDividerDate"><span>Days to Shift</span>
-                            <select className="form-control">
-                                <option value="">01</option>
-                                <option value="">02</option>
-                                <option value="">03</option>
-                                <option value="">04</option>
-                            </select>
-                        </div>
-                        <div className="col-md-8 planDividerBtn">
-                            <form>
-                                <button className="btn customBtn Future">
-                                    Shift in Future
-                                </button>
-                                <button className="btn customBtn Past ">
-                                    Shift in Past
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <div className="col-md-12 planDateSlct">
-                        <ReleaseDeveloperFilterFormContainer/>
+                    <div>
+
+                        <ReleaseDeveloperFilterAndShiftFormContainer/>
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">

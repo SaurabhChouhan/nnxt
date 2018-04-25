@@ -27,6 +27,7 @@ let estimationSchema = mongoose.Schema({
     suggestedHours: {type: Number},
     description: String,
     canApprove: {type: Boolean, default: false},
+    hasError: {type: Boolean, default: true},
     created: Date,
     updated: Date,
     estimator: {
@@ -110,8 +111,8 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
             estimator: 1,
             negotiator: 1,
             status: 1,
-            estimatedHours:1,
-            suggestedHours:1
+            estimatedHours: 1,
+            suggestedHours: 1
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
@@ -351,7 +352,6 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
         if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
             estimationTaskPromises = EstimationPendingTasks.map(async task => {
                 if (task.estimator.changeRequested
-                    || task.estimator.removalRequested
                     || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
                     || _.isEmpty(task.estimator.name)
                     || _.isEmpty(task.estimator.description)) {
@@ -363,6 +363,19 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
             estimationTasks = await Promise.all(estimationTaskPromises)
             console.log("estimation tasks found bk 1", estimationTasks)
         }
+        if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
+            estimationTaskPromises = EstimationPendingTasks.map(async task => {
+                if ((!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+                    || _.isEmpty(task.estimator.name)
+                    || _.isEmpty(task.estimator.description)) {
+                    return EstimationTaskModel.updateOne({_id: task._id}, {"hasError": true})
+                } else return EstimationTaskModel.updateOne({_id: task._id}, {"hasError": false})
+
+            })
+            console.log("hasError before ")
+            estimationTasks = await Promise.all(estimationTaskPromises)
+            console.log("estimation tasks found hasError", estimationTasks)
+        }
         if (EstimationTasks && EstimationTasks.length) {
 
             EstimationPendingFeatures = await EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
@@ -370,7 +383,6 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                 console.log("bk2 before ")
                 let estimationFeaturePromises = EstimationPendingFeatures.map(async feature => {
                     if (feature.estimator.changeRequested
-                        || feature.estimator.removalRequested
                         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
                         || _.isEmpty(feature.estimator.name)
                         || _.isEmpty(feature.estimator.description)) {
@@ -671,8 +683,8 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
         throw new AppError('Estimation approve failed as there are still pending tasks/features', EC.STILL_PENDING_TASKS_AND_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
 
 
-    if(estimation.estimatedHours == 0)
-    throw new AppError('Estimation approve failed as there is no estimated hours for estimator tasks/features', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
+    if (estimation.estimatedHours == 0)
+        throw new AppError('Estimation approve failed as there is no estimated hours for estimator tasks/features', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
 
 
     let statusHistory = {}
@@ -713,7 +725,7 @@ estimationSchema.statics.canApproveEstimationByNegotiator = async (estimationID,
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if(estimation.estimatedHours == 0)
+    if (estimation.estimatedHours == 0)
         throw new AppError('Estimation approve failed as there is no estimated hours for estimator tasks/features', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
 
     let availableTasksCount = await EstimationTaskModel.count({
@@ -882,8 +894,6 @@ estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) =>
     }
     return undefined
 }
-
-
 
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)

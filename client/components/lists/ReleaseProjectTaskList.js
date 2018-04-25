@@ -89,7 +89,7 @@ class ReleaseProjectTaskList extends Component {
             <div key="estimation_list" className="clearfix">
 
                 <div className="col-md-12 releaseHeader">
-                    <div className=" col-md-1 backarrow">
+                    <div className=" col-md-1 backarrow" title="Go Back">
                         <button className="btn-link" onClick={() => {
                             this.props.history.push("/app-home/release")
                             this.props.ReleaseProjectGoBack()
@@ -97,7 +97,9 @@ class ReleaseProjectTaskList extends Component {
                     </div>
                     <div className="col-md-3">
                         <div className="releaseTitle">
-                            <span>Project Name</span></div>
+                            <span
+                                title={selectedProject.project ? selectedProject.project.name : ''}>Project Name</span>
+                        </div>
                         <div className="releasecontent">
                             <p>{selectedProject.project ? selectedProject.project.name : ''}</p>
                         </div>
@@ -111,21 +113,27 @@ class ReleaseProjectTaskList extends Component {
                         </div>*/}
                     <div className="col-md-2">
                         <div className="releaseTitle">
-                            <span>Start Date</span></div>
+                            <span
+                                title={selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                        </div>
                         <div className="releasecontent">
                             <p>{selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
-                            <span>End Date</span></div>
+                            <span
+                                title={selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                        </div>
                         <div className="releasecontent">
                             <p>{selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
-                            <span>Release Date</span></div>
+                            <span
+                                title={selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                        </div>
                         <div className="releasecontent">
                             <p>{selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
@@ -174,7 +182,7 @@ class ReleaseProjectTaskList extends Component {
 
                         <div className="col-md-6 ">
                             <div className="releaseDetailSearchFlag">
-                                <select className="form-control" onChange={(flag) =>
+                                <select className="form-control" title="Select Flag" onChange={(flag) =>
                                     this.onFlagChange(flag.target.value)
                                 }>
                                     <option value="all">All Flags</option>
@@ -192,7 +200,7 @@ class ReleaseProjectTaskList extends Component {
                         </div>
                         <div className="col-md-6">
                             <div className="releaseDetailSearchStatus">
-                                <select className="form-control"
+                                <select className="form-control" title="Select Status"
                                         onChange={(status) => this.onStatusChange(status.target.value)}>
                                     <option value="all">All Status</option>
                                     <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>

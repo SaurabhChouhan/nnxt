@@ -14,7 +14,7 @@ let estimationTaskSchema = mongoose.Schema({
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     canApprove: {type: Boolean, default: false},
-    hasNoError: {type: Boolean, default: false},
+    hasError: {type: Boolean, default: true},
     initiallyEstimated: {type: Boolean, required: true},
     isDeleted: {type: Boolean, default: false},
     created: Date,
@@ -123,6 +123,7 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     estimationTask.status = SC.STATUS_PENDING
     estimationTask.addedInThisIteration = true
     estimationTask.canApprove = false
+    estimationTask.hasError = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
     estimationTask.initiallyEstimated = true
     estimationTask.estimation = taskInput.estimation
@@ -131,8 +132,13 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     estimationTask.feature = taskInput.feature
     estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
-    estimationTask.repo.addedFromThisEstimation = true
+    if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationTask.estimator.name)
+        || _.isEmpty(estimationTask.estimator.description)) {
+        estimationTask.hasError = true
+    } else estimationTask.hasError = false
 
+    estimationTask.repo.addedFromThisEstimation = true
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = estimator.fullName
@@ -272,6 +278,18 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
         if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+        if (await EstimationTaskModel.count({
+                "feature._id": estimationTask.feature._id,
+                "isDeleted": false,
+                "hasError": true
+            }) == 0) {
+            await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
+                $set: {"hasError": false}
+            })
+        } else await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
+            $set: {"hasError": true}
+        })
+
 
         await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
             $inc: {"estimator.estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
@@ -280,11 +298,27 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
         })
     }
 
-    if (estimation && estimation._id) {
-        console.log("Inside estimation Update")
-        await EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours}
+  if (estimation && estimation._id) {
+
+        let errorTaskCount = await EstimationTaskModel.count({
+            "estimation._id": estimation._id,
+            "isDeleted": false,
+            "hasError": true
         })
+        let errorFeatureCount = await EstimationFeatureModel.count({
+            "estimation._id": estimation._id,
+            "isDeleted": false,
+            "hasError": true
+        })
+      console.log("errorTaskCount",errorTaskCount)
+      console.log("errorFeatureCount",errorFeatureCount)
+
+        console.log("Inside estimation Update")
+        let bk1 = await EstimationModel.updateOne({_id: estimation._id}, {
+            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
+            "hasError": (errorTaskCount > 0 || errorFeatureCount > 0) ? true : false
+        })
+        console.log("bk1", bk1)
     }
 
     if (estimationTask.repo && estimationTask.repo._id) {
@@ -298,6 +332,13 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
     estimationTask.canApprove = false
+
+    if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationTask.estimator.name)
+        || _.isEmpty(estimationTask.estimator.description)) {
+        estimationTask.hasError = true
+    } else estimationTask.hasError = false
+
     if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR) {
         estimationTask.estimator.changedInThisIteration = true
         estimationTask.estimator.changedKeyInformation = true
