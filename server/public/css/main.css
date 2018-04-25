@@ -1018,15 +1018,16 @@ td.rejRowColor {
 }
 
 .repositoryFeature {
-    background-color: #E3E6ED;
+    background-color: #ffffff;
 }
 
 .repositoryTask {
-    background-color: #F6E5DD;
+    background-color: #ffffff;
 }
 
 .repositoryFeature .RepositoryHeading {
     border: 1px solid #CBCED5;
+    background-color: #E3E6ED;
     width: 100%;
     position: relative;
     min-height: 10px;
@@ -1044,6 +1045,7 @@ td.rejRowColor {
     padding: 6px;
     padding-left: 15px;
     float: left;
+    background-color: #F6E5DD;
 }
 
 .RepositoryHeading i {
@@ -1103,6 +1105,7 @@ td.rejRowColor {
 
 .RepositoryHeading span {
     padding-right: 5%;
+    font-weight:bold;
     /* padding-top: 6px;*/
 }
 
