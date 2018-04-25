@@ -93,10 +93,10 @@ const addFeatureByEstimator = async (featureInput, estimator) => {
     estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
     estimationFeature.estimator.estimatedHours = featureInput.estimatedHours
+    estimationFeature.negotiator.estimatedHours = 0
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
     estimationFeature.canApprove = false
-    estimationFeature.hasError = false
     estimationFeature.owner = SC.OWNER_ESTIMATOR
     estimationFeature.initiallyEstimated = true
     estimationFeature.estimation = featureInput.estimation
@@ -109,7 +109,7 @@ const addFeatureByEstimator = async (featureInput, estimator) => {
         || _.isEmpty(estimationFeature.estimator.name)
         || _.isEmpty(estimationFeature.estimator.description)) {
         estimationFeature.hasError = true
-    }
+    } else estimationFeature.hasError = false
     if (!_.isEmpty(featureInput.notes)) {
         estimationFeature.notes = featureInput.notes.map(n => {
             n.name = estimator.fullName
@@ -137,6 +137,7 @@ const addFeatureByNegotiator = async (featureInput, negotiator) => {
     estimationFeature.negotiator.name = featureInput.name
     estimationFeature.negotiator.description = featureInput.description
     estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours
+    estimationFeature.estimator.estimatedHours = 0
     estimationFeature.negotiator.changeSuggested = true
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
@@ -252,13 +253,12 @@ const updateFeatureByEstimator = async (featureInput, estimator) => {
     estimationFeature.estimator.changeRequested = false
     estimationFeature.negotiator.changeGranted = false
     estimationFeature.canApprove = false
-    estimationFeature.hasError = false
     if ((!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
         || _.isEmpty(estimationFeature.estimator.name)
         || _.isEmpty(estimationFeature.estimator.description)) {
-        console.log("Haserror estimation", estimationFeature.hasError )
         estimationFeature.hasError = true
-    }
+    } else estimationFeature.hasError = false
+
 
     estimationFeature.updated = Date.now()
 

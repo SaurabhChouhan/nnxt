@@ -181,7 +181,7 @@ export const updateEstimationOnServer = (estimation) => {
 export const deleteEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/delete", {
-            method: 'delete',
+                method: 'delete',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
@@ -348,6 +348,9 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
                     dispatch(deleteEstimationTask(json.data))
                     if (json.data && json.data.estimation && json.data.estimation._id) {
                         dispatch(getOnlyEstimationFromServer(json.data.estimation._id))
+                    }
+                    if (json.data && json.data.feature && json.data.feature._id) {
+                        dispatch(getFeatureFromServer(json.data.feature._id))
                     }
                 }
                 return json
