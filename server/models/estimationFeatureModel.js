@@ -14,6 +14,7 @@ let estimationFeatureSchema = mongoose.Schema({
     owner: {type: String, enum: [SC.OWNER_ESTIMATOR, SC.OWNER_NEGOTIATOR], required: true},
     addedInThisIteration: {type: Boolean, required: true},
     canApprove: {type: Boolean, default: false},
+    hasError: {type: Boolean, default: true},
     initiallyEstimated: {type: Boolean, required: true},
     isDeleted: {type: Boolean, default: false},
     created: Date,
@@ -95,6 +96,7 @@ const addFeatureByEstimator = async (featureInput, estimator) => {
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
     estimationFeature.canApprove = false
+    estimationFeature.hasError = false
     estimationFeature.owner = SC.OWNER_ESTIMATOR
     estimationFeature.initiallyEstimated = true
     estimationFeature.estimation = featureInput.estimation
@@ -103,7 +105,11 @@ const addFeatureByEstimator = async (featureInput, estimator) => {
     estimationFeature.repo = {}
     //estimationFeature.repo._id = repositoryFeature._id
     estimationFeature.repo.addedFromThisEstimation = true
-
+    if ((!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationFeature.estimator.name)
+        || _.isEmpty(estimationFeature.estimator.description)) {
+        estimationFeature.hasError = true
+    }
     if (!_.isEmpty(featureInput.notes)) {
         estimationFeature.notes = featureInput.notes.map(n => {
             n.name = estimator.fullName
@@ -246,6 +252,13 @@ const updateFeatureByEstimator = async (featureInput, estimator) => {
     estimationFeature.estimator.changeRequested = false
     estimationFeature.negotiator.changeGranted = false
     estimationFeature.canApprove = false
+    estimationFeature.hasError = false
+    if ((!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationFeature.estimator.name)
+        || _.isEmpty(estimationFeature.estimator.description)) {
+        console.log("Haserror estimation", estimationFeature.hasError )
+        estimationFeature.hasError = true
+    }
 
     estimationFeature.updated = Date.now()
 
@@ -375,7 +388,6 @@ const approveFeatureByNegotiator = async (feature, estimation, negotiator) => {
         throw new AppError('Cannot approve feature as either name/description is not not there or there are pending requests from Estimator', EC.FEATURE_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
     if (feature.estimator.changeRequested
-        || feature.estimator.removalRequested
         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
         || _.isEmpty(feature.estimator.name)
         || _.isEmpty(feature.estimator.description)) {
@@ -496,7 +508,6 @@ const canApproveFeatureByNegotiator = async (feature, estimation, negotiator) =>
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.STILL_PENDING_TASKS_ERROR, EC.HTTP_FORBIDDEN)
 
     if (feature.estimator.changeRequested
-        || feature.estimator.removalRequested
         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
         || _.isEmpty(feature.estimator.name)
         || _.isEmpty(feature.estimator.description)) {
@@ -1247,7 +1258,7 @@ const requestRemovalFeatureByEstimator = async (feature, estimation, estimator) 
 
     feature.estimator.removalRequested = !feature.estimator.removalRequested
     feature.estimator.requestedInThisIteration = true
-    feature.canApprove = false
+    feature.canApprove = true
 
     return await feature.save()
 }

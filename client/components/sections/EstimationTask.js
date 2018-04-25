@@ -335,7 +335,8 @@ class EstimationTask extends React.PureComponent {
                     className={task.estimator && task.estimator.name ? "col-md-11  div-hover " : "col-md-11 infoHighliter"}>
                     <h4 title={task.estimator.name ? task.estimator.name : "Task is not having name by estimator"}>{task.estimator.name ? task.estimator.name : task.negotiator.name}</h4>
                 </div>
-                {task.status === SC.STATUS_PENDING && task.canApprove == false ? <div className="col-md-1">
+                {task.status === SC.STATUS_PENDING && task.hasError == true ? <div className="col-md-1">
+                    {console.log("task hasError",task.hasError)}
                     <img key="exclaimation" className=" errorClass" src="/images/exclamation.png"
                          title={task.estimator && task.estimator.name ? task.estimator.description ? task.estimator.estimatedHours ? " Some changes is done in this iteration" : "Task is not having estimated hours by estimator" : "Task is not having description by estimator" : "Task is not having name by estimator"}
                     ></img>
