@@ -8,7 +8,7 @@ import {connect} from 'react-redux'
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
-    const {change, days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift} = props
+    const {change, days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift, releasePlan} = props
 
     return <form onSubmit={handleSubmit}>
         <div className="col-md-12 planDivider">
@@ -32,7 +32,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                     type="button"
                     className="btn customBtn Past"
                     onClick={() => {
-                        props.shiftTasksToPast(employeeId, baseDate, daysToShift)
+                        props.shiftTasksToPast(employeeId, baseDate, daysToShift, releasePlan._id)
                     }}>
                     Shift in Past
                 </button></div>
@@ -41,7 +41,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                     type="button"
                     className="btn customBtn Future"
                     onClick={() => {
-                        props.shiftTasksToFuture(employeeId, baseDate, daysToShift)
+                        props.shiftTasksToFuture(employeeId, baseDate, daysToShift, releasePlan._id)
                     }}>
                     Shift in Future
                 </button>
