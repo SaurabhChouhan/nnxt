@@ -541,24 +541,97 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
         throw new AppError('Task can not be moved as feature is already approved', EC.MOVE_TASK_IN_FEATURE_ERROR, EC.HTTP_BAD_REQUEST)
     }
     // As task is being moved to feature, estimated hours and suggested hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
+
     if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {
-                "estimator.estimatedHours": task.estimator.estimatedHours,
-                "negotiator.estimatedHours": task.negotiator.estimatedHours
-            },
-            "canApprove": false
-        })
+        // As task is moved we have to check for has error in feature including this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (+1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0) {
+            //there is still error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": true
+            })
+
+        } else {
+            //there is no error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     } else if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
-            "canApprove": false
-        })
+        //only estimated hours is there in this task
+        // As task is included we have to check for has error in feature including this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (+1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0) {
+            //there is still error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
+
     } else if (task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
-            "canApprove": false
-        })
+
+        //only suggested hours is there in this task
+        // As task is included we have to check for has error in feature including this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (+1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0) {
+
+            //there is still error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     }
 
     // As task is moved do not update repository to note this change
@@ -591,25 +664,99 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
     }
     // As task is being moved to feature, estimated hours of this task would be added into estimated hours of feature (only if estimator.estimatedHours has value
 
+
     if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {
-                "estimator.estimatedHours": task.estimator.estimatedHours,
-                "negotiator.estimatedHours": task.negotiator.estimatedHours
-            },
-            "canApprove": false
-        })
+        // As task is moved we have to check for has error in feature including this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (+1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0) {
+            //there is still error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": true
+            })
+
+        } else {
+            //there is no error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     } else if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
-            "canApprove": false
-        })
+        //only estimated hours is there in this task
+        // As task is included we have to check for has error in feature including this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (+1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0) {
+            //there is still error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
+
     } else if (task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
-            "canApprove": false
-        })
+
+        //only suggested hours is there in this task
+        // As task is included we have to check for has error in feature including this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (+1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0) {
+
+            //there is still error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after including this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     }
+
 
     // moved out by estimator then clear its flag while move in to feature by negotiator
     if (task.estimator.isMovedOutOfFeature && task.estimator.changedInThisIteration) {
@@ -667,23 +814,95 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
 
     if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {
-                "estimator.estimatedHours": -task.estimator.estimatedHours,
-                "negotiator.estimatedHours": -task.negotiator.estimatedHours
-            },
-            "canApprove": false
-        })
+        // As task is moved out of feature we have to check for has error in feature excluding this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (-1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
+            //there is still error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": -task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": -task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": true
+            })
+
+        } else {
+            //there is no error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": -task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": -task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     } else if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
-            "canApprove": false
-        })
+        //only estimated hours is there in this task
+        // As task is excluded we have to check for has error in feature excluding this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (-1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
+            //there is still error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
+
     } else if (task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
-            "canApprove": false
-        })
+
+        //only suggested hours is there in this task
+        // As task is excluded we have to check for has error in feature excluding this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (-1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
+
+            //there is still error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     }
 
     // moved in by negotiator  then clear its flag while move out to feature by estimator
@@ -715,24 +934,97 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
 
     // As task is moved out of feature we would have to subtract hours ($inc with minus) of this task from overall estimated hours of feature
 
+
     if (task.estimator.estimatedHours && task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {
-                "estimator.estimatedHours": -task.estimator.estimatedHours,
-                "negotiator.estimatedHours": -task.negotiator.estimatedHours
-            },
-            "canApprove": false
-        })
+        // As task is moved out of feature we have to check for has error in feature excluding this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (-1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
+            //there is still error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": -task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": -task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": true
+            })
+
+        } else {
+            //there is no error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {
+                    "estimator.estimatedHours": -task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": -task.negotiator.estimatedHours
+                },
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     } else if (task.estimator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
-            "canApprove": false
-        })
+        //only estimated hours is there in this task
+        // As task is excluded we have to check for has error in feature excluding this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (-1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
+            //there is still error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"estimator.estimatedHours": -task.estimator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
+
     } else if (task.negotiator.estimatedHours) {
-        await EstimationFeatureModel.updateOne({_id: feature._id}, {
-            $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
-            "canApprove": false
-        })
+
+        //only suggested hours is there in this task
+        // As task is excluded we have to check for has error in feature excluding this task
+        if (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? (-1) : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
+
+            //there is still error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": true
+            })
+        } else {
+            //there is no error after excluding this task
+            await EstimationFeatureModel.updateOne({_id: feature._id}, {
+                $inc: {"negotiator.estimatedHours": -task.negotiator.estimatedHours},
+                "canApprove": false,
+                "hasError": false
+            })
+        }
+
     }
 
 
@@ -979,6 +1271,7 @@ const deleteTaskByEstimator = async (task, estimation, estimator) => {
 
         }
     }
+
     if (estimation && estimation._id) {
         // As task is removed we have to subtract hours ($inc with minus) of this task from overall estimated hours and suggested hours of estimation
 
