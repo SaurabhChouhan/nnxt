@@ -139,29 +139,41 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
         ).exec()
 
     }
-
     return planning
 }
 
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let toDateMoment
+    let fromDateMoment
+
+    if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
+        fromDateMoment = moment(fromDate).hour(0).minute(0).second(0).millisecond(0)
+    }
+    if (toDate && toDate != 'undefined' && toDate != undefined) {
+        toDateMoment = moment(toDate).minute(0).second(0).millisecond(0)
+    }
+
+
 
     let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrAfter(fromDate) && moment(tp.planningDate).isSameOrBefore(toDate))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
     }
     else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrAfter(fromDate))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment))
     }
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrBefore(toDate))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
     }
     return taskPlannings
 }
 
+
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
 export default TaskPlanningModel
+
 
 /*
 [{
