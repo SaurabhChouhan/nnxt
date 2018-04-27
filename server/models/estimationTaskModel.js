@@ -121,19 +121,12 @@ const addTaskByEstimator = async (taskInput, estimator) => {
             || taskInput.estimatedHours == 0
             || _.isEmpty(taskInput.name)
             || _.isEmpty(taskInput.description)) {
-
-            console.log("taskInput.estimatedHours", taskInput.estimatedHours)
-            console.log("taskInput", taskInput)
-            console.log("hasErrortrue", true)
             // As task is being added into feature estimated hours of task would be added into current estimated hours of feature and with  error has Error become true
             await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {
                 $inc: {"estimator.estimatedHours": taskInput.estimatedHours},
                 "hasError": true
             })
         } else {
-            console.log("taskInput.estimatedHours", taskInput.estimatedHours)
-            console.log("taskInput", taskInput)
-            console.log("hasErrortrue", false)
             // As task is being added into feature estimated hours of task would be added into current estimated hours of feature and with no error has Error become false
             await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {
                 $inc: {"estimator.estimatedHours": taskInput.estimatedHours},
@@ -204,6 +197,7 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         // As task is being added by negotiator there would be any change in estimated hours of feature as this would just be considered as suggestions
+
         await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours}})
     }
     if (estimation && estimation._id) {
@@ -316,16 +310,14 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
                 "isDeleted": false,
                 "feature._id": estimationFeatureObj._id,
                 "estimation._id": estimation._id
-            }) + estimationTask.hasError ? (-1) : 0 )> 0
-                || (!taskInput.estimatedHours || taskInput.estimatedHours == 0)
-                || _.isEmpty(taskInput.name)
-                || _.isEmpty(taskInput.description)
-                || _.isEmpty(estimationFeatureObj.estimator.name)
-                || _.isEmpty(estimationFeatureObj.estimator.description)
-                || (estimationFeatureObj.estimator.estimatedHours - taskInput.estimatedHours) <= 0) {
-            console.log("has error true", true)
-            console.log("has error true@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", estimationTask.hasError)
-            console.log("estimationTask.estimator.estimatedHours", estimationTask.estimator.estimatedHours, "estimationTask.estimator.estimatedHours", estimationTask.estimator.estimatedHours)
+            }) + estimationTask.hasError ? (-1) : 0 ) > 0
+            || !taskInput.estimatedHours
+            || taskInput.estimatedHours == 0
+            || _.isEmpty(taskInput.name)
+            || _.isEmpty(taskInput.description)
+            || _.isEmpty(estimationFeatureObj.estimator.name)
+            || _.isEmpty(estimationFeatureObj.estimator.description)
+            || ((estimationFeatureObj.estimator.estimatedHours ? estimationFeatureObj.estimator.estimatedHours : 0) - (estimationTask.estimator.estimatedHours ? estimationTask.estimator.estimatedHours : 0) + (taskInput.estimatedHours ? taskInput.estimatedHours : 0)) <= 0) {
 
             await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
                 $inc: {"estimator.estimatedHours": estimationTask.estimator.estimatedHours ? (taskInput.estimatedHours - estimationTask.estimator.estimatedHours) : taskInput.estimatedHours},
@@ -334,8 +326,6 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
                 "hasError": true
             })
         } else {
-            console.log("has error true", false)
-            console.log("estimationTask.estimator.estimatedHours", estimationTask.estimator.estimatedHours, "estimationTask.estimator.estimatedHours", estimationTask.estimator.estimatedHours)
             await EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
                 $inc: {"estimator.estimatedHours": estimationTask.estimator.estimatedHours ? (estimationTask.estimator.estimatedHours - estimationTask.estimator.estimatedHours) : taskInput.estimatedHours},
                 "canApprove": false,
