@@ -80,14 +80,15 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releaseTaskID,
 }
 
 taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
-
+    let taskPlannings
     if (!planning.employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
 
 //    planning.employeeId
 //    planning.baseDate
 //    planning.daysToShift
-//    planning.taskID
+//    planning.releasePlanID
 
     if (planning.employeeId == 'all') {
         await TaskPlanningModel.update({
@@ -97,14 +98,26 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
             {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).add("days", planning.daysToShift)}}, {multi: true}
         ).exec()
     } else {
-        await TaskPlanningModel.update({
-                "releasePlan._id": planning.releasePlanID,
-                "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0),
-                "employee._id": planning.employeeId
-            },
-            {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).add("days", planning.daysToShift)}}, {multi: true}
-        ).exec()
 
+        taskPlannings = await TaskPlanningModel.find(
+            {
+                "employee._id": planning.employeeId,
+                "releasePlan._id": planning.releasePlanID,
+                "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
+            }
+        )
+
+
+        console.log("taskPlannings", taskPlannings)
+
+        /*   await TaskPlanningModel.update({
+                   "releasePlan._id": planning.releasePlanID,
+                   "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0),
+                   "employee._id": planning.employeeId
+               },
+               {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).add("days", planning.daysToShift)}}, {multi: true}
+           ).exec()
+   */
     }
 
 
@@ -115,7 +128,6 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
 
     if (!planning.employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
 
 //    planning.employeeId
 //    planning.baseDate
