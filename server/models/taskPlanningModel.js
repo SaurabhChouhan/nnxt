@@ -1,7 +1,10 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
+import AppError from '../AppError'
+import momentTZ from 'moment-timezone'
 import moment from 'moment'
 import * as EC from '../errorcodes'
+import {ReleasePlanModel} from '../models'
 
 mongoose.Promise = global.Promise
 
@@ -46,10 +49,14 @@ let taskPlanningSchema = mongoose.Schema({
 
 
 taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => {
+    if (!taskPlanningInput.releasePlan._id) {
+        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
 
+    await  ReleasePlanModel.update({"_id": taskPlanningInput.releasePlan._id}, {"flags": [SC.FLAG_PLANNED]})
     let taskPlanning = new TaskPlanningModel()
     taskPlanning.created = Date.now()
-    taskPlanning.planningDate = moment(taskPlanningInput.planningDate)
+    taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     taskPlanning.planningDateString = taskPlanningInput.planningDate
     taskPlanning.task = taskPlanningInput.task
     taskPlanning.release = taskPlanningInput.release
@@ -64,34 +71,109 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
 }
 
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
-
     return await TaskPlanningModel.remove({"_id": taskPlanID})
 
 }
 
-taskPlanningSchema.statics.getTaskPlanningDetails = async (taskId, user) => {
-    return await TaskPlanningModel.find({"task._id": taskId})
+taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releaseTaskID, user) => {
+    return await TaskPlanningModel.find({"releasePlan._id": releaseTaskID})
+}
+
+taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
+
+    if (!planning.employeeId)
+        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+//    planning.employeeId
+//    planning.baseDate
+//    planning.daysToShift
+//    planning.taskID
+
+    if (planning.employeeId == 'all') {
+        await TaskPlanningModel.update({
+                "releasePlan._id": planning.releasePlanID,
+                "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+            },
+            {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).add("days", planning.daysToShift)}}, {multi: true}
+        ).exec()
+    } else {
+        await TaskPlanningModel.update({
+                "releasePlan._id": planning.releasePlanID,
+                "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0),
+                "employee._id": planning.employeeId
+            },
+            {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).add("days", planning.daysToShift)}}, {multi: true}
+        ).exec()
+
+    }
+
+
+    return planning
+}
+
+taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
+
+    if (!planning.employeeId)
+        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+//    planning.employeeId
+//    planning.baseDate
+//    planning.daysToShift
+//    planning.releasePlanID
+
+    if (planning.employeeId == 'all') {
+        await TaskPlanningModel.update({
+                "releasePlan._id": planning.releasePlanID,
+                "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+            },
+            {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).subtract("days", planning.daysToShift)}}, {multi: true}
+        ).exec()
+    } else {
+        await TaskPlanningModel.update({
+                "releasePlan._id": planning.releasePlanID,
+                "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0),
+                "employee._id": planning.employeeId
+            },
+            {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).subtract("days", planning.daysToShift)}}, {multi: true}
+        ).exec()
+
+    }
+    return planning
 }
 
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let toDateMoment
+    let fromDateMoment
+
+    if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
+        fromDateMoment = moment(fromDate).hour(0).minute(0).second(0).millisecond(0)
+    }
+    if (toDate && toDate != 'undefined' && toDate != undefined) {
+        toDateMoment = moment(toDate).minute(0).second(0).millisecond(0)
+    }
+
+
 
     let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrAfter(fromDate) && moment(tp.planningDate).isSameOrBefore(toDate))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
     }
     else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrAfter(fromDate))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment))
     }
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => moment(tp.planningDate).isSameOrBefore(toDate))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
     }
     return taskPlannings
 }
 
+
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
 export default TaskPlanningModel
+
 
 /*
 [{

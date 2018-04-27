@@ -31,20 +31,30 @@ releaseRouter.put("/plan-task/", async ctx => {
     return await TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user)
 })
 
+
+releaseRouter.put("/shift-future/", async ctx => {
+    console.log("shift-future", ctx.request.body)
+   return await TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
+
+})
+
+releaseRouter.put("/shift-past/", async ctx => {
+    console.log("shift-past", ctx.request.body)
+    return await TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user)
+})
+
 releaseRouter.del("/plan-task/:planID", async ctx => {
     return await TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
 })
 
 releaseRouter.get("/task-plans/:taskId", async ctx => {
-    let taskPlans = await TaskPlanningModel.getTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
+    return await TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
 
-    return taskPlans
 })
 
 releaseRouter.get("/task-plans/employee/:employeeId/fromDate/:fromDate/toDate/:toDate", async ctx => {
-    let DeveloperDetails = await TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
+    return await TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
 
-    return DeveloperDetails
 })
 releaseRouter.post("/employee-days", async ctx => {
     let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)

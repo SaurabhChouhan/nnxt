@@ -8,48 +8,11 @@ import {connect} from 'react-redux'
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
-    const {change, days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift} = props
+    const {change, days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift, releasePlan} = props
 
     return <form onSubmit={handleSubmit}>
-        <div className="col-md-12 planDivider">
-            <div className="col-md-3 planDividerDate"><span>Base Date</span>
-                <Field name="baseDate" placeholder={"select base date"} component={renderDateTimePicker}
-                       showTime={false}
-                       min={new Date()}
-                />
-            </div>
-            <div className="col-md-2 planDividerDate"><span>Days to Shift</span>
-                <Field name="daysToShift" placeholder={"select days"}
-                       displayField={"day"}
-                       valueField={"day"}
-                       component={renderSelect} options={days}
-                />
-            </div>
-            <div className="col-md-7 planDividerBtn">
-                <div className="col-md-6">
-                <i className="glyphicon glyphicon-arrow-left pastArrow"></i>
-                <button
-                    type="button"
-                    className="btn customBtn Past"
-                    onClick={() => {
-                        props.shiftTasksToPast(employeeId, baseDate, daysToShift)
-                    }}>
-                    Shift in Past
-                </button></div>
-                <div className="col-md-6">
-                <button
-                    type="button"
-                    className="btn customBtn Future"
-                    onClick={() => {
-                        props.shiftTasksToFuture(employeeId, baseDate, daysToShift)
-                    }}>
-                    Shift in Future
-                </button>
-                    <i className="glyphicon glyphicon-arrow-right futureArrow"></i></div>
-            </div>
-        </div>
-
-        <div className="col-md-4">
+<div className="col-md-12 planFilterDivider">
+        <div className="col-md-4 ">
             <Field name="employeeId" placeholder={"Name of Developer"}
                    onChange={(event, newValue, oldValue) => {
                        props.getDeveloperDetails(newValue, startDate, endDate)
@@ -58,7 +21,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                    label={"Developer Name:"}/>
 
         </div>
-        <div className="col-md-6">
+        <div className="col-md-8">
             <div className="col-md-6">
                 <Field name="startDate" placeholder={"Start Date"} component={renderDateTimePicker}
                        onChange={(event, newValue, oldValue) => {
@@ -80,6 +43,7 @@ let ReleaseDeveloperFilterForm = (props) => {
             </div>
 
         </div>
+</div>
     </form>
 }
 

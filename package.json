@@ -34,6 +34,7 @@
     "koa-views": "^6.1.2",
     "lodash": "^4.17.4",
     "moment": "^2.20.1",
+    "moment-timezone": "^0.5.16",
     "mongoose": "^4.13.9",
     "nanomatch": "^1.2.7",
     "no-config": "^1.1.2",
