@@ -258,15 +258,13 @@ const updateFeatureByEstimator = async (featureInput, estimator) => {
         || await EstimationTaskModel.count({
             "feature._id": estimationFeature._id,
             "estimation._id": estimation._id,
-            "isDeleted": false
-        }) <= 0
+            "isDeleted": false,
+            "hasError": true
+        }) > 0
         || _.isEmpty(featureInput.name)
         || _.isEmpty(featureInput.description)) {
-        estimationFeature.hasError = true
 
-        console.log("estimationFeature.hasError = true", false)
     } else {
-        console.log("estimationFeature.hasError = false", false)
         estimationFeature.hasError = false
     }
 
@@ -506,7 +504,7 @@ const canApproveFeatureByNegotiator = async (feature, estimation, negotiator) =>
 
 
     if (!feature.estimator.estimatedHours && !feature.estimator.estimatedHours > 0) {
-        throw new AppError('Feature Estimated Hours should be greter than zero', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Feature Estimated Hours should be greater than zero', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
     }
 
     let pendingTaskCountOfFeature = await EstimationTaskModel.count({
@@ -1115,13 +1113,13 @@ const grantEditPermissionOfFeatureByNegotiator = async (feature, estimation, neg
                 "isDeleted": false,
                 "estimator.changeRequested": true
             })) <= 1) {
-        console.log("estimator.requestedInThisIteration before update")
+
         let a = await EstimationFeatureModel.updateOne({_id: feature._id}, {
             $set: {"estimator.requestedInThisIteration": false}
 
         })
 
-        console.log("estimator.requestedInThisIteration after update", a)
+
     }
 
 

@@ -198,7 +198,11 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
 
         // As task is being added by negotiator there would be any change in estimated hours of feature as this would just be considered as suggestions
 
-        await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {$inc: {"negotiator.estimatedHours": taskInput.estimatedHours}})
+        await EstimationFeatureModel.updateOne({_id: taskInput.feature._id}, {
+            $inc: {"negotiator.estimatedHours": taskInput.estimatedHours},
+            'hasError': true
+        })
+
     }
     if (estimation && estimation._id) {
         await EstimationModel.updateOne({_id: estimation._id}, {$inc: {"suggestedHours": taskInput.estimatedHours}})
@@ -310,7 +314,7 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
                 "isDeleted": false,
                 "feature._id": estimationFeatureObj._id,
                 "estimation._id": estimation._id
-            }) + estimationTask.hasError ? (-1) : 0 ) > 0
+            }) + (estimationTask.hasError ? -1 : 0) ) > 0
             || !taskInput.estimatedHours
             || taskInput.estimatedHours == 0
             || _.isEmpty(taskInput.name)
@@ -349,15 +353,12 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
             "isDeleted": false,
             "hasError": true
         })
-        console.log("errorTaskCount", errorTaskCount)
-        console.log("errorFeatureCount", errorFeatureCount)
 
-        console.log("Inside estimation Update")
-        let bk1 = await EstimationModel.updateOne({_id: estimation._id}, {
+        await EstimationModel.updateOne({_id: estimation._id}, {
             $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
             "hasError": (errorTaskCount > 0 || errorFeatureCount > 0) ? true : false
         })
-        console.log("bk1", bk1)
+
     }
 
     if (estimationTask.repo && estimationTask.repo._id) {

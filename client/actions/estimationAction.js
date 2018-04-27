@@ -892,10 +892,24 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
             json => {
                 if (json.success) {
                     if (json.data && json.data.feature && json.data.feature._id) {
-                        dispatch(canApproveFeatureOnServer(json.data.feature._id))
+                        dispatch(canApproveFeatureOnServer(json.data.feature._id)).then(json => {
+                            if (json.success) {
+                            }
+                            else {
+                                dispatch(getFeatureFromServer(json.data.feature._id))
+                            }
+                            return json
+                        })
                     }
                     if (json.data && json.data.estimation && json.data.estimation._id) {
-                        dispatch(canApproveEstimationOnServer(json.data.estimation._id))
+                        dispatch(canApproveEstimationOnServer(json.data.estimation._id)).then(json => {
+                            if (json.success) {
+                            }
+                            else {
+                                dispatch(getOnlyEstimationFromServer(json.data.estimation._id))
+                            }
+                            return json
+                        })
                     }
                     dispatch(updateEstimationTask(json.data))
                 }
