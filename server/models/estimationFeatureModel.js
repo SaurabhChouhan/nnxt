@@ -253,27 +253,39 @@ const updateFeatureByEstimator = async (featureInput, estimator) => {
     estimationFeature.estimator.changeRequested = false
     estimationFeature.negotiator.changeGranted = false
     estimationFeature.canApprove = false
-    if ((!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
-        || _.isEmpty(estimationFeature.estimator.name)
-        || _.isEmpty(estimationFeature.estimator.description)) {
+    if ((!estimationFeature.estimator.estimatedHours
+            || estimationFeature.estimator.estimatedHours == 0)
+        || await EstimationTaskModel.count({
+            "feature._id": estimationFeature._id,
+            "estimation._id": estimation._id,
+            "isDeleted": false
+        }) <= 0
+        || _.isEmpty(featureInput.name)
+        || _.isEmpty(featureInput.description)) {
         estimationFeature.hasError = true
-    } else estimationFeature.hasError = false
 
+        console.log("estimationFeature.hasError = true", false)
+    } else {
+        console.log("estimationFeature.hasError = false", false)
+        estimationFeature.hasError = false
+    }
 
     estimationFeature.updated = Date.now()
 
-    if (estimationFeature.repo && estimationFeature.repo._id) {
-        await RepositoryModel.updateFeature({
-            _id: estimationFeature.repo._id.toString(),
-            estimation: {
-                _id: estimationFeature.estimation._id.toString()
-            },
-            name: featureInput.name,
-            description: featureInput.description,
-            technologies: featureInput.technologies,
-            tags: featureInput.tags
-        }, estimator)
-    }
+    /*
+     if (estimationFeature.repo && estimationFeature.repo._id) {
+         await RepositoryModel.updateFeature({
+             _id: estimationFeature.repo._id.toString(),
+             estimation: {
+                 _id: estimationFeature.estimation._id.toString()
+             },
+             name: featureInput.name,
+             description: featureInput.description,
+             technologies: featureInput.technologies,
+             tags: featureInput.tags
+         }, estimator)
+     }
+     */
     return await estimationFeature.save()
 }
 
