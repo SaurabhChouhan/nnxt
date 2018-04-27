@@ -349,3 +349,89 @@ export const renderDateTimePicker = ({
         />
     </div>
 }
+
+
+/*
+export const renderDateTimePickerWithLeave = ({
+                                                  input: {onChange, value, name},
+                                                  label,
+                                                  readOnly,
+                                                  info,
+                                                  showTime = false,
+                                                  showCalendar,
+                                                  leaveDays = ["Sunday", "Saturday"],
+                                                  min,
+                                                  max,
+                                                  type,
+                                                  dropUp = false,
+                                                  placeholder,
+                                                  disabled = false,
+                                                  meta: {touched, error, warning}
+                                              }) => {
+
+    const filter = event => {
+        if (event) {
+            console.log("event", event)
+             console.log("event.target.value", event.target.value)
+             if (showCalendar) {
+                 if (showTime) {
+                     console.log("under Development")
+                 } else {
+                     if (typeof(event) === 'object' && event.target && event.target.value) {
+                         let v = moment(event.target.value).format('YYYY-MM-DD')
+                         return v
+                     } else {
+                         let v = moment(event).format('YYYY-MM-DD')
+                         return v
+                     }
+                 }
+             } else {
+                 if (showTime) {
+                     if (typeof(event) === 'object' && event.target && event.target.value) {
+                         if (event.target.value.length == 7)
+                             event.target.value = '0' + event.target.value
+                         return event.target.value;
+                     } else {
+                         if (event && event.length == 7)
+                             event = '0' + event
+                         let v = moment(event).format('YYYY-MM-DD')
+                         return v
+                     }
+                 }
+             }
+            console.log("moment(event).format", moment(event).format('YYYY-MM-DD'))
+            console.log("day", moment("9-18-2016").format('dddd'))
+            console.log("day Comparision", _.includes(leaveDays, moment("9-18-2016").format('dddd')))
+            console.log(" new Date(event).getDay()", new Date(event).getDay())
+
+            //  console.log("moment(event).format",_.include("") moment(event).hour(0).minute(0).second(0).millisecond(0))
+            return moment(event).format('YYYY-MM-DD')
+        }
+        return undefined
+    }
+    return <div className="form-group">
+        <label htmlFor={name}>{label} {touched &&
+        ((error &&
+            <span className="validation-error">
+            {error}
+          </span>))
+
+        }{(info &&
+            <span className="field-info">
+            {info}
+          </span>)}</label>
+        <DateTimePicker
+            min={min}
+            max={max}
+            format={'MM-DD-YYYY'}
+            readOnly={readOnly}
+            disabled={disabled}
+            onChange={event => onChange(filter(event))}
+            time={showTime}
+            calendar={showCalendar}
+            value={!value ? null : new Date(value)}
+
+        />
+    </div>
+}
+*/

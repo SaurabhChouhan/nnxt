@@ -1,18 +1,5 @@
 import Router from 'koa-router'
-import {
-    attendanceRouter,
-    clientRouter,
-    estimationRouter,
-    leaveRouter,
-    permissionRouter,
-    projectRouter,
-    publicRouter,
-    releaseRouter,
-    repositoryRouter,
-    roleRouter,
-    technologyRouter,
-    userRouter
-} from "./"
+import * as RR from "../routers"
 import {isAuthenticated} from "../utils"
 import AppError from '../AppError'
 import * as EC from "../errorcodes"
@@ -28,7 +15,7 @@ const apiRouter = new Router({
 })
 
 // public URLs
-apiRouter.use(publicRouter.routes())
+apiRouter.use(RR.publicRouter.routes())
 
 apiRouter.use(async (ctx, next) => {
     if (ctx.request.query && typeof(ctx.request.query.schema) != 'undefined') {
@@ -40,6 +27,6 @@ apiRouter.use(async (ctx, next) => {
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, 403)
     }
-}, userRouter.routes(), permissionRouter.routes(), roleRouter.routes(), clientRouter.routes(), estimationRouter.routes(), projectRouter.routes(), technologyRouter.routes(), leaveRouter.routes(), repositoryRouter.routes(), attendanceRouter.routes(), releaseRouter.routes())
+}, RR.userRouter.routes(), RR.permissionRouter.routes(), RR.roleRouter.routes(), RR.clientRouter.routes(), RR.estimationRouter.routes(), RR.projectRouter.routes(), RR.technologyRouter.routes(), RR.leaveRouter.routes(), RR.repositoryRouter.routes(), RR.attendanceRouter.routes(), RR.releaseRouter.routes(), RR.calenderRouter.routes())
 
 export default apiRouter
