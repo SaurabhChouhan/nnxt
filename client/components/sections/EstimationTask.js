@@ -302,7 +302,7 @@ class EstimationTask extends React.PureComponent {
                              title="Move out of feature"
                              onClick={() => this.props.moveTaskOutOfFeature(task)}/>)
                 } else {
-                    buttons.push(<img key="move_to_feature" src="/images/move_to_feature.png"
+                    buttons.push(<img className="div-hover" key="move_to_feature" src="/images/move_to_feature.png"
                                       title="Move to feature"
                                       onClick={() => this.props.moveToFeature(task)}
                     />)
