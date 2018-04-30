@@ -9,7 +9,14 @@ moment.locale('en')
 momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
     const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
+    const today = new Date()
+    const todayMoment = moment(today).hour(0).minute(0).second(0).milliseconds(0)
+    const devStartDateMoment = moment(initial.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
+    const devEndDateMoment = moment(initial.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
 
+
+    const min = devStartDateMoment.isSameOrAfter(todayMoment) ? devStartDateMoment.toDate() : todayMoment.toDate()
+    const max = devEndDateMoment.toDate()
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
@@ -18,8 +25,8 @@ let ReleaseTaskPlanningForm = (props) => {
 
                 <Field name="planningDate" placeholder={"Date"} component={renderDateTimePicker}
                        showTime={false}
-                       min={moment(initial.devStartDate).toDate()}
-                       max={moment(initial.devEndDate).toDate()}
+                       min={min}
+                       max={max}
                        label={" Date :"} validate={[required]}/>
                 <Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>
