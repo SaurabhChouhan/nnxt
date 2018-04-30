@@ -764,6 +764,32 @@ const addFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatu
     estimationFeature.repo.addedFromThisEstimation = false
     estimationFeature.technologies = repositoryFeature.technologies
 
+    let errorTasks = repositoryFeature.tasks.filter(t => {
+        if (
+            !t.name
+            || t.name == undefined
+            || t.name == ''
+            || !t.description
+            || t.description == undefined
+            || t.description == ''
+            || !t.estimatedHours
+            || t.estimatedHours == 0
+        ) return true
+        else return false
+    })
+    if (
+        errorTasks.length||
+        (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationFeature.estimator.name)
+        || _.isEmpty(estimationFeature.estimator.description)) {
+        console.log("FeatureRepoTrue4", errorTasks.length)
+        estimationFeature.hasError = true
+    } else {
+        console.log("FeatureRepoFalse4", errorTasks.length)
+        estimationFeature.hasError = false
+    }
+
+
     // Iterate on tasks and add all the tasks into estimation
 
     let estimationTaskPromises = repositoryFeature.tasks.map(async repositoryTask => {
@@ -788,6 +814,11 @@ const addFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatu
         estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = false
         estimationTask.feature._id = estimationFeature._id
+        if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+            || _.isEmpty(estimationTask.estimator.name)
+            || _.isEmpty(estimationTask.estimator.description)) {
+            estimationTask.hasError = true
+        } else estimationTask.hasError = false
         return estimationTask.save()
     })
 
@@ -872,6 +903,32 @@ const addFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFeat
     estimationFeature.repo.addedFromThisEstimation = false
     estimationFeature.technologies = repositoryFeature.technologies
     estimationFeature.tags = repositoryFeature.tags
+    let errorTasks = repositoryFeature.tasks.filter(t => {
+        if (
+            !t.name
+            || t.name == undefined
+            || t.name == ''
+            || !t.description
+            || t.description == undefined
+            || t.description == ''
+            || !t.estimatedHours
+            || t.estimatedHours == 0
+        ) return true
+        else return false
+    })
+    if (
+        errorTasks.length ||
+        (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationFeature.estimator.name)
+        || _.isEmpty(estimationFeature.estimator.description)) {
+        console.log("FeatureRepoTrue1", errorTasks.length)
+        estimationFeature.hasError = true
+    } else
+    {
+        console.log("FeatureRepoFalse1", errorTasks.length)
+        estimationFeature.hasError = false
+    }
+
     if (repositoryFeature.estimatedHours)
         estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours
     else
@@ -982,6 +1039,28 @@ const copyFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeat
     estimationFeature.repo = {}
     estimationFeature.repo.addedFromThisEstimation = true
     estimationFeature.technologies = repositoryFeature.technologies
+    let errorTasks = repositoryFeature.tasks.filter(t => {
+        if (
+            !t.name
+            || t.name == undefined
+            || t.name == ''
+            || !t.description
+            || t.description == undefined
+            || t.description == ''
+            || !t.estimatedHours
+            || t.estimatedHours == 0
+        ) return true
+        else return false
+    })
+    if (
+        errorTasks.length||
+        (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationFeature.estimator.name)
+        || _.isEmpty(estimationFeature.estimator.description)) {
+        console.log("FeatureRepoTrue2", errorTasks.length)
+        estimationFeature.hasError = true
+    } else { console.log("FeatureRepoFalse2", errorTasks.length)
+        estimationFeature.hasError = false}
 
 
     // Iterate on tasks and add all the tasks into estimation
@@ -1003,6 +1082,11 @@ const copyFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeat
         //estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = true
         estimationTask.feature._id = estimationFeature._id
+        if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+            || _.isEmpty(estimationTask.estimator.name)
+            || _.isEmpty(estimationTask.estimator.description)) {
+            estimationTask.hasError = true
+        } else estimationTask.hasError = false
         return estimationTask.save()
     })
 
@@ -1188,6 +1272,29 @@ const copyFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFea
     estimationFeature.repo.addedFromThisEstimation = true
     estimationFeature.technologies = repositoryFeature.technologies
     estimationFeature.tags = repositoryFeature.tags
+    let errorTasks = repositoryFeature.tasks.filter(t => {
+        if (
+            !t.name
+            || t.name == undefined
+            || t.name == ''
+            || !t.description
+            || t.description == undefined
+            || t.description == ''
+            || !t.estimatedHours
+            || t.estimatedHours == 0
+        ) return true
+        else return false
+    })
+    if (
+        errorTasks.length||
+        (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationFeature.estimator.name)
+        || _.isEmpty(estimationFeature.estimator.description)) {
+        console.log("FeatureRepoTrue3", errorTasks.length)
+        estimationFeature.hasError = true
+    } else{ console.log("FeatureRepoFalse3", errorTasks.length)
+        estimationFeature.hasError = false}
+
     if (repositoryFeature.estimatedHours)
         estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours
     else

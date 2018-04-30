@@ -752,8 +752,6 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
         }
 
     }
-
-
     // moved out by estimator then clear its flag while move in to feature by negotiator
     if (task.estimator.isMovedOutOfFeature && task.estimator.changedInThisIteration) {
         task.estimator.isMovedOutOfFeature = false
@@ -1681,6 +1679,12 @@ const addTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, 
     estimationTask.repo = {}
     estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = false
+    if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationTask.estimator.name)
+        || _.isEmpty(estimationTask.estimator.description)) {
+        estimationTask.hasError = true
+    } else estimationTask.hasError = false
+
 
     await estimationTask.save()
 
@@ -1832,11 +1836,15 @@ const copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID,
     estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
+    if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
+        || _.isEmpty(estimationTask.estimator.name)
+        || _.isEmpty(estimationTask.estimator.description)) {
+        estimationTask.hasError = true
+    } else estimationTask.hasError = false
     if (repositoryTask.estimatedHours)
         estimationTask.estimator.estimatedHours = repositoryTask.estimatedHours
     else
         estimationTask.estimator.estimatedHours = 0
-
     await estimationTask.save()
     estimationTask = estimationTask.toObject()
     if (estimation && estimation.canApprove) {
