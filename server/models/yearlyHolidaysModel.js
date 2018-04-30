@@ -23,7 +23,6 @@ let yearlyHolidaysSchema = mongoose.Schema({
     permittedContinuousLeave: {type: Number, default: 3},
     holidaysInMonth: [
         {
-            _id: mongoose.Schema.ObjectId,
             month: {type: Number, default: 0},
             monthName: {type: String, required: [true, "Month name is required"]},
             noOfHolidays: {type: Number, default: 0}
@@ -31,7 +30,6 @@ let yearlyHolidaysSchema = mongoose.Schema({
     ],
     holidays: [
         {
-            _id: mongoose.Schema.ObjectId,
             monthNo: {type: Number, default: 0},
             holidayName: {type: String, required: [true, "Holiday name is required"]},
             description: String,
@@ -123,23 +121,7 @@ yearlyHolidaysSchema.statics.updateHolidayYear = async holidayYearInput => {
 
     holidayYear.holidaysInMonth[0].push(holidayYearInput.holidaysInMonth[0])
     holidayYear.holidays[0].push(holidayYearInput.holidays[0])
-    /*
-    if (!usrObj.password)
-         throw new AppError("Password must be passed to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-     let count = await UserModel.count({email: usrObj.email})
-     if (count !== 0)
-         throw new AppError("Email already registered with another employee", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
-     usrObj.password = await bcrypt.hash(usrObj.password, 10)
-     let totalUsers = await UserModel.count()
-     usrObj.employeeCode = "AIPL-"+(totalUsers+1)
-     if (_.isEmpty(usrObj.dateJoined))
-         throw new AppError("Joining date is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-     //usrObj.dateJoined = Date.now();//assuming joining date is same as created date for now
-     if (_.isEmpty(usrObj.designation))
-         throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
- */
+   
     return await holidayYear.save
 }
 
