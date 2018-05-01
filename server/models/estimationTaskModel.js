@@ -544,7 +544,7 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -582,7 +582,7 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
                 || _.isEmpty(feature.estimator.name)
                 || !feature.estimator.description
                 || _.isEmpty(feature.estimator.description)
-                || !feature.estimator.estimatedHours
+
                 || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
                 || (await EstimationTaskModel.count({
                     "hasError": true,
@@ -590,7 +590,7 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
                     "feature._id": feature._id,
                     "estimation._id": estimation._id
                 }) + (task.hasError ? +1 : 0)) > 0)) {
-
+           
             //there is still error after including this task
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
@@ -616,7 +616,7 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
                 || _.isEmpty(feature.estimator.name)
                 || !feature.estimator.description
                 || _.isEmpty(feature.estimator.description)
-                || !feature.estimator.estimatedHours
+
                 || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
                 || (await EstimationTaskModel.count({
                     "hasError": true,
@@ -641,6 +641,11 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
             })
         }
 
+    } else {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            "canApprove": false,
+            "hasError": true
+        })
     }
 
     // As task is moved do not update repository to note this change
@@ -680,7 +685,7 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -718,7 +723,7 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
                 || _.isEmpty(feature.estimator.name)
                 || !feature.estimator.description
                 || _.isEmpty(feature.estimator.description)
-                || !feature.estimator.estimatedHours
+
                 || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
                 || (await EstimationTaskModel.count({
                     "hasError": true,
@@ -752,7 +757,7 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -777,6 +782,11 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
             })
         }
 
+    } else {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            "canApprove": false,
+            "hasError": true
+        })
     }
     // moved out by estimator then clear its flag while move in to feature by negotiator
     if (task.estimator.isMovedOutOfFeature && task.estimator.changedInThisIteration) {
@@ -839,7 +849,7 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -878,7 +888,7 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -912,7 +922,7 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -939,6 +949,11 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
             })
         }
 
+    } else {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            "canApprove": false,
+            "hasError": true
+        })
     }
 
     // moved in by negotiator  then clear its flag while move out to feature by estimator
@@ -956,7 +971,7 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
 }
 
 // move task out of feature by negotiator
-const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) => {
+const OfFeatureByNegotiator = async (task, estimation, negotiator) => {
 
     let feature = await EstimationFeatureModel.findById(task.feature._id)
     if (!feature)
@@ -977,7 +992,7 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -1016,7 +1031,7 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -1050,7 +1065,7 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
             || _.isEmpty(feature.estimator.name)
             || !feature.estimator.description
             || _.isEmpty(feature.estimator.description)
-            || !feature.estimator.estimatedHours
+
             || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0
             || (await EstimationTaskModel.count({
                 "hasError": true,
@@ -1076,6 +1091,11 @@ const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) =>
             })
         }
 
+    } else {
+        await EstimationFeatureModel.updateOne({_id: feature._id}, {
+            "canApprove": false,
+            "hasError": true
+        })
     }
 
 
