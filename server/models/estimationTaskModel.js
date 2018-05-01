@@ -590,7 +590,7 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
                     "feature._id": feature._id,
                     "estimation._id": estimation._id
                 }) + (task.hasError ? +1 : 0)) > 0)) {
-           
+
             //there is still error after including this task
             await EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $inc: {"estimator.estimatedHours": task.estimator.estimatedHours},
