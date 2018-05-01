@@ -778,14 +778,14 @@ const addFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatu
         else return false
     })
     if (
-        errorTasks.length||
-        (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
-        || _.isEmpty(estimationFeature.estimator.name)
-        || _.isEmpty(estimationFeature.estimator.description)) {
-        console.log("FeatureRepoTrue4", errorTasks.length)
+        errorTasks.length ||
+        ( repositoryFeature.estimatedHours == 0)
+        || _.isEmpty(repositoryFeature.name)
+        || _.isEmpty(repositoryFeature.description)) {
+
         estimationFeature.hasError = true
     } else {
-        console.log("FeatureRepoFalse4", errorTasks.length)
+
         estimationFeature.hasError = false
     }
 
@@ -814,9 +814,9 @@ const addFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatu
         estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = false
         estimationTask.feature._id = estimationFeature._id
-        if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
-            || _.isEmpty(estimationTask.estimator.name)
-            || _.isEmpty(estimationTask.estimator.description)) {
+        if ((repositoryTask.estimatedHours == 0)
+            || _.isEmpty(repositoryTask.name)
+            || _.isEmpty(repositoryTask.description)) {
             estimationTask.hasError = true
         } else estimationTask.hasError = false
         return estimationTask.save()
@@ -917,15 +917,12 @@ const addFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFeat
         else return false
     })
     if (
-        errorTasks.length ||
-        (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
-        || _.isEmpty(estimationFeature.estimator.name)
-        || _.isEmpty(estimationFeature.estimator.description)) {
-        console.log("FeatureRepoTrue1", errorTasks.length)
+        errorTasks.length
+        || repositoryFeature.estimatedHours == 0
+        || _.isEmpty(repositoryFeature.name)
+        || _.isEmpty(repositoryFeature.description)) {
         estimationFeature.hasError = true
-    } else
-    {
-        console.log("FeatureRepoFalse1", errorTasks.length)
+    } else {
         estimationFeature.hasError = false
     }
 
@@ -1047,20 +1044,20 @@ const copyFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeat
             || !t.description
             || t.description == undefined
             || t.description == ''
-            || !t.estimatedHours
+
             || t.estimatedHours == 0
         ) return true
         else return false
     })
     if (
-        errorTasks.length||
-        (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
-        || _.isEmpty(estimationFeature.estimator.name)
-        || _.isEmpty(estimationFeature.estimator.description)) {
-        console.log("FeatureRepoTrue2", errorTasks.length)
+        errorTasks.length
+        || repositoryFeature.estimatedHours == 0
+        || _.isEmpty(repositoryFeature.name)
+        || _.isEmpty(repositoryFeature.description)) {
         estimationFeature.hasError = true
-    } else { console.log("FeatureRepoFalse2", errorTasks.length)
-        estimationFeature.hasError = false}
+    } else {
+        estimationFeature.hasError = false
+    }
 
 
     // Iterate on tasks and add all the tasks into estimation
@@ -1082,9 +1079,9 @@ const copyFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeat
         //estimationTask.repo._id = repositoryTask._id
         estimationTask.repo.addedFromThisEstimation = true
         estimationTask.feature._id = estimationFeature._id
-        if ((!estimationTask.estimator.estimatedHours || estimationTask.estimator.estimatedHours == 0)
-            || _.isEmpty(estimationTask.estimator.name)
-            || _.isEmpty(estimationTask.estimator.description)) {
+        if (repositoryTask.estimatedHours == 0
+            || _.isEmpty(repositoryTask.name)
+            || _.isEmpty(repositoryTask.description)) {
             estimationTask.hasError = true
         } else estimationTask.hasError = false
         return estimationTask.save()
@@ -1280,20 +1277,21 @@ const copyFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFea
             || !t.description
             || t.description == undefined
             || t.description == ''
-            || !t.estimatedHours
             || t.estimatedHours == 0
         ) return true
         else return false
     })
     if (
-        errorTasks.length||
+        errorTasks.length ||
         (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
         || _.isEmpty(estimationFeature.estimator.name)
         || _.isEmpty(estimationFeature.estimator.description)) {
         console.log("FeatureRepoTrue3", errorTasks.length)
         estimationFeature.hasError = true
-    } else{ console.log("FeatureRepoFalse3", errorTasks.length)
-        estimationFeature.hasError = false}
+    } else {
+        console.log("FeatureRepoFalse3", errorTasks.length)
+        estimationFeature.hasError = false
+    }
 
     if (repositoryFeature.estimatedHours)
         estimationFeature.negotiator.estimatedHours = repositoryFeature.estimatedHours
