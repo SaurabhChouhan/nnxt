@@ -24,8 +24,7 @@ let yearlyHolidaysSchema = mongoose.Schema({
     holidaysInMonth: [
         {
             month: {type: Number, default: 0},
-            monthName: {type: String, required: [true, "Month name is required"]},
-            noOfHolidays: {type: Number, default: 0}
+            monthName: {type: String, required: [true, "Month name is required"]}
         }
     ],
     holidays: [
@@ -50,6 +49,8 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidays = async (loggedInUser) => {
 }
 
 yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDate, endDate, loggedInUser) => {
+    startDate = new Date(startDate)
+    endDate = new Date(endDate)
     var startDateMoment = momentTZ.tz(startDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     var endDateMoment = momentTZ.tz(endDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let selectedHolidays = await YearlyHolidaysModel.find({
@@ -62,32 +63,82 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDat
 
 
 yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
-    console.log("holidayYear", holidayYear)
-    if (_.isEmpty(holidayYear.calenderYear))
+    console.log("holidayYear before", holidayYear)
+    if (!holidayYear.calenderYear || _.isEmpty(holidayYear.calenderYear))
         throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
     let count = await YearlyHolidaysModel.count({calenderYear: holidayYear.calenderYear})
     if (count !== 0)
         throw new AppError("Calender year already exists, please edit that or use different calender year.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
-    /*
-    if (!usrObj.password)
-         throw new AppError("Password must be passed to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-     let count = await UserModel.count({email: usrObj.email})
-     if (count !== 0)
-         throw new AppError("Email already registered with another employee", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
-     usrObj.password = await bcrypt.hash(usrObj.password, 10)
-     let totalUsers = await UserModel.count()
-     usrObj.employeeCode = "AIPL-"+(totalUsers+1)
-     if (_.isEmpty(usrObj.dateJoined))
-         throw new AppError("Joining date is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-     //usrObj.dateJoined = Date.now();//assuming joining date is same as created date for now
-     if (_.isEmpty(usrObj.designation))
-         throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
- */
+    holidayYear.holidays = holidayYear.holidays.map(h => {
+        let toDate = new Date(h.date)
+        let toMoment = momentTZ.tz(toDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        return Object.assign({}, h, {
+            date: toMoment.toDate()
+        })
+    })
+    console.log("holidayYear after ", holidayYear)
     return await YearlyHolidaysModel.create(holidayYear)
+}
+
+
+yearlyHolidaysSchema.statics.createHoliday = async holiday => {
+    console.log("holiday before moment ", holiday)
+    holiday.date = new Date(holiday.date)
+    let toMoment = momentTZ.tz(holiday.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let holidayDate = toMoment.toDate()
+    holiday.date = holidayDate
+
+
+    // count date to check date is already inserted or not
+
+    let countDate = await YearlyHolidaysModel.count({"holidays.date": holidayDate})
+    if (countDate !== 0)
+        throw new AppError("Calender Date already inserted, please create another date.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+
+    //count year to check year for year is already created or not
+    console.log("holiday after moment", holiday)
+    console.log(" holiday.date", holidayDate)
+    console.log(" holiday.date", holidayDate.getFullYear())
+    let calenderYear = holidayDate.getFullYear()
+    console.log("calenderYear", calenderYear)
+    if (!calenderYear)
+        throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    let countYear = await YearlyHolidaysModel.count({calenderYear: calenderYear})
+    if (countYear === 0)
+        throw new AppError("Calender year not exists, please create calender year First.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    //count month to check month is previously created for this month
+    let calenderMonth = holiday.date.getMonth()
+    let countMonth = await YearlyHolidaysModel.count({
+        "calenderYear": calenderYear,
+        "holidaysInMonth.month": calenderMonth
+    })
+    console.log("countMonth", countMonth)
+    if (countMonth == 0) {
+        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        let calenderMonthStructure = {
+            month: calenderMonth,
+            monthName: months[calenderMonth]
+        }
+        //we have to push month as well as holiday entry date"
+        console.log("we have to push month as well as holidayEntryDate")
+        await YearlyHolidaysModel.update({
+            'calenderYear': calenderYear
+        }, {$push: {"holidaysInMonth": calenderMonthStructure, "holidays": holiday}}).exec()
+
+    } else {
+        console.log("we need to update month and push holidayEntryDate")
+        await YearlyHolidaysModel.update({
+            'calenderYear': calenderYear
+        }, {
+            $push: {"holidays": holiday}
+        }).exec()
+    }
+    return holiday
 }
 
 
@@ -171,8 +222,7 @@ export default YearlyHolidaysModel
     "holidaysInMonth": [
         {
             "month": 0,
-            "monthName": "january",
-            "noOfHolidays": 1
+            "monthName": "january"
         }
     ],
     "holidays": [
