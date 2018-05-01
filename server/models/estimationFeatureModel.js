@@ -253,37 +253,20 @@ const updateFeatureByEstimator = async (featureInput, estimator) => {
     estimationFeature.estimator.changeRequested = false
     estimationFeature.negotiator.changeGranted = false
     estimationFeature.canApprove = false
-    if ((!estimationFeature.estimator.estimatedHours
-            || estimationFeature.estimator.estimatedHours == 0)
+    if ((!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(featureInput.name)
+        || _.isEmpty(featureInput.description)
         || await EstimationTaskModel.count({
             "feature._id": estimationFeature._id,
             "estimation._id": estimation._id,
             "isDeleted": false,
             "hasError": true
-        }) > 0
-        || _.isEmpty(featureInput.name)
-        || _.isEmpty(featureInput.description)) {
-
+        }) > 0) {
     } else {
         estimationFeature.hasError = false
     }
 
     estimationFeature.updated = Date.now()
-
-    /*
-     if (estimationFeature.repo && estimationFeature.repo._id) {
-         await RepositoryModel.updateFeature({
-             _id: estimationFeature.repo._id.toString(),
-             estimation: {
-                 _id: estimationFeature.estimation._id.toString()
-             },
-             name: featureInput.name,
-             description: featureInput.description,
-             technologies: featureInput.technologies,
-             tags: featureInput.tags
-         }, estimator)
-     }
-     */
     return await estimationFeature.save()
 }
 
