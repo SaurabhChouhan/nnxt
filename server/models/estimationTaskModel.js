@@ -337,29 +337,8 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
                 "hasError": false
             })
         }
-
-
     }
 
-    if (estimation && estimation._id) {
-
-        let errorTaskCount = await EstimationTaskModel.count({
-            "estimation._id": estimation._id,
-            "isDeleted": false,
-            "hasError": true
-        })
-        let errorFeatureCount = await EstimationFeatureModel.count({
-            "estimation._id": estimation._id,
-            "isDeleted": false,
-            "hasError": true
-        })
-
-        await EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours},
-            "hasError": (errorTaskCount > 0 || errorFeatureCount > 0) ? true : false
-        })
-
-    }
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
