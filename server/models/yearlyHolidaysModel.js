@@ -49,28 +49,14 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidays = async (loggedInUser) => {
     }
 }
 
-yearlyHolidaysSchema.statics.getAllYearlyHolidaysAfterBaseDate = async (baseDateInput, loggedInUser) => {
-    var baseDate = new Date(baseDateInput)
+yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDate, endDate, loggedInUser) => {
+    var startDateMoment = momentTZ.tz(startDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    var endDateMoment = momentTZ.tz(endDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let selectedHolidays = await YearlyHolidaysModel.find({
-        "holidays.date": {$gte: momentTZ.tz(baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
+        "holidays.date": {$gte: startDateMoment, $lte: endDateMoment}
 
     }).exec()
-
-    let allHolidays = await YearlyHolidaysModel.find({
-        "holidays.$.date": {$gte: momentTZ.tz(baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
-
-    }).exec()
-
     console.log("selectedHolidays", selectedHolidays)
-    console.log("allHolidays", allHolidays)
-
-    /*   if (userHasRole(loggedInUser, SC.ROLE_ADMIN) || userHasRole(loggedInUser, SC.ROLE_SUPER_ADMIN)) {
-           // Only admin and super admin can see holidays
-           return await YearlyHolidaysModel.find().sort({calenderYear: 0}).exec()
-       }
-       else {
-           throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-       }*/
     return selectedHolidays
 }
 
