@@ -338,6 +338,11 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
             })
         }
     }
+    if (estimation && estimation._id) {
+        await EstimationModel.updateOne({_id: estimation._id}, {
+            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours}
+        })
+    }
 
 
     if (estimationTask.repo && estimationTask.repo._id) {
@@ -950,7 +955,7 @@ const moveTaskOutOfFeatureByEstimator = async (task, estimation, estimator) => {
 }
 
 // move task out of feature by negotiator
-const OfFeatureByNegotiator = async (task, estimation, negotiator) => {
+const moveTaskOutOfFeatureByNegotiator = async (task, estimation, negotiator) => {
 
     let feature = await EstimationFeatureModel.findById(task.feature._id)
     if (!feature)

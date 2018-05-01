@@ -320,6 +320,18 @@ const updateFeatureByNegotiator = async (featureInput, negotiator) => {
     estimationFeature.negotiator.description = featureInput.description
     estimationFeature.negotiator.changeSuggested = true // This will allow estimator to see updated changes as suggestions
     estimationFeature.updated = Date.now()
+    /*if ((!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
+        || _.isEmpty(featureInput.name)
+        || _.isEmpty(featureInput.description)
+        || await EstimationTaskModel.count({
+            "feature._id": estimationFeature._id,
+            "estimation._id": estimation._id,
+            "isDeleted": false,
+            "hasError": true
+        }) > 0) {
+    } else {
+        estimationFeature.hasError = false
+    }*/
 
     if (estimationFeature.repo && estimationFeature.repo._id) {
         await RepositoryModel.updateFeature({
