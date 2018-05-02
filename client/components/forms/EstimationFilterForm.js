@@ -59,6 +59,14 @@ let EstimationFilterForm = (props) => {
                     <img key="repo_flag" src="/images/repo_flag.png" className="filterFlag"
                          title="From Repository"/>
                 </div>
+                <div>
+                    <Field name="hasError" component={renderCheckBox}
+                           label={"Error in Task/Feature"}
+                    />
+                    <img key="exclamation" src="/images/exclamation.png"
+                         className="filterFlag"
+                         title="hasError"/>
+                </div>
             </div>
             }
             {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR &&
@@ -109,6 +117,14 @@ let EstimationFilterForm = (props) => {
                     />
                     <img key="repo_flag" src="/images/repo_flag.png" className="filterFlag"
                          title="From Repository"/>
+                </div>
+                <div>
+                    <Field name="hasError" component={renderCheckBox}
+                           label={"Error in Task/Feature"}
+                    />
+                    <img key="exclamation" src="/images/exclamation.png"
+                         className="filterFlag"
+                         title="hasError"/>
                 </div>
 
             </div>
