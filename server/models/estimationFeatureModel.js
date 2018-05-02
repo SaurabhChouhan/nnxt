@@ -1281,10 +1281,10 @@ const copyFeatureFromRepositoryByNegotiator = async (estimationID, repositoryFea
         (!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
         || _.isEmpty(estimationFeature.estimator.name)
         || _.isEmpty(estimationFeature.estimator.description)) {
-        console.log("FeatureRepoTrue3", errorTasks.length)
+
         estimationFeature.hasError = true
     } else {
-        console.log("FeatureRepoFalse3", errorTasks.length)
+
         estimationFeature.hasError = false
     }
 

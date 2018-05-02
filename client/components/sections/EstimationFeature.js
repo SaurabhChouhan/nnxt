@@ -310,7 +310,7 @@ class EstimationFeature extends React.PureComponent {
                     </div>
                     {editView && feature.status === SC.STATUS_PENDING && feature.hasError == true ?
                         <div className="col-md-1">
-                            {console.log("feature hasError",feature.hasError)}
+
                             <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"
                                  title={feature.estimator && feature.estimator.name ? feature.estimator.description ? feature.estimator.estimatedHours ? feature.tasks && feature.tasks ? "Any task of this feature is not approved/ Some changes is done in this iteration" : "Feature is not having any task" : "Feature is not having estimated hours by estimator" : "Feature is not having description by estimator" : "Feature is not having name by estimator"}
                             ></img>

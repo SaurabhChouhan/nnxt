@@ -10,7 +10,7 @@ let EstimationSuggestTaskForm = (props) => {
     logger.debug(logger.ESTIMATION_TASK_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
     const {loggedInUserRole, isFromRepo, estimation, readOnly} = props
-    console.log("EstimationSuggestTaskForm isFromRepo-", isFromRepo)
+
     return <form onSubmit={props.handleSubmit}>
         <div className="col-md-12">
             <div className="col-md-5">
@@ -64,7 +64,7 @@ let EstimationSuggestTaskForm = (props) => {
             <div className="col-md-2 ">
 
                 {isFromRepo &&
-                    <img key="repo_flag" src="/images/repo_flag.png" className="suggestionRepo" title="From Repository"/>
+                <img key="repo_flag" src="/images/repo_flag.png" className="suggestionRepo" title="From Repository"/>
                 }
                 <button type="button" className="suggestCopy btn-link"
                         title="Copy Task Details"
