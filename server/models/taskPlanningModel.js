@@ -78,26 +78,61 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 }
 
 taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releaseTaskID, user) => {
-    return await TaskPlanningModel.find({"releasePlan._id": releaseTaskID})
+    return await TaskPlanningModel.find({"releasePlan._id": releaseTaskID}).sort({"planningDate": 1})
 }
 
+
+// Shifting task plans to future
 taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
+    //InComing Data Structure
+    //planning.employeeId
+    //planning.baseDate
+    //planning.daysToShift
+    //planning.releasePlanID
 
-//    planning.employeeId
-//    planning.baseDate
-//    planning.daysToShift
-//    planning.releasePlanID
 
-    let taskPlannings = await TaskPlanningModel.distinct(
-        "planningDate",
-        {
-            "employee._id": planning.employeeId,
-            "releasePlan._id": planning.releasePlanID,
-            "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
-        }
-    )
-    // console.log("taskPlannings", taskPlannings)
+    let now = new Date()
+    // Now in UTC
+    let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
+// employeeId must be present or its value must be all
+    if (!planning.employeeId)
+        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+// baseDate must be present
+    if (!planning.baseDate)
+        throw new AppError('Base Date not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+// daysToShift must be present
+    if (!planning.daysToShift)
+        throw new AppError('days To Shift not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+// releasePlanID must be present
+    if (!planning.releasePlanID)
+        throw new AppError('Release Plan ID not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+
+    let taskPlannings
+    if (planning.employeeId == 'all') {
+        // Get all employees task plannings
+
+        taskPlannings = await TaskPlanningModel.distinct(
+            "planningDate",
+            {
+                "releasePlan._id": planning.releasePlanID,
+                "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
+            })
+    } else {
+        // Get selected employee task plannings
+
+        taskPlannings = await TaskPlanningModel.distinct(
+            "planningDate",
+            {
+                "employee._id": planning.employeeId,
+                "releasePlan._id": planning.releasePlanID,
+                "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
+            })
+    }
     taskPlannings.sort(function (a, b) {
         //  console.log("before a", a, "b", b)
         a = new Date(a);
@@ -105,17 +140,129 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
         // console.log("after a", a, "b", b)
         return a < b ? -1 : a > b ? 1 : 0;
     })
+
+
     let to = moment(taskPlannings[taskPlannings.length - 1]).add(10 * planning.daysToShift, 'days')
-    // console.log("taskPlannings after sort", taskPlannings)
+
     if (taskPlannings && taskPlannings.length) {
         let daysDetails = await getWorkingDaysAndHolidays(planning.baseDate, to.toDate(), taskPlannings, user)
         console.log("daysDetails", daysDetails)
+        let taskOnHolidayCount = 0
+
+        let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async PlanningDate => {
+            // calculating index of working day list where planning date and working date is same
+            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+            let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1
+            if (index != -1) {
+                //if true then  plannig must have done in working days
+
+                // console.log("(index + taskOnHolidayCount + planning.daysToShift)", Number(Number(index) + Number(taskOnHolidayCount) + Number(planning.daysToShift)))
+                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) + Number(planning.daysToShift))]
+
+                console.log("PlanningDate", moment(PlanningDate), "->", "newShiftingDate", newShiftingDate)
+                // updating Task planning to proper date
+                if (planning.employeeId == 'all') {
+                    // task planning of all employee will shift
+
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": planning.releasePlanID,
+                            "planningDate": PlanningDateMoment.clone(),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDate.clone(),
+                                "isShifted": true
+                            }
+                        }, {multi: true}).exec()
+                } else {
+                    // task planning of selected employee will shift
+
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": planning.releasePlanID,
+                            "planningDate": PlanningDateMoment.clone(),
+                            "employee._id": planning.employeeId,
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDate.clone(),
+                                "isShifted": true
+                            }
+                        }, {multi: true}).exec()
+                }
+            } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(PlanningDate))) != -1) {
+                //else  plannig must have done in holidays
+                // calculating index of holiday where planning date and holiday  date are same
+                index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(PlanningDateMoment))
+
+
+                //  console.log("taskOnHolidayCount", taskOnHolidayCount)
+                // console.log("index", index)
+                //  console.log("daysDetails.AllTasksOnHolidayList[index].index", daysDetails.AllTasksOnHolidayList[index].index)
+                //  console.log("daysDetails.AllTasksOnHolidayList[index]", daysDetails.AllTasksOnHolidayList[index])
+                // console.log("planning.daysToShift", planning.daysToShift)
+                //console.log("(taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index + planning.daysToShift)", Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) + Number(planning.daysToShift)))
+
+                //new Shifting date where task has to be placed
+                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) + Number(planning.daysToShift))]
+                console.log("PlanningDate", PlanningDateMoment, "->", "newShiftingDate", newShiftingDate, "holiday \n")
+                taskOnHolidayCount++
+                // updating Task planning to proper date
+                if (planning.employeeId == 'all') {
+                    // task planning of all employee will shift
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": planning.releasePlanID,
+                            "planningDate": PlanningDateMoment.clone(),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDate.clone(),
+                                "isShifted": true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                } else {
+                    // task planning of selected employee will shift
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": planning.releasePlanID,
+                            "planningDate": PlanningDateMoment.clone(),
+                            "employee._id": planning.employeeId,
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDate.clone(),
+                                "isShifted": true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                }
+
+
+            } else {
+                //System inconsistency
+                throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            }
+        }) : new Promise((resolve, reject) => {
+            return resolve(false)
+        })
+        await Promise.all(ShiftingPromises).then(async promise => {
+            return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
+        })
+
+    } else {
+        throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-
-
     return planning
 }
+
+
+// to calculate working days and holidays
 const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
+    // call to holiday model to get holiday lists
     let holidays = await MDL.YearlyHolidaysModel.getAllYearlyHolidaysBaseDateToEnd(from, to, user)
     // console.log("holidays", holidays)
     let i = 0
@@ -126,20 +273,26 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
             holidayObjectList.concat(holidays[i + 1])
             i++
         }
-    } else {
+    } else if (holidays && holidays.length) {
         holidayObjectList = holidays[0].holidays
+    } else {
+        //No holiday available to this list
     }
     // console.log("holidayObjectList", holidayObjectList)
+    // Converting holiday Object List to Date with UTC moment
     let holidayDateList = _.map(holidayObjectList, function (obj) {
         return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0);
     })
-    //  console.log("holidayDateList", holidayDateList)
 
+
+    //  console.log("holidayDateList", holidayDateList)
+    //Getting All Dates, AllWorkingDayList, AllTasksOnHolidayList, object ,Arrays and other Fields after calculation
     return await getDates(from, to, taskPlannings, holidayDateList);
 
 }
 
 
+// to calculate working days and Task on holidays
 const getDates = async (from, to, taskPlannings, holidayList) => {
     let fromMoment = momentTZ.tz(from, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let toMoment = momentTZ.tz(to, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
@@ -149,12 +302,13 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
     while (fromMoment.isSameOrBefore(toMoment.clone())) {
         AllDateList.push(fromMoment.clone())
         if (holidayList && holidayList.length && holidayList.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) == -1) {
-
+            //Date is not awailable in holiday list so it is included in working day list
             AllWorkingDayList.push(fromMoment.clone())
         } else if (taskPlannings && taskPlannings.length && taskPlannings.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
-
+            //Date is holiday date and awailable in taskPlanning list so it is included in AllTasksOnHolidayList
             AllTasksOnHolidayList.push({date: fromMoment, index: AllWorkingDayList.length})
         }
+        // increment of date
         fromMoment = fromMoment.clone().add(1, 'days')
     }
     //  console.log("AllDateList", AllDateList)
@@ -170,35 +324,6 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
         holidayList
     }
 
-}
-taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
-
-    if (!planning.employeeId)
-        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-//    planning.employeeId
-//    planning.baseDate
-//    planning.daysToShift
-//    planning.releasePlanID
-
-    if (planning.employeeId == 'all') {
-        await TaskPlanningModel.update({
-                "releasePlan._id": planning.releasePlanID,
-                "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-            },
-            {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).subtract("days", planning.daysToShift)}}, {multi: true}
-        ).exec()
-    } else {
-        await TaskPlanningModel.update({
-                "releasePlan._id": planning.releasePlanID,
-                "planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0),
-                "employee._id": planning.employeeId
-            },
-            {$set: {"planningDate": momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).subtract("days", planning.daysToShift)}}, {multi: true}
-        ).exec()
-
-    }
-    return planning
 }
 
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
