@@ -42,7 +42,7 @@ export const renderCheckBox = ({
         }
         <label>
             <input {...input} readOnly={readOnly} checked={input && input.value ? true : false}
-                   onCheck={input.onChange} type="checkbox"/>
+                   onChange={input.onChange} type="checkbox"/>
             {label}
         </label>
 

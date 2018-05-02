@@ -13,7 +13,9 @@ let initialState = {
         permissionRequested: true,
         addedFromRepository: true,
         addedByNegotiator: true,
-        addedByEstimator: true
+        addedByEstimator: true,
+        hasError: true
+
     }
 
 }
@@ -92,7 +94,7 @@ const estimationReducer = (state = initialState, action) => {
                     } else return item
                 }) : null
             })
-            
+
         case AC.MOVE_TASK_IN_FEATURE:
             return Object.assign({}, state, {
                 tasks: state.tasks.filter(item => item._id != action.task._id),
@@ -185,7 +187,9 @@ const estimationReducer = (state = initialState, action) => {
                     permissionRequested: true,
                     addedFromRepository: true,
                     addedByNegotiator: true,
-                    addedByEstimator: true
+                    addedByEstimator: true,
+                    hasError: true
+
                 }
             })
 
@@ -256,16 +260,17 @@ const estimationReducer = (state = initialState, action) => {
 
 
         case AC.ADD_FILTERED_ESTIMATIONS:
-                return Object.assign({}, state, {
-                    filter: {
-                        changedByNegotiator: action.filter && action.filter.changedByNegotiator ? true : false,
-                        changedByEstimator: action.filter && action.filter.changedByEstimator ? true : false,
-                        permissionRequested: action.filter && action.filter.permissionRequested ? true : false,
-                        addedFromRepository: action.filter && action.filter.addedFromRepository ? true : false,
-                        addedByEstimator: action.filter && action.filter.addedByEstimator ? true : false,
-                        addedByNegotiator: action.filter && action.filter.addedByNegotiator ? true : false
-                    }
-                })
+            return Object.assign({}, state, {
+                filter: {
+                    changedByNegotiator: action.filter && action.filter.changedByNegotiator ? true : false,
+                    changedByEstimator: action.filter && action.filter.changedByEstimator ? true : false,
+                    permissionRequested: action.filter && action.filter.permissionRequested ? true : false,
+                    addedFromRepository: action.filter && action.filter.addedFromRepository ? true : false,
+                    addedByEstimator: action.filter && action.filter.addedByEstimator ? true : false,
+                    addedByNegotiator: action.filter && action.filter.addedByNegotiator ? true : false,
+                    hasError: action.filter && action.filter.hasError ? true : false
+                }
+            })
 
 
         case AC.CLEAR_FILTER_FROM_ESTIMATION:
@@ -276,7 +281,10 @@ const estimationReducer = (state = initialState, action) => {
                     permissionRequested: true,
                     addedFromRepository: true,
                     addedByNegotiator: true,
-                    addedByEstimator: true
+                    addedByEstimator: true,
+                    hasError: true
+
+
                 }
             })
 
