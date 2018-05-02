@@ -241,10 +241,32 @@ export const requestReviewOnServer = (estimationID) => {
         ).then(
             json => {
                 if (json.success) {
-                    //dispatch(editEstimation(json.data))
-                    // During review flags of tasks/feature may also change so select this estimation again to get latest data
                     dispatch(getEstimationFromServer(estimationID))
 
+                }
+                return json
+            })
+    }
+}
+
+
+export const checkHasErrorInEstimationOnServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/' + estimationID + "/hasError", {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(editEstimation(json.data))
                 }
                 return json
             })
