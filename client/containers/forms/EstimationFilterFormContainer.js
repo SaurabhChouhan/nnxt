@@ -23,7 +23,9 @@ const mapStateToProps = (state, ownProps) => ({
         "permissionRequested": state.estimation.filter.permissionRequested,
         "addedFromRepository": state.estimation.filter.addedFromRepository,
         "addedByNegotiator": state.estimation.filter.addedByNegotiator,
-        "addedByEstimator": state.estimation.filter.addedByEstimator
+        "addedByEstimator": state.estimation.filter.addedByEstimator,
+        "hasError": state.estimation.filter.hasError,
+
     }
 
 })
