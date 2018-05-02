@@ -2,10 +2,10 @@ import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import momentTZ from 'moment-timezone'
+import _ from 'lodash'
 import moment from 'moment'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
-import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -83,9 +83,94 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releaseTaskID,
 
 taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
 
+//    planning.employeeId
+//    planning.baseDate
+//    planning.daysToShift
+//    planning.releasePlanID
+
+    let taskPlannings = await TaskPlanningModel.distinct(
+        "planningDate",
+        {
+            "employee._id": planning.employeeId,
+            "releasePlan._id": planning.releasePlanID,
+            "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
+        }
+    )
+    // console.log("taskPlannings", taskPlannings)
+
+    taskPlannings.sort(function (a, b) {
+        //  console.log("before a", a, "b", b)
+        a = new Date(a);
+        b = new Date(b);
+        // console.log("after a", a, "b", b)
+        return a < b ? -1 : a > b ? 1 : 0;
+    })
+    let to = moment(taskPlannings[taskPlannings.length - 1]).add(10 * planning.daysToShift, 'days')
+    // console.log("taskPlannings after sort", taskPlannings)
+    if (taskPlannings && taskPlannings.length) {
+        let daysDetails = await getWorkingDaysAndHolidays(planning.baseDate, to.toDate(), taskPlannings, user)
+        console.log("daysDetails", daysDetails)
+    }
+
+
     return planning
 }
+const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
+    let holidays = await MDL.YearlyHolidaysModel.getAllYearlyHolidaysBaseDateToEnd(from, to, user)
+    // console.log("holidays", holidays)
+    let i = 0
+    let holidayObjectList
+    if (holidays && holidays.length && holidays.length > 1) {
+        holidayObjectList = holidays[0].holidays
+        while (i < holidays.length - 1) {
+            holidayObjectList.concat(holidays[i + 1])
+            i++
+        }
+    } else {
+        holidayObjectList = holidays[0].holidays
+    }
+    // console.log("holidayObjectList", holidayObjectList)
+    let holidayDateList = _.map(holidayObjectList, function (obj) {
+        return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0);
+    })
+    //  console.log("holidayDateList", holidayDateList)
 
+    return await getDates(from, to, taskPlannings, holidayDateList);
+
+}
+
+
+const getDates = async (from, to, taskPlannings, holidayList) => {
+    let fromMoment = momentTZ.tz(from, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let toMoment = momentTZ.tz(to, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let AllDateList = []
+    let AllWorkingDayList = []
+    let AllTasksOnHolidayList = []
+    while (fromMoment.isSameOrBefore(toMoment.clone())) {
+        AllDateList.push(fromMoment.clone())
+        if (holidayList && holidayList.length && holidayList.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) == -1) {
+
+            AllWorkingDayList.push(fromMoment.clone())
+        } else if (taskPlannings && taskPlannings.length && taskPlannings.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
+
+            AllTasksOnHolidayList.push({date: fromMoment, index: AllWorkingDayList.length})
+        }
+        fromMoment = fromMoment.clone().add(1, 'days')
+    }
+    //  console.log("AllDateList", AllDateList)
+    //  console.log("AllWorkingDayList", AllWorkingDayList)
+    //  console.log("AllTasksOnHolidayList", AllTasksOnHolidayList)
+    return {
+        AllTasksOnHolidayList,
+        AllWorkingDayList,
+        AllDateList,
+        from,
+        to,
+        taskPlannings,
+        holidayList
+    }
+
+}
 taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
 
     if (!planning.employeeId)

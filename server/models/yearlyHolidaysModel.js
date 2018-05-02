@@ -32,8 +32,12 @@ let yearlyHolidaysSchema = mongoose.Schema({
             monthNo: {type: Number, default: 0},
             holidayName: {type: String, required: [true, "Holiday name is required"]},
             description: String,
-            holidayType: {type: String, required: [true, "Holiday type is required"]},//"Emergency,Public Holiday,National Day,Gazetted Holidays"
-            date: {type: Date, required: true}
+            holidayType: [{
+                type: String,
+                enum: [SC.HOLIDAY_REASON_EMERGENCY, SC.HOLIDAY_REASON_PUBLIC_HOLIDAY, SC.HOLIDAY_REASON_NATIONAL_DAY, SC.HOLIDAY_REASON_GAZETTED_HOLIDAYS]
+            }],
+            date: {type: Date, required: true},
+            dateString: {type: String, required: true}
         }
     ]
 })
@@ -44,26 +48,33 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidays = async (loggedInUser) => {
         return await YearlyHolidaysModel.find({}).exec()
     }
     else {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        return await YearlyHolidaysModel.find({}).exec()
+        //throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 }
 
 yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDate, endDate, loggedInUser) => {
-    startDate = new Date(startDate)
-    endDate = new Date(endDate)
+    //  console.log("startDate", startDate)
+    //  console.log("startDate.type", typeof startDate)
+    //   console.log("endDate", endDate)
+    //   console.log("endDate.type", typeof endDate)
+    //   startDate = new Date(startDate)
+    //  endDate = new Date(endDate)
     var startDateMoment = momentTZ.tz(startDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    startDate = startDateMoment.toDate()
     var endDateMoment = momentTZ.tz(endDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let selectedHolidays = await YearlyHolidaysModel.find({
+    endDate = endDateMoment.toDate()
+    if (!startDateMoment || !endDateMoment)
+        throw new AppError("conversionFailed", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    return await YearlyHolidaysModel.find({
         "holidays.date": {$gte: startDateMoment, $lte: endDateMoment}
 
     }).exec()
-    console.log("selectedHolidays", selectedHolidays)
-    return selectedHolidays
 }
 
 
 yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
-    console.log("holidayYear before", holidayYear)
+    //   console.log("holidayYear before", holidayYear)
     if (!holidayYear.calenderYear || _.isEmpty(holidayYear.calenderYear))
         throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
@@ -75,20 +86,29 @@ yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
         let toDate = new Date(h.date)
         let toMoment = momentTZ.tz(toDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
         return Object.assign({}, h, {
-            date: toMoment.toDate()
+            date: toMoment.toDate(),
+            dateString: toMoment
         })
     })
-    console.log("holidayYear after ", holidayYear)
+    //  console.log("holidayYear after ", holidayYear)
     return await YearlyHolidaysModel.create(holidayYear)
 }
 
 
-yearlyHolidaysSchema.statics.createHoliday = async holiday => {
-    console.log("holiday before moment ", holiday)
-    holiday.date = new Date(holiday.date)
-    let toMoment = momentTZ.tz(holiday.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+yearlyHolidaysSchema.statics.createHoliday = async holidayObj => {
+
+    if (_.isEmpty(holidayObj.holidayName))
+        throw new AppError("Holiday name is required to save Holiday.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    if (_.isEmpty(holidayObj.date))
+        throw new AppError("Holiday date is required to save Holiday.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    //  console.log("holiday before moment ", holidayObj)
+    holidayObj.date = new Date(holidayObj.date)
+    let toMoment = momentTZ.tz(holidayObj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let holidayDate = toMoment.toDate()
-    holiday.date = holidayDate
+    holidayObj.date = holidayDate
+    holidayObj.dateString = toMoment
 
 
     // count date to check date is already inserted or not
@@ -99,11 +119,11 @@ yearlyHolidaysSchema.statics.createHoliday = async holiday => {
 
 
     //count year to check year for year is already created or not
-    console.log("holiday after moment", holiday)
-    console.log(" holiday.date", holidayDate)
-    console.log(" holiday.date", holidayDate.getFullYear())
+    // console.log("holiday after moment", holidayObj)
+    //  console.log(" holiday.date", holidayDate)
+    //  console.log(" holiday.date", holidayDate.getFullYear())
     let calenderYear = holidayDate.getFullYear()
-    console.log("calenderYear", calenderYear)
+    //  console.log("calenderYear", calenderYear)
     if (!calenderYear)
         throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
@@ -112,38 +132,38 @@ yearlyHolidaysSchema.statics.createHoliday = async holiday => {
         throw new AppError("Calender year not exists, please create calender year First.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
     //count month to check month is previously created for this month
-    let calenderMonth = holiday.date.getMonth()
+    let calenderMonth = holidayObj.date.getMonth()
     let countMonth = await YearlyHolidaysModel.count({
         "calenderYear": calenderYear,
         "holidaysInMonth.month": calenderMonth
     })
-    console.log("countMonth", countMonth)
+    // console.log("countMonth", countMonth)
     if (countMonth == 0) {
-        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
         let calenderMonthStructure = {
             month: calenderMonth,
-            monthName: months[calenderMonth]
+            monthName: SC.Months[calenderMonth]
         }
         //we have to push month as well as holiday entry date"
-        console.log("we have to push month as well as holidayEntryDate")
+        // console.log("we have to push month as well as holidayEntryDate")
         await YearlyHolidaysModel.update({
             'calenderYear': calenderYear
-        }, {$push: {"holidaysInMonth": calenderMonthStructure, "holidays": holiday}}).exec()
+        }, {$push: {"holidaysInMonth": calenderMonthStructure, "holidays": holidayObj}}).exec()
 
     } else {
-        console.log("we need to update month and push holidayEntryDate")
+        //we need to update month and push holidayEntryDate
+        // console.log("we need to update month and push holidayEntryDate")
         await YearlyHolidaysModel.update({
             'calenderYear': calenderYear
         }, {
-            $push: {"holidays": holiday}
+            $push: {"holidays": holidayObj}
         }).exec()
     }
-    return holiday
+    return holidayObj
 }
 
 
 yearlyHolidaysSchema.statics.updateHolidayYear = async holidayYearInput => {
-    console.log("holidayYearInput", holidayYearInput)
+    // console.log("holidayYearInput", holidayYearInput)
     if (_.isEmpty(holidayYearInput.calenderYear))
         throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
