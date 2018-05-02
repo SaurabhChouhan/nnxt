@@ -895,6 +895,42 @@ estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) =>
     return undefined
 }
 
+estimationSchema.statics.hasErrorEstimationByEstimator = async (estimationID, estimator) => {
+    let estimation = await EstimationModel.findById(estimationID)
+    if (!estimation)
+        throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not a estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.estimator._id != estimator._id)
+        throw new AppError('Not a estimator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (_.includes([SC.STATUS_APPROVED], estimation.status))
+        throw new AppError("estimation with status [" + SC.STATUS_APPROVED + "] can not have any error no need to check", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+
+    let errorTaskCount = await EstimationTaskModel.count({
+        "estimation._id": estimation._id,
+        "isDeleted": false,
+        "hasError": true
+    })
+    let errorFeatureCount = await EstimationFeatureModel.count({
+        "estimation._id": estimation._id,
+        "isDeleted": false,
+        "hasError": true
+    })
+
+    estimation.hasError = (errorTaskCount > 0 || errorFeatureCount > 0) ? true : false
+
+    await estimation.save()
+    estimation = estimation.toObject()
+    estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
+    return estimation
+
+
+}
+
 
 const EstimationModel = mongoose.model("Estimation", estimationSchema)
 export default EstimationModel

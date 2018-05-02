@@ -143,8 +143,9 @@ class EstimationDetail extends Component {
                         this.state.showEstimationReviewDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmReviewRequest.bind(this)}
                                             title="Estimation Request" onClose={this.onClose.bind(this)}
-                                            body={this.props.estimation && this.props.estimation.canApprove ? "You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!" :
-                                                "There are some tasks/features that have information missing which would prevent Negotiator from approving them during his review. Press 'Cancel' to add missing information or press Confirm to send Estimation for review"
+                                            body={this.props.estimation && this.props.estimation.hasError ?
+                                                "There are some tasks/features that have information missing which would prevent Negotiator from approving them during his review. Press 'Cancel' to add missing information or press Confirm to send Estimation for review" :
+                                                "You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"
                                             }
                         />
                     }
@@ -188,7 +189,12 @@ class EstimationDetail extends Component {
                         {
                             userRoleInThisEstimation === SC.ROLE_ESTIMATOR && (estimation.status === SC.STATUS_ESTIMATION_REQUESTED || estimation.status === SC.STATUS_CHANGE_REQUESTED) &&
                             <button className="btn customBtn"
-                                    onClick={() => this.setState({showEstimationReviewDialog: true})}>
+                                    onClick={() => {
+
+                                        this.props.hasErrorInEstimation(this.props.estimation)
+                                        this.setState({showEstimationReviewDialog: true})
+                                    }
+                                    }>
                                 Request Review
                             </button>
                         }

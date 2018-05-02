@@ -64,6 +64,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         })
     },
+    hasErrorInEstimation: (estimation) => {
+        return dispatch(A.checkHasErrorInEstimationOnServer(estimation._id))
+    },
+
 
     sendChangeRequest: (estimation) => {
         return dispatch(A.requestChangeOnServer(estimation._id)).then(json => {

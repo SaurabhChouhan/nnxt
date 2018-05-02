@@ -311,17 +311,15 @@ estimationRouter.put('/:estimationID/approve', async ctx => {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
-
-
-// Used by negotiator to check can approve estimation
-estimationRouter.put('/:estimationID/can-approve', async ctx => {
+estimationRouter.put('/:estimationID/hasError', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
-    if (role === SC.ROLE_NEGOTIATOR) {
-        return await EstimationModel.canApproveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    if (role === SC.ROLE_ESTIMATOR) {
+        return await EstimationModel.hasErrorEstimationByEstimator(ctx.params.estimationID, ctx.state.user)
     }
 })
+
+
+
 
 // Used by negotiator to check can approve feature
 estimationRouter.put('/feature/:featureID/can-approve', async ctx => {

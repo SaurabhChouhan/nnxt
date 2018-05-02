@@ -204,7 +204,7 @@ button.customBtn, button.customBtn:focus {
 }
 
 button.customBtn:hover {
-    background: none;
+    background: #FFFFFF;
     color: #FF534F;
     border: 2px solid #FF534F;
 }
