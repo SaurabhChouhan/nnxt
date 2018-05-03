@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {EmployeeDaysModel, EmployeeStatisticsModel, ReleaseModel, ReleasePlanModel, TaskPlanningModel} from "../models"
+import * as MDL from "../models"
 import * as EC from '../errorcodes'
 import AppError from '../AppError'
 
@@ -8,11 +8,11 @@ let releaseRouter = new Router({
 })
 
 releaseRouter.get("/status/:status", async ctx => {
-    return await ReleaseModel.getReleases(ctx.params.status, ctx.state.user)
+    return await MDL.ReleaseModel.getReleases(ctx.params.status, ctx.state.user)
 })
 
 releaseRouter.get("/:releaseID", async ctx => {
-    let release = await ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
+    let release = await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
     if (!release) {
         throw new AppError("Not allowed to release details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -20,7 +20,7 @@ releaseRouter.get("/:releaseID", async ctx => {
 })
 
 releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empflag", async ctx => {
-    let releasePlans = await ReleasePlanModel.getReleasePlansByReleaseID(ctx.params, ctx.state.user)
+    let releasePlans = await MDL.ReleasePlanModel.getReleasePlansByReleaseID(ctx.params, ctx.state.user)
     if (!releasePlans) {
         throw new AppError("Not allowed to releases plans details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -28,36 +28,36 @@ releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empfla
 })
 
 releaseRouter.put("/plan-task/", async ctx => {
-    return await TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user)
 })
 
 
 releaseRouter.put("/shift-future/", async ctx => {
     console.log("shift-future", ctx.request.body)
-   return await TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
 
 })
 
 releaseRouter.put("/shift-past/", async ctx => {
     console.log("shift-past", ctx.request.body)
-    return await TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user)
 })
 
 releaseRouter.del("/plan-task/:planID", async ctx => {
-    return await TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
+    return await MDL.TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
 })
 
 releaseRouter.get("/task-plans/:taskId", async ctx => {
-    return await TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
+    return await MDL.TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
 
 })
 
 releaseRouter.get("/task-plans/employee/:employeeId/fromDate/:fromDate/toDate/:toDate", async ctx => {
-    return await TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
+    return await MDL.TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
 
 })
 releaseRouter.post("/employee-days", async ctx => {
-    let employeeDays = await EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
+    let employeeDays = await MDL.EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
     if (!employeeDays) {
         throw new AppError("Not allowed to plan the task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -66,11 +66,11 @@ releaseRouter.post("/employee-days", async ctx => {
 
 releaseRouter.get("/employee-days/:id", async ctx => {
 
-    return await EmployeeDaysModel.getActiveEmployeeDays(ctx.state.user)
+    return await MDL.EmployeeDaysModel.getActiveEmployeeDays(ctx.state.user)
 })
 
 releaseRouter.post("/employee-statistics/", async ctx => {
-    let employeeStatistics = await EmployeeStatisticsModel.addEmployeeStatisticsDetails(ctx.request.body, ctx.state.user)
+    let employeeStatistics = await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(ctx.request.body, ctx.state.user)
     if (!employeeStatistics) {
         throw new AppError("Not allowed to add statistics", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -78,7 +78,7 @@ releaseRouter.post("/employee-statistics/", async ctx => {
 })
 
 releaseRouter.get("/employee-statistics/:id", async ctx => {
-    return await EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
+    return await MDL.EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
 })
 
 

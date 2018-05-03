@@ -1,5 +1,5 @@
 import t from 'tcomb-validation'
-import {API_VALIDATION_FAILED, HTTP_BAD_REQUEST} from "../errorcodes"
+import * as EC from "../errorcodes"
 import _ from 'lodash'
 import mongoose from 'mongoose'
 
@@ -46,8 +46,8 @@ class ValidationError extends Error {
     constructor(message, errors) {
         super(message)
         this.errors = errors
-        this.code = API_VALIDATION_FAILED
-        this.status = HTTP_BAD_REQUEST
+        this.code = EC.API_VALIDATION_FAILED
+        this.status = EC.HTTP_BAD_REQUEST
     }
 }
 

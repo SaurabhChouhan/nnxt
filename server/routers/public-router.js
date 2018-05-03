@@ -1,6 +1,6 @@
 import Router from 'koa-router'
 import passport from 'koa-passport'
-import {UserModel} from "../models"
+import * as MDL from "../models"
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
 
@@ -37,7 +37,7 @@ publicRouter.post('/login', async (ctx, next) => {
 publicRouter.get('/execute', async ctx => {
     console.log("execute query")
     /*
-    return await UserModel.create({
+    return await MDL.UserModel.create({
         "firstName": "Test1",
         "lastName": "Test1",
         "roles": [{
@@ -50,14 +50,14 @@ publicRouter.get('/execute', async ctx => {
         "password": "abcdef"
     })
     */
-    //return await UserModel.find({})
-    //return await UserModel.findOne({email:'admin@test.com'})
-    //return await UserModel.findOne({email:'admin@test.com'},{firstName:1, lastName:1})
-//    return await UserModel.find({"roles.name":{$in:'Estimator'}})
-    //return await UserModel.findOneAndUpdate({email:'schouhan@aripratech.com'}, {$set:{'firstName':'Ekaksh'}}, {new:true})
+    //return await MDL.UserModel.find({})
+    //return await MDL.UserModel.findOne({email:'admin@test.com'})
+    //return await MDL.UserModel.findOne({email:'admin@test.com'},{firstName:1, lastName:1})
+//    return await MDL.UserModel.find({"roles.name":{$in:'Estimator'}})
+    //return await MDL.UserModel.findOneAndUpdate({email:'schouhan@aripratech.com'}, {$set:{'firstName':'Ekaksh'}}, {new:true})
 
 
-    return await UserModel.aggregate({
+    return await MDL.UserModel.aggregate({
         $match: {email: 'appuser@test.com'}
     }, {
         $unwind: {

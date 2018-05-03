@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {ClientModel} from "../models"
+import * as MDL from "../models"
 import * as V from "../validation"
 
 
@@ -12,18 +12,18 @@ clientRouter.post('/', async ctx => {
         return V.generateSchema(V.clientAdditionStruct)
 
     V.validate(ctx.request.body, V.clientAdditionStruct)
-    return await ClientModel.saveClient(ctx.request.body)
+    return await MDL.ClientModel.saveClient(ctx.request.body)
 })
 
 clientRouter.get('/', async ctx => {
-    return await ClientModel.getAllActive()
+    return await MDL.ClientModel.getAllActive()
 })
 
 clientRouter.delete("/:id", async ctx => {
-    return await ClientModel.deleteClient(ctx.params.id)
+    return await MDL.ClientModel.deleteClient(ctx.params.id)
 })
 clientRouter.put('/', async ctx => {
-    return await ClientModel.editClient(ctx.request.body)
+    return await MDL.ClientModel.editClient(ctx.request.body)
 })
 
 

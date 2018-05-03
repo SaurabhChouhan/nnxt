@@ -3,7 +3,7 @@ import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
-import {ProjectModel, UserModel} from "./"
+import * as MDL from "../models"
 
 mongoose.Promise = global.Promise
 
@@ -77,15 +77,15 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
 
     let releaseInput = {}
     let initial = {}
-    const project = await ProjectModel.findById(projectAwardData.estimation.project._id)
+    const project = await MDL.ProjectModel.findById(projectAwardData.estimation.project._id)
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    const manager = await UserModel.findOne({"_id": projectAwardData.manager._id, "roles.name": SC.ROLE_MANAGER})
+    const manager = await MDL.UserModel.findOne({"_id": projectAwardData.manager._id, "roles.name": SC.ROLE_MANAGER})
     if (!manager)
         throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    const leader = await UserModel.findById({"_id": projectAwardData.leader._id, "roles.name": SC.ROLE_LEADER})
+    const leader = await MDL.UserModel.findById({"_id": projectAwardData.leader._id, "roles.name": SC.ROLE_LEADER})
     if (!leader)
         throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 

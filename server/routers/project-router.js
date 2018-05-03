@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {ProjectModel} from "../models"
+import * as MDL from "../models"
 import * as V from "../validation"
 
 let projectRouter = new Router({
@@ -11,16 +11,16 @@ projectRouter.post("/", async ctx => {
         return V.generateSchema(V.projectAdditionStruct)
 
     V.validate(ctx.request.body, V.projectAdditionStruct)
-    return await ProjectModel.saveProject(ctx.request.body)
+    return await MDL.ProjectModel.saveProject(ctx.request.body)
 })
 
 projectRouter.get("/", async ctx => {
-    return await ProjectModel.getAllActive(ctx.state.user)
+    return await MDL.ProjectModel.getAllActive(ctx.state.user)
 })
 projectRouter.delete("/:id", async ctx => {
-    return await ProjectModel.softDelete(ctx.params.id)
+    return await MDL.ProjectModel.softDelete(ctx.params.id)
 })
 projectRouter.put('/', async ctx => {
-    return await ProjectModel.editProject(ctx.request.body)
+    return await MDL.ProjectModel.editProject(ctx.request.body)
 })
 export default projectRouter

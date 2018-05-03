@@ -14,6 +14,7 @@ let taskPlanningSchema = mongoose.Schema({
     planningDate: {type: Date, default: Date.now()},
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
+    canMerge: {type: Boolean, default: false},
     task: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},

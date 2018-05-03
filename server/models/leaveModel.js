@@ -1,9 +1,7 @@
-import mongoose from 'mongoose'
-import AppError from '../AppError'
-import moment from 'moment'
 import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
-import {LeaveTypeModel} from "../models";
+import * as MDL from "../models";
+import mongoose from 'mongoose'
 
 mongoose.Promise = global.Promise
 
@@ -37,7 +35,7 @@ let leaveSchema = mongoose.Schema({
 
 leaveSchema.statics.saveLeave = async (leaveInput,user) => {
 
-    const leaveType = await LeaveTypeModel.findById(leaveInput.leaveType._id)
+    const leaveType = await MDL.LeaveTypeModel.findById(leaveInput.leaveType._id)
     if (!leaveType)
         throw new AppError("Leave type not fount", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 

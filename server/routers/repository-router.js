@@ -1,16 +1,16 @@
 import Router from 'koa-router'
-import {RepositoryModel} from "../models"
+import * as MDL from "../models"
 
 let repositoryRouter = new Router({
     prefix: 'repositories'
 })
 
 repositoryRouter.post("/search", async ctx => {
-    return await RepositoryModel.searchRepositories(ctx.request.body)
+    return await MDL.RepositoryModel.searchRepositories(ctx.request.body)
 })
 
 repositoryRouter.get('/features/:featureID', async ctx => {
-    return await RepositoryModel.getFeature(ctx.params.featureID)
+    return await MDL.RepositoryModel.getFeature(ctx.params.featureID)
 })
 
 export default repositoryRouter

@@ -7,7 +7,7 @@ import {StaticRouter} from 'react-router-dom'
 import ReactDomServer from 'react-dom/server'
 import {Provider} from 'react-redux'
 import AppRouterContainer from '../../client/containers/AppRouterContainer'
-import PermissionModel from '../models/permissionModel'
+import * as MDL from '../models'
 import * as A from "../../client/actions";
 
 const pageRouter = new Router()
@@ -29,7 +29,7 @@ pageRouter.get('/super-admin', async ctx => {
     if (!isSuperAdmin(ctx))
         return ctx.redirect('/')
 
-    let permissions = await PermissionModel.getAll()
+    let permissions = await MDL.PermissionModel.getAll()
 
     let store = createStore(reducers)
     store.dispatch(A.addLoginUser(ctx.state.user))
@@ -57,7 +57,7 @@ pageRouter.get('/super-admin', async ctx => {
 pageRouter.get('/admin', async ctx => {
     if (!isAdmin(ctx))
         return ctx.redirect('/')
-    let permissions = await PermissionModel.getAll()
+    let permissions = await  MDL.PermissionModel.getAll()
     let store = createStore(reducers)
     store.dispatch(A.addLoginUser(ctx.state.user))
     store.dispatch(A.addSSRFlag())
@@ -92,7 +92,7 @@ pageRouter.get('/app-home', async ctx => {
     if (!isAuthenticated(ctx))
         return ctx.redirect('/')
 
-    //let permissions = await PermissionModel.getAll()
+    //let permissions = await  MDL.PermissionModel.getAll()
 
     let store = createStore(reducers)
     store.dispatch(A.addLoginUser(ctx.state.user))
