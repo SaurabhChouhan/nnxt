@@ -73,6 +73,19 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
 
 }
 
+taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user) => {
+    if (!taskPlanningInput.releasePlan._id) {
+        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    let taskPlanning = await TaskPlanningModel.findById(taskPlanningInput._id)
+
+    taskPlanning.created = Date.now()
+    taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
+    return await taskPlanning.save()
+
+}
+
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     return await TaskPlanningModel.remove({"_id": taskPlanID})
 
@@ -555,7 +568,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
 
 
 
-    let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId})
+    let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId}).sort({"planningDate": 1})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
         taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
     }

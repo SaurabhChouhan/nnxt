@@ -19,6 +19,11 @@ export const addReleaseTaskPlanningToState = (taskPlan) => ({
     taskPlan: taskPlan
 })
 
+export const updateReleaseTaskPlanningToState = (taskPlan) => ({
+    type: AC.UPDATE_RELEASE_TASK_PLANNING_TO_STATE,
+    taskPlan: taskPlan
+})
+
 export const releaseProjectSelected = (project) => ({
     type: AC.RELEASE_PROJECT_SELECTED,
     project: project
@@ -35,8 +40,13 @@ export const deleteTaskPlanningFromState = (planID) => ({
     planID: planID
 })
 
-export const addDeveloperFilteredData = (developerPlanned) => ({
+export const addDeveloperFilteredData = (developerPlans) => ({
     type: AC.ADD_DEVELOPER_FILTERED,
+    developerPlans: developerPlans
+})
+
+export const updateDeveloperFilteredData = (developerPlanned) => ({
+    type: AC.UPDATE_DEVELOPER_FILTERED,
     developerPlanned: developerPlanned
 })
 
@@ -104,6 +114,7 @@ export const getTaskReleaseFromServer = (release, status, empFlag) => {
     }
 }
 
+
 export const addTaskPlanningOnServer = (taskPlanning) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/plan-task/', {
@@ -121,6 +132,32 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
             json => {
                 if (json.success) {
                     dispatch(addReleaseTaskPlanningToState(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const mergeTaskPlanningOnServer = (taskPlanning) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/merge-task-plan/', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(taskPlanning)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("merge json.data", json.data)
+                    dispatch(updateReleaseTaskPlanningToState(json.data))
+                    dispatch(updateDeveloperFilteredData(json.data))
                 }
                 return json
             })
@@ -191,31 +228,6 @@ export const shiftTasksToFutureOnServer = (shift) => {
                 if (json.success) {
                     console.log("json.data", json.data)
                     dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
-                }
-                return json
-            })
-    }
-}
-
-
-export const mergeTaskPlanningFromServer = (shift) => {
-    return (dispatch, getState) => {
-        return fetch('/api/releases/merge/', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(shift)
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success) {
-                    console.log("json.data", json.data)
-                   // dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
                 }
                 return json
             })

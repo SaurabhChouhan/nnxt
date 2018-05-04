@@ -1,9 +1,10 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderDateTimePicker, renderSelect, renderText} from './fields'
-import {number, required} from "./validation"
+import {renderDateTimePicker, renderDateTimeStringShow, renderField} from './fields'
+import {required} from "./validation"
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
+import * as SC from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
@@ -19,15 +20,40 @@ let ReleaseMergeTaskPlanningForm = (props) => {
     const max = devEndDateMoment.toDate()
     return <form onSubmit={handleSubmit}>
         <div className="row">
-            <div className="col-md-6">
+            <div className="col-md-10">
 
                 <Field name="release._id" component="input" type="hidden"/>
 
-                <Field name="planningDate" placeholder={"Date"} component={renderDateTimePicker}
+                <Field name="task.name"
+                       readOnly
+                       component={renderField}
+                       label={" Task Name : "}
+                       validate={[required]}
+                />
+
+                <Field name="planningDateString"
+                       placeholder={"Date"}
+                       component={renderDateTimeStringShow}
                        showTime={false}
                        min={min}
                        max={max}
-                       label={" Date :"} validate={[required]}/>
+                       formate={SC.DATE_AND_DAY_SHOW_FORMAT}
+                       label={"Planning Date : "}
+                       validate={[required]}
+                />
+
+                <div className="col-md-8">
+                    <Field name="rePlanningDate"
+                           placeholder={"Date"}
+                           component={renderDateTimePicker}
+                           showTime={false}
+                           min={min}
+                           max={max}
+                           label={"Merge to Date :"}
+                           validate={[required]}
+                    />
+                </div>
+
                 {/*<Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>
                 */}
@@ -35,7 +61,9 @@ let ReleaseMergeTaskPlanningForm = (props) => {
 
             <div className="col-md-12">
                 <div className="col-md-4">
-                    <button type="submit" className="btn customBtn" disabled={submitting || pristine}>Plan Task</button>
+                    <button type="submit" className="btn customBtn" disabled={submitting || pristine}>
+                        Merge Task
+                    </button>
                 </div>
                 <div className="col-md-4">
                     <button type="button" className="btn customBtn" disabled={submitting || pristine} onClick={reset}>

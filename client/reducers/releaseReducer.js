@@ -7,7 +7,7 @@ let initialState = {
     selectedProject: {},
     selectedTask: {},
     taskPlans: [],
-    developerPlanned: []
+    developerPlans: []
 }
 
 const clientReducer = (state = initialState, action) => {
@@ -46,6 +46,13 @@ const clientReducer = (state = initialState, action) => {
                 taskPlans: [...state.taskPlans, action.taskPlan]
             })
 
+        case AC.UPDATE_RELEASE_TASK_PLANNING_TO_STATE:
+            // Add task planning to planning list
+            return Object.assign({}, state, {
+                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.map(tp =>
+                    (tp._id == action.taskPlan._id) ? Object.assign({}, action.taskPlan) : tp) : []
+            })
+
         case AC.DELETE_TASK_PLAN:
             // Delete task planning from planning list
             return Object.assign({}, state, {
@@ -56,8 +63,15 @@ const clientReducer = (state = initialState, action) => {
         case AC.ADD_DEVELOPER_FILTERED:
             // Developer planning details according to date time selection
               return Object.assign({}, state, {
-                  developerPlanned: action.developerPlanned
+                  developerPlans: action.developerPlans
               })
+
+        case AC.UPDATE_DEVELOPER_FILTERED:
+            // Developer planning details according to date time selection
+            return Object.assign({}, state, {
+                developerPlans: state.developerPlans && Array.isArray(state.developerPlans) && state.developerPlans.length ? state.developerPlans.map(dp =>
+                    (dp._id == action.developerPlanned._id) ? Object.assign({}, action.developerPlanned) : dp) : []
+            })
 
 
         default:

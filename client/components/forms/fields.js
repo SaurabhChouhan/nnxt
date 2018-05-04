@@ -351,6 +351,39 @@ export const renderDateTimePicker = ({
 }
 
 
+export const renderDateTimeStringShow = ({
+                                             input: {onChange, value, name},
+                                             label,
+                                             readOnly,
+                                             info,
+                                             showTime,
+                                             showCalendar,
+                                             min,
+                                             max,
+                                             formate = "DD-MM-YYYY",
+                                             type,
+                                             dropUp = false,
+                                             placeholder,
+                                             disabled = false,
+                                             meta: {touched, error, warning}
+                                         }) => {
+    console.log("value", value)
+    return <div className="form-group">
+        <label htmlFor={name}>{label} {touched &&
+        ((error &&
+            <span className="validation-error">
+            {error}
+          </span>))
+
+        }{(info &&
+            <span className="field-info">
+            {info}
+          </span>)}</label>
+        <label>{moment(value).format(formate)}</label>
+    </div>
+}
+
+
 /*
 export const renderDateTimePickerWithLeave = ({
                                                   input: {onChange, value, name},
