@@ -7,8 +7,8 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     RaiseLeaveListContainer,
-    ReleaseProjectTaskListContainer,
     ReleaseListContainer,
+    ReleaseProjectTaskListContainer,
     ReleaseTaskPlanningPageContainer,
     TechnologyListContainer,
     UserProfileFormContainer
@@ -28,6 +28,7 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
+    ReleaseMergeTaskPlanningFormDialog,
     ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
     RepositoryTaskDetailDialog,
@@ -228,6 +229,11 @@ class ContentMain extends Component {
                     <ReleaseTaskPlanningFormDialog name={COC.RELEASE_TASK_PLANNING_FORM_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
+                        }
+                    }/>
+                    <ReleaseMergeTaskPlanningFormDialog name={COC.MERGE_TASK_PLANNING_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.MERGE_TASK_PLANNING_DIALOG))
                         }
                     }/>
                 </ContentSection>
