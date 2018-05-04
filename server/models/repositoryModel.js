@@ -4,7 +4,7 @@ import * as SC from "../serverconstants"
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 import * as V from '../validation'
-import {EstimationModel} from "./"
+import * as MDL from "../models"
 
 mongoose.Promise = global.Promise
 
@@ -99,7 +99,7 @@ repositorySchema.statics.addFeature = async (featureInput, user) => {
 
     V.validate(featureInput, V.repositoryAddTaskStruct)
 
-    const estimation = await EstimationModel.findById(featureInput.estimation._id)
+    const estimation = await MDL.EstimationModel.findById(featureInput.estimation._id)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 

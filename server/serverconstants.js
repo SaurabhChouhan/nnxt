@@ -86,6 +86,13 @@ export const REASON_RESEARCH_WORK = "research-work"
 export const REASON_UNFAMILIAR_TECHNOLOGY = "unfamiliar-technology"
 
 
+// Holiday Reason
+
+export const HOLIDAY_REASON_EMERGENCY = "Emergency"
+export const HOLIDAY_REASON_PUBLIC_HOLIDAY = "Public Holiday"
+export const HOLIDAY_REASON_NATIONAL_DAY = "National Day"
+export const HOLIDAY_REASON_GAZETTED_HOLIDAYS = "Gazetted Holidays"
+
 export const REASON_MEDICAL = "medical"
 export const REASON_PERSONAL = "personal"
 export const REASON_OCCASION= "occasion"
@@ -103,3 +110,7 @@ export const DATE_TIME_FORMAT = 'YYYY-MM-DD hh:mm A'
 export const DATE_TIME_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm A'
 export const TIME_FORMAT = 'hh:mm A'
 export const DEFAULT_TIMEZONE = 'UTC'
+
+
+export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+

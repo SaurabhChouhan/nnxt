@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {ClientModel} from "./"
+import * as MDL from "../models"
 import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import {userHasRole} from "../utils"
@@ -34,7 +34,7 @@ projectSchema.statics.saveProject = async projectInput => {
     if (await ProjectModel.exists(projectInput.name, projectInput.client._id))
         throw new AppError("Project with name [" + projectInput.name + "] already exists under this client", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
-    let client = await ClientModel.findById(projectInput.client._id)
+    let client = await MDL.ClientModel.findById(projectInput.client._id)
     if (!client)
         throw new AppError("No such client", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -76,7 +76,7 @@ projectSchema.statics.editProject = async projectInput => {
     }
     if (project) {
         project.name = projectInput.name
-        let client = await ClientModel.findById(projectInput.client._id)
+        let client = await MDL.ClientModel.findById(projectInput.client._id)
         if (!client) {
             throw new AppError("Client Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         }

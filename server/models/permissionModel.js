@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import * as EC from "../errorcodes"
 import AppError from '../AppError'
-import {RoleModel} from '../models'
+import * as MDL from '../models'
 
 mongoose.Promise = global.Promise
 
@@ -34,7 +34,7 @@ permissionSchema.statics.editPermission = async permissionInput => {
     }
     if (permission) {
         permission.name = permissionInput.name
-        let roleUpdate = await RoleModel.updateAddedPermission(permissionInput)
+        let roleUpdate = await MDL.RoleModel.updateAddedPermission(permissionInput)
         return await permission.save()
     }
 }
@@ -43,7 +43,7 @@ permissionSchema.statics.editPermission = async permissionInput => {
 permissionSchema.statics.deletePermission = async (permissionID) => {
     if (!permissionID)
         throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
-    let roleDelete = await RoleModel.deleteAddedPermission(permissionID)
+    let roleDelete = await MDL.RoleModel.deleteAddedPermission(permissionID)
     return await PermissionModel.findByIdAndRemove(permissionID).exec()
 }
 

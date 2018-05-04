@@ -23,20 +23,21 @@ let yearlyHolidaysSchema = mongoose.Schema({
     permittedContinuousLeave: {type: Number, default: 3},
     holidaysInMonth: [
         {
-            _id: mongoose.Schema.ObjectId,
             month: {type: Number, default: 0},
-            monthName: {type: String, required: [true, "Month name is required"]},
-            noOfHolidays: {type: Number, default: 0}
+            monthName: {type: String, required: [true, "Month name is required"]}
         }
     ],
     holidays: [
         {
-            _id: mongoose.Schema.ObjectId,
             monthNo: {type: Number, default: 0},
             holidayName: {type: String, required: [true, "Holiday name is required"]},
             description: String,
-            holidayType: {type: String, required: [true, "Holiday type is required"]},//"Emergency,Public Holiday,National Day,Gazetted Holidays"
-            date: {type: Date, required: true}
+            holidayType: [{
+                type: String,
+                enum: [SC.HOLIDAY_REASON_EMERGENCY, SC.HOLIDAY_REASON_PUBLIC_HOLIDAY, SC.HOLIDAY_REASON_NATIONAL_DAY, SC.HOLIDAY_REASON_GAZETTED_HOLIDAYS]
+            }],
+            date: {type: Date, required: true},
+            dateString: {type: String, required: true}
         }
     ]
 })
@@ -47,68 +48,122 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidays = async (loggedInUser) => {
         return await YearlyHolidaysModel.find({}).exec()
     }
     else {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        return await YearlyHolidaysModel.find({}).exec()
+        //throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 }
 
-yearlyHolidaysSchema.statics.getAllYearlyHolidaysAfterBaseDate = async (baseDateInput, loggedInUser) => {
-    var baseDate = new Date(baseDateInput)
-    let selectedHolidays = await YearlyHolidaysModel.find({
-        "holidays.date": {$gte: momentTZ.tz(baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
+yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDate, endDate, loggedInUser) => {
+    //  console.log("startDate", startDate)
+    //  console.log("startDate.type", typeof startDate)
+    //   console.log("endDate", endDate)
+    //   console.log("endDate.type", typeof endDate)
+    //   startDate = new Date(startDate)
+    //  endDate = new Date(endDate)
+    let startDateMoment = momentTZ.tz(startDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    startDate = startDateMoment.toDate()
+    let endDateMoment = momentTZ.tz(endDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    endDate = endDateMoment.toDate()
+    if (!startDateMoment || !endDateMoment)
+        throw new AppError("conversionFailed", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    return await YearlyHolidaysModel.find({
+        "holidays.date": {$gte: startDateMoment, $lte: endDateMoment}
 
     }).exec()
-
-    let allHolidays = await YearlyHolidaysModel.find({
-        "holidays.$.date": {$gte: momentTZ.tz(baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
-
-    }).exec()
-
-    console.log("selectedHolidays", selectedHolidays)
-    console.log("allHolidays", allHolidays)
-
-    /*   if (userHasRole(loggedInUser, SC.ROLE_ADMIN) || userHasRole(loggedInUser, SC.ROLE_SUPER_ADMIN)) {
-           // Only admin and super admin can see holidays
-           return await YearlyHolidaysModel.find().sort({calenderYear: 0}).exec()
-       }
-       else {
-           throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-       }*/
-    return selectedHolidays
 }
 
 
 yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
-    console.log("holidayYear", holidayYear)
-    if (_.isEmpty(holidayYear.calenderYear))
+    //   console.log("holidayYear before", holidayYear)
+    if (!holidayYear.calenderYear || _.isEmpty(holidayYear.calenderYear))
         throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
     let count = await YearlyHolidaysModel.count({calenderYear: holidayYear.calenderYear})
     if (count !== 0)
         throw new AppError("Calender year already exists, please edit that or use different calender year.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
-    /*
-    if (!usrObj.password)
-         throw new AppError("Password must be passed to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-     let count = await UserModel.count({email: usrObj.email})
-     if (count !== 0)
-         throw new AppError("Email already registered with another employee", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
-     usrObj.password = await bcrypt.hash(usrObj.password, 10)
-     let totalUsers = await UserModel.count()
-     usrObj.employeeCode = "AIPL-"+(totalUsers+1)
-     if (_.isEmpty(usrObj.dateJoined))
-         throw new AppError("Joining date is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-     //usrObj.dateJoined = Date.now();//assuming joining date is same as created date for now
-     if (_.isEmpty(usrObj.designation))
-         throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
- */
+    holidayYear.holidays = holidayYear.holidays.map(h => {
+        let toDate = new Date(h.date)
+        let toMoment = momentTZ.tz(toDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        return Object.assign({}, h, {
+            date: toMoment.toDate(),
+            dateString: toMoment
+        })
+    })
+    //  console.log("holidayYear after ", holidayYear)
     return await YearlyHolidaysModel.create(holidayYear)
 }
 
 
+yearlyHolidaysSchema.statics.createHoliday = async holidayObj => {
+
+    if (_.isEmpty(holidayObj.holidayName))
+        throw new AppError("Holiday name is required to save Holiday.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    if (_.isEmpty(holidayObj.date))
+        throw new AppError("Holiday date is required to save Holiday.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    //  console.log("holiday before moment ", holidayObj)
+    holidayObj.date = new Date(holidayObj.date)
+    let toMoment = momentTZ.tz(holidayObj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let holidayDate = toMoment.toDate()
+    holidayObj.date = holidayDate
+    holidayObj.dateString = toMoment
+
+
+    // count date to check date is already inserted or not
+
+    let countDate = await YearlyHolidaysModel.count({"holidays.date": holidayDate})
+    if (countDate !== 0)
+        throw new AppError("Calender Date already inserted, please create another date.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+
+    //count year to check year for year is already created or not
+    // console.log("holiday after moment", holidayObj)
+    //  console.log(" holiday.date", holidayDate)
+    //  console.log(" holiday.date", holidayDate.getFullYear())
+    let calenderYear = holidayDate.getFullYear()
+    //  console.log("calenderYear", calenderYear)
+    if (!calenderYear)
+        throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    let countYear = await YearlyHolidaysModel.count({calenderYear: calenderYear})
+    if (countYear === 0)
+        throw new AppError("Calender year not exists, please create calender year First.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    //count month to check month is previously created for this month
+    let calenderMonth = holidayObj.date.getMonth()
+    let countMonth = await YearlyHolidaysModel.count({
+        "calenderYear": calenderYear,
+        "holidaysInMonth.month": calenderMonth
+    })
+    // console.log("countMonth", countMonth)
+    if (countMonth == 0) {
+        let calenderMonthStructure = {
+            month: calenderMonth,
+            monthName: SC.Months[calenderMonth]
+        }
+        //we have to push month as well as holiday entry date"
+        // console.log("we have to push month as well as holidayEntryDate")
+        await YearlyHolidaysModel.update({
+            'calenderYear': calenderYear
+        }, {$push: {"holidaysInMonth": calenderMonthStructure, "holidays": holidayObj}}).exec()
+
+    } else {
+        //we need to update month and push holidayEntryDate
+        // console.log("we need to update month and push holidayEntryDate")
+        await YearlyHolidaysModel.update({
+            'calenderYear': calenderYear
+        }, {
+            $push: {"holidays": holidayObj}
+        }).exec()
+    }
+    return holidayObj
+}
+
+
 yearlyHolidaysSchema.statics.updateHolidayYear = async holidayYearInput => {
-    console.log("holidayYearInput", holidayYearInput)
+    // console.log("holidayYearInput", holidayYearInput)
     if (_.isEmpty(holidayYearInput.calenderYear))
         throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
@@ -123,23 +178,7 @@ yearlyHolidaysSchema.statics.updateHolidayYear = async holidayYearInput => {
 
     holidayYear.holidaysInMonth[0].push(holidayYearInput.holidaysInMonth[0])
     holidayYear.holidays[0].push(holidayYearInput.holidays[0])
-    /*
-    if (!usrObj.password)
-         throw new AppError("Password must be passed to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-     let count = await UserModel.count({email: usrObj.email})
-     if (count !== 0)
-         throw new AppError("Email already registered with another employee", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
-     usrObj.password = await bcrypt.hash(usrObj.password, 10)
-     let totalUsers = await UserModel.count()
-     usrObj.employeeCode = "AIPL-"+(totalUsers+1)
-     if (_.isEmpty(usrObj.dateJoined))
-         throw new AppError("Joining date is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-     //usrObj.dateJoined = Date.now();//assuming joining date is same as created date for now
-     if (_.isEmpty(usrObj.designation))
-         throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
- */
+   
     return await holidayYear.save
 }
 
@@ -203,8 +242,7 @@ export default YearlyHolidaysModel
     "holidaysInMonth": [
         {
             "month": 0,
-            "monthName": "january",
-            "noOfHolidays": 1
+            "monthName": "january"
         }
     ],
     "holidays": [

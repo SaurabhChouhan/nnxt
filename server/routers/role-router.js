@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {RoleModel} from '../models'
+import * as MDL from '../models'
 import {isAdmin, isSuperAdmin} from "../utils"
 import * as EC from "../errorcodes"
 import AppError from '../AppError'
@@ -14,9 +14,9 @@ const roleRouter = new Router({
  */
 roleRouter.get('/', async ctx => {
     if (isAdmin(ctx)) {
-        return await RoleModel.getWithConfigurablePerms()
+        return await MDL.RoleModel.getWithConfigurablePerms()
     } else if (isSuperAdmin(ctx)) {
-        return await RoleModel.getAll()
+        return await MDL.RoleModel.getAll()
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -25,7 +25,7 @@ roleRouter.get('/', async ctx => {
 // only super admin can add/update or remove roles
 roleRouter.post('/', async ctx => {
     if (isSuperAdmin(ctx)) {
-        return await RoleModel.saveRole(ctx.request.body)
+        return await MDL.RoleModel.saveRole(ctx.request.body)
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -34,7 +34,7 @@ roleRouter.post('/', async ctx => {
 
 roleRouter.put('/', async ctx => {
     if (isSuperAdmin(ctx)) {
-        return await RoleModel.editRole(ctx.request.body)
+        return await MDL.RoleModel.editRole(ctx.request.body)
     } else if (isAdmin(ctx)) {
         /**
          * As this is admin editing role, he should have added removed permissions from this role, we would have to set enabled flag based on this
@@ -42,7 +42,7 @@ roleRouter.put('/', async ctx => {
          */
 
         let roleInput = ctx.request.body
-        let role = await RoleModel.findById(roleInput._id).lean()
+        let role = await MDL.RoleModel.findById(roleInput._id).lean()
 
 
         if (!_.isEmpty(role.permissions)) {
@@ -62,7 +62,7 @@ roleRouter.put('/', async ctx => {
             })
         }
 
-        role = await RoleModel.editRole(role)
+        role = await MDL.RoleModel.editRole(role)
         role.permissions = role.permissions.filter(p => p.configurable)
         return role
     } else {
@@ -72,7 +72,7 @@ roleRouter.put('/', async ctx => {
 
 roleRouter.del('/:id', async ctx => {
     if (isSuperAdmin(ctx)) {
-        return await RoleModel.deleteRole(ctx.params.id)
+        return await MDL.RoleModel.deleteRole(ctx.params.id)
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }

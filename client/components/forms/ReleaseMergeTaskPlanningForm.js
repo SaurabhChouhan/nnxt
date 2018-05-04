@@ -7,7 +7,7 @@ import momentLocalizer from 'react-widgets-moment'
 
 moment.locale('en')
 momentLocalizer()
-let ReleaseTaskPlanningForm = (props) => {
+let ReleaseMergeTaskPlanningForm = (props) => {
     const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
     const today = new Date()
     const todayMoment = moment(today).hour(0).minute(0).second(0).milliseconds(0)
@@ -28,17 +28,9 @@ let ReleaseTaskPlanningForm = (props) => {
                        min={min}
                        max={max}
                        label={" Date :"} validate={[required]}/>
-                <Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
+                {/*<Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>
-
-                <Field name="employee.name" component="input" type="hidden"/>
-                <Field name="employee._id" placeholder={"Name of Developer"}
-                       onChange={(event, newValue, oldValue) => {
-                           let employee = team.find(e => e._id == newValue)
-                           change("employee.name", employee.name)
-                       }}
-                       component={renderSelect} options={team}
-                       label={"Developer Name:"} validate={[required]}/>
+                */}
             </div>
 
             <div className="col-md-12">
@@ -57,8 +49,8 @@ let ReleaseTaskPlanningForm = (props) => {
     </form>
 }
 
-ReleaseTaskPlanningForm = reduxForm({
-    form: 'task-planning'
-})(ReleaseTaskPlanningForm)
+ReleaseMergeTaskPlanningForm = reduxForm({
+    form: 'merge-task-planning'
+})(ReleaseMergeTaskPlanningForm)
 
-export default ReleaseTaskPlanningForm
+export default ReleaseMergeTaskPlanningForm

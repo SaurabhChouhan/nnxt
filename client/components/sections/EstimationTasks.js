@@ -3,16 +3,16 @@ import {EstimationTask} from "../"
 import * as SC from '../../../server/serverconstants'
 
 let EstimationTasks = (props) => {
-        // tasks array should not be passed to task as it keeps changes and will cause re-render
-        let childProps = Object.assign({}, props, {
-            tasks: undefined
-        })
+    // tasks array should not be passed to task as it keeps changes and will cause re-render
+    let childProps = Object.assign({}, props, {
+        tasks: undefined
+    })
 
-    const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository, addedByNegotiator, addedByEstimator} = props.filter
+    const {changedByNegotiator, changedByEstimator, permissionRequested, addedFromRepository, addedByNegotiator, addedByEstimator, hasError} = props.filter
     const {expandedTaskID} = props
     return Array.isArray(props.tasks) && props.tasks.map((t, idx) => {
             {
-                if (changedByNegotiator && changedByEstimator && permissionRequested && addedFromRepository) {
+                if (changedByNegotiator && changedByEstimator && permissionRequested && addedFromRepository && addedByNegotiator && addedByEstimator && hasError) {
                     return (expandedTaskID === t._id) ?
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                         expanded={true}/> :
@@ -42,6 +42,7 @@ let EstimationTasks = (props) => {
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                     }
+
                     if (addedByNegotiator && t.addedInThisIteration && t.owner == SC.OWNER_NEGOTIATOR) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
@@ -54,6 +55,14 @@ let EstimationTasks = (props) => {
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                     }
+
+                    if (hasError && t.hasError) {
+                        return (expandedTaskID === t._id) ?
+                            <EstimationTask task={t} index={idx} key={"task" + idx} {...childProps}
+                                            expanded={true}/> :
+                            <EstimationTask task={t} index={idx} key={"task" + idx} {...childProps}/>
+                    }
+
                 }
             }
 

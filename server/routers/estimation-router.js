@@ -1,5 +1,5 @@
 import Router from 'koa-router'
-import {EstimationFeatureModel, EstimationModel, EstimationTaskModel} from "../models"
+import * as MDL from "../models"
 import {hasRole, isAuthenticated} from "../utils"
 import * as SC from "../serverconstants"
 import * as EC from '../errorcodes'
@@ -12,7 +12,7 @@ let estimationRouter = new Router({
 
 
 const getLoggedInUsersRoleInEstimation = async (ctx, estimationID) => {
-    let estimation = await EstimationModel.findById(estimationID)
+    let estimation = await MDL.EstimationModel.findById(estimationID)
     if (estimation) {
         // check to see role of logged in user in this estimation
         if (estimation.estimator._id == ctx.state.user._id)
@@ -25,12 +25,12 @@ const getLoggedInUsersRoleInEstimation = async (ctx, estimationID) => {
 
 // noinspection Annotator
 estimationRouter.get("/project/:projectID/status/:status", async ctx => {
-    return await EstimationModel.getAllActive(ctx.params.projectID, ctx.params.status, ctx.state.user)
+    return await MDL.EstimationModel.getAllActive(ctx.params.projectID, ctx.params.status, ctx.state.user)
 })
 
 // noinspection Annotator
 estimationRouter.get("/:estimationID", async ctx => {
-    let estimation = await EstimationModel.getById(ctx.params.estimationID)
+    let estimation = await MDL.EstimationModel.getById(ctx.params.estimationID)
     if (estimation) {
         // check to see role of logged in user in this estimation
 
@@ -49,7 +49,7 @@ estimationRouter.get("/:estimationID", async ctx => {
 
 // noinspection Annotator
 estimationRouter.get("/:estimationID/only", async ctx => {
-    let estimation = await EstimationModel.findById(ctx.params.estimationID)
+    let estimation = await MDL.EstimationModel.findById(ctx.params.estimationID)
 
     estimation = estimation.toObject()
     if (estimation) {
@@ -73,7 +73,7 @@ estimationRouter.get("/:estimationID/only", async ctx => {
 estimationRouter.del("/:estimationID/delete", async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
-        return await EstimationModel.deleteEstimationById(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationModel.deleteEstimationById(ctx.params.estimationID, ctx.state.user)
 
     } else {
         throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can delete estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -84,7 +84,7 @@ estimationRouter.del("/:estimationID/delete", async ctx => {
 
 // noinspection Annotator
 estimationRouter.get("/feature/:featureID", async ctx => {
-    let estimationFeature = await EstimationFeatureModel.getById(ctx.params.featureID)
+    let estimationFeature = await MDL.EstimationFeatureModel.getById(ctx.params.featureID)
     if (!estimationFeature) {
         throw new AppError("Not allowed to see estimation details", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
     }
@@ -104,7 +104,7 @@ estimationRouter.post('/initiate', async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.estimationUpdationStruct)
     if (hasRole(ctx, SC.ROLE_NEGOTIATOR)) {
-        return await EstimationModel.initiate(ctx.request.body, ctx.state.user)
+        return await MDL.EstimationModel.initiate(ctx.request.body, ctx.state.user)
     } else
         throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
@@ -120,7 +120,7 @@ estimationRouter.put('/update', async ctx => {
 
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body._id)
     if (role === SC.ROLE_NEGOTIATOR) {
-        return await EstimationModel.updateEstimationByNegotiator(ctx.request.body, ctx.state.user)
+        return await MDL.EstimationModel.updateEstimationByNegotiator(ctx.request.body, ctx.state.user)
     } else throw new AppError("Only users with role [" + SC.ROLE_NEGOTIATOR + "] can update initiate estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
 
@@ -134,7 +134,7 @@ estimationRouter.put('/update', async ctx => {
 estimationRouter.put('/:estimationID/request', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR)
-        return EstimationModel.request(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationModel.request(ctx.params.estimationID, ctx.state.user)
     else throw new AppError("Cannot request estimation, not a negotiator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
 })
@@ -146,7 +146,7 @@ estimationRouter.put('/:estimationID/request', async ctx => {
 estimationRouter.put('/:estimationID/review-request', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_ESTIMATOR)
-        return await EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationModel.requestReview(ctx.params.estimationID, ctx.state.user)
     else throw new AppError("Cannot review-request estimation, not a estimator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 })
 
@@ -154,7 +154,7 @@ estimationRouter.put('/:estimationID/review-request', async ctx => {
 estimationRouter.put('/:estimationID/change-request', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR)
-        return await EstimationModel.requestChange(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationModel.requestChange(ctx.params.estimationID, ctx.state.user)
     else throw new AppError("Cannot change-request estimation, not a negotiator of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
 })
@@ -165,7 +165,7 @@ estimationRouter.put('/:estimationID/change-request', async ctx => {
  */
 estimationRouter.get('/task/:estimationID', async ctx => {
     if (isAuthenticated(ctx)) {
-        return await EstimationTaskModel.getAllTasksOfEstimation(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationTaskModel.getAllTasksOfEstimation(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Not authenticated user.", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -176,7 +176,7 @@ estimationRouter.get('/task/:estimationID', async ctx => {
  * Add a new task to estimation
  */
 estimationRouter.post('/tasks', async ctx => {
-    return await EstimationTaskModel.addTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.EstimationTaskModel.addTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
@@ -185,7 +185,7 @@ estimationRouter.post('/tasks', async ctx => {
  * Update a new task to estimation
  */
 estimationRouter.put('/tasks', async ctx => {
-    return await EstimationTaskModel.updateTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.EstimationTaskModel.updateTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
@@ -193,7 +193,7 @@ estimationRouter.put('/tasks', async ctx => {
  * Delete task to estimation
  */
 estimationRouter.del('/:estimationID/tasks/:taskID', async ctx => {
-    return await EstimationTaskModel.deleteTask(ctx.params.taskID, ctx.params.estimationID, ctx.state.user)
+    return await MDL.EstimationTaskModel.deleteTask(ctx.params.taskID, ctx.params.estimationID, ctx.state.user)
 })
 
 
@@ -202,7 +202,7 @@ estimationRouter.del('/:estimationID/tasks/:taskID', async ctx => {
  * Add a new feature to estimation
  */
 estimationRouter.post('/features', async ctx => {
-    return await EstimationFeatureModel.addFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.EstimationFeatureModel.addFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
@@ -211,7 +211,7 @@ estimationRouter.post('/features', async ctx => {
  * Update a new features to estimation
  */
 estimationRouter.put('/features', async ctx => {
-    return await EstimationFeatureModel.updateFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.EstimationFeatureModel.updateFeature(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
@@ -221,7 +221,7 @@ estimationRouter.put('/features', async ctx => {
  * Update a move to feature to estimation
  */
 estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
-    return await EstimationTaskModel.moveTaskToFeature(ctx.params.taskID, ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationTaskModel.moveTaskToFeature(ctx.params.taskID, ctx.params.featureID, ctx.state.user)
 
 })
 
@@ -231,7 +231,7 @@ estimationRouter.put('/tasks/:taskID/features/:featureID', async ctx => {
  * Update a move out of feature to estimation
  */
 estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
-    return await EstimationTaskModel.moveTaskOutOfFeature(ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.moveTaskOutOfFeature(ctx.params.taskID, ctx.state.user)
 
 })
 
@@ -241,7 +241,7 @@ estimationRouter.put('/tasks/:taskID/move-out-of-feature', async ctx => {
  * Request removal of task to estimation
  */
 estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
-    return await EstimationTaskModel.requestRemovalTask(ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.requestRemovalTask(ctx.params.taskID, ctx.state.user)
 
 })
 
@@ -252,7 +252,7 @@ estimationRouter.put('/tasks/:taskID/request-removal', async ctx => {
  * or cancel this request
  */
 estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {
-    return await EstimationTaskModel.requestReOpenPermissionOfTask(ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.requestReOpenPermissionOfTask(ctx.params.taskID, ctx.state.user)
 
 })
 
@@ -263,7 +263,7 @@ estimationRouter.put('/tasks/:taskID/request-edit', async ctx => {
  * or cancel this request
  */
 estimationRouter.put('/features/:featureID/request-edit', async ctx => {
-    return await EstimationFeatureModel.requestReOpenPermissionOfFeature(ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.requestReOpenPermissionOfFeature(ctx.params.featureID, ctx.state.user)
 
 })
 
@@ -273,7 +273,7 @@ estimationRouter.put('/features/:featureID/request-edit', async ctx => {
  * or cancel this request
  */
 estimationRouter.put('/tasks/:taskID/grant-edit', async ctx => {
-    return await EstimationTaskModel.grantReOpenPermissionOfTask(ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.grantReOpenPermissionOfTask(ctx.params.taskID, ctx.state.user)
 
 })
 
@@ -284,19 +284,19 @@ estimationRouter.put('/tasks/:taskID/grant-edit', async ctx => {
  * or cancel this request
  */
 estimationRouter.put('/features/:featureID/grant-edit', async ctx => {
-    return await EstimationFeatureModel.grantReOpenPermissionOfFeature(ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.grantReOpenPermissionOfFeature(ctx.params.featureID, ctx.state.user)
 
 })
 
 // noinspection Annotator
 estimationRouter.put('/tasks/:taskID/approve', async ctx => {
-    return await EstimationTaskModel.approveTask(ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.approveTask(ctx.params.taskID, ctx.state.user)
 
 })
 
 // noinspection Annotator
 estimationRouter.put('/features/:featureID/approve', async ctx => {
-    return await EstimationFeatureModel.approveFeature(ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.approveFeature(ctx.params.featureID, ctx.state.user)
 
 })
 
@@ -306,7 +306,7 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
 estimationRouter.put('/:estimationID/approve', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
-        return await EstimationModel.approveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationModel.approveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -314,7 +314,7 @@ estimationRouter.put('/:estimationID/approve', async ctx => {
 estimationRouter.put('/:estimationID/hasError', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_ESTIMATOR) {
-        return await EstimationModel.hasErrorEstimationByEstimator(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationModel.hasErrorEstimationByEstimator(ctx.params.estimationID, ctx.state.user)
     }
 })
 
@@ -323,14 +323,14 @@ estimationRouter.put('/:estimationID/hasError', async ctx => {
 
 // Used by negotiator to check can approve feature
 estimationRouter.put('/feature/:featureID/can-approve', async ctx => {
-    return await EstimationFeatureModel.canApproveFeature(ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.canApproveFeature(ctx.params.featureID, ctx.state.user)
 })
 
 // Used by negotiator to change can not approve estimation
 estimationRouter.put('/:estimationID/can-not-approve/:isGranted/is-granted', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
-        return await EstimationModel.canNotApproveEstimationByNegotiator(ctx.params.estimationID, ctx.params.isGranted, ctx.state.user)
+        return await MDL.EstimationModel.canNotApproveEstimationByNegotiator(ctx.params.estimationID, ctx.params.isGranted, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -339,7 +339,7 @@ estimationRouter.put('/:estimationID/can-not-approve/:isGranted/is-granted', asy
 
 // Used by negotiator to change can not approve feature
 estimationRouter.put('/feature/:featureID/can-not-approve/:isGranted/is-granted', async ctx => {
-    return await EstimationFeatureModel.canNotApproveFeature(ctx.params.featureID, ctx.params.isGranted, ctx.state.user)
+    return await MDL.EstimationFeatureModel.canNotApproveFeature(ctx.params.featureID, ctx.params.isGranted, ctx.state.user)
 })
 
 // noinspection Annotator
@@ -348,7 +348,7 @@ estimationRouter.put('/project-awarded', async ctx => {
     if (role === SC.ROLE_NEGOTIATOR) {
         if (ctx.schemaRequested)
             return V.generateSchema(V.estimationProjectAwardByNegotiatorStruct)
-        return await EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
+        return await MDL.EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can project award of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -357,7 +357,7 @@ estimationRouter.put('/project-awarded', async ctx => {
 
 //soft delete feature in estimation
 estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
-    return await EstimationFeatureModel.deleteFeature(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.deleteFeature(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
 
 })
 
@@ -366,7 +366,7 @@ estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
  * Add task from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/tasks/estimation/:estimationID/repository-task/:taskID', async ctx => {
-    return await EstimationTaskModel.addTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.addTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
 
 })
 
@@ -375,7 +375,7 @@ estimationRouter.post('/tasks/estimation/:estimationID/repository-task/:taskID',
  * Add feature from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/features/estimation/:estimationID/repository-feature/:featureID', async ctx => {
-    return await EstimationFeatureModel.addFeatureFromRepository(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.addFeatureFromRepository(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
 
 })
 
@@ -383,7 +383,7 @@ estimationRouter.post('/features/estimation/:estimationID/repository-feature/:fe
  * copy task from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/tasks/estimation/:estimationID/repository-task-copy/:taskID', async ctx => {
-    return await EstimationTaskModel.copyTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.copyTaskFromRepository(ctx.params.estimationID, ctx.params.taskID, ctx.state.user)
 
 })
 
@@ -391,32 +391,32 @@ estimationRouter.post('/tasks/estimation/:estimationID/repository-task-copy/:tas
  * Copy feature from repository by estimator/negotiator to estimation
  */
 estimationRouter.post('/features/estimation/:estimationID/repository-feature-copy/:featureID', async ctx => {
-    return await EstimationFeatureModel.copyFeatureFromRepository(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.copyFeatureFromRepository(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
 
 })
 
 
 estimationRouter.put('/features/:featureID/request-removal', async ctx => {
-    return await EstimationFeatureModel.requestRemovalFeature(ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.requestRemovalFeature(ctx.params.featureID, ctx.state.user)
 
 })
 
 
 estimationRouter.put('/feature/:featureID/reOpen', async ctx => {
-    return await EstimationFeatureModel.reOpenFeature(ctx.params.featureID, ctx.state.user)
+    return await MDL.EstimationFeatureModel.reOpenFeature(ctx.params.featureID, ctx.state.user)
 
 })
 
 
 estimationRouter.put('/task/:taskID/reOpen', async ctx => {
-    return await EstimationTaskModel.reOpenTask(ctx.params.taskID, ctx.state.user)
+    return await MDL.EstimationTaskModel.reOpenTask(ctx.params.taskID, ctx.state.user)
 })
 
 
 estimationRouter.put('/:estimationID/reopen', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
-        return await EstimationModel.reOpenEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
+        return await MDL.EstimationModel.reOpenEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can reopen estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
