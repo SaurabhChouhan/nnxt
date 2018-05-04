@@ -50,7 +50,7 @@ const clientReducer = (state = initialState, action) => {
             // Add task planning to planning list
             return Object.assign({}, state, {
                 taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.map(tp =>
-                    (tp._id == action.taskPlan._id) ? Object.assign({}, action.taskPlan) : tp) : []
+                    (tp._id === action.taskPlan._id) ? Object.assign({}, action.taskPlan) : tp) : []
             })
 
         case AC.DELETE_TASK_PLAN:
@@ -69,8 +69,9 @@ const clientReducer = (state = initialState, action) => {
         case AC.UPDATE_DEVELOPER_FILTERED:
             // Developer planning details according to date time selection
             return Object.assign({}, state, {
-                developerPlans: state.developerPlans && Array.isArray(state.developerPlans) && state.developerPlans.length ? state.developerPlans.map(dp =>
-                    (dp._id == action.developerPlanned._id) ? Object.assign({}, action.developerPlanned) : dp) : []
+                developerPlans: state.developerPlans && Array.isArray(state.developerPlans) && state.developerPlans.length ?
+                    state.developerPlans.map(dp =>
+                        (dp._id === action.developerPlanned._id) ? Object.assign({}, action.developerPlanned) : dp) : []
             })
 
 
