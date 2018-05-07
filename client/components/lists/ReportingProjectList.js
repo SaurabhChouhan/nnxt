@@ -123,7 +123,7 @@ class ReportingProjectList extends Component {
                                 Created
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle={"Project Name"} dataField='project'
-                                               dataFormat={this.formateProjectName.bind(this)}>
+                                               dataFormat={this.formatProjectName.bind(this)}>
                                 Project
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='manager'
