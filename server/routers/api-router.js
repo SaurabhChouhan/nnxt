@@ -27,6 +27,18 @@ apiRouter.use(async (ctx, next) => {
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, 403)
     }
-}, RR.userRouter.routes(), RR.permissionRouter.routes(), RR.roleRouter.routes(), RR.clientRouter.routes(), RR.estimationRouter.routes(), RR.projectRouter.routes(), RR.technologyRouter.routes(), RR.leaveRouter.routes(), RR.repositoryRouter.routes(), RR.attendanceRouter.routes(), RR.releaseRouter.routes(), RR.calenderRouter.routes())
+    }, RR.userRouter.routes(),
+    RR.permissionRouter.routes(),
+    RR.roleRouter.routes(),
+    RR.clientRouter.routes(),
+    RR.estimationRouter.routes(),
+    RR.projectRouter.routes(),
+    RR.technologyRouter.routes(),
+    RR.leaveRouter.routes(),
+    RR.repositoryRouter.routes(),
+    RR.attendanceRouter.routes(),
+    RR.releaseRouter.routes(),
+    RR.calenderRouter.routes()
+)
 
 export default apiRouter
