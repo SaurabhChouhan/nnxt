@@ -1,10 +1,10 @@
 import React from 'react';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
+import {CalendarTaskDetailPage} from '../../components';
 
 
 BigCalendar.momentLocalizer(moment);
-
 
 class CalendarPage extends React.Component {
     constructor(props) {
@@ -12,60 +12,78 @@ class CalendarPage extends React.Component {
     }
 
 
+    eventStyleGetter(event, start, end, isSelected) {
+        let bg = "";
+        if (event.status == "Planned in Future")
+            bg = "#9fa725"
+        if (event.status == "Started")
+            bg = "#1A4ECD"
+        if (event.status == "Pending")
+            bg = "#FF0000"
+        if (event.status == "Completed")
+            bg = "#4AD938"
+        var style = {
+            backgroundColor: bg,
+            /*borderRadius: '0px',
+            opacity: 0.8,
+            color:"#fff",
+            border: '0px',
+            display: 'block'*/
+        };
+        return {
+            style: style
+        };
+    }
+
+    Event({event}) {
+        return (
+            <span>
+                {(event.role && event.role != 'undefined' && event.role != "" ) ?
+                    <em style={{color: 'white'}}>{'(' + event.role + ')'}</em> : null}
+                <p>{event.title}</p>
+        </span>
+        )
+    }
+
     render() {
-        const dummyEvents = [
-            {
-                allDay: false,
-                endDate: new Date('December 10, 2017 11:13:00'),
-                startDate: new Date('December 09, 2017 11:13:00'),
-                title: 'hi',
-            },
-            {
-                allDay: true,
-                endDate: new Date('December 09, 2017 11:13:00'),
-                startDate: new Date('December 09, 2017 11:13:00'),
-                title: 'All Day Event',
-            },
-        ];
-        const formats = {
+        let formats = {
             // formats the day and week view tp '03/12'
             dayFormat: (date, culture, localizer) =>
-                localizer.format(date, 'dddd DD-MMM', culture),
+                localizer.format(date, 'ddd DD-MMM', culture),
             // formats the top of day view to '03/12'
             dayHeaderFormat: (date, culture, localizer) =>
-                localizer.format(date, 'dddd DD-MMM', culture),
+                localizer.format(date, 'ddd DD-MMM', culture),
             weekdayFormat: (date, culture, localizer) =>
-                localizer.format(date, 'dddd', culture),
+                localizer.format(date, 'ddd', culture),
             selectRangeFormat: (date, culture, localizer) =>
-                localizer.format(date, 'dddd', culture)
+                localizer.format(date, 'ddd', culture)
         }
-
         return (
             <div>
-
-                <BigCalendar
-                    views={{month: true, week: true, day: true}}
-                    view={"week"}
-                    date={moment().toDate()}
-                    timeslots={4}
-                    formats={formats}
-                    components={{event: this.Event}}
-                    selectable
-                    popup
-                    onSelectEvent={event => this.props.showSelectedTaskDetail(event)}
-                    eventPropGetter={(this.eventStyleGetter)}
-                    onNavigate={(date, view) => {
-                        this.props.changeViewAndDate(view, date);
-                    }}
-                    onView={(view) => {
-                        this.props.changeViewAndDate(view, this.props.selectedDate);
-                    }}
-                    events={dummyEvents}
-                    startAccessor="startDate"
-                    endAccessor="endDate"
-                />
-
-
+                {(this.props.visibility.calendarView) ?
+                    <BigCalendar
+                        views={{month: true, week: true, day: true}}
+                        view={this.props.selectedView}
+                        date={this.props.selectedDate}
+                        timeslots={4}
+                        formats={formats}
+                        components={{event: this.Event}}
+                        selectable
+                        popup
+                        onSelectEvent={event => this.props.showSelectedTaskDetail(event)}
+                        events={this.props.events}
+                        startAccessor='startDateTime'
+                        endAccessor='reportingEndDate'
+                        eventPropGetter={(this.eventStyleGetter)}
+                        onNavigate={(date, view) => {
+                            this.props.changeViewAndDate(view,date);
+                        }}
+                        onView={(view)=>{
+                            this.props.changeViewAndDate(view,this.props.selectedDate);
+                        }}
+                    />
+                    : <CalendarTaskDetailPage {...this.props}/>
+                }
             </div>
         );
     }

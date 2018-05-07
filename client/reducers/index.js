@@ -12,6 +12,8 @@ import leaveRequestReducer from './leaveRequestReducer'
 import repositoryReducer from './repositoryReducer'
 import attendanceSettingReducer from './attendanceSettingReducer'
 import releaseReducer from './releaseReducer'
+import calendarPageReducer from './calendarPageReducer'
+
 
 const reducers = combineReducers({
     form: formReducer, // Redux form state
@@ -27,5 +29,6 @@ const reducers = combineReducers({
     repository: repositoryReducer,
     attendanceSetting: attendanceSettingReducer,
     release: releaseReducer,
+    calendar:calendarPageReducer
 })
 export default reducers

@@ -104,8 +104,9 @@ export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPag
 //Raise Leave
 export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
 
-//Calendar Page
-export {default as CalendarPage} from './pages/CalendarPage'
-
 //Reporting
 export {default as ReportingProjectList} from './lists/ReportingProjectList'
+
+//Calendar Page
+export {default as CalendarPage} from './pages/CalendarPage'
+export {default as CalendarTaskDetailPage} from './pages/CalendarTaskDetailPage'
