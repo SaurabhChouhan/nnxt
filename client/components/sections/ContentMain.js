@@ -11,7 +11,8 @@ import {
     ReleaseProjectTaskListContainer,
     ReleaseTaskPlanningPageContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    CalendarPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -33,7 +34,6 @@ import {
     RepositoryFeatureDetailDialog,
     RepositoryTaskDetailDialog,
     TechnologyFormDialog,
-    CalendarPage
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -246,7 +246,7 @@ class ContentMain extends Component {
             url: "/calendar",
             render: (props) => {
                 return <ContentSection>
-                    <CalendarPage name={COC.CALENDAR}/>
+                    <CalendarPageContainer name={COC.CALENDAR}/>
                 </ContentSection>
 
             }
