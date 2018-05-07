@@ -1,17 +1,23 @@
 import {connect} from 'react-redux'
 import {ReleaseMergeTaskPlanningForm} from "../../components"
+import * as COC from '../../components/componentConsts'
+import * as A from '../../actions'
+import {NotificationManager} from "react-notifications"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: (task) => {/*
-        return dispatch(A.addTaskPlanningOnServer(task)).then(json => {
+    onSubmit: (newTaskPlanning) => {
+        console.log("newTaskPlanning", newTaskPlanning)
+
+        return dispatch(A.mergeTaskPlanningOnServer(newTaskPlanning)).then(json => {
+            console.log(".then json", json)
             if (json.success) {
-                NotificationManager.success("Task Planning Added")
-                dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
+                NotificationManager.success("Task Planning Merged")
+                dispatch(A.hideComponent(COC.MERGE_TASK_PLANNING_DIALOG))
             }
-            else NotificationManager.error("Task Planning Not Added")
+            else NotificationManager.error("Task Planning Not Merged")
         })
 
-    */
+
     }
 })
 

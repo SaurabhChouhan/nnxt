@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import momentTZ from 'moment-timezone'
-import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
 
@@ -33,7 +32,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     formatPlanningDate(row) {
         if (row) {
-            return moment(row).format("DD-MM-YYYY")
+            return momentTZ.tz(row, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format("DD-MM-YYYY")
         }
         return ''
     }
@@ -69,7 +68,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
         // const {release} = this.props
-        const {taskPlan, taskPlans, developerPlanned} = this.props
+        const {taskPlan, taskPlans, developerPlans} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -143,7 +142,7 @@ class ReleaseTaskPlanningPage extends Component {
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={developerPlanned}
+                            <BootstrapTable options={this.options} data={developerPlans}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id'

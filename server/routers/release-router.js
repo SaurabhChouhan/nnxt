@@ -32,6 +32,11 @@ releaseRouter.put("/plan-task/", async ctx => {
 })
 
 
+releaseRouter.put("/merge-task-plan/", async ctx => {
+    return await MDL.TaskPlanningModel.mergeTaskPlanning(ctx.request.body, ctx.state.user)
+})
+
+
 releaseRouter.put("/shift-future/", async ctx => {
     console.log("shift-future", ctx.request.body)
     return await MDL.TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
