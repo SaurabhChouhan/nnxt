@@ -12,12 +12,12 @@ import {
     ReleaseTaskPlanningPageContainer,
     ReportingProjectListContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    CalendarPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
 import {
-    CalendarPage,
     ClientFormDialog,
     EstimationFeatureDialog,
     EstimationFilterDialog,
@@ -252,7 +252,7 @@ class ContentMain extends Component {
             url: "/calendar",
             render: (props) => {
                 return <ContentSection>
-                    <CalendarPage name={COC.CALENDAR}/>
+                    <CalendarPageContainer name={COC.CALENDAR}/>
                 </ContentSection>
 
             }
