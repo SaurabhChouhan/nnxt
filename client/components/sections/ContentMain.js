@@ -32,7 +32,8 @@ import {
     ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
     RepositoryTaskDetailDialog,
-    TechnologyFormDialog
+    TechnologyFormDialog,
+    CalendarPage
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -236,6 +237,16 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.MERGE_TASK_PLANNING_DIALOG))
                         }
                     }/>
+                </ContentSection>
+
+            }
+        })
+
+        routes.push({
+            url: "/calendar",
+            render: (props) => {
+                return <ContentSection>
+                    <CalendarPage name={COC.CALENDAR}/>
                 </ContentSection>
 
             }

@@ -103,3 +103,6 @@ export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPag
 
 //Raise Leave
 export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
+
+//Calendar Page
+export {default as CalendarPage} from './pages/CalendarPage'

@@ -352,9 +352,9 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                 } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {"canApprove": true})
 
             })
-            console.log("bk1 before ")
+
             estimationTasks = await Promise.all(estimationTaskPromises)
-            console.log("estimation tasks found bk 1", estimationTasks)
+
         }
         if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
             estimationTaskPromises = EstimationPendingTasks.map(async task => {
@@ -365,15 +365,15 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                 } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {"hasError": false})
 
             })
-            console.log("hasError before ")
+
             estimationTasks = await Promise.all(estimationTaskPromises)
-            console.log("estimation tasks found hasError", estimationTasks)
+
         }
         if (EstimationTasks && EstimationTasks.length) {
 
             EstimationPendingFeatures = await MDL.EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
             if (EstimationPendingFeatures && EstimationPendingFeatures.length) {
-                console.log("bk2 before ")
+
                 let estimationFeaturePromises = EstimationPendingFeatures.map(async feature => {
                     if (feature.estimator.changeRequested
                         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
@@ -382,7 +382,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                         console.log("bk 6")
                         return MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false})
                     } else {
-                        console.log("bk 5")
+
                         return new Promise((resolve, reject) => {
                             console.log("bk 7")
                             MDL.EstimationTaskModel.count({
@@ -405,7 +405,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                                 }
 
                             }).catch(error => {
-                                console.log("count has errors ", error)
+
                             })
                         })
                     }
@@ -427,13 +427,13 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
             "status": SC.STATUS_PENDING
         })
         if (isEstimationTaskPending == 0 && isEstimationFeaturePending == 0) {
-            console.log("Estimation Can approve Before")
+
             let a = await EstimationModel.updateOne({_id: estimationID}, {"canApprove": true}).then(() => {
                 return new Promise((resolve, reject) => {
                     return resolve(true)
                 })
             })
-            console.log("Estimation Can approve After", a)
+
             return a
         }
         else return await EstimationModel.updateOne({_id: estimationID}, {"canApprove": false})
@@ -877,7 +877,7 @@ estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, neg
 
 estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) => {
     let estimation = await EstimationModel.findById(estimationID)
-    console.log("user in get user role in estimation ", user)
+
     if (estimation) {
         // check to see role of logged in user in this estimation
         if (estimation.estimator._id == user._id)
