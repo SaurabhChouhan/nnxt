@@ -87,3 +87,6 @@ export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleaseProjectTaskListContainer} from './lists/ReleaseProjectTaskListContainer'
 export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPlanningPageContainer'
 
+//Reporting
+export {default as ReportingProjectListContainer} from './lists/ReportingProjectListContainer'
+

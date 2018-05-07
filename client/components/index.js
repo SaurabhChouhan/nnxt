@@ -106,3 +106,6 @@ export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
 
 //Calendar Page
 export {default as CalendarPage} from './pages/CalendarPage'
+
+//Reporting
+export {default as ReportingProjectList} from './lists/ReportingProjectList'
