@@ -106,3 +106,4 @@ export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
 
 //Calendar Page
 export {default as CalendarPage} from './pages/CalendarPage'
+export {default as CalendarTaskDetailPage} from './pages/CalendarTaskDetailPage'
