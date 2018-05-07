@@ -105,6 +105,7 @@ export const REPORT_PENDING = "pending"
 
 
 // Date Formate and Time Zone
+export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY'
 export const DATE_FORMAT = 'YYYY-MM-DD'
 export const DATE_TIME_FORMAT = 'YYYY-MM-DD hh:mm A'
 export const DATE_AND_DAY_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
