@@ -29,6 +29,10 @@ let taskPlanningSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'employee name is required']},
     },
+    otherEmployee: {
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String, required: [true, 'employee name is required']},
+    },
     flags: [{
         type: String,
         enum: [SC.FLAG_EMPLOYEE_ON_LEAVE, SC.REPORT_UNREPORTED]
@@ -52,9 +56,23 @@ let taskPlanningSchema = mongoose.Schema({
 
 
 taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => {
+    let userRole
+    if (taskPlanningInput && taskPlanningInput.employee && taskPlanningInput.employee._id && taskPlanningInput.release && taskPlanningInput.release._id) {
+        userRole = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(taskPlanningInput.release._id, taskPlanningInput.employee._id)
+        if (userRole == undefined)
+            throw new AppError('User is not part of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    } else throw new AppError('form is not having proper data', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     if (!taskPlanningInput.releasePlan._id) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+
+    let releasePlan = await MDL.ReleasePlanModel.findOne(taskPlanningInput.releasePlan._id)
+
+    if (!releasePlan) {
+        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
 
     await  MDL.ReleasePlanModel.update({"_id": taskPlanningInput.releasePlan._id}, {"flags": [SC.FLAG_PLANNED]})
     let taskPlanning = new TaskPlanningModel()
