@@ -84,7 +84,9 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
     taskPlanning.releasePlan = taskPlanningInput.releasePlan
     if (userRole && userRole === SC.ROLE_NON_PROJECT_DEVELOPER) {
         taskPlanning.otherEmployee = taskPlanningInput.employee
-    } else taskPlanning.employee = taskPlanningInput.employee
+    } else if (userRole) {
+        taskPlanning.employee = taskPlanningInput.employee
+    }
 
 
     taskPlanning.flags = taskPlanningInput.flags
