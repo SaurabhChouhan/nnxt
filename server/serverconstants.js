@@ -111,6 +111,7 @@ export const DATE_AND_DAY_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
 export const DATE_TIME_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
 export const DATE_TIME_SHOW_FORMAT_WITH_AM_PM = 'dddd YYYY-MMMM-DD  hh:mm A'
 export const TIME_FORMAT = 'hh:mm A'
+export const DATE_AND_TIME_FORMAT = 'LLL'
 
 // Time Zones
 export const DEFAULT_TIMEZONE = 'UTC'
