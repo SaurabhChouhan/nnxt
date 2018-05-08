@@ -4,9 +4,9 @@ export const addReportingProjects = (projects) => ({
     type: AC.ADD_REPORTING_PROJECTS,
     projects: projects
 })
-export const getAllReportingProjectsFromServer = (status) => {
+export const getAllReportingProjectsAndTaskPlansFromServer = (projectStatus, planDate, taskStatus) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/status/' + status, {
+        return fetch('/api/releases/report/project-status/' + projectStatus + '/date/' + planDate + '/task-status/' + taskStatus , {
                 method: 'get',
                 credentials: "include",
                 headers: {

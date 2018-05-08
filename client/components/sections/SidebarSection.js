@@ -47,7 +47,7 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.CALENDAR))
                     }}>Calendar</Link></li>
                     <li><Link to="/app-home/reporting-project-List" onClick={() => {
-                        props.dispatch(A.getAllReportingProjectsFromServer("all"))
+                        props.dispatch(A.getAllReportingProjectsAndTaskPlansFromServer("all", new Date(), "all"))
                         props.dispatch(A.showComponentHideOthers(COC.REPORTING_PROJECT_LIST))
                     }}>Reporting</Link></li>
                 </ul>

@@ -86,5 +86,11 @@ releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await MDL.EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
 })
 
+//report
+//report/projectStatus/' + projectStatus + '/date/' + date + '/taskStatus/' + taskStatus
+
+releaseRouter.get("/report/project-status/:projectStatus/date/:planDate/task-status/:taskStatus", async ctx => {
+    return await MDL.ReleaseModel.getAllReportingProjectsAndTaskPlans(ctx.params, ctx.state.user)
+})
 
 export default releaseRouter

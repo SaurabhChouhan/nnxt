@@ -4,6 +4,8 @@ import * as SC from "../serverconstants";
 import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 import * as MDL from "../models"
+import momentTZ from 'moment-timezone'
+import moment from 'moment'
 
 mongoose.Promise = global.Promise
 
@@ -128,6 +130,92 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
         throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     return await ReleaseModel.find({"_id": releaseId, "user._id": user._id})
+}
+
+
+//Reporting
+releaseSchema.statics.getAllReportingProjectsAndTaskPlans = async (ParamsInput, user) => {
+    //ParamsInput.projectStatus
+    //ParamsInput.planDate
+    //ParamsInput.taskStatus
+    let momentPlanningDate = moment(ParamsInput.planDate)
+    console.log("moment(ParamsInput.planDate)", moment(ParamsInput.planDate))
+    let momentPlanningDateStringToDate = momentPlanningDate.toDate()
+
+    console.log("momentPlanningDate.toDate()", momentPlanningDate.toDate())
+    let momentTzPlanningDateString = momentTZ.tz(momentPlanningDateStringToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+    console.log("momentPlanningDate Time Zone", momentTzPlanningDateString)
+    let reportDate = momentTzPlanningDateString
+
+
+    let matchConditionArray = []
+    if (ParamsInput.projectStatus != 'all') {
+        matchConditionArray.push({$match: {status: ParamsInput.projectStatus}})
+    }
+
+    matchConditionArray.push({
+        $lookup: {
+            from: 'taskplannings',
+            localField: '_id',
+            foreignField: 'release._id',
+            as: 'taskPlans'
+        }
+    })
+
+    console.log("reportDate", reportDate)
+    //matchConditionArray.push({$unwind: {path: '$taskPlans'}})
+    //matchConditionArray.push({$match: {"taskPlans.planningDate": reportDate}})
+
+    let releases1 = await ReleaseModel.aggregate(matchConditionArray).exec()
+    /*
+    *  {
+        $lookup: {
+            from: 'taskplannings',
+            localField: 'taskPlans._id',
+            foreignField: '_id',
+            as: 'taskPlans'
+        }
+    }, {
+        $group: {
+            _id: "$_id",
+            created: "$created",
+            planningDate: "$planningDate",
+            planningDateString: "$planningDateString",
+            isShifted: "$isShifted",
+            canMerge: "$canMerge",
+            task: "$task",
+            release: "$release",
+            releasePlan: "$releasePlan",
+            employee: "$employee",
+            flags: "$flags",
+            planning: "$planning",
+            report: "$report",
+            taskPlans: {
+                $push: {$arrayElemAt: ['$taskPlans', 0]}
+            }
+        }
+    }*/
+    /*
+        let releases2 = await ReleaseModel.aggregate({}, {
+            $lookup: {
+                from: 'taskplannings',
+                let: {releaseID: "$_id"},
+                pipeline: [{
+                    $match: {
+                        $expr: {
+                            $and: [
+                                {$eq: ["$release._id", "$$releaseID"]},
+                                {$eq: ["$planningDate", reportDate]}
+                            ]
+                        }
+                    }
+                }],
+                as: 'taskPlans'
+            }
+        }).exec()
+    */
+    return releases1
 }
 
 const ReleaseModel = mongoose.model("Release", releaseSchema)
