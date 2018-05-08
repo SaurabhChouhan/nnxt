@@ -73,6 +73,27 @@ let releaseSchema = mongoose.Schema({
     updated: {type: Date, default: Date.now()}
 })
 
+releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
+    let release = await MDL.ReleaseModel.findById(releaseID)
+
+    if (release) {
+        // check to see role of logged in user in this estimation
+        if (release.manager && release.manager._id === user._id)
+            return SC.ROLE_MANAGER
+        else if (release.leader && release.leader._id === user._id)
+            return SC.ROLE_LEADER
+        else if (release.team && release.team.length && release.team.findIndex(t => t._id === user._id) != -1)
+            return SC.ROLE_DEVELOPER
+        else {
+            let user = await MDL.UserModel.findOne({"_id": user._id})
+            if (user && user.roles && user.roles.length && user.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
+                return SC.ROLE_NON_PROJECT_DEVELOPER
+            } else return undefined
+        }
+    }
+    return undefined
+}
+
 releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
         throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can add release', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)

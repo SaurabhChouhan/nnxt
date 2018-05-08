@@ -12,6 +12,7 @@ export const ROLE_NEGOTIATOR = 'Negotiator'
 export const ROLE_MANAGER = 'Manager'
 export const ROLE_LEADER = 'Leader'
 export const ROLE_DEVELOPER = 'Developer'
+export const ROLE_NON_PROJECT_DEVELOPER = 'Non Project Developer'
 
 
 // test emails
