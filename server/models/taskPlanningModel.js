@@ -64,7 +64,11 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
     taskPlanning.task = taskPlanningInput.task
     taskPlanning.release = taskPlanningInput.release
     taskPlanning.releasePlan = taskPlanningInput.releasePlan
-    taskPlanning.employee = taskPlanningInput.employee
+    if (userRole && userRole === SC.ROLE_NON_PROJECT_DEVELOPER) {
+        taskPlanning.otherEmployee = taskPlanningInput.employee
+    } else taskPlanning.employee = taskPlanningInput.employee
+
+
     taskPlanning.flags = taskPlanningInput.flags
     taskPlanning.planning = taskPlanningInput.planning
     taskPlanning.report = taskPlanningInput.report
@@ -556,27 +560,30 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    let toDateMoment
-    let fromDateMoment
+    let toDateMomentTz
+    let fromDateMomentTz
 
     if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        fromDateMoment = moment(fromDate).hour(0).minute(0).second(0).millisecond(0)
+        let fromDateMoment = moment(fromDate)
+        let fromDateMomentToDate = fromDateMoment.toDate()
+        fromDateMomentTz = momentTZ.tz(fromDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
+
     if (toDate && toDate != 'undefined' && toDate != undefined) {
-        toDateMoment = moment(toDate).minute(0).second(0).millisecond(0)
+        let toDateMoment = moment(toDate)
+        let toDateMomentToDate = toDateMoment.toDate()
+        toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
-
-
 
     let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId}).sort({"planningDate": 1})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
     else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz))
     }
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
     return taskPlannings
 }
