@@ -89,6 +89,24 @@ userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
 }
 
 
+userSchema.statics.getAllActiveWithRoleDeveloper = async (loggedInUser) => {
+    if (userHasRole(loggedInUser, SC.ROLE_MANAGER) || userHasRole(loggedInUser, SC.ROLE_LEADER)) {
+
+        //Only Manager or leader can have all developer list
+
+        return await UserModel.find({
+                "roles.name": {
+                    $in: [SC.ROLE_DEVELOPER]
+                }, isDeleted: false
+            }, {password: 0}
+        ).exec()
+    }
+    else {
+        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+}
+
+
 userSchema.statics.saveUser = async usrObj => {
     if (!usrObj.email)
         throw new AppError("Email must be passed to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)

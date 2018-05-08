@@ -22,6 +22,11 @@ export const addUsersWithRoleCategory = (users) => ({
     users: users
 })
 
+export const addUsersWithRoleDeveloper = (users) => ({
+    type: AC.ADD_USERS_WITH_ROLE_DEVELOPER,
+    developers: developers
+})
+
 export const addUser = (user) => ({
     type: AC.ADD_USER,
     user: user
@@ -112,6 +117,32 @@ export const getUsersWithRoleCategoryFromServer = () => {
         ).then(json => {
                 if (json.success) {
                     dispatch(addUsersWithRoleCategory(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+
+export const getUsersWithRoleDeveloperFromServer = () => {
+    return function (dispatch, getState) {
+        return fetch('/api/users/role-developer',
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addUsersWithRoleDeveloper(json.data))
                 }
                 return json
             }

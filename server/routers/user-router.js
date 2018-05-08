@@ -17,13 +17,16 @@ userRouter.get('/role-category', async ctx => {
     return await MDL.UserModel.getAllActiveWithRoleCategory(ctx.state.user)
 })
 
+userRouter.get('/role-developer', async ctx => {
+    return await MDL.UserModel.getAllActiveWithRoleCategory(ctx.state.user)
+})
+
 userRouter.post('/', async ctx => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
         return await MDL.UserModel.saveUser(ctx.request.body)
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-
 })
 
 userRouter.put('/', async ctx => {
