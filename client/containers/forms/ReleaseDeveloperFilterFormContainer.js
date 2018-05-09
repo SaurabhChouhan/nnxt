@@ -12,12 +12,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => {
-
-    return {
-        team: state.release.selectedProject && state.release.selectedProject.team && state.release.selectedProject.team.length ? state.release.selectedProject.team : [],
-    }
-}
+const mapStateToProps = (state, ownProps) => ({
+    team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? state.user.allDevelopers : []
+})
 
 
 const ReleaseDeveloperFilterFormContainer = connect(

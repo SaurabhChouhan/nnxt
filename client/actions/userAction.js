@@ -27,6 +27,11 @@ export const addUsersWithRoleDeveloper = (developers) => ({
     developers: developers
 })
 
+export const addDevelopersToState = (developers) => ({
+    type: AC.ADD_DEVELOPERS_TO_STATE,
+    developers: developers
+})
+
 export const addUser = (user) => ({
     type: AC.ADD_USER,
     user: user
@@ -143,6 +148,32 @@ export const getUsersWithRoleDeveloperFromServer = () => {
         ).then(json => {
                 if (json.success) {
                     dispatch(addUsersWithRoleDeveloper(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+
+export const getAllDeveloperFromServer = () => {
+    return function (dispatch, getState) {
+        return fetch('/api/users/role-developer',
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addDevelopersToState(json.data))
                 }
                 return json
             }
