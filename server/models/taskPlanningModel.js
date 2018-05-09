@@ -10,6 +10,11 @@ import * as MDL from '../models'
 mongoose.Promise = global.Promise
 
 let taskPlanningSchema = mongoose.Schema({
+    user: {
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String},
+        role: {type: String},
+    },
     created: {type: Date, default: Date.now()},
     planningDate: {type: Date, default: Date.now()},
     planningDateString: String,
@@ -115,6 +120,12 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
     taskPlanning.flags = taskPlanningInput.flags
     taskPlanning.planning = taskPlanningInput.planning
     taskPlanning.report = taskPlanningInput.report
+    taskPlanning.user = {
+        _id: user._id,
+        name: user.firstName + ' ' + user.lastName,
+        role: userRole
+    }
+
 
     return await taskPlanning.save()
 
