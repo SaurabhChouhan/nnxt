@@ -54,7 +54,7 @@ userSchema.statics.getAllActive = async (loggedInUser) => {
 }
 
 userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
-    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR)) {
+    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR) || userHasRole(loggedInUser, SC.ROLE_MANAGER) || userHasRole(loggedInUser, SC.ROLE_LEADER)) {
 
         // Negotiator can see estimators (Estimation Initiate), developers, leaders (company cost approximations)
         let Leaders = await UserModel.find({

@@ -88,9 +88,11 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
             return SC.ROLE_LEADER
         else if (release.team && release.team.length && release.team.findIndex(t => t._id === user._id) != -1)
             return SC.ROLE_DEVELOPER
+        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1)
+            return SC.ROLE_NON_PROJECT_DEVELOPER
         else {
-            let user = await MDL.UserModel.findOne({"_id": user._id})
-            if (user && user.roles && user.roles.length && user.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
+            let User = await MDL.UserModel.findById(user._id)
+            if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
                 return SC.ROLE_NON_PROJECT_DEVELOPER
             } else return undefined
         }

@@ -22,7 +22,7 @@ export const addUsersWithRoleCategory = (users) => ({
     users: users
 })
 
-export const addUsersWithRoleDeveloper = (users) => ({
+export const addUsersWithRoleDeveloper = (developers) => ({
     type: AC.ADD_USERS_WITH_ROLE_DEVELOPER,
     developers: developers
 })
