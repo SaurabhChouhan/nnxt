@@ -18,7 +18,7 @@ userRouter.get('/role-category', async ctx => {
 })
 
 userRouter.get('/role-developer', async ctx => {
-    return await MDL.UserModel.getAllActiveWithRoleCategory(ctx.state.user)
+    return await MDL.UserModel.getAllActiveWithRoleDeveloper(ctx.state.user)
 })
 
 userRouter.post('/', async ctx => {

@@ -8,13 +8,19 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
-    showTaskPlanningCreationForm: (releasePlan) => {
+    showTaskPlanningCreationForm: (releasePlan, projectUsersOnly) => {
+        if (projectUsersOnly) {
+            dispatch(A.getUsersWithRoleDeveloperFromServer())
+        } else {
+            dispatch(A.getUsersWithRoleCategoryFromServer())
+        }
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
             task: releasePlan.task,
             releasePlan: {
                 _id: releasePlan._id,
             },
+            projectUsersOnly: projectUsersOnly,
             flags: SC.REPORT_UNREPORTED,
             report: {
                 status: SC.REPORT_PENDING
