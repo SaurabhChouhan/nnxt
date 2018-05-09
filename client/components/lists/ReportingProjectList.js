@@ -111,7 +111,7 @@ class ReportingProjectList extends Component {
 
                     </div>
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={[]}
+                        <BootstrapTable options={this.options} data={this.props.projectList}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}
