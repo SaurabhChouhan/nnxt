@@ -35,7 +35,7 @@ class CalendarPage extends React.Component {
         };
     }
 
-    Event({event}) {
+    /*Event({event}) {
         return (
             <span>
                 {(event.role && event.role != 'undefined' && event.role != "" ) ?
@@ -43,21 +43,25 @@ class CalendarPage extends React.Component {
                 <p>{event.title}</p>
         </span>
         )
-    }
+    }*/
 
     render() {
-        let formats = {
+        let tmpDate=moment("05-08-2018", "MM-DD-YYYY").toDate();
+        console.log("inside calendar render ",tmpDate);
+        console.log("type of tmp date ",typeof tmpDate);
+       /* let formats = {
             // formats the day and week view tp '03/12'
             dayFormat: (date, culture, localizer) =>
-                localizer.format(date, 'ddd DD-MMM', culture),
+                localizer.format(date, 'dddd DD-MMM', culture),
             // formats the top of day view to '03/12'
             dayHeaderFormat: (date, culture, localizer) =>
-                localizer.format(date, 'ddd DD-MMM', culture),
+                localizer.format(date, 'dddd DD-MMM', culture),
             weekdayFormat: (date, culture, localizer) =>
-                localizer.format(date, 'ddd', culture),
+                localizer.format(date, 'dddd', culture),
             selectRangeFormat: (date, culture, localizer) =>
-                localizer.format(date, 'ddd', culture)
-        }
+                localizer.format(date, 'dddd', culture)
+        }*/
+        console.log("this.props.events", this.props.events)
         return (
             <div>
                 {(this.props.visibility.calendarView) ?
@@ -66,20 +70,49 @@ class CalendarPage extends React.Component {
                         view={this.props.selectedView}
                         date={this.props.selectedDate}
                         timeslots={4}
-                        formats={formats}
-                        components={{event: this.Event}}
-                        selectable
-                        popup
+                      //  components={{event: this.Event}}
+                       // selectable
+                        //popup
                         onSelectEvent={event => this.props.showSelectedTaskDetail(event)}
-                        events={this.props.events}
-                        startAccessor='startDateTime'
-                        endAccessor='reportingEndDate'
+                        events={[
+                            {
+                                end: moment ("05-08-2018 12:30:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                                start:moment("05-06-2018 11:00:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                                title: 'Task2',
+                                description:'Task2 is pending task'
+
+                            },
+                            {
+                            end: moment("05-08-2018 10:30:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                            start: moment("05-08-2018 10:00:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                            title: 'Task1',
+                                description:'Task1 is pending task'
+
+                        },
+                            {
+                                end: moment ("05-09-2018 12:30:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                                start:moment("05-09-2018 11:00:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                                title: 'Task3',
+                                description:'Task3 is pending task'
+
+                            },
+                            {
+                                end: moment ("05-12-2018 12:30:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                                start:moment("05-09-2018 11:00:00", "MM-DD-YYYY HH:mm:ss").toDate(),
+                                title: 'Task4',
+                                description:'Task4 is pending task'
+
+                            }
+
+                        ]}
+                        startAccessor='start'
+                        endAccessor='end'
                         eventPropGetter={(this.eventStyleGetter)}
                         onNavigate={(date, view) => {
-                            this.props.changeViewAndDate(view,date);
+                            this.props.changeViewAndDate(view, date);
                         }}
-                        onView={(view)=>{
-                            this.props.changeViewAndDate(view,this.props.selectedDate);
+                        onView={(view) => {
+                            this.props.changeViewAndDate(view, this.props.selectedDate);
                         }}
                     />
                     : <CalendarTaskDetailPage {...this.props}/>

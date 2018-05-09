@@ -9,3 +9,6 @@ export const changeNavigationView=(view,date)=>({
     view:view,
     date:date
 })
+export const showCalendarView = () => ({
+    type: 'SHOW_CALENDAR_VIEW'
+})

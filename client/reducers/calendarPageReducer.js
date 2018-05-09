@@ -10,7 +10,6 @@ const calendarPageReducer = (state = {
     defaultDate: moment(now).toDate(),
     selectedView: "week",
     selectedDate: moment(now).toDate(),
-    fetchInProgress: false,
 
 }, action) => {
     switch (action.type) {
@@ -32,6 +31,16 @@ const calendarPageReducer = (state = {
                     selectedDate: (action.date == null) ? state.defaultDate : action.date
                 }
             )
+
+        case 'SHOW_CALENDAR_VIEW':
+            return Object.assign({}, state,
+                {
+                    visibility: {
+                        calendarView: true,
+                    }
+                }
+            )
+
         default:
             return state;
     }
