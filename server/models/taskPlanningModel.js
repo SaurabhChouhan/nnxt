@@ -29,10 +29,6 @@ let taskPlanningSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'employee name is required']},
     },
-    otherEmployee: {
-        _id: mongoose.Schema.ObjectId,
-        name: {type: String, required: [true, 'employee name is required']},
-    },
     flags: [{
         type: String,
         enum: [SC.FLAG_EMPLOYEE_ON_LEAVE, SC.REPORT_UNREPORTED]
@@ -62,6 +58,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
         if (userRole == undefined)
             throw new AppError('User is not part of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     } else throw new AppError('form is not having proper data', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    console.log("User Role in This Release", userRole)
 
     if (!taskPlanningInput.releasePlan._id) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -72,9 +69,38 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
     if (!releasePlan) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+    if (!taskPlanningInput.release._id) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
 
+    let release = await MDL.ReleaseModel.findOne(taskPlanningInput.release._id)
 
-    await  MDL.ReleasePlanModel.update({"_id": taskPlanningInput.releasePlan._id}, {"flags": [SC.FLAG_PLANNED]})
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    if (taskPlanningInput && !taskPlanningInput.projectUsersOnly && taskPlanningInput.employee && taskPlanningInput.employee._id && release && release._id) {
+        if (await MDL.ReleaseModel.count({
+                $or: [{"manager._id": taskPlanningInput.employee._id},
+                    {"leader._id": taskPlanningInput.employee._id},
+                    {"team._id": taskPlanningInput.employee._id},
+                    {"nonProjectTeam._id": taskPlanningInput.employee._id}],
+                "_id": release._id
+            }) == 0) {
+            // it checks that user who may not be a developer of this project is assigned into a task plan so add that user to this project as a nonProjectTeam
+
+            let user = await MDL.UserModel.findOne(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
+            let nonProjectUser = {
+                "_id": user._id,
+                "name": user.firstName + ' ' + user.lastName,
+                "email": user.email,
+            }
+            await MDL.ReleaseModel.update({
+                '_id': taskPlanningInput.release._id
+            }, {$push: {"nonProjectTeam": nonProjectUser}}).exec()
+        }
+    }
+
+    await  MDL.ReleasePlanModel.update({"_id": mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id)}, {"flags": [SC.FLAG_PLANNED]})
     let taskPlanning = new TaskPlanningModel()
     taskPlanning.created = Date.now()
     taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
@@ -82,13 +108,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
     taskPlanning.task = taskPlanningInput.task
     taskPlanning.release = taskPlanningInput.release
     taskPlanning.releasePlan = taskPlanningInput.releasePlan
-    if (userRole && userRole === SC.ROLE_NON_PROJECT_DEVELOPER) {
-        taskPlanning.otherEmployee = taskPlanningInput.employee
-    } else if (userRole) {
-        taskPlanning.employee = taskPlanningInput.employee
-    }
-
-
+    taskPlanning.employee = taskPlanningInput.employee
     taskPlanning.flags = taskPlanningInput.flags
     taskPlanning.planning = taskPlanningInput.planning
     taskPlanning.report = taskPlanningInput.report

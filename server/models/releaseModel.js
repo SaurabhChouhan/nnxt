@@ -40,6 +40,11 @@ let releaseSchema = mongoose.Schema({
         name: {type: String, required: [true, 'Team name is required']},
         email: {type: String, required: [true, 'Developer email name is required']}
     }],
+    nonProjectTeam: [{
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Team name is required']},
+        email: {type: String, required: [true, 'Developer email name is required']}
+    }],
     initial: {
         billedHours: {type: Number, default: 0},
         estimatedHours: {type: Number, default: 0},
@@ -179,12 +184,13 @@ releaseSchema.statics.getAllReportingProjectsAndTaskPlans = async (ParamsInput, 
 
     //matchConditionArray.push({$unwind: {path: '$taskPlans'}})
     //matchConditionArray.push({$match: {"taskPlans.planningDate": reportDate}})
+    //matchConditionArray.push({$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]})
 
 
     let matchTakPlanConditions = {}
     if (ParamsInput.taskStatus && ParamsInput.taskStatus.toLowerCase() != "all")
         matchTakPlanConditions = {
-            $or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}],
+            "employee._id": user._id,
             "plannedDate": reportDate,
             "status": ParamsInput.taskStatus
         }
