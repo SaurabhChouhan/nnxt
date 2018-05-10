@@ -13,17 +13,23 @@ class ReportingDateNavbar extends React.Component {
             <form>
                 <div className='col-md-12'>
                     <div className="col-md-2 div-hover">
-                        <button className="btn reportingArrow " style={{marginLeft: '117px'}} type="button">
+                        <button className="btn reportingArrow"
+                                style={{marginLeft: '117px'}}
+                                type="button">
                             <i className="glyphicon glyphicon-arrow-left"></i>
                         </button>
                     </div>
                     <div className="col-md-3 reportingDatePicker">
-                        <Field name='reportingDate' label='' component={renderDateTimePicker}
+                        <Field name='dateOfReport'
+                               label=''
+                               component={renderDateTimePicker}
                                showTime={false}
                         />
                     </div>
                     <div className="col-md-2 div-hover">
-                        <button className="btn reportingArrow " style={{marginLeft: '150px'}} type="button">
+                        <button className="btn reportingArrow"
+                                style={{marginLeft: '150px'}}
+                                type="button">
                             <i className="glyphicon glyphicon-arrow-right"></i>
                         </button>
                     </div>

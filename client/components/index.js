@@ -104,10 +104,10 @@ export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPag
 //Raise Leave
 export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
 
-//Reporting
-export {default as ReportingTaskPage} from './pages/ReportingTaskPage'
-export {default as ReportingDateNavbar} from './forms/ReportingDateNavbar'
-
 //Calendar Page
-export {default as CalendarPage} from './pages/CalendarPage'
 export {default as CalendarTaskDetailPage} from './pages/CalendarTaskDetailPage'
+export {default as CalendarPage} from './pages/CalendarPage'
+
+//Reporting
+export {default as ReportingDateNavBar} from './forms/ReportingDateNavBar'
+export {default as ReportingTaskPage} from './pages/ReportingTaskPage'

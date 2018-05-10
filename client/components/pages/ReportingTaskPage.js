@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-import {ReportingDateNavbar} from '../index'
+import {ReportingDateNavBarContainer} from '../../containers'
 import {withRouter} from 'react-router-dom'
 
 
@@ -156,28 +156,22 @@ class ReportingTaskPage extends Component {
     }
 
     viewEditButton(cell, row, enumObject, rowIndex) {
-
-
         return (<button className=" btn btn-custom" type="button" onClick={() => {
                 console.log("submit")
 
             }}>
                 <i class="fa fa-pencil"></i>
             </button>
-
         )
     }
 
     viewSubmitButton(cell, row, enumObject, rowIndex) {
-
-
         return (<button className=" btn btn-custom " type="button" onClick={() => {
                 console.log("submit")
             }}>
                 <i class="fa fa-check"></i>
             </button>
         )
-
     }
 
     onTaskStatusChange(status) {
@@ -245,7 +239,7 @@ class ReportingTaskPage extends Component {
                     </div>
                 }
                 <div className="col-md-12">
-                    <ReportingDateNavbar/>
+                    <ReportingDateNavBarContainer />
                 </div>
                 <div className="col-md-12">
 
