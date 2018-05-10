@@ -238,14 +238,14 @@ class ReportingselectedProject extends Component {
 
                     <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
-                        <div className="col-md-4 ">
+                        <div className="col-md-6 ">
                             <div className="releaseDetailSearchFlag">
                                 <select className="form-control" title="Select Flag">
                                     <option value="all">project</option>
                                 </select>
                             </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-6">
                             <div className="releaseDetailSearchStatus">
                                 <select className="form-control" title="Select Status"
                                         onChange={(status) => this.onStatusChange(status.target.value)}>

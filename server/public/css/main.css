@@ -1105,7 +1105,7 @@ td.rejRowColor {
 
 .RepositoryHeading span {
     padding-right: 5%;
-    font-weight:bold;
+    font-weight: bold;
     /* padding-top: 6px;*/
 }
 
@@ -1564,6 +1564,7 @@ label {
     width: 40%;
     margin-left: -27px;
     margin-bottom: 25px;
+    margin-top: -19px;
 }
 
 .col-lg-8 {
@@ -1607,7 +1608,7 @@ label {
 
 .releaseDetailSearchFlag {
     margin-left: 67px;
-    margin-top: 28px;
+    margin-top: 10px;
     position: absolute;
     width: 86%;
 
@@ -1618,7 +1619,7 @@ label {
 }
 
 .releaseDetailSearchStatus {
-    margin-top: 28px;
+    margin-top: 10px;
     position: absolute;
     width: 82%;
     margin-left: 58px;
@@ -1703,13 +1704,13 @@ i.iconClr:hover {
     font-size: 18px;
 }
 
-.pastArrow{
+.pastArrow {
     margin-top: 35px;
     position: absolute;
     font-size: 18px;
 }
 
-.devMargin{
+.devMargin {
     margin-left: -17px;
 }
 
@@ -1718,18 +1719,20 @@ i.iconClr:hover {
     background-color: #F66E65;
     color: #ffffff;
 }
+
 .reportingDatePicker {
     margin-left: 150px;
     margin-top: 5px;
 
 }
+
 .calArrow {
     font-size: 20px;
     color: #FF534F;
 }
 
-hr{
-    width:100%;
+hr {
+    width: 100%;
 }
 
 /*.rw-select-bordered{
