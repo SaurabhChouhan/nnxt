@@ -27,7 +27,7 @@ const reportingReducer = (state = initialState, action) => {
                 allTaskPlans: action.project.taskPlans
             })
 
-        case AC.NO_PROJECT_SECTED:
+        case AC.NO_PROJECT_SELECTED:
             // When no project is selected then show dummy data
             return Object.assign({}, state, {
                 selectedProject: Object.assign({}, action.project, {
