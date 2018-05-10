@@ -14,9 +14,11 @@ class ReportingTaskPage extends Component {
              onRowClick: this.onRowClick.bind(this)
          }*/
         this.state = {
-            taskStatus: "all"
+            taskStatus: "all",
+            releaseID: ""
         }
         this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
+        this.onProjectSelect = this.onProjectSelect.bind(this)
     }
 
     /*  onRowClick(row) {
@@ -182,59 +184,66 @@ class ReportingTaskPage extends Component {
         this.setState({taskStatus: status})
         this.props.changeReleaseStatus(this.state.releaseID, this.props.planDate, this.state.flag,status)
     }
+
+    onProjectSelect(releaseID) {
+        this.setState({releaseID: releaseID})
+        this.props.onProjectSelect(releaseID, this.props.dateOfReport, this.state.taskStatus)
+    }
     render() {
         const {selectedProject, allTaskPlans, allProjects} = this.props
         console.log("reporting", selectedProject)
         console.log("selectedProject", selectedProject)
         return (
             <div key="estimation_list" className="clearfix">
-                <div className="col-md-12 releaseHeader">
-                    <div className="col-md-3">
-                        <div className="releaseTitle">
+                {
+                    selectedProject && selectedProject._id && <div className="col-md-12 releaseHeader">
+                        <div className="col-md-3">
+                            <div className="releaseTitle">
                             <span
                                 title={selectedProject.project ? selectedProject.project.name : ''}>Project Name</span>
+                            </div>
+                            <div className="releasecontent">
+                                <p>{selectedProject.project ? selectedProject.project.name : ''}</p>
+                            </div>
                         </div>
-                        <div className="releasecontent">
-                            <p>{selectedProject.project ? selectedProject.project.name : ''}</p>
-                        </div>
-                    </div>
 
-                    <div className="col-md-2">
-                        <div className="releaseTitle">
+                        <div className="col-md-2">
+                            <div className="releaseTitle">
                             <span
                                 title={selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                            </div>
+                            <div className="releasecontent">
+                                <p>{selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            </div>
                         </div>
-                        <div className="releasecontent">
-                            <p>{selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
-                        </div>
-                    </div>
-                    <div className="col-md-2">
-                        <div className="releaseTitle">
+                        <div className="col-md-2">
+                            <div className="releaseTitle">
                             <span
                                 title={selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                            </div>
+                            <div className="releasecontent">
+                                <p>{selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            </div>
                         </div>
-                        <div className="releasecontent">
-                            <p>{selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
-                        </div>
-                    </div>
-                    <div className="col-md-2">
-                        <div className="releaseTitle">
+                        <div className="col-md-2">
+                            <div className="releaseTitle">
                             <span
                                 title={selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                            </div>
+                            <div className="releasecontent">
+                                <p>{selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            </div>
                         </div>
-                        <div className="releasecontent">
-                            <p>{selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                        <div className=" col-md-2 releasefileoption">
+                            <ul className="list-unstyled">
+                                <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
+                                <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
+                                <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
+                            </ul>
                         </div>
-                    </div>
-                    <div className=" col-md-2 releasefileoption">
-                        <ul className="list-unstyled">
-                            <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
-                            <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
-                            <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
-                        </ul>
-                    </div>
 
-                </div>
+                    </div>
+                }
                 <div className="col-md-12">
                     <ReportingDateNavbar/>
                 </div>
@@ -247,7 +256,7 @@ class ReportingTaskPage extends Component {
                                 <select
                                     className="form-control"
                                     title="Select Flag"
-                                    onChange={(project) => this.props.onProjectSelect(project.target.value, planDate, taskStatus)}>
+                                    onChange={(project) => this.onProjectSelect(project.target.value)}>
 
                                     <option value="">Select Project</option>
                                     {

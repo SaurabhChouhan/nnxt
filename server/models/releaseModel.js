@@ -3,6 +3,8 @@ import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import * as EC from "../errorcodes"
 import * as MDL from "../models"
+import momentTZ from 'moment-timezone'
+import moment from 'moment'
 
 mongoose.Promise = global.Promise
 
@@ -159,8 +161,23 @@ releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
     //ParamsInput.releaseID
     //ParamsInput.planDate
     //ParamsInput.taskStatus
+    let momentPlanningDate = moment(ParamsInput.planDate)
+    console.log("moment(ParamsInput.planDate)", moment(ParamsInput.planDate))
+    let momentPlanningDateStringToDate = momentPlanningDate.toDate()
+    let momentTzPlanningDateString = momentTZ.tz(momentPlanningDateStringToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
-    return ParamsInput
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(ParamsInput.releaseID))
+    if (!release)
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    release = release.toObject()
+    let taskPlans = await MDL.TaskPlanningModel.find({
+        "release._id": mongoose.Types.ObjectId(ParamsInput.releaseID),
+        "planningDate": momentTzPlanningDateString,
+        "employee._id": mongoose.Types.ObjectId(user._id)
+    })
+    release.taskPlans = taskPlans
+    return release
 }
 
 const ReleaseModel = mongoose.model("Release", releaseSchema)

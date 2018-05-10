@@ -6,9 +6,9 @@ export const addReportingProjects = (projects) => ({
 })
 
 
-export const addReportingTaskPlannings = (projects) => ({
+export const addReportingTaskPlannings = (project) => ({
     type: AC.ADD_SELECTED_PROJECT_AND_REPORTING_TASK_PLANNINGS,
-    projects: projects
+    project: project
 })
 
 export const getAllReportingProjectsFromServer = () => {
@@ -49,6 +49,10 @@ export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, 
             json => {
                 if (json.success) {
                     dispatch(addReportingTaskPlannings(json.data))
+                } else {
+                    dispatch(addReportingTaskPlannings({
+                        taskPlans: []
+                    }))
                 }
             })
     }

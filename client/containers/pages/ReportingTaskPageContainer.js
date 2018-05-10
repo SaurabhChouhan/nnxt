@@ -11,6 +11,7 @@ const mapStateToProps = (state, ownProps) => ({
     allProjects:state.report.allProjects,
     selectedProject: state.report.selectedProject,
     allTaskPlans: state.report.allTaskPlans,
+    dateOfReport: state.report.dateOfReport,
 })
 
 const ReportingTaskPageContainer = connect(
