@@ -15,8 +15,8 @@ export const releaseTaskPlanningStruct = t.struct({
     release: t.struct({
         _id: ObjectId
     }),
-    planning: {
+    planning: t.struct({
         plannedHours: t.Number
-    },
+    }),
     planningDate: RequiredString,
 })
