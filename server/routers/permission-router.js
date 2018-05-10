@@ -1,25 +1,24 @@
 import Router from 'koa-router'
-
-import PermissionModel from '../models/permissionModel'
+import * as  MDL from '../models'
 
 const permissionRouter = new Router({
     prefix: "permissions"
 })
 
 permissionRouter.get('/', async ctx => {
-    let permission = await PermissionModel.getAll()
+    let permission = await MDL.PermissionModel.getAll()
     return permission
 })
 
 permissionRouter.post('/', async ctx => {
-    return await PermissionModel.savePermission(ctx.request.body)
+    return await MDL.PermissionModel.savePermission(ctx.request.body)
 })
 
 permissionRouter.put('/', async ctx => {
-    return await PermissionModel.editPermission(ctx.request.body)
+    return await MDL.PermissionModel.editPermission(ctx.request.body)
 })
 permissionRouter.del('/:id', async ctx => {
-    return await PermissionModel.deletePermission(ctx.params.id)
+    return await MDL.PermissionModel.deletePermission(ctx.params.id)
 })
 
 

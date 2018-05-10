@@ -1,8 +1,9 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
-import moment from 'moment'
-import {ReleaseDeveloperFilterFormContainer,ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
+import momentTZ from 'moment-timezone'
+import * as SC from '../../../server/serverconstants'
+import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
 
 class ReleaseTaskPlanningPage extends Component {
 
@@ -12,7 +13,11 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+        let now = new Date()
+        let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        if (momentTZ.tz(row.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isBefore(nowMoment))
+            return ''
+        else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
                         onClick={() => {
                             this.props.deleteTaskPlanningRow(row)
                         }}></button>)
@@ -21,13 +26,13 @@ class ReleaseTaskPlanningPage extends Component {
     actionCellButton(cell, row, enumObject, rowIndex) {
         return (<button className="pull-left btn btn-custom" type="button"
                         onClick={() => {
-                            this.props.mergeTaskPlanningRow(row)
+                            this.props.openMergeTaskPlanningForm(row)
                         }}>Merge</button>)
     }
 
     formatPlanningDate(row) {
         if (row) {
-            return moment(row).format("DD-MM-YYYY")
+            return momentTZ.tz(row, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format("DD-MM-YYYY")
         }
         return ''
     }
@@ -63,7 +68,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
         // const {release} = this.props
-        const {taskPlan, taskPlans, developerPlanned} = this.props
+        const {taskPlan, taskPlans, developerPlans} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -137,7 +142,7 @@ class ReleaseTaskPlanningPage extends Component {
                     </div>
                     <div className="col-md-12">
                         <div className="estimation">
-                            <BootstrapTable options={this.options} data={developerPlanned}
+                            <BootstrapTable options={this.options} data={developerPlans}
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id'

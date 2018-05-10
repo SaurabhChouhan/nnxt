@@ -107,9 +107,15 @@ export const REPORT_PENDING = "pending"
 // Date Formate and Time Zone
 export const DATE_FORMAT = 'YYYY-MM-DD'
 export const DATE_TIME_FORMAT = 'YYYY-MM-DD hh:mm A'
-export const DATE_TIME_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm A'
+export const DATE_AND_DAY_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
+export const DATE_TIME_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
+export const DATE_TIME_SHOW_FORMAT_WITH_AM_PM = 'dddd YYYY-MMMM-DD  hh:mm A'
 export const TIME_FORMAT = 'hh:mm A'
+export const DATE_AND_TIME_FORMAT = 'LLL'
+
+// Time Zones
 export const DEFAULT_TIMEZONE = 'UTC'
+export const INDIAN_TIMEZONE = 'Asia/Calcutta'
 
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]

@@ -7,11 +7,12 @@ import {
     EstimationListContainer,
     ProjectListContainer,
     RaiseLeaveListContainer,
-    ReleaseProjectTaskListContainer,
     ReleaseListContainer,
+    ReleaseProjectTaskListContainer,
     ReleaseTaskPlanningPageContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    CalendarPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -28,10 +29,11 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
+    ReleaseMergeTaskPlanningFormDialog,
     ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
     RepositoryTaskDetailDialog,
-    TechnologyFormDialog
+    TechnologyFormDialog,
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -230,6 +232,21 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
                         }
                     }/>
+                    <ReleaseMergeTaskPlanningFormDialog name={COC.MERGE_TASK_PLANNING_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.MERGE_TASK_PLANNING_DIALOG))
+                        }
+                    }/>
+                </ContentSection>
+
+            }
+        })
+
+        routes.push({
+            url: "/calendar",
+            render: (props) => {
+                return <ContentSection>
+                    <CalendarPageContainer name={COC.CALENDAR}/>
                 </ContentSection>
 
             }

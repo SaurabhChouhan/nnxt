@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import {UserModel} from '../models'
+import * as MDL from '../models'
 import * as EC from "../errorcodes"
 import * as SC from "../serverconstants"
 
@@ -58,7 +58,7 @@ roleSchema.statics.editRole = async (roleInput) => {
     if (count > 0) {
         throw new AppError("Role [" + roleInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
-    let userUpdate = await UserModel.updateAddedRole(roleInput)
+    let userUpdate = await MDL.UserModel.updateAddedRole(roleInput)
     await RoleModel.replaceOne({_id: roleInput._id}, roleInput)
     return roleInput
 }
@@ -66,7 +66,7 @@ roleSchema.statics.editRole = async (roleInput) => {
 roleSchema.statics.deleteRole = async (roleID) => {
     if (!roleID)
         throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
-    let userDelete = await UserModel.deleteAddedRole(roleID)
+    let userDelete = await MDL.UserModel.deleteAddedRole(roleID)
     return await RoleModel.findByIdAndRemove(roleID).exec()
 }
 

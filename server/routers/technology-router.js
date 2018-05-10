@@ -1,6 +1,6 @@
 import Router from 'koa-router'
 import * as V from "../validation"
-import {TechnologyModel} from "../models"
+import * as MDL from "../models"
 
 let technologyRouter = new Router({
     prefix: 'technologies'
@@ -10,15 +10,15 @@ let technologyRouter = new Router({
 technologyRouter.post("/", async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.technologyAdditionStruct)
-    return await TechnologyModel.saveTechnology(ctx.request.body)
+    return await MDL.TechnologyModel.saveTechnology(ctx.request.body)
 })
 
 technologyRouter.get("/", async ctx => {
-    return await TechnologyModel.getAllActive()
+    return await MDL.TechnologyModel.getAllActive()
 })
 
 technologyRouter.delete("/:id", async ctx => {
-    return await TechnologyModel.delete(ctx.params.id)
+    return await MDL.TechnologyModel.delete(ctx.params.id)
 })
 
 export default technologyRouter

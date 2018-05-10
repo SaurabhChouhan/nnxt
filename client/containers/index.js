@@ -82,7 +82,11 @@ export {default as AttendenceSettingFormContainer} from './forms/AttendanceSetti
 export {default as ReleaseDeveloperPlanShiftFormContainer} from './forms/ReleaseDeveloperPlanShiftFormContainer'
 export {default as ReleaseDeveloperFilterFormContainer} from './forms/ReleaseDeveloperFilterFormContainer'
 export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
+export {default as ReleaseMergeTaskPlanningFormContainer} from './forms/ReleaseMergeTaskPlanningFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleaseProjectTaskListContainer} from './lists/ReleaseProjectTaskListContainer'
 export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPlanningPageContainer'
+
+//Calendar
+export {default as CalendarPageContainer} from './pages/CalendarPageContainer'
 

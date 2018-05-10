@@ -38,7 +38,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Deletion Failed")
     }),
 
-    mergeTaskPlanningRow: (plan) => console.log(" mergeTaskPlanningRow"),
+    openMergeTaskPlanningForm: (releasePlan) => {
+        console.log("releasePlan", releasePlan)
+        dispatch(initialize("merge-task-planning", releasePlan))
+        dispatch(A.showComponent(COC.MERGE_TASK_PLANNING_DIALOG))
+
+    },
 
 
     planTaskFilter: (taskPlanFilter) => dispatch(A.addTaskPlanningFiltersOnServer(taskPlanFilter)).then(json => {
@@ -56,7 +61,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     taskPlan: state.release.selectedTask,
     taskPlans: state.release.taskPlans,
-    developerPlanned: state.release.developerPlanned,
+    developerPlans: state.release.developerPlans,
     data: []
 })
 
