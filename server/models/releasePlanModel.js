@@ -61,8 +61,15 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
     let releaseID = params.releaseID
     let empflag = params.empflag
     let status = params.status
+
     if (!releaseID) {
         throw new AppError("Release Id not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
+
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
     if (!empflag) {
@@ -73,14 +80,14 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
         throw new AppError("Status not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
     }
 
-    let filter = {"release._id": releaseID}
+    let filter = {"release._id": release._id}
 
     if (status && status.toLowerCase() != "all" && empflag && empflag.toLowerCase() != "all")
-        filter = {"release._id": releaseID, "report.finalStatus": status, "flags": {$in: [empflag]}}
+        filter = {"release._id": release._id, "report.finalStatus": status, "flags": {$in: [empflag]}}
     else if (status && status.toLowerCase() != "all")
-        filter = {"release._id": releaseID, "report.finalStatus": status}
+        filter = {"release._id": release._id, "report.finalStatus": status}
     else if (empflag && empflag.toLowerCase() != "all")
-        filter = {"release._id": releaseID, "flags": {$in: [empflag]}}
+        filter = {"release._id": release._id, "flags": {$in: [empflag]}}
 
     return await ReleasePlanModel.find(filter)
 }

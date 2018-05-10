@@ -17,7 +17,7 @@ releaseRouter.get("/status/:status", async ctx => {
 //get single release detail by ID
 releaseRouter.get("/release/:releaseID", async ctx => {
 
-    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, user)
+    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
     if (roleInRelease !== SC.ROLE_LEADER || roleInRelease !== SC.ROLE_MANAGER) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] can see Release list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -28,7 +28,7 @@ releaseRouter.get("/release/:releaseID", async ctx => {
 //get single release detail by ID and task status
 releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empflag", async ctx => {
 
-    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, user)
+    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
     if (roleInRelease !== SC.ROLE_LEADER || roleInRelease !== SC.ROLE_MANAGER) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -40,7 +40,7 @@ releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empfla
 
 // Add task planning by manager or leader
 releaseRouter.put("/plan-task/", async ctx => {
-    return await MDL.TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 
@@ -68,14 +68,14 @@ releaseRouter.del("/plan-task/:planID", async ctx => {
 })
 
 // fetch task planning detail
-releaseRouter.get("/task-plans/:taskId", async ctx => {
-    return await MDL.TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.taskId, ctx.state.user)
+releaseRouter.get("/task-plans/:releasePlanID", async ctx => {
+    return await MDL.TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.releasePlanID, ctx.state.user)
 
 })
 
-// get developer task planning schedule
-releaseRouter.get("/task-plans/employee/:employeeId/fromDate/:fromDate/toDate/:toDate", async ctx => {
-    return await MDL.TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeId, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
+// get developer wise task planning schedule
+releaseRouter.get("/task-plans/employee/:employeeID/fromDate/:fromDate/toDate/:toDate", async ctx => {
+    return await MDL.TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeID, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
 
 })
 
