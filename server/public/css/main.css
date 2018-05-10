@@ -1564,7 +1564,6 @@ label {
     width: 40%;
     margin-left: -27px;
     margin-bottom: 25px;
-    margin-top: -19px;
 }
 
 .col-lg-8 {
@@ -1608,7 +1607,7 @@ label {
 
 .releaseDetailSearchFlag {
     margin-left: 67px;
-    margin-top: 10px;
+    margin-top: 28px;
     position: absolute;
     width: 86%;
 
@@ -1619,7 +1618,7 @@ label {
 }
 
 .releaseDetailSearchStatus {
-    margin-top: 10px;
+    margin-top: 28px;
     position: absolute;
     width: 82%;
     margin-left: 58px;
