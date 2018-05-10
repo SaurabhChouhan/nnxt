@@ -7,6 +7,7 @@ import {withRouter} from 'react-router-dom'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     taskPlanSelected: (releaseTaskPlanning) => {
+        dispatch(A.getAllDeveloperFromServer()),
         dispatch(A.releaseTaskPlanSelected(releaseTaskPlanning)),
             dispatch(A.addDeveloperFilteredData([])),
             dispatch(A.getAllTaskPlannedFromServer(releaseTaskPlanning._id))

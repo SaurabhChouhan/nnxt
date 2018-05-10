@@ -63,6 +63,20 @@ let estimationSchema = mongoose.Schema({
 })
 
 
+estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) => {
+    let estimation = await EstimationModel.findById(estimationID)
+
+    if (estimation) {
+        // check to see role of logged in user in this estimation
+        if (estimation.estimator._id == user._id)
+            return SC.ROLE_ESTIMATOR
+        else if (estimation.negotiator._id == user._id)
+            return SC.ROLE_NEGOTIATOR
+    }
+    return undefined
+}
+
+
 estimationSchema.statics.getAllActive = async (projectID, status, user) => {
 
     let estimations = []
@@ -775,9 +789,6 @@ estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimation
 
 estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, negotiator) => {
 
-    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
     let estimation = await EstimationModel.findById(projectAwardData.estimation._id)
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -875,18 +886,6 @@ estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, neg
     return estimation
 }
 
-estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) => {
-    let estimation = await EstimationModel.findById(estimationID)
-
-    if (estimation) {
-        // check to see role of logged in user in this estimation
-        if (estimation.estimator._id == user._id)
-            return SC.ROLE_ESTIMATOR
-        else if (estimation.negotiator._id == user._id)
-            return SC.ROLE_NEGOTIATOR
-    }
-    return undefined
-}
 
 estimationSchema.statics.hasErrorEstimationByEstimator = async (estimationID, estimator) => {
     let estimation = await EstimationModel.findById(estimationID)

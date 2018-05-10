@@ -1105,7 +1105,7 @@ td.rejRowColor {
 
 .RepositoryHeading span {
     padding-right: 5%;
-    font-weight: bold;
+    font-weight:bold;
     /* padding-top: 6px;*/
 }
 
@@ -1703,13 +1703,13 @@ i.iconClr:hover {
     font-size: 18px;
 }
 
-.pastArrow {
+.pastArrow{
     margin-top: 35px;
     position: absolute;
     font-size: 18px;
 }
 
-.devMargin {
+.devMargin{
     margin-left: -17px;
 }
 
@@ -1723,9 +1723,15 @@ i.iconClr:hover {
     margin-top: 5px;
 
 }
+.calArrow {
+    font-size: 20px;
+    color: #FF534F;
+}
+
 hr{
     width:100%;
 }
+
 /*.rw-select-bordered{
     background-color:#F66E65 ;
 }

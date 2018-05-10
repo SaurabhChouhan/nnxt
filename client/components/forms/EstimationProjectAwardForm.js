@@ -57,7 +57,7 @@ let EstimationProjectAwardForm = (props) => {
                            options={Managers}
                            validate={required}
                            valueField="_id"
-                           displayField="firstName"
+                           displayField="Name"
                     />
                 </div>
                 <div className="col-md-6">
@@ -68,7 +68,7 @@ let EstimationProjectAwardForm = (props) => {
                            options={Leaders}
                            validate={required}
                            valueField="_id"
-                           displayField="firstName"
+                           displayField="Name"
                     />
                 </div>
             </div>

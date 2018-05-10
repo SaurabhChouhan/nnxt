@@ -13,7 +13,8 @@ let initialState = {
         leaders: [],
         team: []
     },
-    selected: {}
+    selected: {},
+    allDevelopers: []
 }
 
 export const userReducer = (state = initialState, action) => {
@@ -37,6 +38,11 @@ export const userReducer = (state = initialState, action) => {
                 userWithRoleCategory: Object.assign({}, state.userWithRoleCategory, {
                     team: action.developers
                 })
+            })
+
+        case AC.ADD_DEVELOPERS_TO_STATE:
+            return Object.assign({}, state, {
+                allDevelopers: action.developers
             })
 
 

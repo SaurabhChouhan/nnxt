@@ -54,7 +54,7 @@ userSchema.statics.getAllActive = async (loggedInUser) => {
 }
 
 userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
-    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR)) {
+    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR) || userHasRole(loggedInUser, SC.ROLE_MANAGER) || userHasRole(loggedInUser, SC.ROLE_LEADER)) {
 
         // Negotiator can see estimators (Estimation Initiate), developers, leaders (company cost approximations)
         let Leaders = await UserModel.find({
@@ -77,9 +77,21 @@ userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
             }, {password: 0}
         ).exec()
         let userList = {
-            managers: Managers ? Managers : [],
-            leaders: Leaders ? Leaders : [],
-            team: Developers ? Developers : []
+            managers: Managers && Managers.length ? Managers.map(m => {
+                m = m.toObject()
+                m.name = m.firstName + ' ' + m.lastName
+                return m
+            }) : [],
+            leaders: Leaders && Leaders.length ? Leaders.map(l => {
+                l = l.toObject()
+                l.name = l.firstName + ' ' + l.lastName
+                return l
+            }) : [],
+            team: Developers && Developers.length ? Developers.map(t => {
+                t = t.toObject()
+                t.name = t.firstName + ' ' + t.lastName
+                return t
+            }) : []
         }
         return userList
     }
@@ -94,12 +106,17 @@ userSchema.statics.getAllActiveWithRoleDeveloper = async (loggedInUser) => {
 
         //Only Manager or leader can have all developer list
 
-        return await UserModel.find({
+        let Team = await UserModel.find({
                 "roles.name": {
                     $in: [SC.ROLE_DEVELOPER]
                 }, isDeleted: false
             }, {password: 0}
         ).exec()
+        return ( Team && Team.length ? Team.map(t => {
+            t = t.toObject()
+            t.name = t.firstName + ' ' + t.lastName
+            return t
+        }) : [])
     }
     else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)

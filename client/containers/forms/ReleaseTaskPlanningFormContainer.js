@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    team: state.release.selectedProject && state.release.selectedProject.team ? state.release.selectedProject.team : [],
+    team: state.user.userWithRoleCategory && state.user.userWithRoleCategory.team ? state.user.userWithRoleCategory.team : [],
     initial: state.release.selectedProject.initial
 })
 

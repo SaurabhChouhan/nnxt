@@ -259,7 +259,7 @@ class ContentMain extends Component {
         })
 
         routes.push({
-            url: "/reporting-project-List",
+            url: "/reporting",
             render: (props) => {
                 return <ContentSection>
                     <ReportingProjectListContainer name={COC.REPORTING_PROJECT_LIST}/>

@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as SC from "../serverconstants";
-import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 import * as MDL from "../models"
 import momentTZ from 'moment-timezone'
@@ -37,6 +36,11 @@ let releaseSchema = mongoose.Schema({
         email: {type: String, required: [true, 'Leader email name is required']}
     },
     team: [{
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Team name is required']},
+        email: {type: String, required: [true, 'Developer email name is required']}
+    }],
+    nonProjectTeam: [{
         _id: {type: mongoose.Schema.ObjectId, required: true},
         name: {type: String, required: [true, 'Team name is required']},
         email: {type: String, required: [true, 'Developer email name is required']}
@@ -84,9 +88,11 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
             return SC.ROLE_LEADER
         else if (release.team && release.team.length && release.team.findIndex(t => t._id === user._id) != -1)
             return SC.ROLE_DEVELOPER
+        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1)
+            return SC.ROLE_NON_PROJECT_DEVELOPER
         else {
-            let user = await MDL.UserModel.findOne({"_id": user._id})
-            if (user && user.roles && user.roles.length && user.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
+            let User = await MDL.UserModel.findById(user._id)
+            if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
                 return SC.ROLE_NON_PROJECT_DEVELOPER
             } else return undefined
         }
@@ -95,9 +101,6 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
 }
 
 releaseSchema.statics.addRelease = async (projectAwardData, user) => {
-    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
-        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can add release', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
     let releaseInput = {}
     let initial = {}
     const project = await MDL.ProjectModel.findById(projectAwardData.estimation.project._id)
@@ -134,23 +137,18 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
 
 
 releaseSchema.statics.getReleases = async (status, user) => {
-    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
-        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let filter = {"user._id": user._id}
+    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(user)
+    let filter = {}
     if (status && status.toLowerCase() != "all")
-        filter = {"user._id": user._id, "status": status}
+        filter = {$or: [{"manager._id": user._id}, {"leader._id": user._id}], "status": status}
     else
-        filter = {"user._id": user._id}
+        filter = {$or: [{"manager._id": user._id}, {"leader._id": user._id}]}
 
     return await ReleaseModel.find(filter)
 }
 
 releaseSchema.statics.getReleaseById = async (releaseId, user) => {
-    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
-        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    return await ReleaseModel.find({"_id": releaseId, "user._id": user._id})
+    return await ReleaseModel.find({"_id": releaseId, $or: [{"manager._id": user._id}, {"leader._id": user._id}]})
 }
 
 
@@ -169,7 +167,6 @@ releaseSchema.statics.getAllReportingProjectsAndTaskPlans = async (ParamsInput, 
     console.log("momentPlanningDate Time Zone", momentTzPlanningDateString)
     let reportDate = momentTzPlanningDateString
 
-
     let matchConditionArray = []
     if (ParamsInput.projectStatus != 'all') {
         matchConditionArray.push({$match: {status: ParamsInput.projectStatus}})
@@ -185,8 +182,25 @@ releaseSchema.statics.getAllReportingProjectsAndTaskPlans = async (ParamsInput, 
     })
 
     console.log("reportDate", reportDate)
+
+
     //matchConditionArray.push({$unwind: {path: '$taskPlans'}})
     //matchConditionArray.push({$match: {"taskPlans.planningDate": reportDate}})
+    //matchConditionArray.push({$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]})
+
+
+    let matchTakPlanConditions = {}
+    if (ParamsInput.taskStatus && ParamsInput.taskStatus.toLowerCase() != "all")
+        matchTakPlanConditions = {
+            "employee._id": user._id,
+            "plannedDate": reportDate,
+            "status": ParamsInput.taskStatus
+        }
+    else
+        matchTakPlanConditions = {
+            $or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}],
+            "plannedDate": reportDate
+        }
 
     let releases1 = await ReleaseModel.aggregate(matchConditionArray).exec()
     /*
