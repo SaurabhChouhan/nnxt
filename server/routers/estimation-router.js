@@ -326,6 +326,19 @@ estimationRouter.put('/feature/:featureID/can-approve', async ctx => {
     return await MDL.EstimationFeatureModel.canApproveFeature(ctx.params.featureID, ctx.state.user)
 })
 
+
+
+
+// Used by negotiator to change can approve estimation
+estimationRouter.put('/:estimationID/can-approve', async ctx => {
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
+    if (role === SC.ROLE_NEGOTIATOR) {
+        return await MDL.EstimationModel.canApproveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
+    }
+})
+
+
+
 // Used by negotiator to change can not approve estimation
 estimationRouter.put('/:estimationID/can-not-approve/:isGranted/is-granted', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)

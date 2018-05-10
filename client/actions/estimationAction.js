@@ -928,7 +928,7 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
                             if (json.success) {
                             }
                             else {
-                                dispatch(getOnlyEstimationFromServer(json.data.estimation._id))
+                                dispatch(getOnlyEstimationFromServer(json.data._id))
                             }
                             return json
                         })
