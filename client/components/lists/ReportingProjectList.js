@@ -2,24 +2,25 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
+import {ReportingDateNavbar} from '../../components'
 import {withRouter} from 'react-router-dom'
 
 
-class ReportingProjectList extends Component {
+class ReportingselectedProject extends Component {
 
     constructor(props) {
         super(props);
-        this.options = {
-            onRowClick: this.onRowClick.bind(this)
-        }
+        /* this.options = {
+             onRowClick: this.onRowClick.bind(this)
+         }*/
 
     }
 
-    onRowClick(row) {
-        this.props.history.push("/app-home/reporting-tasks")
-        this.props.projectSelected(row)
+    /*  onRowClick(row) {
+          this.props.history.push("/app-home/reporting-tasks")
+          this.props.projectSelected(row)
 
-    }
+      }*/
 
     columnClassStatusFormat(status) {
         if (status == SC.STATUS_APPROVED)
@@ -87,78 +88,219 @@ class ReportingProjectList extends Component {
 
     }
 
+    formatTaskName(task) {
+        if (task)
+            return task.name
+        return ''
+    }
+
+    formatWorkedHours(report) {
+        return (<select className="form-control" title="Select Status"
+                        onChange={(status) => this.onStatusChange(status.target.value)}>
+            <option value="all">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+
+
+        </select>)
+    }
+
+    formatPlannedHours(planning) {
+        if (planning)
+            return planning.plannedHours
+        return 0
+    }
+
+    formatReportedStatus(report) {
+        return (<select className="form-control" title="Select Status"
+                        onChange={(status) => this.onStatusChange(status.target.value)}>
+            <option value="all">All Status</option>
+            <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+            <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+            <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+            <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+            <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+            <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+            <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+
+        </select>)
+
+    }
+
+    formatReasonCode(report) {
+        return (<select className="form-control" title="Select Status"
+                        onChange={(status) => this.onStatusChange(status.target.value)}>
+            <option value="all">All Status</option>
+            <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+            <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+            <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+            <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+            <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+            <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+            <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+
+        </select>)
+    }
+
+    viewEditButton(cell, row, enumObject, rowIndex) {
+
+
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
+                console.log("submit")
+
+            }}>
+                <i class="fa fa-pencil"></i>
+            </button>
+
+        )
+    }
+
+    viewSubmitButton(cell, row, enumObject, rowIndex) {
+
+
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
+                console.log("submit")
+            }}>
+                <i class="fa fa-check"></i>
+            </button>
+        )
+
+    }
+
+
     render() {
-        const {projects} = this.props
+        const {selectedProject} = this.props
+        console.log("reporting", selectedProject)
+        console.log("selectedProject", selectedProject)
         return (
             <div key="estimation_list" className="clearfix">
-                <div className="col-md-12">
-                    <div className="col-md-4  releaseSearchContent ">
-                        <div className="estimation releaseSelect  releaseSearchStatus">
-                            <select className="form-control" title="Select Status" onChange={(status) =>
-                                this.props.changeReleaseStatus(status.target.value)
-                            }>
-                                <option value="all">All Status</option>
-
-                                <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
-                                <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
-
-                            </select>
-                        </div>
-
+                <div className="col-md-12 releaseHeader">
+                    <div className=" col-md-1 backarrow" title="Go Back">
+                        <button className="btn-link" onClick={() => {
+                            this.props.history.push("/app-home/release")
+                            this.props.ReleaseProjectGoBack()
+                        }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                     </div>
+                    <div className="col-md-3">
+                        <div className="releaseTitle">
+                            <span
+                                title={selectedProject.project ? selectedProject.project.name : ''}>Project Name</span>
+                        </div>
+                        <div className="releasecontent">
+                            <p>{selectedProject.project ? selectedProject.project.name : ''}</p>
+                        </div>
+                    </div>
+
+                    <div className="col-md-2">
+                        <div className="releaseTitle">
+                            <span
+                                title={selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                        </div>
+                        <div className="releasecontent">
+                            <p>{selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                        </div>
+                    </div>
+                    <div className="col-md-2">
+                        <div className="releaseTitle">
+                            <span
+                                title={selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                        </div>
+                        <div className="releasecontent">
+                            <p>{selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                        </div>
+                    </div>
+                    <div className="col-md-2">
+                        <div className="releaseTitle">
+                            <span
+                                title={selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                        </div>
+                        <div className="releasecontent">
+                            <p>{selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                        </div>
+                    </div>
+                    <div className=" col-md-2 releasefileoption">
+                        <ul className="list-unstyled">
+                            <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
+                            <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
+                            <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div className="col-md-12">
+                    <ReportingDateNavbar/>
+                </div>
+                <div className="col-md-12">
+
+                    <div className="col-md-8 releaseOption releaseDetailSearchContent">
+
+                        <div className="col-md-4 ">
+                            <div className="releaseDetailSearchFlag">
+                                <select className="form-control" title="Select Flag">
+                                    <option value="all">project</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="releaseDetailSearchStatus">
+                                <select className="form-control" title="Select Status"
+                                        onChange={(status) => this.onStatusChange(status.target.value)}>
+                                    <option value="all">All Status</option>
+                                    <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                    <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                                    <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                                    <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                                    <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                                    <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={this.props.projectList}
+                        <BootstrapTable options={this.options} data={this.props.selectedProject.taskPlans}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='created'
-                                               dataFormat={this.formatCreatedDate.bind(this)}>
-                                Created
+                            <TableHeaderColumn width="20%" columnTitle dataField="task"
+                                               dataFormat={this.formatTaskName.bind(this)}
+                                               dataSort={true}>
+                                Task Name</TableHeaderColumn>
+                            <TableHeaderColumn width="12%" dataField="planning"
+                                               dataFormat={this.formatPlannedHours.bind(this)}>
+                                planned hours</TableHeaderColumn>
+                            <TableHeaderColumn width="14%" columnTitle dataField="employee"
+                                               dataFormat={this.formatWorkedHours.bind(this)}>Worked
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn width="15%" columnTitle dataField="status"
+                                               dataFormat={this.formatReportedStatus.bind(this)}>Reported
+                                Status</TableHeaderColumn>
+                            <TableHeaderColumn width="12%" dataField="additional"
+                                               dataFormat={this.formatReasonCode.bind(this)}>Reason
+                                Code</TableHeaderColumn>
+
+                            <TableHeaderColumn width="15%" dataField='editButton'
+                                               dataFormat={this.viewEditButton.bind(this)}>Edit
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle={"Project Name"} dataField='project'
-                                               dataFormat={this.formatProjectName.bind(this)}>
-                                Project
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='manager'
-                                               dataFormat={this.formatManager.bind(this)}>
-                                Manager
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='leader'
-                                               dataFormat={this.formatLeader.bind(this)}>
-                                Leader
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatHours.bind(this)}>
-                                Billed Hours
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatStartDate.bind(this)}>
-                                Start Date
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatEndDate.bind(this)}>
-                                End Date
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatReleaseDate.bind(this)}>
-                                Release Date
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='status'>
-                                Status
+                            <TableHeaderColumn width="15%" dataField='deleteButton'
+                                               dataFormat={this.viewSubmitButton.bind(this)}>Submit
                             </TableHeaderColumn>
                         </BootstrapTable>
                     </div>
                 </div>
             </div>
+
         )
     }
 }
 
-export default withRouter(ReportingProjectList)
+export default withRouter(ReportingselectedProject)

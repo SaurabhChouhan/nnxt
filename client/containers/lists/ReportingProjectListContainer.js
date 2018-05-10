@@ -6,7 +6,8 @@ import * as COC from '../../components/componentConsts'
 const mapDispatchToProps = (dispatch, ownProps) => ({})
 
 const mapStateToProps = (state, ownProps) => ({
-    projectList:state.report.all
+    projectList:state.report.all,
+    selectedProject: state.report.selectedProject,
 })
 
 const ReportingProjectListContainer = connect(
