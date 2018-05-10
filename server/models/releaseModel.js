@@ -137,7 +137,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
 
 
 releaseSchema.statics.getReleases = async (status, user) => {
-    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(user)
+
     let filter = {}
     if (status && status.toLowerCase() != "all")
         filter = {$or: [{"manager._id": user._id}, {"leader._id": user._id}], "status": status}

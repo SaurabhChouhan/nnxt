@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as SC from "../serverconstants";
-import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
 
 mongoose.Promise = global.Promise
@@ -62,6 +61,18 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
     let releaseID = params.releaseID
     let empflag = params.empflag
     let status = params.status
+    if (!releaseID) {
+        throw new AppError("Release Id not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    if (!empflag) {
+        throw new AppError("Employee Flag not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    if (!status) {
+        throw new AppError("Status not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
     let filter = {"release._id": releaseID}
 
     if (status && status.toLowerCase() != "all" && empflag && empflag.toLowerCase() != "all")
