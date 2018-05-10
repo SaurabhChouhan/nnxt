@@ -10,7 +10,7 @@ let initialState = {
     developerPlans: []
 }
 
-const clientReducer = (state = initialState, action) => {
+const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_RELEASE_PROJECTS:
             // Stores all projects on Release section
@@ -80,4 +80,4 @@ const clientReducer = (state = initialState, action) => {
     }
 }
 
-export default clientReducer
+export default releaseReducer

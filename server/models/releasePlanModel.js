@@ -59,8 +59,6 @@ releasePlanSchema.statics.addReleasePlan = async (releasePlanInput) => {
 }
 
 releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
-    if (!user || (!userHasRole(user, SC.ROLE_NEGOTIATOR)))
-        throw new AppError('Only user with of the roles [' + SC.ROLE_NEGOTIATOR + '] can get projects releases', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let releaseID = params.releaseID
     let empflag = params.empflag
     let status = params.status

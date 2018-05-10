@@ -9,7 +9,10 @@ class ReleaseTaskPlanningPage extends Component {
 
     constructor(props) {
         super(props);
-
+        this.state = {
+            projectUsersOnly: true
+        }
+        this.projectUsersOnly = this.projectUsersOnly.bind(this);
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
@@ -21,6 +24,15 @@ class ReleaseTaskPlanningPage extends Component {
                         onClick={() => {
                             this.props.deleteTaskPlanningRow(row)
                         }}></button>)
+    }
+
+    projectUsersOnly(data) {
+        let checkBox = document.getElementById("projectUsersOnlyCheck");
+        // console.log("checkBox", checkBox)
+        if (checkBox.checked) {
+            this.setState({projectUsersOnly: true})
+        } else this.setState({projectUsersOnly: false})
+
     }
 
     actionCellButton(cell, row, enumObject, rowIndex) {
@@ -99,11 +111,20 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                     </div>
                     <div className="col-md-12">
-                        <div className="col-md-4 planchk"><input type="checkbox" name="" value=""/><span>Project Users Only</span>
+                        <div className="col-md-4 planchk">
+                            <input name="projectUsersOnly"
+                                   type="checkbox"
+                                   id="projectUsersOnlyCheck"
+                                   checked={this.state && this.state.projectUsersOnly ? true : false}
+                                   onChange={() => {
+                                       this.projectUsersOnly(this)
+                                   }}/>
+                            <span>Project Users Only</span>
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn taskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(taskPlan)}><i
+                                    onClick={() => this.props.showTaskPlanningCreationForm(taskPlan, this.state.projectUsersOnly)}>
+                                <i
                                 className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>
@@ -148,22 +169,28 @@ class ReleaseTaskPlanningPage extends Component {
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
                                                    hidden={true}>ID</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planningDate'
-                                                   dataFormat={this.formatPlanningDate.bind(this)
-                                                   }>Date</TableHeaderColumn>
+                                                   dataFormat={this.formatPlanningDate.bind(this)}>
+                                    Date
+                                </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='task'
-                                                   dataFormat={this.formatTaskName.bind(this)}>Task
-                                    Name</TableHeaderColumn>
+                                                   dataFormat={this.formatTaskName.bind(this)}>
+                                    Task Name
+                                </TableHeaderColumn>
                                 <TableHeaderColumn width="25%" columnTitle dataField='employee'
-                                                   dataFormat={this.formatDeveloper.bind(this)}
-                                >Developer</TableHeaderColumn>
+                                                   dataFormat={this.formatDeveloper.bind(this)}>
+                                    Developer
+                                </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                                    Effort</TableHeaderColumn>
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>
+                                    Planned Effort
+                                </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReport.bind(this)}>Reported</TableHeaderColumn>
+                                                   dataFormat={this.formatReport.bind(this)}>
+                                    Reported
+                                </TableHeaderColumn>
                                 <TableHeaderColumn width="12%" dataField='button'
-                                                   dataFormat={this.actionCellButton.bind(this)}><i
-                                    className="fa fa-plus"></i>
+                                                   dataFormat={this.actionCellButton.bind(this)}>
+                                    <i className="fa fa-plus"></i>
                                 </TableHeaderColumn>
                             </BootstrapTable>
                         </div>

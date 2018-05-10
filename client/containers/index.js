@@ -90,3 +90,6 @@ export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPl
 //Calendar
 export {default as CalendarPageContainer} from './pages/CalendarPageContainer'
 
+//Reporting
+export {default as ReportingTaskPageContainer} from './pages/ReportingTaskPageContainer'
+

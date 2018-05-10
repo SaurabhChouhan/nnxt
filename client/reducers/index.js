@@ -13,6 +13,7 @@ import repositoryReducer from './repositoryReducer'
 import attendanceSettingReducer from './attendanceSettingReducer'
 import releaseReducer from './releaseReducer'
 import calendarPageReducer from './calendarPageReducer'
+import reportingReducer from './reportingReducer'
 
 
 const reducers = combineReducers({
@@ -29,6 +30,7 @@ const reducers = combineReducers({
     repository: repositoryReducer,
     attendanceSetting: attendanceSettingReducer,
     release: releaseReducer,
-    calendar:calendarPageReducer
+    calendar: calendarPageReducer,
+    report: reportingReducer
 })
 export default reducers

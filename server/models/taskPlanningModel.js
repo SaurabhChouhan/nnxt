@@ -10,6 +10,11 @@ import * as MDL from '../models'
 mongoose.Promise = global.Promise
 
 let taskPlanningSchema = mongoose.Schema({
+    user: {
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String},
+        role: {type: String},
+    },
     created: {type: Date, default: Date.now()},
     planningDate: {type: Date, default: Date.now()},
     planningDateString: String,
@@ -52,11 +57,58 @@ let taskPlanningSchema = mongoose.Schema({
 
 
 taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => {
+    let userRole
+
+    console.log("User Role in This Release", userRole)
+
     if (!taskPlanningInput.releasePlan._id) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    await  MDL.ReleasePlanModel.update({"_id": taskPlanningInput.releasePlan._id}, {"flags": [SC.FLAG_PLANNED]})
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlanningInput.releasePlan._id)
+
+    if (!releasePlan) {
+        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    if (!taskPlanningInput.release._id) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(taskPlanningInput.release._id)
+
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (taskPlanningInput && taskPlanningInput.employee && taskPlanningInput.employee._id && release && release._id) {
+        userRole = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, taskPlanningInput.employee)
+        if (userRole == undefined)
+            throw new AppError('User is not part of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    } else throw new AppError('form is not having proper data', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (taskPlanningInput && !taskPlanningInput.projectUsersOnly && taskPlanningInput.employee && taskPlanningInput.employee._id && release && release._id) {
+        if (await MDL.ReleaseModel.count({
+                $or: [{"manager._id": taskPlanningInput.employee._id},
+                    {"leader._id": taskPlanningInput.employee._id},
+                    {"team._id": taskPlanningInput.employee._id},
+                    {"nonProjectTeam._id": taskPlanningInput.employee._id}],
+                "_id": release._id
+            }) == 0) {
+            // it checks that user who may not be a developer of this project is assigned into a task plan so add that user to this project as a nonProjectTeam
+
+            let User = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
+            let nonProjectUser = {
+                "_id": User._id,
+                "name": User.firstName + ' ' + User.lastName,
+                "email": User.email,
+            }
+            await MDL.ReleaseModel.update({
+                '_id': taskPlanningInput.release._id
+            }, {$push: {"nonProjectTeam": nonProjectUser}}).exec()
+        }
+    }
+
+    await MDL.ReleasePlanModel.update({"_id": mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id)}, {"flags": [SC.FLAG_PLANNED]})
     let taskPlanning = new TaskPlanningModel()
     taskPlanning.created = Date.now()
     taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
@@ -68,6 +120,12 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user) => 
     taskPlanning.flags = taskPlanningInput.flags
     taskPlanning.planning = taskPlanningInput.planning
     taskPlanning.report = taskPlanningInput.report
+    taskPlanning.user = {
+        _id: user._id,
+        name: user.firstName + ' ' + user.lastName,
+        role: userRole
+    }
+
 
     return await taskPlanning.save()
 
@@ -556,27 +614,30 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    let toDateMoment
-    let fromDateMoment
+    let toDateMomentTz
+    let fromDateMomentTz
 
     if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        fromDateMoment = moment(fromDate).hour(0).minute(0).second(0).millisecond(0)
+        let fromDateMoment = moment(fromDate)
+        let fromDateMomentToDate = fromDateMoment.toDate()
+        fromDateMomentTz = momentTZ.tz(fromDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
+
     if (toDate && toDate != 'undefined' && toDate != undefined) {
-        toDateMoment = moment(toDate).minute(0).second(0).millisecond(0)
+        let toDateMoment = moment(toDate)
+        let toDateMomentToDate = toDateMoment.toDate()
+        toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
-
-
 
     let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId}).sort({"planningDate": 1})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
     else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMoment))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz))
     }
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMoment))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
     return taskPlannings
 }

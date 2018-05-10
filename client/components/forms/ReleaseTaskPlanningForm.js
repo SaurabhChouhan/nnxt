@@ -32,6 +32,7 @@ let ReleaseTaskPlanningForm = (props) => {
                        label={"Estimated Hours:"} validate={[required, number]}/>
 
                 <Field name="employee.name" component="input" type="hidden"/>
+                <Field name="projectUsersOnly" component="input" type="hidden"/>
                 <Field name="employee._id" placeholder={"Name of Developer"}
                        onChange={(event, newValue, oldValue) => {
                            let employee = team.find(e => e._id == newValue)

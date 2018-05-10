@@ -8,8 +8,13 @@ let initialState = {
     authenticationFailed: false,
     loginError: undefined,
     all: [],
-    userWithRoleCategory: {},
-    selected: {}
+    userWithRoleCategory: {
+        managers: [],
+        leaders: [],
+        team: []
+    },
+    selected: {},
+    allDevelopers: []
 }
 
 export const userReducer = (state = initialState, action) => {
@@ -19,7 +24,26 @@ export const userReducer = (state = initialState, action) => {
 
 
         case AC.ADD_USERS_WITH_ROLE_CATEGORY:
-            return Object.assign({}, state, {userWithRoleCategory: action.users})
+            return Object.assign({}, state, {
+                userWithRoleCategory: {
+                    managers: action.users.managers,
+                    leaders: action.users.leaders,
+                    team: action.users.team
+                }
+            })
+
+
+        case AC.ADD_USERS_WITH_ROLE_DEVELOPER:
+            return Object.assign({}, state, {
+                userWithRoleCategory: Object.assign({}, state.userWithRoleCategory, {
+                    team: action.developers
+                })
+            })
+
+        case AC.ADD_DEVELOPERS_TO_STATE:
+            return Object.assign({}, state, {
+                allDevelopers: action.developers
+            })
 
 
         case AC.ADD_USER:

@@ -10,6 +10,7 @@ import {
     ReleaseListContainer,
     ReleaseProjectTaskListContainer,
     ReleaseTaskPlanningPageContainer,
+    ReportingTaskPageContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
     CalendarPageContainer
@@ -33,7 +34,7 @@ import {
     ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
     RepositoryTaskDetailDialog,
-    TechnologyFormDialog,
+    TechnologyFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -59,6 +60,7 @@ class ContentMain extends Component {
                 </ContentSection>
             }
         })
+
         routes.push({
             url: "/projects",
             render: (props) => {
@@ -171,6 +173,7 @@ class ContentMain extends Component {
                 </ContentSection>
             }
         })
+
         routes.push({
             url: "/raise_leave",
             render: (props) => {
@@ -190,6 +193,7 @@ class ContentMain extends Component {
                 </ContentSection>
             }
         })
+
         routes.push({
             url: "/attendance",
             render: (props) => {
@@ -200,6 +204,7 @@ class ContentMain extends Component {
 
             }
         })
+
         routes.push({
             url: "/release",
             render: (props) => {
@@ -221,6 +226,7 @@ class ContentMain extends Component {
 
             }
         })
+        
         routes.push({
             url: "/release-task-planning",
             render: (props) => {
@@ -247,6 +253,16 @@ class ContentMain extends Component {
             render: (props) => {
                 return <ContentSection>
                     <CalendarPageContainer name={COC.CALENDAR}/>
+                </ContentSection>
+
+            }
+        })
+
+        routes.push({
+            url: "/reporting",
+            render: (props) => {
+                return <ContentSection>
+                    <ReportingTaskPageContainer name={COC.REPORTING_PROJECT_LIST}/>
                 </ContentSection>
 
             }

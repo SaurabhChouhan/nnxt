@@ -38,7 +38,7 @@ let ReleaseDeveloperPlanShiftForm = (props) => {
                         className="btn customBtn Past "
                         onClick={() => {
                             props.shiftTasksToPast(employeeId, baseDate, daysToShift, releasePlan._id)
-                        }}> <span class="glyphicon glyphicon-chevron-left"></span>
+                        }}><span className="glyphicon glyphicon-chevron-left"></span>
                         Shift in Past
                     </button>
                 </div>
@@ -50,7 +50,7 @@ let ReleaseDeveloperPlanShiftForm = (props) => {
                             props.shiftTasksToFuture(employeeId, baseDate, daysToShift, releasePlan._id)
                         }}>
                         Shift in Future
-                        <span class="glyphicon glyphicon-chevron-right"></span>
+                        <span className="glyphicon glyphicon-chevron-right"></span>
                     </button>
                     </div>
             </div>

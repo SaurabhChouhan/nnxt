@@ -1713,10 +1713,31 @@ i.iconClr:hover {
     margin-left: -17px;
 }
 
+.reportingArrow {
+    margin-top: 10px;
+    background-color: #F66E65;
+    color: #ffffff;
+}
+
+.reportingDatePicker {
+    margin-left: 150px;
+    margin-top: 5px;
+
+}
+
 .calArrow {
     font-size: 20px;
     color: #FF534F;
 }
 
+hr {
+    width: 100%;
+}
 
+/*.rw-select-bordered{
+    background-color:#F66E65 ;
+}
+.rw-select-bordered:hover, .rw-select-bordered:active {
+    background-color: #ffffff;
+}*/
 
