@@ -13,7 +13,7 @@ export const addReportingTaskPlannings = (project) => ({
 
 
 export const noProjectSelected = (project) => ({
-    type: AC.NO_PROJECT_SECTED,
+    type: AC.NO_PROJECT_SELECTED,
     project: project
 })
 

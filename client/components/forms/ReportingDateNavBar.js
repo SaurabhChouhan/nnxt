@@ -1,21 +1,31 @@
 import React, {Component} from 'react'
 import {renderDateTimePicker} from "./fields"
-import {Field, reduxForm} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
+import moment from 'moment'
+import {connect} from 'react-redux'
 
-class ReportingDateNavbar extends React.Component {
+class ReportingDateNavBar extends React.Component {
 
     constructor(props) {
         super(props);
     }
 
     render() {
-        const {taskStatus, releaseID} = this.props
+        const {taskStatus, releaseID, dateOfReport} = this.props
+        const {change} = this.props
         return (
             <form>
                 <div className='col-md-12'>
                     <div className="col-md-2 div-hover">
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '117px'}}
+                                onClick={() => {
+                                    let prevDate = moment(dateOfReport).subtract(1, 'days').toDate()
+                                    this.props.setReportDate(prevDate)
+                                    this.props.onProjectSelect(releaseID, prevDate, taskStatus)
+                                    change("dateOfReport", prevDate)
+
+                                }}
                                 type="button">
                             <i className="glyphicon glyphicon-arrow-left"></i>
                         </button>
@@ -34,6 +44,12 @@ class ReportingDateNavbar extends React.Component {
                     <div className="col-md-2 div-hover">
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '150px'}}
+                                onClick={() => {
+                                    let nextDate = moment(dateOfReport).add(1, 'days').toDate()
+                                    this.props.setReportDate(nextDate)
+                                    this.props.onProjectSelect(releaseID, nextDate, taskStatus)
+                                    change("dateOfReport", nextDate)
+                                }}
                                 type="button">
                             <i className="glyphicon glyphicon-arrow-right"></i>
                         </button>
@@ -45,8 +61,20 @@ class ReportingDateNavbar extends React.Component {
     }
 }
 
-ReportingDateNavbar = reduxForm({
+ReportingDateNavBar = reduxForm({
     form: 'reporting-date'
-})(ReportingDateNavbar)
+})(ReportingDateNavBar)
 
-export default ReportingDateNavbar
+const selector = formValueSelector('reporting-date')
+
+ReportingDateNavBar = connect(
+    state => {
+        const dateOfReport = selector(state, 'dateOfReport')
+        return {
+            dateOfReport
+        }
+    }
+)(ReportingDateNavBar)
+
+
+export default ReportingDateNavBar
