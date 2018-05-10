@@ -3,8 +3,6 @@ import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import * as EC from "../errorcodes"
 import * as MDL from "../models"
-import momentTZ from 'moment-timezone'
-import moment from 'moment'
 
 mongoose.Promise = global.Promise
 
@@ -153,11 +151,22 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
 
 
 //Reporting
-releaseSchema.statics.getAllReportingProjectsAndTaskPlans = async (ParamsInput, user) => {
-    //ParamsInput.projectStatus
+releaseSchema.statics.getAllReportingProjects = async (user) => {
+    return await MDL.ReleaseModel.find({$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]})
+}
+
+releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
+    //ParamsInput.releaseID
     //ParamsInput.planDate
     //ParamsInput.taskStatus
-    let momentPlanningDate = moment(ParamsInput.planDate)
+
+    return ParamsInput
+}
+
+const ReleaseModel = mongoose.model("Release", releaseSchema)
+export default ReleaseModel
+/*
+* let momentPlanningDate = moment(ParamsInput.planDate)
     console.log("moment(ParamsInput.planDate)", moment(ParamsInput.planDate))
     let momentPlanningDateStringToDate = momentPlanningDate.toDate()
 
@@ -231,27 +240,22 @@ releaseSchema.statics.getAllReportingProjectsAndTaskPlans = async (ParamsInput, 
             }
         }
     }*/
-    /*
-        let releases2 = await ReleaseModel.aggregate({}, {
-            $lookup: {
-                from: 'taskplannings',
-                let: {releaseID: "$_id"},
-                pipeline: [{
-                    $match: {
-                        $expr: {
-                            $and: [
-                                {$eq: ["$release._id", "$$releaseID"]},
-                                {$eq: ["$planningDate", reportDate]}
-                            ]
-                        }
+/*
+    let releases2 = await ReleaseModel.aggregate({}, {
+        $lookup: {
+            from: 'taskplannings',
+            let: {releaseID: "$_id"},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ["$release._id", "$$releaseID"]},
+                            {$eq: ["$planningDate", reportDate]}
+                        ]
                     }
-                }],
-                as: 'taskPlans'
-            }
-        }).exec()
-    */
-    return releases1
-}
-
-const ReleaseModel = mongoose.model("Release", releaseSchema)
-export default ReleaseModel
+                }
+            }],
+            as: 'taskPlans'
+        }
+    }).exec()
+*/
