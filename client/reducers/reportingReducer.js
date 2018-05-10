@@ -19,7 +19,7 @@ const reportingReducer = (state = initialState, action) => {
             })
 
         case AC.ADD_SELECTED_PROJECT_AND_REPORTING_TASK_PLANNINGS:
-            // All Project where loggedIn user in involved as (manager,leader,developer) or that project
+            // Selected Project and its task plans are fetched
             return Object.assign({}, state, {
                 selectedProject: Object.assign({}, action.project, {
                     taskPlans: undefined,
@@ -28,7 +28,7 @@ const reportingReducer = (state = initialState, action) => {
             })
 
         case AC.NO_PROJECT_SECTED:
-            // All Project where loggedIn user in involved as (manager,leader,developer) or that project
+            // When no project is selected then show dummy data
             return Object.assign({}, state, {
                 selectedProject: Object.assign({}, action.project, {
                     taskPlans: undefined,
@@ -37,9 +37,15 @@ const reportingReducer = (state = initialState, action) => {
             })
 
         case AC.SET_REPORT_DATE:
-            // All Project where loggedIn user in involved as (manager,leader,developer) or that project
+            // while selection of reporting date it is set to state also
             return Object.assign({}, state, {
                 dateOfReport: action.reportDate
+            })
+
+        case AC.TASK_SELECTED:
+            // task is selected to see task detail
+            return Object.assign({}, state, {
+                selectedTask: action.task
             })
 
 

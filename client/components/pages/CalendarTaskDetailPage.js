@@ -9,6 +9,7 @@ class CalendarTaskDetailPage extends React.Component {
     }
 
     render() {
+        const {selectedTaskDetail} = this.props
         return (
             <Timeline>
                 <span>
@@ -16,11 +17,11 @@ class CalendarTaskDetailPage extends React.Component {
                             onClick={() => this.props.showCalendarView()}>
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
-                <TimelineEvent style={{fontSize: '20px'}} title={this.props.selectedTaskDetail.title}
-                               createdAt={moment(this.props.selectedTaskDetail.start).format(SC.DATE_AND_TIME_FORMAT) + " - "
-                               + moment(this.props.selectedTaskDetail.end).format(SC.DATE_AND_TIME_FORMAT)}
+                <TimelineEvent style={{fontSize: '20px'}}
+                               title={selectedTaskDetail.title}
+                               createdAt={moment(selectedTaskDetail.start).format(SC.DATE_AND_TIME_FORMAT) + " - " + moment(selectedTaskDetail.end).format(SC.DATE_AND_TIME_FORMAT)}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
-                    {this.props.selectedTaskDetail.description}
+                    {selectedTaskDetail.description}
                 </TimelineEvent>
 
             </Timeline>

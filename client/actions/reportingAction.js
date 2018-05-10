@@ -22,6 +22,11 @@ export const setReportDate = (reportDate) => ({
     reportDate: reportDate
 })
 
+export const taskSelected = (task) => ({
+    type: AC.TASK_SELECTED,
+    task: task
+})
+
 export const getAllReportingProjectsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/releases/report', {

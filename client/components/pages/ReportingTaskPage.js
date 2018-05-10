@@ -10,9 +10,9 @@ class ReportingTaskPage extends Component {
 
     constructor(props) {
         super(props);
-        /* this.options = {
+        this.options = {
              onRowClick: this.onRowClick.bind(this)
-         }*/
+        }
         this.state = {
             taskStatus: "all",
             releaseID: undefined
@@ -21,11 +21,11 @@ class ReportingTaskPage extends Component {
         this.onProjectSelect = this.onProjectSelect.bind(this)
     }
 
-    /*  onRowClick(row) {
-          this.props.history.push("/app-home/reporting-tasks")
-          this.props.projectSelected(row)
+    onRowClick(row) {
+          this.props.history.push("/app-home/reporting-task-detail")
+          this.props.taskSelected(row)
 
-      }*/
+    }
 
     columnClassStatusFormat(status) {
         if (status == SC.STATUS_APPROVED)
