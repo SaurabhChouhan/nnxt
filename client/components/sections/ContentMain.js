@@ -262,7 +262,16 @@ class ContentMain extends Component {
             url: "/reporting",
             render: (props) => {
                 return <ContentSection>
-                    <ReportingTaskPageContainer name={COC.REPORTING_PROJECT_LIST}/>
+                    <ReportingTaskPageContainer name={COC.REPORTING_TASK_PAGE}/>
+                </ContentSection>
+
+            }
+        })
+
+        routes.push({
+            url: "/reporting-task-detail",
+            render: (props) => {
+                return <ContentSection>
                 </ContentSection>
 
             }

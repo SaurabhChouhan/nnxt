@@ -4,8 +4,11 @@ import * as A from '../../actions/index'
 import * as COC from '../../components/componentConsts'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onProjectSelect: (releaseID, planDate, taskStatus)=>dispatch(A.getProjectDeatilAndTaskPlanningsFromServer(releaseID, planDate, taskStatus))
-    taskSelected: (task)=>dispatch(A.taskSelected(task))
+    onProjectSelect: (releaseID, planDate, taskStatus)=>dispatch(A.getProjectDeatilAndTaskPlanningsFromServer(releaseID, planDate, taskStatus)),
+    taskSelected: (task)=>{
+        dispatch(A.taskSelected(task))
+        dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
+    }
 })
 
 const mapStateToProps = (state, ownProps) => ({
