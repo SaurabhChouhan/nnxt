@@ -9,6 +9,7 @@ class ReportingDateNavbar extends React.Component {
     }
 
     render() {
+        const {taskStatus, releaseID} = this.props
         return (
             <form>
                 <div className='col-md-12'>
@@ -21,6 +22,10 @@ class ReportingDateNavbar extends React.Component {
                     </div>
                     <div className="col-md-3 reportingDatePicker">
                         <Field name='dateOfReport'
+                               onChange={(event, newValue, oldValue) => {
+                                   this.props.setReportDate(newValue)
+                                   this.props.onProjectSelect(releaseID, newValue, taskStatus)
+                               }}
                                label=''
                                component={renderDateTimePicker}
                                showTime={false}

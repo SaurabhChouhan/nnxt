@@ -11,6 +11,17 @@ export const addReportingTaskPlannings = (project) => ({
     project: project
 })
 
+
+export const noProjectSelected = (project) => ({
+    type: AC.NO_PROJECT_SECTED,
+    project: project
+})
+
+export const setReportDate = (reportDate) => ({
+    type: AC.SET_REPORT_DATE,
+    reportDate: reportDate
+})
+
 export const getAllReportingProjectsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/releases/report', {
@@ -49,11 +60,9 @@ export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, 
             json => {
                 if (json.success) {
                     dispatch(addReportingTaskPlannings(json.data))
-                } else {
-                    dispatch(addReportingTaskPlannings({
-                        taskPlans: []
-                    }))
                 }
+                return json
+
             })
     }
 }

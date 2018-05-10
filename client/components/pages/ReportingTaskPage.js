@@ -15,7 +15,7 @@ class ReportingTaskPage extends Component {
          }*/
         this.state = {
             taskStatus: "all",
-            releaseID: ""
+            releaseID: undefined
         }
         this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
         this.onProjectSelect = this.onProjectSelect.bind(this)
@@ -102,7 +102,7 @@ class ReportingTaskPage extends Component {
     formatWorkedHours(report) {
         return (<select className="form-control" title="Select Status"
                         onChange={(status) => this.onFormatWorkedHoursChange(status.target.value)}>
-            <option value="">Select Worked Hours</option>
+            <option value="0">Select Worked Hours</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -143,7 +143,7 @@ class ReportingTaskPage extends Component {
     formatReasonCode(report) {
         return (<select className="form-control" title="Select Status"
                         onChange={(status) => console.log("formatReasonCode", (status.target.value))}>
-            <option value="all">All Status</option>
+            <option value={undefined}>Select Reason</option>
             <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
             <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
             <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
@@ -157,7 +157,7 @@ class ReportingTaskPage extends Component {
 
     viewEditButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                console.log("submit")
+                console.log("Edit")
 
             }}>
                 <i class="fa fa-pencil"></i>
@@ -167,7 +167,7 @@ class ReportingTaskPage extends Component {
 
     viewSubmitButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                console.log("submit")
+                console.log("Submit")
             }}>
                 <i class="fa fa-check"></i>
             </button>
@@ -176,7 +176,7 @@ class ReportingTaskPage extends Component {
 
     onTaskStatusChange(status) {
         this.setState({taskStatus: status})
-        this.props.changeReleaseStatus(this.state.releaseID, this.props.planDate, this.state.flag,status)
+        this.props.onProjectSelect(this.state.releaseID, this.props.dateOfReport, status)
     }
 
     onProjectSelect(releaseID) {
@@ -185,8 +185,7 @@ class ReportingTaskPage extends Component {
     }
     render() {
         const {selectedProject, allTaskPlans, allProjects} = this.props
-        console.log("reporting", selectedProject)
-        console.log("selectedProject", selectedProject)
+        const {taskStatus, releaseID} = this.state
         return (
             <div key="estimation_list" className="clearfix">
                 {
@@ -239,7 +238,7 @@ class ReportingTaskPage extends Component {
                     </div>
                 }
                 <div className="col-md-12">
-                    <ReportingDateNavBarContainer />
+                    <ReportingDateNavBarContainer taskStatus={taskStatus} releaseID={releaseID}/>
                 </div>
                 <div className="col-md-12">
 
@@ -252,7 +251,7 @@ class ReportingTaskPage extends Component {
                                     title="Select Flag"
                                     onChange={(project) => this.onProjectSelect(project.target.value)}>
 
-                                    <option value="">Select Project</option>
+                                    <option value={undefined}>Select Project</option>
                                     {
                                         allProjects && allProjects.length ? allProjects.map(project => {
                                             return <option value={project._id}>{project.project.name}</option>
