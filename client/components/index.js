@@ -105,7 +105,7 @@ export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPag
 export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
 
 //Reporting
-export {default as ReportingProjectList} from './lists/ReportingProjectList'
+export {default as ReportingTaskPage} from './pages/ReportingTaskPage'
 export {default as ReportingDateNavbar} from './forms/ReportingDateNavbar'
 
 //Calendar Page

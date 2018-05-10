@@ -2,18 +2,21 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-import {ReportingDateNavbar} from '../../components'
+import {ReportingDateNavbar} from '../index'
 import {withRouter} from 'react-router-dom'
 
 
-class ReportingselectedProject extends Component {
+class ReportingTaskPage extends Component {
 
     constructor(props) {
         super(props);
         /* this.options = {
              onRowClick: this.onRowClick.bind(this)
          }*/
-
+        this.state = {
+            taskStatus: "all"
+        }
+        this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
     }
 
     /*  onRowClick(row) {
@@ -96,14 +99,18 @@ class ReportingselectedProject extends Component {
 
     formatWorkedHours(report) {
         return (<select className="form-control" title="Select Status"
-                        onChange={(status) => this.onStatusChange(status.target.value)}>
-            <option value="all">0</option>
+                        onChange={(status) => this.onFormatWorkedHoursChange(status.target.value)}>
+            <option value="">Select Worked Hours</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
             <option value="5">5</option>
             <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
 
 
         </select>)
@@ -117,7 +124,7 @@ class ReportingselectedProject extends Component {
 
     formatReportedStatus(report) {
         return (<select className="form-control" title="Select Status"
-                        onChange={(status) => this.onStatusChange(status.target.value)}>
+                        onChange={(status) => console.log("reported Status", (status.target.value))}>
             <option value="all">All Status</option>
             <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
             <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
@@ -133,7 +140,7 @@ class ReportingselectedProject extends Component {
 
     formatReasonCode(report) {
         return (<select className="form-control" title="Select Status"
-                        onChange={(status) => this.onStatusChange(status.target.value)}>
+                        onChange={(status) => console.log("formatReasonCode", (status.target.value))}>
             <option value="all">All Status</option>
             <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
             <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
@@ -171,20 +178,17 @@ class ReportingselectedProject extends Component {
 
     }
 
-
+    onTaskStatusChange(status) {
+        this.setState({taskStatus: status})
+        this.props.changeReleaseStatus(this.state.releaseID, this.props.planDate, this.state.flag,status)
+    }
     render() {
-        const {selectedProject} = this.props
+        const {selectedProject, allTaskPlans, allProjects} = this.props
         console.log("reporting", selectedProject)
         console.log("selectedProject", selectedProject)
         return (
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12 releaseHeader">
-                    <div className=" col-md-1 backarrow" title="Go Back">
-                        <button className="btn-link" onClick={() => {
-                            this.props.history.push("/app-home/release")
-                            this.props.ReleaseProjectGoBack()
-                        }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                    </div>
                     <div className="col-md-3">
                         <div className="releaseTitle">
                             <span
@@ -240,16 +244,25 @@ class ReportingselectedProject extends Component {
 
                         <div className="col-md-4 ">
                             <div className="releaseDetailSearchFlag">
-                                <select className="form-control" title="Select Flag">
-                                    <option value="all">project</option>
+                                <select
+                                    className="form-control"
+                                    title="Select Flag"
+                                    onChange={(project) => this.props.onProjectSelect(project.target.value, planDate, taskStatus)}>
+
+                                    <option value="">Select Project</option>
+                                    {
+                                        allProjects && allProjects.length ? allProjects.map(project => {
+                                            return <option value={project._id}>{project.project.name}</option>
+                                        }) : null
+                                    }
                                 </select>
                             </div>
                         </div>
                         <div className="col-md-4">
                             <div className="releaseDetailSearchStatus">
                                 <select className="form-control" title="Select Status"
-                                        onChange={(status) => this.onStatusChange(status.target.value)}>
-                                    <option value="all">All Status</option>
+                                        onChange={(status) => this.onTaskStatusChange(status.target.value)}>
+                                    <option value="all">All Task Status</option>
                                     <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
                                     <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
                                     <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
@@ -264,7 +277,7 @@ class ReportingselectedProject extends Component {
                     </div>
 
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={this.props.selectedProject.taskPlans}
+                        <BootstrapTable options={this.options} data={allTaskPlans}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}
@@ -303,4 +316,4 @@ class ReportingselectedProject extends Component {
     }
 }
 
-export default withRouter(ReportingselectedProject)
+export default withRouter(ReportingTaskPage)
