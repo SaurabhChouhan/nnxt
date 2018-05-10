@@ -160,7 +160,7 @@ class ReportingTaskPage extends Component {
                 console.log("Edit")
 
             }}>
-                <i class="fa fa-pencil"></i>
+                <i className="fa fa-pencil"></i>
             </button>
         )
     }
@@ -169,7 +169,7 @@ class ReportingTaskPage extends Component {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
                 console.log("Submit")
             }}>
-                <i class="fa fa-check"></i>
+                <i className="fa fa-check"></i>
             </button>
         )
     }

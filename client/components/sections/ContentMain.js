@@ -11,6 +11,7 @@ import {
     ReleaseProjectTaskListContainer,
     ReleaseTaskPlanningPageContainer,
     ReportingTaskPageContainer,
+    ReportingTaskDetailPageContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
     CalendarPageContainer
@@ -226,7 +227,7 @@ class ContentMain extends Component {
 
             }
         })
-        
+
         routes.push({
             url: "/release-task-planning",
             render: (props) => {
@@ -272,6 +273,7 @@ class ContentMain extends Component {
             url: "/reporting-task-detail",
             render: (props) => {
                 return <ContentSection>
+                    <ReportingTaskDetailPageContainer name={COC.REPORTING_TASK_DETAIL_PAGE}/>
                 </ContentSection>
 
             }

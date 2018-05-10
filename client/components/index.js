@@ -111,3 +111,4 @@ export {default as CalendarPage} from './pages/CalendarPage'
 //Reporting
 export {default as ReportingDateNavBar} from './forms/ReportingDateNavBar'
 export {default as ReportingTaskPage} from './pages/ReportingTaskPage'
+export {default as ReportingTaskDetailPage} from './pages/ReportingTaskDetailPage'
