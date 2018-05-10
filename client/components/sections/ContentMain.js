@@ -10,7 +10,7 @@ import {
     ReleaseListContainer,
     ReleaseProjectTaskListContainer,
     ReleaseTaskPlanningPageContainer,
-    ReportingProjectListContainer,
+    ReportingTaskPageContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
     CalendarPageContainer
@@ -262,7 +262,7 @@ class ContentMain extends Component {
             url: "/reporting",
             render: (props) => {
                 return <ContentSection>
-                    <ReportingProjectListContainer name={COC.REPORTING_PROJECT_LIST}/>
+                    <ReportingTaskPageContainer name={COC.REPORTING_PROJECT_LIST}/>
                 </ContentSection>
 
             }

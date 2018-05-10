@@ -11,7 +11,7 @@ releaseRouter.get("/status/:status", async ctx => {
     return await MDL.ReleaseModel.getReleases(ctx.params.status, ctx.state.user)
 })
 
-releaseRouter.get("/:releaseID", async ctx => {
+releaseRouter.get("/release/:releaseID", async ctx => {
     let release = await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
     if (!release) {
         throw new AppError("Not allowed to release details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -87,10 +87,14 @@ releaseRouter.get("/employee-statistics/:id", async ctx => {
 })
 
 //report
-//report/projectStatus/' + projectStatus + '/date/' + date + '/taskStatus/' + taskStatus
 
-releaseRouter.get("/report/project-status/:projectStatus/date/:planDate/task-status/:taskStatus", async ctx => {
-    return await MDL.ReleaseModel.getAllReportingProjectsAndTaskPlans(ctx.params, ctx.state.user)
+releaseRouter.get("/report", async ctx => {
+    return await MDL.ReleaseModel.getAllReportingProjects(ctx.state.user)
+})
+
+//report/task-plans/release/' + releaseID + '/date/' + planDate + '/task-status/' + taskStatus
+releaseRouter.get("/report/task-plans/release/:releaseID/date/:planDate/task-status/:taskStatus", async ctx => {
+    return await MDL.ReleaseModel.getTaskPlanedForEmployee(ctx.params, ctx.state.user)
 })
 
 export default releaseRouter

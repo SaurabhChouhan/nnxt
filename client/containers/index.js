@@ -91,5 +91,5 @@ export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPl
 export {default as CalendarPageContainer} from './pages/CalendarPageContainer'
 
 //Reporting
-export {default as ReportingProjectListContainer} from './lists/ReportingProjectListContainer'
+export {default as ReportingTaskPageContainer} from './pages/ReportingTaskPageContainer'
 
