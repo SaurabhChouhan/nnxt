@@ -102,7 +102,7 @@ userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
 
 
 userSchema.statics.getAllActiveWithRoleDeveloper = async (loggedInUser) => {
-    if (userHasRole(loggedInUser, SC.ROLE_MANAGER) || userHasRole(loggedInUser, SC.ROLE_LEADER)) {
+    if (userHasRole(loggedInUser, SC.ROLE_MANAGER) || userHasRole(loggedInUser, SC.ROLE_LEADER) || userHasRole(loggedInUser, SC.ROLE_ADMIN) || userHasRole(loggedInUser, SC.ROLE_SUPER_ADMIN)) {
 
         //Only Manager or leader can have all developer list
 

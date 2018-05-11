@@ -3,9 +3,12 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import momentTZ from 'moment-timezone'
 import moment from 'moment'
+import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
 import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
 
+moment.locale('en')
+momentLocalizer()
 class ReleaseTaskPlanningPage extends Component {
 
     constructor(props) {
@@ -19,7 +22,11 @@ class ReleaseTaskPlanningPage extends Component {
     deleteCellButton(cell, row, enumObject, rowIndex) {
         let now = new Date()
         let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-        if (momentTZ.tz(row.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isBefore(nowMoment))
+        let planningMoment = momentTZ.tz(row.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        console.log("planningMoment", planningMoment)
+        console.log("nowMoment", nowMoment)
+        console.log("compare ", planningMoment.isBefore(nowMoment))
+        if (planningMoment.isBefore(nowMoment))
             return ''
         else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
                         onClick={() => {

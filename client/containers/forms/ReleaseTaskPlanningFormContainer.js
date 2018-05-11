@@ -6,6 +6,7 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (task) => {
+        task.planning.plannedHours = Number(task.planning.plannedHours)
         return dispatch(A.addTaskPlanningOnServer(task)).then(json => {
             if (json.success) {
                 NotificationManager.success("Task Planning Added")
