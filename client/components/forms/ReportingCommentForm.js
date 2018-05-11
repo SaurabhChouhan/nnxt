@@ -22,6 +22,9 @@ class ReportingCommentForm extends React.Component {
         return (
             <form onSubmit={handleSubmit}>
                 <div className="col-md-12 pad" style={{marginBottom: '10px'}}>
+
+                    <Field name="taskPlan._id" component="input" className="form-control" type="hidden"></Field>
+                    <Field name="release._id" component="input" className="form-control" type="hidden"></Field>
                     <div className="col-md-8">
                         <Field name="comment" label="" component={renderTextArea} type="text"
                                placeholder="Enter comments or issues here" validate={[required]}/>
