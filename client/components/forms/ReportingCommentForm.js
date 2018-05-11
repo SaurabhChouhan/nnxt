@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
-import {renderTextArea,renderSelect} from "./fields"
+import {renderTextArea, renderSelect} from "./fields"
 import {required} from "./validation"
-import {Field,reduxForm} from 'redux-form'
-
+import {Field, reduxForm} from 'redux-form'
+import * as SC from '../../../server/serverconstants'
 
 class ReportingCommentForm extends React.Component {
 
@@ -11,25 +11,28 @@ class ReportingCommentForm extends React.Component {
     }
 
     render() {
-        const {pristine, submitting} = this.props;
-        var priorityStatus = [{'_id': '1', 'title': 'Emergency'},
-            {'_id': '2', 'title': 'Critical'},
-            {'_id': '3', 'title': 'Urgent'},
-            {'_id': '4', 'title': 'Reporting'},
-            {'_id': '5', 'title': 'FYI Only'}]
+        const {handleSubmit, pristine, submitting} = this.props;
+        var options = [
+            {name: SC.COMMENT_EMERGENCY},
+            {name: SC.COMMENT_CRITICAL},
+            {name: SC.COMMENT_URGENT},
+            {name: SC.COMMENT_REPORTING},
+            {name: SC.COMMENT_FYI_ONLY}]
+        console.log("comment option", options)
         return (
-            <form>
+            <form onSubmit={handleSubmit}>
                 <div className="col-md-12 pad" style={{marginBottom: '10px'}}>
                     <div className="col-md-8">
                         <Field name="comment" label="" component={renderTextArea} type="text"
                                placeholder="Enter comments or issues here" validate={[required]}/>
                     </div>
                     <div className="col-md-2">
-                        <Field name="priority" label="" component={renderSelect} options={priorityStatus}
-                               type="text" displayField={'title'} validate={[required]}/>
+                        <Field name="options" label="" component={renderSelect} options={options}
+                               type="text" displayField='name' valueField='name' validate={[required]}/>
                     </div>
                     <div className="col-md-2">
-                        <button type="submit" disabled={pristine || submitting} className="btn customBtn">Comment</button>
+                        <button type="submit" disabled={pristine || submitting} className="btn customBtn">Comment
+                        </button>
                     </div>
                 </div>
             </form>
