@@ -1136,6 +1136,10 @@ td.rejRowColor {
     width: 40%;
 }
 
+.releaseDialog .modal-dialog {
+    width: 50%;
+}
+
 .tagInputFieldClass {
     height: 35px;
     width: 100%;
@@ -1732,6 +1736,18 @@ i.iconClr:hover {
 
 hr {
     width: 100%;
+}
+
+.releaseAlign {
+    left: 20%;
+}
+
+.releasePlanBtn {
+    margin-left: 20px;
+}
+
+.releaseResetBtn {
+    margin-left: -50px;
 }
 
 /*.rw-select-bordered{
