@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import momentTZ from 'moment-timezone'
+import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
 
@@ -44,7 +45,10 @@ class ReleaseTaskPlanningPage extends Component {
 
     formatPlanningDate(row) {
         if (row) {
-            return momentTZ.tz(row, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format("DD-MM-YYYY")
+            let rowMoment = moment(row).hour(0).minute(0).second(0).millisecond(0)
+            let rowMomentTz = momentTZ.tz(rowMoment, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE_NAME).format("DD-MM-YYYY")
+            console.log("rowMomentTz", rowMomentTz)
+            return rowMomentTz
         }
         return ''
     }
