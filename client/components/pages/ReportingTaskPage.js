@@ -23,7 +23,7 @@ class ReportingTaskPage extends Component {
 
     onRowClick(row) {
           this.props.history.push("/app-home/reporting-task-detail")
-          this.props.taskSelected(row)
+        this.props.taskSelected(row, this.props.selectedProject)
 
     }
 

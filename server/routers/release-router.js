@@ -121,4 +121,9 @@ releaseRouter.get("/report/task-plans/release/:releaseID/date/:planDate/task-sta
     return await MDL.ReleaseModel.getTaskPlanedForEmployee(ctx.params, ctx.state.user)
 })
 
+//report/taskID/' + taskID + '/releaseID/' + releaseID + 'detail
+releaseRouter.get("/report/taskID/:taskID/release/:releaseID/detail", async ctx => {
+    return await MDL.ReleaseModel.getTaskAndProjectDetails(ctx.params.taskID,ctx.params.releaseID, ctx.state.user)
+})
+
 export default releaseRouter

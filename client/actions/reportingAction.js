@@ -22,9 +22,9 @@ export const setReportDate = (reportDate) => ({
     reportDate: reportDate
 })
 
-export const taskSelected = (task) => ({
-    type: AC.TASK_SELECTED,
-    task: task
+export const taskProjectSelected = (project) => ({
+    type: AC.TASK_PROJECT_SELECTED,
+    project: project
 })
 
 export const getAllReportingProjectsFromServer = () => {
@@ -65,6 +65,29 @@ export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, 
             json => {
                 if (json.success) {
                     dispatch(addReportingTaskPlannings(json.data))
+                }
+                return json
+
+            })
+    }
+}
+
+export const getTaskAndProjectDetailsFromServer = (taskID, releaseID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/report/taskID/' + taskID + '/releaseID/' + releaseID + 'detail', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(taskProjectSelected(json.data))
                 }
                 return json
 

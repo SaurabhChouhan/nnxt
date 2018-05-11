@@ -42,10 +42,13 @@ const reportingReducer = (state = initialState, action) => {
                 dateOfReport: action.reportDate
             })
 
-        case AC.TASK_SELECTED:
+        case AC.TASK_PROJECT_SELECTED:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedTask: action.task
+                selectedProject: Object.assign({}, action.project, {
+                    taskPlan: undefined,
+                }),
+                selectedTask: action.project.taskPlan
             })
 
 
