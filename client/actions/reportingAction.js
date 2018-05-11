@@ -71,3 +71,42 @@ export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, 
             })
     }
 }
+
+
+/*
+
+
+export const addReportingTaskComment = (taskComment) => ({
+    type: AC.ADD_TASK_COMMENT,
+    taskComment: taskComment
+})
+
+
+
+export const addReportingTaskCommentOnServer = (formInput) => {
+    return function (dispatch, getState) {
+        return fetch('/api/reportings/report/task-plans/comment',
+            {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addReportingTaskComment(json.data))
+                }
+
+                return json
+            }
+        )
+    }
+}
+*/
