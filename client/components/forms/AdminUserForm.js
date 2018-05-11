@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderField, renderMultiselect} from './fields'
+import {renderField, renderMultiSelect} from './fields'
 import {required} from "./validation";
 
 class AdminUserForm extends Component {
@@ -25,7 +25,7 @@ class AdminUserForm extends Component {
                         <Field name="lastName" label="Last Name:" component={renderField} type="text"/>
                         <Field
                             name="roles"
-                            component={renderMultiselect} label="Roles:"
+                            component={renderMultiSelect} label="Roles:"
                             data={this.props.roles} validate={[required]} valueField="_id" textField="name"/>
                         <Field name="email" label="Email:" component={renderField} type="email"/>
                         <Field name="password" label="Password:" component={renderField} type="password"/>

@@ -158,7 +158,7 @@ export const renderLoginField = ({
         <input {...input} className="form-control" type={type}/>
     </div>
 
-export const renderMultiselect = ({
+export const renderMultiSelect = ({
                                       input,
                                       data,
                                       valueField = "_id",
