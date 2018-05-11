@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderDateTimePickerString, renderSelect, renderText} from './fields'
+import {renderDateTimePickerString, renderSelect, renderText, renderTextArea} from './fields'
 import {number, required} from "./validation"
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
@@ -39,14 +39,21 @@ let ReleaseTaskPlanningForm = (props) => {
                 <Field name="employee.name" component="input" type="hidden"/>
                 <Field name="projectUsersOnly" component="input" type="hidden"/>
                 <Field name="employee._id" placeholder={"Name of Developer"}
+                       component={renderSelect}
+                       options={team}
+                       label={"Developer Name:"}
                        onChange={(event, newValue, oldValue) => {
                            let employee = team.find(e => e._id == newValue)
                            change("employee.name", employee.name)
                        }}
-                       component={renderSelect} options={team}
-                       label={"Developer Name:"} validate={[required]}/>
-                <Field name="description" label={"Description:"} component={renderTextArea} type="text"
-                       placeholder="Enter comments or description here" validate={[required]}/>
+                       validate={[required]}/>
+
+                <Field name="description"
+                       label={"Description:"}
+                       component={renderTextArea}
+                       type="text"
+                       placeholder="Enter task description"
+                       validate={[required]}/>
             </div>
 
             <div className="col-md-12 releaseAlign">
