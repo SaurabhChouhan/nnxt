@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {connect} from 'react-redux'
-import {renderDateTimePicker, renderField, renderText, renderTextArea} from './fields'
+import {renderDateTimePickerString, renderField, renderText, renderTextArea} from './fields'
 import {email, number, passwordLength, required} from "./validation"
 
 
@@ -83,7 +83,8 @@ class UserProfileForm extends Component {
                             <div className="row">
 
                                 <div className="col-md-6">
-                                    <Field name="dob" placeholder={"date of birth :"} component={renderDateTimePicker}
+                                    <Field name="dob" placeholder={"date of birth :"}
+                                           component={renderDateTimePickerString}
                                            showTime={false}
                                            label={"DOB :"} validate={[required]}/>
                                 </div>

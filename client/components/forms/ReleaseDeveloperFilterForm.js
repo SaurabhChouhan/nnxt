@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
-import {renderDateTimePicker, renderSelect,} from './fields'
+import {renderDateTimePickerString, renderSelect,} from './fields'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
@@ -8,7 +8,9 @@ import {connect} from 'react-redux'
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
-    const {change, days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift, releasePlan} = props
+    const {change, days, team, handleSubmit, employeeId, startDate, endDate, releasePlan} = props
+    const startDateMoment = moment(startDate)
+    const endDateMoment = moment(endDate)
 
     return <form onSubmit={handleSubmit}>
 <div className="col-md-12 planFilterDivider">
@@ -23,22 +25,22 @@ let ReleaseDeveloperFilterForm = (props) => {
         </div>
         <div className="col-md-8">
             <div className="col-md-6">
-                <Field name="startDate" placeholder={"Start Date"} component={renderDateTimePicker}
+                <Field name="startDate" placeholder={"Start Date"} component={renderDateTimePickerString}
                        onChange={(event, newValue, oldValue) => {
                            props.getDeveloperDetails(employeeId, newValue, endDate)
                        }}
                        showTime={false}
                        min={new Date()}
-                       max={endDate}
+                       max={endDateMoment}
                        label={" From :"}/>
             </div>
             <div className="col-md-6">
-                <Field name="endDate" placeholder={" End Date"} component={renderDateTimePicker}
+                <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
                        onChange={(event, newValue, oldValue) => {
                            props.getDeveloperDetails(employeeId, startDate, newValue)
                        }}
                        showTime={false}
-                       min={startDate}
+                       min={startDateMoment}
                        label={" To :"}/>
             </div>
 

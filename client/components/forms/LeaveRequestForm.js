@@ -1,5 +1,5 @@
 import {required} from "./validation"
-import {renderDateTimePicker, renderSelect, renderTextArea} from "./fields"
+import {renderDateTimePickerString, renderSelect, renderTextArea} from "./fields"
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import moment from 'moment'
@@ -21,11 +21,11 @@ let LeaveRequestForm = (props) => {
                        component={renderSelect} options={[{name: "Full"}, {name: "Half"}]}
                        label={"Day type :"} validate={[required]}/>
 
-                <Field name="startDate" placeholder={"Leave Start Date :"} component={renderDateTimePicker}
+                <Field name="startDate" placeholder={"Leave Start Date :"} component={renderDateTimePickerString}
                        min={moment()} showTime={false}
                        label={"Start Date :"} validate={[required]}/>
 
-                <Field name="endDate" placeholder={"Leave End Date :"} component={renderDateTimePicker}
+                <Field name="endDate" placeholder={"Leave End Date :"} component={renderDateTimePickerString}
                        min={moment()} showTime={false}
                        label={"End Date :"} validate={[required]}/>
 

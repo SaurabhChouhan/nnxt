@@ -294,14 +294,14 @@ class ReportingTaskPage extends Component {
 
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="5%" dataField='detailButton'
-                                               dataFormat={this.viewDetailButton.bind(this)}>View Detail
+                            <TableHeaderColumn width="5%" columnTitle={"View Details"} dataField='detailButton'
+                                               dataFormat={this.viewDetailButton.bind(this)}>View
                             </TableHeaderColumn>
                             <TableHeaderColumn width="20%" columnTitle dataField="task"
                                                dataFormat={this.formatTaskName.bind(this)}
                                                dataSort={true}>
                                 Task Name</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" dataField="planning"
+                            <TableHeaderColumn width="12%" columnTitle dataField="planning"
                                                dataFormat={this.formatPlannedHours.bind(this)}>
                                 planned hours</TableHeaderColumn>
                             <TableHeaderColumn width="14%" columnTitle dataField="employee"
@@ -310,14 +310,14 @@ class ReportingTaskPage extends Component {
                             <TableHeaderColumn width="15%" columnTitle dataField="status"
                                                dataFormat={this.formatReportedStatus.bind(this)}>Reported
                                 Status</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" dataField="additional"
+                            <TableHeaderColumn width="12%" columnTitle={this.formatReasonCode} dataField="additional"
                                                dataFormat={this.formatReasonCode.bind(this)}>Reason
                                 Code</TableHeaderColumn>
 
-                            <TableHeaderColumn width="5%" dataField='editButton'
+                            <TableHeaderColumn width="5%" columnTitle={"Edit"} dataField='editButton'
                                                dataFormat={this.viewEditButton.bind(this)}>Edit
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="5%" dataField='deleteButton'
+                            <TableHeaderColumn width="5%" columnTitle={"Submit Report"} dataField='deleteButton'
                                                dataFormat={this.viewSubmitButton.bind(this)}>Submit
                             </TableHeaderColumn>
                         </BootstrapTable>

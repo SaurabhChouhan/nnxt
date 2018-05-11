@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderDateTimePicker, renderSelect, renderText} from './fields'
+import {renderDateTimePickerString, renderSelect, renderText} from './fields'
 import {number, required} from "./validation"
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
@@ -23,7 +23,7 @@ let ReleaseTaskPlanningForm = (props) => {
 
                 <Field name="release._id" component="input" type="hidden"/>
 
-                <Field name="planningDate" placeholder={"Date"} component={renderDateTimePicker}
+                <Field name="planningDate" placeholder={"Date"} component={renderDateTimePickerString}
                        showTime={false}
                        min={min}
                        max={max}

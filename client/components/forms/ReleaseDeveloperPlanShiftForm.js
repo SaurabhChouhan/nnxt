@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
-import {renderDateTimePicker, renderSelect} from './fields'
+import {renderDateTimePickerString, renderSelect} from './fields'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import momentTZ from 'moment-timezone'
@@ -23,7 +23,7 @@ let ReleaseDeveloperPlanShiftForm = (props) => {
 
             </div>
             <div className="col-md-3 planDividerDate devMargin"><span>Base Date</span>
-                <Field name="baseDate" placeholder={"select base date"} component={renderDateTimePicker}
+                <Field name="baseDate" placeholder={"select base date"} component={renderDateTimePickerString}
                        showTime={false}
                        min={nowMoment}
                 />

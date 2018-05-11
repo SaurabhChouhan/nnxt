@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {renderDateTimePicker} from "./fields"
+import {renderDateTimePickerString} from "./fields"
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import moment from 'moment'
 import {connect} from 'react-redux'
@@ -37,7 +37,7 @@ class ReportingDateNavBar extends React.Component {
                                    this.props.onProjectSelect(releaseID, newValue, taskStatus)
                                }}
                                label=''
-                               component={renderDateTimePicker}
+                               component={renderDateTimePickerString}
                                showTime={false}
                         />
                     </div>
