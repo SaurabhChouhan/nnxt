@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderDateTimePicker, renderSelect, renderText} from './fields'
+import {renderDateTimePicker, renderSelect, renderText, renderTextArea} from './fields'
 import {number, required} from "./validation"
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
@@ -19,7 +19,7 @@ let ReleaseTaskPlanningForm = (props) => {
     const max = devEndDateMoment.toDate()
     return <form onSubmit={handleSubmit}>
         <div className="row">
-            <div className="col-md-6">
+            <div className="col-md-6 releaseAlign">
 
                 <Field name="release._id" component="input" type="hidden"/>
 
@@ -40,13 +40,16 @@ let ReleaseTaskPlanningForm = (props) => {
                        }}
                        component={renderSelect} options={team}
                        label={"Developer Name:"} validate={[required]}/>
+                <Field name="comment" label={"Description:"} component={renderTextArea} type="text"
+                       placeholder="Enter comments or description here" validate={[required]}/>
             </div>
 
-            <div className="col-md-12">
-                <div className="col-md-4">
-                    <button type="submit" className="btn customBtn" disabled={submitting || pristine}>Plan Task</button>
+            <div className="col-md-12 releaseAlign">
+                <div className="col-md-4 releasePlanBtn">
+                    <button type="submit" className="btn customBtn " disabled={submitting || pristine}>Plan Task
+                    </button>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-4 releaseResetBtn">
                     <button type="button" className="btn customBtn" disabled={submitting || pristine} onClick={reset}>
                         Reset
                     </button>
