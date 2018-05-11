@@ -29,7 +29,7 @@ export const taskProjectSelected = (project) => ({
 
 export const getAllReportingProjectsFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/report', {
+        return fetch('/api/reportings', {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -51,7 +51,7 @@ export const getAllReportingProjectsFromServer = () => {
 
 export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, taskStatus) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/report/task-plans/release/' + releaseID + '/date/' + planDate + '/task-status/' + taskStatus, {
+        return fetch('/api/reportings/task-plans/release/' + releaseID + '/date/' + planDate + '/task-status/' + taskStatus, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -74,7 +74,7 @@ export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, 
 
 export const getTaskAndProjectDetailsFromServer = (taskID, releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/report/taskID/' + taskID + '/releaseID/' + releaseID + 'detail', {
+        return fetch('/api/reportings/' + taskID + '/release/' + releaseID + '/report-detail', {
                 method: 'get',
                 credentials: "include",
                 headers: {

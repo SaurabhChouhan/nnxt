@@ -5,8 +5,8 @@ import * as COC from '../../components/componentConsts'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onProjectSelect: (releaseID, planDate, taskStatus)=>dispatch(A.getProjectDeatilAndTaskPlanningsFromServer(releaseID, planDate, taskStatus)),
-    taskSelected: (task, selectedProject) => {
-        dispatch(A.getTaskAndProjectDetailsFromServer(task._id, selectedProject._id))
+    taskSelected: (task, selectedProject) => dispatch(A.getTaskAndProjectDetailsFromServer(task._id, selectedProject._id)),
+    showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     }
 })

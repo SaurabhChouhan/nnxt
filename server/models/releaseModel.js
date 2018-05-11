@@ -196,7 +196,7 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
     if (!taskPlanID) {
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    let taskPlan = await MDL.ReleaseModel.findById(taskPlanID)
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
     if (!taskPlan)
         throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
 
@@ -206,7 +206,7 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
         throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     release = release.toObject()
     release.taskPlan = taskPlan
-    
+
     return release
 
 }
