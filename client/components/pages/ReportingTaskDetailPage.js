@@ -3,7 +3,7 @@ import moment from 'moment'
 import {Timeline, TimelineEvent} from 'react-event-timeline'
 import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
-import {ReportingCommentContainer} from '../../containers'
+import {ReportingCommentFormContainer} from '../../containers'
 class ReportingTaskDetailPage extends React.Component {
     constructor(props) {
         super(props);
@@ -65,7 +65,7 @@ class ReportingTaskDetailPage extends React.Component {
                 <TimelineEvent title={"Comment :"}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                <ReportingCommentContainer />
+                <ReportingCommentFormContainer />
                 </TimelineEvent>
 
             </Timeline>

@@ -27,7 +27,7 @@ class ReportingCommentForm extends React.Component {
                                placeholder="Enter comments or issues here" validate={[required]}/>
                     </div>
                     <div className="col-md-2">
-                        <Field name="options" label="" component={renderSelect} options={options}
+                        <Field name="commentType" label="Type" component={renderSelect} options={options}
                                type="text" displayField='name' valueField='name' validate={[required]}/>
                     </div>
                     <div className="col-md-2">
