@@ -3,6 +3,7 @@ import * as MDL from "../models"
 import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import AppError from '../AppError'
+import _ from 'lodash'
 
 // Added prefix
 let releaseRouter = new Router({
@@ -18,19 +19,20 @@ releaseRouter.get("/status/:status", async ctx => {
 releaseRouter.get("/release/:releaseID", async ctx => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
-    if (roleInRelease !== SC.ROLE_LEADER || roleInRelease !== SC.ROLE_MANAGER) {
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] can see Release list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     return await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
 })
 
-//get single release detail by ID and task status
+//get release plan list  by releaseID and task status
 releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empflag", async ctx => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
-    if (roleInRelease !== SC.ROLE_LEADER || roleInRelease !== SC.ROLE_MANAGER) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    console.log("roleInRelease - ", roleInRelease)
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     return await MDL.ReleasePlanModel.getReleasePlansByReleaseID(ctx.params, ctx.state.user)

@@ -65,7 +65,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     let userRole
 
-    console.log("User Role in This Release", userRole)
 
     if (!taskPlanningInput.releasePlan._id) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -85,10 +84,11 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+
     let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
 
-    if (userRoleInRelease !== SC.ROLE_LEADER || userRoleInRelease !== SC.ROLE_MANAGER) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] can plan task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can plan task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     if (taskPlanningInput && taskPlanningInput.employee && taskPlanningInput.employee._id && release && release._id) {
@@ -202,25 +202,40 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
     }
 
 
-    let now = new Date()
-    // Now in UTC
-    let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
 // employeeId must be present or its value must be all
     if (!planning.employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    let employee = await MDL.UserModel.findById(planning.employeeId)
+
+    if (!employee)
+        throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
 // baseDate must be present
     if (!planning.baseDate)
-        throw new AppError('Base Date not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('base date not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let now = new Date()
+    // Now in UTC
+    let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+    // Base Date in UTC
+    let baseDateMoment = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    if (baseDateMoment.isBefore(nowMoment)) {
+        throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
 
 // daysToShift must be present
     if (!planning.daysToShift)
-        throw new AppError('days To Shift not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('days to shift not found', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
 // releasePlanID must be present
     if (!planning.releasePlanID)
-        throw new AppError('Release Plan ID not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('release plan id not found', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    let releasePlan = await MDL.ReleasePlanModel.findById(planning.releasePlanID)
+
+    if (!releasePlan)
+        throw new AppError('Not a valid release plan', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
 
     let taskPlannings
