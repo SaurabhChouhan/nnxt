@@ -1,11 +1,12 @@
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
-import {renderDateTimePicker, renderMultiselect, renderSelect, renderText} from './fields'
+import {renderDateTimePickerString, renderMultiSelect, renderSelect, renderText} from './fields'
 import * as logger from '../../clientLogger'
 import {number, required} from "./validation"
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
+import _ from 'lodash'
 
 moment.locale('en')
 momentLocalizer()
@@ -14,6 +15,9 @@ let EstimationProjectAwardForm = (props) => {
     logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
     const {Team, Managers, Leaders, devStartDate, devReleaseDate, clientReleaseDate} = props
+    let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
+    console.log("max", max)
+    let now = new Date()
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
 
@@ -32,20 +36,20 @@ let EstimationProjectAwardForm = (props) => {
             </div>
             <div className="col-md-12">
                 <div className="col-md-4">
-                    <Field name="devStartDate" component={renderDateTimePicker}
-                           min={moment()}
-                           max={devReleaseDate ? devReleaseDate : clientReleaseDate}
+                    <Field name="devStartDate" component={renderDateTimePickerString}
+                           min={now}
+                           max={max}
                            showTime={false}
                            label={"Expected Start Date For Developer:"} validate={[required]}/>
                 </div>
                 <div className="col-md-4">
-                    <Field name="devReleaseDate" component={renderDateTimePicker}
-                           min={devStartDate} showTime={false}
+                    <Field name="devReleaseDate" component={renderDateTimePickerString}
+                           min={moment(devStartDate).toDate()} showTime={false}
                            label={"Expected Developer Release Date:"} validate={[required]}/>
                 </div>
                 <div className="col-md-4">
-                    <Field name="clientReleaseDate" component={renderDateTimePicker}
-                           min={devStartDate} showTime={false}
+                    <Field name="clientReleaseDate" component={renderDateTimePickerString}
+                           min={moment(devStartDate).toDate()} showTime={false}
                            label={"Expected Client Release Date:"} validate={required}/>
                 </div>
             </div>
@@ -75,7 +79,7 @@ let EstimationProjectAwardForm = (props) => {
 
             <div className="col-md-12">
                 <Field name="team"
-                       component={renderMultiselect}
+                       component={renderMultiSelect}
                        label={"Planned Employees For Release:"}
                        data={Team}
                        validate={required}

@@ -1,7 +1,7 @@
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
 import {required} from './validation'
-import {renderMultiselect, renderSelect, renderTextArea} from './fields'
+import {renderMultiSelect, renderSelect, renderTextArea} from './fields'
 import * as logger from '../../clientLogger'
 import {connect} from 'react-redux'
 
@@ -22,7 +22,7 @@ let EstimationInitiateForm = (props) => {
         </div>
         <div className="row">
             <div className="col-md-6">
-                <Field name="technologies" component={renderMultiselect} label="technologies:"
+                <Field name="technologies" component={renderMultiSelect} label="technologies:"
                        data={props.technologies}/>
             </div>
         </div>

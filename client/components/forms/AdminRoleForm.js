@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Field, reduxForm} from 'redux-form'
-import {renderMultiselect, renderText} from './fields'
+import {renderMultiSelect, renderText} from './fields'
 
 class AdminRoleForm extends Component {
 
@@ -17,7 +17,7 @@ class AdminRoleForm extends Component {
 
                 <Field name="name" component={renderText} label="Roles:" valueField="_id" disabled={true}
                        readOnly={true} textField="name"/>
-                <Field name="permissions" component={renderMultiselect} label="permission:"
+                <Field name="permissions" component={renderMultiSelect} label="permission:"
                        data={this.props.permissionOptions}
                        valueField="_id" textField="name"/>
                 <div className={'col-md-12'}>

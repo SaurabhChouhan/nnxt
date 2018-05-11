@@ -158,7 +158,7 @@ export const renderLoginField = ({
         <input {...input} className="form-control" type={type}/>
     </div>
 
-export const renderMultiselect = ({
+export const renderMultiSelect = ({
                                       input,
                                       data,
                                       valueField = "_id",
@@ -294,7 +294,7 @@ export const renderDateTimePickerString = ({
             readOnly={readOnly}
             disabled={disabled}
             onChange={event => onChange(parse(event))}
-            onBlue={onBlur}
+            onBlur={onBlur}
             time={showTime}
             calendar={showCalendar}
             value={val}

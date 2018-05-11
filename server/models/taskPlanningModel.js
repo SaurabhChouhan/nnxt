@@ -125,7 +125,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             }, {$push: {"nonProjectTeam": nonProjectUser}}).exec()
         }
     }
-
+    console.log("planning date ", momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0))
+    console.log("taskPlanningInput.planningDate ", taskPlanningInput.planningDate)
     await MDL.ReleasePlanModel.update({"_id": mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id)}, {"flags": [SC.FLAG_PLANNED]})
     let taskPlanning = new TaskPlanningModel()
     taskPlanning.created = Date.now()
