@@ -6,6 +6,7 @@ import * as COC from '../../components/componentConsts'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     ReportingGoBack: (event) => dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE)),
+    //onSubmit: (values) => {console.log("Comment")}
 })
 
 const mapStateToProps = (state, ownProps) => ({
