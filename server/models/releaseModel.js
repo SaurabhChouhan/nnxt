@@ -183,6 +183,34 @@ releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
     return release
 }
 
+releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, user) => {
+    // check release is valid or not
+    if (!releaseID) {
+        throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    let release = await MDL.ReleaseModel.findById(releaseID)
+    if (!release)
+        throw new AppError('Not a valid release', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    //check task plan is valid or not
+    if (!taskPlanID) {
+        throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
+    if (!taskPlan)
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    //user Role in this release to see task detail
+    const userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    if (!userRoleInRelease)
+        throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    release = release.toObject()
+    release.taskPlan = taskPlan
+
+    return release
+
+}
+
 const ReleaseModel = mongoose.model("Release", releaseSchema)
 export default ReleaseModel
 /*
