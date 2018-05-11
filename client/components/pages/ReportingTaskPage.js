@@ -10,9 +10,7 @@ class ReportingTaskPage extends Component {
 
     constructor(props) {
         super(props);
-        this.options = {
-             onRowClick: this.onRowClick.bind(this)
-        }
+
         this.state = {
             taskStatus: "all",
             releaseID: undefined
@@ -21,16 +19,6 @@ class ReportingTaskPage extends Component {
         this.onProjectSelect = this.onProjectSelect.bind(this)
     }
 
-    onRowClick(row) {
-
-        this.props.taskSelected(row, this.props.selectedProject).then(json => {
-            if (json.success) {
-                this.props.history.push("/app-home/reporting-task-detail")
-                this.props.showTaskDetailPage()
-            }
-        })
-
-    }
 
     columnClassStatusFormat(status) {
         if (status == SC.STATUS_APPROVED)
@@ -162,8 +150,7 @@ class ReportingTaskPage extends Component {
 
     viewEditButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                console.log("Edit")
-
+                console.log("edit")
             }}>
                 <i className="fa fa-pencil"></i>
             </button>
@@ -175,6 +162,21 @@ class ReportingTaskPage extends Component {
                 console.log("Submit")
             }}>
                 <i className="fa fa-check"></i>
+            </button>
+        )
+    }
+
+    viewDetailButton(cell, row, enumObject, rowIndex) {
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
+                this.props.taskSelected(row, this.props.selectedProject).then(json => {
+                    if (json.success) {
+                        this.props.history.push("/app-home/reporting-task-detail")
+                        this.props.showTaskDetailPage()
+                    }
+                    return json
+                })
+            }}>
+                <i className="fa fa-eye"></i>
             </button>
         )
     }
@@ -289,7 +291,11 @@ class ReportingTaskPage extends Component {
                                         search={true}
                                         striped={true}
                                         hover={true}>
+
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="5%" dataField='detailButton'
+                                               dataFormat={this.viewDetailButton.bind(this)}>View Detail
                             </TableHeaderColumn>
                             <TableHeaderColumn width="20%" columnTitle dataField="task"
                                                dataFormat={this.formatTaskName.bind(this)}
@@ -308,10 +314,10 @@ class ReportingTaskPage extends Component {
                                                dataFormat={this.formatReasonCode.bind(this)}>Reason
                                 Code</TableHeaderColumn>
 
-                            <TableHeaderColumn width="15%" dataField='editButton'
+                            <TableHeaderColumn width="5%" dataField='editButton'
                                                dataFormat={this.viewEditButton.bind(this)}>Edit
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="15%" dataField='deleteButton'
+                            <TableHeaderColumn width="5%" dataField='deleteButton'
                                                dataFormat={this.viewSubmitButton.bind(this)}>Submit
                             </TableHeaderColumn>
                         </BootstrapTable>
