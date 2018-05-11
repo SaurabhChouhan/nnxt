@@ -26,11 +26,11 @@ class ReportingCommentForm extends React.Component {
                     <Field name="taskPlan._id" component="input" className="form-control" type="hidden"></Field>
                     <Field name="release._id" component="input" className="form-control" type="hidden"></Field>
                     <div className="col-md-8">
-                        <Field name="comment" label="" component={renderTextArea} type="text"
+                        <Field name="comment" label="Comment :" component={renderTextArea} type="text"
                                placeholder="Enter comments or issues here" validate={[required]}/>
                     </div>
                     <div className="col-md-2">
-                        <Field name="commentType" label="Type" component={renderSelect} options={options}
+                        <Field name="commentType" label="Type :" component={renderSelect} options={options}
                                type="text" displayField='name' valueField='name' validate={[required]}/>
                     </div>
                     <div className="col-md-2">
