@@ -22,29 +22,11 @@ class ReleaseList extends Component {
 
     }
 
-    columnClassStatusFormat(status) {
-        if (status == SC.STATUS_APPROVED)
-            return 'appRowColor'
-    }
-
-    formatStatus(status) {
-        return ''
-    }
-
-    formatManager(row) {
+    formatCreatedDate(row) {
         if (row) {
-            return row.firstName + ' ' + row.lastName
+            return moment(row).format("DD-MM-YYYY")
         }
         return ''
-
-    }
-
-    formatLeader(row) {
-        if (row) {
-            return row.firstName + ' ' + row.lastName
-        }
-        return ''
-
     }
 
     formateProjectName(project) {
@@ -53,36 +35,18 @@ class ReleaseList extends Component {
         return ''
     }
 
-    formatCreatedDate(row) {
+    formatManager(row) {
         if (row) {
-            return moment(row).format("DD-MM-YYYY")
+            return row.firstName + ' ' + row.lastName
         }
         return ''
-
     }
 
-    formatStartDate(row) {
+    formatLeader(row) {
         if (row) {
-            return moment(row.devStartDate).format("DD-MM-YYYY")
+            return row.firstName + ' ' + row.lastName
         }
         return ''
-
-    }
-
-    formatEndDate(row) {
-        if (row) {
-            return moment(row.devEndDate).format("DD-MM-YYYY")
-        }
-        return ''
-
-    }
-
-    formatReleaseDate(row) {
-        if (row) {
-            return moment(row.clientReleaseDate).format("DD-MM-YYYY")
-        }
-        return ''
-
     }
 
     formatHours(row) {
@@ -90,9 +54,29 @@ class ReleaseList extends Component {
             return row.billedHours
         }
         return ''
-
     }
 
+    formatStartDate(row) {
+        if (row) {
+            return moment(row.devStartDate).format("DD-MM-YYYY")
+        }
+        return ''
+    }
+
+    formatEndDate(row) {
+        if (row) {
+            return moment(row.devEndDate).format("DD-MM-YYYY")
+        }
+        return ''
+    }
+
+
+    formatReleaseDate(row) {
+        if (row) {
+            return moment(row.clientReleaseDate).format("DD-MM-YYYY")
+        }
+        return ''
+    }
     render() {
         const {projects} = this.props
         return (

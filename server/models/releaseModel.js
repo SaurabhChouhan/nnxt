@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import * as EC from "../errorcodes"
-import * as MDL from "../models"
+import * as MDL from '../models'
 import momentTZ from 'moment-timezone'
 import moment from 'moment'
 
@@ -78,18 +78,21 @@ let releaseSchema = mongoose.Schema({
 })
 
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
-    let release = await MDL.ReleaseModel.findById(releaseID)
-
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
     if (release) {
         // check to see role of logged in user in this estimation
-        if (release.manager && release.manager._id === user._id)
+        if (release.manager && release.manager._id == user._id) {
             return SC.ROLE_MANAGER
-        else if (release.leader && release.leader._id === user._id)
+        }
+        else if (release.leader && release.leader._id == user._id) {
             return SC.ROLE_LEADER
-        else if (release.team && release.team.length && release.team.findIndex(t => t._id === user._id) != -1)
+        }
+        else if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1) {
             return SC.ROLE_DEVELOPER
-        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1)
+        }
+        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1) {
             return SC.ROLE_NON_PROJECT_DEVELOPER
+        }
         else {
             let User = await MDL.UserModel.findById(user._id)
             if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
@@ -137,7 +140,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
 
 
 releaseSchema.statics.getReleases = async (status, user) => {
-    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(user)
+
     let filter = {}
     if (status && status.toLowerCase() != "all")
         filter = {$or: [{"manager._id": user._id}, {"leader._id": user._id}], "status": status}
