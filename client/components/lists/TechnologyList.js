@@ -26,14 +26,14 @@ class TechnologyList extends Component {
         this.props.deleteTechnology(this.state.addRow)
     }
 
-    viewButton(cell, row, enumObject, rowIndex) {
+    viewDeleteButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-trash btn btn-custom" type="button" onClick={() => {
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
                 this.setState({showTechnologyDeletionDialog: true}),
                     this.setState({addRow: row._id})
             }}>
-
+                <i className="fa fa-trash"></i>
             </button>
         )
 
@@ -59,7 +59,7 @@ class TechnologyList extends Component {
                                         onClick={() => this.props.showTechnologyAdditionForm()}>Add Technology
                                 </button>
 
-                                <div className="technology">
+                                <div className="estimation">
 
                                     <BootstrapTable options={this.options} data={this.props.technologies}
                                                     striped={true}
@@ -70,7 +70,7 @@ class TechnologyList extends Component {
                                             Name</TableHeaderColumn>
 
                                         <TableHeaderColumn width="30%" dataField='button'
-                                                           dataFormat={this.viewButton.bind(this)}>Delete
+                                                           dataFormat={this.viewDeleteButton.bind(this)}>Delete
                                         </TableHeaderColumn>
 
                                     </BootstrapTable>
