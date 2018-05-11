@@ -21,6 +21,7 @@ let taskPlanningSchema = mongoose.Schema({
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
     canMerge: {type: Boolean, default: false},
+    description: {type: String},
     task: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
@@ -133,6 +134,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     taskPlanning.flags = taskPlanningInput.flags
     taskPlanning.planning = taskPlanningInput.planning
     taskPlanning.report = taskPlanningInput.report
+    taskPlanning.description = taskPlanningInput.description ? taskPlanningInput.description : ''
     taskPlanning.user = {
         _id: user._id,
         name: user.firstName + ' ' + user.lastName,
