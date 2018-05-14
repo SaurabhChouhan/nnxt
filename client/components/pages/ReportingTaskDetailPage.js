@@ -4,6 +4,7 @@ import {Timeline, TimelineEvent} from 'react-event-timeline'
 import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
 import {ReportingCommentFormContainer} from '../../containers'
+
 class ReportingTaskDetailPage extends React.Component {
     constructor(props) {
         super(props);
@@ -21,51 +22,83 @@ class ReportingTaskDetailPage extends React.Component {
                             }}>
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
-                <TimelineEvent style={{fontSize: '20px'}}
-                               title={"Project Name :"}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                {selectedProject && selectedProject.project.name ?
+                    <TimelineEvent style={{fontSize: '20px'}}
+                                   title={"Project Name :"}
+                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
 
-                    {selectedProject.project.name}
-                </TimelineEvent>
+                        {selectedProject.project.name}
+                    </TimelineEvent>
+                    : null
+                }
+
                 <TimelineEvent style={{fontSize: '20px'}}
                                title={"Project Description :"}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                    {selectedProject.estimationDescription}
+                </TimelineEvent>
 
-                   {selectedProject.project.name} is  used to site regularly and would like to help keep the site on the Internet,
-                    please consider donating a small sum to help pay for the hosting and bandwidth bill. There is no minimum donation,
-                    any sum is appreciated.
-                </TimelineEvent>
-                <TimelineEvent title={"Task Name :"} icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                {selectedTask && selectedTask.task.name ?
+                    <TimelineEvent title={"Task Name :"}
+                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                   style={{fontSize: '20px'}}>
+                        {selectedTask.task.name}
+                    </TimelineEvent>
+                    : null
+                }
+
+                {selectedProject && selectedProject.releasePlan.task.description ?
+                    <TimelineEvent title={"Task Description :"}
+                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                   style={{fontSize: '20px'}}>
+                        {selectedProject.releasePlan.task.description}
+                    </TimelineEvent>
+                    : null
+                }
+
+                <TimelineEvent title={"Assigned To You :"}
+                               icon={<i className="glyphicon glyphicon-user calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                    {selectedTask.task.name}
-                </TimelineEvent>
-                <TimelineEvent title={"Task Planned Date :"}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    {moment(selectedTask.planningDate).format(SC.DATE_AND_TIME_FORMAT)}
-                </TimelineEvent>
-                <TimelineEvent title={"Task Planned Hours :"}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    {selectedTask.planning.plannedHours}
-                </TimelineEvent>
-                <TimelineEvent title={"Task Reported Status :"}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    {selectedTask.report.status}
-                </TimelineEvent>
-                <TimelineEvent title={"Task Description :"}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    {selectedTask.task.name} is  used to site regularly and would like to help keep the site on the Internet,
-                    please consider donating a small sum to help pay for the hosting and bandwidth bill. There is no minimum donation,
-                    any sum is appreciated.
+                    <Timeline>
+
+                        <TimelineEvent title={" Planned Date :"}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {moment(selectedTask.planningDate).format(SC.DATE_AND_TIME_FORMAT)}
+                        </TimelineEvent>
+
+                        {selectedTask && selectedTask.planning.plannedHours ?
+                            <TimelineEvent title={" Planned Hours :"}
+                                           icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                           style={{fontSize: '20px'}}>
+                                {selectedTask.planning.plannedHours}
+                            </TimelineEvent>
+                            : null
+                        }
+
+                        <TimelineEvent title={"Details :"}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTask.description}
+                        </TimelineEvent>
+
+                        {selectedTask && selectedTask.report.status ?
+                            <TimelineEvent title={" Reported Status :"}
+                                           icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                           style={{fontSize: '20px'}}>
+                                {selectedTask.report.status}
+                            </TimelineEvent>
+                            : null
+                        }
+
+
+                    </Timeline>
                 </TimelineEvent>
 
                 <TimelineEvent title={"Comment :"}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                <ReportingCommentFormContainer />
+                    <ReportingCommentFormContainer/>
                 </TimelineEvent>
 
             </Timeline>
