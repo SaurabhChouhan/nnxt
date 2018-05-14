@@ -1,5 +1,6 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
+import * as V from '../validation'
 
 // Added prefix
 let reportingRouter = new Router({
@@ -21,6 +22,13 @@ reportingRouter.get("/:taskID/release/:releaseID/report-detail", async ctx => {
     console.log("ctx.params.taskID", ctx.params.taskID)
     console.log("ctx.params.releaseID", ctx.params.releaseID)
     return await MDL.ReleaseModel.getTaskAndProjectDetails(ctx.params.taskID, ctx.params.releaseID, ctx.state.user)
+})
+
+//comment
+reportingRouter.post("/comment", async ctx => {
+    if (ctx.schemaRequested)
+        return V.generateSchema(V.releaseTaskPlanningCommentStruct)
+    return await MDL.TaskPlanningModel.addComment(ctx.request.body, ctx.state.user)
 })
 
 export default reportingRouter

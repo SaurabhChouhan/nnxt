@@ -20,3 +20,11 @@ export const releaseTaskPlanningStruct = t.struct({
     }),
     planningDate: RequiredString,
 })
+
+export const releaseTaskPlanningCommentStruct = t.struct({
+    _id: t.Nil,
+    releaseID: ObjectId,
+    releasePlanID: ObjectId,
+    comment: RequiredString,
+    commentType: RequiredString,
+})

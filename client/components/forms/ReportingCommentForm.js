@@ -12,19 +12,18 @@ class ReportingCommentForm extends React.Component {
 
     render() {
         const {handleSubmit, pristine, submitting} = this.props;
-        var options = [
+        let options = [
             {name: SC.COMMENT_EMERGENCY},
             {name: SC.COMMENT_CRITICAL},
             {name: SC.COMMENT_URGENT},
             {name: SC.COMMENT_REPORTING},
             {name: SC.COMMENT_FYI_ONLY}]
-        console.log("comment option", options)
         return (
             <form onSubmit={handleSubmit}>
                 <div className="col-md-12 pad" style={{marginBottom: '10px'}}>
 
-                    <Field name="taskPlan._id" component="input" className="form-control" type="hidden"></Field>
-                    <Field name="release._id" component="input" className="form-control" type="hidden"></Field>
+                    <Field name="releasePlanID" component="input" className="form-control" type="hidden"></Field>
+                    <Field name="releaseID" component="input" className="form-control" type="hidden"></Field>
                     <div className="col-md-7">
                         <Field name="comment" label="Comment :" component={renderTextArea} type="text"
                                placeholder="Enter comments or issues here" validate={[required]}/>

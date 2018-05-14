@@ -212,13 +212,13 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
 
     if (!taskPlan)
         throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
-    let releasePlan = await  MDL.ReleasePlanModel.findOne({
-        "release._id": mongoose.Types.ObjectId(release._id)
-    }, {
+
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
         task: 1,
         description: 1,
         estimation: 1,
-        _id: 0
+        comments: 1,
     })
 
 

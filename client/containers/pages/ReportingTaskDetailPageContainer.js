@@ -5,16 +5,13 @@ import * as COC from '../../components/componentConsts'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    ReportingGoBack: (event) => dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE)),
-    onSubmit: (values) => {
-        console.log("Comment")
-    }
+    ReportingGoBack: (event) => dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE))
 })
 
 const mapStateToProps = (state, ownProps) => ({
     selectedTask: state.report.selectedTask,
     selectedProject: state.report.selectedProject,
-
+    selectedReleasePlan: state.report.selectedReleasePlan
 })
 
 const ReportingTaskDetailPageContainer = connect(

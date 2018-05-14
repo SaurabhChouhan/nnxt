@@ -110,4 +110,8 @@ releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await MDL.EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
 })
 
+releaseRouter.get("/:releasePlanID/releasePlan", async ctx => {
+    return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID,ctx.state.user)
+})
+
 export default releaseRouter

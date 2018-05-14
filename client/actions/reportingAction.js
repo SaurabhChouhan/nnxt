@@ -27,6 +27,16 @@ export const taskProjectSelected = (project) => ({
     project: project
 })
 
+export const updateSelectedTask = (taskPlan) => ({
+    type: AC.UPDATE_SELECTED_TASK,
+    taskPlan: taskPlan
+})
+
+export const updateSelectedReleasePlan = (releasePlan) => ({
+    type: AC.UPDATE_SELECTED_RELEASE_PLAN,
+    releasePlan: releasePlan
+})
+
 export const setStatus = (status) => ({
     type: AC.SET_STATUS,
     status: status
@@ -97,6 +107,53 @@ export const getTaskAndProjectDetailsFromServer = (taskID, releaseID) => {
             json => {
                 if (json.success) {
                     dispatch(taskProjectSelected(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const addCommentToServer = (comment) => {
+    return (dispatch, getState) => {
+        return fetch('/api/reportings/comment', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(comment)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    return dispatch(getReleasePlansByID(json.data.releasePlanID))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getReleasePlansByID = (releasePlanID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/' + releasePlanID + '/releasePlan', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateSelectedReleasePlan(json.data))
                 }
                 return json
             })

@@ -213,7 +213,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
     if (!planning.employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let employee = await MDL.UserModel.findById(planning.employeeId)
+    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
 
     if (!employee)
         throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
@@ -239,7 +239,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
 // releasePlanID must be present
     if (!planning.releasePlanID)
         throw new AppError('release plan id not found', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    let releasePlan = await MDL.ReleasePlanModel.findById(planning.releasePlanID)
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(planning.releasePlanID))
 
     if (!releasePlan)
         throw new AppError('Not a valid release plan', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
@@ -721,6 +721,47 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
     })
 console.log("Calendar",taskPlans)
     return taskPlans
+}
+
+
+taskPlanningSchema.statics.addComment = async (commentInput, user) => {
+
+    V.validate(commentInput, V.releaseTaskPlanningCommentStruct)
+
+    console.log("commentInput", commentInput)
+    if (!commentInput.releaseID) {
+        throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    if (!commentInput.releasePlanID) {
+        throw new AppError('release plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(commentInput.releaseID))
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRoleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_DEVELOPER + " or " + SC.ROLE_NON_PROJECT_DEVELOPER, +" or " + SC.ROLE_LEADER + "] can comment", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(commentInput.releasePlanID))
+
+    if (!releasePlan) {
+        throw new AppError('releasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    let comment = {}
+    comment.name = user.firstName + ' ' + user.lastName
+    comment.comment = commentInput.comment
+    comment.commentType = commentInput.commentType
+    comment.date = new Date()
+    await MDL.ReleasePlanModel.update({
+        '_id': releasePlan._id
+    }, {$push: {"comments": comment}}).exec()
+
+    return {releasePlanID: releasePlan._id}
 }
 
 
