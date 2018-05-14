@@ -20,6 +20,7 @@ let releasePlanSchema = mongoose.Schema({
     task: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
+        description: String,
         estimatedHours: {type: Number, default: 0}
     },
     feature: {
