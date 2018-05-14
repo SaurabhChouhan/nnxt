@@ -4,14 +4,15 @@ import * as A from '../../actions/index'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onProjectSelect: (releaseID, planDate, taskStatus) => {
-        if (releaseID && planDate && taskStatus)
-            return dispatch(A.getProjectDeatilAndTaskPlanningsFromServer(releaseID, planDate, taskStatus))
-        else {
+        if (!releaseID || _.isEmpty(releaseID) || releaseID === "Select Project" || releaseID === undefined || !planDate && !taskStatus) {
             let dummyData = {
                 taskPlans: []
             }
             dispatch(A.noProjectSelected(dummyData))
+        } else {
+            dispatch(A.getProjectDeatilAndTaskPlanningsFromServer(releaseID, planDate, taskStatus))
         }
+
     },
     setReportDate: (reportDate) => {
         return dispatch(A.setReportDate(reportDate))

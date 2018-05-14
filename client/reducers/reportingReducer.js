@@ -6,6 +6,8 @@ let initialState = {
     selectedProject: {},
     selectedTask: {},
     allTaskPlans: [],
+    releaseID: '',
+    status: 'all',
     dateOfReport: new Date()
 }
 
@@ -40,6 +42,18 @@ const reportingReducer = (state = initialState, action) => {
             // while selection of reporting date it is set to state also
             return Object.assign({}, state, {
                 dateOfReport: action.reportDate
+            })
+
+        case AC.SET_STATUS:
+            // while selection of reporting status it is set to state also
+            return Object.assign({}, state, {
+                status: action.status
+            })
+
+        case AC.SET_PROJECT_ID:
+            // while selection of reporting releaseId it is set to state also
+            return Object.assign({}, state, {
+                releaseID: action.releaseId
             })
 
         case AC.TASK_PROJECT_SELECTED:

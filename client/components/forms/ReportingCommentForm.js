@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {renderTextArea, renderSelect} from "./fields"
+import {renderSelect, renderTextArea} from "./fields"
 import {required} from "./validation"
 import {Field, reduxForm} from 'redux-form'
 import * as SC from '../../../server/serverconstants'
@@ -25,11 +25,11 @@ class ReportingCommentForm extends React.Component {
 
                     <Field name="taskPlan._id" component="input" className="form-control" type="hidden"></Field>
                     <Field name="release._id" component="input" className="form-control" type="hidden"></Field>
-                    <div className="col-md-8">
+                    <div className="col-md-7">
                         <Field name="comment" label="Comment :" component={renderTextArea} type="text"
                                placeholder="Enter comments or issues here" validate={[required]}/>
                     </div>
-                    <div className="col-md-2">
+                    <div className="col-md-3">
                         <Field name="commentType" label="Type :" component={renderSelect} options={options}
                                type="text" displayField='name' valueField='name' validate={[required]}/>
                     </div>

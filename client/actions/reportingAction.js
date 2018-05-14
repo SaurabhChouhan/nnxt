@@ -27,6 +27,15 @@ export const taskProjectSelected = (project) => ({
     project: project
 })
 
+export const setStatus = (status) => ({
+    type: AC.SET_STATUS,
+    status: status
+})
+export const setProjectId = (releaseId) => ({
+    type: AC.SET_PROJECT_ID,
+    releaseId: releaseId
+})
+
 export const getAllReportingProjectsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/reportings', {
