@@ -157,7 +157,11 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
 
 //Reporting
 releaseSchema.statics.getAllReportingProjects = async (user) => {
-    return await MDL.ReleaseModel.find({$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]})
+    return await MDL.ReleaseModel.find(
+        {$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]}, {
+            project: 1,
+            _id: 1
+        })
 }
 
 releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
@@ -175,7 +179,7 @@ releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
 
     release = release.toObject()
     let taskPlans = await MDL.TaskPlanningModel.find({
-        "release._id": mongoose.Types.ObjectId(ParamsInput.releaseID),
+        "release._id": mongoose.Types.ObjectId(release._id),
         "planningDate": momentTzPlanningDateString,
         "employee._id": mongoose.Types.ObjectId(user._id)
     })
