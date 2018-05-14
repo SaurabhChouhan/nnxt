@@ -9,8 +9,8 @@ moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
     const {change, days, team, handleSubmit, employeeId, startDate, endDate, releasePlan} = props
-    const startDateMoment = moment(startDate)
-    const endDateMoment = moment(endDate)
+    const startDateMomentDate = !startDate && !_.isEmpty(startDate) ? moment(startDate).toDate() : undefined
+    const endDateMomentDate = !endDate && !_.isEmpty(endDate) ? moment(endDate).toDate() : undefined
 
     return <form onSubmit={handleSubmit}>
 <div className="col-md-12 planFilterDivider">
@@ -25,13 +25,15 @@ let ReleaseDeveloperFilterForm = (props) => {
         </div>
         <div className="col-md-8">
             <div className="col-md-6">
-                <Field name="startDate" placeholder={"Start Date"} component={renderDateTimePickerString}
+                <Field name="startDate"
+                       placeholder={"Start Date"}
+                       component={renderDateTimePickerString}
                        onChange={(event, newValue, oldValue) => {
                            props.getDeveloperDetails(employeeId, newValue, endDate)
                        }}
                        showTime={false}
                        min={new Date()}
-                       max={endDateMoment}
+                       max={endDateMomentDate}
                        label={" From :"}/>
             </div>
             <div className="col-md-6">
@@ -40,7 +42,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                            props.getDeveloperDetails(employeeId, startDate, newValue)
                        }}
                        showTime={false}
-                       min={startDateMoment}
+                       min={startDateMomentDate}
                        label={" To :"}/>
             </div>
 

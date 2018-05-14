@@ -22,6 +22,8 @@ class ReleaseTaskPlanningPage extends Component {
     deleteCellButton(cell, row, enumObject, rowIndex) {
         let now = new Date()
         let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let nowMomentString = nowMoment.format(SC.DEFAULT_DATE_FORMAT)
+
         let planningMoment = momentTZ.tz(row.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
         console.log("planningMoment", planningMoment)
         console.log("nowMoment", nowMoment)
@@ -53,8 +55,8 @@ class ReleaseTaskPlanningPage extends Component {
     formatPlanningDate(row) {
         if (row) {
             let rowMoment = moment(row).hour(0).minute(0).second(0).millisecond(0)
-            let rowMomentTz = momentTZ.tz(rowMoment, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE_NAME).format("DD-MM-YYYY")
-            console.log("rowMomentTz", rowMomentTz)
+            let rowMomentTz = momentTZ.tz(rowMoment, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE_NAME).format(SC.DEFAULT_DATE_FORMAT)
+            //console.log("rowMomentTz", rowMomentTz)
             return rowMomentTz
         }
         return ''
