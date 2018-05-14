@@ -12,8 +12,8 @@ class ReportingTaskPage extends Component {
         super(props);
 
         this.state = {
-            taskStatus: "all",
-            releaseID: undefined
+            taskStatus: this.props.taskStatus,
+            releaseID: this.props.releaseID
         }
         this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
         this.onProjectSelect = this.onProjectSelect.bind(this)
@@ -182,11 +182,14 @@ class ReportingTaskPage extends Component {
     onTaskStatusChange(status) {
         this.setState({taskStatus: status})
         this.props.onProjectSelect(this.state.releaseID, this.props.dateOfReport, status)
+        this.props.setStatus(status)
+
     }
 
     onProjectSelect(releaseID) {
         this.setState({releaseID: releaseID})
         this.props.onProjectSelect(releaseID, this.props.dateOfReport, this.state.taskStatus)
+        this.props.setProjectId(releaseID)
     }
 
     render() {
@@ -257,10 +260,21 @@ class ReportingTaskPage extends Component {
                                     title="Select Flag"
                                     onChange={(project) => this.onProjectSelect(project.target.value)}>
 
-                                    <option value={undefined}>Select Project</option>
+                                    <option key={-1} value={''}>{"Select Project"}</option>
                                     {
-                                        allProjects && allProjects.length ? allProjects.map(project => {
-                                            return <option value={project._id}>{project.project.name}</option>
+                                        allProjects && allProjects.length ? allProjects.map((project, idx) => {
+                                            console.log("project._id", project._id)
+                                            console.log("this.state.releaseID", this.state.releaseID)
+                                            if (this.state.releaseID == project._id) {
+                                                console.log("project._id true", project._id)
+                                                return <option key={idx} selected
+                                                               value={project._id}>{project.project.name}</option>
+                                            } else {
+                                                console.log("project._id false", project._id)
+                                                return <option key={idx}
+                                                               value={project._id}>{project.project.name}</option>
+                                            }
+
                                         }) : null
                                     }
                                 </select>
@@ -270,14 +284,15 @@ class ReportingTaskPage extends Component {
                             <div className="releaseDetailSearchStatus">
                                 <select className="form-control" title="Select Status"
                                         onChange={(status) => this.onTaskStatusChange(status.target.value)}>
-                                    <option value="all">All Task Status</option>
-                                    <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-                                    <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                    <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                    <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                    <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                    <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+                                    <option key={0} value="all">All Task Status</option>
+                                    <option key={1} value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+                                    <option key={2} value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                    <option key={3}
+                                            value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                                    <option key={4} value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                                    <option key={5} value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                                    <option key={6} value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                                    <option key={7} value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
 
                                 </select>
                             </div>
