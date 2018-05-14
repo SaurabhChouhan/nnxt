@@ -1750,10 +1750,8 @@ hr {
     margin-left: -50px;
 }
 
-/*.rw-select-bordered{
-    background-color:#F66E65 ;
+.reportingCommentBtn {
+    margin-top: 27px;
 }
-.rw-select-bordered:hover, .rw-select-bordered:active {
-    background-color: #ffffff;
-}*/
+
 
