@@ -30,4 +30,8 @@ calenderRouter.post("/holiday/", async ctx => {
 calenderRouter.put("/add-holiday/", async ctx => {
     return await MDL.YearlyHolidaysModel.updateHolidayYear(ctx.request.body, ctx.request.user)
 })
+
+calenderRouter.get("/calender/tasks", async ctx => {
+    return await MDL.TaskPlanningModel.getAllTaskPlanningsForCalenderOfUser(ctx.request.user)
+})
 export default calenderRouter
