@@ -44,6 +44,7 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
                     }}>Release</Link></li>
                     <li><Link to="/app-home/calendar" onClick={() => {
+                        props.dispatch(A.getAllTaskPlansFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.CALENDAR))
                     }}>Calendar</Link></li>
                     <li><Link to="/app-home/reporting" onClick={() => {
