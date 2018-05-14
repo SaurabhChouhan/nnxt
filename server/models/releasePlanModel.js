@@ -50,7 +50,11 @@ let releasePlanSchema = mongoose.Schema({
     comments: [{
         name: {type: String, required: [true, 'Comment name is required']},
         date: {type: Date, required: [true, 'Comment date is required']},
-        comment: {type: String, required: [true, 'Comment is required']}
+        comment: {type: String, required: [true, 'Comment is required']},
+        commentType: {
+            type: String,
+            enum: [SC.COMMENT_EMERGENCY, SC.COMMENT_CRITICAL, SC.COMMENT_URGENT, SC.COMMENT_REPORTING, SC.COMMENT_FYI_ONLY]
+        },
     }],
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
@@ -93,6 +97,14 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
         filter = {"release._id": release._id, "flags": {$in: [empflag]}}
 
     return await ReleasePlanModel.find(filter)
+}
+
+releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
+
+    if (!releasePlanID) {
+        throw new AppError("release Plan  Id not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+    return await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
 }
 
 const ReleasePlanModel = mongoose.model("ReleasePlan", releasePlanSchema)
