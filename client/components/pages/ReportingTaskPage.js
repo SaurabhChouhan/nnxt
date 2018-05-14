@@ -93,7 +93,7 @@ class ReportingTaskPage extends Component {
     }
 
     formatWorkedHours(report) {
-        return (<select className="form-control" title="Select Status"
+        return (<select className="form-control" title="Select Worked Hours"
                         onChange={(status) => console.log("WorkedHours", (status.target.value))}>
             <option value="0">Select Worked Hours</option>
             <option value="1">1</option>
@@ -132,7 +132,7 @@ class ReportingTaskPage extends Component {
     }
 
     formatReasonCode(report) {
-        return (<select className="form-control" title="Select Status"
+        return (<select className="form-control" title="Select Reason Code"
                         onChange={(status) => console.log("ReasonCode", (status.target.value))}>
             <option value={undefined}>Select Reason</option>
             <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
@@ -293,7 +293,7 @@ class ReportingTaskPage extends Component {
 
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="10%" dataField='detailButton'
+                            <TableHeaderColumn width="10%" columnTitle={"View Detail"} dataField='detailButton'
                                                dataFormat={this.viewDetailButton.bind(this)}>View Detail
                             </TableHeaderColumn>
                             <TableHeaderColumn width="20%" columnTitle dataField="task"
@@ -309,14 +309,14 @@ class ReportingTaskPage extends Component {
                             <TableHeaderColumn width="15%" columnTitle dataField="status"
                                                dataFormat={this.formatReportedStatus.bind(this)}>Reported
                                 Status</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle={this.formatReasonCode} dataField="additional"
+                            <TableHeaderColumn width="12%" columnTitle dataField="additional"
                                                dataFormat={this.formatReasonCode.bind(this)}>Reason
                                 Code</TableHeaderColumn>
 
-                            <TableHeaderColumn width="5%" columnTitle={"Edit"} dataField='editButton'
+                            <TableHeaderColumn width="5%" columnTitle={"Edit Report"} dataField="Edit Report"
                                                dataFormat={this.viewEditButton.bind(this)}>Edit
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="7%" columnTitle={"Submit Report"} dataField='deleteButton'
+                            <TableHeaderColumn width="7%" columnTitle={"Submit Report"} dataField="Submit Report"
                                                dataFormat={this.viewSubmitButton.bind(this)}>Submit
                             </TableHeaderColumn>
                         </BootstrapTable>

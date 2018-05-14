@@ -33,7 +33,7 @@ class ReportingCommentForm extends React.Component {
                         <Field name="commentType" label="Type :" component={renderSelect} options={options}
                                type="text" displayField='name' valueField='name' validate={[required]}/>
                     </div>
-                    <div className="col-md-2">
+                    <div className="col-md-2 reportingCommentBtn">
                         <button type="submit" disabled={pristine || submitting} className="btn customBtn">Comment
                         </button>
                     </div>
