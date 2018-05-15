@@ -1,10 +1,13 @@
 import moment from 'moment'
+import * as AC from '../actions/actionConsts'
 
 let now = new Date()
 
 const calendarPageReducer = (state = {
     events: [],
-    selectedTaskDetail: {},
+    selectedTask: {},
+    selectedProject: {},
+    selectedReleasePlan: {},
     defaultView: "week",
     defaultDate: moment(now).toDate(),
     selectedView: "week",
@@ -12,33 +15,24 @@ const calendarPageReducer = (state = {
 
 }, action) => {
     switch (action.type) {
-        case 'SHOW_SELECTED_TASK_DETAIL':
-            console.log(" SHOW_SELECTED_TASK_DETAIL ", action.event);
-            return Object.assign({}, state,
-                {
-                    visibility: {
-                        calendarView: false,
-                    },
-                    selectedTaskDetail: action.event
-                }
-            )
 
-        case 'CHANGE_CALENDAR_NAVIGATION':
+        case AC.CHANGE_CALENDAR_NAVIGATION:
             return Object.assign({}, state, {
                 selectedView: (action.view == null) ? state.defaultView : action.view,
                 selectedDate: (action.date == null) ? state.defaultDate : action.date
             })
 
-        case 'SHOW_CALENDAR_VIEW':
+        case AC.SET_TASK_AND_PROJECT_DETAILS:
             return Object.assign({}, state, {
-                visibility: {
-                    calendarView: true,
-                }
+                selectedProject: Object.assign({}, action.project, {
+                    taskPlan: undefined,
+                    releasePlan: undefined
+                }),
+                selectedTask: action.project.taskPlan,
+                selectedReleasePlan: action.project.releasePlan
             })
 
-        case 'SHOW_USERS_TASKS':
-            console.log(" SHOW_USERS_TASKS ", action.tasks);
-
+        case AC.SHOW_USERS_TASKS:
             return Object.assign({}, state, {
                 events: action.tasks && Array.isArray(action.tasks) && action.tasks.length ? action.tasks.map(task => {
                     let plannedHours = task.planning && task.planning.plannedHours ? Number(task.planning.plannedHours) : 0

@@ -709,22 +709,6 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     return taskPlannings
 }
 
-taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) => {
-
-    let taskPlans = await MDL.TaskPlanningModel.find({
-        "employee._id": mongoose.Types.ObjectId(user._id)
-    },{
-        task:1,
-        planningDateString:1,
-        planning:1,
-        report:1,
-        _id:1,
-    })
-    console.log("Calendar", taskPlans)
-    return taskPlans
-}
-
-
 taskPlanningSchema.statics.addComment = async (commentInput, user) => {
 
     V.validate(commentInput, V.releaseTaskPlanningCommentStruct)
@@ -764,6 +748,58 @@ taskPlanningSchema.statics.addComment = async (commentInput, user) => {
 
     return {releasePlanID: releasePlan._id}
 }
+
+
+// calendar
+// get all task plans of a loggedIn user
+taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) => {
+
+    let taskPlans = await MDL.TaskPlanningModel.find({
+        "employee._id": mongoose.Types.ObjectId(user._id)
+    }, {
+        task: 1,
+        planningDateString: 1,
+        planning: 1,
+        report: 1,
+        _id: 1,
+    })
+    console.log("Calendar", taskPlans)
+    return taskPlans
+}
+
+
+taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (taskPlanID, user) => {
+
+    let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+
+    console.log("task Plan --- ", taskPlan)
+    if (!taskPlan) {
+        throw new AppError('taskPlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    if (!taskPlan.release || !taskPlan.release._id || !taskPlan.releasePlan || !taskPlan.releasePlan._id) {
+        throw new AppError('Not a valid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id))
+
+    console.log("release Plan --- ", releasePlan)
+    if (!releasePlan) {
+        throw new AppError('releasePlan not found', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id))
+    console.log("release --- ", release)
+    if (!release) {
+        throw new AppError('release not found', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    release = release.toObject()
+    release.taskPlan = taskPlan
+    release.releasePlan = releasePlan
+    return release
+}
+
 
 
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)

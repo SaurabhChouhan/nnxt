@@ -34,8 +34,8 @@ calendarRouter.put("/add-holiday/", async ctx => {
 calendarRouter.get("/tasks", async ctx => {
     return await MDL.TaskPlanningModel.getAllTaskPlanningsForCalenderOfUser(ctx.state.user)
 })
-calendarRouter.get("/task/:taskID", async ctx => {
+calendarRouter.get("/:taskID/task-plan", async ctx => {
     console.log("ctx.params.taskID", ctx.params.taskID)
-    return await MDL.TaskPlanningModel.getAllTaskPlanningsForCalenderOfUser(ctx.state.user)
+    return await MDL.TaskPlanningModel.getTaskAndProjectDetailForCalenderOfUser( ctx.params.taskID,ctx.state.user)
 })
 export default calendarRouter

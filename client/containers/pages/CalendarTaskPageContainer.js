@@ -7,11 +7,12 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     return (
         {
             taskSelected: (event) => {
+                console.log("task selected bk3", event)
                 return dispatch(A.getTaskAndProjectDetailsForCalendarFromServer(event._id))
             },
 
             showTaskDetailPage: () => {
-                return dispatch(A.dispatch(A.showComponentHideOthers(COC.CALENDAR_TASK_DETAIL_PAGE)))
+                return dispatch(A.showComponentHideOthers(COC.CALENDAR_TASK_DETAIL_PAGE))
             },
 
             changeViewAndDate: (view, date) => {

@@ -13,6 +13,7 @@ class CalendarTaskPage extends React.Component {
     }
 
     onSelectEvent(event) {
+        console.log("onSelectEvent bk2",event)
         this.props.taskSelected(event).then(json => {
             if (json.success) {
                 this.props.history.push("/app-home/calendar-task-detail")
