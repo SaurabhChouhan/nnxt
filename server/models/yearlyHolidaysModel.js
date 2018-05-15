@@ -11,7 +11,7 @@ mongoose.Promise = global.Promise
 
 let yearlyHolidaysSchema = mongoose.Schema({
 
-    calenderYear: {type: String, required: [true, "Holiday Calender Year is required"]},
+    calendarYear: {type: String, required: [true, "Holiday Calendar Year is required"]},
     totalCalendarLeave: {type: Number, default: 15},
     casualLeave: {type: Number, default: 15},
     paternityLeave: {type: Number, default: 5},
@@ -75,12 +75,12 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDat
 
 yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
     //   console.log("holidayYear before", holidayYear)
-    if (!holidayYear.calenderYear || _.isEmpty(holidayYear.calenderYear))
-        throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    if (!holidayYear.calendarYear || _.isEmpty(holidayYear.calendarYear))
+        throw new AppError("Calendar Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-    let count = await YearlyHolidaysModel.count({calenderYear: holidayYear.calenderYear})
+    let count = await YearlyHolidaysModel.count({calendarYear: holidayYear.calendarYear})
     if (count !== 0)
-        throw new AppError("Calender year already exists, please edit that or use different calender year.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Calendar year already exists, please edit that or use different calendar year.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
     holidayYear.holidays = holidayYear.holidays.map(h => {
         let toDate = new Date(h.date)
@@ -115,45 +115,45 @@ yearlyHolidaysSchema.statics.createHoliday = async holidayObj => {
 
     let countDate = await YearlyHolidaysModel.count({"holidays.date": holidayDate})
     if (countDate !== 0)
-        throw new AppError("Calender Date already inserted, please create another date.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Calendar Date already inserted, please create another date.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
 
     //count year to check year for year is already created or not
     // console.log("holiday after moment", holidayObj)
     //  console.log(" holiday.date", holidayDate)
     //  console.log(" holiday.date", holidayDate.getFullYear())
-    let calenderYear = holidayDate.getFullYear()
-    //  console.log("calenderYear", calenderYear)
-    if (!calenderYear)
-        throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    let calendarYear = holidayDate.getFullYear()
+    //  console.log("calendarYear", calendarYear)
+    if (!calendarYear)
+        throw new AppError("Calendar Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-    let countYear = await YearlyHolidaysModel.count({calenderYear: calenderYear})
+    let countYear = await YearlyHolidaysModel.count({calendarYear: calendarYear})
     if (countYear === 0)
-        throw new AppError("Calender year not exists, please create calender year First.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Calendar year not exists, please create calendar year First.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
     //count month to check month is previously created for this month
-    let calenderMonth = holidayObj.date.getMonth()
+    let calendarMonth = holidayObj.date.getMonth()
     let countMonth = await YearlyHolidaysModel.count({
-        "calenderYear": calenderYear,
-        "holidaysInMonth.month": calenderMonth
+        "calendarYear": calendarYear,
+        "holidaysInMonth.month": calendarMonth
     })
     // console.log("countMonth", countMonth)
     if (countMonth == 0) {
-        let calenderMonthStructure = {
-            month: calenderMonth,
-            monthName: SC.Months[calenderMonth]
+        let calendarMonthStructure = {
+            month: calendarMonth,
+            monthName: SC.Months[calendarMonth]
         }
         //we have to push month as well as holiday entry date"
         // console.log("we have to push month as well as holidayEntryDate")
         await YearlyHolidaysModel.update({
-            'calenderYear': calenderYear
-        }, {$push: {"holidaysInMonth": calenderMonthStructure, "holidays": holidayObj}}).exec()
+            'calendarYear': calendarYear
+        }, {$push: {"holidaysInMonth": calendarMonthStructure, "holidays": holidayObj}}).exec()
 
     } else {
         //we need to update month and push holidayEntryDate
         // console.log("we need to update month and push holidayEntryDate")
         await YearlyHolidaysModel.update({
-            'calenderYear': calenderYear
+            'calendarYear': calendarYear
         }, {
             $push: {"holidays": holidayObj}
         }).exec()
@@ -164,16 +164,16 @@ yearlyHolidaysSchema.statics.createHoliday = async holidayObj => {
 
 yearlyHolidaysSchema.statics.updateHolidayYear = async holidayYearInput => {
     // console.log("holidayYearInput", holidayYearInput)
-    if (_.isEmpty(holidayYearInput.calenderYear))
-        throw new AppError("Calender Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    if (_.isEmpty(holidayYearInput.calendarYear))
+        throw new AppError("Calendar Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-    let count = await YearlyHolidaysModel.count({calenderYear: holidayYearInput.calenderYear})
+    let count = await YearlyHolidaysModel.count({calendarYear: holidayYearInput.calendarYear})
     if (count == 0)
-        throw new AppError("Calender year not exists, please create that or use different calender year.", EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+        throw new AppError("Calendar year not exists, please create that or use different calendar year.", EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
 
 
     let holidayYear = await YearlyHolidaysModel.find({
-        "calenderYear": holidayYearInput.calenderYear
+        "calendarYear": holidayYearInput.calendarYear
     })
 
     holidayYear.holidaysInMonth[0].push(holidayYearInput.holidaysInMonth[0])
@@ -229,7 +229,7 @@ export default YearlyHolidaysModel
 *
 * {
 
-    "calenderYear": "2018",
+    "calendarYear": "2018",
     "totalCalendarLeave": 15,
     "casualLeave": 15,
     "paternityLeave": 5,

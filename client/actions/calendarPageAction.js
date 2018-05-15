@@ -18,7 +18,7 @@ export const showUsersTask = (tasks) => ({
 
 export const getAllTaskPlansFromServer = () => {
     return function (dispatch, getState) {
-        return fetch('/api/calenders/tasks',
+        return fetch('/api/calendars/tasks',
             {
                 method: "get",
                 credentials: "include"
@@ -36,7 +36,7 @@ export const getAllTaskPlansFromServer = () => {
 /*
 export const getSelectedTaskDetailFromServer = (taskID) => {
     return function (dispatch, getState) {
-        return fetch('/api/calenders/tasks',
+        return fetch('/api/calendars/tasks',
             {
                 method: "get",
                 credentials: "include"
