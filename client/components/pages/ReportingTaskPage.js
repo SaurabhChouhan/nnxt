@@ -134,14 +134,13 @@ class ReportingTaskPage extends Component {
     formatReasonCode(report) {
         return (<select className="form-control" title="Select Reason Code"
                         onChange={(status) => console.log("ReasonCode", (status.target.value))}>
-            <option value={undefined}>Select Reason</option>
-            <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-            <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-            <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-            <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-            <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-            <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-            <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+            <option value={null}>Select Reason</option>
+            <option value={SC.REASON_GENRAL_DELAY}>{SC.REASON_GENRAL_DELAY}</option>
+            <option value={SC.REASON_EMPLOYEE_ON_LEAVE}>{SC.REASON_EMPLOYEE_ON_LEAVE}</option>
+            <option value={SC.REASON_INCOMPLETE_DEPENDENCY}>{SC.REASON_INCOMPLETE_DEPENDENCY}</option>
+            <option value={SC.REASON_NO_GUIDANCE_PROVIDED}>{SC.REASON_NO_GUIDANCE_PROVIDED}</option>
+            <option value={SC.REASON_RESEARCH_WORK}>{SC.REASON_RESEARCH_WORK}</option>
+            <option value={SC.REASON_UNFAMILIAR_TECHNOLOGY}>{SC.REASON_UNFAMILIAR_TECHNOLOGY}</option>
 
         </select>)
     }
