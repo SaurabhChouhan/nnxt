@@ -4,7 +4,6 @@ let now = new Date()
 
 const calendarPageReducer = (state = {
     events: [],
-    visibility: {calendarView: true},
     selectedTaskDetail: {},
     defaultView: "week",
     defaultDate: moment(now).toDate(),

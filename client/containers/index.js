@@ -88,7 +88,8 @@ export {default as ReleaseProjectTaskListContainer} from './lists/ReleaseProject
 export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPlanningPageContainer'
 
 //Calendar
-export {default as CalendarPageContainer} from './pages/CalendarPageContainer'
+export {default as CalendarTaskPageContainer} from './pages/CalendarTaskPageContainer'
+export {default as CalendarTaskDetailPageContainer} from './pages/CalendarTaskDetailPageContainer'
 
 //Reporting
 

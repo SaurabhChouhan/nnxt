@@ -33,10 +33,10 @@ export const getAllTaskPlansFromServer = () => {
     }
 }
 
-/*
-export const getSelectedTaskDetailFromServer = (taskID) => {
+
+export const getTaskAndProjectDetailsForCalendarFromServer = (taskPlanID) => {
     return function (dispatch, getState) {
-        return fetch('/api/calendars/tasks',
+        return fetch('/api/calendars/' + taskPlanID + '/task',
             {
                 method: "get",
                 credentials: "include"
@@ -45,8 +45,8 @@ export const getSelectedTaskDetailFromServer = (taskID) => {
             response => response.json()
         ).then(json => {
             if (json.success) {
-                dispatch(showUsersTask(json.data))
+                console.log(json.data)
             }
         })
     }
-}*/
+}

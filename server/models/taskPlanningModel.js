@@ -720,7 +720,7 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         report:1,
         _id:1,
     })
-console.log("Calendar",taskPlans)
+    console.log("Calendar", taskPlans)
     return taskPlans
 }
 
