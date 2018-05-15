@@ -4,6 +4,7 @@ import {withRouter} from 'react-router-dom'
 import {ReportingCommentFormContainer} from '../../containers'
 import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
+import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 
 class ReportingTaskDetailPage extends React.Component {
     constructor(props) {
@@ -41,19 +42,19 @@ class ReportingTaskDetailPage extends React.Component {
                 </TimelineEvent>}
 
                 {selectedTask && selectedTask.task && selectedTask.task.name &&
-                    <TimelineEvent title={"Task Name :"}
-                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                   style={{fontSize: '20px'}}>
-                        {selectedTask.task.name}
-                    </TimelineEvent>
+                <TimelineEvent title={"Task Name :"}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    {selectedTask.task.name}
+                </TimelineEvent>
                 }
 
                 {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description &&
-                    <TimelineEvent title={"Task Description :"}
-                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                   style={{fontSize: '20px'}}>
-                        {selectedReleasePlan.task.description}
-                    </TimelineEvent>
+                <TimelineEvent title={"Task Description :"}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    {selectedReleasePlan.task.description}
+                </TimelineEvent>
 
                 }
 
@@ -71,11 +72,11 @@ class ReportingTaskDetailPage extends React.Component {
                         </TimelineEvent>
                         }
                         {selectedTask && selectedTask.planning && selectedTask.planning.plannedHours &&
-                            <TimelineEvent title={" Planned Hours :"}
-                                           icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                           style={{fontSize: '20px'}}>
-                                {selectedTask.planning.plannedHours}
-                            </TimelineEvent>
+                        <TimelineEvent title={" Planned Hours :"}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTask.planning.plannedHours}
+                        </TimelineEvent>
 
                         }
 
@@ -88,11 +89,11 @@ class ReportingTaskDetailPage extends React.Component {
                         }
 
                         {selectedTask && selectedTask.report && selectedTask.report.status &&
-                            <TimelineEvent title={" Reported Status :"}
-                                           icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                           style={{fontSize: '20px'}}>
-                                {selectedTask.report.status}
-                            </TimelineEvent>
+                        <TimelineEvent title={" Reported Status :"}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTask.report.status}
+                        </TimelineEvent>
 
                         }
 
@@ -103,6 +104,31 @@ class ReportingTaskDetailPage extends React.Component {
                 <TimelineEvent title={"Comments :"}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
+                    {
+                        <div className="ReportingCommentTable">
+
+                            <BootstrapTable data={selectedReleasePlan.comments}
+                                            multiColumnSearch={true}
+                                            search={true}
+                                            striped={true}
+                                            hover={true}>
+                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                                </TableHeaderColumn>
+                                <TableHeaderColumn width="40%" columnTitle dataField='comment'
+                                >Comment
+                                </TableHeaderColumn>
+                                <TableHeaderColumn width="10%" columnTitle dataField="commentType"
+                                                   dataSort={true}>
+                                    Comment Type</TableHeaderColumn>
+                                <TableHeaderColumn width="10%" columnTitle dataField="name">
+                                    Commented By</TableHeaderColumn>
+                                <TableHeaderColumn width="10%" columnTitle dataField="date">
+                                    Date
+                                </TableHeaderColumn>
+                            </BootstrapTable>
+                        </div>
+
+                    }
                     <ReportingCommentFormContainer/>
                 </TimelineEvent>
 
@@ -114,3 +140,4 @@ class ReportingTaskDetailPage extends React.Component {
 }
 
 export default withRouter(ReportingTaskDetailPage)
+

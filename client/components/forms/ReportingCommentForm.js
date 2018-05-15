@@ -20,7 +20,7 @@ class ReportingCommentForm extends React.Component {
             {name: SC.COMMENT_FYI_ONLY}]
         return (
             <form onSubmit={handleSubmit}>
-                <div className="col-md-12 pad" style={{marginBottom: '10px'}}>
+                <div className="col-md-12 pad reportingCommentForm" style={{marginBottom: '10px'}}>
 
                     <Field name="releasePlanID" component="input" className="form-control" type="hidden"></Field>
                     <Field name="releaseID" component="input" className="form-control" type="hidden"></Field>
