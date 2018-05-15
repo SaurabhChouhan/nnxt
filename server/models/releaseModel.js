@@ -168,10 +168,7 @@ releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
     //ParamsInput.releaseID
     //ParamsInput.planDate
     //ParamsInput.taskStatus
-    let momentPlanningDate = moment(ParamsInput.planDate)
-    console.log("moment(ParamsInput.planDate)", moment(ParamsInput.planDate))
-    let momentPlanningDateStringToDate = momentPlanningDate.toDate()
-    let momentTzPlanningDateString = momentTZ.tz(momentPlanningDateStringToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let momentTzPlanningDateString = momentTZ.tz(ParamsInput.planDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(ParamsInput.releaseID))
     if (!release)

@@ -20,10 +20,10 @@ class ReportingDateNavBar extends React.Component {
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '117px'}}
                                 onClick={() => {
-                                    let prevDate = moment(dateOfReport).subtract(1, 'days').toDate()
+                                    let prevDate = moment(dateOfReport).clone().subtract(1, 'days').format('YYYY-MM-DD')
                                     this.props.setReportDate(prevDate)
                                     this.props.onProjectSelect(releaseID, prevDate, taskStatus)
-                                    change("dateOfReport", prevDate)
+                                    change("dateOfReport", moment(prevDate).clone().toDate())
 
                                 }}
                                 type="button">
@@ -45,10 +45,11 @@ class ReportingDateNavBar extends React.Component {
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '150px'}}
                                 onClick={() => {
-                                    let nextDate = moment(dateOfReport).add(1, 'days').toDate()
+                                    let nextDate = moment(dateOfReport).clone().add(1, 'days').format('YYYY-MM-DD')
+
                                     this.props.setReportDate(nextDate)
                                     this.props.onProjectSelect(releaseID, nextDate, taskStatus)
-                                    change("dateOfReport", nextDate)
+                                    change("dateOfReport", moment(nextDate).clone().toDate())
                                 }}
                                 type="button">
                             <i className="glyphicon glyphicon-arrow-right"></i>

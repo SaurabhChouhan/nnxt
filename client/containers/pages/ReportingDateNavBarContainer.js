@@ -1,6 +1,7 @@
 import {connect} from 'react-redux'
 import {ReportingDateNavBar} from "../../components"
 import * as A from '../../actions/index'
+import moment from 'moment'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onProjectSelect: (releaseID, planDate, taskStatus) => {
@@ -21,7 +22,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     initialValues: {
-        "dateOfReport": state.report.dateOfReport
+        "dateOfReport": moment(state.report.dateOfReport).toDate()
     }
 })
 

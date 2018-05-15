@@ -1,6 +1,7 @@
 import * as AC from "../actions/actionConsts"
+import moment from 'moment'
 
-
+let now = new Date()
 let initialState = {
     allProjects: [],
     selectedProject: {},
@@ -9,7 +10,7 @@ let initialState = {
     releaseID: '',
     status: 'all',
     selectedReleasePlan: {},
-    dateOfReport: new Date()
+    dateOfReport: moment(now).format('YYYY-MM-DD')
 }
 
 const reportingReducer = (state = initialState, action) => {

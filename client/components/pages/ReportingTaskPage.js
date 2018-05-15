@@ -193,8 +193,10 @@ class ReportingTaskPage extends Component {
     }
 
     render() {
+
         const {selectedProject, allTaskPlans, allProjects} = this.props
         const {taskStatus, releaseID} = this.state
+
         return (
             <div key="estimation_list" className="clearfix">
                 {
@@ -256,33 +258,29 @@ class ReportingTaskPage extends Component {
                         <div className="col-md-6 ">
                             <div className="releaseDetailSearchFlag">
                                 <select
+                                    value={releaseID}
                                     className="form-control"
                                     title="Select Flag"
                                     onChange={(project) => this.onProjectSelect(project.target.value)}>
 
                                     <option key={-1} value={''}>{"Select Project"}</option>
                                     {
-                                        allProjects && allProjects.length ? allProjects.map((project, idx) => {
-                                            console.log("project._id", project._id)
-                                            console.log("this.state.releaseID", this.state.releaseID)
-                                            if (this.state.releaseID == project._id) {
-                                                console.log("project._id true", project._id)
-                                                return <option key={idx} selected
-                                                               value={project._id}>{project.project.name}</option>
-                                            } else {
-                                                console.log("project._id false", project._id)
-                                                return <option key={idx}
-                                                               value={project._id}>{project.project.name}</option>
-                                            }
-
-                                        }) : null
+                                        allProjects && allProjects.length ? allProjects.map((project, idx) =>
+                                            <option
+                                                key={idx}
+                                                value={project._id}>
+                                                {project.project.name}
+                                            </option>) : null
                                     }
                                 </select>
                             </div>
                         </div>
                         <div className="col-md-6">
                             <div className="releaseDetailSearchStatus">
-                                <select className="form-control" title="Select Status"
+                                <select
+                                    className="form-control"
+                                    title="Select Status"
+                                       value = {taskStatus}
                                         onChange={(status) => this.onTaskStatusChange(status.target.value)}>
                                     <option key={0} value="all">All Task Status</option>
                                     <option key={1} value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
