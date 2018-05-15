@@ -715,7 +715,8 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         "employee._id": mongoose.Types.ObjectId(user._id)
     },{
         task:1,
-        planningDate:1,
+        planningDateString:1,
+        planning:1,
         report:1,
         _id:1,
     })

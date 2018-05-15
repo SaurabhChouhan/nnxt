@@ -42,8 +42,9 @@ const calendarPageReducer = (state = {
 
             return Object.assign({}, state, {
                 events: action.tasks && Array.isArray(action.tasks) && action.tasks.length ? action.tasks.map(task => {
-                    task.start = moment(task.planningDate).subtract(5.5, "hours").toDate()
-                    task.end = moment(task.planningDate).add(18, "hours").toDate()
+                    let plannedHours = task.planning && task.planning.plannedHours ? Number(task.planning.plannedHours) : 0
+                    task.start = moment(task.planningDateString).clone().add(10, "hours").toDate()
+                    task.end = moment(task.start).clone().add(plannedHours, "hours").toDate()
                     task.title = task.task && task.task.name ? task.task.name : 'task'
                     //  task.start = task.start.toDate
                     //  task.end = task.end.toDate

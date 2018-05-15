@@ -23,6 +23,8 @@ class CalendarPage extends React.Component {
             bg = "#FF0000"
         if (event.report.status == "completed")
             bg = "#4AD938"
+        else
+            bg = "#000000"
         let style = {
             backgroundColor: bg,
             borderRadius: '0px',
