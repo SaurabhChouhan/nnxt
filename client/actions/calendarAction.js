@@ -47,7 +47,6 @@ export const getTaskAndProjectDetailsForCalendarFromServer = (taskPlanID) => {
         ).then(json => {
             if (json.success) {
                 dispatch(setTaskAndProjectDetails(json.data))
-                console.log(json.data)
             }
             return json
         })

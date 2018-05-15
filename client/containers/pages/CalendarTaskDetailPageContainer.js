@@ -9,9 +9,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    selectedTask: state.report.selectedTask,
-    selectedProject: state.report.selectedProject,
-    selectedReleasePlan: state.report.selectedReleasePlan
+    selectedTask: state.calendar.selectedTask,
+    selectedProject: state.calendar.selectedProject,
+    selectedReleasePlan: state.calendar.selectedReleasePlan
 })
 
 const CalendarTaskDetailPageContainer = connect(
