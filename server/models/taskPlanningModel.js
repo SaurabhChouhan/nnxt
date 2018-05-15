@@ -709,6 +709,20 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     return taskPlannings
 }
 
+taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) => {
+
+    let taskPlans = await MDL.TaskPlanningModel.find({
+        "employee._id": mongoose.Types.ObjectId(user._id)
+    },{
+        task:1,
+        planningDate:1,
+        report:1,
+        _id:1,
+    })
+console.log("Calendar",taskPlans)
+    return taskPlans
+}
+
 
 taskPlanningSchema.statics.addComment = async (commentInput, user) => {
 

@@ -17,12 +17,29 @@ class CalendarTaskDetailPage extends React.Component {
                             onClick={() => this.props.showCalendarView()}>
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
+                {selectedTaskDetail && selectedTaskDetail.task.name ?
+                    <TimelineEvent style={{fontSize: '20px'}}
+                                   title={"Task Name :"}
+                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                        {selectedTaskDetail.task.name}
+                    </TimelineEvent>
+                    : null
+                }
+
                 <TimelineEvent style={{fontSize: '20px'}}
-                               title={selectedTaskDetail.title}
-                               createdAt={moment(selectedTaskDetail.start).format(SC.DATE_AND_TIME_FORMAT) + " - " + moment(selectedTaskDetail.end).format(SC.DATE_AND_TIME_FORMAT)}
+                               title={"Planning date :"}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
-                    {selectedTaskDetail.description}
+                    {moment(selectedTaskDetail.start).format(SC.DATE_AND_TIME_FORMAT) + " - " + moment(selectedTaskDetail.end).format(SC.DATE_AND_TIME_FORMAT)}
                 </TimelineEvent>
+
+                {selectedTaskDetail && selectedTaskDetail.report.status ?
+                    <TimelineEvent style={{fontSize: '20px'}}
+                                   title={"Status :"}
+                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                        {selectedTaskDetail.report.status}
+                    </TimelineEvent>
+                    : null
+                }
 
             </Timeline>
 
