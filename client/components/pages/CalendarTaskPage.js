@@ -13,7 +13,7 @@ class CalendarTaskPage extends React.Component {
     }
 
     onSelectEvent(event) {
-        console.log("onSelectEvent bk2",event)
+        console.log("onSelectEvent bk2", event)
         this.props.taskSelected(event).then(json => {
             if (json.success) {
                 this.props.history.push("/app-home/calendar-task-detail")
@@ -72,30 +72,30 @@ class CalendarTaskPage extends React.Component {
          }*/
         console.log("this.props.events", this.props.events)
         return (<div>
-                    <BigCalendar
-                        views={{month: true, week: true, day: true}}
-                        view={this.props.selectedView}
-                        date={this.props.selectedDate}
-                        timeslots={4}
-                        components={{event: this.Event}}
-                        selectable
-                        popup
-                        onSelectEvent={event => {
-                            console.log("event bk1", event)
-                            this.onSelectEvent(event)
-                        }}
-                        events={this.props.events}
-                        startAccessor='start'
-                        endAccessor='end'
-                        eventPropGetter={(this.eventStyleGetter)}
-                        onNavigate={(date, view) => {
-                            this.props.changeViewAndDate(view, date);
-                        }}
-                        onView={(view) => {
-                            this.props.changeViewAndDate(view, this.props.selectedDate);
-                        }}
-                    />
-                }
+            <BigCalendar
+                views={{month: true, week: true, day: true}}
+                view={this.props.selectedView}
+                date={this.props.selectedDate}
+                timeslots={4}
+                components={{event: this.Event}}
+                selectable
+                popup
+                onSelectEvent={event => {
+                    console.log("event bk1", event)
+                    this.onSelectEvent(event)
+                }}
+                events={this.props.events}
+                startAccessor='start'
+                endAccessor='end'
+                eventPropGetter={(this.eventStyleGetter)}
+                onNavigate={(date, view) => {
+                    this.props.changeViewAndDate(view, date);
+                }}
+                onView={(view) => {
+                    this.props.changeViewAndDate(view, this.props.selectedDate);
+                }}
+            />
+            }
         </div>)
     }
 }

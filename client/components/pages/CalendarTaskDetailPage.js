@@ -2,6 +2,7 @@ import React from 'react'
 import {Timeline, TimelineEvent} from 'react-event-timeline'
 import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
+import {withRouter} from 'react-router-dom'
 
 class CalendarTaskDetailPage extends React.Component {
     constructor(props) {
@@ -16,8 +17,8 @@ class CalendarTaskDetailPage extends React.Component {
                 <span>
                     <button className="btn-link calArrow" style={{marginLeft: '-3%'}}
                             onClick={() => {
-                                this.props.history.push("/app-home/reporting")
-                                this.props.ReportingGoBack()
+                                this.props.history.push("/app-home/calendar")
+                                this.props.calenderGoBack()
                             }}>
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
@@ -130,4 +131,4 @@ class CalendarTaskDetailPage extends React.Component {
     }
 }
 
-export default CalendarTaskDetailPage;
+export default withRouter(CalendarTaskDetailPage);
