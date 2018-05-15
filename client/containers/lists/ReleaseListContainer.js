@@ -13,7 +13,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    loggedInUser: state.user.loggedIn,
     projects: state.release.all
 })
 

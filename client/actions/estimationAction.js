@@ -924,13 +924,13 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
                         })
                     }
                     if (json.data && json.data.estimation && json.data.estimation._id) {
-                        dispatch(canApproveEstimationOnServer(json.data.estimation._id)).then(json => {
-                            if (json.success) {
+                        dispatch(canApproveEstimationOnServer(json.data.estimation._id)).then(responseJson => {
+                            if (responseJson.success) {
                             }
                             else {
                                 dispatch(getOnlyEstimationFromServer(json.data.estimation._id))
                             }
-                            return json
+                            return responseJson
                         })
                     }
                     dispatch(updateEstimationTask(json.data))

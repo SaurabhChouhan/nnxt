@@ -27,11 +27,11 @@ class ClientList extends Component {
     viewDeleteButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-trash btn btn-custom " type="button" onClick={() => {
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
                 this.setState({showClientDeletionDialog: true}),
                     this.setState({addRow: row._id})
             }}>
-
+                <i className="fa fa-trash"></i>
             </button>
         )
 
@@ -40,11 +40,11 @@ class ClientList extends Component {
     viewEditButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-pencil btn btn-custom" type="button" onClick={() => {
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
                 this.props.showClientEditForm(row)
 
             }}>
-
+                <i className="fa fa-pencil"></i>
             </button>
 
         )
@@ -68,7 +68,7 @@ class ClientList extends Component {
                                         onClick={() => this.props.showClientCreationForm()}>Create Client
                                 </button>
 
-                                <div className="client">
+                                <div className="estimation">
 
                                     <BootstrapTable options={this.options} data={this.props.clients}
                                                     striped={true}

@@ -96,7 +96,7 @@ export const HOLIDAY_REASON_GAZETTED_HOLIDAYS = "Gazetted Holidays"
 
 export const REASON_MEDICAL = "medical"
 export const REASON_PERSONAL = "personal"
-export const REASON_OCCASION= "occasion"
+export const REASON_OCCASION = "occasion"
 export const REASON_FESTIVAL = "festival"
 
 // reporting final status
@@ -117,7 +117,15 @@ export const DATE_AND_TIME_FORMAT = 'LLL'
 
 // Time Zones
 export const DEFAULT_TIMEZONE = 'UTC'
-export const INDIAN_TIMEZONE = 'Asia/Calcutta'
+export const INDIAN_TIMEZONE = 'IST'
+export const INDIAN_TIMEZONE_NAME = 'Asia/Calcutta'
+
+//Comment Types
+export const COMMENT_EMERGENCY = 'Emergency'
+export const COMMENT_CRITICAL = 'Critical'
+export const COMMENT_URGENT = 'Urgent'
+export const COMMENT_REPORTING = 'Reporting'
+export const COMMENT_FYI_ONLY = 'FYI Only'
 
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]

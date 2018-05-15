@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as SC from "../serverconstants";
-import {userHasRole} from "../utils"
 import * as EC from "../errorcodes"
+import * as MDL from '../models'
+
 
 mongoose.Promise = global.Promise
 
@@ -19,6 +20,7 @@ let releasePlanSchema = mongoose.Schema({
     task: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
+        description: String,
         estimatedHours: {type: Number, default: 0}
     },
     feature: {
@@ -48,7 +50,12 @@ let releasePlanSchema = mongoose.Schema({
     comments: [{
         name: {type: String, required: [true, 'Comment name is required']},
         date: {type: Date, required: [true, 'Comment date is required']},
-        comment: {type: String, required: [true, 'Comment is required']}
+        comment: {type: String, required: [true, 'Comment is required']},
+        dateString: String,
+        commentType: {
+            type: String,
+            enum: [SC.COMMENT_EMERGENCY, SC.COMMENT_CRITICAL, SC.COMMENT_URGENT, SC.COMMENT_REPORTING, SC.COMMENT_FYI_ONLY]
+        },
     }],
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
@@ -62,16 +69,43 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
     let releaseID = params.releaseID
     let empflag = params.empflag
     let status = params.status
-    let filter = {"release._id": releaseID}
+
+    if (!releaseID) {
+        throw new AppError("Release Id not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
+
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (!empflag) {
+        throw new AppError("Employee Flag not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    if (!status) {
+        throw new AppError("Status not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    let filter = {"release._id": release._id}
 
     if (status && status.toLowerCase() != "all" && empflag && empflag.toLowerCase() != "all")
-        filter = {"release._id": releaseID, "report.finalStatus": status, "flags": {$in: [empflag]}}
+        filter = {"release._id": release._id, "report.finalStatus": status, "flags": {$in: [empflag]}}
     else if (status && status.toLowerCase() != "all")
-        filter = {"release._id": releaseID, "report.finalStatus": status}
+        filter = {"release._id": release._id, "report.finalStatus": status}
     else if (empflag && empflag.toLowerCase() != "all")
-        filter = {"release._id": releaseID, "flags": {$in: [empflag]}}
+        filter = {"release._id": release._id, "flags": {$in: [empflag]}}
 
     return await ReleasePlanModel.find(filter)
+}
+
+releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
+
+    if (!releasePlanID) {
+        throw new AppError("release Plan  Id not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+    return await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
 }
 
 const ReleasePlanModel = mongoose.model("ReleasePlan", releasePlanSchema)

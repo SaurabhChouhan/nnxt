@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as SC from "../serverconstants";
 import * as EC from "../errorcodes"
-import * as MDL from "../models"
+import * as MDL from '../models'
 import momentTZ from 'moment-timezone'
 import moment from 'moment'
 
@@ -78,18 +78,21 @@ let releaseSchema = mongoose.Schema({
 })
 
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
-    let release = await MDL.ReleaseModel.findById(releaseID)
-
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
     if (release) {
         // check to see role of logged in user in this estimation
-        if (release.manager && release.manager._id === user._id)
+        if (release.manager && release.manager._id == user._id) {
             return SC.ROLE_MANAGER
-        else if (release.leader && release.leader._id === user._id)
+        }
+        else if (release.leader && release.leader._id == user._id) {
             return SC.ROLE_LEADER
-        else if (release.team && release.team.length && release.team.findIndex(t => t._id === user._id) != -1)
+        }
+        else if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1) {
             return SC.ROLE_DEVELOPER
-        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1)
+        }
+        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1) {
             return SC.ROLE_NON_PROJECT_DEVELOPER
+        }
         else {
             let User = await MDL.UserModel.findById(user._id)
             if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
@@ -137,7 +140,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
 
 
 releaseSchema.statics.getReleases = async (status, user) => {
-    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(user)
+
     let filter = {}
     if (status && status.toLowerCase() != "all")
         filter = {$or: [{"manager._id": user._id}, {"leader._id": user._id}], "status": status}
@@ -154,17 +157,18 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
 
 //Reporting
 releaseSchema.statics.getAllReportingProjects = async (user) => {
-    return await MDL.ReleaseModel.find({$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]})
+    return await MDL.ReleaseModel.find(
+        {$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]}, {
+            project: 1,
+            _id: 1
+        })
 }
 
 releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
     //ParamsInput.releaseID
     //ParamsInput.planDate
     //ParamsInput.taskStatus
-    let momentPlanningDate = moment(ParamsInput.planDate)
-    console.log("moment(ParamsInput.planDate)", moment(ParamsInput.planDate))
-    let momentPlanningDateStringToDate = momentPlanningDate.toDate()
-    let momentTzPlanningDateString = momentTZ.tz(momentPlanningDateStringToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let momentTzPlanningDateString = momentTZ.tz(ParamsInput.planDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(ParamsInput.releaseID))
     if (!release)
@@ -172,11 +176,65 @@ releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
 
     release = release.toObject()
     let taskPlans = await MDL.TaskPlanningModel.find({
-        "release._id": mongoose.Types.ObjectId(ParamsInput.releaseID),
+        "release._id": mongoose.Types.ObjectId(release._id),
         "planningDate": momentTzPlanningDateString,
         "employee._id": mongoose.Types.ObjectId(user._id)
     })
     release.taskPlans = taskPlans
+    return release
+}
+
+releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, user) => {
+    // check release is valid or not
+    if (!releaseID) {
+        throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (!taskPlanID) {
+        throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(releaseID)
+    if (!release)
+        throw new AppError('Not a valid release', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    //user Role in this release to see task detail
+    const userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    if (!userRoleInRelease)
+        throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    //check task plan is valid or not
+
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
+
+    if (!taskPlan)
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
+        task: 1,
+        description: 1,
+        estimation: 1,
+        comments: 1,
+    })
+
+
+    let estimationDescription = {description: ''}
+
+    if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
+        estimationDescription = await MDL.EstimationModel.findOne({
+            "_id": mongoose.Types.ObjectId(releasePlan.estimation._id),
+            status: SC.STATUS_PROJECT_AWARDED
+        }, {
+            description: 1,
+            _id: 0
+        })
+    }
+
+    release = release.toObject()
+    release.estimationDescription = estimationDescription.description
+    release.releasePlan = releasePlan
+    release.taskPlan = taskPlan
     return release
 }
 

@@ -1136,6 +1136,10 @@ td.rejRowColor {
     width: 40%;
 }
 
+.releaseDialog .modal-dialog {
+    width: 50%;
+}
+
 .tagInputFieldClass {
     height: 35px;
     width: 100%;
@@ -1459,7 +1463,7 @@ td.rejRowColor {
 }
 
 .estimation table i {
-    color: red;
+    color: #FF534F;
     font-size: 20px;
 }
 
@@ -1734,10 +1738,28 @@ hr {
     width: 100%;
 }
 
-/*.rw-select-bordered{
-    background-color:#F66E65 ;
+.releaseAlign {
+    left: 20%;
 }
-.rw-select-bordered:hover, .rw-select-bordered:active {
-    background-color: #ffffff;
-}*/
+
+.releasePlanBtn {
+    margin-left: 20px;
+}
+
+.releaseResetBtn {
+    margin-left: -50px;
+}
+
+.reportingCommentBtn {
+    margin-top: 27px;
+}
+
+.ReportingCommentTable th {
+    background-color: #343946e8;
+    color: #ffffff;
+}
+
+.reportingCommentForm {
+    margin-top: 15px;
+}
 

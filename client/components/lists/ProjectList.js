@@ -29,11 +29,11 @@ class ProjectList extends Component {
     viewDeleteButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-trash btn btn-custom " type="button" onClick={() => {
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
                 this.setState({showProjectDeletionDialog: true}),
                     this.setState({addRow: row._id})
             }}>
-
+                <i className="fa fa-trash"></i>
             </button>
         )
 
@@ -42,11 +42,11 @@ class ProjectList extends Component {
     viewEditButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-pencil btn btn-custom" type="button" onClick={() => {
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
                 this.props.showPorjectEditForm(row)
 
             }}>
-
+                <i className="fa fa-pencil"></i>
             </button>
 
         )
@@ -76,7 +76,7 @@ class ProjectList extends Component {
                                         onClick={() => this.props.showProjectCreationForm()}>Create Project
                                 </button>
 
-                                <div className="projects">
+                                <div className="estimation">
 
                                     <BootstrapTable options={this.options} data={this.props.projects}
                                                     striped={true}

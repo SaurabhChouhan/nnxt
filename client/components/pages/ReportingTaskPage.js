@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-import {ReportingDateNavbar} from '../index'
+import {ReportingDateNavBarContainer} from '../../containers'
 import {withRouter} from 'react-router-dom'
 
 
@@ -10,22 +10,15 @@ class ReportingTaskPage extends Component {
 
     constructor(props) {
         super(props);
-        /* this.options = {
-             onRowClick: this.onRowClick.bind(this)
-         }*/
+
         this.state = {
-            taskStatus: "all",
-            releaseID: ""
+            taskStatus: this.props.taskStatus,
+            releaseID: this.props.releaseID
         }
         this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
         this.onProjectSelect = this.onProjectSelect.bind(this)
     }
 
-    /*  onRowClick(row) {
-          this.props.history.push("/app-home/reporting-tasks")
-          this.props.projectSelected(row)
-
-      }*/
 
     columnClassStatusFormat(status) {
         if (status == SC.STATUS_APPROVED)
@@ -100,9 +93,9 @@ class ReportingTaskPage extends Component {
     }
 
     formatWorkedHours(report) {
-        return (<select className="form-control" title="Select Status"
-                        onChange={(status) => this.onFormatWorkedHoursChange(status.target.value)}>
-            <option value="">Select Worked Hours</option>
+        return (<select className="form-control" title="Select Worked Hours"
+                        onChange={(status) => console.log("WorkedHours", (status.target.value))}>
+            <option value="0">Select Worked Hours</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -113,8 +106,6 @@ class ReportingTaskPage extends Component {
             <option value="8">8</option>
             <option value="9">9</option>
             <option value="10">10</option>
-
-
         </select>)
     }
 
@@ -141,58 +132,70 @@ class ReportingTaskPage extends Component {
     }
 
     formatReasonCode(report) {
-        return (<select className="form-control" title="Select Status"
-                        onChange={(status) => console.log("formatReasonCode", (status.target.value))}>
-            <option value="all">All Status</option>
-            <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-            <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-            <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-            <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-            <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-            <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-            <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+        return (<select className="form-control" title="Select Reason Code"
+                        onChange={(status) => console.log("ReasonCode", (status.target.value))}>
+            <option value={null}>Select Reason</option>
+            <option value={SC.REASON_GENRAL_DELAY}>{SC.REASON_GENRAL_DELAY}</option>
+            <option value={SC.REASON_EMPLOYEE_ON_LEAVE}>{SC.REASON_EMPLOYEE_ON_LEAVE}</option>
+            <option value={SC.REASON_INCOMPLETE_DEPENDENCY}>{SC.REASON_INCOMPLETE_DEPENDENCY}</option>
+            <option value={SC.REASON_NO_GUIDANCE_PROVIDED}>{SC.REASON_NO_GUIDANCE_PROVIDED}</option>
+            <option value={SC.REASON_RESEARCH_WORK}>{SC.REASON_RESEARCH_WORK}</option>
+            <option value={SC.REASON_UNFAMILIAR_TECHNOLOGY}>{SC.REASON_UNFAMILIAR_TECHNOLOGY}</option>
 
         </select>)
     }
 
     viewEditButton(cell, row, enumObject, rowIndex) {
-
-
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                console.log("submit")
-
+                console.log("edit")
             }}>
-                <i class="fa fa-pencil"></i>
+                <i className="fa fa-pencil"></i>
             </button>
-
         )
     }
 
     viewSubmitButton(cell, row, enumObject, rowIndex) {
-
-
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                console.log("submit")
+            this.props.reportTaskPlan(row)
             }}>
-                <i class="fa fa-check"></i>
+                <i className="fa fa-check"></i>
             </button>
         )
+    }
 
+    viewDetailButton(cell, row, enumObject, rowIndex) {
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
+                this.props.taskSelected(row, this.props.selectedProject).then(json => {
+                    if (json.success) {
+                        this.props.history.push("/app-home/reporting-task-detail")
+                        this.props.showTaskDetailPage()
+                    }
+                    return json
+                })
+            }}>
+                <i className="fa fa-eye"></i>
+            </button>
+        )
     }
 
     onTaskStatusChange(status) {
         this.setState({taskStatus: status})
-        this.props.changeReleaseStatus(this.state.releaseID, this.props.planDate, this.state.flag,status)
+        this.props.onProjectSelect(this.state.releaseID, this.props.dateOfReport, status)
+        this.props.setStatus(status)
+
     }
 
     onProjectSelect(releaseID) {
         this.setState({releaseID: releaseID})
         this.props.onProjectSelect(releaseID, this.props.dateOfReport, this.state.taskStatus)
+        this.props.setProjectId(releaseID)
     }
+
     render() {
+
         const {selectedProject, allTaskPlans, allProjects} = this.props
-        console.log("reporting", selectedProject)
-        console.log("selectedProject", selectedProject)
+        const {taskStatus, releaseID} = this.state
+
         return (
             <div key="estimation_list" className="clearfix">
                 {
@@ -245,7 +248,7 @@ class ReportingTaskPage extends Component {
                     </div>
                 }
                 <div className="col-md-12">
-                    <ReportingDateNavbar/>
+                    <ReportingDateNavBarContainer taskStatus={taskStatus} releaseID={releaseID}/>
                 </div>
                 <div className="col-md-12">
 
@@ -254,31 +257,39 @@ class ReportingTaskPage extends Component {
                         <div className="col-md-6 ">
                             <div className="releaseDetailSearchFlag">
                                 <select
+                                    value={releaseID}
                                     className="form-control"
                                     title="Select Flag"
                                     onChange={(project) => this.onProjectSelect(project.target.value)}>
 
-                                    <option value="">Select Project</option>
+                                    <option key={-1} value={''}>{"Select Project"}</option>
                                     {
-                                        allProjects && allProjects.length ? allProjects.map(project => {
-                                            return <option value={project._id}>{project.project.name}</option>
-                                        }) : null
+                                        allProjects && allProjects.length ? allProjects.map((project, idx) =>
+                                            <option
+                                                key={idx}
+                                                value={project._id}>
+                                                {project.project.name}
+                                            </option>) : null
                                     }
                                 </select>
                             </div>
                         </div>
                         <div className="col-md-6">
                             <div className="releaseDetailSearchStatus">
-                                <select className="form-control" title="Select Status"
-                                        onChange={(status) => this.onTaskStatusChange(status.target.value)}>
-                                    <option value="all">All Task Status</option>
-                                    <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-                                    <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                    <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                    <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                    <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                    <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+                                <select
+                                    className="form-control"
+                                    title="Select Status"
+                                    value={taskStatus}
+                                    onChange={(status) => this.onTaskStatusChange(status.target.value)}>
+                                    <option key={0} value="all">All Task Status</option>
+                                    <option key={1} value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+                                    <option key={2} value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                    <option key={3}
+                                            value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                                    <option key={4} value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                                    <option key={5} value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                                    <option key={6} value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                                    <option key={7} value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
 
                                 </select>
                             </div>
@@ -291,29 +302,33 @@ class ReportingTaskPage extends Component {
                                         search={true}
                                         striped={true}
                                         hover={true}>
+
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="10%" columnTitle={"View Detail"} dataField='detailButton'
+                                               dataFormat={this.viewDetailButton.bind(this)}>View Detail
                             </TableHeaderColumn>
                             <TableHeaderColumn width="20%" columnTitle dataField="task"
                                                dataFormat={this.formatTaskName.bind(this)}
                                                dataSort={true}>
                                 Task Name</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" dataField="planning"
-                                               dataFormat={this.formatPlannedHours.bind(this)}>
-                                planned hours</TableHeaderColumn>
-                            <TableHeaderColumn width="14%" columnTitle dataField="employee"
+                            <TableHeaderColumn width="12%" columnTitle dataField="planning"
+                                               dataFormat={this.formatPlannedHours.bind(this)}
+                            > planned hours</TableHeaderColumn>
+                            <TableHeaderColumn width="15%" columnTitle dataField="employee"
                                                dataFormat={this.formatWorkedHours.bind(this)}>Worked
                                 Hours</TableHeaderColumn>
                             <TableHeaderColumn width="15%" columnTitle dataField="status"
                                                dataFormat={this.formatReportedStatus.bind(this)}>Reported
                                 Status</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" dataField="additional"
+                            <TableHeaderColumn width="12%" columnTitle dataField="additional"
                                                dataFormat={this.formatReasonCode.bind(this)}>Reason
                                 Code</TableHeaderColumn>
 
-                            <TableHeaderColumn width="15%" dataField='editButton'
+                            <TableHeaderColumn width="5%" columnTitle={"Edit Report"} dataField="Edit Report"
                                                dataFormat={this.viewEditButton.bind(this)}>Edit
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="15%" dataField='deleteButton'
+                            <TableHeaderColumn width="7%" columnTitle={"Submit Report"} dataField="Submit Report"
                                                dataFormat={this.viewSubmitButton.bind(this)}>Submit
                             </TableHeaderColumn>
                         </BootstrapTable>

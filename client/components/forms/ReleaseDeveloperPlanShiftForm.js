@@ -1,15 +1,19 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
-import {renderDateTimePicker, renderSelect} from './fields'
+import {renderDateTimePickerString, renderSelect} from './fields'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
+import momentTZ from 'moment-timezone'
 import {connect} from 'react-redux'
+import * as SC from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperPlanShiftForm = (props) => {
     const {days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift, releasePlan} = props
-
+    let now = new Date()
+    let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    console.log("nowMoment in shift form", nowMoment)
     return <form onSubmit={handleSubmit}>
         <div className="col-md-12 planDivider">
             <div className="col-md-3 devMargin">
@@ -19,9 +23,9 @@ let ReleaseDeveloperPlanShiftForm = (props) => {
 
             </div>
             <div className="col-md-3 planDividerDate devMargin"><span>Base Date</span>
-                <Field name="baseDate" placeholder={"select base date"} component={renderDateTimePicker}
+                <Field name="baseDate" placeholder={"select base date"} component={renderDateTimePickerString}
                        showTime={false}
-                       min={new Date()}
+                       min={nowMoment}
                 />
             </div>
             <div className="col-md-2 planDividerDate devMargin"><span>Days to Shift</span>

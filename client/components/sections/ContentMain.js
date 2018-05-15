@@ -11,9 +11,11 @@ import {
     ReleaseProjectTaskListContainer,
     ReleaseTaskPlanningPageContainer,
     ReportingTaskPageContainer,
+    ReportingTaskDetailPageContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
-    CalendarPageContainer
+    CalendarTaskPageContainer,
+    CalendarTaskDetailPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -226,7 +228,7 @@ class ContentMain extends Component {
 
             }
         })
-        
+
         routes.push({
             url: "/release-task-planning",
             render: (props) => {
@@ -252,7 +254,16 @@ class ContentMain extends Component {
             url: "/calendar",
             render: (props) => {
                 return <ContentSection>
-                    <CalendarPageContainer name={COC.CALENDAR}/>
+                    <CalendarTaskPageContainer name={COC.CALENDAR_TASK_PAGE}/>
+                </ContentSection>
+
+            }
+        })
+        routes.push({
+            url: "/calendar-task-detail",
+            render: (props) => {
+                return <ContentSection>
+                    <CalendarTaskDetailPageContainer name={COC.CALENDAR_TASK_DETAIL_PAGE}/>
                 </ContentSection>
 
             }
@@ -262,7 +273,17 @@ class ContentMain extends Component {
             url: "/reporting",
             render: (props) => {
                 return <ContentSection>
-                    <ReportingTaskPageContainer name={COC.REPORTING_PROJECT_LIST}/>
+                    <ReportingTaskPageContainer name={COC.REPORTING_TASK_PAGE}/>
+                </ContentSection>
+
+            }
+        })
+
+        routes.push({
+            url: "/reporting-task-detail",
+            render: (props) => {
+                return <ContentSection>
+                    <ReportingTaskDetailPageContainer name={COC.REPORTING_TASK_DETAIL_PAGE}/>
                 </ContentSection>
 
             }

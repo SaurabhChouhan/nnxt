@@ -819,12 +819,13 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
         let updateTask = {}
         let report = {}
         updateTask._id = task._id
-        updateTask.name = task.negotiator.name
-        updateTask.estimatedHours = task.negotiator.estimatedHours
+        updateTask.name = task.estimator.name
+        updateTask.estimatedHours = task.estimator.estimatedHours
+        updateTask.description = task.estimator.description
         releasePlanInput.task = updateTask
         report.finalStatus = SC.STATUS_UNPLANNED
         releasePlanInput.report = report
-        const releasePlan = MDL.ReleasePlanModel.addReleasePlan(releasePlanInput)
+        return MDL.ReleasePlanModel.addReleasePlan(releasePlanInput)
     })
 
     let releasePlans = await Promise.all(estimationTasksCopyAndReadyForReleasePlanPromises)

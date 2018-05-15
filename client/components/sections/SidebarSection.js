@@ -44,11 +44,12 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
                     }}>Release</Link></li>
                     <li><Link to="/app-home/calendar" onClick={() => {
-                        props.dispatch(A.showComponentHideOthers(COC.CALENDAR))
+                        props.dispatch(A.getAllTaskPlansFromServer())
+                        props.dispatch(A.showComponentHideOthers(COC.CALENDAR_TASK_PAGE))
                     }}>Calendar</Link></li>
                     <li><Link to="/app-home/reporting" onClick={() => {
                         props.dispatch(A.getAllReportingProjectsFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.REPORTING_PROJECT_LIST))
+                        props.dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE))
                     }}>Reporting</Link></li>
                 </ul>
             </div>
