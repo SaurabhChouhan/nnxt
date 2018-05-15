@@ -51,6 +51,7 @@ let releasePlanSchema = mongoose.Schema({
         name: {type: String, required: [true, 'Comment name is required']},
         date: {type: Date, required: [true, 'Comment date is required']},
         comment: {type: String, required: [true, 'Comment is required']},
+        dateString: String,
         commentType: {
             type: String,
             enum: [SC.COMMENT_EMERGENCY, SC.COMMENT_CRITICAL, SC.COMMENT_URGENT, SC.COMMENT_REPORTING, SC.COMMENT_FYI_ONLY]

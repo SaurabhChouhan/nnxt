@@ -737,11 +737,13 @@ taskPlanningSchema.statics.addComment = async (commentInput, user) => {
     if (!releasePlan) {
         throw new AppError('releasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+    let now = new Date()
     let comment = {}
     comment.name = user.firstName + ' ' + user.lastName
     comment.comment = commentInput.comment
     comment.commentType = commentInput.commentType
-    comment.date = new Date()
+    comment.date = now
+    comment.dateString = moment(now).format(SC.DEFAULT_DATE_FORMAT)
     await MDL.ReleasePlanModel.update({
         '_id': releasePlan._id
     }, {$push: {"comments": comment}}).exec()

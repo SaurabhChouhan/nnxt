@@ -122,7 +122,7 @@ class ReportingTaskDetailPage extends React.Component {
                                     Comment Type</TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="name">
                                     Commented By</TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="date">
+                                <TableHeaderColumn width="10%" columnTitle dataField="dateString">
                                     Date
                                 </TableHeaderColumn>
                             </BootstrapTable>
