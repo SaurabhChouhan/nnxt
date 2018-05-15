@@ -14,7 +14,8 @@ import {
     ReportingTaskDetailPageContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
-    CalendarPageContainer
+    CalendarTaskPageContainer,
+    CalendarTaskDetailPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -253,7 +254,16 @@ class ContentMain extends Component {
             url: "/calendar",
             render: (props) => {
                 return <ContentSection>
-                    <CalendarPageContainer name={COC.CALENDAR}/>
+                    <CalendarTaskPageContainer name={COC.CALENDAR_TASK_PAGE}/>
+                </ContentSection>
+
+            }
+        })
+        routes.push({
+            url: "/calendar-task-detail",
+            render: (props) => {
+                return <ContentSection>
+                    <CalendarTaskDetailPageContainer name={COC.CALENDAR_TASK_DETAIL_PAGE}/>
                 </ContentSection>
 
             }

@@ -7,35 +7,35 @@ import * as MDL from "../models"
  */
 
 
-const calenderRouter = new Router({
-    prefix: "calenders"
+const calendarRouter = new Router({
+    prefix: "calendars"
 })
 
-calenderRouter.get("/holidays", async ctx => {
+calendarRouter.get("/holidays", async ctx => {
     return await MDL.YearlyHolidaysModel.getAllYearlyHolidays(ctx.state.user)
 })
 
-calenderRouter.get("/holidays/from/:startDate/to/:endDate", async ctx => {
+calendarRouter.get("/holidays/from/:startDate/to/:endDate", async ctx => {
     return await MDL.YearlyHolidaysModel.getAllYearlyHolidaysBaseDateToEnd(ctx.params.startDate, ctx.params.endDate, ctx.state.user)
 })
 
-calenderRouter.post("/holidays/", async ctx => {
+calendarRouter.post("/holidays/", async ctx => {
     return await MDL.YearlyHolidaysModel.createHolidayYear(ctx.request.body, ctx.state.user)
 })
 
-calenderRouter.post("/holiday/", async ctx => {
+calendarRouter.post("/holiday/", async ctx => {
     return await MDL.YearlyHolidaysModel.createHoliday(ctx.request.body, ctx.state.user)
 })
 
-calenderRouter.put("/add-holiday/", async ctx => {
+calendarRouter.put("/add-holiday/", async ctx => {
     return await MDL.YearlyHolidaysModel.updateHolidayYear(ctx.request.body, ctx.state.user)
 })
 
-calenderRouter.get("/tasks", async ctx => {
+calendarRouter.get("/tasks", async ctx => {
     return await MDL.TaskPlanningModel.getAllTaskPlanningsForCalenderOfUser(ctx.state.user)
 })
-calenderRouter.get("/task/:taskID", async ctx => {
+calendarRouter.get("/:taskID/task-plan", async ctx => {
     console.log("ctx.params.taskID", ctx.params.taskID)
-    return await MDL.TaskPlanningModel.getAllTaskPlanningsForCalenderOfUser(ctx.state.user)
+    return await MDL.TaskPlanningModel.getTaskAndProjectDetailForCalenderOfUser( ctx.params.taskID,ctx.state.user)
 })
-export default calenderRouter
+export default calendarRouter

@@ -1,16 +1,27 @@
 import React from 'react';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
-import {CalendarTaskDetailPage} from '../../components';
+import {withRouter} from 'react-router-dom'
 
 
 BigCalendar.momentLocalizer(moment);
 
-class CalendarPage extends React.Component {
+class CalendarTaskPage extends React.Component {
     constructor(props) {
         super(props);
+        this.onSelectEvent = this.onSelectEvent.bind(this)
     }
 
+    onSelectEvent(event) {
+        console.log("onSelectEvent bk2",event)
+        this.props.taskSelected(event).then(json => {
+            if (json.success) {
+                this.props.history.push("/app-home/calendar-task-detail")
+                this.props.showTaskDetailPage()
+            }
+            return json
+        })
+    }
 
     eventStyleGetter(event, start, end, isSelected) {
         console.log("event.status", event.report.status)
@@ -23,6 +34,8 @@ class CalendarPage extends React.Component {
             bg = "#FF0000"
         if (event.report.status == "completed")
             bg = "#4AD938"
+        else
+            bg = "#000000"
         let style = {
             backgroundColor: bg,
             borderRadius: '0px',
@@ -58,9 +71,7 @@ class CalendarPage extends React.Component {
                  localizer.format(date, 'dddd', culture)
          }*/
         console.log("this.props.events", this.props.events)
-        return (
-            <div>
-                {(this.props.visibility.calendarView) ?
+        return (<div>
                     <BigCalendar
                         views={{month: true, week: true, day: true}}
                         view={this.props.selectedView}
@@ -69,7 +80,10 @@ class CalendarPage extends React.Component {
                         components={{event: this.Event}}
                         selectable
                         popup
-                        onSelectEvent={event => this.props.showSelectedTaskDetail(event)}
+                        onSelectEvent={event => {
+                            console.log("event bk1", event)
+                            this.onSelectEvent(event)
+                        }}
                         events={this.props.events}
                         startAccessor='start'
                         endAccessor='end'
@@ -81,11 +95,9 @@ class CalendarPage extends React.Component {
                             this.props.changeViewAndDate(view, this.props.selectedDate);
                         }}
                     />
-                    : <CalendarTaskDetailPage {...this.props}/>
                 }
-            </div>
-        );
+        </div>)
     }
 }
 
-export default CalendarPage;
+export default withRouter(CalendarTaskPage);

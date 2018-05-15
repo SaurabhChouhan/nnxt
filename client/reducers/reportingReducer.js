@@ -68,6 +68,7 @@ const reportingReducer = (state = initialState, action) => {
                 selectedTask: action.project.taskPlan,
                 selectedReleasePlan: action.project.releasePlan
             })
+
         case AC.UPDATE_SELECTED_TASK:
             // task is selected to see task detail
             return Object.assign({}, state, {

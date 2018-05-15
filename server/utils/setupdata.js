@@ -529,7 +529,7 @@ const addLeaveTypes = async () => {
     if (!cl) {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Casual leave (CL)',
-            description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calender year.\n' +
+            description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calendar year.\n' +
             'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
         })
     }
