@@ -280,8 +280,8 @@ class ReportingTaskPage extends Component {
                                 <select
                                     className="form-control"
                                     title="Select Status"
-                                       value = {taskStatus}
-                                        onChange={(status) => this.onTaskStatusChange(status.target.value)}>
+                                    value={taskStatus}
+                                    onChange={(status) => this.onTaskStatusChange(status.target.value)}>
                                     <option key={0} value="all">All Task Status</option>
                                     <option key={1} value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
                                     <option key={2} value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
