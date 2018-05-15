@@ -21,10 +21,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     },
     taskSelected: (task, selectedProject) => dispatch(A.getTaskAndProjectDetailsFromServer(task._id, selectedProject._id)),
+
     setStatus: (status) => dispatch(A.setStatus(status)),
+
     setProjectId: (releaseId) => dispatch(A.setProjectId(releaseId)),
+
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
+    },
+    reportTaskPlan: (taskPlan) => {
+        console.log("taskPlan", taskPlan)
     }
 })
 

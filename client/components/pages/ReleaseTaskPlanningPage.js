@@ -1,10 +1,10 @@
 import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
-import momentTZ from 'moment-timezone'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
+import _ from 'lodash'
 import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
 
 moment.locale('en')
@@ -21,10 +21,9 @@ class ReleaseTaskPlanningPage extends Component {
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
         let now = new Date()
-        let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-        let nowMomentString = nowMoment.format(SC.DEFAULT_DATE_FORMAT)
-
-        let planningMoment = momentTZ.tz(row.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let nowMomentString = moment(now).format(SC.DATE_FORMAT)
+        let nowMoment = moment(nowMomentString)
+        let planningMoment = moment(row.planningDateString)
         console.log("planningMoment", planningMoment)
         console.log("nowMoment", nowMoment)
         console.log("compare ", planningMoment.isBefore(nowMoment))
@@ -38,7 +37,6 @@ class ReleaseTaskPlanningPage extends Component {
 
     projectUsersOnly(data) {
         let checkBox = document.getElementById("projectUsersOnlyCheck");
-        // console.log("checkBox", checkBox)
         if (checkBox.checked) {
             this.setState({projectUsersOnly: true})
         } else this.setState({projectUsersOnly: false})
@@ -53,21 +51,17 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     formatPlanningDate(row) {
-        if (row) {
-            let rowMoment = moment(row).hour(0).minute(0).second(0).millisecond(0)
-            let rowMomentTz = momentTZ.tz(rowMoment, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE_NAME).format(SC.DEFAULT_DATE_FORMAT)
-            //console.log("rowMomentTz", rowMomentTz)
-            return rowMomentTz
+        if (row && !_.isEmpty(row)) {
+            return row
         }
         return ''
     }
 
     formatPlannedHours(planning) {
-        if (planning)
-            return planning.plannedHours
-        return 0
+        if (planning && planning.plannedHours)
+            return Number(planning.plannedHours)
+        else return 0
     }
-
 
     formatDeveloper(developer) {
         if (developer && developer.name) {
@@ -151,7 +145,7 @@ class ReleaseTaskPlanningPage extends Component {
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
                                                    hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planningDate'
+                                <TableHeaderColumn columnTitle dataField='planningDateString'
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
                                                    dataFormat={this.formatPlannedHours.bind(this)}>Est
@@ -181,7 +175,7 @@ class ReleaseTaskPlanningPage extends Component {
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
                                                    hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planningDate'
+                                <TableHeaderColumn columnTitle dataField='planningDateString'
                                                    dataFormat={this.formatPlanningDate.bind(this)}>
                                     Date
                                 </TableHeaderColumn>

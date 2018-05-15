@@ -156,7 +156,7 @@ class ReportingTaskPage extends Component {
 
     viewSubmitButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                console.log("Submit")
+            this.props.reportTaskPlan(row)
             }}>
                 <i className="fa fa-check"></i>
             </button>
@@ -313,8 +313,8 @@ class ReportingTaskPage extends Component {
                                                dataSort={true}>
                                 Task Name</TableHeaderColumn>
                             <TableHeaderColumn width="12%" columnTitle dataField="planning"
-                                               dataFormat={this.formatPlannedHours.bind(this)}>
-                                planned hours</TableHeaderColumn>
+                                               dataFormat={this.formatPlannedHours.bind(this)}
+                            > planned hours</TableHeaderColumn>
                             <TableHeaderColumn width="15%" columnTitle dataField="employee"
                                                dataFormat={this.formatWorkedHours.bind(this)}>Worked
                                 Hours</TableHeaderColumn>
