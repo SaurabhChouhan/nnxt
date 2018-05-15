@@ -1754,4 +1754,12 @@ hr {
     margin-top: 27px;
 }
 
+.ReportingCommentTable th {
+    background-color: #6FBA1C;
+    color: #333333;
+}
+
+.reportingCommentForm {
+    margin-top: 15px;
+}
 
