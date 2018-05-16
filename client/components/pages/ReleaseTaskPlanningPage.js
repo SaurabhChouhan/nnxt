@@ -44,10 +44,12 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     actionCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="pull-left btn btn-custom" type="button"
-                        onClick={() => {
-                            this.props.openMergeTaskPlanningForm(row)
-                        }}>Merge</button>)
+        if (row && row.canMerge)
+            return (<button className="pull-left btn btn-custom" type="button"
+                            onClick={() => {
+                                this.props.openMergeTaskPlanningForm(row)
+                            }}>Merge</button>)
+        else return ''
     }
 
     formatPlanningDate(row) {
