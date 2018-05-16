@@ -165,15 +165,24 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
 }
 
-taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user) => {
-    if (!taskPlanningInput || !taskPlanningInput.releasePlan || !taskPlanningInput.releasePlan._id) {
-        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseMergeTaskPlanningStruct)
+
+    V.validate(taskPlanningInput, V.releaseMergeTaskPlanningStruct)
+
+    let now = new Date()
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMoment = moment(nowString)
+    if (moment(taskPlanningInput.rePlanningDate).isBefore(nowMoment)) {
+        throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
     if (!releasePlan) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
     if (!release) {
         throw new AppError('ReleasePlan is not having release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -183,7 +192,13 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user) =
     if (!taskPlanning) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
+
+    if (moment(taskPlanning.planningDateString).isBefore(nowMoment)) {
+        throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can merge", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }

@@ -48,7 +48,7 @@ releaseRouter.put("/plan-task/", async ctx => {
 
 //Merge task plan to a perticular date
 releaseRouter.put("/merge-task-plan/", async ctx => {
-    return await MDL.TaskPlanningModel.mergeTaskPlanning(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.mergeTaskPlanning(ctx.request.body, ctx.state.user,ctx.schemaRequested)
 })
 
 // shift tasks to future
