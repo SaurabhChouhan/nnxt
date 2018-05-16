@@ -20,7 +20,6 @@ let taskPlanningSchema = mongoose.Schema({
     planningDate: {type: Date, default: Date.now()},
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
-    canMerge: {type: Boolean, default: false},
     description: {type: String},
     task: {
         _id: mongoose.Schema.ObjectId,
@@ -206,8 +205,10 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     taskPlanning.created = Date.now()
     taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
-    return await taskPlanning.save()
-
+    let taskPlnning = await taskPlanning.save()
+    taskPlanning = taskPlanning.toObject()
+    taskPlanning.canMerge = true
+    return taskPlanning
 }
 
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
@@ -735,8 +736,14 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         let toDateMomentToDate = toDateMoment.toDate()
         toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
+    let releaseListOfID = []
+    releaseListOfID = await MDL.ReleaseModel.find({
+        $or: [{"manager._id": mongoose.Types.ObjectId(user._id)},
+            {"leader._id": mongoose.Types.ObjectId(user._id)}]
+    }, {'_id': 1})
+    console.log("releaseListOfID", releaseListOfID)
+    let taskPlannings = await TaskPlanningModel.find({"employee._id": mongoose.Types.ObjectId(employeeId)}).sort({"planningDate": 1})
 
-    let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId}).sort({"planningDate": 1})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
         taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
@@ -746,14 +753,26 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
         taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
-    return taskPlannings
+
+    let now = new Date()
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMoment = moment(nowString)
+
+    return taskPlannings.map(tp => {
+        tp = tp.toObject()
+        let check = moment(tp.planningDateString).isBefore(nowMoment) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
+        if (check) {
+            tp.canMerge = false
+        } else {
+            tp.canMerge = true
+        }
+        return tp
+    })
 }
 
 taskPlanningSchema.statics.addComment = async (commentInput, user) => {
 
     V.validate(commentInput, V.releaseTaskPlanningCommentStruct)
-
-  //  console.log("commentInput", commentInput)
     if (!commentInput.releaseID) {
         throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
