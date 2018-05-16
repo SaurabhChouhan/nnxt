@@ -24,6 +24,7 @@ export {default as AdminUserListContainer} from './lists/AdminUserListContainer'
 export {default as UserProfileFormContainer} from './forms/UserProfileFormContainer'
 export {default as AdminRoleFormContainer} from './forms/AdminRoleFormContainer'
 export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
+export {default as EmployeeSettingFormContainer} from './forms/EmployeeSettingFormContainer'
 
 
 //Repository pages
