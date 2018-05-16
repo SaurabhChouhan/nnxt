@@ -115,11 +115,18 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
     }
 
-    if (await MDL.EmployeeDaysModel.count({"date": momentPlanningDate}) > 0) {
+    if (await MDL.EmployeeDaysModel.count({
+            "employee._id": selectedDeveloper._id.toString(),
+            "date": momentPlanningDate
+        }) > 0) {
         let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
         let EmployeeDaysModelInput = {
             plannedHours: numberPlannedHours,
+            employee: {
+                _id: selectedDeveloper._id.toString(),
+                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+            },
             dateString: taskPlanningInput.planningDate,
         }
         await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput, user)
@@ -233,7 +240,7 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    return await TaskPlanningModel.find({"releasePlan._id": releasePlan._id}).sort({"planningDate": 1})
+    return await TaskPlanningModel.find({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}).sort({"planningDate": 1})
 }
 
 
@@ -244,7 +251,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
     //planning.baseDate
     //planning.daysToShift
     //planning.releasePlanID
-    let release = await MDL.ReleaseModel.find({$or: [{"manager._id": user._id}, {"leader._id": user._id}]})
+    let release = await MDL.ReleaseModel.find({$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]})
     if (!release || release.length == 0) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] of this release can shift plans", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -441,7 +448,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
     //planning.daysToShift
     //planning.releasePlanID
 
-    let release = await MDL.ReleaseModel.find({$or: [{"manager._id": user._id}, {"leader._id": user._id}]})
+    let release = await MDL.ReleaseModel.find({$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]})
     if (!release || release.length == 0) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] of this release can shift plans", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
