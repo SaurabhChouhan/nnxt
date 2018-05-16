@@ -18,4 +18,8 @@ export const employeeAddEmployeeDaysStruct = t.struct({
 export const employeeUpdateEmployeeDaysStruct = t.struct({
     plannedHours: t.Number,
     dateString: RequiredString,
+    employee: t.struct({
+        _id: ObjectId,
+        name: t.String
+    })
 })
