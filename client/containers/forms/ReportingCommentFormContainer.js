@@ -6,10 +6,10 @@ import {initialize} from 'redux-form'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (commentValues) => {
-        console.log("commentValues", commentValues)
+        //console.log("commentValues", commentValues)
         return dispatch(A.addCommentToServer(commentValues)).then((json) => {
             if (json.success) {
-                console.log("json.data", json.data)
+                //console.log("json.data", json.data)
                 dispatch(initialize("reporting-comment", {
                     releaseID: json.data.release._id,
                     releasePlanID: json.data._id

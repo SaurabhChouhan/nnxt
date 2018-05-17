@@ -35,7 +35,7 @@ export const getAllTaskPlansFromServer = () => {
 
 
 export const getTaskAndProjectDetailsForCalendarFromServer = (taskPlanID) => {
-    console.log("getTaskAndProjectDetailsForCalendarFromServer bk4", taskPlanID)
+    //console.log("getTaskAndProjectDetailsForCalendarFromServer bk4", taskPlanID)
     return function (dispatch, getState) {
         return fetch('/api/calendars/' + taskPlanID + '/task-plan',
             {

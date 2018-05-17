@@ -30,7 +30,7 @@ releaseRouter.get("/release/:releaseID", async ctx => {
 releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empflag", async ctx => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
-    console.log("roleInRelease - ", roleInRelease)
+    //console.log("roleInRelease - ", roleInRelease)
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -53,14 +53,14 @@ releaseRouter.put("/merge-task-plan/", async ctx => {
 
 // shift tasks to future
 releaseRouter.put("/shift-future/", async ctx => {
-    console.log("shift-future", ctx.request.body)
+    //console.log("shift-future", ctx.request.body)
     return await MDL.TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
 // shift tasks to past
 releaseRouter.put("/shift-past/", async ctx => {
-    console.log("shift-past", ctx.request.body)
+    //console.log("shift-past", ctx.request.body)
     return await MDL.TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 

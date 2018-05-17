@@ -26,9 +26,9 @@ class ReleaseTaskPlanningPage extends Component {
         let nowMomentString = moment(now).format(SC.DATE_FORMAT)
         let nowMoment = moment(nowMomentString)
         let planningMoment = moment(row.planningDateString)
-        console.log("planningMoment", planningMoment)
-        console.log("nowMoment", nowMoment)
-        console.log("compare ", planningMoment.isBefore(nowMoment))
+       // console.log("planningMoment", planningMoment)
+       // console.log("nowMoment", nowMoment)
+       // console.log("compare ", planningMoment.isBefore(nowMoment))
         if (planningMoment.isBefore(nowMoment))
             return ''
         else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"

@@ -13,7 +13,7 @@ let ReleaseDeveloperPlanShiftForm = (props) => {
     const {days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift, releasePlan} = props
     let now = new Date()
     let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    console.log("nowMoment in shift form", nowMoment)
+    //console.log("nowMoment in shift form", nowMoment)
     return <form onSubmit={handleSubmit}>
         <div className="col-md-12 planDivider">
             <div className="col-md-3 devMargin">

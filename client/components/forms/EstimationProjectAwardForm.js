@@ -16,7 +16,7 @@ let EstimationProjectAwardForm = (props) => {
     const {pristine, submitting, reset, change} = props
     const {Team, Managers, Leaders, devStartDate, devReleaseDate, clientReleaseDate} = props
     let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
-    console.log("max", max)
+    //console.log("max", max)
     let now = new Date()
     return <form onSubmit={props.handleSubmit}>
         <div className="row">

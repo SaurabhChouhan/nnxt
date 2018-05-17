@@ -269,7 +269,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         $or: [{"manager._id": mongoose.Types.ObjectId(user._id)},
             {"leader._id": mongoose.Types.ObjectId(user._id)}]
     }, {'_id': 1})
-    console.log("releaseListOfID", releaseListOfID)
+    //  console.log("releaseListOfID", releaseListOfID)
     let taskPlannings = await TaskPlanningModel.find({"employee._id": mongoose.Types.ObjectId(employeeId)}).sort({"planningDate": 1})
 
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
@@ -459,7 +459,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 "planningDate": {$gte: baseDateMomentInUtc}
             })
     }
-    console.log("taskPlannings bk1", taskPlannings)
+    //console.log("taskPlannings bk1", taskPlannings)
 //Sorting task plannings according to date
     if (taskPlannings && taskPlannings.length) {
         taskPlannings.sort(function (a, b) {
@@ -469,11 +469,11 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
             // console.log("after a", a, "b", b)
             return a < b ? -1 : a > b ? 1 : 0;
         })
-        console.log("taskPlannings bk2", taskPlannings)
+        // console.log("taskPlannings bk2", taskPlannings)
 
         let toTz = momentTZ.tz(taskPlannings[taskPlannings.length - 1], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(10 * daysToShiftNumber, 'days').hour(0).minute(0).second(0).millisecond(0)
         let daysDetails = await getWorkingDaysAndHolidays(baseDateMomentInUtc.format(SC.DATE_FORMAT), toTz.format(SC.DATE_FORMAT), taskPlannings, user)
-        console.log("daysDetails", daysDetails)
+        // console.log("daysDetails", daysDetails)
         let taskOnHolidayCount = 0
 
         // Shifting starts with loop

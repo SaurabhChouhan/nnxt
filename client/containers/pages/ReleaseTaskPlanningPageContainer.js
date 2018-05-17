@@ -45,7 +45,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     openMergeTaskPlanningForm: (releasePlan) => {
-        console.log("releasePlan", releasePlan)
+        //console.log("releasePlan", releasePlan)
         dispatch(initialize("merge-task-planning", releasePlan))
         dispatch(A.showComponent(COC.MERGE_TASK_PLANNING_DIALOG))
 
