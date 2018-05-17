@@ -3,6 +3,7 @@ import AppError from '../AppError'
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
+import * as V from '../validation'
 
 mongoose.Promise = global.Promise
 
@@ -21,7 +22,11 @@ let employeeSettingSchema = mongoose.Schema({
  * Employee Setting is Created by Admin
  * @param employeeSettingInput
  */
-employeeSettingSchema.statics.createEmployeeSettings = async (employeeSettingInput, admin) => {
+employeeSettingSchema.statics.createEmployeeSettings = async (employeeSettingInput, admin, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.employeeCreateSettingStruct)
+
+    V.validate(employeeSettingInput, V.employeeCreateSettingStruct)
     if (!admin || !userHasRole(admin, SC.ROLE_ADMIN))
         throw new AppError('Not a Admin', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
@@ -41,7 +46,11 @@ employeeSettingSchema.statics.getEmployeeSettings = async (admin) => {
  * Employee Setting is updated by Admin
  * @param employeeSettingInput
  */
-employeeSettingSchema.statics.updateEmployeeSettings = async (employeeSettingInput, admin) => {
+employeeSettingSchema.statics.updateEmployeeSettings = async (employeeSettingInput, admin, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.employeeUpdateSettingStruct)
+
+    V.validate(employeeSettingInput, V.employeeUpdateSettingStruct)
     if (!admin || !userHasRole(admin, SC.ROLE_ADMIN))
         throw new AppError('Not a Admin', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
