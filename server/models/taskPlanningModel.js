@@ -175,8 +175,8 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMoment = moment(nowString)
-    if (moment(taskPlanningInput.rePlanningDate).isBefore(nowMoment)) {
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    if (moment(taskPlanningInput.rePlanningDate).isBefore(nowMomentInUtc)) {
         throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -190,7 +190,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    if (moment(taskPlanning.planningDateString).isBefore(nowMoment)) {
+    if (moment(taskPlanning.planningDateString).isBefore(nowMomentInUtc)) {
         throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -284,11 +284,11 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
 
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMoment = moment(nowString)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     return taskPlannings.map(tp => {
         tp = tp.toObject()
-        let check = moment(tp.planningDateString).isBefore(nowMoment) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
+        let check = moment(tp.planningDateString).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
         if (check) {
             tp.canMerge = false
         } else {
