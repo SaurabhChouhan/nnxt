@@ -54,14 +54,14 @@ releaseRouter.put("/merge-task-plan/", async ctx => {
 // shift tasks to future
 releaseRouter.put("/shift-future/", async ctx => {
     console.log("shift-future", ctx.request.body)
-    return await MDL.TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
 // shift tasks to past
 releaseRouter.put("/shift-past/", async ctx => {
     console.log("shift-past", ctx.request.body)
-    return await MDL.TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 // Delete task planning

@@ -389,12 +389,12 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 
 
 // Shifting task plans to future
-taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
-    //InComing Data Structure
-    //planning.employeeId
-    //planning.baseDate
-    //planning.daysToShift
-    //planning.releasePlanID
+taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseTaskPlanningStruct)
+
+    V.validate(planning, V.releaseTaskPlanningShiftStruct)
+
     let release = await MDL.ReleaseModel.find({$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]})
     if (!release || release.length == 0) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] of this release can shift plans", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -590,12 +590,11 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
 
 
 // Shifting task plans to past
-taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
-    //InComing Data Structure
-    //planning.employeeId
-    //planning.baseDate
-    //planning.daysToShift
-    //planning.releasePlanID
+taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseTaskPlanningStruct)
+
+    V.validate(planning, V.releaseTaskPlanningShiftStruct)
 
     let release = await MDL.ReleaseModel.find({$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]})
     if (!release || release.length == 0) {

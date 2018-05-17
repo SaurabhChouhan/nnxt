@@ -42,3 +42,10 @@ export const releaseMergeTaskPlanningStruct = t.struct({
     }),
     rePlanningDate: RequiredString,
 })
+
+export const releaseTaskPlanningShiftStruct = t.struct({
+    employeeId:ObjectId,
+    releasePlanID: ObjectId,
+    daysToShift: t.Number,
+    baseDate: RequiredString,
+})
