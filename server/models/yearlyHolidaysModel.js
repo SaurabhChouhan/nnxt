@@ -53,22 +53,16 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidays = async (loggedInUser) => {
     }
 }
 
-yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDate, endDate, loggedInUser) => {
-    //  console.log("startDate", startDate)
-    //  console.log("startDate.type", typeof startDate)
-    //   console.log("endDate", endDate)
-    //   console.log("endDate.type", typeof endDate)
-    //   startDate = new Date(startDate)
-    //  endDate = new Date(endDate)
-    let startDateMoment = momentTZ.tz(startDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    startDate = startDateMoment.toDate()
-    let endDateMoment = momentTZ.tz(endDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    endDate = endDateMoment.toDate()
+yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDateString, endDateString, loggedInUser) => {
+
+    let startDateMoment = momentTZ.tz(startDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    //  startDateString = startDateMoment.clone().toDate()
+    let endDateMoment = momentTZ.tz(endDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    //   endDateString = endDateMoment.clone().toDate()
     if (!startDateMoment || !endDateMoment)
         throw new AppError("conversionFailed", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     return await YearlyHolidaysModel.find({
-        "holidays.date": {$gte: startDateMoment, $lte: endDateMoment}
-
+        "holidays.date": {$gte: startDateMoment.clone(), $lte: endDateMoment.clone()}
     }).exec()
 }
 
