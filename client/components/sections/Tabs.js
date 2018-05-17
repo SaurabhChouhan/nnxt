@@ -30,7 +30,6 @@ import {
     MANAGE_ROLES,
     CREATE_USER
 } from "../../clientconstants"
-import {showComponentHideOthers} from "../../actions/appAction"
 import {
     AdminRoleFormContainer,
     AdminRoleListContainer,
@@ -44,7 +43,7 @@ import {
     UserProfileFormContainer,
     EmployeeSettingFormContainer
 } from "../../containers"
-import {getAllPermissionsFromServer, getAllRolesFromServer, getAllUsersFromServer, showUserInfo} from "../../actions";
+import * as A from "../../actions";
 import * as logger from '../../clientLogger'
 
 
@@ -144,7 +143,6 @@ class Tabs extends Component {
         }
 
 
-
         if (this.tabData.length > 0) {
             this.state = {
                 activeTab: this.tabData[0]
@@ -164,29 +162,30 @@ class Tabs extends Component {
         const {store} = this.context;
         switch (tab.name) {
             case USER_PROFILE_TAB:
-                store.dispatch(showUserInfo())
-                store.dispatch(showComponentHideOthers(USER_PROFILE_FORM))
+                store.dispatch(A.showUserInfo())
+                store.dispatch(A.showComponentHideOthers(USER_PROFILE_FORM))
                 break;
             case PERMISSION_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(getAllPermissionsFromServer())
-                store.dispatch(showComponentHideOthers(PERMISSION_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.getAllPermissionsFromServer())
+                store.dispatch(A.showComponentHideOthers(PERMISSION_LIST))
                 break
             case ROLE_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(showComponentHideOthers(ROLE_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.showComponentHideOthers(ROLE_LIST))
                 break
             case USER_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(getAllUsersFromServer())
-                store.dispatch(showComponentHideOthers(USER_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.getAllUsersFromServer())
+                store.dispatch(A.showComponentHideOthers(USER_LIST))
                 break
             case ADMIN_PERMISSION_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(showComponentHideOthers(ADMIN_ROLE_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.showComponentHideOthers(ADMIN_ROLE_LIST))
                 break
             case EMPLOYEE_SETTING_TAB:
-                store.dispatch(showComponentHideOthers(EMPLOYEE_SETTING_FORM))
+                store.dispatch(A.getEmployeeSettingFromServer())
+                store.dispatch(A.showComponentHideOthers(EMPLOYEE_SETTING_FORM))
                 break
         }
         this.setState({

@@ -39,7 +39,8 @@ apiRouter.use(async (ctx, next) => {
     RR.attendanceRouter.routes(),
     RR.releaseRouter.routes(),
     RR.calendarRouter.routes(),
-    RR.reportingRouter.routes()
+    RR.reportingRouter.routes(),
+    RR.employeeRouter.routes()
 )
 
 export default apiRouter
