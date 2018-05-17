@@ -554,7 +554,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     return await TaskPlanningModel.update({
                             "releasePlan._id": planning.releasePlanID,
                             "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": planning.employeeId,
+                            "employee._id": mongoose.Types.ObjectId(employee._id),
                             "isShifted": false
                         },
                         {
@@ -713,7 +713,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                     // task planning of all employee will shift
 
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
                             "planningDate": PlanningDateMoment.clone(),
                             "isShifted": false
                         },
@@ -728,9 +728,9 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                     // task planning of selected employee will shift
 
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
                             "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": planning.employeeId,
+                            "employee._id": mongoose.Types.ObjectId(employee._id),
                             "isShifted": false
                         },
                         {
@@ -771,9 +771,9 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 } else {
                     // task planning of selected employee will shift
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
                             "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": planning.employeeId,
+                            "employee._id": mongoose.Types.ObjectId(employee._id),
                             "isShifted": false
                         },
                         {
@@ -796,7 +796,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         })
 
         await Promise.all(ShiftingPromises).then(async promise => {
-            return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
+            return await TaskPlanningModel.update({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}, {$set: {"isShifted": false}}, {multi: true}).exec()
         })
 
     } else {
