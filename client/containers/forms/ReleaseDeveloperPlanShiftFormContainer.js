@@ -5,7 +5,7 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     shiftTasksToFuture: (employeeId, baseDate, daysToShift, releasePlanID) => {
-        if (!employeeId || !baseDate || !daysToShift) {
+        if (!employeeId || !baseDate || !Number(daysToShift)) {
             if (!employeeId)
                 return NotificationManager.error("Please select employee")
             else if (!baseDate)
@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else return dispatch(A.shiftTasksToFutureOnServer({
             employeeId: employeeId,
             baseDate: baseDate,
-            daysToShift: daysToShift,
+            daysToShift: Number(daysToShift),
             releasePlanID: releasePlanID
         })).then(json => {
             if (json.success) {
@@ -28,7 +28,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     shiftTasksToPast: (employeeId, baseDate, daysToShift, releasePlanID) => {
-        if (!employeeId || !baseDate || !daysToShift) {
+        if (!employeeId || !baseDate || !Number(daysToShift)) {
             if (!employeeId)
                 return NotificationManager.error("Please select employee")
             else if (!baseDate)
@@ -40,7 +40,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else return dispatch(A.shiftTasksToPastOnServer({
             employeeId: employeeId,
             baseDate: baseDate,
-            daysToShift: daysToShift,
+            daysToShift: Number(daysToShift),
             releasePlanID: releasePlanID
         })).then(json => {
             if (json.success) {
