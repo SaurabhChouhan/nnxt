@@ -7,7 +7,8 @@ let initialState = {
     selectedProject: {},
     selectedTask: {},
     taskPlans: [],
-    developerPlans: []
+    developerPlans: [],
+    expanded: false
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -36,7 +37,8 @@ const releaseReducer = (state = initialState, action) => {
         case AC.ADD_RELEASE_TASK_PLANNINGS:
             // Stores task planning details on Release section of selected tasks
             return Object.assign({}, state, {
-                taskPlans: action.taskPlans
+                taskPlans: action.taskPlans,
+                expanded: false
             })
 
 
@@ -62,9 +64,9 @@ const releaseReducer = (state = initialState, action) => {
 
         case AC.ADD_DEVELOPER_FILTERED:
             // Developer planning details according to date time selection
-              return Object.assign({}, state, {
-                  developerPlans: action.developerPlans
-              })
+            return Object.assign({}, state, {
+                developerPlans: action.developerPlans
+            })
 
         case AC.UPDATE_DEVELOPER_FILTERED:
             // Developer planning details according to date time selection
@@ -72,6 +74,12 @@ const releaseReducer = (state = initialState, action) => {
                 developerPlans: state.developerPlans && Array.isArray(state.developerPlans) && state.developerPlans.length ?
                     state.developerPlans.map(dp =>
                         (dp._id === action.developerPlanned._id) ? Object.assign({}, action.developerPlanned) : dp) : []
+            })
+
+        case AC.EXPAND_DESCRIPTION:
+            // Developer planning details according to date time selection
+            return Object.assign({}, state, {
+                expanded: action.flag
             })
 
 

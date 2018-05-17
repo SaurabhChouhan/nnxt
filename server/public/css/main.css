@@ -1204,12 +1204,25 @@ td.rejRowColor {
     margin-bottom: 15px;
 }
 
-.releasecontent p {
-
-    font-size: 17px;
-    font-weight: bold;
+.release-content:after {
+    content: "";
+    text-align: right;
+    position: absolute;
+    bottom: 44px;
+    right: 0;
+    width: 90%;
+    height: 1.3em;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(255, 255, 255) 75%);
 }
 
+p.task-description {
+    font-size: 17px;
+    height: 3em;
+    overflow: hidden;
+}
+.expanded-release-content p {
+    height: auto;
+}
 .releaseTitle {
     font-size: 14px;
     font-style: initial;
@@ -1763,3 +1776,11 @@ hr {
     margin-top: 15px;
 }
 
+.releaseLabel{
+    color:#FE4744;
+    float: right;
+    position: relative;
+    top: -36px;
+    z-index: 2;
+
+}

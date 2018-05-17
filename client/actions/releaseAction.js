@@ -50,6 +50,11 @@ export const updateDeveloperFilteredData = (developerPlanned) => ({
     developerPlanned: developerPlanned
 })
 
+export const expandDescription = (flag) => ({
+    type: AC.EXPAND_DESCRIPTION,
+    flag: flag
+})
+
 export const getAllReleaseProjectsFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {

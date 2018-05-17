@@ -15,6 +15,7 @@ export {default as AdminUserList} from './lists/AdminUserList'
 export {default as AdminUserForm} from './forms/AdminUserForm'
 export {default as AdminRoleForm} from './forms/AdminRoleForm'
 export {default as AdminRoleList} from './lists/AdminRoleList'
+export {default as EmployeeSettingForm} from './forms/EmployeeSettingForm'
 
 
 //Common Dialoge

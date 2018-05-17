@@ -5,6 +5,7 @@ export const USER_TAB = "User"
 export const ADMIN_USER_TAB = "Manage User"
 export const USER_PROFILE_TAB = "Profile"
 export const ADMIN_PERMISSION_TAB = "Manage Permission"
+export const EMPLOYEE_SETTING_TAB = "Employee Setting"
 
 // forms
 export const PERMISSION_FORM = "PERMISSION_FORM"
@@ -19,6 +20,7 @@ export const TECHNOLOGY_FORM = "TECHNOLOGY_FORM"
 export const LEAVE_REQUEST_FORM = "LEAVE_REQUEST_FORM"
 export const ATTENDANCE_SETTING_FORM = "ATTENDANCE_SETTING_FORM"
 export const MERGE_TASK_PLANNING_FORM = "MERGE_TASK_PLANNING_FORM"
+export const EMPLOYEE_SETTING_FORM = "EMPLOYEE_SETTING_FORM"
 
 
 // lists
