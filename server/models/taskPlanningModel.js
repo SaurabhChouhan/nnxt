@@ -394,6 +394,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         return V.generateSchema(V.releaseTaskPlanningStruct)
 
     V.validate(planning, V.releaseTaskPlanningShiftStruct)
+    let startShiftDateString
+    let endShiftDateString
 // Days to shift conversion in number
     let daysToShiftNumber = Number(planning.daysToShift)
 // employeeId must be present or its value must be all
@@ -476,8 +478,9 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         // console.log("daysDetails", daysDetails)
         let taskOnHolidayCount = 0
 
+        startShiftDateString = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? momentTZ.tz(daysDetails.taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format(SC.DATE_FORMAT) : nowMomentInUtc.format(SC.DATE_FORMAT)
         // Shifting starts with loop
-        let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async PlanningDate => {
+        let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async (PlanningDate, idx) => {
             //
             let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
             // calculating index of working day list where planning date and working date is same
@@ -489,6 +492,11 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
                 // console.log("PlanningDate", moment(PlanningDate), "->", "newShiftingDate", newShiftingDate)
                 // updating Task planning to proper date
+
+                // Calculating last transfer date
+                if (idx === (Number(daysDetails.taskPlannings.length - 1))) {
+                    endShiftDateString = newShiftingDateString
+                }
                 if (employee._id == 'all') {
                     // task planning of all employee will shift
 
@@ -521,6 +529,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                             }
                         }, {multi: true}).exec()
                 }
+
             } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(PlanningDate))) != -1) {
                 //else  planning must have done in holidays
                 // calculating index of holiday where planning date and holiday  date are same
@@ -532,6 +541,11 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
                 let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
                 // console.log("PlanningDate", PlanningDateMoment, "->", "newShiftingDate", newShiftingDate, "holiday \n")
+
+                // Calculating last transfer date
+                if (idx === (Number(daysDetails.taskPlannings.length - 1))) {
+                    endShiftDateString = newShiftingDateString
+                }
                 taskOnHolidayCount++
                 // updating Task planning to proper date
                 if (planning.employeeId == 'all') {
@@ -566,8 +580,6 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         }, {multi: true}
                     ).exec()
                 }
-
-
             } else {
                 //System inconsistency
                 throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -578,7 +590,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         await Promise.all(ShiftingPromises).then(async promise => {
             return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
         })
-
+        console.log("startShiftDateString", startShiftDateString)
+        console.log("endShiftDateString", endShiftDateString ? endShiftDateString : nowMomentInUtc)
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -799,6 +812,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
             return await TaskPlanningModel.update({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}, {$set: {"isShifted": false}}, {multi: true}).exec()
         })
 
+        console.log("startShiftingDate", startShiftingDate.toDate(), "to", to.toDate())
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
