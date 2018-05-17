@@ -45,7 +45,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
         }
     },
-    showUserList: () => dispatch(A.showComponentHideOthers(CC.USER_LIST))
+    showUserList: () => dispatch(A.showComponentHideOthers(COC.USER_LIST))
 })
 
 const mapStateToProps = (state, ownProps) => ({

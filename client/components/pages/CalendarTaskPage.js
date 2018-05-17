@@ -27,15 +27,29 @@ class CalendarTaskPage extends React.Component {
         console.log("event.status", event.report.status)
         let bg = "";
         if (event.report.status == "un-reported")
+        {  console.log("Un-reported",event.report.status)
             bg = "#9fa725"
-        if (event.report.status == "Started")
+        }
+
+       else if (event.report.status == "Started")
+        {  console.log("Started",event.report.status)
             bg = "#1A4ECD"
-        if (event.report.status == "pending")
+        }
+
+       else if (event.report.status == "pending")
+        {  console.log("pending",event.report.status)
             bg = "#FF0000"
-        if (event.report.status == "completed")
+        }
+
+       else if (event.report.status == "completed") {
+            console.log("completed", event.report.status)
             bg = "#4AD938"
+        }
         else
+        {  console.log("else",event.report.status)
             bg = "#000000"
+        }
+
         let style = {
             backgroundColor: bg,
             borderRadius: '0px',
