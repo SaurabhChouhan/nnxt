@@ -84,10 +84,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can plan task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    if (!taskPlanningInput.employee._id) {
-        throw new AppError('form is not having proper data', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
     let selectedDeveloper = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
     if (!selectedDeveloper) {
         throw new AppError('Developer Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -189,11 +185,6 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
-    if (!release) {
-        throw new AppError('ReleasePlan is not having release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
     let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
     if (!taskPlanning) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -201,6 +192,11 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
     if (moment(taskPlanning.planningDateString).isBefore(nowMoment)) {
         throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release) {
+        throw new AppError('ReleasePlan is not having release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
@@ -239,6 +235,12 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+    let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER,], userRoleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can fetch", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
 
     return await TaskPlanningModel.find({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}).sort({"planningDate": 1})
 }
