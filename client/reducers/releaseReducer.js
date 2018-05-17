@@ -37,7 +37,8 @@ const releaseReducer = (state = initialState, action) => {
         case AC.ADD_RELEASE_TASK_PLANNINGS:
             // Stores task planning details on Release section of selected tasks
             return Object.assign({}, state, {
-                taskPlans: action.taskPlans
+                taskPlans: action.taskPlans,
+                expanded: false
             })
 
 
