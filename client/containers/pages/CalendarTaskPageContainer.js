@@ -7,7 +7,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     return (
         {
             taskSelected: (event) => {
-                console.log("task selected bk3", event)
+                //console.log("task selected bk3", event)
                 return dispatch(A.getTaskAndProjectDetailsForCalendarFromServer(event._id))
             },
 

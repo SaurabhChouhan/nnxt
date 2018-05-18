@@ -28,3 +28,24 @@ export const releaseTaskPlanningCommentStruct = t.struct({
     comment: RequiredString,
     commentType: RequiredString,
 })
+
+export const releaseMergeTaskPlanningStruct = t.struct({
+    _id: ObjectId,
+    releasePlan: t.struct({
+        _id: ObjectId
+    }),
+    release: t.struct({
+        _id: ObjectId
+    }),
+    planning: t.struct({
+        plannedHours: t.Number
+    }),
+    rePlanningDate: RequiredString,
+})
+
+export const releaseTaskPlanningShiftStruct = t.struct({
+    employeeId:ObjectId,
+    releasePlanID: ObjectId,
+    daysToShift: t.Number,
+    baseDate: RequiredString,
+})

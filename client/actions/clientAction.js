@@ -109,7 +109,7 @@ export const editClientOnServer = (client) => {
             }
         ).then(json => {
                 if (json.success) {
-                    console.log("Yor are now fatchning jason data", json.data)
+                    //console.log("Yor are now fatchning jason data", json.data)
                     dispatch(editClient(json.data))
                 }
                 return json

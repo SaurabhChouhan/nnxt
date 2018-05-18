@@ -393,12 +393,12 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                         || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
                         || _.isEmpty(feature.estimator.name)
                         || _.isEmpty(feature.estimator.description)) {
-                        console.log("bk 6")
+                        // console.log("bk 6")
                         return MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false})
                     } else {
 
                         return new Promise((resolve, reject) => {
-                            console.log("bk 7")
+                            //  console.log("bk 7")
                             MDL.EstimationTaskModel.count({
                                 "feature._id": feature._id,
                                 "isDeleted": false,
@@ -406,13 +406,13 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                             }).then((count) => {
                                 console.log("count is ", count)
                                 if (count) {
-                                    console.log("bk3")
+                                    // console.log("bk3")
                                     MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false}).then(() => {
                                         resolve(true)
                                     })
                                 }
                                 else {
-                                    console.log("bk4")
+                                    // console.log("bk4")
                                     MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": true}).then(() => {
                                         resolve(true)
                                     })
@@ -453,7 +453,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
         else return await EstimationModel.updateOne({_id: estimationID}, {"canApprove": false})
     }
     catch (e) {
-        console.log("can approve error : ", e)
+        //  console.log("can approve error : ", e)
     }
 }
 
@@ -472,7 +472,7 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError('Only estimations with status [' + SC.STATUS_ESTIMATION_REQUESTED + "," + SC.STATUS_CHANGE_REQUESTED + "] can be requested for review", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     let result = await EstimationModel.canApprove(estimation._id, estimator)
-    console.log("can Approve Result", result)
+    // console.log("can Approve Result", result)
     await MDL.EstimationTaskModel.update({
         "estimation._id": estimation._id,
         "owner": SC.OWNER_NEGOTIATOR

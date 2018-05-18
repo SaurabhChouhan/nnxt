@@ -302,7 +302,6 @@ export default ReleaseModel
             planningDate: "$planningDate",
             planningDateString: "$planningDateString",
             isShifted: "$isShifted",
-            canMerge: "$canMerge",
             task: "$task",
             release: "$release",
             releasePlan: "$releasePlan",

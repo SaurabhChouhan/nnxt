@@ -19,8 +19,8 @@ reportingRouter.get("/task-plans/release/:releaseID/date/:planDate/task-status/:
 
 //report/taskID/' + taskID + '/releaseID/' + releaseID + 'detail
 reportingRouter.get("/:taskID/release/:releaseID/report-detail", async ctx => {
-    console.log("ctx.params.taskID", ctx.params.taskID)
-    console.log("ctx.params.releaseID", ctx.params.releaseID)
+    //console.log("ctx.params.taskID", ctx.params.taskID)
+    // console.log("ctx.params.releaseID", ctx.params.releaseID)
     return await MDL.ReleaseModel.getTaskAndProjectDetails(ctx.params.taskID, ctx.params.releaseID, ctx.state.user)
 })
 

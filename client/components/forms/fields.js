@@ -310,7 +310,7 @@ export const renderDateTimePickerString = ({
 }
 
 export const renderDateTimePicker = ({
-                                         input: {onChange, value, name},
+                                         input: {onChange, value, name, onBlur},
                                          label,
                                          readOnly,
                                          info,
@@ -342,6 +342,7 @@ export const renderDateTimePicker = ({
             readOnly={readOnly}
             disabled={disabled}
             onChange={onChange}
+            onBlur={onBlur}
             time={showTime}
             calendar={showCalendar}
             value={!value ? null : new Date(value)}
@@ -367,7 +368,7 @@ export const renderDateTimeStringShow = ({
                                              disabled = false,
                                              meta: {touched, error, warning}
                                          }) => {
-    console.log("value", value)
+   // console.log("value", value)
     return <div className="form-group">
         <label htmlFor={name}>{label} {touched &&
         ((error &&
