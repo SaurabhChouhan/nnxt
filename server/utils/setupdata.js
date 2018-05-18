@@ -4,193 +4,197 @@ import * as SC from '../serverconstants'
 import logger from '../logger'
 
 export const addInitialData = async () => {
+    try {
 
-    if (!await MDL.PermissionModel.exists(CC.MANAGE_PERMISSIONS)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.MANAGE_PERMISSIONS
-        })
-    }
-
-    if (!await MDL.PermissionModel.exists(CC.MANAGE_ROLES)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.MANAGE_ROLES
-        })
-    }
-
-    if (!await MDL.PermissionModel.exists(CC.LIST_USERS)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.LIST_USERS
-        })
-    }
-
-    if (!await MDL.PermissionModel.exists(CC.EDIT_PROFILE)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.EDIT_PROFILE
-        })
-    }
-
-    if (!await MDL.PermissionModel.exists(CC.EDIT_ROLE_PERMISSIONS)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.EDIT_ROLE_PERMISSIONS
-        })
-    }
-
-    if (!await MDL.PermissionModel.exists(CC.CREATE_USER)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.CREATE_USER
-        })
-    }
-
-    if (!await MDL.PermissionModel.exists(CC.EDIT_USER)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.EDIT_USER
-        })
-    }
-
-    if (!await MDL.PermissionModel.exists(CC.DELETE_USER)) {
-        await MDL.PermissionModel.savePermission({
-            name: CC.DELETE_USER
-        })
-    }
-
-    /**
-     * Super admin can manage users/permissions and roles
-     */
-    if (!await MDL.RoleModel.exists(SC.ROLE_SUPER_ADMIN)) {
-
-        let permissions = []
-        let managePermissions = await MDL.PermissionModel.findOne({name: CC.MANAGE_PERMISSIONS}).lean()
-        if (managePermissions) {
-            managePermissions.configurable = false
-            managePermissions.enabled = true
-            permissions.push(managePermissions)
-        }
-        let manageRoles = await MDL.PermissionModel.findOne({name: CC.MANAGE_ROLES}).lean()
-        if (manageRoles) {
-            manageRoles.configurable = false
-            manageRoles.enabled = true
-            permissions.push(manageRoles)
-        }
-        let listUsers = await MDL.PermissionModel.findOne({name: CC.LIST_USERS}).lean()
-        if (listUsers) {
-            listUsers.configurable = false
-            listUsers.enabled = true
-            permissions.push(listUsers)
-        }
-        await MDL.RoleModel.saveRole({
-            name: SC.ROLE_SUPER_ADMIN,
-            permissions: permissions
-        })
-    }
-
-    if (!await MDL.RoleModel.exists(SC.ROLE_ADMIN)) {
-        let permissions = []
-        let listUsers = await MDL.PermissionModel.findOne({name: CC.LIST_USERS}).lean()
-        if (listUsers) {
-            listUsers.configurable = true
-            listUsers.enabled = true
-            permissions.push(listUsers)
+        if (!await MDL.PermissionModel.exists(CC.MANAGE_PERMISSIONS)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.MANAGE_PERMISSIONS
+            })
         }
 
-        let editRolePermissions = await MDL.PermissionModel.findOne({name: CC.EDIT_ROLE_PERMISSIONS}).lean()
-        if (editRolePermissions) {
-            editRolePermissions.configurable = true
-            editRolePermissions.enabled = true
-            permissions.push(editRolePermissions)
+        if (!await MDL.PermissionModel.exists(CC.MANAGE_ROLES)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.MANAGE_ROLES
+            })
         }
 
-        let createUserPermissions = await MDL.PermissionModel.findOne({name: CC.CREATE_USER}).lean()
-        if (createUserPermissions) {
-            createUserPermissions.configurable = true
-            createUserPermissions.enabled = true
-            permissions.push(createUserPermissions)
+        if (!await MDL.PermissionModel.exists(CC.LIST_USERS)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.LIST_USERS
+            })
         }
 
-        let editUserPermissions = await MDL.PermissionModel.findOne({name: CC.EDIT_USER}).lean()
-        if (editUserPermissions) {
-            editUserPermissions.configurable = true
-            editUserPermissions.enabled = true
-            permissions.push(editUserPermissions)
+        if (!await MDL.PermissionModel.exists(CC.EDIT_PROFILE)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.EDIT_PROFILE
+            })
         }
 
-        let deleteUserPermissions = await MDL.PermissionModel.findOne({name: CC.DELETE_USER}).lean()
-        if (deleteUserPermissions) {
-            deleteUserPermissions.configurable = true
-            deleteUserPermissions.enabled = true
-            permissions.push(deleteUserPermissions)
+        if (!await MDL.PermissionModel.exists(CC.EDIT_ROLE_PERMISSIONS)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.EDIT_ROLE_PERMISSIONS
+            })
+        }
+
+        if (!await MDL.PermissionModel.exists(CC.CREATE_USER)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.CREATE_USER
+            })
+        }
+
+        if (!await MDL.PermissionModel.exists(CC.EDIT_USER)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.EDIT_USER
+            })
+        }
+
+        if (!await MDL.PermissionModel.exists(CC.DELETE_USER)) {
+            await MDL.PermissionModel.createPermission({
+                name: CC.DELETE_USER
+            })
+        }
+
+        /**
+         * Super admin can manage users/permissions and roles
+         */
+        if (!await MDL.RoleModel.exists(SC.ROLE_SUPER_ADMIN)) {
+
+            let permissions = []
+            let managePermissions = await MDL.PermissionModel.findOne({name: CC.MANAGE_PERMISSIONS}).lean()
+            if (managePermissions) {
+                managePermissions.configurable = false
+                managePermissions.enabled = true
+                permissions.push(managePermissions)
+            }
+            let manageRoles = await MDL.PermissionModel.findOne({name: CC.MANAGE_ROLES}).lean()
+            if (manageRoles) {
+                manageRoles.configurable = false
+                manageRoles.enabled = true
+                permissions.push(manageRoles)
+            }
+            let listUsers = await MDL.PermissionModel.findOne({name: CC.LIST_USERS}).lean()
+            if (listUsers) {
+                listUsers.configurable = false
+                listUsers.enabled = true
+                permissions.push(listUsers)
+            }
+            await MDL.RoleModel.createRole({
+                name: SC.ROLE_SUPER_ADMIN,
+                permissions: permissions
+            })
+        }
+
+        if (!await MDL.RoleModel.exists(SC.ROLE_ADMIN)) {
+            let permissions = []
+            let listUsers = await MDL.PermissionModel.findOne({name: CC.LIST_USERS}).lean()
+            if (listUsers) {
+                listUsers.configurable = true
+                listUsers.enabled = true
+                permissions.push(listUsers)
+            }
+
+            let editRolePermissions = await MDL.PermissionModel.findOne({name: CC.EDIT_ROLE_PERMISSIONS}).lean()
+            if (editRolePermissions) {
+                editRolePermissions.configurable = true
+                editRolePermissions.enabled = true
+                permissions.push(editRolePermissions)
+            }
+
+            let createUserPermissions = await MDL.PermissionModel.findOne({name: CC.CREATE_USER}).lean()
+            if (createUserPermissions) {
+                createUserPermissions.configurable = true
+                createUserPermissions.enabled = true
+                permissions.push(createUserPermissions)
+            }
+
+            let editUserPermissions = await MDL.PermissionModel.findOne({name: CC.EDIT_USER}).lean()
+            if (editUserPermissions) {
+                editUserPermissions.configurable = true
+                editUserPermissions.enabled = true
+                permissions.push(editUserPermissions)
+            }
+
+            let deleteUserPermissions = await MDL.PermissionModel.findOne({name: CC.DELETE_USER}).lean()
+            if (deleteUserPermissions) {
+                deleteUserPermissions.configurable = true
+                deleteUserPermissions.enabled = true
+                permissions.push(deleteUserPermissions)
+            }
+
+
+            await MDL.RoleModel.createRole({
+                name: SC.ROLE_ADMIN,
+                permissions: permissions
+            })
         }
 
 
-        await MDL.RoleModel.saveRole({
-            name: SC.ROLE_ADMIN,
-            permissions: permissions
-        })
-    }
-
-
-    /*
-    if (!await MDL.RoleModel.exists(ROLE_APP_USER)) {
-        let permissions = []
-        let editProfile = await MDL.PermissionModel.findOne({name: EDIT_PROFILE}).lean()
-        if (editProfile) {
-            editProfile.configurable = true
-            editProfile.enabled = true
-            permissions.push(editProfile)
+        /*
+        if (!await MDL.RoleModel.exists(ROLE_APP_USER)) {
+            let permissions = []
+            let editProfile = await MDL.PermissionModel.findOne({name: EDIT_PROFILE}).lean()
+            if (editProfile) {
+                editProfile.configurable = true
+                editProfile.enabled = true
+                permissions.push(editProfile)
+            }
+            await MDL.RoleModel.createRole({
+                name: ROLE_APP_USER,
+                permissions: permissions
+            })
         }
-        await MDL.RoleModel.saveRole({
-            name: ROLE_APP_USER,
-            permissions: permissions
-        })
+        */
+
+        if (!await MDL.UserModel.exists(SC.ADMIN_EMAIL)) {
+            let adminRole = await MDL.RoleModel.findOne({name: SC.ROLE_ADMIN}).lean()
+
+            // create user
+            await MDL.UserModel.createUser({
+                email: SC.ADMIN_EMAIL,
+                firstName: "App",
+                lastName: "Admin",
+                roles: [adminRole],
+                password: "admin",
+                employeeCode: 'emp-100',
+                designation: SC.DESIGNATION_MANAGER,
+                dateJoined: '01-01-2018'
+            })
+        }
+
+        if (!await MDL.UserModel.exists(SC.SUPER_ADMIN_EMAIL)) {
+
+            let superAdminRole = await MDL.RoleModel.findOne({name: SC.ROLE_SUPER_ADMIN}).lean()
+            // create user
+            await MDL.UserModel.createUser({
+                email: SC.SUPER_ADMIN_EMAIL,
+                firstName: "Super",
+                lastName: "Admin",
+                roles: [superAdminRole],
+                password: "admin",
+                employeeCode: 'emp-101',
+                designation: SC.DESIGNATION_MANAGER,
+                dateJoined: '01-01-2018'
+            })
+        }
+
+        /*
+        if (!await MDL.UserModel.exists(APP_USER_EMAIL)) {
+            let appUserRole = await MDL.RoleModel.findOne({name: ROLE_APP_USER}).lean()
+            // create user
+            await MDL.UserModel.createUser({
+                email: APP_USER_EMAIL,
+                firstName: "App",
+                lastName: "User",
+                roles: [appUserRole],
+                password: "appuser"
+            })
+        }
+        */
+
+
+    } catch (error) {
+        console.log(error)
     }
-    */
-
-    if (!await MDL.UserModel.exists(SC.ADMIN_EMAIL)) {
-        let adminRole = await MDL.RoleModel.findOne({name: SC.ROLE_ADMIN}).lean()
-
-        // create user
-        await MDL.UserModel.saveUser({
-            email: SC.ADMIN_EMAIL,
-            firstName: "App",
-            lastName: "Admin",
-            roles: [adminRole],
-            password: "admin",
-            employeeCode: 'emp-100',
-            designation: SC.DESIGNATION_MANAGER,
-            dateJoined: '01-01-2018'
-        })
-    }
-
-    if (!await MDL.UserModel.exists(SC.SUPER_ADMIN_EMAIL)) {
-
-        let superAdminRole = await MDL.RoleModel.findOne({name: SC.ROLE_SUPER_ADMIN}).lean()
-        // create user
-        await MDL.UserModel.saveUser({
-            email: SC.SUPER_ADMIN_EMAIL,
-            firstName: "Super",
-            lastName: "Admin",
-            roles: [superAdminRole],
-            password: "admin",
-            employeeCode: 'emp-101',
-            designation: SC.DESIGNATION_MANAGER,
-            dateJoined: '01-01-2018'
-        })
-    }
-
-    /*
-    if (!await MDL.UserModel.exists(APP_USER_EMAIL)) {
-        let appUserRole = await MDL.RoleModel.findOne({name: ROLE_APP_USER}).lean()
-        // create user
-        await MDL.UserModel.saveUser({
-            email: APP_USER_EMAIL,
-            firstName: "App",
-            lastName: "User",
-            roles: [appUserRole],
-            password: "appuser"
-        })
-    }
-    */
-
-
 }
 
 export const addNNXTData = async () => {
@@ -201,6 +205,8 @@ export const addNNXTData = async () => {
     await addLeaveTypes()
     await addTechnologies()
     await addRepositoryTasksAndFeatures()
+    await addEmployeeSettings()
+
 }
 
 const addRolesPermissions = async () => {
@@ -215,35 +221,35 @@ const addRolesPermissions = async () => {
     }
 
     if (!await MDL.RoleModel.exists(SC.ROLE_ESTIMATOR)) {
-        await MDL.RoleModel.saveRole({
+        await MDL.RoleModel.createRole({
             name: SC.ROLE_ESTIMATOR,
             permissions: permissions
         })
     }
 
     if (!await MDL.RoleModel.exists(SC.ROLE_NEGOTIATOR)) {
-        await MDL.RoleModel.saveRole({
+        await MDL.RoleModel.createRole({
             name: SC.ROLE_NEGOTIATOR,
             permissions: permissions
         })
     }
 
     if (!await MDL.RoleModel.exists(SC.ROLE_MANAGER)) {
-        await MDL.RoleModel.saveRole({
+        await MDL.RoleModel.createRole({
             name: SC.ROLE_MANAGER,
             permissions: permissions
         })
     }
 
     if (!await MDL.RoleModel.exists(SC.ROLE_LEADER)) {
-        await MDL.RoleModel.saveRole({
+        await MDL.RoleModel.createRole({
             name: SC.ROLE_LEADER,
             permissions: permissions
         })
     }
 
     if (!await MDL.RoleModel.exists(SC.ROLE_DEVELOPER)) {
-        await MDL.RoleModel.saveRole({
+        await MDL.RoleModel.createRole({
             name: SC.ROLE_DEVELOPER,
             permissions: permissions
         })
@@ -255,7 +261,7 @@ const addNNXTUsers = async () => {
     let estimatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_ESTIMATOR}).lean()
     // create estimator user
     if (!await MDL.UserModel.exists('estimator1@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'estimator1@test.com',
             firstName: "Estimator-1",
             lastName: "One",
@@ -268,7 +274,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('estimator2@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'estimator2@test.com',
             firstName: "Estimator-2",
             lastName: "Two",
@@ -281,7 +287,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('estimator3@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'estimator3@test.com',
             firstName: "Estimator-3",
             lastName: "Three",
@@ -296,7 +302,7 @@ const addNNXTUsers = async () => {
     let negotiatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
     // create negotitor user
     if (!await MDL.UserModel.exists('negotiator1@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'negotiator1@test.com',
             firstName: "Negotiator-1",
             lastName: "One",
@@ -309,7 +315,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('negotiator2@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'negotiator2@test.com',
             firstName: "Negotiator-2",
             lastName: "Two",
@@ -323,7 +329,7 @@ const addNNXTUsers = async () => {
     let managerRole = await MDL.RoleModel.findOne({name: SC.ROLE_MANAGER}).lean()
     // create manager user
     if (!await MDL.UserModel.exists('manger1@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'manager1@test.com',
             firstName: "Manager-1",
             lastName: "One",
@@ -336,7 +342,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('manger2@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'manager2@test.com',
             firstName: "Manager-2",
             lastName: "Two",
@@ -349,7 +355,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('manger3@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'manager3@test.com',
             firstName: "Manager-3",
             lastName: "Three",
@@ -364,7 +370,7 @@ const addNNXTUsers = async () => {
     let leaderRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
     // create manager user
     if (!await MDL.UserModel.exists('leader1@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'leader1@test.com',
             firstName: "Leader-1",
             lastName: "One",
@@ -377,7 +383,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('leader2@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'leader2@test.com',
             firstName: "Leader-2",
             lastName: "Two",
@@ -390,7 +396,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('leader3@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'leader3@test.com',
             firstName: "Leader-3",
             lastName: "Three",
@@ -405,7 +411,7 @@ const addNNXTUsers = async () => {
     let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
     // create manager user
     if (!await MDL.UserModel.exists('developer1@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'developer1@test.com',
             firstName: "Developer-1",
             lastName: "One",
@@ -418,7 +424,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('developer2@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'developer2@test.com',
             firstName: "Developer-2",
             lastName: "Two",
@@ -431,7 +437,7 @@ const addNNXTUsers = async () => {
     }
 
     if (!await MDL.UserModel.exists('developer3@test.com')) {
-        await MDL.UserModel.saveUser({
+        await MDL.UserModel.createUser({
             email: 'developer3@test.com',
             firstName: "Developer-3",
             lastName: "Three",
@@ -708,4 +714,19 @@ const addRepositoryTasksAndFeatures = async () => {
             tasks: taskIdsForFeature
         })
     }
+}
+
+const addEmployeeSettings = async () => {
+    let employeeSettings = await MDL.EmployeeSettingModel.find({})
+    if (!employeeSettings || !employeeSettings.length) {
+        await MDL.EmployeeSettingModel.createEmployeeSettings({
+            minPlannedHours: 4,
+            maxPlannedHours: 8,
+            free: 3,
+            relativelyFree: 5,
+            busy: 6,
+            superBusy: 9
+        })
+    }
+
 }
