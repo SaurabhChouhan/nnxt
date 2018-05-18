@@ -118,7 +118,7 @@ class ReleaseTaskPlanningPage extends Component {
                             {expanded ? <label className="div-hover releaseLabel" onClick={()=>this.props.expandDescription(false)}>...Read Less</label> : <label className="div-hover releaseLabel"  onClick={()=>this.props.expandDescription(true)}>...Read More</label>}
                         </div>
                     </div>
-                    <div className="col-md-12">
+                    <div className="col-md-12 releasePlanChkBtn">
                         <div className="col-md-4 planchk">
                             <input name="projectUsersOnly"
                                    type="checkbox"
