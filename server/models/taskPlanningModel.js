@@ -176,7 +176,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)
     let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    if (moment(taskPlanningInput.rePlanningDate).isBefore(nowMomentInUtc)) {
+    if (momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
         throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -190,7 +190,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    if (moment(taskPlanning.planningDateString).isBefore(nowMomentInUtc)) {
+    if (momentTZ.tz(taskPlanning.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
         throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -288,7 +288,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
 
     return taskPlannings.map(tp => {
         tp = tp.toObject()
-        let check = moment(tp.planningDateString).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
+        let check = momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
         if (check) {
             tp.canMerge = false
         } else {
@@ -590,8 +590,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         await Promise.all(ShiftingPromises).then(async promise => {
             return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
         })
-        console.log("startShiftDateString", startShiftDateString)
-        console.log("endShiftDateString", endShiftDateString ? endShiftDateString : nowMomentInUtc)
+
+        await updateEmployeeDays(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc)
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -721,6 +721,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 //if true then  planing must have done in working days
                 let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) - daysToShiftNumber)]
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
                 // updating Task planning to proper date
                 if (planning.employeeId == 'all') {
                     // task planning of all employee will shift
@@ -732,7 +733,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         },
                         {
                             $set: {
-                                "planningDate": momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone(),
+                                "planningDate": newShiftingDateMomentTz.clone(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -748,7 +749,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         },
                         {
                             $set: {
-                                "planningDate": momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone(),
+                                "planningDate": newShiftingDateMomentTz.clone(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -763,6 +764,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) - daysToShiftNumber)]
 
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
                 // console.log("PlanningDate", PlanningDateMoment, "->", "newShiftingDate", newShiftingDate, "holiday \n")
                 taskOnHolidayCount++
                 // updating Task planning to proper date
@@ -775,7 +777,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         },
                         {
                             $set: {
-                                "planningDate": momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone(),
+                                "planningDate": newShiftingDateMomentTz.clone(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -791,7 +793,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         },
                         {
                             $set: {
-                                "planningDate": momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone(),
+                                "planningDate": newShiftingDateMomentTz.clone(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -811,8 +813,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         await Promise.all(ShiftingPromises).then(async promise => {
             return await TaskPlanningModel.update({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}, {$set: {"isShifted": false}}, {multi: true}).exec()
         })
-
-        console.log("startShiftingDate", startShiftingDate.toDate(), "to", to.toDate())
+        await updateEmployeeDays(startShiftingDate.toDate(), to.toDate())
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -887,6 +888,51 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
     }
 }
 
+
+const updateEmployeeDays = async (startDateString, endDateString) => {
+    let startDateToString = moment(startDateString).format(SC.DATE_FORMAT)
+    let endDateToString = moment(endDateString).format(SC.DATE_FORMAT)
+    let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    console.log("startDateMomentTz", startDateMomentTz)
+    console.log("endDateMomentTz", endDateMomentTz)
+    /*
+    * task planning model group by (employee && planningDate && release)*/
+
+    let taskPlannings = await MDL.TaskPlanningModel.aggregate([{
+        $match: {
+            $and: [{"planningDate": {$gte: startDateMomentTz.clone(), $lte: endDateMomentTz.clone()}}],
+        }
+    } /*, {
+        $lookup: {
+            from: 'roles',
+            localField: 'roles._id',
+            foreignField: '_id',
+            as: 'roles'
+        }
+    },*/ /*{
+        $project: {
+            release: 1,
+            planningDate: 1,
+            planningDateString: 1,
+            employee: 1,
+            planning: {
+                plannedHours: 1
+            }
+        }
+    }*//*, {
+        $group: {
+            planningDate: "planningDate",
+            employee: {$first: "$email"},
+            plannedHours: {$sum: "$planning.plannedHours"}
+        }
+    }*/]).exec()
+    console.log("taskPlannings", taskPlannings)
+    return new Promise((resolve, reject) => {
+        return resolve(false)
+    })
+
+}
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
 export default TaskPlanningModel
 

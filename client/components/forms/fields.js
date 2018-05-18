@@ -310,7 +310,7 @@ export const renderDateTimePickerString = ({
 }
 
 export const renderDateTimePicker = ({
-                                         input: {onChange, value, name},
+                                         input: {onChange, value, name, onBlur},
                                          label,
                                          readOnly,
                                          info,
@@ -342,6 +342,7 @@ export const renderDateTimePicker = ({
             readOnly={readOnly}
             disabled={disabled}
             onChange={onChange}
+            onBlur={onBlur}
             time={showTime}
             calendar={showCalendar}
             value={!value ? null : new Date(value)}
