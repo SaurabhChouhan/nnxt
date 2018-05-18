@@ -20,7 +20,6 @@ let taskPlanningSchema = mongoose.Schema({
     planningDate: {type: Date, default: Date.now()},
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
-    canMerge: {type: Boolean, default: false},
     description: {type: String},
     task: {
         _id: mongoose.Schema.ObjectId,
@@ -69,25 +68,14 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     V.validate(taskPlanningInput, V.releaseTaskPlanningStruct)
 
     let userRole
-
-
-    if (!taskPlanningInput.releasePlan._id) {
-        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let release = await MDL.ReleaseModel.findById(taskPlanningInput.release._id)
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-
     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlanningInput.releasePlan._id)
 
     if (!releasePlan) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    if (!taskPlanningInput.release._id) {
-        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    let release = await MDL.ReleaseModel.findById(taskPlanningInput.release._id)
-
-    if (!release) {
-        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
     let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
@@ -96,39 +84,69 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can plan task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    if (taskPlanningInput && taskPlanningInput.employee && taskPlanningInput.employee._id && release && release._id) {
-        userRole = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, taskPlanningInput.employee)
-        if (userRole == undefined)
-            throw new AppError('User is not part of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    } else throw new AppError('form is not having proper data', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
+    let selectedDeveloper = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
+    if (!selectedDeveloper) {
+        throw new AppError('Developer Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
     // checking that developer is part of project or not
+    let momentPlanningDate = momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     // if not then it is added in non Project team
-    if (taskPlanningInput && !taskPlanningInput.projectUsersOnly && taskPlanningInput.employee && taskPlanningInput.employee._id && release && release._id) {
+    if (taskPlanningInput && !taskPlanningInput.projectUsersOnly) {
         if (await MDL.ReleaseModel.count({
                 $or: [{"manager._id": taskPlanningInput.employee._id},
                     {"leader._id": taskPlanningInput.employee._id},
                     {"team._id": taskPlanningInput.employee._id},
                     {"nonProjectTeam._id": taskPlanningInput.employee._id}],
                 "_id": release._id
-            }) == 0) {
+            }) <= 0) {
             // it checks that user who may not be a developer of this project is assigned into a task plan so add that user to this project as a nonProjectTeam
-
-            let User = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
             let nonProjectUser = {
-                "_id": User._id,
-                "name": User.firstName + ' ' + User.lastName,
-                "email": User.email,
+                "_id": selectedDeveloper._id,
+                "name": selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName,
+                "email": selectedDeveloper.email,
             }
             await MDL.ReleaseModel.update({
                 '_id': taskPlanningInput.release._id
             }, {$push: {"nonProjectTeam": nonProjectUser}}).exec()
         }
     }
+
+    if (await MDL.EmployeeDaysModel.count({
+            "employee._id": selectedDeveloper._id.toString(),
+            "date": momentPlanningDate
+        }) > 0) {
+        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
+        let EmployeeDaysModelInput = {
+            plannedHours: numberPlannedHours,
+            employee: {
+                _id: selectedDeveloper._id.toString(),
+                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+            },
+            dateString: taskPlanningInput.planningDate,
+        }
+        await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput, user)
+    } else {
+        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
+        let EmployeeDaysModelInput = {
+            project: {
+                _id: release.project._id.toString(),
+                name: release.project.name
+            },
+            employee: {
+                _id: selectedDeveloper._id.toString(),
+                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+            },
+            plannedHours: numberPlannedHours,
+            dateString: taskPlanningInput.planningDate,
+        }
+        await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput, user)
+    }
     await MDL.ReleasePlanModel.update({"_id": mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id)}, {"flags": [SC.FLAG_PLANNED]})
     let taskPlanning = new TaskPlanningModel()
     taskPlanning.created = Date.now()
-    taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    taskPlanning.planningDate = momentPlanningDate
     taskPlanning.planningDateString = taskPlanningInput.planningDate
     taskPlanning.task = taskPlanningInput.task
     taskPlanning.release = taskPlanningInput.release
@@ -141,7 +159,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     taskPlanning.user = {
         _id: user._id,
         name: user.firstName + ' ' + user.lastName,
-        role: userRole
+        role: userRoleInRelease
     }
 
 
@@ -149,9 +167,17 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
 }
 
-taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user) => {
-    if (!taskPlanningInput || !taskPlanningInput.releasePlan || !taskPlanningInput.releasePlan._id) {
-        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseMergeTaskPlanningStruct)
+
+    V.validate(taskPlanningInput, V.releaseMergeTaskPlanningStruct)
+
+    let now = new Date()
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    if (momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
+        throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
@@ -160,12 +186,32 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user) =
     }
 
     let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
+    if (!taskPlanning) {
+        throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (momentTZ.tz(taskPlanning.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
+        throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release) {
+        throw new AppError('ReleasePlan is not having release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can merge", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
 
     taskPlanning.created = Date.now()
     taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
-    return await taskPlanning.save()
-
+    let taskPlnning = await taskPlanning.save()
+    taskPlanning = taskPlanning.toObject()
+    taskPlanning.canMerge = true
+    return taskPlanning
 }
 
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
@@ -189,491 +235,16 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+    let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
 
-    return await TaskPlanningModel.find({"releasePlan._id": releasePlan._id}).sort({"planningDate": 1})
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER,], userRoleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can fetch", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+
+    return await TaskPlanningModel.find({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}).sort({"planningDate": 1})
 }
 
-
-// Shifting task plans to future
-taskPlanningSchema.statics.planningShiftToFuture = async (planning, user) => {
-    //InComing Data Structure
-    //planning.employeeId
-    //planning.baseDate
-    //planning.daysToShift
-    //planning.releasePlanID
-    let release = await MDL.ReleaseModel.find({$or: [{"manager._id": user._id}, {"leader._id": user._id}]})
-    if (!release || release.length == 0) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] of this release can shift plans", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-
-
-// employeeId must be present or its value must be all
-    if (!planning.employeeId)
-        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
-
-    if (!employee)
-        throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-// baseDate must be present
-    if (!planning.baseDate)
-        throw new AppError('base date not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let now = new Date()
-    // Now in UTC
-    let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-    // Base Date in UTC
-    let baseDateMoment = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    if (baseDateMoment.isBefore(nowMoment)) {
-        throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    }
-
-// daysToShift must be present
-    if (!planning.daysToShift)
-        throw new AppError('days to shift not found', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-// releasePlanID must be present
-    if (!planning.releasePlanID)
-        throw new AppError('release plan id not found', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(planning.releasePlanID))
-
-    if (!releasePlan)
-        throw new AppError('Not a valid release plan', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-
-    let taskPlannings
-    if (planning.employeeId == 'all') {
-        // Get all employees task plannings
-
-        taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
-            {
-                "releasePlan._id": planning.releasePlanID,
-                "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
-            })
-    } else {
-        // Get selected employee task plannings
-
-        taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
-            {
-                "employee._id": planning.employeeId,
-                "releasePlan._id": planning.releasePlanID,
-                "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
-            })
-    }
-
-    if (taskPlannings && taskPlannings.length) {
-        taskPlannings.sort(function (a, b) {
-            //  console.log("before a", a, "b", b)
-            a = new Date(a);
-            b = new Date(b);
-            // console.log("after a", a, "b", b)
-            return a < b ? -1 : a > b ? 1 : 0;
-        })
-
-        let to = moment(taskPlannings[taskPlannings.length - 1]).add(10 * planning.daysToShift, 'days')
-        let daysDetails = await getWorkingDaysAndHolidays(planning.baseDate, to.toDate(), taskPlannings, user)
-        // console.log("daysDetails", daysDetails)
-        let taskOnHolidayCount = 0
-
-        let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async PlanningDate => {
-            // calculating index of working day list where planning date and working date is same
-            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-            let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1
-            if (index != -1) {
-                //if true then  plannig must have done in working days
-
-                // console.log("(index + taskOnHolidayCount + planning.daysToShift)", Number(Number(index) + Number(taskOnHolidayCount) + Number(planning.daysToShift)))
-                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) + Number(planning.daysToShift))]
-
-               // console.log("PlanningDate", moment(PlanningDate), "->", "newShiftingDate", newShiftingDate)
-                // updating Task planning to proper date
-                if (planning.employeeId == 'all') {
-                    // task planning of all employee will shift
-
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}).exec()
-                } else {
-                    // task planning of selected employee will shift
-
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": planning.employeeId,
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}).exec()
-                }
-            } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(PlanningDate))) != -1) {
-                //else  plannig must have done in holidays
-                // calculating index of holiday where planning date and holiday  date are same
-                index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(PlanningDateMoment))
-
-
-                //  console.log("taskOnHolidayCount", taskOnHolidayCount)
-                // console.log("index", index)
-                //  console.log("daysDetails.AllTasksOnHolidayList[index].index", daysDetails.AllTasksOnHolidayList[index].index)
-                //  console.log("daysDetails.AllTasksOnHolidayList[index]", daysDetails.AllTasksOnHolidayList[index])
-                // console.log("planning.daysToShift", planning.daysToShift)
-                //console.log("(taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index + planning.daysToShift)", Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) + Number(planning.daysToShift)))
-
-                //new Shifting date where task has to be placed
-                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) + Number(planning.daysToShift))]
-               // console.log("PlanningDate", PlanningDateMoment, "->", "newShiftingDate", newShiftingDate, "holiday \n")
-                taskOnHolidayCount++
-                // updating Task planning to proper date
-                if (planning.employeeId == 'all') {
-                    // task planning of all employee will shift
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                } else {
-                    // task planning of selected employee will shift
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": planning.employeeId,
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                }
-
-
-            } else {
-                //System inconsistency
-                throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-            }
-        }) : new Promise((resolve, reject) => {
-            return resolve(false)
-        })
-        await Promise.all(ShiftingPromises).then(async promise => {
-            return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
-        })
-
-    } else {
-        throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    return planning
-}
-
-
-// Shifting task plans to past
-taskPlanningSchema.statics.planningShiftToPast = async (planning, user) => {
-    //InComing Data Structure
-    //planning.employeeId
-    //planning.baseDate
-    //planning.daysToShift
-    //planning.releasePlanID
-
-    let release = await MDL.ReleaseModel.find({$or: [{"manager._id": user._id}, {"leader._id": user._id}]})
-    if (!release || release.length == 0) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] of this release can shift plans", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-
-
-    let now = new Date()
-    // Now in UTC
-    let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-// employeeId must be present or its value must be all
-    if (!planning.employeeId)
-        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-// baseDate must be present
-    if (!planning.baseDate)
-        throw new AppError('Base Date not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-// daysToShift must be present
-    if (!planning.daysToShift)
-        throw new AppError('days To Shift not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-// releasePlanID must be present
-    if (!planning.releasePlanID)
-        throw new AppError('Release Plan ID not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-
-    let taskPlannings
-    if (planning.employeeId == 'all') {
-        // Get all employees task plannings
-
-        taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
-            {
-                "releasePlan._id": planning.releasePlanID,
-                "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
-            })
-    } else {
-        // Get selected employee task plannings
-
-        taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
-            {
-                "employee._id": planning.employeeId,
-                "releasePlan._id": planning.releasePlanID,
-                "planningDate": {$gte: momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)}
-            })
-    }
-    // console.log("taskPlannings", taskPlannings)
-
-    if (taskPlannings && taskPlannings.length) {
-
-        taskPlannings.sort(function (a, b) {
-            //  console.log("before a", a, "b", b)
-            a = new Date(a);
-            b = new Date(b);
-            // console.log("after a", a, "b", b)
-            return a < b ? -1 : a > b ? 1 : 0;
-        })
-
-        let daysToShiftPast = Number(planning.daysToShift)
-
-        let startShiftingDateMoment = momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-        let startShiftingDate = startShiftingDateMoment.subtract(daysToShiftPast, "days")
-        // Can not shift task plannings before now
-        if (startShiftingDate.isBefore(nowMoment)) {
-            throw new AppError('Can not shift before now ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        } else {
-            let priviousDaysDetails = await getWorkingDaysAndHolidays(moment(taskPlannings[taskPlannings.length - 1]).subtract(10 * daysToShiftPast, 'days'), momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0))
-            //console.log("priviousDaysDetails", priviousDaysDetails)
-            let idx = priviousDaysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)))
-            let idx2 = priviousDaysDetails.AllTasksOnHolidayList.findIndex(wd => wd.isSame(momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)))
-            if (idx != -1 && idx > daysToShiftPast && priviousDaysDetails.AllWorkingDayList[Number(idx - daysToShiftPast)].isBefore(nowMoment)) {
-
-                throw new AppError('Can not shift because less working days available for task shifting ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-            } else if (idx2 != -1 && priviousDaysDetails.AllWorkingDayList[Number(Number(priviousDaysDetails.AllTasksOnHolidayList[idx2].index) - daysToShiftPast)].isBefore(nowMoment)) {
-                throw new AppError('Can not shift because less working days available for task shifting and In holiday also tasks are planned', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-            } else {
-
-                if (idx != -1) {
-                    startShiftingDate = priviousDaysDetails.AllWorkingDayList[Number(idx - daysToShiftPast)]
-                } else if (idx2 != -1) {
-                    startShiftingDate = priviousDaysDetails.AllWorkingDayList[Number(Number(priviousDaysDetails.AllTasksOnHolidayList[idx2].index) - daysToShiftPast)]
-                }
-            }
-        }
-        // console.log("startShiftingDate", startShiftingDate)
-        let to = moment(taskPlannings[taskPlannings.length - 1]).add(10 * planning.daysToShift, 'days')
-
-        let daysDetails = await getWorkingDaysAndHolidays(startShiftingDate.toDate(), to.toDate(), taskPlannings, user)
-        //  console.log("daysDetails", daysDetails)
-        let taskOnHolidayCount = 0
-
-        let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async PlanningDate => {
-            // calculating index of working day list where planning date and working date is same
-            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-            let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1
-            if (index != -1) {
-                //if true then  planing must have done in working days
-
-                // console.log("taskOnHolidayCount", taskOnHolidayCount)
-                // console.log("Number(Number(index)", Number(Number(index)))
-                //  console.log("daysDetails.AllTasksOnHolidayList[index].index",)
-                //   console.log(" Number(planning.daysToShift)", Number(planning.daysToShift))
-                //    console.log("planning.daysToShift", planning.daysToShift)
-                //   console.log("Number(Number(index) + Number(taskOnHolidayCount) - Number(planning.daysToShift))", Number(Number(index) + Number(taskOnHolidayCount) - Number(planning.daysToShift)))
-                //   console.log("newShiftingDate", daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount))])
-
-                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) - Number(planning.daysToShift))]
-
-               // console.log("PlanningDate", moment(PlanningDate), "->", "newShiftingDate", newShiftingDate)
-                // updating Task planning to proper date
-                if (planning.employeeId == 'all') {
-                    // task planning of all employee will shift
-
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}).exec()
-                } else {
-                    // task planning of selected employee will shift
-
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": planning.employeeId,
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}).exec()
-                }
-            } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(PlanningDate))) != -1) {
-                //else  plannig must have done in holidays
-                // calculating index of holiday where planning date and holiday  date are same
-                index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(PlanningDateMoment))
-
-
-                //  console.log("holiday taskOnHolidayCount", taskOnHolidayCount)
-                //   console.log("holiday index", index)
-                //   console.log("holiday daysDetails.AllTasksOnHolidayList[index].index", daysDetails.AllTasksOnHolidayList[index].index)
-                ////  console.log("holiday daysDetails.AllTasksOnHolidayList[index]", daysDetails.AllTasksOnHolidayList[index])
-                //  console.log("holiday planning.daysToShift", planning.daysToShift)
-                //   console.log("holiday (taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index + planning.daysToShift)", Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) - Number(planning.daysToShift)))
-
-                //new Shifting date where task has to be placed
-                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) - Number(planning.daysToShift))]
-               // console.log("PlanningDate", PlanningDateMoment, "->", "newShiftingDate", newShiftingDate, "holiday \n")
-                taskOnHolidayCount++
-                // updating Task planning to proper date
-                if (planning.employeeId == 'all') {
-                    // task planning of all employee will shift
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                } else {
-                    // task planning of selected employee will shift
-                    return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": planning.employeeId,
-                            "isShifted": false
-                        },
-                        {
-                            $set: {
-                                "planningDate": newShiftingDate.clone(),
-                                "isShifted": true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                }
-
-
-            } else {
-                //System inconsistency
-                throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-            }
-        }) : new Promise((resolve, reject) => {
-            return resolve(false)
-        })
-
-        await Promise.all(ShiftingPromises).then(async promise => {
-            return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
-        })
-
-    } else {
-        throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    return planning
-}
-
-// to calculate working days and holidays
-const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
-    // call to holiday model to get holiday lists
-    let holidays = await MDL.YearlyHolidaysModel.getAllYearlyHolidaysBaseDateToEnd(from, to, user)
-    // console.log("holidays", holidays)
-    let i = 0
-    let holidayObjectList
-    if (holidays && holidays.length && holidays.length > 1) {
-        holidayObjectList = holidays[0].holidays
-        while (i < holidays.length - 1) {
-            holidayObjectList.concat(holidays[i + 1])
-            i++
-        }
-    } else if (holidays && holidays.length) {
-        holidayObjectList = holidays[0].holidays
-    } else {
-        //No holiday available to this list
-    }
-    // console.log("holidayObjectList", holidayObjectList)
-    // Converting holiday Object List to Date with UTC moment
-    let holidayDateList = _.map(holidayObjectList, function (obj) {
-        return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0);
-    })
-
-
-    //  console.log("holidayDateList", holidayDateList)
-    //Getting All Dates, AllWorkingDayList, AllTasksOnHolidayList, object ,Arrays and other Fields after calculation
-    return await getDates(from, to, taskPlannings, holidayDateList);
-
-}
-
-
-// to calculate working days and Task on holidays
-const getDates = async (from, to, taskPlannings, holidayList) => {
-    let fromMoment = momentTZ.tz(from, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let toMoment = momentTZ.tz(to, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let AllDateList = []
-    let AllWorkingDayList = []
-    let AllTasksOnHolidayList = []
-    while (fromMoment.isSameOrBefore(toMoment.clone())) {
-        AllDateList.push(fromMoment.clone())
-        if (holidayList && holidayList.length && holidayList.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) == -1) {
-            //Date is not awailable in holiday list so it is included in working day list
-            AllWorkingDayList.push(fromMoment.clone())
-        } else if (taskPlannings && taskPlannings.length && taskPlannings.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
-            //Date is holiday date and awailable in taskPlanning list so it is included in AllTasksOnHolidayList
-            AllTasksOnHolidayList.push({date: fromMoment, index: AllWorkingDayList.length})
-        }
-        // increment of date
-        fromMoment = fromMoment.clone().add(1, 'days')
-    }
-    //  console.log("AllDateList", AllDateList)
-    //  console.log("AllWorkingDayList", AllWorkingDayList)
-    //  console.log("AllTasksOnHolidayList", AllTasksOnHolidayList)
-    return {
-        AllTasksOnHolidayList,
-        AllWorkingDayList,
-        AllDateList,
-        from,
-        to,
-        taskPlannings,
-        holidayList
-    }
-
-}
 
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     if (!employeeId)
@@ -693,8 +264,14 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         let toDateMomentToDate = toDateMoment.toDate()
         toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
+    let releaseListOfID = []
+    releaseListOfID = await MDL.ReleaseModel.find({
+        $or: [{"manager._id": mongoose.Types.ObjectId(user._id)},
+            {"leader._id": mongoose.Types.ObjectId(user._id)}]
+    }, {'_id': 1})
+    //  console.log("releaseListOfID", releaseListOfID)
+    let taskPlannings = await TaskPlanningModel.find({"employee._id": mongoose.Types.ObjectId(employeeId)}).sort({"planningDate": 1})
 
-    let taskPlannings = await TaskPlanningModel.find({"employee._id": employeeId}).sort({"planningDate": 1})
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
         taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
@@ -704,14 +281,26 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
         taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
-    return taskPlannings
+
+    let now = new Date()
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+    return taskPlannings.map(tp => {
+        tp = tp.toObject()
+        let check = momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
+        if (check) {
+            tp.canMerge = false
+        } else {
+            tp.canMerge = true
+        }
+        return tp
+    })
 }
 
 taskPlanningSchema.statics.addComment = async (commentInput, user) => {
 
     V.validate(commentInput, V.releaseTaskPlanningCommentStruct)
-
-  //  console.log("commentInput", commentInput)
     if (!commentInput.releaseID) {
         throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -799,6 +388,551 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 
 
 
+// Shifting task plans to future
+taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseTaskPlanningStruct)
+
+    V.validate(planning, V.releaseTaskPlanningShiftStruct)
+    let startShiftDateString
+    let endShiftDateString
+// Days to shift conversion in number
+    let daysToShiftNumber = Number(planning.daysToShift)
+// employeeId must be present or its value must be all
+    let employee = {}
+    if (planning.employeeId && planning.employeeId.toLowerCase() != "all") {
+        employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
+
+        if (!employee)
+            throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    } else employee._id = "all"
+
+
+// can not shift task whose planning date is before now
+    let now = new Date()
+    // Now in UTC
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    // Base Date in UTC
+    let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
+        throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
+
+
+// ReleasePlan is valid or not
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(planning.releasePlanID))
+    if (!releasePlan)
+        throw new AppError('Not a valid release plan', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+
+// Release is valid or not
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release)
+        throw new AppError('Not a valid release', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    // check user role in this release
+    let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can shift", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+// fetch all task plannings according to applied conditions
+    let taskPlannings
+    if (planning.employeeId && planning.employeeId.toLowerCase() == "all") {
+        // Get all employee`s task plannings
+
+        taskPlannings = await TaskPlanningModel.distinct(
+            "planningDate",
+            {
+                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                "planningDate": {$gte: baseDateMomentInUtc}
+            })
+    } else {
+        // Get selected employee`s task plannings
+
+        taskPlannings = await TaskPlanningModel.distinct(
+            "planningDate",
+            {
+                "employee._id": mongoose.Types.ObjectId(employee._id),
+                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                "planningDate": {$gte: baseDateMomentInUtc}
+            })
+    }
+    //console.log("taskPlannings bk1", taskPlannings)
+//Sorting task plannings according to date
+    if (taskPlannings && taskPlannings.length) {
+        taskPlannings.sort(function (a, b) {
+            //  console.log("before a", a, "b", b)
+            a = new Date(a);
+            b = new Date(b);
+            // console.log("after a", a, "b", b)
+            return a < b ? -1 : a > b ? 1 : 0;
+        })
+        // console.log("taskPlannings bk2", taskPlannings)
+
+        let toTz = momentTZ.tz(taskPlannings[taskPlannings.length - 1], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(10 * daysToShiftNumber, 'days').hour(0).minute(0).second(0).millisecond(0)
+        let daysDetails = await getWorkingDaysAndHolidays(baseDateMomentInUtc.format(SC.DATE_FORMAT), toTz.format(SC.DATE_FORMAT), taskPlannings, user)
+        // console.log("daysDetails", daysDetails)
+        let taskOnHolidayCount = 0
+
+        startShiftDateString = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? momentTZ.tz(daysDetails.taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format(SC.DATE_FORMAT) : nowMomentInUtc.format(SC.DATE_FORMAT)
+        // Shifting starts with loop
+        let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async (PlanningDate, idx) => {
+            //
+            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+            // calculating index of working day list where planning date and working date is same
+            let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1
+            if (index != -1) {
+                //if true then  plannig must have done in working days
+                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) + daysToShiftNumber)]
+                let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                // console.log("PlanningDate", moment(PlanningDate), "->", "newShiftingDate", newShiftingDate)
+                // updating Task planning to proper date
+
+                // Calculating last transfer date
+                if (idx === (Number(daysDetails.taskPlannings.length - 1))) {
+                    endShiftDateString = newShiftingDateString
+                }
+                if (employee._id == 'all') {
+                    // task planning of all employee will shift
+
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                            "planningDate": PlanningDateMoment.clone(),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}).exec()
+                } else {
+                    // task planning of selected employee will shift
+
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                            "planningDate": PlanningDateMoment.clone(),
+                            "employee._id": mongoose.Types.ObjectId(employee._id),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}).exec()
+                }
+
+            } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(PlanningDate))) != -1) {
+                //else  planning must have done in holidays
+                // calculating index of holiday where planning date and holiday  date are same
+                index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(PlanningDateMoment))
+
+
+                //new Shifting date where task has to be placed
+                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) + daysToShiftNumber)]
+                let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                // console.log("PlanningDate", PlanningDateMoment, "->", "newShiftingDate", newShiftingDate, "holiday \n")
+
+                // Calculating last transfer date
+                if (idx === (Number(daysDetails.taskPlannings.length - 1))) {
+                    endShiftDateString = newShiftingDateString
+                }
+                taskOnHolidayCount++
+                // updating Task planning to proper date
+                if (planning.employeeId == 'all') {
+                    // task planning of all employee will shift
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": planning.releasePlanID,
+                            "planningDate": PlanningDateMoment.clone(),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                } else {
+                    // task planning of selected employee will shift
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": planning.releasePlanID,
+                            "planningDate": PlanningDateMoment.clone(),
+                            "employee._id": mongoose.Types.ObjectId(employee._id),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                }
+            } else {
+                //System inconsistency
+                throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            }
+        }) : new Promise((resolve, reject) => {
+            return resolve(false)
+        })
+        await Promise.all(ShiftingPromises).then(async promise => {
+            return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
+        })
+
+        await updateEmployeeDays(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc)
+    } else {
+        throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    return planning
+}
+
+
+// Shifting task plans to past
+taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseTaskPlanningStruct)
+    V.validate(planning, V.releaseTaskPlanningShiftStruct)
+// Days to shift conversion in number
+    let daysToShiftNumber = Number(planning.daysToShift)
+// employeeId must be present or its value must be all
+    let employee = {}
+    if (planning.employeeId && planning.employeeId.toLowerCase() != "all") {
+        employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
+
+        if (!employee)
+            throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    } else employee._id = "all"
+
+
+// can not shift task whose planning date is before now
+    let now = new Date()
+    // Now in UTC
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    // Base Date in UTC
+    let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
+        throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
+
+
+// ReleasePlan is valid or not
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(planning.releasePlanID))
+    if (!releasePlan)
+        throw new AppError('Not a valid release plan', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+
+// Release is valid or not
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release)
+        throw new AppError('Not a valid release', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    // check user role in this release
+    let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can shift", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+// fetch all task plannings according to applied conditions
+    let taskPlannings
+    if (planning.employeeId && planning.employeeId.toLowerCase() == "all") {
+        // Get all employee`s task plannings
+
+        taskPlannings = await TaskPlanningModel.distinct(
+            "planningDate",
+            {
+                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                "planningDate": {$gte: baseDateMomentInUtc}
+            })
+    } else {
+        // Get selected employee`s task plannings
+
+        taskPlannings = await TaskPlanningModel.distinct(
+            "planningDate",
+            {
+                "employee._id": mongoose.Types.ObjectId(employee._id),
+                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                "planningDate": {$gte: baseDateMomentInUtc}
+            })
+    }
+    // console.log("taskPlannings", taskPlannings)
+
+    if (taskPlannings && taskPlannings.length) {
+
+        taskPlannings.sort(function (a, b) {
+            //  console.log("before a", a, "b", b)
+            a = new Date(a);
+            b = new Date(b);
+            // console.log("after a", a, "b", b)
+            return a < b ? -1 : a > b ? 1 : 0;
+        })
+
+        let startShiftingDateMoment = momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let startShiftingDate = startShiftingDateMoment.subtract(daysToShiftNumber, "days")
+        // Can not shift task plannings before now
+        if (startShiftingDate.isBefore(nowMomentInUtc)) {
+            throw new AppError('Can not shift before now ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        } else {
+            let previousDaysDetails = await getWorkingDaysAndHolidays(moment(taskPlannings[taskPlannings.length - 1]).subtract(10 * daysToShiftNumber, 'days'), momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0))
+            //console.log("previousDaysDetails", previousDaysDetails)
+            let idx = previousDaysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(baseDateMomentInUtc))
+            let idx2 = previousDaysDetails.AllTasksOnHolidayList.findIndex(wd => wd.isSame(baseDateMomentInUtc))
+            if (idx != -1 && idx > daysToShiftNumber && previousDaysDetails.AllWorkingDayList[Number(idx - daysToShiftNumber)].isBefore(nowMomentInUtc)) {
+
+                throw new AppError('Can not shift because less working days available for task shifting ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            } else if (idx2 != -1 && previousDaysDetails.AllWorkingDayList[Number(Number(previousDaysDetails.AllTasksOnHolidayList[idx2].index) - daysToShiftNumber)].isBefore(nowMomentInUtc)) {
+                throw new AppError('Can not shift because less working days available for task shifting and In holiday also tasks are planned', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            } else {
+
+                if (idx != -1) {
+                    startShiftingDate = previousDaysDetails.AllWorkingDayList[Number(idx - daysToShiftNumber)]
+                } else if (idx2 != -1) {
+                    startShiftingDate = previousDaysDetails.AllWorkingDayList[Number(Number(previousDaysDetails.AllTasksOnHolidayList[idx2].index) - daysToShiftNumber)]
+                }
+            }
+        }
+        // console.log("startShiftingDate", startShiftingDate)
+        let to = moment(taskPlannings[taskPlannings.length - 1]).add(10 * planning.daysToShift, 'days')
+
+        let daysDetails = await getWorkingDaysAndHolidays(startShiftingDate.toDate(), to.toDate(), taskPlannings, user)
+        //  console.log("daysDetails", daysDetails)
+        let taskOnHolidayCount = 0
+
+        let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async PlanningDate => {
+            // calculating index of working day list where planning date and working date is same
+            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+            let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1
+            if (index != -1) {
+                //if true then  planing must have done in working days
+                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) - daysToShiftNumber)]
+                let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                // updating Task planning to proper date
+                if (planning.employeeId == 'all') {
+                    // task planning of all employee will shift
+
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                            "planningDate": PlanningDateMoment.clone(),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}).exec()
+                } else {
+                    // task planning of selected employee will shift
+
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                            "planningDate": PlanningDateMoment.clone(),
+                            "employee._id": mongoose.Types.ObjectId(employee._id),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}).exec()
+                }
+            } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(PlanningDate))) != -1) {
+                //else  plannig must have done in holidays
+                // calculating index of holiday where planning date and holiday  date are same
+                index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(PlanningDateMoment))
+
+                //new Shifting date where task has to be placed
+                let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) - daysToShiftNumber)]
+
+                let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                // console.log("PlanningDate", PlanningDateMoment, "->", "newShiftingDate", newShiftingDate, "holiday \n")
+                taskOnHolidayCount++
+                // updating Task planning to proper date
+                if (planning.employeeId == 'all') {
+                    // task planning of all employee will shift
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": planning.releasePlanID,
+                            "planningDate": PlanningDateMoment.clone(),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                } else {
+                    // task planning of selected employee will shift
+                    return await TaskPlanningModel.update({
+                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
+                            "planningDate": PlanningDateMoment.clone(),
+                            "employee._id": mongoose.Types.ObjectId(employee._id),
+                            "isShifted": false
+                        },
+                        {
+                            $set: {
+                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDateString": newShiftingDateString,
+                                "isShifted": true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                }
+
+
+            } else {
+                //System inconsistency
+                throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            }
+        }) : new Promise((resolve, reject) => {
+            return resolve(false)
+        })
+
+        await Promise.all(ShiftingPromises).then(async promise => {
+            return await TaskPlanningModel.update({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}, {$set: {"isShifted": false}}, {multi: true}).exec()
+        })
+        await updateEmployeeDays(startShiftingDate.toDate(), to.toDate())
+    } else {
+        throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    return planning
+}
+
+// to calculate working days and holidays
+const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
+    // call to holiday model to get holiday lists
+    let holidays = await MDL.YearlyHolidaysModel.getAllYearlyHolidaysBaseDateToEnd(from, to, user)
+    let i = 0
+    let holidayObjectList = []
+    // inside holidays all holidays has been fetched to make array of only holidays condition and looping is applied
+    if (holidays && holidays.length && holidays.length > 1) {
+        // for more than a year
+        holidayObjectList = holidays[0].holidays
+        while (i < holidays.length - 1) {
+            holidayObjectList.concat(holidays[i + 1])
+            i++
+        }
+    } else if (holidays && holidays.length) {
+        // for with in a single year
+        holidayObjectList = holidays[0].holidays
+    } else {
+        //No holiday available to this list
+    }
+
+    // Converting holiday Object List to Date with UTC moment
+    let holidayDateList = holidayObjectList && holidayObjectList.length ? _.map(holidayObjectList, function (obj) {
+        return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0);
+    }) : []
+
+    //Getting All Dates, AllWorkingDayList, AllTasksOnHolidayList, object ,Arrays and other Fields after calculation
+    return await getDates(from, to, taskPlannings, holidayDateList);
+
+}
+
+
+// to calculate working days and Task on holidays
+const getDates = async (from, to, taskPlannings, holidayList) => {
+    let fromMoment = momentTZ.tz(from, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let toMoment = momentTZ.tz(to, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let AllDateList = []
+    let AllWorkingDayList = []
+    let AllTasksOnHolidayList = []
+
+    while (fromMoment.isSameOrBefore(toMoment.clone())) {
+        AllDateList.push(fromMoment.clone())
+        //date which is not part of holidays
+        if (holidayList && holidayList.length && holidayList.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
+            //Date is available in holiday list so we have to check that on that day any task is planned or not
+            if (taskPlannings && taskPlannings.length && taskPlannings.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
+                // if true then on this date (fromMoment) any task is planned so push on AllTasksOnHolidayList
+                AllTasksOnHolidayList.push({date: fromMoment, index: AllWorkingDayList.length})
+            }
+
+        } else {
+            //Date is not holiday date so it is included in working day list
+            AllWorkingDayList.push(fromMoment.clone())
+        }
+        // increment of date
+        fromMoment = fromMoment.clone().add(1, 'days')
+    }
+    return {
+        AllTasksOnHolidayList,
+        AllWorkingDayList,
+        AllDateList,
+        from,
+        to,
+        taskPlannings,
+        holidayList
+    }
+}
+
+
+const updateEmployeeDays = async (startDateString, endDateString) => {
+    let startDateToString = moment(startDateString).format(SC.DATE_FORMAT)
+    let endDateToString = moment(endDateString).format(SC.DATE_FORMAT)
+    let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    console.log("startDateMomentTz", startDateMomentTz)
+    console.log("endDateMomentTz", endDateMomentTz)
+    /*
+    * task planning model group by (employee && planningDate && release)*/
+
+    let taskPlannings = await MDL.TaskPlanningModel.aggregate([{
+        $match: {
+            $and: [{"planningDate": {$gte: startDateMomentTz.clone(), $lte: endDateMomentTz.clone()}}],
+        }
+    } /*, {
+        $lookup: {
+            from: 'roles',
+            localField: 'roles._id',
+            foreignField: '_id',
+            as: 'roles'
+        }
+    },*/ /*{
+        $project: {
+            release: 1,
+            planningDate: 1,
+            planningDateString: 1,
+            employee: 1,
+            planning: {
+                plannedHours: 1
+            }
+        }
+    }*//*, {
+        $group: {
+            planningDate: "planningDate",
+            employee: {$first: "$email"},
+            plannedHours: {$sum: "$planning.plannedHours"}
+        }
+    }*/]).exec()
+    console.log("taskPlannings", taskPlannings)
+    return new Promise((resolve, reject) => {
+        return resolve(false)
+    })
+
+}
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
 export default TaskPlanningModel
 

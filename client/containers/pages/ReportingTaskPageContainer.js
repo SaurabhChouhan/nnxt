@@ -6,10 +6,10 @@ import _ from 'lodash'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onProjectSelect: (releaseID, planDate, taskStatus) => {
-        console.log("releaseID", releaseID)
-        console.log("typeof releaseID", typeof releaseID)
-        console.log(" releaseID === Select Project", releaseID === "Select Project")
-        console.log("releaseID", releaseID)
+        //console.log("releaseID", releaseID)
+        //console.log("typeof releaseID", typeof releaseID)
+        // console.log(" releaseID === Select Project", releaseID === "Select Project")
+        // console.log("releaseID", releaseID)
         let dummyData = {
             taskPlans: []
         }
