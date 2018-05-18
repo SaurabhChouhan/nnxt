@@ -1220,9 +1220,11 @@ p.task-description {
     height: 3em;
     overflow: hidden;
 }
+
 .expanded-release-content p {
     height: auto;
 }
+
 .releaseTitle {
     font-size: 14px;
     font-style: initial;
@@ -1408,12 +1410,13 @@ p.task-description {
 .planchkSchedule span {
     font-size: 15px;
     position: absolute;
+    margin-top: 40px;
 }
 
 .planchkSchedule input {
     zoom: 2;
     margin-right: 3px;
-    margin-top: 3px;
+    margin-top: 19px;
 
 }
 
@@ -1776,8 +1779,8 @@ hr {
     margin-top: 15px;
 }
 
-.releaseLabel{
-    color:#FE4744;
+.releaseReadMoreLabel {
+    color: #FE4744;
     float: right;
     position: relative;
     top: -36px;
@@ -1785,6 +1788,17 @@ hr {
 
 }
 
-.releasePlanChkBtn{
+.releaseReadLessLabel {
+    color: #FE4744;
+    float: right;
+    top: -36px;
+    z-index: 2;
+
+}
+
+.releasePlanChkBtn {
     margin-top: -32px;
 }
+
+
+
