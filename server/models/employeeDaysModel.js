@@ -8,10 +8,6 @@ import AppError from '../AppError'
 mongoose.Promise = global.Promise
 
 let employeeDaysSchema = mongoose.Schema({
-    project: {
-        _id: mongoose.Schema.ObjectId,
-        name: {type: String, required: [true, 'Project name is required']},
-    },
     employee: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Employee name is required']},
