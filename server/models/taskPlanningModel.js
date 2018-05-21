@@ -166,7 +166,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
             },
             task: {
-                _id: releasePlan._id.toString(), //releasePlanId
+                _id: releasePlan._id.toString(),
                 name: releasePlan.task.name,
                 plannedHours: numberPlannedHours,
                 reportedHours: Number(0),
@@ -192,7 +192,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
             },
             task: {
-                _id: releasePlan._id.toString(), //releasePlanId
+                _id: releasePlan._id.toString(),
                 name: releasePlan.task.name,
                 plannedHours: numberPlannedHours,
                 reportedHours: 0,
@@ -217,7 +217,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             leaves: [],
             tasks: [
                 {
-                    _id: releasePlan._id.toString(), //releasePlanId
+                    _id: releasePlan._id.toString(),
                     name: releasePlan.task.name,
                     plannedHours: numberPlannedHours,
                     reportedHours: 0,
@@ -366,7 +366,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
             _id: taskPlanning.employee._id.toString(),
         },
         task: {
-            _id: taskPlanning.releasePlan._id.toString(), //releasePlanId
+            _id: taskPlanning.releasePlan._id.toString(),
             plannedHours: numberPlannedHours,
             reportedHours: Number(0),
             plannedHoursReportedTasks: Number(0)
