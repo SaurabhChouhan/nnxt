@@ -354,19 +354,40 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     if (!taskPlanning) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
+    let release = await MDL.ReleaseModel.findById(taskPlanning.release._id)
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlanning.releasePlan._id)
+
+    if (!releasePlan) {
+        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRoleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can delete plan task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
+    if (!employee) {
+        throw new AppError('Developer Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
     let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
 
     //  delete or update Employee Statistics Details
 
     let EmployeeStatisticsModelInput = {
         release: {
-            _id: taskPlanning.release._id.toString(),
+            _id: release._id.toString(),
         },
         employee: {
-            _id: taskPlanning.employee._id.toString(),
+            _id: employee._id.toString(),
         },
         task: {
-            _id: taskPlanning.releasePlan._id.toString(),
+            _id: releasePlan._id.toString(),
             plannedHours: numberPlannedHours,
             reportedHours: Number(0),
             plannedHoursReportedTasks: Number(0)
@@ -378,7 +399,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     let oldEmployeeDaysModelInput = {
         plannedHours: numberPlannedHours,
         employee: {
-            _id: taskPlanning.employee._id.toString(),
+            _id: employee._id.toString(),
             name: taskPlanning.employee.name
         },
         dateString: taskPlanning.planningDateString,
