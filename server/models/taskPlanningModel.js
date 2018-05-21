@@ -439,7 +439,6 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         $or: [{"manager._id": mongoose.Types.ObjectId(user._id)},
             {"leader._id": mongoose.Types.ObjectId(user._id)}]
     }, {'_id': 1})
-    //  console.log("releaseListOfID", releaseListOfID)
     let taskPlannings = await TaskPlanningModel.find({"employee._id": mongoose.Types.ObjectId(employeeId)}).sort({"planningDate": 1})
 
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
@@ -614,7 +613,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     let taskPlannings
     if (planning.employeeId && planning.employeeId.toLowerCase() == "all") {
         // Get all employee`s task plannings
-        console.log('baseDateMomentInUtc', baseDateMomentInUtc)
+        //  console.log('baseDateMomentInUtc', baseDateMomentInUtc)
         taskPlannings = await TaskPlanningModel.distinct(
             "planningDate",
             {
@@ -623,7 +622,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
             })
     } else {
         // Get selected employee`s task plannings
-        console.log('baseDateMomentInUtc', baseDateMomentInUtc)
+        //  console.log('baseDateMomentInUtc', baseDateMomentInUtc)
         taskPlannings = await TaskPlanningModel.distinct(
             "planningDate",
             {
@@ -1067,8 +1066,8 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
     let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
 
-    console.log("startDateMomentTz", startDateMomentTz)
-    console.log("endDateMomentTz", endDateMomentTz)
+    // console.log("startDateMomentTz", startDateMomentTz)
+    //  console.log("endDateMomentTz", endDateMomentTz)
 
     /*
     * task planning model group by (employee && planningDate)*/
@@ -1096,11 +1095,11 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
             count: {$sum: 1}
         }
     }]).exec()
-    console.log("taskPlannings", taskPlannings)
+    // console.log("taskPlannings", taskPlannings)
     let deleteEmployeeDetails = await MDL.EmployeeDaysModel.remove({
         "date": {$gte: startDateMomentTz.clone().toDate(), $lte: startDateMomentTz.clone().toDate()}
     })
-    console.log("deleteEmployeeDetails", deleteEmployeeDetails)
+    // console.log("deleteEmployeeDetails", deleteEmployeeDetails)
     let saveEmployeePromises = taskPlannings && taskPlannings.length ? taskPlannings.map(async tp => {
 
         let employeeDaysInput = {
@@ -1111,12 +1110,12 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
             dateString: moment(tp.planningDate).format(SC.DATE_FORMAT),
             plannedHours: Number(tp.plannedHours)
         }
-        console.log("employeeDaysInput--", employeeDaysInput)
+        //  console.log("employeeDaysInput--", employeeDaysInput)
         return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(employeeDaysInput, user)
     }) : new Promise((resolve, reject) => {
         return resolve(false)
     })
-    console.log("saveEmployeePromises", saveEmployeePromises)
+    // console.log("saveEmployeePromises", saveEmployeePromises)
     return await Promise.all(saveEmployeePromises)
 
 }
