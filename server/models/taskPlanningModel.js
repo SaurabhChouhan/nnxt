@@ -502,12 +502,12 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
                     return await TaskPlanningModel.update({
                             "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone(),
+                            "planningDate": PlanningDateMoment.clone().toDate(),
                             "isShifted": false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -517,13 +517,13 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
                     return await TaskPlanningModel.update({
                             "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone(),
+                            "planningDate": PlanningDateMoment.clone().toDate(),
                             "employee._id": mongoose.Types.ObjectId(employee._id),
                             "isShifted": false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -552,12 +552,12 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     // task planning of all employee will shift
                     return await TaskPlanningModel.update({
                             "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
+                            "planningDate": PlanningDateMoment.clone().toDate(),
                             "isShifted": false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -567,13 +567,13 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     // task planning of selected employee will shift
                     return await TaskPlanningModel.update({
                             "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
+                            "planningDate": PlanningDateMoment.clone().toDate(),
                             "employee._id": mongoose.Types.ObjectId(employee._id),
                             "isShifted": false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -743,7 +743,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
 
                     return await TaskPlanningModel.update({
                             "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone(),
+                            "planningDate": PlanningDateMoment.clone().toDate(),
                             "employee._id": mongoose.Types.ObjectId(employee._id),
                             "isShifted": false
                         },
