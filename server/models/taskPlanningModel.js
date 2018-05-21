@@ -506,12 +506,13 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
 }
 
 
+// get all task plannings according to developers and date range
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let toDateMomentTz
     let fromDateMomentTz
+    let toDateMomentTz
 
     if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
         let fromDateMoment = moment(fromDate)
@@ -524,13 +525,18 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         let toDateMomentToDate = toDateMoment.toDate()
         toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
+
+    // list of release Id`s where user is either manager or leader
     let releaseListOfID = []
     releaseListOfID = await MDL.ReleaseModel.find({
         $or: [{"manager._id": mongoose.Types.ObjectId(user._id)},
             {"leader._id": mongoose.Types.ObjectId(user._id)}]
     }, {'_id': 1})
+
+    // All task plannings of selected employee Id
     let taskPlannings = await TaskPlanningModel.find({"employee._id": mongoose.Types.ObjectId(employeeId)}).sort({"planningDate": 1})
 
+    // Conditions applied for filter according to required data and fromDate to toDate
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
         taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
@@ -541,10 +547,12 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
 
+
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)
     let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
+    //Return of filtered task plannings and checking it can be merged or not
     return taskPlannings.map(tp => {
         tp = tp.toObject()
         let check = momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
@@ -557,15 +565,13 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     })
 }
 
-taskPlanningSchema.statics.addComment = async (commentInput, user) => {
+
+// add comments from task detail page by developer or manager or leader
+taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseTaskPlanningCommentStruct)
 
     V.validate(commentInput, V.releaseTaskPlanningCommentStruct)
-    if (!commentInput.releaseID) {
-        throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    if (!commentInput.releasePlanID) {
-        throw new AppError('release plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(commentInput.releaseID))
     if (!release) {
@@ -582,10 +588,10 @@ taskPlanningSchema.statics.addComment = async (commentInput, user) => {
     }
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(commentInput.releasePlanID))
-
     if (!releasePlan) {
         throw new AppError('releasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+
     let now = new Date()
     let comment = {}
     comment.name = user.firstName + ' ' + user.lastName
@@ -594,7 +600,7 @@ taskPlanningSchema.statics.addComment = async (commentInput, user) => {
     comment.date = now
     comment.dateString = moment(now).format(SC.DEFAULT_DATE_FORMAT)
     await MDL.ReleasePlanModel.update({
-        '_id': releasePlan._id
+        '_id': mongoose.Types.ObjectId(releasePlan._id)
     }, {$push: {"comments": comment}}).exec()
 
     return {releasePlanID: releasePlan._id}
@@ -658,20 +664,21 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     V.validate(planning, V.releaseTaskPlanningShiftStruct)
     let startShiftDateString
     let endShiftDateString
-// Days to shift conversion in number
+
+    // Days to shift conversion in number
     let daysToShiftNumber = Number(planning.daysToShift)
-// employeeId must be present or its value must be all
+
+    // employeeId must be present or its value must be all
     let employee = {}
     if (planning.employeeId && planning.employeeId.toLowerCase() != "all") {
         employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
-
         if (!employee)
             throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     } else employee._id = "all"
 
 
-// can not shift task whose planning date is before now
+    // Conversion of date into utc
     let now = new Date()
     // Now in UTC
     let nowString = moment(now).format(SC.DATE_FORMAT)
@@ -679,18 +686,19 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     // Base Date in UTC
     let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
+    // can not shift task whose planning date is before now
     if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
         throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
 
-// ReleasePlan is valid or not
+    // ReleasePlan is valid or not
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(planning.releasePlanID))
     if (!releasePlan)
         throw new AppError('Not a valid release plan', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
 
-// Release is valid or not
+    // Release is valid or not
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
     if (!release)
         throw new AppError('Not a valid release', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
@@ -704,11 +712,11 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can shift", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-// fetch all task plannings according to applied conditions
+    // fetch all task plannings according to applied conditions
     let taskPlannings
     if (planning.employeeId && planning.employeeId.toLowerCase() == "all") {
+
         // Get all employee`s task plannings
-        //  console.log('baseDateMomentInUtc', baseDateMomentInUtc)
         taskPlannings = await TaskPlanningModel.distinct(
             "planningDate",
             {
@@ -716,8 +724,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 "planningDate": {$gte: baseDateMomentInUtc}
             })
     } else {
+
         // Get selected employee`s task plannings
-        //  console.log('baseDateMomentInUtc', baseDateMomentInUtc)
         taskPlannings = await TaskPlanningModel.distinct(
             "planningDate",
             {
@@ -726,24 +734,26 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 "planningDate": {$gte: baseDateMomentInUtc}
             })
     }
-    //console.log("taskPlannings bk1", taskPlannings)
-//Sorting task plannings according to date
+
+    //Sorting task plannings according to date
     if (taskPlannings && taskPlannings.length) {
         taskPlannings.sort(function (a, b) {
-            //  console.log("before a", a, "b", b)
             a = new Date(a);
             b = new Date(b);
-            // console.log("after a", a, "b", b)
             return a < b ? -1 : a > b ? 1 : 0;
         })
-        // console.log("taskPlannings bk2", taskPlannings)
 
+        //Form base date to end date of task plannings and added some extra days multiple of 10 so that when holiday will be getting then also operation can be performed
         let toTz = momentTZ.tz(taskPlannings[taskPlannings.length - 1], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(10 * daysToShiftNumber, 'days').hour(0).minute(0).second(0).millisecond(0)
+
+        //Getting data of all days, working days, and work on holidays
         let daysDetails = await getWorkingDaysAndHolidays(baseDateMomentInUtc.format(SC.DATE_FORMAT), toTz.format(SC.DATE_FORMAT), taskPlannings, user)
-        // console.log("daysDetails", daysDetails)
+
+        //counter to count task occure in holidays
         let taskOnHolidayCount = 0
 
         startShiftDateString = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? momentTZ.tz(daysDetails.taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format(SC.DATE_FORMAT) : nowMomentInUtc.format(SC.DATE_FORMAT)
+
         // Shifting starts with loop
         let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async (PlanningDate, idx) => {
             //
@@ -755,7 +765,6 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) + daysToShiftNumber)]
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
                 let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
-                // console.log("PlanningDate", moment(PlanningDate), "->", "newShiftingDate", newShiftingDate)
                 // updating Task planning to proper date
 
                 // Calculating last transfer date
