@@ -24,7 +24,7 @@ employeeRouter.post("/employee-setting", async ctx => {
     if (!hasRole(ctx, SC.ROLE_ADMIN)) {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await MDL.EmployeeSettingModel.createEmployeeSettings(ctx.request.body, ctx.state.user)
+    return await MDL.EmployeeSettingModel.createEmployeeSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 /**
@@ -34,6 +34,6 @@ employeeRouter.put("/employee-setting", async ctx => {
     if (!hasRole(ctx, SC.ROLE_ADMIN)) {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await MDL.EmployeeSettingModel.updateEmployeeSettings(ctx.request.body, ctx.state.user)
+    return await MDL.EmployeeSettingModel.updateEmployeeSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 export default employeeRouter

@@ -1784,3 +1784,7 @@ hr {
     z-index: 2;
 
 }
+
+.releasePlanChkBtn{
+    margin-top: -32px;
+}

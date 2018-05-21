@@ -3,17 +3,18 @@ import AppError from '../AppError'
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import {userHasRole} from "../utils"
+import * as V from '../validation'
 
 mongoose.Promise = global.Promise
 
 let employeeSettingSchema = mongoose.Schema({
 
-    maxPlannedHours: {type: Number, default: 8},
     minPlannedHours: {type: Number, default: 4},
-    free: {type: Number, default: 2},
-    relativelyFree: {type: Number, default: 4},
+    maxPlannedHours: {type: Number, default: 8},
+    free: {type: Number, default: 3},
+    relativelyFree: {type: Number, default: 5},
     busy: {type: Number, default: 6},
-    superBusy: {type: Number, default: 8}
+    superBusy: {type: Number, default: 9}
 
 })
 
@@ -21,10 +22,11 @@ let employeeSettingSchema = mongoose.Schema({
  * Employee Setting is Created by Admin
  * @param employeeSettingInput
  */
-employeeSettingSchema.statics.createEmployeeSettings = async (employeeSettingInput, admin) => {
-    if (!admin || !userHasRole(admin, SC.ROLE_ADMIN))
-        throw new AppError('Not a Admin', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+employeeSettingSchema.statics.createEmployeeSettings = async (employeeSettingInput, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.employeeCreateSettingStruct)
 
+    V.validate(employeeSettingInput, V.employeeCreateSettingStruct)
     return await EmployeeSettingModel.create(employeeSettingInput)
 }
 /**
@@ -41,7 +43,11 @@ employeeSettingSchema.statics.getEmployeeSettings = async (admin) => {
  * Employee Setting is updated by Admin
  * @param employeeSettingInput
  */
-employeeSettingSchema.statics.updateEmployeeSettings = async (employeeSettingInput, admin) => {
+employeeSettingSchema.statics.updateEmployeeSettings = async (employeeSettingInput, admin, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.employeeUpdateSettingStruct)
+
+    V.validate(employeeSettingInput, V.employeeUpdateSettingStruct)
     if (!admin || !userHasRole(admin, SC.ROLE_ADMIN))
         throw new AppError('Not a Admin', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
