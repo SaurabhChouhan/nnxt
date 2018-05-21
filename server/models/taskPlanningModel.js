@@ -90,6 +90,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     }
     // checking that developer is part of project or not
     let momentPlanningDate = momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    //planned hours in number format
+    let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
     // if not then it is added in non Project team
     if (taskPlanningInput && !taskPlanningInput.projectUsersOnly) {
         if (await MDL.ReleaseModel.count({
@@ -118,7 +120,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             "date": momentPlanningDate
         }) > 0) {
         // update employee days details with increment of planned hours
-        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
 
         let EmployeeDaysModelInput = {
             plannedHours: numberPlannedHours,
@@ -131,7 +133,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput, user)
     } else {
         // add employee days details with planned hours
-        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
 
         let EmployeeDaysModelInput = {
             employee: {
@@ -154,7 +156,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
         }) > 0) {
         // update inserted task plan hours
-        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
 
         let EmployeeStatisticsModelInput = {
             release: {
@@ -180,7 +182,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             "release._id": mongoose.Types.ObjectId(release._id)
         }) > 0) {
         // add task plan details to inserted employee statistics
-        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
         let EmployeeStatisticsModelInput = {
             release: {
@@ -203,7 +204,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     } else {
         // create new statistics with task plan insertion
-        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
         let EmployeeStatisticsModelInput = {
             release: {
@@ -228,7 +228,25 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(EmployeeStatisticsModelInput, user)
     }
 
-    await MDL.ReleasePlanModel.update({"_id": mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id)}, {"flags": [SC.FLAG_PLANNED]})
+    // updating releasePlan model
+    await MDL.ReleasePlanModel.update(
+        {"_id": mongoose.Types.ObjectId(releasePlan._id)},
+        {
+            $inc: {
+                "planning.plannedHours": numberPlannedHours
+            },
+            flags: SC.FLAG_PLANNED
+        })
+
+    // updating release model
+
+    await MDL.ReleaseModel.update(
+        {"_id": mongoose.Types.ObjectId(release._id)},
+        {
+            $inc: {
+                "initial.plannedHours": numberPlannedHours
+            }
+        })
     let taskPlanning = new TaskPlanningModel()
     taskPlanning.created = Date.now()
     taskPlanning.planningDate = momentPlanningDate
@@ -405,6 +423,26 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         dateString: taskPlanning.planningDateString,
     }
     await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+
+
+    await MDL.ReleasePlanModel.update(
+        {"_id": mongoose.Types.ObjectId(releasePlan._id)},
+        {
+            $inc: {
+                "planning.plannedHours": -numberPlannedHours
+            },
+            flags: SC.FLAG_PLANNED
+        })
+
+    // updating release model
+
+    await MDL.ReleaseModel.update(
+        {"_id": mongoose.Types.ObjectId(release._id)},
+        {
+            $inc: {
+                "initial.plannedHours": -numberPlannedHours
+            }
+        })
 
     return await TaskPlanningModel.remove({"_id": taskPlanID})
 
