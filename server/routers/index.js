@@ -13,5 +13,6 @@ export {default as attendanceRouter} from './attendance-router'
 export {default as releaseRouter} from './release-router'
 export {default as calendarRouter} from './calendar-router'
 export {default as reportingRouter} from './reporting-router'
+export {default as employeeRouter} from './employee-router'
 // Please export all routers above this router
 export {default as apiRouter} from './api-router'

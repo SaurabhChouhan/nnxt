@@ -13,8 +13,8 @@ class CalendarTaskPage extends React.Component {
     }
 
     onSelectEvent(event) {
-        console.log("onSelectEvent bk2", event)
-        this.props.taskSelected(event).then(json => {
+        //console.log("onSelectEvent bk2", event)
+        return this.props.taskSelected(event).then(json => {
             if (json.success) {
                 this.props.history.push("/app-home/calendar-task-detail")
                 this.props.showTaskDetailPage()
@@ -24,18 +24,28 @@ class CalendarTaskPage extends React.Component {
     }
 
     eventStyleGetter(event, start, end, isSelected) {
-        console.log("event.status", event.report.status)
+        //console.log("event.status", event.report.status)
         let bg = "";
-        if (event.report.status == "un-reported")
+        if (event.report.status == "un-reported") {  //console.log("Un-reported",event.report.status)
             bg = "#9fa725"
-        if (event.report.status == "Started")
+        }
+
+       else if (event.report.status == "Started") {//  console.log("Started",event.report.status)
             bg = "#1A4ECD"
-        if (event.report.status == "pending")
+        }
+
+       else if (event.report.status == "pending") { // console.log("pending",event.report.status)
             bg = "#FF0000"
-        if (event.report.status == "completed")
+        }
+
+       else if (event.report.status == "completed") {
+            //  console.log("completed", event.report.status)
             bg = "#4AD938"
-        else
+        }
+        else {//  console.log("else",event.report.status)
             bg = "#000000"
+        }
+
         let style = {
             backgroundColor: bg,
             borderRadius: '0px',
@@ -70,7 +80,7 @@ class CalendarTaskPage extends React.Component {
              selectRangeFormat: (date, culture, localizer) =>
                  localizer.format(date, 'dddd', culture)
          }*/
-        console.log("this.props.events", this.props.events)
+        //console.log("this.props.events", this.props.events)
         return (<div>
             <BigCalendar
                 views={{month: true, week: true, day: true}}
@@ -81,10 +91,10 @@ class CalendarTaskPage extends React.Component {
                 selectable
                 popup
                 onSelectEvent={event => {
-                    console.log("event bk1", event)
+                   // console.log("event bk1", event)
                     this.onSelectEvent(event)
                 }}
-                events={this.props.events}
+                events={this.props.events && this.props.events.length ? this.props.events : []}
                 startAccessor='start'
                 endAccessor='end'
                 eventPropGetter={(this.eventStyleGetter)}

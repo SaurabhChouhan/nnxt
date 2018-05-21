@@ -25,6 +25,10 @@ permissionSchema.statics.savePermission = async permissionInput => {
     return await PermissionModel.create(permissionInput)
 }
 
+permissionSchema.statics.createPermission = async permissionInput => {
+    return await PermissionModel.create(permissionInput)
+}
+
 
 permissionSchema.statics.editPermission = async permissionInput => {
     let permission = await PermissionModel.findById(permissionInput._id)

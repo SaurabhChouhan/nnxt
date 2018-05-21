@@ -51,6 +51,10 @@ roleSchema.statics.saveRole = async (roleInput) => {
     return await RoleModel.create(roleInput)
 }
 
+roleSchema.statics.createRole = async (roleInput) => {
+    return await RoleModel.create(roleInput)
+}
+
 roleSchema.statics.editRole = async (roleInput) => {
     if (!roleInput._id)
         throw new AppError("Identifier required for edit", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)

@@ -6,9 +6,11 @@ import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
 import _ from 'lodash'
 import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
+import PropTypes from 'prop-types'
 
 moment.locale('en')
 momentLocalizer()
+
 class ReleaseTaskPlanningPage extends Component {
 
     constructor(props) {
@@ -24,15 +26,15 @@ class ReleaseTaskPlanningPage extends Component {
         let nowMomentString = moment(now).format(SC.DATE_FORMAT)
         let nowMoment = moment(nowMomentString)
         let planningMoment = moment(row.planningDateString)
-        console.log("planningMoment", planningMoment)
-        console.log("nowMoment", nowMoment)
-        console.log("compare ", planningMoment.isBefore(nowMoment))
+       // console.log("planningMoment", planningMoment)
+       // console.log("nowMoment", nowMoment)
+       // console.log("compare ", planningMoment.isBefore(nowMoment))
         if (planningMoment.isBefore(nowMoment))
             return ''
         else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
-                        onClick={() => {
-                            this.props.deleteTaskPlanningRow(row)
-                        }}></button>)
+                             onClick={() => {
+                                 this.props.deleteTaskPlanningRow(row)
+                             }}></button>)
     }
 
     projectUsersOnly(data) {
@@ -44,10 +46,12 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     actionCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="pull-left btn btn-custom" type="button"
-                        onClick={() => {
-                            this.props.openMergeTaskPlanningForm(row)
-                        }}>Merge</button>)
+        if (row && row.canMerge)
+            return (<button className="pull-left btn btn-custom" type="button"
+                            onClick={() => {
+                                this.props.openMergeTaskPlanningForm(row)
+                            }}>Merge</button>)
+        else return ''
     }
 
     formatPlanningDate(row) {
@@ -84,10 +88,10 @@ class ReleaseTaskPlanningPage extends Component {
         return ''
     }
 
-
     render() {
-        // const {release} = this.props
-        const {taskPlan, taskPlans, developerPlans} = this.props
+
+        const {taskPlan, taskPlans, developerPlans, expanded} = this.props
+
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -111,13 +115,12 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                     </div>
                     <div className="col-md-12 ">
-                        <div className="releasecontent">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ipsum sem, interdum et
-                                est id, pellentesque tempus leo. Nulla sagittis quam sapien, nec egestas. Nulla arcu
-                                odio.(Read More...)</p>
+                        <div className={expanded ? "expanded-release-content" : 'release-content'}>
+                            <p className="task-description">{taskPlan && taskPlan.task ? taskPlan.task.description : ''}</p>
+                            {expanded ? <label className="div-hover releaseLabel" onClick={()=>this.props.expandDescription(false)}>...Read Less</label> : <label className="div-hover releaseLabel"  onClick={()=>this.props.expandDescription(true)}>...Read More</label>}
                         </div>
                     </div>
-                    <div className="col-md-12">
+                    <div className="col-md-12 releasePlanChkBtn">
                         <div className="col-md-4 planchk">
                             <input name="projectUsersOnly"
                                    type="checkbox"
@@ -132,7 +135,7 @@ class ReleaseTaskPlanningPage extends Component {
                             <button type="button" className="btn taskbtn"
                                     onClick={() => this.props.showTaskPlanningCreationForm(taskPlan, this.state.projectUsersOnly)}>
                                 <i
-                                className="fa fa-plus-circle"></i>
+                                    className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>
                         </div>
@@ -262,5 +265,7 @@ class ReleaseTaskPlanningPage extends Component {
     }
 }
 
-
+ReleaseTaskPlanningPage.defaultProps = {
+    expanded: false
+}
 export default withRouter(ReleaseTaskPlanningPage)

@@ -17,11 +17,19 @@ import {
     USER_LIST,
     USER_PROFILE_FORM,
     USER_PROFILE_TAB,
-    USER_TAB
+    USER_TAB,
+    EMPLOYEE_SETTING_TAB,
+    EMPLOYEE_SETTING_FORM
 } from "../componentConsts"
 
-import {EDIT_PROFILE, EDIT_ROLE_PERMISSIONS, LIST_USERS, MANAGE_PERMISSIONS, MANAGE_ROLES} from "../../clientconstants"
-import {showComponentHideOthers} from "../../actions/appAction"
+import {
+    EDIT_PROFILE,
+    EDIT_ROLE_PERMISSIONS,
+    LIST_USERS,
+    MANAGE_PERMISSIONS,
+    MANAGE_ROLES,
+    CREATE_USER
+} from "../../clientconstants"
 import {
     AdminRoleFormContainer,
     AdminRoleListContainer,
@@ -32,9 +40,10 @@ import {
     TabSectionContainer,
     UserFormContainer,
     UserListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    EmployeeSettingFormContainer
 } from "../../containers"
-import {getAllPermissionsFromServer, getAllRolesFromServer, getAllUsersFromServer, showUserInfo} from "../../actions";
+import * as A from "../../actions";
 import * as logger from '../../clientLogger'
 
 
@@ -46,7 +55,6 @@ class Tabs extends Component {
         this.tabData = []
 
         let permissions = this.props.loggedInUser.permissions
-
 
 
         if (permissions.includes(EDIT_PROFILE)) {
@@ -122,6 +130,17 @@ class Tabs extends Component {
                 }
             })
         }
+        if (permissions.includes(CREATE_USER)) {
+            this.tabData.push({
+                name: EMPLOYEE_SETTING_TAB,
+                url: "/employee-setting",
+                render: (props) => {
+                    return <TabSectionContainer>
+                        <EmployeeSettingFormContainer name={EMPLOYEE_SETTING_FORM}/>
+                    </TabSectionContainer>
+                }
+            })
+        }
 
 
         if (this.tabData.length > 0) {
@@ -143,26 +162,30 @@ class Tabs extends Component {
         const {store} = this.context;
         switch (tab.name) {
             case USER_PROFILE_TAB:
-                store.dispatch(showUserInfo())
-                store.dispatch(showComponentHideOthers(USER_PROFILE_FORM))
+                store.dispatch(A.showUserInfo())
+                store.dispatch(A.showComponentHideOthers(USER_PROFILE_FORM))
                 break;
             case PERMISSION_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(getAllPermissionsFromServer())
-                store.dispatch(showComponentHideOthers(PERMISSION_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.getAllPermissionsFromServer())
+                store.dispatch(A.showComponentHideOthers(PERMISSION_LIST))
                 break
             case ROLE_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(showComponentHideOthers(ROLE_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.showComponentHideOthers(ROLE_LIST))
                 break
             case USER_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(getAllUsersFromServer())
-                store.dispatch(showComponentHideOthers(USER_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.getAllUsersFromServer())
+                store.dispatch(A.showComponentHideOthers(USER_LIST))
                 break
             case ADMIN_PERMISSION_TAB:
-                store.dispatch(getAllRolesFromServer())
-                store.dispatch(showComponentHideOthers(ADMIN_ROLE_LIST))
+                store.dispatch(A.getAllRolesFromServer())
+                store.dispatch(A.showComponentHideOthers(ADMIN_ROLE_LIST))
+                break
+            case EMPLOYEE_SETTING_TAB:
+                store.dispatch(A.getEmployeeSettingFromServer())
+                store.dispatch(A.showComponentHideOthers(EMPLOYEE_SETTING_FORM))
                 break
         }
         this.setState({

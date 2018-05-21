@@ -45,7 +45,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     openMergeTaskPlanningForm: (releasePlan) => {
-        console.log("releasePlan", releasePlan)
+        //console.log("releasePlan", releasePlan)
         dispatch(initialize("merge-task-planning", releasePlan))
         dispatch(A.showComponent(COC.MERGE_TASK_PLANNING_DIALOG))
 
@@ -59,8 +59,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Failed")
     }),
 
-    ReleaseTaskGoBack: (event) =>
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST))
+    ReleaseTaskGoBack: (event) => dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST)),
+    expandDescription: (flag) => dispatch(A.expandDescription(flag))
 })
 
 
@@ -68,7 +68,8 @@ const mapStateToProps = (state) => ({
     taskPlan: state.release.selectedTask,
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,
-    data: []
+    data: [],
+    expanded:state.release.expanded
 })
 
 const ReleaseTaskPlanningPageContainer = connect(
