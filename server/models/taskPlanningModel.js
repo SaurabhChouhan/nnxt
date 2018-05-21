@@ -130,10 +130,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
         let EmployeeDaysModelInput = {
-            project: {
-                _id: release.project._id.toString(),
-                name: release.project.name
-            },
             employee: {
                 _id: selectedDeveloper._id.toString(),
                 name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
@@ -176,6 +172,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)
     let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let rePlanningDateMoment = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     if (momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
         throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
@@ -205,16 +202,81 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can merge", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
+    if (await MDL.EmployeeDaysModel.count({
+            "employee._id": taskPlanning.employee._id.toString(),
+            "date": rePlanningDateMoment.toDate()
+        }) > 0) {
+
+        let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
+
+        let oldEmployeeDaysModelInput = {
+            plannedHours: numberPlannedHours,
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            dateString: taskPlanning.planningDateString,
+        }
+        await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+        let newEmployeeDaysModelInput = {
+            plannedHours: numberPlannedHours,
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            dateString: taskPlanningInput.rePlanningDate,
+        }
+        await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(newEmployeeDaysModelInput, user)
+    } else {
+        let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
+
+        let oldEmployeeDaysModelInput = {
+            plannedHours: numberPlannedHours,
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            dateString: taskPlanning.planningDateString
+        }
+        await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+
+        let newEmployeeDaysModelInput = {
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            plannedHours: numberPlannedHours,
+            dateString: taskPlanningInput.rePlanningDate,
+        }
+        await MDL.EmployeeDaysModel.addEmployeeDaysDetails(newEmployeeDaysModelInput, user)
+    }
+
     taskPlanning.created = Date.now()
-    taskPlanning.planningDate = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    taskPlanning.planningDate = rePlanningDateMoment
     taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
-    let taskPlnning = await taskPlanning.save()
+    await taskPlanning.save()
     taskPlanning = taskPlanning.toObject()
     taskPlanning.canMerge = true
     return taskPlanning
 }
 
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
+    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+    if (!taskPlanning) {
+        throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+    let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
+
+    let oldEmployeeDaysModelInput = {
+        plannedHours: numberPlannedHours,
+        employee: {
+            _id: taskPlanning.employee._id.toString(),
+            name: taskPlanning.employee.name
+        },
+        dateString: taskPlanning.planningDateString,
+    }
+    await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+
     return await TaskPlanningModel.remove({"_id": taskPlanID})
 
 }
@@ -416,6 +478,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     // Base Date in UTC
     let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
     if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
         throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
@@ -443,7 +506,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     let taskPlannings
     if (planning.employeeId && planning.employeeId.toLowerCase() == "all") {
         // Get all employee`s task plannings
-
+        console.log('baseDateMomentInUtc', baseDateMomentInUtc)
         taskPlannings = await TaskPlanningModel.distinct(
             "planningDate",
             {
@@ -452,7 +515,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
             })
     } else {
         // Get selected employee`s task plannings
-
+        console.log('baseDateMomentInUtc', baseDateMomentInUtc)
         taskPlannings = await TaskPlanningModel.distinct(
             "planningDate",
             {
@@ -591,7 +654,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
             return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
         })
 
-        await updateEmployeeDays(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc)
+        await updateEmployeeDays(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc, user)
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -728,12 +791,12 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
 
                     return await TaskPlanningModel.update({
                             "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone(),
+                            "planningDate": PlanningDateMoment.clone().toDate(),
                             "isShifted": false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
+                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
                                 "planningDateString": newShiftingDateString,
                                 "isShifted": true
                             }
@@ -813,7 +876,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         await Promise.all(ShiftingPromises).then(async promise => {
             return await TaskPlanningModel.update({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}, {$set: {"isShifted": false}}, {multi: true}).exec()
         })
-        await updateEmployeeDays(startShiftingDate.toDate(), to.toDate())
+        await updateEmployeeDays(startShiftingDate.toDate(), to.toDate(), user)
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -889,30 +952,23 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
 }
 
 
-const updateEmployeeDays = async (startDateString, endDateString) => {
+const updateEmployeeDays = async (startDateString, endDateString, user) => {
     let startDateToString = moment(startDateString).format(SC.DATE_FORMAT)
     let endDateToString = moment(endDateString).format(SC.DATE_FORMAT)
     let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+
     console.log("startDateMomentTz", startDateMomentTz)
     console.log("endDateMomentTz", endDateMomentTz)
+
     /*
-    * task planning model group by (employee && planningDate && release)*/
+    * task planning model group by (employee && planningDate)*/
 
     let taskPlannings = await MDL.TaskPlanningModel.aggregate([{
-        $match: {
-            $and: [{"planningDate": {$gte: startDateMomentTz.clone(), $lte: endDateMomentTz.clone()}}],
-        }
-    } /*, {
-        $lookup: {
-            from: 'roles',
-            localField: 'roles._id',
-            foreignField: '_id',
-            as: 'roles'
-        }
-    },*/ /*{
+        $match: {planningDate: {$gte: startDateMomentTz.toDate(), $lte: endDateMomentTz.toDate()}}
+    }, {
         $project: {
-            release: 1,
             planningDate: 1,
             planningDateString: 1,
             employee: 1,
@@ -920,17 +976,40 @@ const updateEmployeeDays = async (startDateString, endDateString) => {
                 plannedHours: 1
             }
         }
-    }*//*, {
+    }, {
         $group: {
-            planningDate: "planningDate",
-            employee: {$first: "$email"},
-            plannedHours: {$sum: "$planning.plannedHours"}
+            _id: {
+                "planningDate": "$planningDate",
+                "employeeID": "$employee._id"
+            },
+            planningDate: {$first: "$planningDate"},
+            employee: {$first: "$employee"},
+            plannedHours: {$sum: "$planning.plannedHours"},
+            count: {$sum: 1}
         }
-    }*/]).exec()
+    }]).exec()
     console.log("taskPlannings", taskPlannings)
-    return new Promise((resolve, reject) => {
+    let deleteEmployeeDetails = await MDL.EmployeeDaysModel.remove({
+        "date": {$gte: startDateMomentTz.clone().toDate(), $lte: startDateMomentTz.clone().toDate()}
+    })
+    console.log("deleteEmployeeDetails", deleteEmployeeDetails)
+    let saveEmployeePromises = taskPlannings && taskPlannings.length ? taskPlannings.map(async tp => {
+
+        let employeeDaysInput = {
+            employee: {
+                _id: tp.employee._id.toString(),
+                name: tp.employee.name
+            },
+            dateString: moment(tp.planningDate).format(SC.DATE_FORMAT),
+            plannedHours: Number(tp.plannedHours)
+        }
+        console.log("employeeDaysInput--", employeeDaysInput)
+        return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(employeeDaysInput, user)
+    }) : new Promise((resolve, reject) => {
         return resolve(false)
     })
+    console.log("saveEmployeePromises", saveEmployeePromises)
+    return await Promise.all(saveEmployeePromises)
 
 }
 const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
@@ -963,4 +1042,34 @@ export default TaskPlanningModel
     }
 }]
 */
+{/*
 
+db.taskplannings.aggregate([{
+    $match: {planningDate: {$gte: new Date("2018-05-19"), $lte: new Date("2018-05-30")}}
+}, {
+    $project: {
+        release: 1,
+        planningDate: 1,
+        planningDateString: 1,
+        employee: 1,
+        planning: {
+            plannedHours: 1
+        }
+    }
+}, {
+    $group: {
+        _id: {
+            "planningDate": "$planningDate",
+            "employee": "$employee",
+            "release": "$release"
+        },
+        planningDate: {$first: "$planningDate"},
+        employee: {$first: "$employee"},
+        release: {$first: "$release"},
+        plannedHours: {$sum: "$planning.plannedHours"},
+        count: {$sum: 1}
+    }
+}])
+
+        */
+}
