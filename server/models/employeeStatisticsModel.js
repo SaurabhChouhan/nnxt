@@ -1,10 +1,12 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
+import * as V from '../validation'
+import * as EC from '../errorcodes'
+import AppError from '../AppError'
 
 mongoose.Promise = global.Promise
 
 let employeeStatisticsSchema = mongoose.Schema({
-
     release: {
         _id: mongoose.Schema.ObjectId,
         version: String
@@ -26,7 +28,7 @@ let employeeStatisticsSchema = mongoose.Schema({
     ],
     tasks: [
         {
-            _id: mongoose.Schema.ObjectId,//releasePlanId
+            _id: mongoose.Schema.ObjectId, //releasePlanId
             name: {type: String, required: [true, 'Task name is required']},
             plannedHours: {type: Number, default: 0},
             reportedHours: {type: Number, default: 0},
@@ -36,12 +38,93 @@ let employeeStatisticsSchema = mongoose.Schema({
 })
 
 employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeStatisticsInput, user) => {
+    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    V.validate(EmployeeStatisticsInput, V.employeeAddEmployeeStatisticsStruct)
+    let countStatistics = await EmployeeStatisticsModel.count({
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
+        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id)
+    })
+    if (countStatistics > 0) {
+        throw new AppError('Employee statistics is already available release ' + EmployeeStatisticsInput.release.version + 'with employee ' + EmployeeStatisticsInput.employee.name + 'can not create another', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
     return await EmployeeStatisticsModel.create(EmployeeStatisticsInput)
 }
+
+
+employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
+    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    V.validate(EmployeeStatisticsInput, V.employeeAddTaskEmployeeStatisticsStruct)
+    let countTaskStatistics = await EmployeeStatisticsModel.count({
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
+        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
+        "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
+    })
+    if (countTaskStatistics > 0) {
+        throw new AppError('Employee statistics is already available release plan ' + EmployeeStatisticsInput.task.name + ' with employee ' + EmployeeStatisticsInput.employee.name + 'can not create another', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
+    return await  await EmployeeStatisticsModel.update({
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
+        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
+    }, {$push: {"tasks": EmployeeStatisticsInput.task}}).exec()
+}
+
+
+employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
+    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
+    let employeeStatistics = await EmployeeStatisticsModel.find({
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
+        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
+        "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
+    })
+    if (!employeeStatistics || !employeeStatistics.length) {
+        throw new AppError('Employee statistics is not available', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    return await EmployeeStatisticsModel.updateOne({
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
+        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
+        "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
+    }, {
+        $inc: {
+            "tasks.$.plannedHours": Number(EmployeeStatisticsInput.task.plannedHours),
+            "tasks.$.reportedHours": Number(EmployeeStatisticsInput.task.reportedHours),
+            "tasks.$.plannedHoursReportedTasks": Number(EmployeeStatisticsInput.task.plannedHoursReportedTasks)
+        },
+    }).exec()
+}
+
+
+employeeStatisticsSchema.statics.decreseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
+    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
+    let employeeStatistics = await EmployeeStatisticsModel.find({
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
+        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
+        "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
+    })
+    if (!employeeStatistics || !employeeStatistics.length) {
+        throw new AppError('Employee statistics is not available', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    return await EmployeeStatisticsModel.updateOne({
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
+        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
+        "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
+    }, {
+        $inc: {
+            "tasks.$.plannedHours": -Number(EmployeeStatisticsInput.task.plannedHours),
+            "tasks.$.reportedHours": -Number(EmployeeStatisticsInput.task.reportedHours),
+            "tasks.$.plannedHoursReportedTasks": -Number(EmployeeStatisticsInput.task.plannedHoursReportedTasks)
+        },
+    }).exec()
+}
+
 
 employeeStatisticsSchema.statics.getActiveEmployeeStatistics = async (user) => {
     return await EmployeeStatisticsModel.find({})
 }
+
 
 const EmployeeStatisticsModel = mongoose.model("EmployeeStatistic", employeeStatisticsSchema)
 export default EmployeeStatisticsModel

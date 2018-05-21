@@ -101,20 +101,23 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             }) <= 0) {
             // it checks that user who may not be a developer of this project is assigned into a task plan so add that user to this project as a nonProjectTeam
             let nonProjectUser = {
-                "_id": selectedDeveloper._id,
+                "_id": selectedDeveloper._id.toString(),
                 "name": selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName,
                 "email": selectedDeveloper.email,
             }
             await MDL.ReleaseModel.update({
-                '_id': taskPlanningInput.release._id
+                '_id': mongoose.Types.ObjectId(release._id)
             }, {$push: {"nonProjectTeam": nonProjectUser}}).exec()
         }
     }
+
+    //  add or update employee days details
 
     if (await MDL.EmployeeDaysModel.count({
             "employee._id": selectedDeveloper._id.toString(),
             "date": momentPlanningDate
         }) > 0) {
+        // update employee days details with increment of planned hours
         let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
         let EmployeeDaysModelInput = {
@@ -127,6 +130,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
         await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput, user)
     } else {
+        // add employee days details with planned hours
         let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
         let EmployeeDaysModelInput = {
@@ -139,6 +143,91 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
         await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput, user)
     }
+
+
+    //  add or update Employee Statistics Details
+
+    if (await MDL.EmployeeStatisticsModel.count({
+            "employee._id": mongoose.Types.ObjectId(selectedDeveloper._id),
+            "release._id": mongoose.Types.ObjectId(release._id),
+            "tasks._id": mongoose.Types.ObjectId(releasePlan._id),
+
+        }) > 0) {
+        // update inserted task plan hours
+        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
+        let EmployeeStatisticsModelInput = {
+            release: {
+                _id: release._id.toString(),
+                version: release.name
+            },
+            employee: {
+                _id: selectedDeveloper._id.toString(),
+                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+            },
+            task: {
+                _id: releasePlan._id.toString(), //releasePlanId
+                name: releasePlan.task.name,
+                plannedHours: numberPlannedHours,
+                reportedHours: Number(0),
+                plannedHoursReportedTasks: Number(0)
+            }
+        }
+        await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+
+    } else if (await MDL.EmployeeStatisticsModel.count({
+            "employee._id": mongoose.Types.ObjectId(selectedDeveloper._id),
+            "release._id": mongoose.Types.ObjectId(release._id)
+        }) > 0) {
+        // add task plan details to inserted employee statistics
+        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
+        let EmployeeStatisticsModelInput = {
+            release: {
+                _id: release._id.toString(),
+                version: release.name
+            },
+            employee: {
+                _id: selectedDeveloper._id.toString(),
+                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+            },
+            task: {
+                _id: releasePlan._id.toString(), //releasePlanId
+                name: releasePlan.task.name,
+                plannedHours: numberPlannedHours,
+                reportedHours: 0,
+                plannedHoursReportedTasks: 0
+            }
+        }
+        await MDL.EmployeeStatisticsModel.addTaskDetailsToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+
+    } else {
+        // create new statistics with task plan insertion
+        let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+
+        let EmployeeStatisticsModelInput = {
+            release: {
+                _id: release._id.toString(),
+                version: release.name
+            },
+            employee: {
+                _id: selectedDeveloper._id.toString(),
+                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+            },
+            leaves: [],
+            tasks: [
+                {
+                    _id: releasePlan._id.toString(), //releasePlanId
+                    name: releasePlan.task.name,
+                    plannedHours: numberPlannedHours,
+                    reportedHours: 0,
+                    plannedHoursReportedTasks: 0
+                }
+            ]
+        }
+        await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(EmployeeStatisticsModelInput, user)
+    }
+
     await MDL.ReleasePlanModel.update({"_id": mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id)}, {"flags": [SC.FLAG_PLANNED]})
     let taskPlanning = new TaskPlanningModel()
     taskPlanning.created = Date.now()
@@ -267,6 +356,25 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     }
     let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
 
+    //  delete or update Employee Statistics Details
+
+    let EmployeeStatisticsModelInput = {
+        release: {
+            _id: taskPlanning.release._id.toString(),
+        },
+        employee: {
+            _id: taskPlanning.employee._id.toString(),
+        },
+        task: {
+            _id: taskPlanning.releasePlan._id.toString(), //releasePlanId
+            plannedHours: numberPlannedHours,
+            reportedHours: Number(0),
+            plannedHoursReportedTasks: Number(0)
+        }
+    }
+    await MDL.EmployeeStatisticsModel.decreseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+
+//decrease employee days
     let oldEmployeeDaysModelInput = {
         plannedHours: numberPlannedHours,
         employee: {
