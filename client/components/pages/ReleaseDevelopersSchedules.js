@@ -15,8 +15,9 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                                                           className="col-md-12 releaseSchedule">
                             <div className="repository releaseDevInfo">
                                 <div className="releaseDevHeading">
-                                    <h5>Developer1</h5><i className="glyphicon glyphicon-resize-full pull-right"></i><span
-                                    className="pull-right">26-feb to 29-feb</span>
+                                    <h5>{schedule.employee && schedule.employee.name ? schedule.employee.name : "Employee"}</h5>
+                                    <i className="glyphicon glyphicon-resize-full pull-right"></i>
+                                    <span className="pull-right">26-feb to 29-feb</span>
                                 </div>
                                 <div className="releaseDayRow">
                                     <div className="releaseDayCell"><h5>Sun</h5></div>
