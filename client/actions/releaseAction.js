@@ -224,7 +224,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(shift)
+                body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
@@ -249,7 +249,7 @@ export const shiftTasksToPastOnServer = (shift) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(shift)
+                body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
@@ -257,6 +257,30 @@ export const shiftTasksToPastOnServer = (shift) => {
             json => {
                 if (json.success) {
                     dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getDeveloperSchedulesFromServer = (employeeID, from) => {
+    return (dispatch, getState) => {
+        return fetch('/api/employees/' + employeeID + '/from/' + from + '/employee-schedule', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("json.data", json.data)
+                    // dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
                 }
                 return json
             })
