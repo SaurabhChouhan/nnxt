@@ -60,6 +60,11 @@ export const expandDescription = (flag) => ({
     flag: flag
 })
 
+export const setEmployeeSettings = (empSetting) => ({
+    type: AC.SET_EMPLOYEE_SETTINGS,
+    empSetting: empSetting
+})
+
 export const getAllReleaseProjectsFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {

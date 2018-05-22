@@ -6,16 +6,22 @@ class ReleaseDevelopersSchedules extends React.Component {
         super(props);
     }
 
+    componentDidMount() {
+        this.props.getEmployeeSettings()
+    }
+
     render() {
-        const {schedules} = this.props
+        const {schedules, employeeSetting} = this.props
         return (
             <div>
                 {
-                    schedules.map((schedule, idx) => <div key={'schedule' + idx} className="col-md-12 releaseSchedule">
+                    schedules && schedules.length ? schedules.map((schedule, idx) => <div key={'schedule' + idx}
+                                                                                          className="col-md-12 releaseSchedule">
                             <div className="repository releaseDevInfo">
                                 <div className="releaseDevHeading">
-                                    <h5>Developer1</h5><i className="glyphicon glyphicon-resize-full pull-right"></i><span
-                                    className="pull-right">26-feb to 29-feb</span>
+                                    <h5>{schedule.employee && schedule.employee.name ? schedule.employee.name : "Employee"}</h5>
+                                    <i className="glyphicon glyphicon-resize-full pull-right"></i>
+                                    <span className="pull-right">26-feb to 29-feb</span>
                                 </div>
                                 <div className="releaseDayRow">
                                     <div className="releaseDayCell"><h5>Sun</h5></div>
@@ -42,7 +48,7 @@ class ReleaseDevelopersSchedules extends React.Component {
 
                             </div>
                         </div>
-                    )
+                    ) : <label>Employee is not selected</label>
                 }
 
             </div>

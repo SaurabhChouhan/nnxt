@@ -4,10 +4,18 @@ import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
+import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, from) => {
-        return dispatch(A.getDeveloperSchedulesFromServer(employeeID, from))
+        if (from && employeeID) {
+            return dispatch(A.getDeveloperSchedulesFromServer(employeeID.toString(), from))
+        } else if (employeeID && employeeID != undefined) {
+            return NotificationManager.error('Date is not picked up properly!')
+
+        } else return NotificationManager.error('Employee is not selected!')
+
+
     }
 })
 
