@@ -49,20 +49,33 @@ class ReleaseDevelopersSchedules extends React.Component {
                                             if (scheduleDay && scheduleDay != undefined) {
                                                 return <div key={'day' + index} className="releaseDayCell">
                                                     <h5> Mon</h5>
-                                                    <div className="estimationuser">
+                                                    <div>
                                                         <span>{scheduleDay.plannedHours <= employeeSetting.free ?
-                                                            "F"
+                                                            <img className="div-hover" key="free" src="/images/free.png"
+                                                                 title="Free"
+                                                            />
                                                             : scheduleDay.plannedHours <= employeeSetting.relativelyFree ?
-                                                                "RF"
+                                                                <img className="div-hover" key="relatively-free"
+                                                                     src="/images/relative_free.png"
+                                                                     title="Relative Free"
+                                                                />
                                                                 : scheduleDay.plannedHours <= employeeSetting.busy ?
-                                                                    "B"
-                                                                    : "SB"}</span>
+                                                                    <img className="div-hover" key="busy"
+                                                                         src="/images/busy.png"
+                                                                         title="Busy"
+                                                                    />
+                                                                    : <img className="div-hover" key="super_busy"
+                                                                           src="/images/super_busy.png"
+                                                                           title="Super Busy"
+                                                                    />}</span>
                                                     </div>
                                                 </div>
                                             } else return <div key={'day' + index} className="releaseDayCell">
                                                 <h5> Mon</h5>
-                                                <div className="estimationuser">
-                                                    <span>F</span>
+                                                <div>
+                                                    <span> <img className="div-hover" key="free" src="/images/free.png"
+                                                                title="Free"
+                                                    /></span>
                                                 </div>
                                             </div>
 
