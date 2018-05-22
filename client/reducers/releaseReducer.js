@@ -102,7 +102,6 @@ const releaseReducer = (state = initialState, action) => {
             })
 
         case AC.SET_FROM_DATE:
-            // Developer planning details according to date time selection
             return Object.assign({}, state, {
                 from: action.from
             })

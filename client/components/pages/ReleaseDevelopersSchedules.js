@@ -11,7 +11,6 @@ class ReleaseDevelopersSchedules extends React.Component {
     constructor(props) {
         super(props);
     }
-
     componentDidMount() {
         this.props.getEmployeeSettings()
     }
@@ -48,7 +47,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                                             let scheduleDay = schedule.days && schedule.days.length ? schedule.days.find(day => momentTZ.tz(day.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isSame(weekDate)) : undefined
                                             if (scheduleDay && scheduleDay != undefined) {
                                                 return <div key={'day' + index} className="releaseDayCell">
-                                                    <h5> Mon</h5>
+                                                    <h5> {moment(scheduleDay.dateString).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
                                                     <div>
                                                         <span>{scheduleDay.plannedHours <= employeeSetting.free ?
                                                             <img className="div-hover" key="free" src="/images/free.png"
@@ -71,7 +70,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                     </div>
                                                 </div>
                                             } else return <div key={'day' + index} className="releaseDayCell">
-                                                <h5> Mon</h5>
+                                                <h5> {moment(weekDate).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
                                                 <div>
                                                     <span> <img className="div-hover" key="free" src="/images/free.png"
                                                                 title="Free"
