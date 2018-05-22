@@ -13,11 +13,11 @@ let ReleaseDeveloperScheduleForm = (props) => {
 
     return <div>
         <form onSubmit={handleSubmit}>
-            <div className="col-md-12 repositoryHeading RepositorySideHeight">
-                <div className="col-md-10 pad">
-                    <h5><b>Developers Schedules:</b></h5>
+            <div className="col-md-12 repositoryHeading RepositorySideHeight releaseDevScheduleHeading">
+                <div className="col-md-6 pad">
+                    <h5><b>Developers Schedules</b></h5>
                 </div>
-                <div className="col-md-2 pad text-right">
+                <div className="col-md-6 pad text-right">
                     <Field name="employeeID"
                            placeholder={"Name of Developer"}
                            onChange={(event, newValue, oldValue) => {
@@ -29,9 +29,9 @@ let ReleaseDeveloperScheduleForm = (props) => {
                 </div>
             </div>
             <div className="col-md-12">
-                <div className="col-md-4">
-                    <button className=""
-                            style={{marginLeft: '117px'}}
+                <div className="col-md-3">
+                    <button className="btn reportingArrow"
+                            style={{marginLeft: '-16px'}}
                             onClick={() => {
                                 let prevDate = moment(fromSchedule).clone().subtract(7, 'days').format(SC.DATE_FORMAT)
                                 props.getDeveloperSchedules(employeeID, prevDate)
@@ -42,7 +42,7 @@ let ReleaseDeveloperScheduleForm = (props) => {
                         <i className="glyphicon glyphicon-arrow-left"></i>
                     </button>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-6">
 
                     <Field name='fromSchedule'
                            onChange={(event, newValue, oldValue) => {
@@ -54,9 +54,9 @@ let ReleaseDeveloperScheduleForm = (props) => {
                     />
 
                 </div>
-                <div className="col-md-4">
-                    <button className=""
-                            style={{marginLeft: '150px'}}
+                <div className="col-md-3">
+                    <button className="btn reportingArrow"
+                            style={{marginLeft: '27px'}}
                             onClick={() => {
                                 let nextDate = moment(fromSchedule).clone().add(7, 'days').format('YYYY-MM-DD')
                                 props.getDeveloperSchedules(nextDate)

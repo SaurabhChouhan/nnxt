@@ -7,11 +7,10 @@ import * as SC from '../../../server/serverconstants'
 import _ from 'lodash'
 import {
     ReleaseDeveloperFilterFormContainer,
-    ReleaseTaskPlanningShiftFormContainer,
-    ReleaseDevelopersSchedulesContainer,
     ReleaseDeveloperScheduleFormContainer,
+    ReleaseDevelopersSchedulesContainer,
+    ReleaseTaskPlanningShiftFormContainer,
 } from '../../containers'
-import PropTypes from 'prop-types'
 
 moment.locale('en')
 momentLocalizer()
@@ -216,7 +215,7 @@ class ReleaseTaskPlanningPage extends Component {
                     </div>
                 </div>
                 <div className="col-md-4 estimationsection pad">
-                    <div className="col-md-12 planSchedule">
+                    <div>
                         <ReleaseDeveloperScheduleFormContainer/>
                     </div>
                     <ReleaseDevelopersSchedulesContainer/>
