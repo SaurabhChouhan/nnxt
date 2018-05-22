@@ -6,7 +6,9 @@ import * as A from '../../actions'
 const mapDispatchToProps = (dispatch, ownProps) => ({})
 
 
-const mapStateToProps = (state) => ({})
+const mapStateToProps = (state) => ({
+    schedules: state.release.schedules
+})
 
 const ReleaseDevelopersSchedulesContainer = connect(
     mapStateToProps,
