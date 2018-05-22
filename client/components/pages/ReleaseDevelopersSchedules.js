@@ -1,4 +1,11 @@
 import React, {Component} from 'react'
+import moment from 'moment'
+import momentLocalizer from 'react-widgets-moment'
+import momentTZ from 'moment-timezone'
+import * as SC from '../../../server/serverconstants'
+
+moment.locale('en')
+momentLocalizer()
 
 class ReleaseDevelopersSchedules extends React.Component {
 
@@ -11,7 +18,16 @@ class ReleaseDevelopersSchedules extends React.Component {
     }
 
     render() {
-        const {schedules, employeeSetting} = this.props
+        const {schedules, employeeSetting, from} = this.props
+        let fromString = moment(from).format(SC.DATE_FORMAT)
+        let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let startMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let toMoment = fromMoment.clone().add(7, 'days')
+        let weekArray = []
+        while (startMoment.isBefore(toMoment)) {
+            weekArray.push(startMoment.clone())
+            startMoment = startMoment.clone().add(1, 'days')
+        }
         return (
             <div>
                 {
@@ -21,32 +37,18 @@ class ReleaseDevelopersSchedules extends React.Component {
                                 <div className="releaseDevHeading">
                                     <h5>{schedule.employee && schedule.employee.name ? schedule.employee.name : "Employee"}</h5>
                                     <i className="glyphicon glyphicon-resize-full pull-right"></i>
-                                    <span className="pull-right">26-feb to 29-feb</span>
+                                    <span
+                                        className="pull-right">{fromMoment.format(SC.DATE_MONTH_FORMAT) + ' to ' + toMoment.format(SC.DATE_MONTH_FORMAT)}</span>
                                 </div>
                                 <div className="releaseDayRow">
-                                    <div className="releaseDayCell"><h5>Sun</h5></div>
-                                    <div className="releaseDayCell"><h5>Mon</h5>
-                                        <div className="estimationuser"><span>E</span></div>
-                                    </div>
-                                    <div className="releaseDayCell"><h5>Tue</h5>
-                                        <div className="estimationuser"><span>E</span></div>
-                                    </div>
-                                    <div className="releaseDayCell"><h5>Wed</h5>
-                                        <div className="estimationuser"><span>E</span></div>
-                                    </div>
-                                    <div className="releaseDayCell"><h5>Thu</h5>
-                                        <div className="estimationuser"><span>E</span></div>
-                                    </div>
-                                    <div className="releaseDayCell"><h5>Fri</h5>
-                                        <div className="estimationuser"><span>E</span></div>
-                                    </div>
-                                    <div className="releaseDayCell"><h5>Sat</h5>
-                                        <div className="estimationuser"><span>E</span></div>
-                                    </div>
-
+                                    {weekArray && weekArray.length ? weekArray.map((weekDate, index) =>
+                                        <div key={'day' + index} className="releaseDayCell"><h5>Mon</h5>
+                                            <div className="estimationuser"><span>E</span></div>
+                                        </div>
+                                    ) : null}
                                 </div>
-
                             </div>
+
                         </div>
                     ) : <label>Employee is not selected</label>
                 }

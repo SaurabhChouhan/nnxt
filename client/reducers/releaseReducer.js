@@ -14,7 +14,8 @@ let initialState = {
     expanded: false,
     fromSchedule: nowString,
     schedules: [],
-    employeeSetting: {}
+    employeeSetting: {},
+    from: nowString
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -88,18 +89,22 @@ const releaseReducer = (state = initialState, action) => {
                 expanded: action.flag
             })
 
-
         case AC.SET_DEVELOPERS_SCHEDULE:
             // Developer planning details according to date time selection
             return Object.assign({}, state, {
                 schedules: action.schedules
             })
 
-
         case AC.SET_EMPLOYEE_SETTINGS:
             // Developer planning details according to date time selection
             return Object.assign({}, state, {
                 employeeSetting: action.empSetting
+            })
+
+        case AC.SET_FROM_DATE:
+            // Developer planning details according to date time selection
+            return Object.assign({}, state, {
+                from: action.from
             })
 
 

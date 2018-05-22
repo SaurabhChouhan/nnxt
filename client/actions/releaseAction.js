@@ -65,6 +65,11 @@ export const setEmployeeSettings = (empSetting) => ({
     empSetting: empSetting
 })
 
+export const setFromDate = (date) => ({
+    type: AC.SET_FROM_DATE,
+    date: date
+})
+
 export const getAllReleaseProjectsFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {
@@ -290,6 +295,7 @@ export const getDeveloperSchedulesFromServer = (employeeID, from) => {
             json => {
                 if (json.success) {
                     console.log("json.data", json.data)
+                    dispatch(setFromDate(from))
                     dispatch(setDevelopersSchedule(json.data))
                 }
                 return json

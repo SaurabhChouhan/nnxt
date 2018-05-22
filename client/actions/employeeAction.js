@@ -1,5 +1,5 @@
 import {initialize} from 'redux-form'
-
+import * as A from '../actions'
 
 export const addEmployeeSettingOnServer = (employeeSetting) => {
     return function (dispatch, getState) {
