@@ -91,7 +91,7 @@ export {default as ReleaseList} from './lists/ReleaseList'
 export {default as ReleaseProjectTaskList} from './lists/ReleaseProjectTaskList'
 
 //Release Forms
-export {default as ReleaseDeveloperPlanShiftForm} from './forms/ReleaseDeveloperPlanShiftForm'
+export {default as ReleaseTaskPlanningShiftForm} from './forms/ReleaseTaskPlanningShiftForm'
 export {default as ReleaseDeveloperFilterForm} from './forms/ReleaseDeveloperFilterForm'
 export {default as ReleaseTaskPlanningForm} from './forms/ReleaseTaskPlanningForm'
 export {default as ReleaseMergeTaskPlanningForm} from './forms/ReleaseMergeTaskPlanningForm'

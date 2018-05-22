@@ -5,7 +5,11 @@ import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
 import _ from 'lodash'
-import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
+import {
+    ReleaseDeveloperFilterFormContainer,
+    ReleaseTaskPlanningShiftFormContainer,
+    DevelopersScheduleSearchContainer
+} from '../../containers'
 import PropTypes from 'prop-types'
 
 moment.locale('en')
@@ -166,7 +170,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                     </div>
                     <div>
-                        <ReleaseDeveloperPlanShiftFormContainer/>
+                        <ReleaseTaskPlanningShiftFormContainer/>
                     </div>
                     <div>
                         <ReleaseDeveloperFilterFormContainer/>

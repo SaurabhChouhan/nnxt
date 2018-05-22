@@ -80,7 +80,7 @@ export {default as AttendenceSettingFormContainer} from './forms/AttendanceSetti
 
 
 //Release setting
-export {default as ReleaseDeveloperPlanShiftFormContainer} from './forms/ReleaseDeveloperPlanShiftFormContainer'
+export {default as ReleaseTaskPlanningShiftFormContainer} from './forms/ReleaseTaskPlanningShiftFormContainer'
 export {default as ReleaseDeveloperFilterFormContainer} from './forms/ReleaseDeveloperFilterFormContainer'
 export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
 export {default as ReleaseMergeTaskPlanningFormContainer} from './forms/ReleaseMergeTaskPlanningFormContainer'
