@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import ContentSection from './ContentSection'
 import {
-    AttendenceSettingFormContainer,
+    AttendanceSettingFormContainer,
     ClientListContainer,
     EstimationDetailContainer,
     EstimationListContainer,
@@ -201,7 +201,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/attendance: props:", props)
                 return <ContentSection>
-                    <AttendenceSettingFormContainer name={COC.ATTENDANCE_SETTING_FORM}/>
+                    <AttendanceSettingFormContainer name={COC.ATTENDANCE_SETTING_FORM}/>
                 </ContentSection>
 
             }

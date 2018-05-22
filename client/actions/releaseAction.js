@@ -50,6 +50,11 @@ export const updateDeveloperFilteredData = (developerPlanned) => ({
     developerPlanned: developerPlanned
 })
 
+export const setDevelopersSchedule = (schedules) => ({
+    type: AC.SET_DEVELOPERS_SCHEDULE,
+    schedules: schedules
+})
+
 export const expandDescription = (flag) => ({
     type: AC.EXPAND_DESCRIPTION,
     flag: flag
@@ -280,7 +285,7 @@ export const getDeveloperSchedulesFromServer = (employeeID, from) => {
             json => {
                 if (json.success) {
                     console.log("json.data", json.data)
-                    // dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
+                    dispatch(setDevelopersSchedule(json.data))
                 }
                 return json
             })
