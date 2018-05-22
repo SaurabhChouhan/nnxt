@@ -95,7 +95,7 @@ class ReleaseTaskPlanningPage extends Component {
     render() {
 
         const {taskPlan, taskPlans, developerPlans, expanded} = this.props
-
+        console.log("taskPlan", taskPlan)
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -112,9 +112,14 @@ class ReleaseTaskPlanningPage extends Component {
                                 </h5>
                             </div>
                         </div>
-                        <div className="col-md-4  releaseClock ">
+                        <div className="col-md-2  releaseClock ">
                             <i className="fa fa-clock-o "
                                title="Estimated Hours"></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
+                            Hrs</b>
+                        </div>
+                        <div className="col-md-2  releaseClock releasePlannedHrs">
+                            <i className="fa fa-clock-o "
+                               title="Planned Hours"></i><b>{taskPlan.planning ? taskPlan.planning.plannedHours : ''}
                             Hrs</b>
                         </div>
                     </div>
@@ -159,7 +164,7 @@ class ReleaseTaskPlanningPage extends Component {
                                 <TableHeaderColumn columnTitle dataField='planningDateString'
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Est
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
                                     Hours</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
                                                    dataFormat={this.formatDeveloper.bind(this)}>Developer</TableHeaderColumn>

@@ -163,7 +163,7 @@ class ReleaseProjectTaskList extends Component {
                                 <p className="tooltiptext">{selectedProject.leader ? selectedProject.leader.firstName : ''}</p>
                             </div>
                         </div>
-                        <div className="col-md-8 pad ">
+                        <div className="col-md-5 pad ">
                             <div className="releaseTeam"><span>Team</span>
                             </div>
                             {
@@ -175,6 +175,18 @@ class ReleaseProjectTaskList extends Component {
                                 })
                             }
 
+                        </div>
+                        <div className="col-md-3">
+                            <div className="col-md-6  releaseClock  releaseProjectPlannedHours">
+                                <i className="fa fa-clock-o "
+                                   title="Estimated Hours"></i><b>{selectedProject.initial ? selectedProject.initial.estimatedHours : ''}
+                                Hrs</b>
+                            </div>
+                            <div className="col-md-6  releaseClock releasePlannedHrs releaseProjectPlannedHours">
+                                <i className="fa fa-clock-o "
+                                   title="Planned Hours"></i><b>{selectedProject.initial ? selectedProject.initial.plannedHours : ''}
+                                Hrs</b>
+                            </div>
                         </div>
 
                     </div>
