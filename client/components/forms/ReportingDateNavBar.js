@@ -3,6 +3,10 @@ import {renderDateTimePickerString} from "./fields"
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import moment from 'moment'
 import {connect} from 'react-redux'
+import momentLocalizer from 'react-widgets-moment'
+import * as SC from '../../../server/serverconstants'
+moment.locale('en')
+momentLocalizer()
 
 class ReportingDateNavBar extends React.Component {
 
@@ -20,7 +24,7 @@ class ReportingDateNavBar extends React.Component {
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '117px'}}
                                 onClick={() => {
-                                    let prevDate = moment(dateOfReport).clone().subtract(1, 'days').format('YYYY-MM-DD')
+                                    let prevDate = moment(dateOfReport).clone().subtract(1, 'days').format(SC.DATE_FORMAT)
                                     this.props.setReportDate(prevDate)
                                     this.props.onProjectSelect(releaseID, prevDate, taskStatus)
                                     change("dateOfReport", moment(prevDate).clone().toDate())

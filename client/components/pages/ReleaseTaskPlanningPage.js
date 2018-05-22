@@ -216,16 +216,6 @@ class ReleaseTaskPlanningPage extends Component {
                     </div>
                 </div>
                 <div className="col-md-4 estimationsection pad">
-                    <div className="col-md-12 repositoryHeading RepositorySideHeight">
-                        <div className="col-md-10 pad">
-                            <h5><b>Developers Schedule</b></h5>
-                        </div>
-                        <div className="col-md-2 pad text-right">
-                            <div className="searchReleasePlan">
-                                <a href=""><i className="glyphicon glyphicon-search "></i></a>
-                            </div>
-                        </div>
-                    </div>
                     <div className="col-md-12 planSchedule">
                         <ReleaseDeveloperScheduleFormContainer/>
                     </div>

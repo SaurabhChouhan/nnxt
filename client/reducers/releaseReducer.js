@@ -1,6 +1,9 @@
 import * as AC from "../actions/actionConsts"
+import * as SC from "../../server/serverconstants"
+import moment from 'moment'
 
-
+let now = new Date()
+let nowString = moment(now).format(SC.DATE_FORMAT)
 let initialState = {
     all: [],
     projectTasks: [],
@@ -8,7 +11,8 @@ let initialState = {
     selectedTask: {},
     taskPlans: [],
     developerPlans: [],
-    expanded: false
+    expanded: false,
+    fromSchedule: nowString
 }
 
 const releaseReducer = (state = initialState, action) => {
