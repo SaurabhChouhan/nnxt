@@ -7,7 +7,9 @@ import * as A from '../../actions'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, from) => {
-        return dispatch(A.getDeveloperSchedulesFromServer(employeeID, from))
+        console.log("employeeID", employeeID)
+        console.log("type of employeeID", typeof employeeID)
+        return dispatch(A.getDeveloperSchedulesFromServer(employeeID.toString(), from))
     }
 })
 

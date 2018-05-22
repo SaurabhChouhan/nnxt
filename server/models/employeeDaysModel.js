@@ -82,25 +82,47 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
         throw new AppError('From Date is not selected, please select any date', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
-    if (!selectedEmployee) {
-        throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
     let fromString = moment(from).format(SC.DATE_FORMAT)
     let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(7, 'days').hour(0).minute(0).second(0).millisecond(0)
     if (employeeID && employeeID.toLowerCase() == "all") {
-        return await EmployeeDaysModel.find({
-            "date": {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()},
-        })
+        console.log("selected employee", employeeID)
+        return await EmployeeDaysModel.aggregate([{
+            $match: {date: {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()}}
+        }, {
+            $group: {
+                _id: {
+                    "employeeID": "$employee._id"
+                },
+                employee: {$first: "$employee"},
+                days: {$push: {_id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date"}}
+            }
+        }]).exec()
     } else {
+        // Check employee is a valid employee
+        let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
+        if (!selectedEmployee) {
+            throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        }
         console.log("selectedEmployee._id", selectedEmployee._id)
-        return await EmployeeDaysModel.find({
-            "date": {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()},
-            "employee._id": selectedEmployee._id
-        })
-    }
+        return await EmployeeDaysModel.aggregate([{
+            $match: {
+                $and: [
+                    {date: {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()}},
+                    {"employee._id": mongoose.Types.ObjectId(selectedEmployee._id)}
+                ]
+            }
+        }, {
+            $group: {
+                _id: {
+                    "employeeID": "$employee._id"
+                },
+                employee: {$first: "$employee"},
+                days: {$push: {_id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date"}}
+            }
+        }]).exec()
 
+    }
 }
 
 

@@ -40,6 +40,7 @@ employeeRouter.put("/employee-setting", async ctx => {
 /*
 * Employee Schedule*/
 employeeRouter.get("/:employeeID/from/:from/employee-schedule", async ctx => {
+    console.log("inside router employeeID", ctx.params.employeeID)
     return await MDL.EmployeeDaysModel.getEmployeeSchedule(ctx.params.employeeID, ctx.params.from, ctx.state.user)
 })
 
