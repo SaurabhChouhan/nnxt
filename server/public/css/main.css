@@ -1800,5 +1800,10 @@ hr {
     margin-top: -32px;
 }
 
+.releaseDevScheduleHeading {
+    margin-top: -11px;
+}
 
-
+.releaseDevScheduleHeading h5 {
+    font-size: 18px;
+}
