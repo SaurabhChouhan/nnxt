@@ -22,9 +22,9 @@ class ReleaseDevelopersSchedules extends React.Component {
         let fromString = moment(from).format(SC.DATE_FORMAT)
         let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
         let startMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-        let toMoment = fromMoment.clone().add(7, 'days')
+        let toMoment = fromMoment.clone().add(6, 'days')
         let weekArray = []
-        while (startMoment.isBefore(toMoment)) {
+        while (startMoment.isSameOrBefore(toMoment)) {
             weekArray.push(startMoment.clone())
             startMoment = startMoment.clone().add(1, 'days')
         }
@@ -50,13 +50,19 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                 return <div key={'day' + index} className="releaseDayCell">
                                                     <h5> Mon</h5>
                                                     <div className="estimationuser">
-                                                        <span>V</span>
+                                                        <span>{scheduleDay.plannedHours <= employeeSetting.free ?
+                                                            "F"
+                                                            : scheduleDay.plannedHours <= employeeSetting.relativelyFree ?
+                                                                "RF"
+                                                                : scheduleDay.plannedHours <= employeeSetting.busy ?
+                                                                    "B"
+                                                                    : "SB"}</span>
                                                     </div>
                                                 </div>
                                             } else return <div key={'day' + index} className="releaseDayCell">
                                                 <h5> Mon</h5>
                                                 <div className="estimationuser">
-                                                    <span>E</span>
+                                                    <span>F</span>
                                                 </div>
                                             </div>
 
@@ -75,10 +81,10 @@ class ReleaseDevelopersSchedules extends React.Component {
 
 export default ReleaseDevelopersSchedules
 
-/*
-* {weekArray && weekArray.length ? weekArray.map((weekDate, index) => {
-                                //  console.log("day", weekDate.getDay())
-
-
-                            }) : null
-                            }*/
+/*{schedule.plannedHours <= employeeSetting.free ?
+                                                            "F"
+                                                            : schedule.plannedHours <= employeeSetting.relativelyFree ?
+                                                                "RF"
+                                                                : schedule.plannedHours <= employeeSetting.busy ?
+                                                                    "B"
+                                                                    : "SB"}*/
