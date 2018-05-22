@@ -12,7 +12,8 @@ let initialState = {
     taskPlans: [],
     developerPlans: [],
     expanded: false,
-    fromSchedule: nowString
+    fromSchedule: nowString,
+    schedules: []
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -84,6 +85,11 @@ const releaseReducer = (state = initialState, action) => {
             // Developer planning details according to date time selection
             return Object.assign({}, state, {
                 expanded: action.flag
+            })
+        case AC.SET_DEVELOPERS_SCHEDULE:
+            // Developer planning details according to date time selection
+            return Object.assign({}, state, {
+                schedules: action.schedules
             })
 
 

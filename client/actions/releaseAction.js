@@ -50,6 +50,11 @@ export const updateDeveloperFilteredData = (developerPlanned) => ({
     developerPlanned: developerPlanned
 })
 
+export const setDevelopersSchedule = (schedules) => ({
+    type: AC.SET_DEVELOPERS_SCHEDULE,
+    schedules: schedules
+})
+
 export const expandDescription = (flag) => ({
     type: AC.EXPAND_DESCRIPTION,
     flag: flag
@@ -224,7 +229,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(shift)
+                body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
@@ -249,7 +254,7 @@ export const shiftTasksToPastOnServer = (shift) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(shift)
+                body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
@@ -257,6 +262,30 @@ export const shiftTasksToPastOnServer = (shift) => {
             json => {
                 if (json.success) {
                     dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getDeveloperSchedulesFromServer = (employeeID, from) => {
+    return (dispatch, getState) => {
+        return fetch('/api/employees/' + employeeID + '/from/' + from + '/employee-schedule', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("json.data", json.data)
+                    dispatch(setDevelopersSchedule(json.data))
                 }
                 return json
             })
