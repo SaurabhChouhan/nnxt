@@ -6,8 +6,12 @@ class ReleaseDevelopersSchedules extends React.Component {
         super(props);
     }
 
+    componentDidMount() {
+        this.props.getEmployeeSettings()
+    }
+
     render() {
-        const {schedules} = this.props
+        const {schedules, employeeSetting} = this.props
         return (
             <div>
                 {

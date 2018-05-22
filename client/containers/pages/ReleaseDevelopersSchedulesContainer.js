@@ -3,11 +3,14 @@ import {ReleaseDevelopersSchedules} from '../../components'
 import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
 
-const mapDispatchToProps = (dispatch, ownProps) => ({})
+const mapDispatchToProps = (dispatch, ownProps) => ({
+    getEmployeeSettings: () =>  dispatch(A.getEmployeeSettingFromServer())
+})
 
 
 const mapStateToProps = (state) => ({
-    schedules: state.release.schedules
+    schedules: state.release.schedules,
+    employeeSetting: state.release.employeeSetting
 })
 
 const ReleaseDevelopersSchedulesContainer = connect(
