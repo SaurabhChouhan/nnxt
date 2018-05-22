@@ -4,6 +4,7 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import momentTZ from 'moment-timezone'
 import AppError from '../AppError'
+import * as MDL from '../models'
 
 mongoose.Promise = global.Promise
 
@@ -69,6 +70,37 @@ employeeDaysSchema.statics.decreasePlannedHoursOnEmployeeDaysDetails = async (Em
 employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
     return await EmployeeDaysModel.find({})
 }
+
+
+employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, fromString, user) => {
+    if (!employeeID) {
+        throw new AppError('Employee is not selected, please select any employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (!fromString) {
+        throw new AppError('From Date is not selected, please select any date', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
+    if (!selectedEmployee) {
+        throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(7, 'days').hour(0).minute(0).second(0).millisecond(0)
+    if (employeeID && employeeID.toLowerCase() != "all") {
+        return await EmployeeDaysModel.find({
+            "date": {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()},
+        })
+    } else {
+        return await EmployeeDaysModel.find({
+            "date": {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()},
+            "employee._id": selectedEmployee._id
+        })
+    }
+
+}
+
 
 const EmployeeDaysModel = mongoose.model("EmployeeDay", employeeDaysSchema)
 export default EmployeeDaysModel
