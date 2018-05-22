@@ -3,10 +3,6 @@ import t from 'tcomb-validation'
 
 export const employeeAddEmployeeDaysStruct = t.struct({
     _id: t.Nil,
-    project: t.struct({
-        _id: ObjectId,
-        name: t.String
-    }),
     employee: t.struct({
         _id: ObjectId,
         name: t.String
@@ -42,5 +38,67 @@ export const employeeUpdateSettingStruct = t.struct({
     relativelyFree: t.Number,
     busy: t.Number,
     superBusy: t.Number
+
+})
+
+export const employeeAddEmployeeStatisticsStruct = t.struct({
+    _id: t.Nil,
+    release: t.struct({
+        _id: ObjectId,
+        version: t.String
+    }),
+    employee: t.struct({
+        _id: ObjectId,
+        name: t.String
+    }),
+    leaves: t.maybe(t.list(
+        t.struct({
+            _id: ObjectId,
+            date: t.String,
+            reason: t.String,
+            plannedHours: t.Number
+        })
+    )),
+    tasks: t.maybe(t.list(
+        t.struct({
+            _id: ObjectId,
+            name: t.String,
+            plannedHours: t.Number,
+            reportedHours: t.Number,
+            plannedHoursReportedTasks: t.Number
+        })
+    ))
+})
+
+export const employeeAddTaskEmployeeStatisticsStruct = t.struct({
+    release: t.struct({
+        _id: ObjectId
+    }),
+    employee: t.struct({
+        _id: ObjectId
+    }),
+    task: t.struct({
+        _id: ObjectId,
+        name: t.String,
+        plannedHours: t.Number,
+        reportedHours: t.Number,
+        plannedHoursReportedTasks: t.Number
+    })
+
+})
+
+export const employeeUpdateTaskEmployeeStatisticsStruct = t.struct({
+    release: t.struct({
+        _id: ObjectId
+    }),
+    employee: t.struct({
+        _id: ObjectId
+    }),
+    task: t.struct({
+        _id: ObjectId,
+        plannedHours: t.Number,
+        reportedHours: t.Number,
+        plannedHoursReportedTasks: t.Number
+    })
 
 })

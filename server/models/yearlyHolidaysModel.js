@@ -62,7 +62,7 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDat
     if (!startDateMoment || !endDateMoment)
         throw new AppError("conversionFailed", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     return await YearlyHolidaysModel.find({
-        "holidays.date": {$gte: startDateMoment.clone(), $lte: endDateMoment.clone()}
+        "holidays.date": {$gte: startDateMoment.clone().toDate(), $lte: endDateMoment.clone().toDate()}
     }).exec()
 }
 

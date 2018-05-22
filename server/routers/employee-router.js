@@ -36,4 +36,11 @@ employeeRouter.put("/employee-setting", async ctx => {
     }
     return await MDL.EmployeeSettingModel.updateEmployeeSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
+
+/*
+* Employee Schedule*/
+employeeRouter.get(":employeeID/from/:from/employee-schedule", async ctx => {
+    return await MDL.EmployeeDaysModel.getEmployeeSchedule(ctx.params.employeeID, ctx.params.from, ctx.state.user)
+})
+
 export default employeeRouter
