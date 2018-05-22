@@ -1324,13 +1324,14 @@ p.task-description {
 .releaseClock i {
     font-size: 32px;
     color: #29CAC8;
-    margin-left: 124px;
+    /*margin-left: 124px;*/
 }
 
 .releaseClock b {
     font-size: 16px;
     position: absolute;
-    left: 80%;
+    /*left: 80%;*/
+    left: 45%;
     top: 11%;
 }
 
@@ -1806,4 +1807,17 @@ hr {
 
 .releaseDevScheduleHeading h5 {
     font-size: 18px;
+}
+
+.releasePlannedHrs i {
+    color: #003c79;
+}
+
+.releaseProjectPlannedHours b {
+    margin-left: 15px;
+    margin-top: -4px;
+}
+
+.releaseProjectPlannedHours i {
+    margin-top: -6px;
 }
