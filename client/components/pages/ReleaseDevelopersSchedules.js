@@ -8,7 +8,6 @@ moment.locale('en')
 momentLocalizer()
 
 class ReleaseDevelopersSchedules extends React.Component {
-
     constructor(props) {
         super(props);
     }
@@ -18,6 +17,7 @@ class ReleaseDevelopersSchedules extends React.Component {
     }
 
     render() {
+
         const {schedules, employeeSetting, from} = this.props
         let fromString = moment(from).format(SC.DATE_FORMAT)
         let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
@@ -28,11 +28,13 @@ class ReleaseDevelopersSchedules extends React.Component {
             weekArray.push(startMoment.clone())
             startMoment = startMoment.clone().add(1, 'days')
         }
-        return (
-            <div>
-                {
-                    schedules && schedules.length ? schedules.map((schedule, idx) => <div key={'schedule' + idx}
-                                                                                          className="col-md-12 releaseSchedule">
+        return <div>
+            {
+                schedules && schedules.length ? schedules.map((schedule, idx) => {
+
+
+                        return <div key={'schedule' + idx}
+                                    className="col-md-12 releaseSchedule">
                             <div className="repository releaseDevInfo">
                                 <div className="releaseDevHeading">
                                     <h5>{schedule.employee && schedule.employee.name ? schedule.employee.name : "Employee"}</h5>
@@ -41,21 +43,42 @@ class ReleaseDevelopersSchedules extends React.Component {
                                         className="pull-right">{fromMoment.format(SC.DATE_MONTH_FORMAT) + ' to ' + toMoment.format(SC.DATE_MONTH_FORMAT)}</span>
                                 </div>
                                 <div className="releaseDayRow">
-                                    {weekArray && weekArray.length ? weekArray.map((weekDate, index) =>
-                                        <div key={'day' + index} className="releaseDayCell"><h5>Mon</h5>
-                                            <div className="estimationuser"><span>E</span></div>
-                                        </div>
-                                    ) : null}
+                                    {
+                                        weekArray && weekArray.length ? weekArray.map((weekDate, index) => {
+                                            let scheduleDay = schedule.days && schedule.days.length ? schedule.days.find(day => momentTZ.tz(day.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isSame(weekDate)) : undefined
+                                            if (scheduleDay && scheduleDay != undefined) {
+                                                return <div key={'day' + index} className="releaseDayCell">
+                                                    <h5> Mon</h5>
+                                                    <div className="estimationuser">
+                                                        <span>V</span>
+                                                    </div>
+                                                </div>
+                                            } else return <div key={'day' + index} className="releaseDayCell">
+                                                <h5> Mon</h5>
+                                                <div className="estimationuser">
+                                                    <span>E</span>
+                                                </div>
+                                            </div>
+
+                                        }) : null
+                                    }
                                 </div>
+
                             </div>
-
                         </div>
-                    ) : <label>Employee is not selected</label>
-                }
-
-            </div>
-        )
+                    }) :
+                    <label>Employee is not selected</label>
+            }
+        </div>
     }
 }
 
 export default ReleaseDevelopersSchedules
+
+/*
+* {weekArray && weekArray.length ? weekArray.map((weekDate, index) => {
+                                //  console.log("day", weekDate.getDay())
+
+
+                            }) : null
+                            }*/
