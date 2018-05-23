@@ -10,10 +10,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, from) => {
         if (from && employeeID) {
             return dispatch(A.getDeveloperSchedulesFromServer(employeeID.toString(), from))
-        } else if (employeeID && employeeID != undefined) {
-            return NotificationManager.error('Date is not picked up properly!')
-
-        } else return NotificationManager.error('Employee is not selected!')
+        } else if (!employeeID || employeeID == undefined) {
+            return NotificationManager.error('Employee is not selected!')
+        } else return NotificationManager.error('Date is not picked up properly!')
 
 
     }

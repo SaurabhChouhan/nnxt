@@ -1492,9 +1492,10 @@ p.task-description {
     display: table-cell;
 }
 
-.releaseDayRow .estimationuser {
+.releaseDayRow .releaseEmployee {
     margin-right: 9px;
     margin-left: 8px;
+    margin-bottom: 10px;
 }
 
 .releaseDayCell h5 {
@@ -1793,9 +1794,14 @@ hr {
 .releaseReadLessLabel {
     color: #FE4744;
     float: right;
+    position: relative;
     top: -36px;
     z-index: 2;
 
+}
+
+.releaseReadLessLabelClick {
+    margin-top: 30px;
 }
 
 .releasePlanChkBtn {
@@ -1822,3 +1828,16 @@ hr {
 .releaseProjectPlannedHours i {
     margin-top: -6px;
 }
+
+.releaseEmployeeMsgText label {
+    margin-left: 92px;
+    color: #F66E65;
+    font-size: 20px;
+}
+
+/*
+element.style {
+    margin-left: 106px;
+    color: #F66E65;
+    font-size: 20px;
+}*/

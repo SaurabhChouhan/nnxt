@@ -70,13 +70,13 @@ const releaseReducer = (state = initialState, action) => {
 
 
         case AC.ADD_DEVELOPER_FILTERED:
-            // Developer planning details according to date time selection
+            // Stores Developer planning details according to Developer selection  and date  selection
             return Object.assign({}, state, {
                 developerPlans: action.developerPlans
             })
 
         case AC.UPDATE_DEVELOPER_FILTERED:
-            // Developer planning details according to date time selection
+            // Update Developer Task planning details
             return Object.assign({}, state, {
                 developerPlans: state.developerPlans && Array.isArray(state.developerPlans) && state.developerPlans.length ?
                     state.developerPlans.map(dp =>
@@ -84,25 +84,23 @@ const releaseReducer = (state = initialState, action) => {
             })
 
         case AC.EXPAND_DESCRIPTION:
-            // Developer planning details according to date time selection
             return Object.assign({}, state, {
                 expanded: action.flag
             })
 
         case AC.SET_DEVELOPERS_SCHEDULE:
-            // Developer planning details according to date time selection
+            // Show Developer task planning Schedule
             return Object.assign({}, state, {
                 schedules: action.schedules
             })
 
         case AC.SET_EMPLOYEE_SETTINGS:
-            // Developer planning details according to date time selection
+            // show Developer  status according to Planned task on developer
             return Object.assign({}, state, {
                 employeeSetting: action.empSetting
             })
 
         case AC.SET_FROM_DATE:
-            // Developer planning details according to date time selection
             return Object.assign({}, state, {
                 from: action.from
             })

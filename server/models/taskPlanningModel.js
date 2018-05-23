@@ -610,7 +610,7 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 // calendar
 // get all task plans of a loggedIn user
 taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) => {
-
+    // fetch all task planning from release
     let taskPlans = await MDL.TaskPlanningModel.find({
         "employee._id": mongoose.Types.ObjectId(user._id)
     }, {
@@ -620,7 +620,6 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         report: 1,
         _id: 1,
     })
-   // console.log("Calendar", taskPlans)
     return taskPlans
 }
 
@@ -1171,10 +1170,6 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
     let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
-
-    // console.log("startDateMomentTz", startDateMomentTz)
-    //  console.log("endDateMomentTz", endDateMomentTz)
-
     /*
     * task planning model group by (employee && planningDate)*/
 
@@ -1201,7 +1196,8 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
             count: {$sum: 1}
         }
     }]).exec()
-    // console.log("taskPlannings", taskPlannings)
+
+    // Employee task planning details will be deleted
     let deleteEmployeeDetails = await MDL.EmployeeDaysModel.remove({
         "date": {$gte: startDateMomentTz.clone().toDate(), $lte: startDateMomentTz.clone().toDate()}
     })

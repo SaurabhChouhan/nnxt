@@ -93,7 +93,7 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
         throw new AppError('Selected date is before now can not see details before now', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(7, 'days').hour(0).minute(0).second(0).millisecond(0)
+    let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(6, 'days').hour(0).minute(0).second(0).millisecond(0)
     if (employeeID && employeeID.toLowerCase() == "all") {
         console.log("selected employee", employeeID)
         return await EmployeeDaysModel.aggregate([{
