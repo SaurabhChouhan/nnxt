@@ -1793,9 +1793,14 @@ hr {
 .releaseReadLessLabel {
     color: #FE4744;
     float: right;
+    position: relative;
     top: -36px;
     z-index: 2;
 
+}
+
+.releaseReadLessLabelClick {
+    margin-top: 30px;
 }
 
 .releasePlanChkBtn {
