@@ -175,7 +175,6 @@ export const mergeTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    //console.log("merge json.data", json.data)
                     dispatch(updateReleaseTaskPlanningToState(json.data))
                     dispatch(updateDeveloperFilteredData(json.data))
                 }
@@ -246,7 +245,6 @@ export const shiftTasksToFutureOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    //console.log("json.data", json.data)
                     dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
                 }
                 return json
