@@ -49,9 +49,16 @@ class ReleaseList extends Component {
         return ''
     }
 
-    formatHours(row) {
+    formatBilledHours(row) {
         if (row) {
             return row.billedHours
+        }
+        return ''
+    }
+
+    formatPlannedHours(row) {
+        if (row) {
+            return row.plannedHours
         }
         return ''
     }
@@ -77,6 +84,7 @@ class ReleaseList extends Component {
         }
         return ''
     }
+
     render() {
         const {projects} = this.props
         return (
@@ -125,8 +133,12 @@ class ReleaseList extends Component {
                                 Leader
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='initial'
-                                               dataFormat={this.formatHours.bind(this)}>
+                                               dataFormat={this.formatBilledHours.bind(this)}>
                                 Billed Hours
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='initial'
+                                               dataFormat={this.formatPlannedHours.bind(this)}>
+                                Planned Hours
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='initial'
                                                dataFormat={this.formatStartDate.bind(this)}>
