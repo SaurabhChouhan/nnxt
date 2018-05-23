@@ -2,6 +2,8 @@ import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
 import * as MDL from "../models";
 import mongoose from 'mongoose'
+import moment from 'moment'
+import AppError from '../AppError'
 
 mongoose.Promise = global.Promise
 
@@ -21,8 +23,8 @@ let leaveSchema = mongoose.Schema({
     },
     leaveType: {
         _id: mongoose.Schema.ObjectId,
-         name: {type: String, required: false}
-     },
+        name: {type: String, required: false}
+    },
     description: {type: String, required: false},
     startDate: {type: Date, required: true},
     endDate: {type: Date, required: true},
@@ -33,14 +35,13 @@ let leaveSchema = mongoose.Schema({
 })
 
 
-leaveSchema.statics.saveLeave = async (leaveInput,user) => {
+leaveSchema.statics.saveLeave = async (leaveInput, user) => {
 
     const leaveType = await MDL.LeaveTypeModel.findById(leaveInput.leaveType._id)
     if (!leaveType)
         throw new AppError("Leave type not fount", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let currentDateMoment = moment()
-
     let startDateString = leaveInput.startDate
     let endDateString = leaveInput.endDate
 

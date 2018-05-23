@@ -8,9 +8,7 @@ const leaveRouter = new Router({
 })
 
 leaveRouter.post("/", async ctx => {
-
     V.validate(ctx.request.body, V.leaveRequestAdditionStruct)
-
     return await MDL.LeaveModel.saveLeave(ctx.request.body, ctx.state.user)
 })
 leaveRouter.get("/", async ctx => {
