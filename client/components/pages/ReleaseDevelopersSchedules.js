@@ -96,10 +96,3 @@ class ReleaseDevelopersSchedules extends React.Component {
 
 export default ReleaseDevelopersSchedules
 
-/*{schedule.plannedHours <= employeeSetting.free ?
-                                                            "F"
-                                                            : schedule.plannedHours <= employeeSetting.relativelyFree ?
-                                                                "RF"
-                                                                : schedule.plannedHours <= employeeSetting.busy ?
-                                                                    "B"
-                                                                    : "SB"}*/
