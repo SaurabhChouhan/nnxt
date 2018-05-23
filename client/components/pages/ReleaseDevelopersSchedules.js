@@ -49,7 +49,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                                             if (scheduleDay && scheduleDay != undefined) {
                                                 return <div key={'day' + index} className="releaseDayCell">
                                                     <h5> {moment(scheduleDay.dateString).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
-                                                    <div>
+                                                    <div className="releaseEmployee">
                                                         <span>{scheduleDay.plannedHours <= employeeSetting.free ?
                                                             <img className="div-hover" key="free" src="/images/free.png"
                                                                  title="Free"
@@ -72,7 +72,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                 </div>
                                             } else return <div key={'day' + index} className="releaseDayCell">
                                                 <h5> {moment(weekDate).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
-                                                <div>
+                                                <div className="releaseEmployee">
                                                     <span> <img className="div-hover" key="free" src="/images/free.png"
                                                                 title="Free"
                                                     /></span>

@@ -30,15 +30,14 @@ class ReleaseTaskPlanningPage extends Component {
         let nowMomentString = moment(now).format(SC.DATE_FORMAT)
         let nowMoment = moment(nowMomentString)
         let planningMoment = moment(row.planningDateString)
-        // console.log("planningMoment", planningMoment)
-        // console.log("nowMoment", nowMoment)
-        // console.log("compare ", planningMoment.isBefore(nowMoment))
         if (planningMoment.isBefore(nowMoment))
             return ''
-        else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+        else return (<button className=" pull-left btn btn-custom" type="button"
                              onClick={() => {
                                  this.props.deleteTaskPlanningRow(row)
-                             }}></button>)
+                             }}>
+            <i className="fa fa-trash"></i>
+        </button>)
     }
 
     projectUsersOnly(data) {
@@ -51,7 +50,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     actionCellButton(cell, row, enumObject, rowIndex) {
         if (row && row.canMerge)
-            return (<button className="pull-left btn btn-custom" type="button"
+            return (<button className="pull-left btn btn-custom customBtn" type="button"
                             onClick={() => {
                                 this.props.openMergeTaskPlanningForm(row)
                             }}>Merge</button>)

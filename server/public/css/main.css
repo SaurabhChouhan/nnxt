@@ -1492,9 +1492,10 @@ p.task-description {
     display: table-cell;
 }
 
-.releaseDayRow .estimationuser {
+.releaseDayRow .releaseEmployee {
     margin-right: 9px;
     margin-left: 8px;
+    margin-bottom: 10px;
 }
 
 .releaseDayCell h5 {
@@ -1828,11 +1829,12 @@ hr {
     margin-top: -6px;
 }
 
-.releaseEmployeeMsgText label{
-    margin-left: 106px;
+.releaseEmployeeMsgText label {
+    margin-left: 92px;
     color: #F66E65;
     font-size: 20px;
 }
+
 /*
 element.style {
     margin-left: 106px;
