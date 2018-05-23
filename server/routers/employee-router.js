@@ -12,9 +12,6 @@ const employeeRouter = new Router({
  * Get all Employee setting  by ID
  */
 employeeRouter.get("/employee-setting", async ctx => {
-    if (!hasRole(ctx, SC.ROLE_ADMIN)) {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
     return await MDL.EmployeeSettingModel.getEmployeeSettings(ctx.state.user)
 })
 /**
@@ -36,4 +33,12 @@ employeeRouter.put("/employee-setting", async ctx => {
     }
     return await MDL.EmployeeSettingModel.updateEmployeeSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
+
+/*
+* Employee Schedule*/
+employeeRouter.get("/:employeeID/from/:from/employee-schedule", async ctx => {
+    console.log("inside router employeeID", ctx.params.employeeID)
+    return await MDL.EmployeeDaysModel.getEmployeeSchedule(ctx.params.employeeID, ctx.params.from, ctx.state.user)
+})
+
 export default employeeRouter

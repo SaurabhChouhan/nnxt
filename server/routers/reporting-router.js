@@ -28,7 +28,7 @@ reportingRouter.get("/:taskID/release/:releaseID/report-detail", async ctx => {
 reportingRouter.post("/comment", async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.releaseTaskPlanningCommentStruct)
-    return await MDL.TaskPlanningModel.addComment(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.addComment(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 export default reportingRouter

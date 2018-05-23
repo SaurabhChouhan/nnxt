@@ -5,8 +5,12 @@ import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
 import _ from 'lodash'
-import {ReleaseDeveloperFilterFormContainer, ReleaseDeveloperPlanShiftFormContainer} from '../../containers'
-import PropTypes from 'prop-types'
+import {
+    ReleaseDeveloperFilterFormContainer,
+    ReleaseDeveloperScheduleFormContainer,
+    ReleaseDevelopersSchedulesContainer,
+    ReleaseTaskPlanningShiftFormContainer,
+} from '../../containers'
 
 moment.locale('en')
 momentLocalizer()
@@ -26,9 +30,9 @@ class ReleaseTaskPlanningPage extends Component {
         let nowMomentString = moment(now).format(SC.DATE_FORMAT)
         let nowMoment = moment(nowMomentString)
         let planningMoment = moment(row.planningDateString)
-       // console.log("planningMoment", planningMoment)
-       // console.log("nowMoment", nowMoment)
-       // console.log("compare ", planningMoment.isBefore(nowMoment))
+        // console.log("planningMoment", planningMoment)
+        // console.log("nowMoment", nowMoment)
+        // console.log("compare ", planningMoment.isBefore(nowMoment))
         if (planningMoment.isBefore(nowMoment))
             return ''
         else return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
@@ -91,7 +95,7 @@ class ReleaseTaskPlanningPage extends Component {
     render() {
 
         const {taskPlan, taskPlans, developerPlans, expanded} = this.props
-
+        console.log("taskPlan", taskPlan)
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -108,16 +112,25 @@ class ReleaseTaskPlanningPage extends Component {
                                 </h5>
                             </div>
                         </div>
-                        <div className="col-md-4  releaseClock ">
+                        <div className="col-md-2  releaseClock ">
                             <i className="fa fa-clock-o "
                                title="Estimated Hours"></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
+                            Hrs</b>
+                        </div>
+                        <div className="col-md-2  releaseClock releasePlannedHrs">
+                            <i className="fa fa-clock-o "
+                               title="Planned Hours"></i><b>{taskPlan.planning ? taskPlan.planning.plannedHours : ''}
                             Hrs</b>
                         </div>
                     </div>
                     <div className="col-md-12 ">
                         <div className={expanded ? "expanded-release-content" : 'release-content'}>
                             <p className="task-description">{taskPlan && taskPlan.task ? taskPlan.task.description : ''}</p>
-                            {expanded ? <label className="div-hover releaseLabel" onClick={()=>this.props.expandDescription(false)}>...Read Less</label> : <label className="div-hover releaseLabel"  onClick={()=>this.props.expandDescription(true)}>...Read More</label>}
+                            {expanded ? <label className="div-hover releaseReadLessLabel"
+                                               onClick={() => this.props.expandDescription(false)}>...Read
+                                Less</label> : <label className="div-hover releaseReadMoreLabel"
+                                                      onClick={() => this.props.expandDescription(true)}>...Read
+                                More</label>}
                         </div>
                     </div>
                     <div className="col-md-12 releasePlanChkBtn">
@@ -151,7 +164,7 @@ class ReleaseTaskPlanningPage extends Component {
                                 <TableHeaderColumn columnTitle dataField='planningDateString'
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Est
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
                                     Hours</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
                                                    dataFormat={this.formatDeveloper.bind(this)}>Developer</TableHeaderColumn>
@@ -166,7 +179,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                     </div>
                     <div>
-                        <ReleaseDeveloperPlanShiftFormContainer/>
+                        <ReleaseTaskPlanningShiftFormContainer/>
                     </div>
                     <div>
                         <ReleaseDeveloperFilterFormContainer/>
@@ -207,58 +220,10 @@ class ReleaseTaskPlanningPage extends Component {
                     </div>
                 </div>
                 <div className="col-md-4 estimationsection pad">
-                    <div className="col-md-12 repositoryHeading RepositorySideHeight">
-                        <div className="col-md-10 pad">
-                            <h5><b>Developers Schedule</b></h5>
-                        </div>
-                        <div className="col-md-2 pad text-right">
-                            <div className="searchReleasePlan">
-                                <a href=""><i className="glyphicon glyphicon-search "></i></a>
-                            </div>
-                        </div>
+                    <div>
+                        <ReleaseDeveloperScheduleFormContainer/>
                     </div>
-                    <div className="col-md-12 planSchedule">
-                        <div className="col-md-3">
-                            <input type="text" className="form-control " placeholder="From"/>
-                        </div>
-                        <div className="col-md-3">
-                            <input type="text" className="form-control " placeholder="To"/>
-                        </div>
-                        <div className="col-md-6 planchkSchedule">
-                            <input type="checkbox" name="" value="" className="checkbxInput"/><span>Relative free on days </span>
-                        </div>
-                    </div>
-                    <div className="col-md-12 releaseSchedule">
-                        <div className="repository releaseDevInfo">
-                            <div className="releaseDevHeading">
-                                <h5>Developer1</h5><i className="glyphicon glyphicon-resize-full pull-right"></i><span
-                                className="pull-right">26-feb to 29-feb</span>
-                            </div>
-                            <div className="releaseDayRow">
-                                <div className="releaseDayCell"><h5>Sun</h5></div>
-                                <div className="releaseDayCell"><h5>Mon</h5>
-                                    <div className="estimationuser"><span>E</span></div>
-                                </div>
-                                <div className="releaseDayCell"><h5>Tue</h5>
-                                    <div className="estimationuser"><span>E</span></div>
-                                </div>
-                                <div className="releaseDayCell"><h5>Wed</h5>
-                                    <div className="estimationuser"><span>E</span></div>
-                                </div>
-                                <div className="releaseDayCell"><h5>Thu</h5>
-                                    <div className="estimationuser"><span>E</span></div>
-                                </div>
-                                <div className="releaseDayCell"><h5>Fri</h5>
-                                    <div className="estimationuser"><span>E</span></div>
-                                </div>
-                                <div className="releaseDayCell"><h5>Sat</h5>
-                                    <div className="estimationuser"><span>E</span></div>
-                                </div>
-
-                            </div>
-
-                        </div>
-                    </div>
+                    <ReleaseDevelopersSchedulesContainer/>
                 </div>
             </div>
         )

@@ -9,7 +9,7 @@ import * as SC from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
-let ReleaseDeveloperPlanShiftForm = (props) => {
+let ReleaseTaskPlanningShiftForm = (props) => {
     const {days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift, releasePlan} = props
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)
@@ -56,7 +56,7 @@ let ReleaseDeveloperPlanShiftForm = (props) => {
                         Shift in Future
                         <span className="glyphicon glyphicon-chevron-right"></span>
                     </button>
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -64,13 +64,13 @@ let ReleaseDeveloperPlanShiftForm = (props) => {
     </form>
 }
 
-ReleaseDeveloperPlanShiftForm = reduxForm({
-    form: 'developer-plan-shift'
-})(ReleaseDeveloperPlanShiftForm)
+ReleaseTaskPlanningShiftForm = reduxForm({
+    form: 'task-plan-shift'
+})(ReleaseTaskPlanningShiftForm)
 
-const selector = formValueSelector('developer-plan-shift')
+const selector = formValueSelector('task-plan-shift')
 
-ReleaseDeveloperPlanShiftForm = connect(
+ReleaseTaskPlanningShiftForm = connect(
     state => {
         const {employeeId, baseDate, daysToShift} = selector(state, 'employeeId', 'baseDate', 'daysToShift')
         return {
@@ -79,7 +79,7 @@ ReleaseDeveloperPlanShiftForm = connect(
             daysToShift
         }
     }
-)(ReleaseDeveloperPlanShiftForm)
+)(ReleaseTaskPlanningShiftForm)
 
 
-export default ReleaseDeveloperPlanShiftForm
+export default ReleaseTaskPlanningShiftForm

@@ -1220,9 +1220,11 @@ p.task-description {
     height: 3em;
     overflow: hidden;
 }
+
 .expanded-release-content p {
     height: auto;
 }
+
 .releaseTitle {
     font-size: 14px;
     font-style: initial;
@@ -1322,13 +1324,14 @@ p.task-description {
 .releaseClock i {
     font-size: 32px;
     color: #29CAC8;
-    margin-left: 124px;
+    /*margin-left: 124px;*/
 }
 
 .releaseClock b {
     font-size: 16px;
     position: absolute;
-    left: 80%;
+    /*left: 80%;*/
+    left: 45%;
     top: 11%;
 }
 
@@ -1408,12 +1411,13 @@ p.task-description {
 .planchkSchedule span {
     font-size: 15px;
     position: absolute;
+    margin-top: 40px;
 }
 
 .planchkSchedule input {
     zoom: 2;
     margin-right: 3px;
-    margin-top: 3px;
+    margin-top: 19px;
 
 }
 
@@ -1489,7 +1493,8 @@ p.task-description {
 }
 
 .releaseDayRow .estimationuser {
-    margin-right: 17px;
+    margin-right: 9px;
+    margin-left: 8px;
 }
 
 .releaseDayCell h5 {
@@ -1776,8 +1781,8 @@ hr {
     margin-top: 15px;
 }
 
-.releaseLabel{
-    color:#FE4744;
+.releaseReadMoreLabel {
+    color: #FE4744;
     float: right;
     position: relative;
     top: -36px;
@@ -1785,6 +1790,35 @@ hr {
 
 }
 
-.releasePlanChkBtn{
+.releaseReadLessLabel {
+    color: #FE4744;
+    float: right;
+    top: -36px;
+    z-index: 2;
+
+}
+
+.releasePlanChkBtn {
     margin-top: -32px;
+}
+
+.releaseDevScheduleHeading {
+    margin-top: -11px;
+}
+
+.releaseDevScheduleHeading h5 {
+    font-size: 18px;
+}
+
+.releasePlannedHrs i {
+    color: #003c79;
+}
+
+.releaseProjectPlannedHours b {
+    margin-left: 15px;
+    margin-top: -4px;
+}
+
+.releaseProjectPlannedHours i {
+    margin-top: -6px;
 }

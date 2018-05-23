@@ -1,5 +1,5 @@
 import {initialize} from 'redux-form'
-
+import * as A from '../actions'
 
 export const addEmployeeSettingOnServer = (employeeSetting) => {
     return function (dispatch, getState) {
@@ -45,6 +45,7 @@ export const getEmployeeSettingFromServer = () => {
             }
         ).then(json => {
                 if (json.success) {
+                    dispatch(A.setEmployeeSettings(json.data))
                     dispatch(initialize("employee-setting", json.data))
                 }
                 return json

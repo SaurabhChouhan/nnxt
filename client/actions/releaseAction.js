@@ -50,9 +50,24 @@ export const updateDeveloperFilteredData = (developerPlanned) => ({
     developerPlanned: developerPlanned
 })
 
+export const setDevelopersSchedule = (schedules) => ({
+    type: AC.SET_DEVELOPERS_SCHEDULE,
+    schedules: schedules
+})
+
 export const expandDescription = (flag) => ({
     type: AC.EXPAND_DESCRIPTION,
     flag: flag
+})
+
+export const setEmployeeSettings = (empSetting) => ({
+    type: AC.SET_EMPLOYEE_SETTINGS,
+    empSetting: empSetting
+})
+
+export const setFromDate = (date) => ({
+    type: AC.SET_FROM_DATE,
+    date: date
 })
 
 export const getAllReleaseProjectsFromServer = (status) => {
@@ -224,7 +239,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(shift)
+                body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
@@ -249,7 +264,7 @@ export const shiftTasksToPastOnServer = (shift) => {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-            body: JSON.stringify(shift)
+                body: JSON.stringify(shift)
             }
         ).then(
             response => response.json()
@@ -257,6 +272,31 @@ export const shiftTasksToPastOnServer = (shift) => {
             json => {
                 if (json.success) {
                     dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getDeveloperSchedulesFromServer = (employeeID, from) => {
+    return (dispatch, getState) => {
+        return fetch('/api/employees/' + employeeID + '/from/' + from + '/employee-schedule', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("json.data", json.data)
+                    dispatch(setFromDate(from))
+                    dispatch(setDevelopersSchedule(json.data))
                 }
                 return json
             })

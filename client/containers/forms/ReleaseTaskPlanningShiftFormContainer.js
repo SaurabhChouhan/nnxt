@@ -4,12 +4,51 @@ import * as A from "../../actions"
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperDetails: (employeeId, StartDate, EndDate) => {
-        if (!employeeId) {
-            NotificationManager.error("Please select employee")
+    shiftTasksToFuture: (employeeId, baseDate, daysToShift, releasePlanID) => {
+        if (!employeeId || !baseDate || !Number(daysToShift)) {
+            if (!employeeId)
+                return NotificationManager.error("Please select employee")
+            else if (!baseDate)
+                return NotificationManager.error("Please select base date")
+
+            else if (!daysToShift)
+                return NotificationManager.error("Please select Number of days to shift")
         }
-        else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
-    }
+        else return dispatch(A.shiftTasksToFutureOnServer({
+            employeeId: employeeId,
+            baseDate: baseDate,
+            daysToShift: Number(daysToShift),
+            releasePlanID: releasePlanID
+        })).then(json => {
+            if (json.success) {
+                NotificationManager.success("Plan shifted to future")
+            }
+            else NotificationManager.error("Plan shifting failed")
+        })
+    },
+
+    shiftTasksToPast: (employeeId, baseDate, daysToShift, releasePlanID) => {
+        if (!employeeId || !baseDate || !Number(daysToShift)) {
+            if (!employeeId)
+                return NotificationManager.error("Please select employee")
+            else if (!baseDate)
+                return NotificationManager.error("Please select base date")
+
+            else if (!daysToShift)
+                return NotificationManager.error("Please select Number of days to shift")
+        }
+        else return dispatch(A.shiftTasksToPastOnServer({
+            employeeId: employeeId,
+            baseDate: baseDate,
+            daysToShift: Number(daysToShift),
+            releasePlanID: releasePlanID
+        })).then(json => {
+            if (json.success) {
+                NotificationManager.success("Plan shifted to past")
+            }
+            else NotificationManager.error("Plan shifting failed")
+        })
+    },
 
 })
 
@@ -47,6 +86,12 @@ const mapStateToProps = (state, ownProps) => {
         {"day": 30}
     ]
     return {
+        releasePlan: state.release.selectedTask,
+        team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? [...state.user.allDevelopers,
+            {
+                "_id": "all",
+                "name": "All developer of this task"
+            }] : [],
         days
     }
 }

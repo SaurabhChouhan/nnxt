@@ -94,7 +94,7 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
             return SC.ROLE_NON_PROJECT_DEVELOPER
         }
         else {
-            let User = await MDL.UserModel.findById(user._id)
+            let User = await MDL.UserModel.findById(mongoose.Types.ObjectId(user._id))
             if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
                 return SC.ROLE_NON_PROJECT_DEVELOPER
             } else return undefined
@@ -106,19 +106,25 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
 releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     let releaseInput = {}
     let initial = {}
-    const project = await MDL.ProjectModel.findById(projectAwardData.estimation.project._id)
+    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(projectAwardData.estimation.project._id))
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    const manager = await MDL.UserModel.findOne({"_id": projectAwardData.manager._id, "roles.name": SC.ROLE_MANAGER})
+    const manager = await MDL.UserModel.findOne({
+        "_id": mongoose.Types.ObjectId(projectAwardData.manager._id),
+        "roles.name": SC.ROLE_MANAGER
+    })
     if (!manager)
         throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    const leader = await MDL.UserModel.findById({"_id": projectAwardData.leader._id, "roles.name": SC.ROLE_LEADER})
+    const leader = await MDL.UserModel.findById({
+        "_id": mongoose.Types.ObjectId(projectAwardData.leader._id),
+        "roles.name": SC.ROLE_LEADER
+    })
     if (!leader)
         throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    const projectAlreadyAwarded = await ReleaseModel.findOne({"project._id": projectAwardData.estimation.project._id})
+    const projectAlreadyAwarded = await ReleaseModel.findOne({"project._id": mongoose.Types.ObjectId(projectAwardData.estimation.project._id)})
     if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
@@ -143,22 +149,28 @@ releaseSchema.statics.getReleases = async (status, user) => {
 
     let filter = {}
     if (status && status.toLowerCase() != "all")
-        filter = {$or: [{"manager._id": user._id}, {"leader._id": user._id}], "status": status}
+        filter = {
+            $or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}],
+            "status": status
+        }
     else
-        filter = {$or: [{"manager._id": user._id}, {"leader._id": user._id}]}
+        filter = {$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]}
 
     return await ReleaseModel.find(filter)
 }
 
 releaseSchema.statics.getReleaseById = async (releaseId, user) => {
-    return await ReleaseModel.find({"_id": releaseId, $or: [{"manager._id": user._id}, {"leader._id": user._id}]})
+    return await ReleaseModel.find({
+        "_id": releaseId,
+        $or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]
+    })
 }
 
 
 //Reporting
 releaseSchema.statics.getAllReportingProjects = async (user) => {
     return await MDL.ReleaseModel.find(
-        {$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]}, {
+        {$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}, {"team._id": mongoose.Types.ObjectId(user._id)}, {"nonProjectTeam._id": mongoose.Types.ObjectId(user._id)}]}, {
             project: 1,
             _id: 1
         })
@@ -240,96 +252,3 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
 
 const ReleaseModel = mongoose.model("Release", releaseSchema)
 export default ReleaseModel
-/*
-* let momentPlanningDate = moment(ParamsInput.planDate)
-    console.log("moment(ParamsInput.planDate)", moment(ParamsInput.planDate))
-    let momentPlanningDateStringToDate = momentPlanningDate.toDate()
-
-    console.log("momentPlanningDate.toDate()", momentPlanningDate.toDate())
-    let momentTzPlanningDateString = momentTZ.tz(momentPlanningDateStringToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-    console.log("momentPlanningDate Time Zone", momentTzPlanningDateString)
-    let reportDate = momentTzPlanningDateString
-
-    let matchConditionArray = []
-    if (ParamsInput.projectStatus != 'all') {
-        matchConditionArray.push({$match: {status: ParamsInput.projectStatus}})
-    }
-
-    matchConditionArray.push({
-        $lookup: {
-            from: 'taskplannings',
-            localField: '_id',
-            foreignField: 'release._id',
-            as: 'taskPlans'
-        }
-    })
-
-    console.log("reportDate", reportDate)
-
-
-    //matchConditionArray.push({$unwind: {path: '$taskPlans'}})
-    //matchConditionArray.push({$match: {"taskPlans.planningDate": reportDate}})
-    //matchConditionArray.push({$or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}, {"nonProjectTeam._id": user._id}]})
-
-
-    let matchTakPlanConditions = {}
-    if (ParamsInput.taskStatus && ParamsInput.taskStatus.toLowerCase() != "all")
-        matchTakPlanConditions = {
-            "employee._id": user._id,
-            "plannedDate": reportDate,
-            "status": ParamsInput.taskStatus
-        }
-    else
-        matchTakPlanConditions = {
-            $or: [{"manager._id": user._id}, {"leader._id": user._id}, {"team._id": user._id}],
-            "plannedDate": reportDate
-        }
-
-    let releases1 = await ReleaseModel.aggregate(matchConditionArray).exec()
-    /*
-    *  {
-        $lookup: {
-            from: 'taskplannings',
-            localField: 'taskPlans._id',
-            foreignField: '_id',
-            as: 'taskPlans'
-        }
-    }, {
-        $group: {
-            _id: "$_id",
-            created: "$created",
-            planningDate: "$planningDate",
-            planningDateString: "$planningDateString",
-            isShifted: "$isShifted",
-            task: "$task",
-            release: "$release",
-            releasePlan: "$releasePlan",
-            employee: "$employee",
-            flags: "$flags",
-            planning: "$planning",
-            report: "$report",
-            taskPlans: {
-                $push: {$arrayElemAt: ['$taskPlans', 0]}
-            }
-        }
-    }*/
-/*
-    let releases2 = await ReleaseModel.aggregate({}, {
-        $lookup: {
-            from: 'taskplannings',
-            let: {releaseID: "$_id"},
-            pipeline: [{
-                $match: {
-                    $expr: {
-                        $and: [
-                            {$eq: ["$release._id", "$$releaseID"]},
-                            {$eq: ["$planningDate", reportDate]}
-                        ]
-                    }
-                }
-            }],
-            as: 'taskPlans'
-        }
-    }).exec()
-*/
