@@ -1822,3 +1822,15 @@ hr {
 .releaseProjectPlannedHours i {
     margin-top: -6px;
 }
+
+.releaseEmployeeMsgText label{
+    margin-left: 106px;
+    color: #F66E65;
+    font-size: 20px;
+}
+/*
+element.style {
+    margin-left: 106px;
+    color: #F66E65;
+    font-size: 20px;
+}*/

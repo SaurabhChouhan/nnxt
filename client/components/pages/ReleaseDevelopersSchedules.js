@@ -11,6 +11,7 @@ class ReleaseDevelopersSchedules extends React.Component {
     constructor(props) {
         super(props);
     }
+
     componentDidMount() {
         this.props.getEmployeeSettings()
     }
@@ -85,7 +86,9 @@ class ReleaseDevelopersSchedules extends React.Component {
                             </div>
                         </div>
                     }) :
-                    <label>Employee is not selected</label>
+                    <div className="releaseEmployeeMsgText">
+                        <label>Employee is not selected</label>
+                    </div>
             }
         </div>
     }
