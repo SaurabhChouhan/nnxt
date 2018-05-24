@@ -26,9 +26,10 @@ export const addLeaveTypes = (leaveTypes) => ({
     leaveTypes: leaveTypes
 })
 
+
 export const addLeaveRequestOnServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/leave',
+        return fetch('/api/leaves',
             {
                 method: "post",
                 credentials: "include",
@@ -53,9 +54,10 @@ export const addLeaveRequestOnServer = (formInput) => {
     }
 }
 
+
 export const getAllLeaveRequestFromServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/leave',
+        return fetch('/api/leaves',
             {
                 method: "get",
                 credentials: "include",
@@ -79,9 +81,11 @@ export const getAllLeaveRequestFromServer = (formInput) => {
         )
     }
 }
+
+
 export const cancelLeaveRequestFromServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/leave/cancel-request',
+        return fetch('/api/leaves/cancel-request',
             {
                 method: "put",
                 credentials: "include",
@@ -105,9 +109,11 @@ export const cancelLeaveRequestFromServer = (formInput) => {
         )
     }
 }
+
+
 export const getAllLeavetypesFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/leave/leave-types', {
+        return fetch('/api/leaves/leave-types', {
                 method: 'get',
                 credentials: "include",
                 headers: {

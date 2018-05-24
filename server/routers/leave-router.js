@@ -1,15 +1,13 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
-import * as V from "../validation"
 
 
 const leaveRouter = new Router({
-    prefix: "leave"
+    prefix: "leaves"
 })
 
 leaveRouter.post("/", async ctx => {
-    V.validate(ctx.request.body, V.leaveRequestAdditionStruct)
-    return await MDL.LeaveModel.saveLeave(ctx.request.body, ctx.state.user)
+    return await MDL.LeaveModel.saveLeave(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 leaveRouter.get("/", async ctx => {
     return await MDL.LeaveModel.getAllActive(ctx.state.user)
