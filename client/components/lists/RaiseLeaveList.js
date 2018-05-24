@@ -38,7 +38,20 @@ class RaiseLeaveList extends Component {
         return ''
     }
 
-    viewDeleteButton(cell, row, enumObject, rowIndex) {
+    viewButton(cell, row, enumObject, rowIndex) {
+
+
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
+                this.props.showRaiseLeaveDetail(row)
+            }}>
+                <i className="fa fa-eye"></i>
+            </button>
+        )
+
+    }
+
+
+    viewCancelButton(cell, row, enumObject, rowIndex) {
 
 
         return (<button className=" btn btn-custom " type="button"
@@ -51,17 +64,18 @@ class RaiseLeaveList extends Component {
 
     }
 
-    viewButton(cell, row, enumObject, rowIndex) {
+    viewDeleteButton(cell, row, enumObject, rowIndex) {
 
 
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                this.props.showRaiseLeaveDetail(row)
+                this.props.deleteRaiseLeaveRequestCall(row)
             }}>
-                <i className="fa fa-eye"></i>
+                <i className="fa fa-trash"></i>
             </button>
         )
 
     }
+
 
     render() {
         return (
@@ -100,8 +114,11 @@ class RaiseLeaveList extends Component {
                                                            dataFormat={this.formatLeaveType.bind(this)}>Leave
                                             Type</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
+                                        <TableHeaderColumn width="10%" dataField='cancelButton'
+                                                           dataFormat={this.viewCancelButton.bind(this)}>Cancel
+                                            Leave</TableHeaderColumn>
                                         <TableHeaderColumn width="10%" dataField='deleteButton'
-                                                           dataFormat={this.viewDeleteButton.bind(this)}>Cancel
+                                                           dataFormat={this.viewDeleteButton.bind(this)}>Delete
                                             Leave</TableHeaderColumn>
                                     </BootstrapTable>
                                 </div>

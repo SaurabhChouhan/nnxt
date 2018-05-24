@@ -16,7 +16,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     cancelRaiseLeaveRequestCall: (leave) => {
-        return dispatch(A.deleteLeaveRequestFromServer(leave._id)).then(json => {
+        return dispatch(A.cancelLeaveRequestFromServer(leave._id)).then(json => {
             if (json.success) {
                 NotificationManager.success('Leave request Cancelled Successfully')
             } else {
@@ -25,7 +25,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             return json
 
         })
-    }
+    },
+    deleteRaiseLeaveRequestCall: (leave) => dispatch(A.deleteLeaveRequestFromServer(leave._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success('Leave request Cancelled Successfully')
+        } else {
+            NotificationManager.error('process failed')
+        }
+        return json
+    })
 
 
 })
