@@ -9,12 +9,19 @@ const leaveRouter = new Router({
 leaveRouter.post("/", async ctx => {
     return await MDL.LeaveModel.saveLeave(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
+
 leaveRouter.get("/", async ctx => {
     return await MDL.LeaveModel.getAllActive(ctx.state.user)
 })
+
 leaveRouter.put("/cancel-request", async ctx => {
     return await MDL.LeaveModel.cancelLeaveRequest(ctx.request.body)
 })
+
+leaveRouter.del("/:leaveID/delete-request", async ctx => {
+    return await MDL.LeaveModel.deleteLeaveRequest(ctx.params.leaveID)
+})
+
 leaveRouter.get('/leave-types', async ctx => {
     return await MDL.LeaveTypeModel.getAllActiveLeaveTypes()
 })

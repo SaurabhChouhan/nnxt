@@ -15,9 +15,15 @@ export const addLeaveRequest = (leaveRequest) => ({
     type: AC.ADD_LEAVE_REQUEST,
     leaveRequest: leaveRequest
 })
-export const cancelLeaveRequest = (leaveRequest) => ({
 
+export const cancelLeaveRequest = (leaveRequest) => ({
     type: AC.CANCEL_LEAVE_REQUEST,
+    leaveRequest: leaveRequest
+})
+
+
+export const deleteLeaveRequest = (leaveRequest) => ({
+    type: AC.DELETE_LEAVE_REQUEST,
     leaveRequest: leaveRequest
 })
 
@@ -76,6 +82,32 @@ export const getAllLeaveRequestFromServer = (formInput) => {
                     dispatch(addLeaveRequests(json.data))
                 }
 
+                return json
+            }
+        )
+    }
+}
+
+
+export const deleteLeaveRequestFromServer = (leaveID) => {
+    return function (dispatch, getState) {
+        return fetch('/api/leaves/' + leaveID + '/delete-request',
+            {
+                method: "delete",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(deleteLeaveRequest(json.data))
+                }
                 return json
             }
         )

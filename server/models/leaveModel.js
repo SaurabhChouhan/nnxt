@@ -104,5 +104,10 @@ leaveSchema.statics.cancelLeaveRequest = async (inputLeaveRequest) => {
     return await leaveRequest.save()
 }
 
+leaveSchema.statics.deleteLeaveRequest = async (leaveID) => {
+    await LeaveModel.remove({"_id": mongoose.Types.ObjectId(leaveID)})
+    return {_id: leaveID}
+}
+
 const LeaveModel = mongoose.model("Leave", leaveSchema)
 export default LeaveModel
