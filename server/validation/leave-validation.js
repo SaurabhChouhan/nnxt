@@ -5,7 +5,7 @@ export const leaveRequestAdditionStruct = t.struct({
     leaveType: t.struct({
         _id: ObjectId
     }),
-    //dayType:RequiredString,
+    dayType: RequiredString,
     description: RequiredString,
     startDate: RequiredString,
     endDate:   RequiredString
