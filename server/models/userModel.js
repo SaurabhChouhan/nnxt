@@ -275,7 +275,7 @@ userSchema.statics.editUser = async userObj => {
         // this means password is changed
         if (userObj.confirmPassword && userObj.password == userObj.confirmPassword) {
             userObj.password = await bcrypt.hash(userObj.password, 10)
-            console.log("encrypted password is ", userObj.password)
+            //console.log("encrypted password is ", userObj.password)
 
         } else {
             throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
