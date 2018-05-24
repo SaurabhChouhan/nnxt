@@ -118,7 +118,7 @@ class ReleaseList extends Component {
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='created'
                                                dataFormat={this.formatCreatedDate.bind(this)}>
-                                Created
+                                Raised
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle={"Project Name"} dataField='project'
                                                dataFormat={this.formateProjectName.bind(this)}>
