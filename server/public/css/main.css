@@ -1835,9 +1835,15 @@ hr {
     font-size: 20px;
 }
 
-/*
-element.style {
-    margin-left: 106px;
-    color: #F66E65;
-    font-size: 20px;
-}*/
+.leaveRaiseContent {
+    font-size: 16px;
+}
+
+.leaveRaiseTitle {
+    font-size: 18px;
+
+}
+
+.leaveRaiseDetail {
+    min-height: 37%;
+}
