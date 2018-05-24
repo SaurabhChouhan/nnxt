@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderDateTimePickerString, renderSelect} from './fields'
+import momentTZ from 'moment-timezone'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
@@ -12,7 +13,11 @@ let ReleaseDeveloperScheduleForm = (props) => {
     const {handleSubmit, change, fromSchedule, employeeID, team} = props
     let now = new Date()
     let nowMoment = moment(now)
-    let canGoPrevious = moment(fromSchedule).clone().subtract(7, 'days').isSameOrAfter(nowMoment)
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMomentTz = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let fromScheduleString = moment(fromSchedule).format(SC.DATE_FORMAT)
+    let fromScheduleTz = momentTZ.tz(fromScheduleString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let canGoPrevious = fromScheduleTz.clone().subtract(7, 'days').isSameOrAfter(nowMomentTz)
     console.log("canGoPrevious", canGoPrevious)
     return <div>
         <form onSubmit={handleSubmit}>
@@ -36,12 +41,12 @@ let ReleaseDeveloperScheduleForm = (props) => {
                 <div className="col-md-3">
                     <button className={canGoPrevious ? "btn reportingArrow" : "btn releaseDevArrowDisable"}
                             style={{marginLeft: '-16px'}}
-                            disabled={nowMoment.isSameOrBefore(moment(fromSchedule).clone().subtract(7, 'days'))}
                             onClick={() => {
-                                let prevDate = moment(fromSchedule).clone().subtract(7, 'days').format(SC.DATE_FORMAT)
-                                props.getDeveloperSchedules(employeeID, prevDate)
-                                change("fromSchedule", moment(prevDate).clone().toDate())
-
+                                if (canGoPrevious) {
+                                    let prevDate = moment(fromSchedule).clone().subtract(7, 'days').format(SC.DATE_FORMAT)
+                                    props.getDeveloperSchedules(employeeID, prevDate)
+                                    change("fromSchedule", moment(prevDate).clone().toDate())
+                                }
                             }}
                             type="button">
                         <i className="glyphicon glyphicon-arrow-left"></i>
