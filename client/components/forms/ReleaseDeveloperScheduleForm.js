@@ -59,7 +59,7 @@ let ReleaseDeveloperScheduleForm = (props) => {
                             style={{marginLeft: '27px'}}
                             onClick={() => {
                                 let nextDate = moment(fromSchedule).clone().add(7, 'days').format('YYYY-MM-DD')
-                                props.getDeveloperSchedules(nextDate)
+                                props.getDeveloperSchedules(employeeID, nextDate)
                                 change("fromSchedule", moment(nextDate).clone().toDate())
                             }}
                             type="button">

@@ -102,7 +102,7 @@ const releaseReducer = (state = initialState, action) => {
 
         case AC.SET_FROM_DATE:
             return Object.assign({}, state, {
-                from: action.from
+                from: action.date
             })
 
 
