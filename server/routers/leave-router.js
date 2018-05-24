@@ -3,7 +3,7 @@ import * as MDL from "../models"
 
 
 const leaveRouter = new Router({
-    prefix: "leave"
+    prefix: "leaves"
 })
 
 leaveRouter.post("/", async ctx => {
