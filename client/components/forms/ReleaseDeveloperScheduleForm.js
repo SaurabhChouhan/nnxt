@@ -10,7 +10,10 @@ moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperScheduleForm = (props) => {
     const {handleSubmit, change, fromSchedule, employeeID, team} = props
-
+    let now = new Date()
+    let nowMoment = moment(now)
+    let canGoPrevious = moment(fromSchedule).clone().subtract(7, 'days').isSameOrAfter(nowMoment)
+    console.log("canGoPrevious", canGoPrevious)
     return <div>
         <form onSubmit={handleSubmit}>
             <div className="col-md-12 repositoryHeading RepositorySideHeight releaseDevScheduleHeading">
@@ -23,15 +26,17 @@ let ReleaseDeveloperScheduleForm = (props) => {
                            onChange={(event, newValue, oldValue) => {
                                props.getDeveloperSchedules(newValue, fromSchedule)
                            }}
-                           component={renderSelect} options={team}
+                           component={renderSelect}
+                           options={team}
                     />
 
                 </div>
             </div>
             <div className="col-md-12">
                 <div className="col-md-3">
-                    <button className="btn reportingArrow"
+                    <button className={canGoPrevious ? "btn reportingArrow" : "btn releaseDevArrowDisable"}
                             style={{marginLeft: '-16px'}}
+                            disabled={nowMoment.isSameOrBefore(moment(fromSchedule).clone().subtract(7, 'days'))}
                             onClick={() => {
                                 let prevDate = moment(fromSchedule).clone().subtract(7, 'days').format(SC.DATE_FORMAT)
                                 props.getDeveloperSchedules(employeeID, prevDate)
@@ -49,6 +54,7 @@ let ReleaseDeveloperScheduleForm = (props) => {
                                props.getDeveloperSchedules(employeeID, newValue)
                            }}
                            label=''
+                           min={nowMoment.toDate()}
                            component={renderDateTimePickerString}
                            showTime={false}
                     />
