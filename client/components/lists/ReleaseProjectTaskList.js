@@ -23,12 +23,12 @@ class ReleaseProjectTaskList extends Component {
 
     onFlagChange(flag) {
         this.setState({flag: flag})
-        this.props.changeReleaseFlag(this.props.selectedProject, this.state.status, flag)
+        this.props.changeReleaseFlag(this.props.selectedRelease, this.state.status, flag)
     }
 
     onStatusChange(status) {
         this.setState({status: status})
-        this.props.changeReleaseStatus(this.props.selectedProject, status, this.state.flag)
+        this.props.changeReleaseStatus(this.props.selectedRelease, status, this.state.flag)
     }
 
     onRowClick(row) {
@@ -76,7 +76,7 @@ class ReleaseProjectTaskList extends Component {
 
     render() {
         let team = 0
-        const {selectedProject, projectTasks} = this.props
+        const {selectedRelease, releasePlans} = this.props
         return (
             <div key="estimation_list" className="clearfix">
 
@@ -84,16 +84,16 @@ class ReleaseProjectTaskList extends Component {
                     <div className=" col-md-1 backarrow" title="Go Back">
                         <button className="btn-link" onClick={() => {
                             this.props.history.push("/app-home/release")
-                            this.props.ReleaseProjectGoBack()
+                            this.props.ReleaseProjectGoBack(selectedRelease)
                         }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                     </div>
                     <div className="col-md-3">
                         <div className="releaseTitle">
                             <span
-                                title={selectedProject.project ? selectedProject.project.name : ''}>Project Name</span>
+                                title={selectedRelease.project ? selectedRelease.project.name : ''}>Project Name</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedProject.project ? selectedProject.project.name : ''}</p>
+                            <p>{selectedRelease.project ? selectedRelease.project.name : ''}</p>
                         </div>
                     </div>
                     {/* <div className="col-md-3">
@@ -106,28 +106,28 @@ class ReleaseProjectTaskList extends Component {
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                                title={selectedRelease.initial ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedProject.initial ? moment(selectedProject.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedRelease.initial ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                                title={selectedRelease.initial ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedProject.initial ? moment(selectedProject.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedRelease.initial ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                                title={selectedRelease.initial ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedProject.initial ? moment(selectedProject.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedRelease.initial ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className=" col-md-2 releasefileoption">
@@ -145,21 +145,21 @@ class ReleaseProjectTaskList extends Component {
                             <div className="releaseTeamManager"><span>Manager</span>
                             </div>
                             <div className="estimationuser tooltip"><span>M</span>
-                                <p className="tooltiptext">{selectedProject.manager ? selectedProject.manager.firstName : ''}</p>
+                                <p className="tooltiptext">{selectedRelease.manager ? selectedRelease.manager.firstName : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-2 pad ">
                             <div className="releaseTeamLeader"><span> Leader</span>
                             </div>
                             <div className="estimationuser tooltip"><span>L</span>
-                                <p className="tooltiptext">{selectedProject.leader ? selectedProject.leader.firstName : ''}</p>
+                                <p className="tooltiptext">{selectedRelease.leader ? selectedRelease.leader.firstName : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-5 pad ">
                             <div className="releaseTeam"><span>Team</span>
                             </div>
                             {
-                                selectedProject.team.map((teamMember, index) => {
+                                selectedRelease.team.map((teamMember, index) => {
                                     return <div key={"teamMember" + index} className="estimationuser tooltip">
                                         <span>T{index + 1}</span>
                                         <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
@@ -171,12 +171,12 @@ class ReleaseProjectTaskList extends Component {
                         <div className="col-md-3">
                             <div className="col-md-6  releaseClock  releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Estimated Hours"></i><b>{selectedProject.initial ? selectedProject.initial.estimatedHours : ''}
+                                   title="Estimated Hours"></i><b>{selectedRelease.initial ? selectedRelease.initial.estimatedHours : ''}
                                 Hrs</b>
                             </div>
                             <div className="col-md-6  releaseClock releasePlannedHrs releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Planned Hours"></i><b>{selectedProject.initial ? selectedProject.initial.plannedHours : ''}
+                                   title="Planned Hours"></i><b>{selectedRelease.initial ? selectedRelease.initial.plannedHours : ''}
                                 Hrs</b>
                             </div>
                         </div>
@@ -221,7 +221,7 @@ class ReleaseProjectTaskList extends Component {
                     </div>
 
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={projectTasks}
+                        <BootstrapTable options={this.options} data={releasePlans}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}

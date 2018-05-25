@@ -13,7 +13,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    projects: state.release.all
+    releases: state.release.all
 })
 
 const ReleaseListContainer = connect(

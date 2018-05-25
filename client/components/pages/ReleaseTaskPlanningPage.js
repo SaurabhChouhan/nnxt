@@ -93,7 +93,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
 
-        const {taskPlan, taskPlans, developerPlans, expanded} = this.props
+        const {releasePlan, taskPlans, developerPlans, expanded} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -104,26 +104,26 @@ class ReleaseTaskPlanningPage extends Component {
                                 <h5>
                                     <button className="btn-link" title="Go Back" onClick={() => {
                                         this.props.history.push("/app-home/release-project-tasks")
-                                        this.props.ReleaseTaskGoBack()
+                                        this.props.ReleaseTaskGoBack(releasePlan)
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                                    <b title={taskPlan.task ? taskPlan.task.name : ''}>{taskPlan.task ? taskPlan.task.name : ''} </b>
+                                    <b title={releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
                                 </h5>
                             </div>
                         </div>
                         <div className="col-md-2  releaseClock ">
                             <i className="fa fa-clock-o "
-                               title="Estimated Hours"></i><b>{taskPlan.task ? taskPlan.task.estimatedHours : ''}
+                               title="Estimated Hours"></i><b>{releasePlan.task ? releasePlan.task.estimatedHours : ''}
                             Hrs</b>
                         </div>
                         <div className="col-md-2  releaseClock releasePlannedHrs">
                             <i className="fa fa-clock-o "
-                               title="Planned Hours"></i><b>{taskPlan.planning ? taskPlan.planning.plannedHours : ''}
+                               title="Planned Hours"></i><b>{releasePlan.planning ? releasePlan.planning.plannedHours : ''}
                             Hrs</b>
                         </div>
                     </div>
                     <div className="col-md-12 ">
                         <div className={expanded ? "expanded-release-content" : 'release-content'}>
-                            <p className="task-description">{taskPlan && taskPlan.task ? taskPlan.task.description : ''}</p>
+                            <p className="task-description">{releasePlan && releasePlan.task ? releasePlan.task.description : ''}</p>
                             {expanded ? <label className="div-hover releaseReadLessLabel releaseReadLessLabelClick"
                                                onClick={() => this.props.expandDescription(false)}>...Read
                                 Less</label> : <label className="div-hover releaseReadMoreLabel"
@@ -144,9 +144,8 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn taskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(taskPlan, this.state.projectUsersOnly)}>
-                                <i
-                                    className="fa fa-plus-circle"></i>
+                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, this.state.projectUsersOnly)}>
+                                <i className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>
                         </div>
