@@ -24,6 +24,8 @@ export {default as AdminUserListContainer} from './lists/AdminUserListContainer'
 export {default as UserProfileFormContainer} from './forms/UserProfileFormContainer'
 export {default as AdminRoleFormContainer} from './forms/AdminRoleFormContainer'
 export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
+
+//Employee Setting
 export {default as EmployeeSettingFormContainer} from './forms/EmployeeSettingFormContainer'
 
 
@@ -75,6 +77,11 @@ export {default as LeaveRequestFormContainer} from './forms/LeaveRequestFormCont
 export {default as RaiseLeaveListContainer} from './lists/RaiseLeaveListContainer'
 export {default as RaiseLeaveListDetailContainer} from './pages/RaiseLeaveListDetailContainer'
 
+
+//Leave Setting
+export {default as LeaveSettingFormContainer} from './forms/LeaveSettingFormContainer'
+
+
 //attendence setting
 export {default as AttendanceSettingFormContainer} from './forms/AttendanceSettingFormContainer'
 
@@ -99,5 +106,4 @@ export {default as ReportingCommentFormContainer} from './forms/ReportingComment
 export {default as ReportingTaskPageContainer} from './pages/ReportingTaskPageContainer'
 export {default as ReportingTaskDetailPageContainer} from './pages/ReportingTaskDetailPageContainer'
 export {default as ReportingDateNavBarContainer} from './pages/ReportingDateNavBarContainer'
-
 

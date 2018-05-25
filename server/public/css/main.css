@@ -1742,6 +1742,13 @@ i.iconClr:hover {
     color: #ffffff;
 }
 
+.releaseDevArrowDisable {
+    margin-top: 10px;
+    background-color: #cccccc;
+    color: #ffffff;
+    cursor: not-allowed;
+}
+
 .reportingDatePicker {
     margin-left: 150px;
     margin-top: 5px;
@@ -1835,9 +1842,15 @@ hr {
     font-size: 20px;
 }
 
-/*
-element.style {
-    margin-left: 106px;
-    color: #F66E65;
-    font-size: 20px;
-}*/
+.leaveRaiseContent {
+    font-size: 16px;
+}
+
+.leaveRaiseTitle {
+    font-size: 18px;
+
+}
+
+.leaveRaiseDetail {
+    min-height: 37%;
+}

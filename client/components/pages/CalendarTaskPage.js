@@ -105,7 +105,6 @@ class CalendarTaskPage extends React.Component {
                     this.props.changeViewAndDate(view, this.props.selectedDate);
                 }}
             />
-            }
         </div>)
     }
 }

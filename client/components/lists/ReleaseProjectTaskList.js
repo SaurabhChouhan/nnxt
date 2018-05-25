@@ -49,6 +49,12 @@ class ReleaseProjectTaskList extends Component {
         return 0
     }
 
+    formatPlannedHours(planning) {
+        if (planning)
+            return planning.plannedHours
+        return 0
+    }
+
     formatReportedHours(report) {
         if (report)
             return report.reportedHours
@@ -65,20 +71,6 @@ class ReleaseProjectTaskList extends Component {
     formateTaskName(task) {
         if (task)
             return task.name
-        return ''
-    }
-
-    formatTaskPlanStartDate(planning) {
-        if (planning && planning.minPlanningDate) {
-            return moment(planning.minPlanningDate).format("DD-MM-YYYY")
-        }
-        return ''
-    }
-
-    formatTaskPlanEndDate(planning) {
-        if (planning && planning.maxPlanningDate) {
-            return moment(planning.maxPlanningDate).format("DD-MM-YYYY")
-        }
         return ''
     }
 
@@ -235,25 +227,21 @@ class ReleaseProjectTaskList extends Component {
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Created</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Raised</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='task'
                                                dataFormat={this.formateTaskName.bind(this)}>Task
                                 Name</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='employee'>Emp./Team Name</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='flags'>Emp./Team Flag</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='task'
-                                               dataFormat={this.formatEstimatedHours.bind(this)}>Est
+                                               dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='planning'
+                                               dataFormat={this.formatPlannedHours.bind(this)}>Planned
                                 Hours</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='report'
                                                dataFormat={this.formatReportedHours.bind(this)}>Reported
                                 Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='planning'
-                                               dataFormat={this.formatTaskPlanStartDate.bind(this)}>Start Date
-                            </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='planning'
-                                               dataFormat={this.formatTaskPlanEndDate.bind(this)}>End Date
-                            </TableHeaderColumn>
-
                             <TableHeaderColumn columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
 

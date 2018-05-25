@@ -7,35 +7,12 @@ class RaiseLeaveList extends Component {
 
     constructor(props) {
         super(props)
-        // this.options = {
-        //   onRowClick: this.onRowClick.bind(this)
-        //  }
-
     }
 
-
-    viewButton(cell, row, enumObject, rowIndex) {
-
-
-        return (<button className="fa fa-eye btn btn-custom" type="button" onClick={() => {
-                this.props.showRaiseLeaveDetail(row)
-            }}>
-
-            </button>
-        )
-
-    }
-
-
-    //onRowClick(row) {
-
-    //this.props.showRaiseLeaveDetail(row)
-
-    //  }
 
     formatCreatedDate(leave) {
         if (leave) {
-            return moment(leave).format("DD-MM-YYYY hh:mm:ss")
+            return moment(leave).format("DD-MM-YYYY ")
         }
         return ''
     }
@@ -61,18 +38,44 @@ class RaiseLeaveList extends Component {
         return ''
     }
 
-    viewDeleteButton(cell, row, enumObject, rowIndex) {
+    viewButton(cell, row, enumObject, rowIndex) {
 
 
-        return (<button className="fa fa-remove btn btn-custom " type="button"
-                        disabled={(row.status == "cancelled") ? true : false} onClick={() => {
-               return this.props.cancelRaiseLeaveRequestCall(row)
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
+                this.props.showRaiseLeaveDetail(row)
             }}>
-
+                <i className="fa fa-eye"></i>
             </button>
         )
 
     }
+
+
+    viewCancelButton(cell, row, enumObject, rowIndex) {
+
+
+        return (<button className=" btn btn-custom " type="button"
+                        disabled={(row.status == "cancelled") ? true : false} onClick={() => {
+                return this.props.cancelRaiseLeaveRequestCall(row)
+            }}>
+                <i className="fa fa-remove"></i>
+            </button>
+        )
+
+    }
+
+    viewDeleteButton(cell, row, enumObject, rowIndex) {
+
+
+        return (<button className=" btn btn-custom" type="button" onClick={() => {
+                this.props.deleteRaiseLeaveRequestCall(row)
+            }}>
+                <i className="fa fa-trash"></i>
+            </button>
+        )
+
+    }
+
 
     render() {
         return (
@@ -87,13 +90,16 @@ class RaiseLeaveList extends Component {
                                         onClick={() => this.props.showRaiseLeaveForm()}>Raise-Leave
                                 </button>
 
-                                <div className="raiseLeave">
+                                <div className="estimation">
 
                                     <BootstrapTable options={this.options} data={this.props.leaveRequests}
                                                     striped={true}
                                                     hover={true}>
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                                            hidden={true}>ID</TableHeaderColumn>
+                                        <TableHeaderColumn width="8%" dataField='button'
+                                                           dataFormat={this.viewButton.bind(this)}>View
+                                        </TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='created'
                                                            dataFormat={this.formatCreatedDate.bind(this)}>Created
                                         </TableHeaderColumn>
@@ -104,18 +110,16 @@ class RaiseLeaveList extends Component {
                                                            dataFormat={this.formatEndDate.bind(this)}>End Date
                                         </TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='dayType'>Day Type</TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle dataField='leaveType'
+                                        <TableHeaderColumn width="25%" columnTitle dataField='leaveType'
                                                            dataFormat={this.formatLeaveType.bind(this)}>Leave
                                             Type</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
-                                        <TableHeaderColumn width="15%" dataField='deleteButton'
-                                                           dataFormat={this.viewDeleteButton.bind(this)}>Cancel
+                                        <TableHeaderColumn width="10%" dataField='cancelButton'
+                                                           dataFormat={this.viewCancelButton.bind(this)}>Cancel
                                             Leave</TableHeaderColumn>
-
-                                        <TableHeaderColumn width="6%" dataField='button'
-                                                           dataFormat={this.viewButton.bind(this)}>View
-                                        </TableHeaderColumn>
-
+                                        <TableHeaderColumn width="10%" dataField='deleteButton'
+                                                           dataFormat={this.viewDeleteButton.bind(this)}>Delete
+                                            Leave</TableHeaderColumn>
                                     </BootstrapTable>
                                 </div>
 

@@ -106,6 +106,8 @@ export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPag
 
 //Raise Leave
 export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
+export {default as LeaveSettingForm} from './forms/LeaveSettingForm'
+
 
 //Calendar Page
 export {default as CalendarTaskDetailPage} from './pages/CalendarTaskDetailPage'

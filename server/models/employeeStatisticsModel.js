@@ -38,7 +38,7 @@ let employeeStatisticsSchema = mongoose.Schema({
 })
 
 employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeStatisticsInput, user) => {
-    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    //console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeAddEmployeeStatisticsStruct)
     let countStatistics = await EmployeeStatisticsModel.count({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
@@ -52,7 +52,7 @@ employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeS
 
 
 employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
-    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+   // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeAddTaskEmployeeStatisticsStruct)
     let countTaskStatistics = await EmployeeStatisticsModel.count({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
@@ -70,7 +70,7 @@ employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (Emp
 
 
 employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
-    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    //console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
     let employeeStatistics = await EmployeeStatisticsModel.find({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
@@ -96,7 +96,7 @@ employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = 
 
 
 employeeStatisticsSchema.statics.decreseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
-    console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+   // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
     let employeeStatistics = await EmployeeStatisticsModel.find({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),

@@ -94,7 +94,6 @@ class ReleaseTaskPlanningPage extends Component {
     render() {
 
         const {taskPlan, taskPlans, developerPlans, expanded} = this.props
-        console.log("taskPlan", taskPlan)
         return (
             <div>
                 <div className="col-md-8 pad">

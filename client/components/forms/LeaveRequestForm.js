@@ -22,11 +22,11 @@ let LeaveRequestForm = (props) => {
                        label={"Day type :"} validate={[required]}/>
 
                 <Field name="startDate" placeholder={"Leave Start Date :"} component={renderDateTimePickerString}
-                       min={moment()} showTime={false}
+                      showTime={false}
                        label={"Start Date :"} validate={[required]}/>
 
                 <Field name="endDate" placeholder={"Leave End Date :"} component={renderDateTimePickerString}
-                       min={moment()} showTime={false}
+                       showTime={false}
                        label={"End Date :"} validate={[required]}/>
 
                 <Field name="leaveType._id" placeholder={"type of leave"} displayField={"name"} valueField={"_id"}
