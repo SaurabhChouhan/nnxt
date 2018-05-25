@@ -79,7 +79,9 @@ let releaseSchema = mongoose.Schema({
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
     if (release) {
-        // check to see role of logged in user in this estimation
+        /**
+         * Check to see user's highest role in this release as user can have multiple role in release like he can be leader as well as developer
+         */
         if (release.manager && release.manager._id == user._id) {
             return SC.ROLE_MANAGER
         }
