@@ -308,7 +308,7 @@ class EstimationFeature extends React.PureComponent {
                         <h4 title={feature.estimator && feature.estimator.name ? feature.estimator.name : "Feature is not having name by estimator"}>{feature.estimator.name ? feature.estimator.name : feature.negotiator.name}</h4>
 
                     </div>
-                    {editView && feature.status === SC.STATUS_PENDING && feature.hasError == true ?
+                    {feature.status === SC.STATUS_PENDING && feature.hasError == true ?
                         <div className="col-md-1">
 
                             <img key="exclaimation" className="errorClass div-hover" src="/images/exclamation.png"

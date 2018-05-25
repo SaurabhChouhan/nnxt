@@ -800,7 +800,7 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
         throw new AppError("Only estimations with status [" + SC.STATUS_APPROVED + "] can project award by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     projectAwardData.estimation = estimation
-    const release = await  MDL.ReleaseModel.addRelease(projectAwardData, negotiator)
+    const release = await  MDL.ReleaseModel.addRelease(projectAwardData, negotiator, estimation)
     if (!release)
         throw new AppError('No such release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -822,6 +822,7 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
         updateTask.name = task.estimator.name
         updateTask.estimatedHours = task.estimator.estimatedHours
         updateTask.description = task.estimator.description
+        releasePlanInput.task = {}
         releasePlanInput.task = updateTask
         report.finalStatus = SC.STATUS_UNPLANNED
         releasePlanInput.report = report

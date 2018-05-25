@@ -4,7 +4,6 @@ import * as SC from "../serverconstants";
 import * as EC from "../errorcodes"
 import * as MDL from '../models'
 import momentTZ from 'moment-timezone'
-import moment from 'moment'
 
 mongoose.Promise = global.Promise
 
@@ -103,7 +102,7 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
     return undefined
 }
 
-releaseSchema.statics.addRelease = async (projectAwardData, user) => {
+releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) => {
     let releaseInput = {}
     let initial = {}
     const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(projectAwardData.estimation.project._id))
@@ -128,6 +127,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user) => {
     if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
+    initial.estimatedHours = estimation.estimatedHours
     initial.billedHours = projectAwardData.billedHours
     initial.clientReleaseDate = projectAwardData.clientReleaseDate
     initial.devStartDate = projectAwardData.devStartDate

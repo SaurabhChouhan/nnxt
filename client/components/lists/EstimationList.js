@@ -177,8 +177,7 @@ class EstimationList extends Component {
                                                dataFormat={this.formatClient.bind(this)}>Client</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='technologies'
                                                dataFormat={this.formatTechnologies.bind(this)}>Technologies</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='estimatedHours'
-                                               dataFormat={this.formatClient.bind(this)}>Total Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='estimatedHours'>Total Hours</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='description'
                                                dataFormat={this.formatProjectDescription.bind(this)}>Project
                                 Description</TableHeaderColumn>
