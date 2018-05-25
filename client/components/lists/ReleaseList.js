@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-import {ReleaseProjectSearchFormContainer} from '../../containers'
 import {withRouter} from 'react-router-dom'
 
 
@@ -86,7 +85,7 @@ class ReleaseList extends Component {
     }
 
     render() {
-        const {projects} = this.props
+        const {releases} = this.props
         return (
             <div key="estimation_list" className="clearfix">
                 <div className="col-md-12">
@@ -109,7 +108,7 @@ class ReleaseList extends Component {
 
                     </div>
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={projects}
+                        <BootstrapTable options={this.options} data={releases}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}

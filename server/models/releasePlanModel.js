@@ -62,6 +62,7 @@ let releasePlanSchema = mongoose.Schema({
 })
 
 releasePlanSchema.statics.addReleasePlan = async (releasePlanInput) => {
+    console.log("releasePlanInput", releasePlanInput)
     return await ReleasePlanModel.create(releasePlanInput)
 }
 

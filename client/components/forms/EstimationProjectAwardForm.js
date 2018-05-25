@@ -16,6 +16,7 @@ let EstimationProjectAwardForm = (props) => {
     const {pristine, submitting, reset, change} = props
     const {Team, Managers, Leaders, devStartDate, devReleaseDate, clientReleaseDate} = props
     let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
+    let maxRelease = !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
     //console.log("max", max)
     let now = new Date()
     return <form onSubmit={props.handleSubmit}>
@@ -44,13 +45,17 @@ let EstimationProjectAwardForm = (props) => {
                 </div>
                 <div className="col-md-4">
                     <Field name="devReleaseDate" component={renderDateTimePickerString}
-                           min={moment(devStartDate).toDate()} showTime={false}
+                           min={moment(devStartDate).toDate()}
+                           max={maxRelease}
+                           showTime={false}
                            label={"Expected Developer Release Date:"} validate={[required]}/>
                 </div>
                 <div className="col-md-4">
                     <Field name="clientReleaseDate" component={renderDateTimePickerString}
-                           min={moment(devStartDate).toDate()} showTime={false}
-                           label={"Expected Client Release Date:"} validate={required}/>
+                           min={moment(devReleaseDate).toDate()}
+                           showTime={false}
+                           label={"Expected Client Release Date:"}
+                           validate={required}/>
                 </div>
             </div>
             <div className="col-md-12">

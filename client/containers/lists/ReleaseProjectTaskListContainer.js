@@ -6,14 +6,18 @@ import {withRouter} from 'react-router-dom'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    taskPlanSelected: (releaseTaskPlanning) => {
+    taskPlanSelected: (releasePlan) => {
         dispatch(A.getAllDeveloperFromServer()),
-        dispatch(A.releaseTaskPlanSelected(releaseTaskPlanning)),
+        dispatch(A.releaseTaskPlanSelected(releasePlan)),
             dispatch(A.addDeveloperFilteredData([])),
-            dispatch(A.getAllTaskPlannedFromServer(releaseTaskPlanning._id))
+            dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
         dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
     },
-    ReleaseProjectGoBack: (event) => dispatch(A.showComponentHideOthers(COC.RELEASE_LIST)),
+
+    ReleaseProjectGoBack: () => {
+        dispatch(A.getAllReleaseProjectsFromServer("all"))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
+    },
 
     changeReleaseFlag: (release, status, flag) => dispatch(A.getTaskReleaseFromServer(release, status, flag)),
 
@@ -23,8 +27,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => {
     return {
         loggedInUser: state.user.loggedIn,
-        selectedProject: state.release.selectedProject,
-        projectTasks: state.release.projectTasks
+        selectedRelease: state.release.selectedProject,
+        releasePlans: state.release.projectTasks
     }
 }
 
