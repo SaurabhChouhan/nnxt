@@ -19,7 +19,9 @@ import {
     USER_PROFILE_TAB,
     USER_TAB,
     EMPLOYEE_SETTING_TAB,
-    EMPLOYEE_SETTING_FORM
+    EMPLOYEE_SETTING_FORM,
+    LEAVE_SETTING_TAB,
+    LEAVE_SETTING_FORM
 } from "../componentConsts"
 
 import {
@@ -41,7 +43,9 @@ import {
     UserFormContainer,
     UserListContainer,
     UserProfileFormContainer,
-    EmployeeSettingFormContainer
+    EmployeeSettingFormContainer,
+    LeaveSettingFormContainer
+
 } from "../../containers"
 import * as A from "../../actions";
 import * as logger from '../../clientLogger'
@@ -141,6 +145,17 @@ class Tabs extends Component {
                 }
             })
         }
+        if (permissions.includes(CREATE_USER)) {
+            this.tabData.push({
+                name: LEAVE_SETTING_TAB,
+                url: "/leave-setting",
+                render: (props) => {
+                    return <TabSectionContainer>
+                        <LeaveSettingFormContainer name={LEAVE_SETTING_FORM}/>
+                    </TabSectionContainer>
+                }
+            })
+        }
 
 
         if (this.tabData.length > 0) {
@@ -186,6 +201,10 @@ class Tabs extends Component {
             case EMPLOYEE_SETTING_TAB:
                 store.dispatch(A.getEmployeeSettingFromServer())
                 store.dispatch(A.showComponentHideOthers(EMPLOYEE_SETTING_FORM))
+                break
+            case LEAVE_SETTING_TAB:
+                store.dispatch(A.getLeaveSettingFromServer())
+                store.dispatch(A.showComponentHideOthers(LEAVE_SETTING_FORM))
                 break
         }
         this.setState({
