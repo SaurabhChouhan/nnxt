@@ -82,7 +82,6 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
         throw new AppError('From Date is not selected, please select any date', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-
     let fromString = moment(from).format(SC.DATE_FORMAT)
     let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
@@ -95,8 +94,13 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
 
     let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(6, 'days').hour(0).minute(0).second(0).millisecond(0)
     if (employeeID && employeeID.toLowerCase() == "all") {
-        console.log("selected employee", employeeID)
-        return await EmployeeDaysModel.aggregate([{
+        //console.log("selected employee", employeeID)
+        let allDevelopers = await MDL.UserModel.find({"roles.name": SC.ROLE_DEVELOPER}).exec()
+        if (!allDevelopers || !allDevelopers.length) {
+            throw new AppError('No developer is available ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        }
+
+        let employeeDays = await EmployeeDaysModel.aggregate([{
             $match: {date: {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()}}
         }, {
             $group: {
@@ -107,14 +111,36 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
                 days: {$push: {_id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date"}}
             }
         }]).exec()
+        if (employeeDays && employeeDays.length && allDevelopers.length == employeeDays.length) {
+            // if there is any details available for any employee
+            return employeeDays
+        }
+        else {
+            let employeeDaysArray = allDevelopers.map(developer => {
+                let selectedDeveloper = employeeDays && employeeDays.length ? employeeDays.find(emp => developer._id.toString() === emp.employee._id.toString()) : {}
+                if (selectedDeveloper && selectedDeveloper._id) {
+                    return selectedDeveloper
+                } else {
+                    return {
+                        employee: {
+                            _id: developer._id,
+                            name: developer.firstName + ' ' + developer.lastName
+                        },
+                        days: []
+                    }
+                }
+            })
+            // if there is no any details available for any employee
+            return employeeDaysArray
+        }
     } else {
         // Check employee is a valid employee
         let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
         if (!selectedEmployee) {
             throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         }
-        console.log("selectedEmployee._id", selectedEmployee._id)
-        return await EmployeeDaysModel.aggregate([{
+        //console.log("selectedEmployee._id", selectedEmployee._id)
+        let employeeDays = await EmployeeDaysModel.aggregate([{
             $match: {
                 $and: [
                     {date: {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()}},
@@ -130,7 +156,20 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
                 days: {$push: {_id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date"}}
             }
         }]).exec()
-
+        if (employeeDays && employeeDays.length) {
+            // if there is any details available for selected employee
+            return employeeDays
+        }
+        else {
+            // if there is no any details available for selected employee
+            return employeeDays = [{
+                employee: {
+                    _id: selectedEmployee._id,
+                    name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName,
+                    days: []
+                }
+            }]
+        }
     }
 }
 

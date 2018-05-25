@@ -1,13 +1,13 @@
 import {connect} from 'react-redux'
 import {ReleaseDeveloperScheduleForm} from '../../components'
 import moment from 'moment'
-import * as SC from '../../../server/serverconstants'
-import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
 import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, from) => {
+        //console.log("employeeID", employeeID)
+        //console.log("from", from)
         if (from && employeeID) {
             return dispatch(A.getDeveloperSchedulesFromServer(employeeID.toString(), from))
         } else if (!employeeID || employeeID == undefined) {

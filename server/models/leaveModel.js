@@ -68,7 +68,7 @@ leaveSchema.statics.saveLeave = async (leaveInput, user, schemaRequested) => {
     if (!startDateMoment.isSameOrAfter(nowMoment))
         throw new AppError("Leave start date should be greater than or equal to today date", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    console.log("leave diff", endDateMoment.diff(startDateMoment, 'days'))
+   // console.log("leave diff", endDateMoment.diff(startDateMoment, 'days'))
 
     let leaveDaysCount = endDateMoment.diff(startDateMoment, 'days')
     if (!leaveDaysCount)

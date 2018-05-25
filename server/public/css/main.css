@@ -1742,6 +1742,13 @@ i.iconClr:hover {
     color: #ffffff;
 }
 
+.releaseDevArrowDisable {
+    margin-top: 10px;
+    background-color: #cccccc;
+    color: #ffffff;
+    cursor: not-allowed;
+}
+
 .reportingDatePicker {
     margin-left: 150px;
     margin-top: 5px;
