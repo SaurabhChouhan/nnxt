@@ -497,7 +497,7 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
     if (!userRoleInThisRelease) {
         throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER,], userRoleInThisRelease)) {
+    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can fetch", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
