@@ -1,5 +1,6 @@
 import * as AC from "./actionConsts"
-
+import {initialize} from 'redux-form'
+import * as A from '../actions'
 
 export const addLeaveRequests = (leaveRequests) => ({
     type: AC.ADD_LEAVE_REQUESTS,
@@ -162,5 +163,84 @@ export const getAllLeavetypesFromServer = () => {
                 }
             })
 
+    }
+}
+
+export const addLeaveSettingOnServer = (leaveSetting) => {
+    return function (dispatch, getState) {
+        return fetch('/api/leaves/leave-setting',
+            {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(leaveSetting)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(initialize("leave-setting", json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+
+export const getLeaveSettingFromServer = () => {
+    return function (dispatch, getState) {
+        return fetch('/api/leaves/leave-setting',
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(initialize("leave-setting", json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+
+export const updateLeaveSettingOnServer = (leaveSetting) => {
+    return function (dispatch, getState) {
+        return fetch('/api/leaves/leave-setting',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, *!/!*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(leaveSetting)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(initialize("leave-setting", json.data))
+                }
+                return json
+            }
+        )
     }
 }
