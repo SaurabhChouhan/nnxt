@@ -13,8 +13,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
         dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
     },
-    ReleaseProjectGoBack: (release) => {
-        dispatch(A.getTaskReleaseFromServer(release, "all", "all"))
+
+    ReleaseProjectGoBack: () => {
+        dispatch(A.getAllReleaseProjectsFromServer("all"))
         dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
     },
 

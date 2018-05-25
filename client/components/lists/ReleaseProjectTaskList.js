@@ -84,7 +84,7 @@ class ReleaseProjectTaskList extends Component {
                     <div className=" col-md-1 backarrow" title="Go Back">
                         <button className="btn-link" onClick={() => {
                             this.props.history.push("/app-home/release")
-                            this.props.ReleaseProjectGoBack(selectedRelease)
+                            this.props.ReleaseProjectGoBack()
                         }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                     </div>
                     <div className="col-md-3">
