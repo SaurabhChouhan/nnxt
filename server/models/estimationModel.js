@@ -811,7 +811,10 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
     releasePlanInput.owner = SC.OWNER_MANAGER
     releasePlanInput.flags = [SC.FLAG_UNPLANNED]
 
-    const taskList = await MDL.EstimationTaskModel.find({"estimation._id": estimation._id})
+    const taskList = await MDL.EstimationTaskModel.find({
+        "estimation._id": estimation._id,
+        "isDeleted": false
+    })
     if (!taskList && !taskList.length > 0)
         throw new AppError('Task list not found for default release plan', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
