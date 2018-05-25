@@ -809,7 +809,7 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
     releasePlanInput.status = SC.STATUS_PLAN_REQUESTED
     releasePlanInput.release = release
     releasePlanInput.owner = SC.OWNER_MANAGER
-    releasePlanInput.flags = [SC.FLAG_UNPLANNED]
+    releasePlanInput.flags = [SC.WARNING_UNPLANNED]
 
     const taskList = await MDL.EstimationTaskModel.find({
         "estimation._id": estimation._id,

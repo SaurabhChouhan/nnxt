@@ -37,7 +37,7 @@ let taskPlanningSchema = mongoose.Schema({
     },
     flags: [{
         type: String,
-        enum: [SC.FLAG_EMPLOYEE_ON_LEAVE, SC.REPORT_UNREPORTED]
+        enum: [SC.WARNING_EMPLOYEE_ON_LEAVE, SC.WARNING_TOO_MANY_HOURS, SC.WARNING_UNREPORTED]
     }],
     planning: {
         plannedHours: {type: Number, default: 0}
