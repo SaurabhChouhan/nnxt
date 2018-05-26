@@ -11,7 +11,7 @@ class ReportingTaskPage extends Component {
     constructor(props) {
         super(props)
         this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
-        this.onProjectSelect = this.onProjectSelect.bind(this)
+        this.onReleaseSelect = this.onReleaseSelect.bind(this)
     }
 
 
@@ -169,12 +169,12 @@ class ReportingTaskPage extends Component {
     }
 
     onTaskStatusChange(status) {
-        this.props.onProjectSelect(this.props.selectedRelease._id, this.props.dateOfReport, status)
+        this.props.onReleaseSelect(this.props.selectedRelease._id, this.props.dateOfReport, status)
         this.props.setStatus(status)
     }
 
-    onProjectSelect(releaseID) {
-        this.props.onReleaseSelect(releaseID)
+    onReleaseSelect(releaseID) {
+        this.props.onReleaseSelect(releaseID, this.props.dateOfReport, this.props.taskStatus)
     }
 
     render() {
@@ -246,7 +246,7 @@ class ReportingTaskPage extends Component {
                                     value={selectedRelease._id}
                                     className="form-control"
                                     title="Select Flag"
-                                    onChange={(project) => this.onProjectSelect(project.target.value)}>
+                                    onChange={(project) => this.onReleaseSelect(project.target.value)}>
 
                                     <option key={-1} value={''}>{'Select Project'}</option>
                                     {

@@ -5,16 +5,16 @@ import * as COC from '../../components/componentConsts'
 import _ from 'lodash'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onReleaseSelect: (releaseID) => {
+    onReleaseSelect: (releaseID, date, status) => {
         dispatch(A.getReleaseDetailsForReporting(releaseID))
+        dispatch(A.getReportingTasksForDate(releaseID, date, status))
     },
-    taskSelected: (task, selectedProject) => dispatch(A.getTaskAndProjectDetailsFromServer(task._id, selectedProject._id)),
     setStatus: (status) => dispatch(A.setStatus(status)),
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     },
     reportTask: (task) => {
-        console.log('taskPlan', taskPlan)
+        console.log('taskPlan', task)
     }
 })
 
