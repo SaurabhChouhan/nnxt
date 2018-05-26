@@ -412,10 +412,13 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
+    /*
+    [saurabh-review] - Finding release while removing task plan is not necessary, We can assume that it will be there
     let release = await MDL.ReleaseModel.findById(taskPlanning.release._id)
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+    */
 
     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlanning.releasePlan._id)
     if (!releasePlan) {
@@ -423,7 +426,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     }
 
     //check user highest role in this release
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(taskPlanning.release._id, user)
     if (!userRoleInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -441,7 +444,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     // As task plan is removed we have to decrease employee statistics  planned hours
     let EmployeeStatisticsModelInput = {
         release: {
-            _id: release._id.toString(),
+            _id: taskPlanning.release._id.toString(),
         },
         employee: {
             _id: employee._id.toString(),
@@ -453,7 +456,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
             plannedHoursReportedTasks: Number(0)
         }
     }
-    await MDL.EmployeeStatisticsModel.decreseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+    await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
 
     // As task plan is removed we have to decrease employee days  planned hours
     let oldEmployeeDaysModelInput = {
@@ -467,27 +470,43 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
     // As task plan is removed we have to decrease release plan planned hours
+    var releasePlanUpdateData = {
+        $inc: {
+            'planning.plannedHours': -numberPlannedHours
+        }
+    }
+
+    /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
+       be added again
+     */
+
+    let warning = undefined
+
+    if (releasePlan.planning.plannedHours === numberPlannedHours) {
+        // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
+        logger.debug('Planned hours ['+releasePlan.planning.plannedHours+"] of release plan ["+releasePlan._id+"] matches ["+numberPlannedHours+"] of removed task planning. Hence need to again add unplanned flag and warning.")
+        releasePlanUpdateData['$push'] = {flags: SC.WARNING_UNPLANNED}
+        warning = await MDL.WarningModel.addUnplanned(releasePlan)
+    }
+
     await MDL.ReleasePlanModel.update(
         {'_id': mongoose.Types.ObjectId(releasePlan._id)},
-        {
-            $inc: {
-                'planning.plannedHours': -numberPlannedHours
-            },
-            flags: SC.FLAG_PLANNED
-        })
+        releasePlanUpdateData
+    )
 
     // As task plan is removed we have to decrease release planned hours
     await MDL.ReleaseModel.update(
-        {'_id': mongoose.Types.ObjectId(release._id)},
+        {'_id': mongoose.Types.ObjectId(releasePlan.release._id)},
         {
             $inc: {
                 'initial.plannedHours': -numberPlannedHours
             }
         })
 
-    //removed task planning
-    return await TaskPlanningModel.remove({'_id': mongoose.Types.ObjectId(taskPlanning._id)})
+    let taskPlanningResponse = await TaskPlanningModel.remove({'_id': mongoose.Types.ObjectId(taskPlanning._id)})
 
+    //removed task planning
+    return {warning: warning, taskPlan: taskPlanningResponse}
 }
 
 

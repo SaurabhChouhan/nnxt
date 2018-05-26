@@ -95,7 +95,7 @@ employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = 
 }
 
 
-employeeStatisticsSchema.statics.decreseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
+employeeStatisticsSchema.statics.decreaseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
    // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
     let employeeStatistics = await EmployeeStatisticsModel.find({
