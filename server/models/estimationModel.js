@@ -804,13 +804,6 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
     if (!release)
         throw new AppError('No such release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let releasePlanInput = {}
-    releasePlanInput.estimation = estimation
-    releasePlanInput.status = SC.STATUS_PLAN_REQUESTED
-    releasePlanInput.release = release
-    releasePlanInput.owner = SC.OWNER_MANAGER
-    releasePlanInput.flags = [SC.FLAG_UNPLANNED]
-
     const taskList = await MDL.EstimationTaskModel.find({
         "estimation._id": estimation._id,
         "isDeleted": false
@@ -818,18 +811,8 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
     if (!taskList && !taskList.length > 0)
         throw new AppError('Task list not found for default release plan', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(task => {
-        let updateTask = {}
-        let report = {}
-        updateTask._id = task._id
-        updateTask.name = task.estimator.name
-        updateTask.estimatedHours = task.estimator.estimatedHours
-        updateTask.description = task.estimator.description
-        releasePlanInput.task = {}
-        releasePlanInput.task = updateTask
-        report.finalStatus = SC.STATUS_UNPLANNED
-        releasePlanInput.report = report
-        return MDL.ReleasePlanModel.addReleasePlan(releasePlanInput)
+    let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(estimationTask => {
+        return MDL.ReleasePlanModel.addReleasePlan(release, estimation, estimationTask)
     })
 
     let releasePlans = await Promise.all(estimationTasksCopyAndReadyForReleasePlanPromises)

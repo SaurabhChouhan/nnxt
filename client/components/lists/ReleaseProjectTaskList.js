@@ -190,14 +190,14 @@ class ReleaseProjectTaskList extends Component {
                                     this.onFlagChange(flag.target.value)
                                 }>
                                     <option value="all">All Flags</option>
-                                    <option value={SC.FLAG_UNPLANNED}>{SC.FLAG_UNPLANNED}</option>
-                                    <option value={SC.FLAG_EMPLOYEE_ON_LEAVE}>{SC.FLAG_EMPLOYEE_ON_LEAVE}</option>
-                                    <option value={SC.FLAG_DEV_DATE_MISSED}>{SC.FLAG_DEV_DATE_MISSED}</option>
-                                    <option value={SC.FLAG_HAS_UNREPORTED_DAYS}>{SC.FLAG_HAS_UNREPORTED_DAYS}</option>
+                                    <option value={SC.WARNING_UNPLANNED}>{SC.WARNING_UNPLANNED}</option>
+                                    <option value={SC.WARNING_EMPLOYEE_ON_LEAVE}>{SC.WARNING_EMPLOYEE_ON_LEAVE}</option>
+                                    <option value={SC.RELEASE_DATE_MISSED_1}>{SC.RELEASE_DATE_MISSED_1}</option>
+                                    <option value={SC.WARNING_HAS_UNREPORTED_DAYS}>{SC.WARNING_HAS_UNREPORTED_DAYS}</option>
                                     <option
-                                        value={SC.FLAG_PENDING_AFTER_END_DATE}>{SC.FLAG_PENDING_AFTER_END_DATE}</option>
+                                        value={SC.WARNING_PENDING_AFTER_END_DATE}>{SC.WARNING_PENDING_AFTER_END_DATE}</option>
                                     <option
-                                        value={SC.FLAG_COMPLETED_BEFORE_END_DATE}>{SC.FLAG_COMPLETED_BEFORE_END_DATE}</option>
+                                        value={SC.WARNING_COMPLETED_BEFORE_END_DATE}>{SC.WARNING_COMPLETED_BEFORE_END_DATE}</option>
 
                                 </select>
                             </div>

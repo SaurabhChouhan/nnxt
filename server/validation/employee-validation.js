@@ -1,5 +1,6 @@
-import {ObjectId, RequiredString} from "./index"
-import t from 'tcomb-validation'
+import {ObjectId, RequiredString} from "./index";
+import t from 'tcomb-validation';
+import * as SC from '../serverconstants';
 
 export const employeeAddEmployeeDaysStruct = t.struct({
     _id: t.Nil,
@@ -9,7 +10,7 @@ export const employeeAddEmployeeDaysStruct = t.struct({
     }),
     plannedHours: t.Number,
     dateString: RequiredString,
-})
+});
 
 export const employeeUpdateEmployeeDaysStruct = t.struct({
     plannedHours: t.Number,
@@ -18,7 +19,7 @@ export const employeeUpdateEmployeeDaysStruct = t.struct({
         _id: ObjectId,
         name: t.String
     })
-})
+});
 
 export const employeeCreateSettingStruct = t.struct({
     _id: t.Nil,
@@ -29,7 +30,7 @@ export const employeeCreateSettingStruct = t.struct({
     busy: t.Number,
     superBusy: t.Number
 
-})
+});
 export const employeeUpdateSettingStruct = t.struct({
     _id: ObjectId,
     maxPlannedHours: t.Number,
@@ -39,7 +40,7 @@ export const employeeUpdateSettingStruct = t.struct({
     busy: t.Number,
     superBusy: t.Number
 
-})
+});
 
 export const employeeAddEmployeeStatisticsStruct = t.struct({
     _id: t.Nil,
@@ -68,7 +69,7 @@ export const employeeAddEmployeeStatisticsStruct = t.struct({
             plannedHoursReportedTasks: t.Number
         })
     ))
-})
+});
 
 export const employeeAddTaskEmployeeStatisticsStruct = t.struct({
     release: t.struct({
@@ -85,7 +86,7 @@ export const employeeAddTaskEmployeeStatisticsStruct = t.struct({
         plannedHoursReportedTasks: t.Number
     })
 
-})
+});
 
 export const employeeUpdateTaskEmployeeStatisticsStruct = t.struct({
     release: t.struct({
@@ -101,4 +102,4 @@ export const employeeUpdateTaskEmployeeStatisticsStruct = t.struct({
         plannedHoursReportedTasks: t.Number
     })
 
-})
+});

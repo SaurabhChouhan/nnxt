@@ -6,7 +6,8 @@ import _ from 'lodash'
 import moment from 'moment'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
-import * as V from "../validation"
+import * as V from '../validation'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -37,7 +38,7 @@ let taskPlanningSchema = mongoose.Schema({
     },
     flags: [{
         type: String,
-        enum: [SC.FLAG_EMPLOYEE_ON_LEAVE, SC.REPORT_UNREPORTED]
+        enum: [SC.WARNING_EMPLOYEE_ON_LEAVE, SC.WARNING_TOO_MANY_HOURS, SC.WARNING_UNREPORTED]
     }],
     planning: {
         plannedHours: {type: Number, default: 0}
@@ -82,10 +83,10 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     //check user highest role in this release
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
-        throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can plan task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     let selectedDeveloper = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
@@ -98,34 +99,41 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     // Conversion of planned hours in number format
     let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
+    if (numberPlannedHours <= 0)
+        throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
     // checking that developer is part of project or not
     if (taskPlanningInput && !taskPlanningInput.projectUsersOnly) {
         // if not then it is added in non Project team of release
 
+        /*
+           [saurabh-review] - Manager/Leader would not be developer of a release until they were added as part of team so I don't think we need to check
+           employee id against manager or leader id.
+         */
         if (await MDL.ReleaseModel.count({
-                "_id": release._id,
-                $or: [{"manager._id": taskPlanningInput.employee._id},
-                    {"leader._id": taskPlanningInput.employee._id},
-                    {"team._id": taskPlanningInput.employee._id},
-                    {"nonProjectTeam._id": taskPlanningInput.employee._id}]
+                '_id': release._id,
+                $or: [{'manager._id': taskPlanningInput.employee._id},
+                    {'leader._id': taskPlanningInput.employee._id},
+                    {'team._id': taskPlanningInput.employee._id},
+                    {'nonProjectTeam._id': taskPlanningInput.employee._id}]
             }) <= 0) {
             // it checks that user who may not be a developer of this project is assigned into a task plan so add that user to this project as a nonProjectTeam
             let nonProjectUser = {
-                "_id": selectedDeveloper._id.toString(),
-                "name": selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName,
-                "email": selectedDeveloper.email,
+                '_id': selectedDeveloper._id.toString(),
+                'name': selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName,
+                'email': selectedDeveloper.email,
             }
             await MDL.ReleaseModel.update({
                 '_id': mongoose.Types.ObjectId(release._id)
-            }, {$push: {"nonProjectTeam": nonProjectUser}}).exec()
+            }, {$push: {'nonProjectTeam': nonProjectUser}}).exec()
         }
     }
 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            "employee._id": selectedDeveloper._id.toString(),
-            "date": momentPlanningDate
+            'employee._id': selectedDeveloper._id.toString(),
+            'date': momentPlanningDate
         }) > 0) {
 
         //  already added employees day detail so update employee days details with increment of planned hours
@@ -156,9 +164,9 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     // Add or update Employee Statistics Details when task is planned
     // Check task detail available with same release and employee
     if (await MDL.EmployeeStatisticsModel.count({
-            "employee._id": mongoose.Types.ObjectId(selectedDeveloper._id),
-            "release._id": mongoose.Types.ObjectId(release._id),
-            "tasks._id": mongoose.Types.ObjectId(releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(selectedDeveloper._id),
+            'release._id': mongoose.Types.ObjectId(release._id),
+            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
         }) > 0) {
 
@@ -183,8 +191,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            "employee._id": mongoose.Types.ObjectId(selectedDeveloper._id),
-            "release._id": mongoose.Types.ObjectId(release._id)
+            'employee._id': mongoose.Types.ObjectId(selectedDeveloper._id),
+            'release._id': mongoose.Types.ObjectId(release._id)
         }) > 0) {
 
         // Already added employees statics detail without task plan so add a task plan with planned hours
@@ -233,23 +241,33 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(EmployeeStatisticsModelInput, user)
     }
 
-    // As task plan is added we have to increase releasePlan planned hours
-    await MDL.ReleasePlanModel.update(
-        {"_id": mongoose.Types.ObjectId(releasePlan._id)},
-        {
-            $inc: {
-                "planning.plannedHours": numberPlannedHours
-            },
-            flags: SC.FLAG_PLANNED
-        })
+    /* As task plan is added we have to increase releasePlan planned hours
+     */
+
+    var releasePlanUpdateData = {
+        $inc: {
+            'planning.plannedHours': numberPlannedHours
+        }
+    }
+
+    // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
+
+    if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) > -1) {
+        // remove flag and associated warning
+        logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
+        releasePlanUpdateData['$pull'] = {flags: SC.WARNING_UNPLANNED}
+        await MDL.WarningModel.removeUnplanned(releasePlan)
+
+    }
+    await MDL.ReleasePlanModel.update({'_id': mongoose.Types.ObjectId(releasePlan._id)}, releasePlanUpdateData)
 
     // As task plan is added we have to increase release planned hours
 
     await MDL.ReleaseModel.update(
-        {"_id": mongoose.Types.ObjectId(release._id)},
+        {'_id': mongoose.Types.ObjectId(release._id)},
         {
             $inc: {
-                "initial.plannedHours": numberPlannedHours
+                'initial.plannedHours': numberPlannedHours
             }
         })
 
@@ -262,7 +280,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     taskPlanning.release = taskPlanningInput.release
     taskPlanning.releasePlan = taskPlanningInput.releasePlan
     taskPlanning.employee = taskPlanningInput.employee
-    taskPlanning.flags = taskPlanningInput.flags
     taskPlanning.planning = taskPlanningInput.planning
     taskPlanning.report = taskPlanningInput.report
     taskPlanning.description = taskPlanningInput.description ? taskPlanningInput.description : ''
@@ -316,10 +333,10 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     //check user highest role in this release
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
-        throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can merge", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     // Conversion of planned hours in number format
     let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
@@ -327,8 +344,8 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            "employee._id": taskPlanning.employee._id.toString(),
-            "date": rePlanningDateMoment.toDate()
+            'employee._id': taskPlanning.employee._id.toString(),
+            'date': rePlanningDateMoment.toDate()
         }) > 0) {
 
         //  already added employees day detail so update employee days details with increment of planned hours and decrease planned hours from previous date
@@ -395,10 +412,13 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
+    /*
+    [saurabh-review] - Finding release while removing task plan is not necessary, We can assume that it will be there
     let release = await MDL.ReleaseModel.findById(taskPlanning.release._id)
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+    */
 
     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlanning.releasePlan._id)
     if (!releasePlan) {
@@ -406,12 +426,12 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     }
 
     //check user highest role in this release
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(taskPlanning.release._id, user)
     if (!userRoleInThisRelease) {
-        throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can delete plan task", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
@@ -424,7 +444,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     // As task plan is removed we have to decrease employee statistics  planned hours
     let EmployeeStatisticsModelInput = {
         release: {
-            _id: release._id.toString(),
+            _id: taskPlanning.release._id.toString(),
         },
         employee: {
             _id: employee._id.toString(),
@@ -436,7 +456,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
             plannedHoursReportedTasks: Number(0)
         }
     }
-    await MDL.EmployeeStatisticsModel.decreseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+    await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
 
     // As task plan is removed we have to decrease employee days  planned hours
     let oldEmployeeDaysModelInput = {
@@ -450,27 +470,43 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
     // As task plan is removed we have to decrease release plan planned hours
+    var releasePlanUpdateData = {
+        $inc: {
+            'planning.plannedHours': -numberPlannedHours
+        }
+    }
+
+    /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
+       be added again
+     */
+
+    let warning = undefined
+
+    if (releasePlan.planning.plannedHours === numberPlannedHours) {
+        // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
+        logger.debug('Planned hours ['+releasePlan.planning.plannedHours+"] of release plan ["+releasePlan._id+"] matches ["+numberPlannedHours+"] of removed task planning. Hence need to again add unplanned flag and warning.")
+        releasePlanUpdateData['$push'] = {flags: SC.WARNING_UNPLANNED}
+        warning = await MDL.WarningModel.addUnplanned(releasePlan)
+    }
+
     await MDL.ReleasePlanModel.update(
-        {"_id": mongoose.Types.ObjectId(releasePlan._id)},
-        {
-            $inc: {
-                "planning.plannedHours": -numberPlannedHours
-            },
-            flags: SC.FLAG_PLANNED
-        })
+        {'_id': mongoose.Types.ObjectId(releasePlan._id)},
+        releasePlanUpdateData
+    )
 
     // As task plan is removed we have to decrease release planned hours
     await MDL.ReleaseModel.update(
-        {"_id": mongoose.Types.ObjectId(release._id)},
+        {'_id': mongoose.Types.ObjectId(releasePlan.release._id)},
         {
             $inc: {
-                "initial.plannedHours": -numberPlannedHours
+                'initial.plannedHours': -numberPlannedHours
             }
         })
 
-    //removed task planning
-    return await TaskPlanningModel.remove({"_id": mongoose.Types.ObjectId(taskPlanning._id)})
+    let taskPlanningResponse = await TaskPlanningModel.remove({'_id': mongoose.Types.ObjectId(taskPlanning._id)})
 
+    //removed task planning
+    return {warning: warning, taskPlan: taskPlanningResponse}
 }
 
 
@@ -495,14 +531,14 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
     //check user highest role in this release
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
-        throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER,], userRoleInThisRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can fetch", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can fetch', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     // fetch all task planning from release
-    return await TaskPlanningModel.find({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}).sort({"planningDate": 1})
+    return await TaskPlanningModel.find({'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id)}).sort({'planningDate': 1})
 }
 
 
@@ -529,12 +565,12 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     // list of release Id`s where user is either manager or leader
     let releaseListOfID = []
     releaseListOfID = await MDL.ReleaseModel.find({
-        $or: [{"manager._id": mongoose.Types.ObjectId(user._id)},
-            {"leader._id": mongoose.Types.ObjectId(user._id)}]
+        $or: [{'manager._id': mongoose.Types.ObjectId(user._id)},
+            {'leader._id': mongoose.Types.ObjectId(user._id)}]
     }, {'_id': 1})
 
     // All task plannings of selected employee Id
-    let taskPlannings = await TaskPlanningModel.find({"employee._id": mongoose.Types.ObjectId(employeeId)}).sort({"planningDate": 1})
+    let taskPlannings = await TaskPlanningModel.find({'employee._id': mongoose.Types.ObjectId(employeeId)}).sort({'planningDate': 1})
 
     // Conditions applied for filter according to required data and fromDate to toDate
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
@@ -581,10 +617,10 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
     //check user highest role in this release
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
-        throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_DEVELOPER + " or " + SC.ROLE_NON_PROJECT_DEVELOPER, +" or " + SC.ROLE_LEADER + "] can comment", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_DEVELOPER + ' or ' + SC.ROLE_NON_PROJECT_DEVELOPER, +' or ' + SC.ROLE_LEADER + '] can comment', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(commentInput.releasePlanID))
@@ -601,7 +637,7 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
     comment.dateString = moment(now).format(SC.DEFAULT_DATE_FORMAT)
     await MDL.ReleasePlanModel.update({
         '_id': mongoose.Types.ObjectId(releasePlan._id)
-    }, {$push: {"comments": comment}}).exec()
+    }, {$push: {'comments': comment}}).exec()
 
     return {releasePlanID: releasePlan._id}
 }
@@ -612,7 +648,7 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) => {
     // fetch all task planning from release
     let taskPlans = await MDL.TaskPlanningModel.find({
-        "employee._id": mongoose.Types.ObjectId(user._id)
+        'employee._id': mongoose.Types.ObjectId(user._id)
     }, {
         task: 1,
         planningDateString: 1,
@@ -654,7 +690,6 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 }
 
 
-
 // Shifting task plans to future
 taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schemaRequested) => {
     if (schemaRequested)
@@ -669,12 +704,12 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
     // employeeId must be present or its value must be all
     let employee = {}
-    if (planning.employeeId && planning.employeeId.toLowerCase() != "all") {
+    if (planning.employeeId && planning.employeeId.toLowerCase() != 'all') {
         employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
         if (!employee)
             throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
-    } else employee._id = "all"
+    } else employee._id = 'all'
 
 
     // Conversion of date into utc
@@ -705,41 +740,41 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     // check user role in this release
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
-        throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can shift", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     // fetch all task plannings according to applied conditions
     let taskPlannings
-    if (planning.employeeId && planning.employeeId.toLowerCase() == "all") {
+    if (planning.employeeId && planning.employeeId.toLowerCase() == 'all') {
 
         // Get all employee`s task plannings
         taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
+            'planningDate',
             {
-                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                "planningDate": {$gte: baseDateMomentInUtc}
+                'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                'planningDate': {$gte: baseDateMomentInUtc}
             })
     } else {
 
         // Get selected employee`s task plannings
         taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
+            'planningDate',
             {
-                "employee._id": mongoose.Types.ObjectId(employee._id),
-                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                "planningDate": {$gte: baseDateMomentInUtc}
+                'employee._id': mongoose.Types.ObjectId(employee._id),
+                'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                'planningDate': {$gte: baseDateMomentInUtc}
             })
     }
 
     //Sorting task plannings according to date
     if (taskPlannings && taskPlannings.length) {
         taskPlannings.sort(function (a, b) {
-            a = new Date(a);
-            b = new Date(b);
-            return a < b ? -1 : a > b ? 1 : 0;
+            a = new Date(a)
+            b = new Date(b)
+            return a < b ? -1 : a > b ? 1 : 0
         })
 
         //Form base date to end date of task plannings and added some extra days multiple of 10 so that when holiday will be getting then also operation can be performed
@@ -774,31 +809,31 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     // task planning of all employee will shift
 
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone().toDate(),
-                            "isShifted": false
+                            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                            'planningDate': PlanningDateMoment.clone().toDate(),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}).exec()
                 } else {
                     // task planning of selected employee will shift
 
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone().toDate(),
-                            "employee._id": mongoose.Types.ObjectId(employee._id),
-                            "isShifted": false
+                            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                            'planningDate': PlanningDateMoment.clone().toDate(),
+                            'employee._id': mongoose.Types.ObjectId(employee._id),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}).exec()
                 }
@@ -824,31 +859,31 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 if (planning.employeeId == 'all') {
                     // task planning of all employee will shift
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone().toDate(),
-                            "isShifted": false
+                            'releasePlan._id': planning.releasePlanID,
+                            'planningDate': PlanningDateMoment.clone().toDate(),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}
                     ).exec()
                 } else {
                     // task planning of selected employee will shift
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone().toDate(),
-                            "employee._id": mongoose.Types.ObjectId(employee._id),
-                            "isShifted": false
+                            'releasePlan._id': planning.releasePlanID,
+                            'planningDate': PlanningDateMoment.clone().toDate(),
+                            'employee._id': mongoose.Types.ObjectId(employee._id),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}
                     ).exec()
@@ -861,7 +896,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
             return resolve(false)
         })
         await Promise.all(ShiftingPromises).then(async promise => {
-            return await TaskPlanningModel.update({"releasePlan._id": planning.releasePlanID}, {$set: {"isShifted": false}}, {multi: true}).exec()
+            return await TaskPlanningModel.update({'releasePlan._id': planning.releasePlanID}, {$set: {'isShifted': false}}, {multi: true}).exec()
         })
 
         await updateEmployeeDays(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc, user)
@@ -881,13 +916,13 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
     let daysToShiftNumber = Number(planning.daysToShift)
 // employeeId must be present or its value must be all
     let employee = {}
-    if (planning.employeeId && planning.employeeId.toLowerCase() != "all") {
+    if (planning.employeeId && planning.employeeId.toLowerCase() != 'all') {
         employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
 
         if (!employee)
             throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
-    } else employee._id = "all"
+    } else employee._id = 'all'
 
 
 // can not shift task whose planning date is before now
@@ -916,32 +951,32 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
     // check user role in this release
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
-        throw new AppError("User is not having any role in this release so don`t have any access", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can shift", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
 // fetch all task plannings according to applied conditions
     let taskPlannings
-    if (planning.employeeId && planning.employeeId.toLowerCase() == "all") {
+    if (planning.employeeId && planning.employeeId.toLowerCase() == 'all') {
         // Get all employee`s task plannings
 
         taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
+            'planningDate',
             {
-                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                "planningDate": {$gte: baseDateMomentInUtc}
+                'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                'planningDate': {$gte: baseDateMomentInUtc}
             })
     } else {
         // Get selected employee`s task plannings
 
         taskPlannings = await TaskPlanningModel.distinct(
-            "planningDate",
+            'planningDate',
             {
-                "employee._id": mongoose.Types.ObjectId(employee._id),
-                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                "planningDate": {$gte: baseDateMomentInUtc}
+                'employee._id': mongoose.Types.ObjectId(employee._id),
+                'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                'planningDate': {$gte: baseDateMomentInUtc}
             })
     }
     // console.log("taskPlannings", taskPlannings)
@@ -950,14 +985,14 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
 
         taskPlannings.sort(function (a, b) {
             //  console.log("before a", a, "b", b)
-            a = new Date(a);
-            b = new Date(b);
+            a = new Date(a)
+            b = new Date(b)
             // console.log("after a", a, "b", b)
-            return a < b ? -1 : a > b ? 1 : 0;
+            return a < b ? -1 : a > b ? 1 : 0
         })
 
         let startShiftingDateMoment = momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-        let startShiftingDate = startShiftingDateMoment.subtract(daysToShiftNumber, "days")
+        let startShiftingDate = startShiftingDateMoment.subtract(daysToShiftNumber, 'days')
         // Can not shift task plannings before now
         if (startShiftingDate.isBefore(nowMomentInUtc)) {
             throw new AppError('Can not shift before now ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -1002,31 +1037,31 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                     // task planning of all employee will shift
 
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone().toDate(),
-                            "isShifted": false
+                            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                            'planningDate': PlanningDateMoment.clone().toDate(),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone().toDate(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}).exec()
                 } else {
                     // task planning of selected employee will shift
 
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone().toDate(),
-                            "employee._id": mongoose.Types.ObjectId(employee._id),
-                            "isShifted": false
+                            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                            'planningDate': PlanningDateMoment.clone().toDate(),
+                            'employee._id': mongoose.Types.ObjectId(employee._id),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}).exec()
                 }
@@ -1046,31 +1081,31 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 if (planning.employeeId == 'all') {
                     // task planning of all employee will shift
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": planning.releasePlanID,
-                            "planningDate": PlanningDateMoment.clone(),
-                            "isShifted": false
+                            'releasePlan._id': planning.releasePlanID,
+                            'planningDate': PlanningDateMoment.clone(),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}
                     ).exec()
                 } else {
                     // task planning of selected employee will shift
                     return await TaskPlanningModel.update({
-                            "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id),
-                            "planningDate": PlanningDateMoment.clone(),
-                            "employee._id": mongoose.Types.ObjectId(employee._id),
-                            "isShifted": false
+                            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+                            'planningDate': PlanningDateMoment.clone(),
+                            'employee._id': mongoose.Types.ObjectId(employee._id),
+                            'isShifted': false
                         },
                         {
                             $set: {
-                                "planningDate": newShiftingDateMomentTz.clone(),
-                                "planningDateString": newShiftingDateString,
-                                "isShifted": true
+                                'planningDate': newShiftingDateMomentTz.clone(),
+                                'planningDateString': newShiftingDateString,
+                                'isShifted': true
                             }
                         }, {multi: true}
                     ).exec()
@@ -1086,7 +1121,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         })
 
         await Promise.all(ShiftingPromises).then(async promise => {
-            return await TaskPlanningModel.update({"releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)}, {$set: {"isShifted": false}}, {multi: true}).exec()
+            return await TaskPlanningModel.update({'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id)}, {$set: {'isShifted': false}}, {multi: true}).exec()
         })
         await updateEmployeeDays(startShiftingDate.toDate(), to.toDate(), user)
     } else {
@@ -1118,11 +1153,11 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
 
     // Converting holiday Object List to Date with UTC moment
     let holidayDateList = holidayObjectList && holidayObjectList.length ? _.map(holidayObjectList, function (obj) {
-        return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0);
+        return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }) : []
 
     //Getting All Dates, AllWorkingDayList, AllTasksOnHolidayList, object ,Arrays and other Fields after calculation
-    return await getDates(from, to, taskPlannings, holidayDateList);
+    return await getDates(from, to, taskPlannings, holidayDateList)
 
 }
 
@@ -1187,19 +1222,19 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
     }, {
         $group: {
             _id: {
-                "planningDate": "$planningDate",
-                "employeeID": "$employee._id"
+                'planningDate': '$planningDate',
+                'employeeID': '$employee._id'
             },
-            planningDate: {$first: "$planningDate"},
-            employee: {$first: "$employee"},
-            plannedHours: {$sum: "$planning.plannedHours"},
+            planningDate: {$first: '$planningDate'},
+            employee: {$first: '$employee'},
+            plannedHours: {$sum: '$planning.plannedHours'},
             count: {$sum: 1}
         }
     }]).exec()
 
     // Employee task planning details will be deleted
     let deleteEmployeeDetails = await MDL.EmployeeDaysModel.remove({
-        "date": {$gte: startDateMomentTz.clone().toDate(), $lte: startDateMomentTz.clone().toDate()}
+        'date': {$gte: startDateMomentTz.clone().toDate(), $lte: startDateMomentTz.clone().toDate()}
     })
     // console.log("deleteEmployeeDetails", deleteEmployeeDetails)
     let saveEmployeePromises = taskPlannings && taskPlannings.length ? taskPlannings.map(async tp => {
@@ -1221,7 +1256,7 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
     return await Promise.all(saveEmployeePromises)
 
 }
-const TaskPlanningModel = mongoose.model("TaskPlanning", taskPlanningSchema)
+const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
 
 
