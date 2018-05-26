@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
-import AppError from '../AppError';
-import * as SC from "../serverconstants";
-import * as EC from "../errorcodes";
-import * as MDL from '../models';
+import mongoose from 'mongoose'
+import AppError from '../AppError'
+import * as SC from '../serverconstants'
+import * as EC from '../errorcodes'
+import * as MDL from '../models'
 
 
-mongoose.Promise = global.Promise;
+mongoose.Promise = global.Promise
 
 let releasePlanSchema = mongoose.Schema({
     estimation: {
@@ -45,7 +45,7 @@ let releasePlanSchema = mongoose.Schema({
         maxReportedDate: Date,
         maxReportedDateString: String,
         reportedHours: {type: Number, default: 0},
-        finalStatus: {type: String, enum: [SC.STATUS_UNPLANNED, SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
+        finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
     },
     comments: [{
         name: {type: String, required: [true, 'Comment name is required']},
@@ -59,55 +59,76 @@ let releasePlanSchema = mongoose.Schema({
     }],
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
-});
+})
 
-releasePlanSchema.statics.addReleasePlan = async (releasePlanInput) => {
-    console.log("releasePlanInput", releasePlanInput);
-    return await ReleasePlanModel.create(releasePlanInput);
-};
-
-releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
-    let releaseID = params.releaseID;
-    let empflag = params.empflag;
-    let status = params.status;
-
-    if (!releaseID) {
-        throw new AppError("Release Id not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN);
+releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimationTask) => {
+    let releasePlanInput = {}
+    releasePlanInput.estimation = estimation
+    releasePlanInput.release = release
+    releasePlanInput.flags = [SC.WARNING_UNPLANNED]
+    releasePlanInput.report = {}
+    releasePlanInput.task = {
+        _id: estimationTask._id,
+        name: estimationTask.estimator.name,
+        estimatedHours: estimationTask.estimator.estimatedHours,
+        description: estimationTask.estimator.description
     }
 
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID));
+    if (estimationTask.feature && estimationTask.feature._id)
+        releasePlanInput.feature = estimationTask.feature
+
+    let releasePlan = await ReleasePlanModel.create(releasePlanInput)
+    /**
+     * We can create warning in the background as these unplanned warnings are not visible on project
+     * award.
+     */
+    MDL.WarningModel.addUnplanned(releasePlan)
+
+    return releasePlan
+}
+
+releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
+    let releaseID = params.releaseID
+    let empflag = params.empflag
+    let status = params.status
+
+    if (!releaseID) {
+        throw new AppError('Release Id not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
 
     if (!release) {
-        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST);
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
     if (!empflag) {
-        throw new AppError("Employee Flag not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN);
+        throw new AppError('Employee Flag not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
     }
 
     if (!status) {
-        throw new AppError("Status not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN);
+        throw new AppError('Status not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
     }
 
-    let filter = {"release._id": release._id};
+    let filter = {'release._id': release._id}
 
-    if (status && status.toLowerCase() != "all" && empflag && empflag.toLowerCase() != "all")
-        filter = {"release._id": release._id, "report.finalStatus": status, "flags": {$in: [empflag]}};
-    else if (status && status.toLowerCase() != "all")
-        filter = {"release._id": release._id, "report.finalStatus": status};
-    else if (empflag && empflag.toLowerCase() != "all")
-        filter = {"release._id": release._id, "flags": {$in: [empflag]}};
+    if (status && status.toLowerCase() != 'all' && empflag && empflag.toLowerCase() != 'all')
+        filter = {'release._id': release._id, 'report.finalStatus': status, 'flags': {$in: [empflag]}}
+    else if (status && status.toLowerCase() != 'all')
+        filter = {'release._id': release._id, 'report.finalStatus': status}
+    else if (empflag && empflag.toLowerCase() != 'all')
+        filter = {'release._id': release._id, 'flags': {$in: [empflag]}}
 
-    return await ReleasePlanModel.find(filter);
-};
+    return await ReleasePlanModel.find(filter)
+}
 
 releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
 
     if (!releasePlanID) {
-        throw new AppError("release Plan  Id not found ", EC.NOT_FOUND, EC.HTTP_FORBIDDEN);
+        throw new AppError('release Plan  Id not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
     }
-    return await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID));
-};
+    return await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
+}
 
-const ReleasePlanModel = mongoose.model("ReleasePlan", releasePlanSchema);
-export default ReleasePlanModel;
+const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)
+export default ReleasePlanModel
