@@ -51,17 +51,11 @@ warningSchema.statics.addUnplanned = async (releasePlan) => {
     return await WarningModel.create(warning)
 }
 
-warningSchema.statics.exists = async (warning) => {
-    if (!warning || !warning.raisedFor || !warning.type || !warning.refID)
-        throw new AppError('Require fully populated warning object', EC.BAD_ARGUMENTS)
-    let count = await WarningModel.count({
-        'raisedFor': warning.raisedFor,
-        'type': warning.type,
-        'refID': mongoose.Types.ObjectId(warning.refID)
-    })
-    if (count > 0)
-        return true
-    return false
+
+warningSchema.statics.removeUnplanned = async (releasePlan) => {
+    // TODO: Add appropriate validation
+    // remove unplanned warning from release plan
+    return await WarningModel.remove({type: SC.WARNING_UNPLANNED, 'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)})
 }
 
 const WarningModel = mongoose.model('Warning', warningSchema)
