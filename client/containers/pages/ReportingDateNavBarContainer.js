@@ -11,7 +11,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
             dispatch(A.noProjectSelected(dummyData))
         } else {
-            dispatch(A.getProjectDeatilAndTaskPlanningsFromServer(releaseID, planDate, taskStatus))
+            dispatch(A.getReportingTasksForDate(releaseID, planDate, taskStatus))
         }
 
     },

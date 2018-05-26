@@ -1,8 +1,8 @@
 import * as AC from './actionConsts'
 
-export const addReportingProjects = (projects) => ({
-    type: AC.ADD_REPORTING_PROJECTS,
-    projects: projects
+export const addUserReleases = (releases) => ({
+    type: AC.ADD_USER_RELEASES,
+    releases: releases
 })
 
 
@@ -11,11 +11,17 @@ export const addReportingTaskPlannings = (project) => ({
     project: project
 })
 
-
-export const noProjectSelected = (project) => ({
-    type: AC.NO_PROJECT_SELECTED,
-    project: project
+export const addReportingTasksSelectedDate = (tasks, date) => ({
+    type: AC.ADD_REPORTING_TASKS_SELECTED_DATE,
+    tasks: tasks,
+    date: date
 })
+
+export const releaseSelectedForReporting = (release) => ({
+    type: AC.RELEASE_SELECTED_FOR_REPORTING,
+    release: release
+})
+
 
 export const setReportDate = (reportDate) => ({
     type: AC.SET_REPORT_DATE,
@@ -46,11 +52,11 @@ export const setProjectId = (releaseId) => ({
     releaseId: releaseId
 })
 
-export const getAllReportingProjectsFromServer = () => {
+export const getUserReleasesFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/reportings', {
+        return fetch('/api/reportings/user-releases', {
                 method: 'get',
-                credentials: "include",
+                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -61,18 +67,21 @@ export const getAllReportingProjectsFromServer = () => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReportingProjects(json.data))
+                    dispatch(addUserReleases(json.data))
                 }
             })
     }
 }
 
 
-export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, taskStatus) => {
+/**
+ * Gets tasks that user can see/report for selected date
+ */
+export const getReportingTasksForDate = (releaseID, date, taskStatus) => {
     return (dispatch, getState) => {
-        return fetch('/api/reportings/task-plans/release/' + releaseID + '/date/' + planDate + '/task-status/' + taskStatus, {
+        return fetch('/api/reportings/task-plans/release/' + releaseID + '/date/' + date + '/task-status/' + taskStatus, {
                 method: 'get',
-                credentials: "include",
+                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -83,7 +92,7 @@ export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, 
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReportingTaskPlannings(json.data))
+                    dispatch(addReportingTasksSelectedDate(json.data, date))
                 }
                 return json
 
@@ -91,11 +100,37 @@ export const getProjectDeatilAndTaskPlanningsFromServer = (releaseID, planDate, 
     }
 }
 
+/**
+ *
+ */
+export const getReleaseDetailsForReporting = (releaseID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/' + releaseID + '/details-for-reporting', {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success && json.data && json.data.length > 0) {
+                    dispatch(releaseSelectedForReporting(json.data[0]))
+                }
+                return json
+            })
+    }
+}
+
+
 export const getTaskAndProjectDetailsFromServer = (taskID, releaseID) => {
     return (dispatch, getState) => {
         return fetch('/api/reportings/' + taskID + '/release/' + releaseID + '/report-detail', {
                 method: 'get',
-                credentials: "include",
+                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -118,7 +153,7 @@ export const addCommentToServer = (comment) => {
     return (dispatch, getState) => {
         return fetch('/api/reportings/comment', {
                 method: 'post',
-                credentials: "include",
+                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -142,7 +177,7 @@ export const getReleasePlansByID = (releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/' + releasePlanID + '/releasePlan', {
                 method: 'get',
-                credentials: "include",
+                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -159,7 +194,6 @@ export const getReleasePlansByID = (releasePlanID) => {
             })
     }
 }
-
 
 
 /*

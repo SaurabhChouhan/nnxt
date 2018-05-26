@@ -484,7 +484,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     if (releasePlan.planning.plannedHours === numberPlannedHours) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
-        logger.debug('Planned hours ['+releasePlan.planning.plannedHours+"] of release plan ["+releasePlan._id+"] matches ["+numberPlannedHours+"] of removed task planning. Hence need to again add unplanned flag and warning.")
+        logger.debug('Planned hours [' + releasePlan.planning.plannedHours + '] of release plan [' + releasePlan._id + '] matches [' + numberPlannedHours + '] of removed task planning. Hence need to again add unplanned flag and warning.')
         releasePlanUpdateData['$push'] = {flags: SC.WARNING_UNPLANNED}
         warning = await MDL.WarningModel.addUnplanned(releasePlan)
     }
@@ -907,6 +907,30 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 }
 
 
+taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, taskStatus) => {
+    let role = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releaseID, user)
+    logger.info('Logged in user has highest role of [' + role + '] in this release')
+
+    if (role == SC.ROLE_DEVELOPER) {
+
+        let criteria = {
+            'release._id': mongoose.Types.ObjectId(releaseID),
+            'planningDateString': dateString,
+            'employee._id': mongoose.Types.ObjectId(user._id)
+        }
+
+        if(taskStatus && taskStatus != 'all'){
+            criteria['report.status'] = taskStatus;
+        }
+
+        // return only tasks that has employee id as user
+        return await MDL.TaskPlanningModel.find(criteria)
+    } else {
+        // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
+    }
+}
+
+
 // Shifting task plans to past
 taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRequested) => {
     if (schemaRequested)
@@ -1198,7 +1222,6 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
     }
 }
 
-
 const updateEmployeeDays = async (startDateString, endDateString, user) => {
     let startDateToString = moment(startDateString).format(SC.DATE_FORMAT)
     let endDateToString = moment(endDateString).format(SC.DATE_FORMAT)
@@ -1256,6 +1279,8 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
     return await Promise.all(saveEmployeePromises)
 
 }
+
+
 const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
 

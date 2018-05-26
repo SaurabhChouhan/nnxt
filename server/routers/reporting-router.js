@@ -8,13 +8,17 @@ let reportingRouter = new Router({
 })
 
 
-reportingRouter.get("/", async ctx => {
-    return await MDL.ReleaseModel.getAllReportingProjects(ctx.state.user)
+/**
+ * Get all the releases that user is associated with
+ */
+reportingRouter.get("/user-releases", async ctx => {
+    return await MDL.ReleaseModel.getAllReleasesOfUser(ctx.state.user)
 })
 
 //report/task-plans/release/' + releaseID + '/date/' + planDate + '/task-status/' + taskStatus
-reportingRouter.get("/task-plans/release/:releaseID/date/:planDate/task-status/:taskStatus", async ctx => {
-    return await MDL.ReleaseModel.getTaskPlanedForEmployee(ctx.params, ctx.state.user)
+reportingRouter.get("/task-plans/release/:releaseID/date/:date/task-status/:reportedStatus", async ctx => {
+    return await MDL.TaskPlanningModel.getReportTasks(ctx.params.releaseID, ctx.state.user, ctx.params.date, ctx.params.reportedStatus)
+    //return await MDL.ReleaseModel.getTaskPlanedForEmployee(ctx.params, ctx.state.user)
 })
 
 //report/taskID/' + taskID + '/releaseID/' + releaseID + 'detail

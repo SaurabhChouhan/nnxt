@@ -1,43 +1,35 @@
-import * as AC from "../actions/actionConsts"
+import * as AC from '../actions/actionConsts'
 import moment from 'moment'
 
 let now = new Date()
 let initialState = {
-    allProjects: [],
+    userReleases:[],
     selectedProject: {},
     selectedTask: {},
-    allTaskPlans: [],
-    releaseID: '',
+    tasksOfSelectedDate: [],
+    selectedRelease: {},
     status: 'all',
-    selectedReleasePlan: {},
     dateOfReport: moment(now).format('YYYY-MM-DD')
 }
 
 const reportingReducer = (state = initialState, action) => {
     switch (action.type) {
-
-        case AC.ADD_REPORTING_PROJECTS:
-            // All Project where loggedIn user in involved as (manager,leader,developer) or that project
+        case AC.ADD_USER_RELEASES:
+            // All Releases where loggedIn user in involved as (manager,leader,developer) or that project
             return Object.assign({}, state, {
-                allProjects: action.projects
+                userReleases: action.releases
             })
 
-        case AC.ADD_SELECTED_PROJECT_AND_REPORTING_TASK_PLANNINGS:
+        case AC.ADD_REPORTING_TASKS_SELECTED_DATE:
             // Selected Project and its task plans are fetched
             return Object.assign({}, state, {
-                selectedProject: Object.assign({}, action.project, {
-                    taskPlans: undefined,
-                }),
-                allTaskPlans: action.project.taskPlans
+                tasksOfSelectedDate: action.tasks,
+                dateOfReport: action.date
             })
-
-        case AC.NO_PROJECT_SELECTED:
+        case AC.RELEASE_SELECTED_FOR_REPORTING:
             // When no project is selected then show dummy data
             return Object.assign({}, state, {
-                selectedProject: Object.assign({}, action.project, {
-                    taskPlans: undefined,
-                }),
-                allTaskPlans: action.project.taskPlans
+                selectedRelease:action.release
             })
 
         case AC.SET_REPORT_DATE:
