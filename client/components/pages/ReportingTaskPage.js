@@ -94,7 +94,6 @@ class ReportingTaskPage extends Component {
     }
 
     formatReportedStatus(cell, row) {
-        console.log('formatReportedStatus ', cell, row)
         if (cell)
             return cell
         else if (row.report && row.report.status)
@@ -103,7 +102,6 @@ class ReportingTaskPage extends Component {
     }
 
     formatReportedHours(cell, row) {
-        console.log('formatReportedHours ', cell, row)
         if (cell)
             return cell
         else if (row.report && row.report.reportedHours)
@@ -122,7 +120,7 @@ class ReportingTaskPage extends Component {
 
     viewSubmitButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                this.props.reportTask(row)
+                this.props.reportTask(row, this.props.dateOfReport)
             }}>
                 <i className="fa fa-check"></i>
             </button>
@@ -276,7 +274,7 @@ class ReportingTaskPage extends Component {
                                                dataSort={true}>
                                 Task Name</TableHeaderColumn>
                             <TableHeaderColumn width="12%" columnTitle dataField="planning"
-                                               dataFormat={this.formatPlannedHours}
+                                               dataFormat={this.formatPlannedHours} editable={false}
                             > planned hours</TableHeaderColumn>
                             <TableHeaderColumn width="15%" columnTitle dataField="reportedHours"
                                                dataFormat={this.formatReportedHours}
@@ -296,7 +294,7 @@ class ReportingTaskPage extends Component {
                                                    }
                                                }} dataFormat={this.formatReportedStatus}>Reported
                                 Status</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle dataField="Reason"
+                            <TableHeaderColumn width="12%" columnTitle dataField="reason"
                                                editable={{
                                                    type: 'select',
                                                    options: {

@@ -148,6 +148,30 @@ export const getTaskDetailsForReportFromServer = (taskID, releaseID) => {
     }
 }
 
+export const reportTaskToServer = (task) => {
+    return (dispatch, getState) => {
+        return fetch('/api/reporting/task-plans/'+task._id, {
+                method: 'put',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(task)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    //return dispatch(getReleasePlansByID(json.data.releasePlanID))
+                }
+                return json
+            })
+    }
+}
+
+
 
 export const addCommentToServer = (comment) => {
     return (dispatch, getState) => {
@@ -196,40 +220,3 @@ export const getReleasePlansByID = (releasePlanID) => {
 }
 
 
-/*
-
-
-export const addReportingTaskComment = (taskComment) => ({
-    type: AC.ADD_TASK_COMMENT,
-    taskComment: taskComment
-})
-
-
-
-export const addReportingTaskCommentOnServer = (formInput) => {
-    return function (dispatch, getState) {
-        return fetch('/api/reporting/report/task-plans/comment',
-            {
-                method: "post",
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
-            }
-        ).then(
-            response => {
-                return response.json()
-            }
-        ).then(json => {
-                if (json.success) {
-                    dispatch(addReportingTaskComment(json.data))
-                }
-
-                return json
-            }
-        )
-    }
-}
-*/

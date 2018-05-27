@@ -14,8 +14,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     },
-    reportTask: (task) => {
-        console.log('taskPlan', task)
+    reportTask: (task, date) => {
+        let inputTask = {
+            _id: task._id,
+            reason: task.reason,
+            reportedHours:parseInt(task.reportedHours),
+            status:task.status,
+            reportedDate:date
+        }
+        dispatch(A.reportTaskToServer(inputTask))
     }
 })
 

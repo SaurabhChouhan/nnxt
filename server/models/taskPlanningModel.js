@@ -8,6 +8,7 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import logger from '../logger'
+import {dateInDefaultTimeZone} from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -18,7 +19,7 @@ let taskPlanningSchema = mongoose.Schema({
         role: {type: String},
     },
     created: {type: Date, default: Date.now()},
-    planningDate: {type: Date, default: Date.now()},
+    planningDate: {type: Date},
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
     description: {type: String},
@@ -53,10 +54,12 @@ let taskPlanningSchema = mongoose.Schema({
             enum: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
         }],
         reportedHours: {type: Number, default: 0},
+        reportedOnDate: {type: Date},
+        reportedOnDateString: String,
         comment: {
             comment: String,
             commentType: String
-        },
+        }
     }
 })
 
@@ -506,6 +509,76 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     //removed task planning
     return {warning: warning, taskPlan: taskPlanningResponse}
+}
+
+
+taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
+    V.validate(taskReport, V.releaseTaskReportStruct)
+
+    // Get task plan
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskReport._id)
+
+    if (!taskPlan)
+        throw new AppError('Reported task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (taskPlan.employee._id != user._id)
+        throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    /**
+     * Now we need to check if reported status is a valid status or not. Employee cannot report status as
+     *  'pending' if task was already reported as 'completed' in past
+     *  'completed' if task was already reported as 'pending' in future
+     *  'completed' if task was already reported as 'completed' in future
+     */
+
+        // find release plan associated with this task plan
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {report: 1})
+    if (!releasePlan)
+        throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
+
+    let reportedDate = dateInDefaultTimeZone(taskReport.reportedDate)
+
+    console.log("releaseplan.report is ", releasePlan.report)
+
+    if (releasePlan.report && releasePlan.report.minReportedDateString) {
+        // this task was reported earlier
+
+    } else {
+        // This task was never reported, so reporting data can be added without any problems and update release plan with appropriate dates
+
+        if (!releasePlan.report)
+            releasePlan.report = {}
+
+        // Update reports
+
+
+        await MDL.ReleasePlanModel.update({
+            '_id': mongoose.Types.ObjectId(releasePlan._id)
+        }, {
+            $set: {
+                'report.reportedHours': taskReport.reportedHours,
+                'report.minReportedDateString': taskReport.reportedDate,
+                'report.minReportedDate': reportedDate,
+                'report.maxReportedDateString': taskReport.reportedDate,
+                'report.maxReportedDate': reportedDate,
+                'report.finalStatus': taskReport.status
+            }
+        }).exec()
+
+        if (!taskPlan.report)
+            taskPlan.report = {}
+
+        let todaysDateString = momentTZ.tz(SC.DEFAULT_TIMEZONE).format(SC.DATE_FORMAT)
+        taskPlan.report.status = taskReport.status
+        taskPlan.report.reportedOnDate = dateInDefaultTimeZone(todaysDateString)
+        taskPlan.report.reportedOnDateString = todaysDateString
+        taskPlan.report.reasons = [taskReport.reason]
+        taskPlan.report.reportedHours = taskReport.reportedHours
+        return await taskPlan.save()
+    }
+
+    return {}
 }
 
 
@@ -981,9 +1054,9 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
     }
 
     return {
-        estimationDescription:estimationDescription.description,
-        taskPlan:taskPlan,
-        releasePlan:releasePlan
+        estimationDescription: estimationDescription.description,
+        taskPlan: taskPlan,
+        releasePlan: releasePlan
     }
 }
 
