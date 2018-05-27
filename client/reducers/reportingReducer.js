@@ -3,9 +3,10 @@ import moment from 'moment'
 
 let now = new Date()
 let initialState = {
-    userReleases:[],
+    userReleases: [],
     selectedProject: {},
-    selectedTask: {},
+    selectedTaskPlan: {},
+    selectedReleasePlan: {},
     tasksOfSelectedDate: [],
     selectedRelease: {},
     status: 'all',
@@ -29,7 +30,7 @@ const reportingReducer = (state = initialState, action) => {
         case AC.RELEASE_SELECTED_FOR_REPORTING:
             // When no project is selected then show dummy data
             return Object.assign({}, state, {
-                selectedRelease:action.release
+                selectedRelease: action.release
             })
 
         case AC.SET_REPORT_DATE:
@@ -50,21 +51,17 @@ const reportingReducer = (state = initialState, action) => {
                 releaseID: action.releaseId
             })
 
-        case AC.TASK_PROJECT_SELECTED:
+        case AC.REPORT_TASK_SELECTED:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedProject: Object.assign({}, action.project, {
-                    taskPlan: undefined,
-                    releasePlan: undefined
-                }),
-                selectedTask: action.project.taskPlan,
-                selectedReleasePlan: action.project.releasePlan
+                selectedTaskPlan: action.details.taskPlan,
+                selectedReleasePlan: Object.assign(action.details.releasePlan, {estimationDescription: action.details.estimationDescription})
             })
 
         case AC.UPDATE_SELECTED_TASK:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedTask: action.project.taskPlan
+                selectedTaskPlan: action.project.taskPlan
             })
 
         case AC.UPDATE_SELECTED_RELEASE_PLAN:

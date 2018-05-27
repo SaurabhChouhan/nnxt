@@ -28,9 +28,9 @@ export const setReportDate = (reportDate) => ({
     reportDate: reportDate
 })
 
-export const taskProjectSelected = (project) => ({
-    type: AC.TASK_PROJECT_SELECTED,
-    project: project
+export const reportTaskSelected = (details) => ({
+    type: AC.REPORT_TASK_SELECTED,
+    details: details
 })
 
 export const updateSelectedTask = (taskPlan) => ({
@@ -54,7 +54,7 @@ export const setProjectId = (releaseId) => ({
 
 export const getUserReleasesFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/reportings/user-releases', {
+        return fetch('/api/reporting/user-releases', {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -79,7 +79,7 @@ export const getUserReleasesFromServer = () => {
  */
 export const getReportingTasksForDate = (releaseID, date, taskStatus) => {
     return (dispatch, getState) => {
-        return fetch('/api/reportings/task-plans/release/' + releaseID + '/date/' + date + '/task-status/' + taskStatus, {
+        return fetch('/api/reporting/task-plans/release/' + releaseID + '/date/' + date + '/task-status/' + taskStatus, {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -126,9 +126,9 @@ export const getReleaseDetailsForReporting = (releaseID) => {
 }
 
 
-export const getTaskAndProjectDetailsFromServer = (taskID, releaseID) => {
+export const getTaskDetailsForReportFromServer = (taskID, releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/reportings/' + taskID + '/release/' + releaseID + '/report-detail', {
+        return fetch('/api/reporting/task-plans/' + taskID + '/release/' + releaseID, {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -141,7 +141,7 @@ export const getTaskAndProjectDetailsFromServer = (taskID, releaseID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(taskProjectSelected(json.data))
+                    dispatch(reportTaskSelected(json.data))
                 }
                 return json
             })
@@ -151,7 +151,7 @@ export const getTaskAndProjectDetailsFromServer = (taskID, releaseID) => {
 
 export const addCommentToServer = (comment) => {
     return (dispatch, getState) => {
-        return fetch('/api/reportings/comment', {
+        return fetch('/api/reporting/comment', {
                 method: 'post',
                 credentials: 'include',
                 headers: {
@@ -208,7 +208,7 @@ export const addReportingTaskComment = (taskComment) => ({
 
 export const addReportingTaskCommentOnServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/reportings/report/task-plans/comment',
+        return fetch('/api/reporting/report/task-plans/comment',
             {
                 method: "post",
                 credentials: "include",

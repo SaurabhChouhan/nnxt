@@ -4,7 +4,7 @@ import * as V from '../validation'
 
 // Added prefix
 let reportingRouter = new Router({
-    prefix: "reportings"
+    prefix: "reporting"
 })
 
 
@@ -15,14 +15,12 @@ reportingRouter.get("/user-releases", async ctx => {
     return await MDL.ReleaseModel.getAllReleasesOfUser(ctx.state.user)
 })
 
-//report/task-plans/release/' + releaseID + '/date/' + planDate + '/task-status/' + taskStatus
 reportingRouter.get("/task-plans/release/:releaseID/date/:date/task-status/:reportedStatus", async ctx => {
     return await MDL.TaskPlanningModel.getReportTasks(ctx.params.releaseID, ctx.state.user, ctx.params.date, ctx.params.reportedStatus)
 })
 
-//report/taskID/' + taskID + '/releaseID/' + releaseID + 'detail
-reportingRouter.get("/:taskID/release/:releaseID/report-detail", async ctx => {
-    return await MDL.ReleaseModel.getTaskAndProjectDetails(ctx.params.taskID, ctx.params.releaseID, ctx.state.user)
+reportingRouter.get("/task-plans/:taskID/release/:releaseID", async ctx => {
+    return await MDL.TaskPlanningModel.getTaskDetails(ctx.params.taskID, ctx.params.releaseID, ctx.state.user)
 })
 
 //comment

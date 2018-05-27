@@ -941,9 +941,11 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
+    /*
     let release = await MDL.ReleaseModel.findById(releaseID)
     if (!release)
         throw new AppError('Not a valid release', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+        */
 
     //user Role in this release to see task detail
     const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
@@ -966,7 +968,6 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
         comments: 1,
     })
 
-
     let estimationDescription = {description: ''}
 
     if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
@@ -979,11 +980,11 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
         })
     }
 
-    release = release.toObject()
-    release.estimationDescription = estimationDescription.description
-    release.releasePlan = releasePlan
-    release.taskPlan = taskPlan
-    return release
+    return {
+        estimationDescription:estimationDescription.description,
+        taskPlan:taskPlan,
+        releasePlan:releasePlan
+    }
 }
 
 
