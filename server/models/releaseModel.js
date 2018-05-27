@@ -109,6 +109,34 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
     return undefined
 }
 
+
+releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
+        manager: 1,
+        leader: 1,
+        team: 1,
+        nonProjectTeam: 1
+    })
+
+    let rolesInRelease = []
+
+    if (release) {
+        if (release.manager && release.manager._id == user._id)
+            rolesInRelease.push(SC.ROLE_MANAGER)
+
+        if (release.leader && release.leader._id == user._id)
+            rolesInRelease.push(SC.ROLE_LEADER)
+
+        if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1)
+            rolesInRelease.push(SC.ROLE_DEVELOPER)
+
+        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1)
+            rolesInRelease.push(SC.ROLE_NON_PROJECT_DEVELOPER)
+    }
+    return rolesInRelease
+}
+
+
 releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) => {
     let releaseInput = {}
     let initial = {}

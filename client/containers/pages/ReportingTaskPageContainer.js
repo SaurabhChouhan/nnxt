@@ -10,6 +10,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getReportingTasksForDate(releaseID, date, status))
     },
     setStatus: (status) => dispatch(A.setStatus(status)),
+    taskSelected: (task, selectedProject) => dispatch(A.getTaskAndProjectDetailsFromServer(task._id, selectedProject._id)),
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     },

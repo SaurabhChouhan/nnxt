@@ -81,58 +81,34 @@ class ReportingTaskPage extends Component {
 
     }
 
-    formatTaskName(task) {
-        if (task)
-            return task.name
+    formatTask(cell, row) {
+        if (row.task && row.task.name)
+            return row.task.name
         return ''
     }
 
-    formatWorkedHours(report) {
-        return (<select className="form-control" title="Select Worked Hours"
-                        onChange={(status) => console.log('WorkedHours', (status.target.value))}>
-            <option value="0">Select Worked Hours</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-        </select>)
+    formatPlannedHours(cell, row) {
+        if (row.planning && row.planning.plannedHours)
+            return row.planning.plannedHours
+        return ''
     }
 
-    formatPlannedHours(planning) {
-        if (planning)
-            return planning.plannedHours
-        return 0
+    formatReportedStatus(cell, row) {
+        console.log('formatReportedStatus ', cell, row)
+        if (cell)
+            return cell
+        else if (row.report && row.report.status)
+            return row.report.status
+        return SC.REPORT_UNREPORTED
     }
 
-    formatReportedStatus(report) {
-        return (<select className="form-control" title="Select Status"
-                        onChange={(status) => console.log('reported Status', (status.target.value))}>
-            <option value={null}>...Select Status</option>
-            <option value={SC.REPORT_PENDING}>{SC.REPORT_PENDING}</option>
-            <option value={SC.REPORT_UNREPORTED}>{SC.REPORT_UNREPORTED}</option>
-            <option value={SC.REPORT_COMPLETED}>{SC.REPORT_COMPLETED}</option>
-        </select>)
-
-    }
-
-    formatReasonCode(report) {
-        return (<select className="form-control" title="Select Reason Code"
-                        onChange={(status) => console.log('ReasonCode', (status.target.value))}>
-            <option value={null}>...Select Reason</option>
-            <option value={SC.REASON_GENRAL_DELAY}>{SC.REASON_GENRAL_DELAY}</option>
-            <option value={SC.REASON_EMPLOYEE_ON_LEAVE}>{SC.REASON_EMPLOYEE_ON_LEAVE}</option>
-            <option value={SC.REASON_INCOMPLETE_DEPENDENCY}>{SC.REASON_INCOMPLETE_DEPENDENCY}</option>
-            <option value={SC.REASON_NO_GUIDANCE_PROVIDED}>{SC.REASON_NO_GUIDANCE_PROVIDED}</option>
-            <option value={SC.REASON_RESEARCH_WORK}>{SC.REASON_RESEARCH_WORK}</option>
-            <option value={SC.REASON_UNFAMILIAR_TECHNOLOGY}>{SC.REASON_UNFAMILIAR_TECHNOLOGY}</option>
-
-        </select>)
+    formatReportedHours(cell, row) {
+        console.log('formatReportedHours ', cell, row)
+        if (cell)
+            return cell
+        else if (row.report && row.report.reportedHours)
+            return row.report.reportedHours
+        return ''
     }
 
     viewEditButton(cell, row, enumObject, rowIndex) {
@@ -183,7 +159,7 @@ class ReportingTaskPage extends Component {
         const cellEditProp = {
             mode: 'click',
             blurToSave: true
-        };
+        }
 
         return (
             <div key="estimation_list" className="clearfix">
@@ -195,13 +171,13 @@ class ReportingTaskPage extends Component {
                                 title={selectedRelease.project ? selectedRelease.project.name : ''}>Project Name</span>
                             </div>
                             <div className="releasecontent">
-                                <p>{selectedRelease.project ? selectedRelease.project.name + ' ('+selectedRelease.name+')' : ''}</p>
+                                <p>{selectedRelease.project ? selectedRelease.project.name + ' (' + selectedRelease.name + ')' : ''}</p>
                             </div>
                         </div>
 
                         <div className="col-md-2">
                             <div className="releaseTitle">
-                            <span>Start Date</span>
+                                <span>Start Date</span>
                             </div>
                             <div className="releasecontent">
                                 <p>{selectedRelease.initial && selectedRelease.initial.devStartDate ? moment(selectedRelease.initial.devStartDate).format('DD-MM-YYYY') : ''}</p>
@@ -209,7 +185,7 @@ class ReportingTaskPage extends Component {
                         </div>
                         <div className="col-md-2">
                             <div className="releaseTitle">
-                            <span>End Date</span>
+                                <span>End Date</span>
                             </div>
                             <div className="releasecontent">
                                 <p>{selectedRelease.initial && selectedRelease.initial.devEndDate ? moment(selectedRelease.initial.devEndDate).format('DD-MM-YYYY') : ''}</p>
@@ -217,7 +193,7 @@ class ReportingTaskPage extends Component {
                         </div>
                         <div className="col-md-2">
                             <div className="releaseTitle">
-                            <span>Release Date</span>
+                                <span>Release Date</span>
                             </div>
                             <div className="releasecontent">
                                 <p>{selectedRelease.initial && selectedRelease.initial.clientReleaseDate ? moment(selectedRelease.initial.clientReleaseDate).format('DD-MM-YYYY') : ''}</p>
@@ -292,33 +268,47 @@ class ReportingTaskPage extends Component {
 
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="10%" columnTitle={'View Detail'} dataField='detailButton'
+                            <TableHeaderColumn editable={false} width="10%" columnTitle={'View Detail'} dataField='detailButton'
                                                dataFormat={this.viewDetailButton.bind(this)}>View Detail
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="20%" columnTitle dataField="task"
-                                               dataFormat={this.formatTaskName.bind(this)}
+                            <TableHeaderColumn editable={false} width="20%" columnTitle dataField="task"
+                                               dataFormat={this.formatTask}
                                                dataSort={true}>
                                 Task Name</TableHeaderColumn>
                             <TableHeaderColumn width="12%" columnTitle dataField="planning"
-                                               dataFormat={this.formatPlannedHours.bind(this)}
+                                               dataFormat={this.formatPlannedHours}
                             > planned hours</TableHeaderColumn>
-                            <TableHeaderColumn width="15%" columnTitle dataField="employee"
-                                               dataFormat={this.formatWorkedHours.bind(this)}>Worked
+                            <TableHeaderColumn width="15%" columnTitle dataField="reportedHours"
+                                               dataFormat={this.formatReportedHours}
+                                               editable={{
+                                                   type: 'select',
+                                                   options: {
+                                                       values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+                                                   }
+                                               }}
+                            >Worked
                                 Hours</TableHeaderColumn>
                             <TableHeaderColumn width="15%" columnTitle dataField="status"
                                                editable={{
                                                    type: 'select',
-                                                   options: {values: [SC.REPORT_UNREPORTED, SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
-                                               }}>Reported
+                                                   options: {
+                                                       values: [SC.REPORT_COMPLETED, SC.REPORT_PENDING]
+                                                   }
+                                               }} dataFormat={this.formatReportedStatus}>Reported
                                 Status</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle dataField="additional"
-                                               dataFormat={this.formatReasonCode.bind(this)}>Reason
+                            <TableHeaderColumn width="12%" columnTitle dataField="Reason"
+                                               editable={{
+                                                   type: 'select',
+                                                   options: {
+                                                       values: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
+                                                   }
+                                               }}>Reason
                                 Code</TableHeaderColumn>
 
-                            <TableHeaderColumn width="5%" columnTitle={'Edit Report'} dataField="Edit Report"
+                            <TableHeaderColumn editable={false} width="5%" columnTitle={'Edit Report'} dataField="Edit Report"
                                                dataFormat={this.viewEditButton.bind(this)}>Edit
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="7%" columnTitle={'Submit Report'} dataField="Submit Report"
+                            <TableHeaderColumn editable={false} width="7%" columnTitle={'Submit Report'} dataField="Submit Report"
                                                dataFormat={this.viewSubmitButton.bind(this)}>Submit
                             </TableHeaderColumn>
                         </BootstrapTable>

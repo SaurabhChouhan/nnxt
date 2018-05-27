@@ -47,11 +47,10 @@ let taskPlanningSchema = mongoose.Schema({
         status: {
             type: String,
             enum: [SC.REPORT_UNREPORTED, SC.REPORT_COMPLETED, SC.REPORT_PENDING]
-
         },
         reasons: [{
             type: String,
-            enum: [SC.REASON_GENRAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
+            enum: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
         }],
         reportedHours: {type: Number, default: 0},
         comment: {
@@ -510,7 +509,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 }
 
 
-//get all task plannins of a release plan 
+//get all task plannings of a release plan
 taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID, user) => {
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
 
@@ -911,6 +910,7 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, 
     let role = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releaseID, user)
     logger.info('Logged in user has highest role of [' + role + '] in this release')
 
+    // As highest role of user in release is developer only we will return only tasks that this employee is assigned
     if (role == SC.ROLE_DEVELOPER) {
 
         let criteria = {
@@ -919,8 +919,8 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, 
             'employee._id': mongoose.Types.ObjectId(user._id)
         }
 
-        if(taskStatus && taskStatus != 'all'){
-            criteria['report.status'] = taskStatus;
+        if (taskStatus && taskStatus != 'all') {
+            criteria['report.status'] = taskStatus
         }
 
         // return only tasks that has employee id as user
@@ -928,6 +928,62 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, 
     } else {
         // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
     }
+}
+
+
+taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {
+    // check release is valid or not
+    if (!releaseID) {
+        throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (!taskPlanID) {
+        throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(releaseID)
+    if (!release)
+        throw new AppError('Not a valid release', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+
+    //user Role in this release to see task detail
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+    // user assumes no role in this release
+    if (userRolesInRelease.length == 0)
+        throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    //check task plan is valid or not
+
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
+
+    if (!taskPlan)
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
+        task: 1,
+        description: 1,
+        estimation: 1,
+        comments: 1,
+    })
+
+
+    let estimationDescription = {description: ''}
+
+    if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
+        estimationDescription = await MDL.EstimationModel.findOne({
+            '_id': mongoose.Types.ObjectId(releasePlan.estimation._id),
+            status: SC.STATUS_PROJECT_AWARDED
+        }, {
+            description: 1,
+            _id: 0
+        })
+    }
+
+    release = release.toObject()
+    release.estimationDescription = estimationDescription.description
+    release.releasePlan = releasePlan
+    release.taskPlan = taskPlan
+    return release
 }
 
 
@@ -1280,65 +1336,6 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
 
 }
 
-
 const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
 
-
-/*
-[{
-
-    "dateString": "10/10/10",
-    "task": {
-        "_id": "5a900ab687ccf511f8d967e6",
-        "name": "Registration with faceBook"
-    },
-    "release": {
-        "_id": "5a93c0062af17a16e808b342"
-    },
-    "employee": {
-        "_id": "5a8fc06a6f655c1e84360a2d",
-        "name": "negotiator 1"
-    },
-    "flags": "un-reported",
-    "planning": {
-        "plannedHours": 20
-    },
-    "report": {
-        "status": "un-reported",
-        "reasons": "general-delay",
-        "reportedHours": 2
-    }
-}]
-*/
-{/*
-
-db.taskplannings.aggregate([{
-    $match: {planningDate: {$gte: new Date("2018-05-19"), $lte: new Date("2018-05-30")}}
-}, {
-    $project: {
-        release: 1,
-        planningDate: 1,
-        planningDateString: 1,
-        employee: 1,
-        planning: {
-            plannedHours: 1
-        }
-    }
-}, {
-    $group: {
-        _id: {
-            "planningDate": "$planningDate",
-            "employee": "$employee",
-            "release": "$release"
-        },
-        planningDate: {$first: "$planningDate"},
-        employee: {$first: "$employee"},
-        release: {$first: "$release"},
-        plannedHours: {$sum: "$planning.plannedHours"},
-        count: {$sum: 1}
-    }
-}])
-
-        */
-}

@@ -93,7 +93,7 @@ export const DESIGNATION_TEAM_LEAD = "Team Leader"
 export const DESIGNATION_MANAGER = "Manager"
 
 //reasons
-export const REASON_GENRAL_DELAY = "general-delay"
+export const REASON_GENERAL_DELAY = "general-delay"
 export const REASON_EMPLOYEE_ON_LEAVE = "employee-on-leave"
 export const REASON_INCOMPLETE_DEPENDENCY = "incomplete-dependency"
 export const REASON_NO_GUIDANCE_PROVIDED = "no-guidance-provided"

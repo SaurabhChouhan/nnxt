@@ -18,7 +18,6 @@ reportingRouter.get("/user-releases", async ctx => {
 //report/task-plans/release/' + releaseID + '/date/' + planDate + '/task-status/' + taskStatus
 reportingRouter.get("/task-plans/release/:releaseID/date/:date/task-status/:reportedStatus", async ctx => {
     return await MDL.TaskPlanningModel.getReportTasks(ctx.params.releaseID, ctx.state.user, ctx.params.date, ctx.params.reportedStatus)
-    //return await MDL.ReleaseModel.getTaskPlanedForEmployee(ctx.params, ctx.state.user)
 })
 
 //report/taskID/' + taskID + '/releaseID/' + releaseID + 'detail
