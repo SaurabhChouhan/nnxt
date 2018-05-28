@@ -40,7 +40,7 @@ leaveRouter.post("/leave-setting", async ctx => {
     if (!hasRole(ctx, SC.ROLE_ADMIN)) {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await MDL.LeaveSettingModel.createLeaveSettings(ctx.request.body, ctx.state.user)
+    return await MDL.LeaveSettingModel.createLeaveSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 /**
@@ -50,7 +50,7 @@ leaveRouter.put("/leave-setting", async ctx => {
     if (!hasRole(ctx, SC.ROLE_ADMIN)) {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await MDL.LeaveSettingModel.updateLeaveSettings(ctx.request.body, ctx.state.user)
+    return await MDL.LeaveSettingModel.updateLeaveSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 export default leaveRouter

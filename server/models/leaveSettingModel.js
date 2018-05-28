@@ -20,8 +20,11 @@ let leaveSettingSchema = mongoose.Schema({
  * Leave Setting is Created by Admin
  * @param leaveSettingInput
  */
-leaveSettingSchema.statics.createLeaveSettings = async (leaveSettingInput, user) => {
+leaveSettingSchema.statics.createLeaveSettings = async (leaveSettingInput, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.leaveCreateSettingStruct)
 
+    V.validate(leaveSettingInput, V.leaveCreateSettingStruct)
     return await LeaveSettingModel.create(leaveSettingInput)
 }
 /**
@@ -38,7 +41,11 @@ leaveSettingSchema.statics.getLeaveSettings = async (user) => {
  * Leave Setting is updated by Admin
  * @param leaveSettingInput
  */
-leaveSettingSchema.statics.updateLeaveSettings = async (leaveSettingInput, admin) => {
+leaveSettingSchema.statics.updateLeaveSettings = async (leaveSettingInput, admin, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.leaveUpdateSettingStruct)
+
+    V.validate(leaveSettingInput, V.leaveUpdateSettingStruct)
     if (!admin || !userHasRole(admin, SC.ROLE_ADMIN))
         throw new AppError('Not a Admin', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
