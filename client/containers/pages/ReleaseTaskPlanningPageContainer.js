@@ -20,11 +20,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             releasePlan: {
                 _id: releasePlan._id,
             },
-            projectUsersOnly: projectUsersOnly,
-            flags: SC.REPORT_UNREPORTED,
-            report: {
-                status: SC.REPORT_PENDING
-            }
+            projectUsersOnly: projectUsersOnly
 
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))

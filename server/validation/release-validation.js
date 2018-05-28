@@ -1,5 +1,6 @@
-import {ObjectId, RequiredString} from "./index"
+import {ObjectId, RequiredString, validDate} from './index'
 import t from 'tcomb-validation'
+import * as SC from '../serverconstants'
 
 export const releaseTaskPlanningStruct = t.struct({
     _id: t.Nil,
@@ -29,6 +30,15 @@ export const releaseTaskPlanningCommentStruct = t.struct({
     commentType: RequiredString,
 })
 
+export const releaseTaskReportStruct = t.struct({
+    _id: ObjectId,
+    reason: t.maybe(t.String),
+    reportedHours: t.Number,
+    status: t.enums.of([SC.REPORT_PENDING, SC.REPORT_COMPLETED]),
+    reportedDate: validDate
+
+})
+
 export const releaseMergeTaskPlanningStruct = t.struct({
     _id: ObjectId,
     releasePlan: t.struct({
@@ -40,12 +50,12 @@ export const releaseMergeTaskPlanningStruct = t.struct({
     planning: t.struct({
         plannedHours: t.Number
     }),
-    rePlanningDate: RequiredString,
+    rePlanningDate: RequiredString
 })
 
 export const releaseTaskPlanningShiftStruct = t.struct({
-    employeeId:ObjectId,
+    employeeId: ObjectId,
     releasePlanID: ObjectId,
     daysToShift: t.Number,
-    baseDate: RequiredString,
+    baseDate: RequiredString
 })

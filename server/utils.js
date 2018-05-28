@@ -1,4 +1,5 @@
-import * as SC from "./serverconstants"
+import * as SC from './serverconstants'
+import moment from 'moment-timezone'
 
 export const isAuthenticated = (ctx) => {
     if (ctx.isAuthenticated())
@@ -42,4 +43,11 @@ export const userHasRole = (user, roleName) => {
     if (user && Array.isArray(user.roles) && user.roles.findIndex(r => r.name == roleName) != -1)
         return true
     return false
+}
+
+export const dateInDefaultTimeZone = (dateString) => {
+    let momentDate = moment.tz(dateString, SC.DEFAULT_TIMEZONE, SC.DATE_FORMAT)
+    if (momentDate.isValid())
+        return momentDate.toDate()
+    return undefined
 }

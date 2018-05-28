@@ -26,7 +26,7 @@ class ReportingDateNavBar extends React.Component {
                                 onClick={() => {
                                     let prevDate = moment(dateOfReport).clone().subtract(1, 'days').format(SC.DATE_FORMAT)
                                     this.props.setReportDate(prevDate)
-                                    this.props.onProjectSelect(releaseID, prevDate, taskStatus)
+                                    this.props.onReleaseSelected(releaseID, prevDate, taskStatus)
                                     change("dateOfReport", moment(prevDate).clone().toDate())
 
                                 }}
@@ -38,7 +38,7 @@ class ReportingDateNavBar extends React.Component {
                         <Field name='dateOfReport'
                                onChange={(event, newValue, oldValue) => {
                                    this.props.setReportDate(newValue)
-                                   this.props.onProjectSelect(releaseID, newValue, taskStatus)
+                                   this.props.onReleaseSelected(releaseID, newValue, taskStatus)
                                }}
                                label=''
                                component={renderDateTimePickerString}
@@ -52,7 +52,7 @@ class ReportingDateNavBar extends React.Component {
                                     let nextDate = moment(dateOfReport).clone().add(1, 'days').format('YYYY-MM-DD')
 
                                     this.props.setReportDate(nextDate)
-                                    this.props.onProjectSelect(releaseID, nextDate, taskStatus)
+                                    this.props.onReleaseSelected(releaseID, nextDate, taskStatus)
                                     change("dateOfReport", moment(nextDate).clone().toDate())
                                 }}
                                 type="button">

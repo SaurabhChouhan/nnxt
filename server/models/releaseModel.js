@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import * as SC from "../serverconstants";
-import * as EC from "../errorcodes"
+import * as SC from '../serverconstants'
+import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import momentTZ from 'moment-timezone'
 
@@ -77,7 +77,12 @@ let releaseSchema = mongoose.Schema({
 })
 
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
+        manager: 1,
+        leader: 1,
+        team: 1,
+        nonProjectTeam: 1
+    })
     if (release) {
         /**
          * Check to see user's highest role in this release as user can have multiple role in release like he can be leader as well as developer
@@ -104,6 +109,34 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
     return undefined
 }
 
+
+releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
+        manager: 1,
+        leader: 1,
+        team: 1,
+        nonProjectTeam: 1
+    })
+
+    let rolesInRelease = []
+
+    if (release) {
+        if (release.manager && release.manager._id == user._id)
+            rolesInRelease.push(SC.ROLE_MANAGER)
+
+        if (release.leader && release.leader._id == user._id)
+            rolesInRelease.push(SC.ROLE_LEADER)
+
+        if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1)
+            rolesInRelease.push(SC.ROLE_DEVELOPER)
+
+        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1)
+            rolesInRelease.push(SC.ROLE_NON_PROJECT_DEVELOPER)
+    }
+    return rolesInRelease
+}
+
+
 releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) => {
     let releaseInput = {}
     let initial = {}
@@ -112,20 +145,20 @@ releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) =>
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     const manager = await MDL.UserModel.findOne({
-        "_id": mongoose.Types.ObjectId(projectAwardData.manager._id),
-        "roles.name": SC.ROLE_MANAGER
+        '_id': mongoose.Types.ObjectId(projectAwardData.manager._id),
+        'roles.name': SC.ROLE_MANAGER
     })
     if (!manager)
         throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     const leader = await MDL.UserModel.findById({
-        "_id": mongoose.Types.ObjectId(projectAwardData.leader._id),
-        "roles.name": SC.ROLE_LEADER
+        '_id': mongoose.Types.ObjectId(projectAwardData.leader._id),
+        'roles.name': SC.ROLE_LEADER
     })
     if (!leader)
         throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    const projectAlreadyAwarded = await ReleaseModel.findOne({"project._id": mongoose.Types.ObjectId(projectAwardData.estimation.project._id)})
+    const projectAlreadyAwarded = await ReleaseModel.findOne({'project._id': mongoose.Types.ObjectId(projectAwardData.estimation.project._id)})
     if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
@@ -150,30 +183,46 @@ releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) =>
 releaseSchema.statics.getReleases = async (status, user) => {
 
     let filter = {}
-    if (status && status.toLowerCase() != "all")
+    if (status && status.toLowerCase() != 'all')
         filter = {
-            $or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}],
-            "status": status
+            $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}],
+            'status': status
         }
     else
-        filter = {$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]}
+        filter = {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]}
 
     return await ReleaseModel.find(filter)
 }
 
 releaseSchema.statics.getReleaseById = async (releaseId, user) => {
     return await ReleaseModel.find({
-        "_id": releaseId,
-        $or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}]
+        '_id': releaseId,
+        $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]
+    })
+}
+
+
+releaseSchema.statics.getReleaseDetailsForReporting = async (releaseId, user) => {
+    return await ReleaseModel.find({
+        $and: [{
+            _id: mongoose.Types.ObjectId(releaseId),
+            $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}, {'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]
+        }]
+    }, {
+        name: 1,
+        project: 1,
+        'initial.devStartDate': 1,
+        'initial.devEndDate': 1
     })
 }
 
 
 //Reporting
-releaseSchema.statics.getAllReportingProjects = async (user) => {
+releaseSchema.statics.getAllReleasesOfUser = async (user) => {
     return await MDL.ReleaseModel.find(
-        {$or: [{"manager._id": mongoose.Types.ObjectId(user._id)}, {"leader._id": mongoose.Types.ObjectId(user._id)}, {"team._id": mongoose.Types.ObjectId(user._id)}, {"nonProjectTeam._id": mongoose.Types.ObjectId(user._id)}]}, {
+        {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}, {'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]}, {
             project: 1,
+            name: 1,
             _id: 1
         })
 }
@@ -190,9 +239,9 @@ releaseSchema.statics.getTaskPlanedForEmployee = async (ParamsInput, user) => {
 
     release = release.toObject()
     let taskPlans = await MDL.TaskPlanningModel.find({
-        "release._id": mongoose.Types.ObjectId(release._id),
-        "planningDate": momentTzPlanningDateString,
-        "employee._id": mongoose.Types.ObjectId(user._id)
+        'release._id': mongoose.Types.ObjectId(release._id),
+        'planningDate': momentTzPlanningDateString,
+        'employee._id': mongoose.Types.ObjectId(user._id)
     })
     release.taskPlans = taskPlans
     return release
@@ -237,7 +286,7 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
 
     if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
         estimationDescription = await MDL.EstimationModel.findOne({
-            "_id": mongoose.Types.ObjectId(releasePlan.estimation._id),
+            '_id': mongoose.Types.ObjectId(releasePlan.estimation._id),
             status: SC.STATUS_PROJECT_AWARDED
         }, {
             description: 1,
@@ -252,5 +301,5 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
     return release
 }
 
-const ReleaseModel = mongoose.model("Release", releaseSchema)
+const ReleaseModel = mongoose.model('Release', releaseSchema)
 export default ReleaseModel

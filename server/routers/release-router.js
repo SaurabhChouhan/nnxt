@@ -26,6 +26,11 @@ releaseRouter.get("/release/:releaseID", async ctx => {
     return await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
 })
 
+//get release details for reporting
+releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
+    return await MDL.ReleaseModel.getReleaseDetailsForReporting(ctx.params.releaseID, ctx.state.user)
+})
+
 //get release plan list  by releaseID and task status
 releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empflag", async ctx => {
 
