@@ -46,7 +46,7 @@ export const userHasRole = (user, roleName) => {
 }
 
 export const dateInDefaultTimeZone = (dateString) => {
-    let momentDate = moment.tz(dateString, SC.DEFAULT_TIMEZONE, SC.DATE_FORMAT)
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
     if (momentDate.isValid())
         return momentDate.toDate()
     return undefined

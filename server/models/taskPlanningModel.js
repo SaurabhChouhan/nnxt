@@ -55,7 +55,6 @@ let taskPlanningSchema = mongoose.Schema({
         }],
         reportedHours: {type: Number, default: 0},
         reportedOnDate: {type: Date},
-        reportedOnDateString: String,
         comment: {
             comment: String,
             commentType: String
@@ -265,13 +264,26 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     // As task plan is added we have to increase release planned hours
 
+
+    let releaseUpdateData = {}
+
+    if (releasePlan.task.initiallyEstimated) {
+        // this task was part of initial estimation so need to add data under initial object
+        releaseUpdateData['$inc'] = {
+            'initial.plannedHours': numberPlannedHours,
+            'initial.estimatedHoursPlannedTasks': releasePlan.task.estimatedHours
+        }
+    } else {
+        releaseUpdateData['$inc'] = {
+            'additional.plannedHours': numberPlannedHours,
+            'additional.estimatedHoursPlannedTasks': releasePlan.task.estimatedHours
+        }
+    }
+
     await MDL.ReleaseModel.update(
         {'_id': mongoose.Types.ObjectId(release._id)},
-        {
-            $inc: {
-                'initial.plannedHours': numberPlannedHours
-            }
-        })
+        releaseUpdateData
+    )
 
     // creating new task plan
     let taskPlanning = new TaskPlanningModel()
@@ -533,13 +545,13 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
 
         // find release plan associated with this task plan
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {report: 1})
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
     let reportedDate = dateInDefaultTimeZone(taskReport.reportedDate)
 
-    console.log("releaseplan.report is ", releasePlan.report)
+    console.log('releaseplan.report is ', releasePlan.report)
 
     if (releasePlan.report && releasePlan.report.minReportedDateString) {
         // this task was reported earlier
@@ -562,13 +574,84 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             }
         }).exec()
 
+
+        /**
+         * Release also needs to be modified to sum these reported hours into overall reported hours
+         */
+
+
+        let release = MDL.ReleaseModel.findById(releasePlan.release._id, {initial: 1, additional: 1})
+
+        let releaseUpdateData = {}
+
+        // check to see if this task was initially estimated or new one
+
+        console.log('task plan ', taskPlan)
+
+        if (releasePlan.task.initiallyEstimated) {
+
+            releaseUpdateData = {
+                '$inc': {
+                    'initial.reportedHours': taskReport.reportedHours,
+                    'initial.plannedHoursReportedTasks': taskPlan.planning.plannedHours
+                }
+            }
+
+            if (release.initial && release.initial.maxReportedDateString) {
+                let date = dateInDefaultTimeZone(release.initial.maxReportedDateString)
+                if (reportedDate.getTime() > date.getTime()) {
+                    // if reported date is greater than earlier max reported date change that
+                    releaseUpdateData['$set'] = {
+                        'initial.maxReportedDateString': taskReport.reportedDate,
+                        'initial.maxReportedDate': reportedDate
+                    }
+                }
+            } else {
+                releaseUpdateData['$set'] = {
+                    'initial.maxReportedDateString': taskReport.reportedDate,
+                    'initial.maxReportedDate': reportedDate
+                }
+            }
+
+            // this task was initially estimated
+
+        } else {
+            releaseUpdateData = {
+                '$inc': {'additional.reportedHours': taskReport.reportedHours},
+                '$inc': {'additional.plannedHoursReportedTasks': taskPlan.planning.plannedHours}
+            }
+
+            if (release.additional && release.additional.maxReportedDateString) {
+                let date = dateInDefaultTimeZone(release.additional.maxReportedDateString)
+                if (reportedDate.getTime() > date.getTime()) {
+                    // if reported date is greater than earlier max reported date change that
+                    releaseUpdateData['$set'] = {
+                        'additional.maxReportedDateString': taskReport.reportedDate,
+                        'additional.maxReportedDate': reportedDate
+                    }
+                }
+
+            } else {
+                releaseUpdateData['$set'] = {
+                    'additional.maxReportedDateString': taskReport.reportedDate,
+                    'additional.maxReportedDate': reportedDate
+                }
+            }
+        }
+
+        console.log('release update data formed as ', releaseUpdateData)
+
+        await MDL.ReleaseModel.update({
+            '_id': mongoose.Types.ObjectId(releasePlan.release._id)
+        }, releaseUpdateData).exec()
+
         if (!taskPlan.report)
             taskPlan.report = {}
 
+
         let todaysDateString = momentTZ.tz(SC.DEFAULT_TIMEZONE).format(SC.DATE_FORMAT)
         taskPlan.report.status = taskReport.status
-        taskPlan.report.reportedOnDate = dateInDefaultTimeZone(todaysDateString)
-        taskPlan.report.reportedOnDateString = todaysDateString
+        taskPlan.report.reportedOnDate = new Date()
         taskPlan.report.reasons = [taskReport.reason]
         taskPlan.report.reportedHours = taskReport.reportedHours
         return await taskPlan.save()
