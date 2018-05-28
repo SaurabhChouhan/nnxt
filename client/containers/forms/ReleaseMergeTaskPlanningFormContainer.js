@@ -6,10 +6,7 @@ import {NotificationManager} from "react-notifications"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (newTaskPlanning) => {
-        //console.log("newTaskPlanning", newTaskPlanning)
-
         return dispatch(A.mergeTaskPlanningOnServer(newTaskPlanning)).then(json => {
-            //console.log(".then json", json)
             if (json.success) {
                 NotificationManager.success("Task Planning Merged")
                 dispatch(A.hideComponent(COC.MERGE_TASK_PLANNING_DIALOG))

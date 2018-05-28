@@ -41,7 +41,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     openMergeTaskPlanningForm: (releasePlan) => {
-        //console.log("releasePlan", releasePlan)
         dispatch(initialize("merge-task-planning", releasePlan))
         dispatch(A.showComponent(COC.MERGE_TASK_PLANNING_DIALOG))
 
@@ -68,7 +67,7 @@ const mapStateToProps = (state) => ({
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,
     data: [],
-    expanded:state.release.expanded
+    expanded: state.release.expanded
 })
 
 const ReleaseTaskPlanningPageContainer = connect(

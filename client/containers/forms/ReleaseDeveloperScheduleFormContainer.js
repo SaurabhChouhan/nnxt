@@ -6,8 +6,6 @@ import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, from) => {
-        //console.log("employeeID", employeeID)
-        //console.log("from", from)
         if (from && employeeID) {
             return dispatch(A.getDeveloperSchedulesFromServer(employeeID.toString(), from))
         } else if (!employeeID || employeeID == undefined) {
