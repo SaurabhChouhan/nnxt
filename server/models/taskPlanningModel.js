@@ -546,13 +546,9 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
 
     } else {
         // This task was never reported, so reporting data can be added without any problems and update release plan with appropriate dates
-
         if (!releasePlan.report)
             releasePlan.report = {}
-
         // Update reports
-
-
         await MDL.ReleasePlanModel.update({
             '_id': mongoose.Types.ObjectId(releasePlan._id)
         }, {
