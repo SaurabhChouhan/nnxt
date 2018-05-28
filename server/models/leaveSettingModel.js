@@ -9,11 +9,11 @@ mongoose.Promise = global.Promise
 
 let leaveSettingSchema = mongoose.Schema({
 
-    casualLeaves: {type: Number, default: 4},
-    paidLeaves: {type: Number, default: 8},
-    maternityLeaves: {type: Number, default: 3},
-    paternityLeaves: {type: Number, default: 5},
-    specialLeaves: {type: Number, default: 6}
+    casualLeaves: {type: Number, default: 10},
+    paidLeaves: {type: Number, default: 5},
+    maternityLeaves: {type: Number, default: 20},
+    paternityLeaves: {type: Number, default: 10},
+    specialLeaves: {type: Number, default: 7}
 })
 
 /**

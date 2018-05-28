@@ -206,6 +206,7 @@ export const addNNXTData = async () => {
     await addTechnologies()
     await addRepositoryTasksAndFeatures()
     await addEmployeeSettings()
+    await addLeaveSettings()
 
 }
 
@@ -726,6 +727,20 @@ const addEmployeeSettings = async () => {
             relativelyFree: 5,
             busy: 6,
             superBusy: 9
+        })
+    }
+
+}
+
+const addLeaveSettings = async () => {
+    let leaveSettings = await MDL.LeaveSettingModel.find({})
+    if (!leaveSettings || !leaveSettings.length) {
+        await MDL.LeaveSettingModel.createLeaveSettings({
+            casualLeaves: 10,
+            paidLeaves: 5,
+            maternityLeaves: 20,
+            paternityLeaves: 10,
+            specialLeaves: 7
         })
     }
 
