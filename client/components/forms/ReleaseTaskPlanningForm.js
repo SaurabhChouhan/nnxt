@@ -8,13 +8,13 @@ import momentLocalizer from 'react-widgets-moment'
 moment.locale('en')
 momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
-    const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
+    const {change, allTeam, releaseTeam, handleSubmit, submitting, pristine, reset, initial} = props
     const today = new Date()
     const todayMoment = moment(today).hour(0).minute(0).second(0).milliseconds(0)
     const devStartDateMoment = moment(initial.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
     const devEndDateMoment = moment(initial.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
 
-
+    console.log("releaseTeam", releaseTeam)
     const min = devStartDateMoment.isSameOrAfter(todayMoment) ? devStartDateMoment.toDate() : todayMoment.toDate()
     const max = devEndDateMoment.toDate()
     return <form onSubmit={handleSubmit}>
@@ -40,10 +40,10 @@ let ReleaseTaskPlanningForm = (props) => {
                 <Field name="projectUsersOnly" component="input" type="hidden"/>
                 <Field name="employee._id" placeholder={"Name of Developer"}
                        component={renderSelect}
-                       options={team}
+                       options={allTeam}
                        label={"Developer Name:"}
                        onChange={(event, newValue, oldValue) => {
-                           let employee = team.find(e => e._id == newValue)
+                           let employee = allTeam.find(e => e._id == newValue)
                            change("employee.name", employee.name)
                        }}
                        validate={[required]}/>

@@ -47,10 +47,7 @@ export const setStatus = (status) => ({
     type: AC.SET_STATUS,
     status: status
 })
-export const setProjectId = (releaseId) => ({
-    type: AC.SET_PROJECT_ID,
-    releaseId: releaseId
-})
+
 
 export const getUserReleasesFromServer = () => {
     return (dispatch, getState) => {

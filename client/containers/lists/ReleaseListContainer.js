@@ -4,11 +4,11 @@ import {ReleaseList} from "../../components"
 import * as COC from '../../components/componentConsts'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    changeReleaseStatus: (status) => dispatch(A.getAllReleaseProjectsFromServer(status)),
-    projectSelected: (release) => {
-        dispatch(A.releaseProjectSelected(release))
-        dispatch(A.getTaskReleaseFromServer(release, "all", "all"))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST))
+    changeReleaseStatus: (status) => dispatch(A.getAllReleasesFromServer(status)),
+    releaseSelected: (release) => {
+        dispatch(A.getReleaseFromServer(release._id))
+        dispatch(A.getReleasePlansFromServer(release._id, "all", "all"))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
     }
 })
 

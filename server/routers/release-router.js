@@ -23,7 +23,20 @@ releaseRouter.get("/release/:releaseID", async ctx => {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + "] can see Release list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    return await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
+    return await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, roleInRelease, ctx.state.user)
+})
+
+
+//get single release plan detail by ID
+releaseRouter.get("/:releasePlanID/release-plan", async ctx => {
+    return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
+
+})
+
+//get single release plan detail by ID
+releaseRouter.get("/release-plan/:releasePlanID/role/developers", async ctx => {
+    return await MDL.ReleasePlanModel.getReleaseDevelopersByReleasePlanID(ctx.params.releasePlanID, ctx.state.user)
+
 })
 
 //get release details for reporting
@@ -32,7 +45,7 @@ releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
 })
 
 //get release plan list  by releaseID and task status
-releaseRouter.get("/:releaseID/release-plans-with/status/:status/empflag/:empflag", async ctx => {
+releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", async ctx => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {

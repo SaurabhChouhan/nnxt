@@ -6,10 +6,7 @@ import {NotificationManager} from "react-notifications"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (newTaskPlanning) => {
-        //console.log("newTaskPlanning", newTaskPlanning)
-
         return dispatch(A.mergeTaskPlanningOnServer(newTaskPlanning)).then(json => {
-            //console.log(".then json", json)
             if (json.success) {
                 NotificationManager.success("Task Planning Merged")
                 dispatch(A.hideComponent(COC.MERGE_TASK_PLANNING_DIALOG))
@@ -24,8 +21,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    //team: state.release.selectedProject && state.release.selectedProject.team ? state.release.selectedProject.team : [],
-    initial: state.release.selectedProject.initial
+    //team: state.release.selectedRelease && state.release.selectedRelease.team ? state.release.selectedRelease.team : [],
+    initial: state.release.selectedRelease.initial
 })
 
 

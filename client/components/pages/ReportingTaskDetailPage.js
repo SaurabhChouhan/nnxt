@@ -12,7 +12,6 @@ class ReportingTaskDetailPage extends React.Component {
     }
 
     render() {
-        console.log('reporting task details page ', this.props)
         const {selectedTaskPlan, selectedRelease, selectedReleasePlan} = this.props
 
 

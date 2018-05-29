@@ -5,8 +5,8 @@ let now = new Date()
 
 const calendarPageReducer = (state = {
     events: [],
-    selectedTask: {},
-    selectedProject: {},
+    selectedTaskPlan: {},
+    selectedRelease: {},
     selectedReleasePlan: {},
     defaultView: "week",
     defaultDate: moment(now).toDate(),
@@ -24,11 +24,11 @@ const calendarPageReducer = (state = {
 
         case AC.SET_TASK_AND_PROJECT_DETAILS:
             return Object.assign({}, state, {
-                selectedProject: Object.assign({}, action.project, {
+                selectedRelease: Object.assign({}, action.project, {
                     taskPlan: undefined,
                     releasePlan: undefined
                 }),
-                selectedTask: action.project.taskPlan,
+                selectedTaskPlan: action.project.taskPlan,
                 selectedReleasePlan: action.project.releasePlan
             })
 
