@@ -19,8 +19,8 @@ export const addReleaseTaskPlanningToState = (taskPlan) => ({
     taskPlan: taskPlan
 })
 
-export const updateReleaseTaskPlanningToState = (taskPlan) => ({
-    type: AC.UPDATE_RELEASE_TASK_PLANNING_TO_STATE,
+export const updateTaskPlanning = (taskPlan) => ({
+    type: AC.UPDATE_TASK_PLANNING,
     taskPlan: taskPlan
 })
 
@@ -29,13 +29,13 @@ export const releaseSelected = (release) => ({
     release: release
 })
 
-export const releaseTaskPlanSelected = (taskPlan) => ({
-    type: AC.RELEASE_TASK_PLAN_SELECTED,
-    taskPlan: taskPlan
+export const releasePlanSelected = (releasePlan) => ({
+    type: AC.RELEASE_PLAN_SELECTED,
+    releasePlan: releasePlan
 })
 
 
-export const deleteTaskPlanningFromState = (planID) => ({
+export const removeTaskPlanning = (planID) => ({
     type: AC.DELETE_TASK_PLAN,
     planID: planID
 })
@@ -197,7 +197,7 @@ export const mergeTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(updateReleaseTaskPlanningToState(json.data))
+                    dispatch(updateTaskPlanning(json.data))
                     dispatch(updateDeveloperFilteredData(json.data))
                 }
                 return json
@@ -221,7 +221,7 @@ export const deleteTaskPlanningFromServer = (taskPlanningID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(deleteTaskPlanningFromState(taskPlanningID))
+                    dispatch(removeTaskPlanning(taskPlanningID))
                 }
                 return json
             })

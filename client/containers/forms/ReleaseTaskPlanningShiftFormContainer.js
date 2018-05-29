@@ -86,7 +86,7 @@ const mapStateToProps = (state, ownProps) => {
         {"day": 30}
     ]
     return {
-        releasePlan: state.release.selectedTask,
+        releasePlan: state.release.selectedReleasePlan,
         team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? [...state.user.allDevelopers,
             {
                 "_id": "all",

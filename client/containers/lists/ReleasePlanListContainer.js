@@ -13,7 +13,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             // get project developers from user list when user role in this release is leader
             //dispatch(A.getProjectDeveloperFromServer()),
 
-        dispatch(A.releaseTaskPlanSelected(releasePlan)),
+        dispatch(A.releasePlanSelected(releasePlan)),
             dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
         dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
     },
@@ -31,8 +31,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => {
     return {
         loggedInUser: state.user.loggedIn,
-        selectedRelease: state.release.selectedProject,
-        releasePlans: state.release.projectTasks
+        selectedRelease: state.release.selectedRelease,
+        releasePlans: state.release.releasePlans
     }
 }
 

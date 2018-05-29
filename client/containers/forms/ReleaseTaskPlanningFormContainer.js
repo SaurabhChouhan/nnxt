@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     team: state.user.userWithRoleCategory && state.user.userWithRoleCategory.team ? state.user.userWithRoleCategory.team : [],
-    initial: state.release.selectedProject.initial
+    initial: state.release.selectedRelease.initial
 })
 
 
