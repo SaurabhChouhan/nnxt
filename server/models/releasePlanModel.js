@@ -36,14 +36,16 @@ let releasePlanSchema = mongoose.Schema({
         minPlanningDate: Date,
         maxPlanningDate: Date,
         minPlanningDateString: String,
-        maxPlanningDateString: String
+        maxPlanningDateString: String, // Maximum date task-plan is planned against this release
+        plannedTaskCounts: {type: Number, default: 0}  // Number of tasks-plans against this release plan
     },
     report: {
+        reportedHours: {type: Number, default: 0},
         minReportedDate: Date,
         minReportedDateString: String,
         maxReportedDate: Date,
         maxReportedDateString: String,
-        reportedHours: {type: Number, default: 0},
+        reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
         finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
     },
     comments: [{
@@ -63,7 +65,7 @@ let releasePlanSchema = mongoose.Schema({
 releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimationTask) => {
     let releasePlanInput = {}
     releasePlanInput.estimation = {
-        _id:estimation._id
+        _id: estimation._id
     }
     releasePlanInput.release = release
     releasePlanInput.flags = [SC.WARNING_UNPLANNED]
@@ -73,7 +75,7 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
         name: estimationTask.estimator.name,
         estimatedHours: estimationTask.estimator.estimatedHours,
         description: estimationTask.estimator.description,
-        initiallyEstimated:estimationTask.initiallyEstimated
+        initiallyEstimated: estimationTask.initiallyEstimated
     }
 
     if (estimationTask.feature && estimationTask.feature._id)
