@@ -51,3 +51,10 @@ export const dateInDefaultTimeZone = (dateString) => {
         return momentDate.toDate()
     return undefined
 }
+
+export const momentInDefaultTimeZone = (dateString) => {
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
+    if (momentDate.isValid())
+        return momentDate
+    return undefined
+}
