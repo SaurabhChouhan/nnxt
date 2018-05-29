@@ -543,7 +543,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
             let otherTaskCount = await MDL.TaskPlanningModel.count({
                 'planningDate': taskPlanning.planningDate,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
 
@@ -585,7 +586,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
             let otherTaskCount = await MDL.TaskPlanningModel.count({
                 'planningDate': taskPlanning.planningDate,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
 
