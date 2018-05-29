@@ -196,11 +196,14 @@ releaseSchema.statics.getReleases = async (status, user) => {
     return await ReleaseModel.find(filter)
 }
 
-releaseSchema.statics.getReleaseById = async (releaseId, user) => {
-    return await ReleaseModel.find({
-        '_id': releaseId,
+releaseSchema.statics.getReleaseById = async (releaseId, role, user) => {
+    let release = await ReleaseModel.findOne({
+        '_id': mongoose.Types.ObjectId(releaseId),
         $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]
     })
+    release = release.toObject()
+    release.highestRoleInThisRelease = role
+    return release
 }
 
 
