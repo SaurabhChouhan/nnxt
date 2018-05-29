@@ -718,6 +718,7 @@ const addRepositoryTasksAndFeatures = async () => {
 }
 
 const addEmployeeSettings = async () => {
+    logger.info("SETTING UP EMPLOYEE SETTINGS ...")
     let employeeSettings = await MDL.EmployeeSettingModel.find({})
     if (!employeeSettings || !employeeSettings.length) {
         await MDL.EmployeeSettingModel.createEmployeeSettings({
@@ -733,6 +734,7 @@ const addEmployeeSettings = async () => {
 }
 
 const addLeaveSettings = async () => {
+    logger.info("SETTING UP LEAVE SETTINGS ...")
     let leaveSettings = await MDL.LeaveSettingModel.find({})
     if (!leaveSettings || !leaveSettings.length) {
         await MDL.LeaveSettingModel.createLeaveSettings({
