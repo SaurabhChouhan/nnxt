@@ -100,24 +100,23 @@ class ReleaseTaskPlanningPage extends Component {
                     <div className="col-md-12 estimateheader">
                         <div className="col-md-8 pad">
                             <div className="backarrow">
-
                                 <h5>
                                     <button className="btn-link" title="Go Back" onClick={() => {
                                         this.props.history.push("/app-home/release-project-tasks")
                                         this.props.ReleaseTaskGoBack(releasePlan)
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                                    <b title={releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
+                                    <b title={releasePlan && releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
                                 </h5>
                             </div>
                         </div>
                         <div className="col-md-2  releaseClock ">
                             <i className="fa fa-clock-o "
-                               title="Estimated Hours"></i><b>{releasePlan.task ? releasePlan.task.estimatedHours : ''}
+                               title="Estimated Hours"></i><b>{releasePlan && releasePlan.task ? releasePlan.task.estimatedHours : ''}
                             Hrs</b>
                         </div>
                         <div className="col-md-2  releaseClock releasePlannedHrs">
                             <i className="fa fa-clock-o "
-                               title="Planned Hours"></i><b>{releasePlan.planning ? releasePlan.planning.plannedHours : ''}
+                               title="Planned Hours"></i><b>{releasePlan && releasePlan.planning ? releasePlan.planning.plannedHours : ''}
                             Hrs</b>
                         </div>
                     </div>

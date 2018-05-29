@@ -1,4 +1,5 @@
 import * as AC from './actionConsts'
+import * as A from '../actions'
 
 export const addReleases = (releases) => ({
     type: AC.ADD_RELEASES,
@@ -151,6 +152,28 @@ export const getReleasePlansFromServer = (releaseID, status, empFlag) => {
             json => {
                 if (json.success) {
                     dispatch(addReleasePlans(json.data))
+                }
+            })
+    }
+}
+
+
+export const getReleasePlanDetailsFromServer = (releasePlanID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(releasePlanSelected(json.data))
                 }
             })
     }
@@ -317,6 +340,29 @@ export const getDeveloperSchedulesFromServer = (employeeID, from) => {
                     console.log("json.data", json.data)
                     dispatch(setFromDate(from))
                     dispatch(setDevelopersSchedule(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getReleaseDevelopersFromServer = (releasePlanID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/release-plan/' + releasePlanID + '/role/developers', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(A.addDevelopersToState(json.data))
                 }
                 return json
             })

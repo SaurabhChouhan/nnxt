@@ -26,6 +26,19 @@ releaseRouter.get("/release/:releaseID", async ctx => {
     return await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, roleInRelease, ctx.state.user)
 })
 
+
+//get single release plan detail by ID
+releaseRouter.get("/:releasePlanID/release-plan", async ctx => {
+    return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
+
+})
+
+//get single release plan detail by ID
+releaseRouter.get("/release-plan/:releasePlanID/role/developers", async ctx => {
+    return await MDL.ReleasePlanModel.getReleaseDevelopersByReleasePlanID(ctx.params.releasePlanID, ctx.state.user)
+
+})
+
 //get release details for reporting
 releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
     return await MDL.ReleaseModel.getReleaseDetailsForReporting(ctx.params.releaseID, ctx.state.user)

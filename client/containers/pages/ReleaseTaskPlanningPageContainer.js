@@ -9,10 +9,12 @@ import {NotificationManager} from 'react-notifications'
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
     showTaskPlanningCreationForm: (releasePlan, projectUsersOnly) => {
-        if (projectUsersOnly) {
-            dispatch(A.getUsersWithRoleDeveloperFromServer())
-        } else {
-            dispatch(A.getUsersWithRoleCategoryFromServer())
+        if(releasePlan.highestRoleInThisRelease === SC.ROLE_MANAGER){
+            if (projectUsersOnly) {
+                dispatch(A.getAllDeveloperFromServer())
+            } else {
+                dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
+            }
         }
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
@@ -63,10 +65,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    releasePlan: state.release.selectedTask,
+    releasePlan: state.release.selectedReleasePlan,
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,
-    data: [],
     expanded: state.release.expanded
 })
 

@@ -2,19 +2,22 @@ import {connect} from 'react-redux'
 import * as A from '../../actions'
 import {ReleasePlanList} from "../../components"
 import * as COC from '../../components/componentConsts'
+import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     releasePlanSelected: (releasePlan, role) => {
         console.log("Role", role)
-        // get all developers from user list when user role in this release is manager
-        dispatch(A.getAllDeveloperFromServer()),
+        if (role === SC.ROLE_MANAGER) {
+            // get all developers from user list when user role in this release is manager
+            dispatch(A.getAllDeveloperFromServer())
+        } else {
             // get project developers from user list when user role in this release is leader
-            //dispatch(A.getProjectDeveloperFromServer()),
-
-        dispatch(A.releasePlanSelected(releasePlan)),
-            dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
+            dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
+        }
+        dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)),
+            dispatch(A.getAllTaskPlannedFromServer(releasePlan._id)),
         dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
     },
 

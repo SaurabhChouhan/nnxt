@@ -3,7 +3,7 @@ import AppError from '../AppError'
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
-
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -125,11 +125,33 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
 }
 
 releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
-
     if (!releasePlanID) {
-        throw new AppError('release Plan  Id not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+        throw new AppError('release Plan Id not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
     }
-    return await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
+    let releasePlan = await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
+    releasePlan = releasePlan.toObject()
+
+    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releasePlan.release._id.toString(), user)
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release Plan Details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    releasePlan.highestRoleInThisRelease = roleInRelease
+    return releasePlan
+}
+
+
+releasePlanSchema.statics.getReleaseDevelopersByReleasePlanID = async (releasePlanID, user) => {
+    if (!releasePlanID) {
+        throw new AppError('release Plan Id not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    let releasePlan = await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
+    releasePlan = releasePlan.toObject()
+
+    let releaseTeamObject = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id), {
+        team: 1
+    })
+    return releaseTeamObject.team
 }
 
 const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)
