@@ -9,9 +9,7 @@ mongoose.Promise = global.Promise
 
 let releasePlanSchema = mongoose.Schema({
     estimation: {
-        _id: {type: mongoose.Schema.ObjectId, required: true},
-        estimatedHours: {type: Number, default: 0},
-        initiallyEstimated: {type: Boolean, default: false}
+        _id: {type: mongoose.Schema.ObjectId, required: true}
     },
     release: {
         _id: {type: mongoose.Schema.ObjectId, required: true},
@@ -21,7 +19,8 @@ let releasePlanSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
         description: String,
-        estimatedHours: {type: Number, default: 0}
+        estimatedHours: {type: Number, default: 0},
+        initiallyEstimated: {type: Boolean, default: false}
     },
     feature: {
         _id: mongoose.Schema.ObjectId,
@@ -63,7 +62,9 @@ let releasePlanSchema = mongoose.Schema({
 
 releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimationTask) => {
     let releasePlanInput = {}
-    releasePlanInput.estimation = estimation
+    releasePlanInput.estimation = {
+        _id:estimation._id
+    }
     releasePlanInput.release = release
     releasePlanInput.flags = [SC.WARNING_UNPLANNED]
     releasePlanInput.report = {}
@@ -71,7 +72,8 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
         _id: estimationTask._id,
         name: estimationTask.estimator.name,
         estimatedHours: estimationTask.estimator.estimatedHours,
-        description: estimationTask.estimator.description
+        description: estimationTask.estimator.description,
+        initiallyEstimated:estimationTask.initiallyEstimated
     }
 
     if (estimationTask.feature && estimationTask.feature._id)

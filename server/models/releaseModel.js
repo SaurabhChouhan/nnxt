@@ -56,7 +56,8 @@ let releaseSchema = mongoose.Schema({
         devEndDate: Date,
         clientReleaseDate: Date,
         actualReleaseDate: Date,
-        maxReportedDate: Date
+        maxReportedDate: Date,
+        maxReportedDateString: String
     },
     additional: {
         billedHours: {type: Number, default: 0},
@@ -70,7 +71,8 @@ let releaseSchema = mongoose.Schema({
         devEndDate: Date,
         clientReleaseDate: Date,
         actualReleaseDate: Date,
-        maxReportedDate: Date
+        maxReportedDate: Date,
+        maxReportedDateString: String
     },
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
