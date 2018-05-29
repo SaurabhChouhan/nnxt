@@ -93,7 +93,7 @@ export const DESIGNATION_TEAM_LEAD = "Team Leader"
 export const DESIGNATION_MANAGER = "Manager"
 
 //reasons
-export const REASON_GENRAL_DELAY = "general-delay"
+export const REASON_GENERAL_DELAY = "general-delay"
 export const REASON_EMPLOYEE_ON_LEAVE = "employee-on-leave"
 export const REASON_INCOMPLETE_DEPENDENCY = "incomplete-dependency"
 export const REASON_NO_GUIDANCE_PROVIDED = "no-guidance-provided"
@@ -132,7 +132,10 @@ export const DATE_MONTH_FORMAT = 'MMMM Do'
 export const DATE_HALF_WEAK_MONTH_FORMAT = 'ddd'
 
 // Time Zones
+// !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!
 export const DEFAULT_TIMEZONE = 'UTC'
+// !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!
+
 export const INDIAN_TIMEZONE = 'IST'
 export const INDIAN_TIMEZONE_NAME = 'Asia/Calcutta'
 

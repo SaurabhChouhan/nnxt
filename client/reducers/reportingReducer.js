@@ -1,43 +1,36 @@
-import * as AC from "../actions/actionConsts"
+import * as AC from '../actions/actionConsts'
 import moment from 'moment'
 
 let now = new Date()
 let initialState = {
-    allProjects: [],
-    selectedProject: {},
-    selectedTask: {},
-    allTaskPlans: [],
-    releaseID: '',
-    status: 'all',
+    userReleases: [],
+    selectedTaskPlan: {},
     selectedReleasePlan: {},
+    tasksOfSelectedDate: [],
+    selectedRelease: {},
+    status: 'all',
     dateOfReport: moment(now).format('YYYY-MM-DD')
 }
 
 const reportingReducer = (state = initialState, action) => {
     switch (action.type) {
-
-        case AC.ADD_REPORTING_PROJECTS:
-            // All Project where loggedIn user in involved as (manager,leader,developer) or that project
+        case AC.ADD_USER_RELEASES:
+            // All Releases where loggedIn user in involved as (manager,leader,developer) or that project
             return Object.assign({}, state, {
-                allProjects: action.projects
+                userReleases: action.releases
             })
 
-        case AC.ADD_SELECTED_PROJECT_AND_REPORTING_TASK_PLANNINGS:
+        case AC.ADD_REPORTING_TASKS_SELECTED_DATE:
             // Selected Project and its task plans are fetched
             return Object.assign({}, state, {
-                selectedProject: Object.assign({}, action.project, {
-                    taskPlans: undefined,
-                }),
-                allTaskPlans: action.project.taskPlans
+                tasksOfSelectedDate: action.tasks,
+                dateOfReport: action.date
             })
 
-        case AC.NO_PROJECT_SELECTED:
+        case AC.RELEASE_SELECTED_FOR_REPORTING:
             // When no project is selected then show dummy data
             return Object.assign({}, state, {
-                selectedProject: Object.assign({}, action.project, {
-                    taskPlans: undefined,
-                }),
-                allTaskPlans: action.project.taskPlans
+                selectedRelease: action.release
             })
 
         case AC.SET_REPORT_DATE:
@@ -52,27 +45,17 @@ const reportingReducer = (state = initialState, action) => {
                 status: action.status
             })
 
-        case AC.SET_PROJECT_ID:
-            // while selection of reporting releaseId it is set to state also
-            return Object.assign({}, state, {
-                releaseID: action.releaseId
-            })
-
-        case AC.TASK_PROJECT_SELECTED:
+        case AC.REPORT_TASK_SELECTED:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedProject: Object.assign({}, action.project, {
-                    taskPlan: undefined,
-                    releasePlan: undefined
-                }),
-                selectedTask: action.project.taskPlan,
-                selectedReleasePlan: action.project.releasePlan
+                selectedTaskPlan: action.details.taskPlan,
+                selectedReleasePlan: Object.assign(action.details.releasePlan, {estimationDescription: action.details.estimationDescription})
             })
 
         case AC.UPDATE_SELECTED_TASK:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedTask: action.project.taskPlan
+                selectedTaskPlan: action.project.taskPlan
             })
 
         case AC.UPDATE_SELECTED_RELEASE_PLAN:

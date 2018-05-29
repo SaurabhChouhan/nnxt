@@ -5,7 +5,7 @@ import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 import {ReleaseTaskSearchFormContainer} from '../../containers'
 
-class ReleaseProjectTaskList extends Component {
+class ReleasePlanList extends Component {
 
     constructor(props) {
         super(props);
@@ -33,7 +33,7 @@ class ReleaseProjectTaskList extends Component {
 
     onRowClick(row) {
         this.props.history.push("/app-home/release-task-planning")
-        this.props.taskPlanSelected(row)
+        this.props.releasePlanSelected(row, this.props.selectedRelease.highestRoleInThisRelease)
     }
 
     formatDate(row) {
@@ -68,7 +68,7 @@ class ReleaseProjectTaskList extends Component {
     }
 
 
-    formateTaskName(task) {
+    formatTaskName(task) {
         if (task)
             return task.name
         return ''
@@ -90,44 +90,37 @@ class ReleaseProjectTaskList extends Component {
                     <div className="col-md-3">
                         <div className="releaseTitle">
                             <span
-                                title={selectedRelease.project ? selectedRelease.project.name : ''}>Project Name</span>
+                                title={selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}>Project Name</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedRelease.project ? selectedRelease.project.name : ''}</p>
-                        </div>
-                    </div>
-                    {/* <div className="col-md-3">
-                            <div className="releaseTitle">
-                                <span>Project Description</span></div>
-                            <div className="releasecontent">
-                                <p>Accusation Nation....(Read More)</p>
-                            </div>
-                        </div>*/}
-                    <div className="col-md-2">
-                        <div className="releaseTitle">
-                            <span
-                                title={selectedRelease.initial ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
-                        </div>
-                        <div className="releasecontent">
-                            <p>{selectedRelease.initial ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedRelease.initial ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                                title={selectedRelease && selectedRelease.initial && selectedRelease.initial.devStartDate ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedRelease.initial ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedRelease && selectedRelease.initial && selectedRelease.initial.devStartDate ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedRelease.initial ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                                title={selectedRelease && selectedRelease.initial && selectedRelease.initial.devEndDate ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedRelease.initial ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{selectedRelease && selectedRelease.initial && selectedRelease.initial.devEndDate ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                        </div>
+                    </div>
+                    <div className="col-md-2">
+                        <div className="releaseTitle">
+                            <span
+                                title={selectedRelease && selectedRelease.initial && selectedRelease.initial.clientReleaseDate ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                        </div>
+                        <div className="releasecontent">
+                            <p>{selectedRelease && selectedRelease.initial && selectedRelease.initial.clientReleaseDate ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className=" col-md-2 releasefileoption">
@@ -145,26 +138,25 @@ class ReleaseProjectTaskList extends Component {
                             <div className="releaseTeamManager"><span>Manager</span>
                             </div>
                             <div className="estimationuser tooltip"><span>M</span>
-                                <p className="tooltiptext">{selectedRelease.manager ? selectedRelease.manager.firstName : ''}</p>
+                                <p className="tooltiptext">{selectedRelease && selectedRelease.manager && selectedRelease.manager.firstName ? selectedRelease.manager.firstName : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-2 pad ">
                             <div className="releaseTeamLeader"><span> Leader</span>
                             </div>
                             <div className="estimationuser tooltip"><span>L</span>
-                                <p className="tooltiptext">{selectedRelease.leader ? selectedRelease.leader.firstName : ''}</p>
+                                <p className="tooltiptext">{selectedRelease && selectedRelease.leader && selectedRelease.leader.firstName ? selectedRelease.leader.firstName : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-5 pad ">
                             <div className="releaseTeam"><span>Team</span>
                             </div>
                             {
-                                selectedRelease.team.map((teamMember, index) => {
-                                    return <div key={"teamMember" + index} className="estimationuser tooltip">
+                                selectedRelease && selectedRelease.team && Array.isArray(selectedRelease.team) && selectedRelease.team.length ? selectedRelease.team.map((teamMember, index) =>
+                                    <div key={"teamMember" + index} className="estimationuser tooltip">
                                         <span>T{index + 1}</span>
                                         <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
-                                    </div>
-                                })
+                                    </div>) : <span></span>
                             }
 
                         </div>
@@ -192,7 +184,14 @@ class ReleaseProjectTaskList extends Component {
                                     <option value="all">All Flags</option>
                                     <option value={SC.WARNING_UNPLANNED}>{SC.WARNING_UNPLANNED}</option>
                                     <option value={SC.WARNING_EMPLOYEE_ON_LEAVE}>{SC.WARNING_EMPLOYEE_ON_LEAVE}</option>
-                                    <option value={SC.RELEASE_DATE_MISSED_1}>{SC.RELEASE_DATE_MISSED_1}</option>
+                                    <option
+                                        value={SC.WARNING_RELEASE_DATE_MISSED_1}>{SC.WARNING_RELEASE_DATE_MISSED_1}</option>
+                                    <option
+                                        value={SC.WARNING_RELEASE_DATE_MISSED_2}>{SC.WARNING_RELEASE_DATE_MISSED_2}</option>
+                                    <option
+                                        value={SC.WARNING_RELEASE_DATE_MISSED_3}>{SC.WARNING_RELEASE_DATE_MISSED_3}</option>
+                                    <option
+                                        value={SC.WARNING_RELEASE_DATE_MISSED_4}>{SC.WARNING_RELEASE_DATE_MISSED_4}</option>
                                     <option value={SC.WARNING_HAS_UNREPORTED_DAYS}>{SC.WARNING_HAS_UNREPORTED_DAYS}</option>
                                     <option
                                         value={SC.WARNING_PENDING_AFTER_END_DATE}>{SC.WARNING_PENDING_AFTER_END_DATE}</option>
@@ -229,9 +228,8 @@ class ReleaseProjectTaskList extends Component {
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Raised</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='task'
-                                               dataFormat={this.formateTaskName.bind(this)}>Task
+                                               dataFormat={this.formatTaskName.bind(this)}>Task
                                 Name</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='employee'>Emp./Team Name</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='flags'>Emp./Team Flag</TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='task'
                                                dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
@@ -253,4 +251,4 @@ class ReleaseProjectTaskList extends Component {
     }
 }
 
-export default withRouter(ReleaseProjectTaskList)
+export default withRouter(ReleasePlanList)

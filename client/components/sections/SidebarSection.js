@@ -40,7 +40,7 @@ const SidebarSection = (props) => <section className="sidebar">
 
                     }}>Attendance Setting</Link></li>
                     <li><Link to="/app-home/release" onClick={() => {
-                        props.dispatch(A.getAllReleaseProjectsFromServer("all"))
+                        props.dispatch(A.getAllReleasesFromServer("all"))
                         props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
                     }}>Release</Link></li>
                     <li><Link to="/app-home/calendar" onClick={() => {
@@ -48,7 +48,7 @@ const SidebarSection = (props) => <section className="sidebar">
                         props.dispatch(A.showComponentHideOthers(COC.CALENDAR_TASK_PAGE))
                     }}>Calendar</Link></li>
                     <li><Link to="/app-home/reporting" onClick={() => {
-                        props.dispatch(A.getAllReportingProjectsFromServer())
+                        props.dispatch(A.getUserReleasesFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE))
                     }}>Reporting</Link></li>
                 </ul>

@@ -10,7 +10,7 @@ class CalendarTaskDetailPage extends React.Component {
     }
 
     render() {
-        const {selectedTask, selectedProject, selectedReleasePlan} = this.props
+        const {selectedTaskPlan, selectedRelease, selectedReleasePlan} = this.props
         return (
 
             <Timeline>
@@ -22,21 +22,21 @@ class CalendarTaskDetailPage extends React.Component {
                             }}>
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
-                {selectedProject && selectedProject.project && selectedProject.project.name ?
+                {selectedRelease && selectedRelease.project && selectedRelease.project.name ?
                     <TimelineEvent style={{fontSize: '20px'}}
                                    title={"Project Name :"}
                                    icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
 
-                        {selectedProject.project.name}
+                        {selectedRelease.project.name}
                     </TimelineEvent>
                     : null
                 }
 
-                {selectedTask && selectedTask.task && selectedTask.task.name ?
+                {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.name ?
                     <TimelineEvent title={"Task Name :"}
                                    icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                    style={{fontSize: '20px'}}>
-                        {selectedTask.task.name}
+                        {selectedReleasePlan.task.name}
                     </TimelineEvent> : null
                 }
 
@@ -54,36 +54,36 @@ class CalendarTaskDetailPage extends React.Component {
                                style={{fontSize: '20px'}}>
                     <Timeline>
 
-                        {selectedTask && selectedTask.planningDate ?
+                        {selectedTaskPlan && selectedTaskPlan.planningDate ?
                             < TimelineEvent title={" Planned Date :"}
                                             icon={<i
                                                 className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                             style={{fontSize: '20px'}}>
-                                {moment(selectedTask.planningDate).format(SC.DATE_AND_TIME_FORMAT)}
+                                {moment(selectedTaskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT)}
                             </TimelineEvent> : null
                         }
-                        {selectedTask && selectedTask.planning && selectedTask.planning.plannedHours ?
+                        {selectedTaskPlan && selectedTaskPlan.planning && selectedTaskPlan.planning.plannedHours ?
                             <TimelineEvent title={" Planned Hours :"}
                                            icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                            style={{fontSize: '20px'}}>
-                                {selectedTask.planning.plannedHours}
+                                {selectedTaskPlan.planning.plannedHours}
                             </TimelineEvent> : null
 
                         }
 
-                        {selectedTask && selectedTask.description ?
+                        {selectedTaskPlan && selectedTaskPlan.description ?
                             <TimelineEvent title={"Details :"}
                                            icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                            style={{fontSize: '20px'}}>
-                                {selectedTask.description}
+                                {selectedTaskPlan.description}
                             </TimelineEvent> : null
                         }
 
-                        {selectedTask && selectedTask.report && selectedTask.report.status ?
+                        {selectedTaskPlan && selectedTaskPlan.report && selectedTaskPlan.report.status ?
                             <TimelineEvent title={" Reported Status :"}
                                            icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                            style={{fontSize: '20px'}}>
-                                {selectedTask.report.status}
+                                {selectedTaskPlan.report.status}
                             </TimelineEvent> : null
 
                         }

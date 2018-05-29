@@ -18,7 +18,6 @@ let ReleaseDeveloperScheduleForm = (props) => {
     let fromScheduleString = moment(fromSchedule).format(SC.DATE_FORMAT)
     let fromScheduleTz = momentTZ.tz(fromScheduleString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let canGoPrevious = fromScheduleTz.clone().subtract(7, 'days').isSameOrAfter(nowMomentTz)
-    console.log("canGoPrevious", canGoPrevious)
 
     return <div>
         <form onSubmit={handleSubmit}>

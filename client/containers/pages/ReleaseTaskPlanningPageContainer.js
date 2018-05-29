@@ -9,10 +9,12 @@ import {NotificationManager} from 'react-notifications'
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
     showTaskPlanningCreationForm: (releasePlan, projectUsersOnly) => {
-        if (projectUsersOnly) {
-            dispatch(A.getUsersWithRoleDeveloperFromServer())
-        } else {
-            dispatch(A.getUsersWithRoleCategoryFromServer())
+        if(releasePlan.highestRoleInThisRelease === SC.ROLE_MANAGER){
+            if (projectUsersOnly) {
+                dispatch(A.getAllDeveloperFromServer())
+            } else {
+                dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
+            }
         }
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
@@ -20,11 +22,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             releasePlan: {
                 _id: releasePlan._id,
             },
-            projectUsersOnly: projectUsersOnly,
-            flags: SC.REPORT_UNREPORTED,
-            report: {
-                status: SC.REPORT_PENDING
-            }
+            projectUsersOnly: projectUsersOnly
 
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
@@ -45,7 +43,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     openMergeTaskPlanningForm: (releasePlan) => {
-        //console.log("releasePlan", releasePlan)
         dispatch(initialize("merge-task-planning", releasePlan))
         dispatch(A.showComponent(COC.MERGE_TASK_PLANNING_DIALOG))
 
@@ -61,18 +58,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     ReleaseTaskGoBack: (releasePlan) => {
         dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
     },
     expandDescription: (flag) => dispatch(A.expandDescription(flag))
 })
 
 
 const mapStateToProps = (state) => ({
-    releasePlan: state.release.selectedTask,
+    releasePlan: state.release.selectedReleasePlan,
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,
-    data: [],
-    expanded:state.release.expanded
+    expanded: state.release.expanded
 })
 
 const ReleaseTaskPlanningPageContainer = connect(

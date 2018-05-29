@@ -6,9 +6,9 @@ let now = new Date()
 let nowString = moment(now).format(SC.DATE_FORMAT)
 let initialState = {
     all: [],
-    projectTasks: [],
-    selectedProject: {},
-    selectedTask: {},
+    releasePlans: [],
+    selectedRelease: {},
+    selectedReleasePlan: {},
     taskPlans: [],
     developerPlans: [],
     expanded: false,
@@ -20,25 +20,28 @@ let initialState = {
 
 const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
-        case AC.ADD_RELEASE_PROJECTS:
-            // Stores all projects on Release section
-            return Object.assign({}, state, {all: action.projects ? action.projects : []})
+        case AC.ADD_RELEASES:
+            // add all releases from server
+            return Object.assign({}, state, {all: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})
 
-        case AC.RELEASE_PROJECT_SELECTED:
-            // Stores selected project on Release section
+        case AC.RELEASE_SELECTED:
+            // add selected release details from server
             return Object.assign({}, state, {
-                selectedProject: action.project
+                selectedRelease: action.release
             })
 
-        case AC.ADD_RELEASE_PROJECT_TASKS:
-            // Stores all tasks on Release section of selected project
-            return Object.assign({}, state, {projectTasks: action.releaseProjectTasks})
+        case AC.ADD_RELEASE_PLANS:
+            // adding release plan li
+            return Object.assign({}, state, {releasePlans: action.releasePlans})
 
 
-        case AC.RELEASE_TASK_PLAN_SELECTED:
+        case AC.RELEASE_PLAN_SELECTED:
             // Stores selected task details on Release section of selected project
             return Object.assign({}, state, {
-                selectedTask: action.taskPlan
+                selectedReleasePlan: action.releasePlan,
+                expanded: false,
+                schedules: [],
+                developerPlans: []
             })
 
         case AC.ADD_RELEASE_TASK_PLANNINGS:
@@ -55,8 +58,8 @@ const releaseReducer = (state = initialState, action) => {
                 taskPlans: [...state.taskPlans, action.taskPlan]
             })
 
-        case AC.UPDATE_RELEASE_TASK_PLANNING_TO_STATE:
-            // Add task planning to planning list
+        case AC.UPDATE_TASK_PLANNING:
+            // update task planning from planning list
             return Object.assign({}, state, {
                 taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.map(tp =>
                     (tp._id === action.taskPlan._id) ? Object.assign({}, action.taskPlan) : tp) : []

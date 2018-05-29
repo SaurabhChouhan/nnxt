@@ -1,13 +1,14 @@
 import * as AC from './actionConsts'
+import * as A from '../actions'
 
-export const addReleaseProjects = (projects) => ({
-    type: AC.ADD_RELEASE_PROJECTS,
-    projects: projects
+export const addReleases = (releases) => ({
+    type: AC.ADD_RELEASES,
+    releases: releases
 })
 
-export const addReleasePlans = (releaseProjectTasks) => ({
-    type: AC.ADD_RELEASE_PROJECT_TASKS,
-    releaseProjectTasks: releaseProjectTasks
+export const addReleasePlans = (releasePlans) => ({
+    type: AC.ADD_RELEASE_PLANS,
+    releasePlans: releasePlans
 })
 export const addReleaseTaskPlannings = (taskPlans) => ({
     type: AC.ADD_RELEASE_TASK_PLANNINGS,
@@ -19,23 +20,23 @@ export const addReleaseTaskPlanningToState = (taskPlan) => ({
     taskPlan: taskPlan
 })
 
-export const updateReleaseTaskPlanningToState = (taskPlan) => ({
-    type: AC.UPDATE_RELEASE_TASK_PLANNING_TO_STATE,
+export const updateTaskPlanning = (taskPlan) => ({
+    type: AC.UPDATE_TASK_PLANNING,
     taskPlan: taskPlan
 })
 
-export const releaseProjectSelected = (project) => ({
-    type: AC.RELEASE_PROJECT_SELECTED,
-    project: project
+export const releaseSelected = (release) => ({
+    type: AC.RELEASE_SELECTED,
+    release: release
 })
 
-export const releaseTaskPlanSelected = (taskPlan) => ({
-    type: AC.RELEASE_TASK_PLAN_SELECTED,
-    taskPlan: taskPlan
+export const releasePlanSelected = (releasePlan) => ({
+    type: AC.RELEASE_PLAN_SELECTED,
+    releasePlan: releasePlan
 })
 
 
-export const deleteTaskPlanningFromState = (planID) => ({
+export const removeTaskPlanning = (planID) => ({
     type: AC.DELETE_TASK_PLAN,
     planID: planID
 })
@@ -70,7 +71,7 @@ export const setFromDate = (date) => ({
     date: date
 })
 
-export const getAllReleaseProjectsFromServer = (status) => {
+export const getAllReleasesFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {
                 method: 'get',
@@ -85,7 +86,29 @@ export const getAllReleaseProjectsFromServer = (status) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseProjects(json.data))
+                    dispatch(addReleases(json.data))
+                }
+            })
+    }
+}
+
+
+export const getReleaseFromServer = (releaseID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/release/' + releaseID, {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(releaseSelected(json.data))
                 }
             })
     }
@@ -113,9 +136,9 @@ export const getAllTaskPlannedFromServer = (releasePlanID) => {
     }
 }
 
-export const getTaskReleaseFromServer = (release, status, empFlag) => {
+export const getReleasePlansFromServer = (releaseID, status, empFlag) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + release._id + '/release-plans-with/status/' + status + '/empflag/' + empFlag, {
+        return fetch('/api/releases/' + releaseID + '/status/' + status + '/flag/' + empFlag + '/release-plans', {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -129,6 +152,28 @@ export const getTaskReleaseFromServer = (release, status, empFlag) => {
             json => {
                 if (json.success) {
                     dispatch(addReleasePlans(json.data))
+                }
+            })
+    }
+}
+
+
+export const getReleasePlanDetailsFromServer = (releasePlanID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(releasePlanSelected(json.data))
                 }
             })
     }
@@ -175,7 +220,7 @@ export const mergeTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(updateReleaseTaskPlanningToState(json.data))
+                    dispatch(updateTaskPlanning(json.data))
                     dispatch(updateDeveloperFilteredData(json.data))
                 }
                 return json
@@ -199,7 +244,7 @@ export const deleteTaskPlanningFromServer = (taskPlanningID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(deleteTaskPlanningFromState(taskPlanningID))
+                    dispatch(removeTaskPlanning(taskPlanningID))
                 }
                 return json
             })
@@ -295,6 +340,29 @@ export const getDeveloperSchedulesFromServer = (employeeID, from) => {
                     console.log("json.data", json.data)
                     dispatch(setFromDate(from))
                     dispatch(setDevelopersSchedule(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getReleaseDevelopersFromServer = (releasePlanID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/release-plan/' + releasePlanID + '/role/developers', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(A.addDevelopersToState(json.data))
                 }
                 return json
             })

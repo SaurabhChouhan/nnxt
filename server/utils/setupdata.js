@@ -206,6 +206,7 @@ export const addNNXTData = async () => {
     await addTechnologies()
     await addRepositoryTasksAndFeatures()
     await addEmployeeSettings()
+    await addLeaveSettings()
 
 }
 
@@ -717,6 +718,7 @@ const addRepositoryTasksAndFeatures = async () => {
 }
 
 const addEmployeeSettings = async () => {
+    logger.info("SETTING UP EMPLOYEE SETTINGS ...")
     let employeeSettings = await MDL.EmployeeSettingModel.find({})
     if (!employeeSettings || !employeeSettings.length) {
         await MDL.EmployeeSettingModel.createEmployeeSettings({
@@ -726,6 +728,21 @@ const addEmployeeSettings = async () => {
             relativelyFree: 5,
             busy: 6,
             superBusy: 9
+        })
+    }
+
+}
+
+const addLeaveSettings = async () => {
+    logger.info("SETTING UP LEAVE SETTINGS ...")
+    let leaveSettings = await MDL.LeaveSettingModel.find({})
+    if (!leaveSettings || !leaveSettings.length) {
+        await MDL.LeaveSettingModel.createLeaveSettings({
+            casualLeaves: 10,
+            paidLeaves: 5,
+            maternityLeaves: 20,
+            paternityLeaves: 10,
+            specialLeaves: 7
         })
     }
 

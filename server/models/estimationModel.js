@@ -834,7 +834,10 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
     estimation.status = SC.STATUS_PROJECT_AWARDED
     estimation.updated = Date.now()
 
-    return await estimation.save()
+    await estimation.save()
+    estimation = estimation.toObject()
+    estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
+    return estimation
 }
 
 estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, negotiator) => {

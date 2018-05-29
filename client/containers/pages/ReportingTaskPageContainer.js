@@ -1,42 +1,44 @@
 import {connect} from 'react-redux'
-import {ReportingTaskPage} from "../../components/index"
+import {ReportingTaskPage} from '../../components/index'
 import * as A from '../../actions/index'
 import * as COC from '../../components/componentConsts'
-import _ from 'lodash'
+import {NotificationManager} from 'react-notifications'
+
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onProjectSelect: (releaseID, planDate, taskStatus) => {
-        let dummyData = {
-            taskPlans: []
-        }
-        if (!releaseID || _.isEmpty(releaseID) || releaseID === "Select Project" || releaseID === undefined || !planDate && !taskStatus) {
-            dispatch(A.noProjectSelected(dummyData))
-        } else {
-            dispatch(A.getProjectDeatilAndTaskPlanningsFromServer(releaseID, planDate, taskStatus))
-        }
-
+    onReleaseSelect: (releaseID, date, status) => {
+        dispatch(A.getReleaseDetailsForReporting(releaseID))
+        dispatch(A.getReportingTasksForDate(releaseID, date, status))
     },
-    taskSelected: (task, selectedProject) => dispatch(A.getTaskAndProjectDetailsFromServer(task._id, selectedProject._id)),
-
     setStatus: (status) => dispatch(A.setStatus(status)),
-
-    setProjectId: (releaseId) => dispatch(A.setProjectId(releaseId)),
-
+    taskSelected: (task, selectedRelease) => dispatch(A.getTaskDetailsForReportFromServer(task._id, selectedRelease._id)),
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     },
-    reportTaskPlan: (taskPlan) => {
-        console.log("taskPlan", taskPlan)
+    reportTask: (task, date) => {
+        let inputTask = {
+            _id: task._id,
+            reason: task.reason,
+            reportedHours: parseInt(task.reportedHours),
+            status: task.status,
+            reportedDate: date
+        }
+        dispatch(A.reportTaskToServer(inputTask)).then((json) => {
+            if (json.success)
+                NotificationManager.success('Task report submitted.')
+            else
+                NotificationManager.error('Task report failed!!!')
+        })
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    allProjects: state.report.allProjects,
-    selectedProject: state.report.selectedProject,
-    allTaskPlans: state.report.allTaskPlans,
+    releases: state.report.userReleases,
+    selectedRelease: state.report.selectedRelease,
+    tasks: state.report.tasksOfSelectedDate,
     dateOfReport: state.report.dateOfReport,
     releaseID: state.report.releaseID,
-    taskStatus: state.report.status,
+    taskStatus: state.report.status
 })
 
 const ReportingTaskPageContainer = connect(
