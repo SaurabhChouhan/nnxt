@@ -2,7 +2,8 @@ import {connect} from 'react-redux'
 import {ReportingTaskPage} from '../../components/index'
 import * as A from '../../actions/index'
 import * as COC from '../../components/componentConsts'
-import _ from 'lodash'
+import {NotificationManager} from 'react-notifications'
+
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onReleaseSelect: (releaseID, date, status) => {
@@ -18,11 +19,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         let inputTask = {
             _id: task._id,
             reason: task.reason,
-            reportedHours:parseInt(task.reportedHours),
-            status:task.status,
-            reportedDate:date
+            reportedHours: parseInt(task.reportedHours),
+            status: task.status,
+            reportedDate: date
         }
-        dispatch(A.reportTaskToServer(inputTask))
+        dispatch(A.reportTaskToServer(inputTask)).then((json) => {
+            if (json.success)
+                NotificationManager.success('Task report submitted.')
+            else
+                NotificationManager.error('Task report failed!!!')
+        })
     }
 })
 

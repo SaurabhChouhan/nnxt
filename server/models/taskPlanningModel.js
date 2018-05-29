@@ -8,7 +8,7 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import logger from '../logger'
-import {dateInDefaultTimeZone} from '../utils'
+import {dateInDefaultTimeZone, momentInDefaultTimeZone} from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -55,7 +55,6 @@ let taskPlanningSchema = mongoose.Schema({
         }],
         reportedHours: {type: Number, default: 0},
         reportedOnDate: {type: Date},
-        reportedOnDateString: String,
         comment: {
             comment: String,
             commentType: String
@@ -265,13 +264,26 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     // As task plan is added we have to increase release planned hours
 
+
+    let releaseUpdateData = {}
+
+    if (releasePlan.task.initiallyEstimated) {
+        // this task was part of initial estimation so need to add data under initial object
+        releaseUpdateData['$inc'] = {
+            'initial.plannedHours': numberPlannedHours,
+            'initial.estimatedHoursPlannedTasks': releasePlan.task.estimatedHours
+        }
+    } else {
+        releaseUpdateData['$inc'] = {
+            'additional.plannedHours': numberPlannedHours,
+            'additional.estimatedHoursPlannedTasks': releasePlan.task.estimatedHours
+        }
+    }
+
     await MDL.ReleaseModel.update(
         {'_id': mongoose.Types.ObjectId(release._id)},
-        {
-            $inc: {
-                'initial.plannedHours': numberPlannedHours
-            }
-        })
+        releaseUpdateData
+    )
 
     // creating new task plan
     let taskPlanning = new TaskPlanningModel()
@@ -524,60 +536,145 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (taskPlan.employee._id != user._id)
         throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
+
+    // find release plan associated with this task plan
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+    if (!releasePlan)
+        throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
+
+
+    // See if this is a re-report if yes then check if time for re-reporting is gone
+    let reReport = false
+    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+        reReport = true
+        // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
+        let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
+        twoHoursFromReportedOnDate.add(2, 'hours')
+        if (twoHoursFromReportedOnDate.isBefore(new Date())) {
+            throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_REREPORTING, EC.HTTP_BAD_REQUEST)
+        }
+    }
+
+    let reportedMoment = momentInDefaultTimeZone(taskReport.reportedDate)
+    let maxReportedMoment
+
     /**
      * Now we need to check if reported status is a valid status or not. Employee cannot report status as
-     *  'pending' if task was already reported as 'completed' in past
+     *  any status, if task was already reported as 'completed' in past
      *  'completed' if task was already reported as 'pending' in future
      *  'completed' if task was already reported as 'completed' in future
      */
 
-        // find release plan associated with this task plan
-
-    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {report: 1})
-    if (!releasePlan)
-        throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
-
-    let reportedDate = dateInDefaultTimeZone(taskReport.reportedDate)
-
-    console.log("releaseplan.report is ", releasePlan.report)
-
-    if (releasePlan.report && releasePlan.report.minReportedDateString) {
-        // this task was reported earlier
-
-    } else {
-        // This task was never reported, so reporting data can be added without any problems and update release plan with appropriate dates
-
-        if (!releasePlan.report)
-            releasePlan.report = {}
-
-        // Update reports
-
-
-        await MDL.ReleasePlanModel.update({
-            '_id': mongoose.Types.ObjectId(releasePlan._id)
-        }, {
-            $set: {
-                'report.reportedHours': taskReport.reportedHours,
-                'report.minReportedDateString': taskReport.reportedDate,
-                'report.minReportedDate': reportedDate,
-                'report.maxReportedDateString': taskReport.reportedDate,
-                'report.maxReportedDate': reportedDate,
-                'report.finalStatus': taskReport.status
-            }
-        }).exec()
-
-        if (!taskPlan.report)
-            taskPlan.report = {}
-
-        let todaysDateString = momentTZ.tz(SC.DEFAULT_TIMEZONE).format(SC.DATE_FORMAT)
-        taskPlan.report.status = taskReport.status
-        taskPlan.report.reportedOnDate = dateInDefaultTimeZone(todaysDateString)
-        taskPlan.report.reportedOnDateString = todaysDateString
-        taskPlan.report.reasons = [taskReport.reason]
-        taskPlan.report.reportedHours = taskReport.reportedHours
-        return await taskPlan.save()
+    if (releasePlan.report && releasePlan.report.minReportedDate) {
+        // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
+        if (releasePlan.report.maxReportedDateString) {
+            maxReportedMoment = momentInDefaultTimeZone(releasePlan.report.maxReportedDateString)
+            // See if task was reported in future if so only possible status is pending
+            if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status != SC.REPORT_PENDING)) {
+                throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
+            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.finalStatus == SC.REPORT_COMPLETED)
+                throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
+        }
     }
 
+    // In case this is re-reporting this diff reported hours would help in adjusting statistics
+    let reportedHoursToIncrement = 0
+
+    if (reReport) {
+        logger.debug('This is re-reporting')
+        reportedHoursToIncrement = taskReport.reportedHours - taskPlan.report.reportedHours
+        logger.debug('Reported hours to increment ', {reportedHoursToIncrement: reportedHoursToIncrement})
+    } else {
+        logger.debug('This is first reporting')
+        reportedHoursToIncrement = taskReport.reportedHours
+        logger.debug('Reported hours to increment ', {reportedHoursToIncrement: reportedHoursToIncrement})
+    }
+
+
+    /** Make Release Plan updates **/
+    let releasePlanUpdateData = {}
+    // The reported status would become final status if reported date is same or greater than max reported date
+    if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
+        releasePlanUpdateData['$set'] = {
+            'report.finalStatus': taskReport.status
+        }
+    }
+
+    // Increment reported hours
+    releasePlanUpdateData['$inc'] = {
+        'report.reportedHours': reportedHoursToIncrement
+    }
+
+    if (!reReport) {
+        if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
+            releasePlanUpdateData['$set'] = {
+                'report.minReportedDate': reportedMoment.toDate(),
+                'report.minReportedDateString': taskReport.reportedDate
+            }
+        }
+
+        if (!releasePlan.report || !releasePlan.report.maxReportedDate || reportedMoment.isAfter(releasePlan.report.maxReportedDate)) {
+            releasePlanUpdateData['$set'] = {
+                'report.maxReportedDate': reportedMoment.toDate(),
+                'report.maxReportedDateString': taskReport.reportedDate
+            }
+        }
+    }
+
+    logger.debug('release plan update data formed as ', {releasePlanUpdateData: releasePlanUpdateData})
+    await MDL.ReleasePlanModel.update({
+        '_id': mongoose.Types.ObjectId(releasePlan._id)
+    }, releasePlanUpdateData).exec()
+
+
+    /** Make Release Updates **/
+    let release = MDL.ReleaseModel.findById(releasePlan.release._id, {initial: 1, additional: 1})
+    let releaseUpdateData = {}
+
+    // check to see if this task was initially estimated or new one
+    if (releasePlan.task.initiallyEstimated) {
+        // this task was initially estimated
+        releaseUpdateData['$inc'] = {'initial.reportedHours': reportedHoursToIncrement}
+        if (!reReport) {
+            // Add planned hours only if this is first time reporting else it would add same planned hours more than once
+            releaseUpdateData['$inc']['initial.plannedHoursReportedTasks'] = releasePlan.planning.plannedHours
+        }
+
+        if (!release.initial || !release.initial.maxReportedDate || (release.initial.maxReportedDate && reportedMoment.isAfter(release.initial.maxReportedDate))) {
+            // if reported date is greater than earlier max reported date change that
+            releaseUpdateData['$set'] = {'initial.maxReportedDate': reportedMoment.toDate()}
+        }
+    } else {
+        releaseUpdateData['$inc'] = {'additional.reportedHours': reportedHoursToIncrement}
+        if (!reReport) {
+            // Add planned hours only if this is first time reporting else it would add same planned hours more than once
+            releaseUpdateData['$inc']['additional.plannedHoursReportedTasks'] = releasePlan.planning.plannedHours
+        }
+
+        if (!release.additional || !release.additional.maxReportedDate || (release.additional.maxReportedDate && reportedMoment.isAfter(release.additional.maxReportedDate))) {
+            // if reported date is greater than earlier max reported date change that
+            releaseUpdateData['$set'] = {'additional.maxReportedDate': reportedMoment.toDate()}
+        }
+    }
+    logger.debug('release update data formed as ', {releaseUpdateData: releaseUpdateData})
+    await MDL.ReleaseModel.update({
+        '_id': mongoose.Types.ObjectId(releasePlan.release._id)
+    }, releaseUpdateData).exec()
+
+    if (!taskPlan.report)
+        taskPlan.report = {}
+
+
+    let todaysDateString = momentTZ.tz(SC.DEFAULT_TIMEZONE).format(SC.DATE_FORMAT)
+    taskPlan.report.status = taskReport.status
+
+    if (!reReport) // only change reported on date if it is first report
+        taskPlan.report.reportedOnDate = new Date()
+
+    taskPlan.report.reasons = [taskReport.reason]
+    taskPlan.report.reportedHours = taskReport.reportedHours
+    return await taskPlan.save()
     return {}
 }
 
