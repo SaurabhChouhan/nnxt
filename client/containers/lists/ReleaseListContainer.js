@@ -8,7 +8,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     projectSelected: (release) => {
         dispatch(A.releaseProjectSelected(release))
         dispatch(A.getTaskReleaseFromServer(release, "all", "all"))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
     }
 })
 

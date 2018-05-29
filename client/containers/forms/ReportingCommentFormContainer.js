@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     initialValues: {
-        "releaseID": state.report.selectedProject._id,
+        "releaseID": state.report.selectedRelease._id,
         "releasePlanID": state.report.selectedReleasePlan._id
     }
 })

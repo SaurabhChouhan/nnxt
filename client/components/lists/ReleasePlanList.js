@@ -5,7 +5,7 @@ import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 import {ReleaseTaskSearchFormContainer} from '../../containers'
 
-class ReleaseProjectTaskList extends Component {
+class ReleasePlanList extends Component {
 
     constructor(props) {
         super(props);
@@ -253,4 +253,4 @@ class ReleaseProjectTaskList extends Component {
     }
 }
 
-export default withRouter(ReleaseProjectTaskList)
+export default withRouter(ReleasePlanList)

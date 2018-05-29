@@ -94,7 +94,7 @@ export {default as ReleaseDeveloperFilterFormContainer} from './forms/ReleaseDev
 export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
 export {default as ReleaseMergeTaskPlanningFormContainer} from './forms/ReleaseMergeTaskPlanningFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
-export {default as ReleaseProjectTaskListContainer} from './lists/ReleaseProjectTaskListContainer'
+export {default as ReleasePlanListContainer} from './lists/ReleasePlanListContainer'
 export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPlanningPageContainer'
 
 //Calendar

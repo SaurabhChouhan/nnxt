@@ -1,6 +1,6 @@
 import {connect} from 'react-redux'
 import * as A from '../../actions'
-import {ReleaseProjectTaskList} from "../../components"
+import {ReleasePlanList} from "../../components"
 import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 
@@ -32,9 +32,9 @@ const mapStateToProps = (state) => {
     }
 }
 
-const ReleaseProjectTaskListContainer = withRouter(connect(
+const ReleasePlanListContainer = withRouter(connect(
     mapStateToProps,
     mapDispatchToProps
-)(ReleaseProjectTaskList))
+)(ReleasePlanList))
 
-export default ReleaseProjectTaskListContainer
+export default ReleasePlanListContainer

@@ -88,7 +88,7 @@ export {default as  RepositoryFeatureDetailDialog} from './dialogs/RepositoryFea
 
 //Release List
 export {default as ReleaseList} from './lists/ReleaseList'
-export {default as ReleaseProjectTaskList} from './lists/ReleaseProjectTaskList'
+export {default as ReleasePlanList} from './lists/ReleasePlanList'
 
 //Release Forms
 export {default as ReleaseDeveloperScheduleForm} from './forms/ReleaseDeveloperScheduleForm'

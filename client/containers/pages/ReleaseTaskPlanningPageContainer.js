@@ -56,7 +56,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     ReleaseTaskGoBack: (releasePlan) => {
         dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PROJECT_TASK_LIST))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
     },
     expandDescription: (flag) => dispatch(A.expandDescription(flag))
 })

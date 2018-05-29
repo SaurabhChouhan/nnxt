@@ -8,7 +8,7 @@ import {
     ProjectListContainer,
     RaiseLeaveListContainer,
     ReleaseListContainer,
-    ReleaseProjectTaskListContainer,
+    ReleasePlanListContainer,
     ReleaseTaskPlanningPageContainer,
     ReportingTaskPageContainer,
     ReportingTaskDetailPageContainer,
@@ -223,7 +223,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleaseProjectTaskListContainer name={COC.RELEASE_PROJECT_TASK_LIST}/>
+                    <ReleasePlanListContainer name={COC.RELEASE_PLAN_LIST}/>
                 </ContentSection>
 
             }
