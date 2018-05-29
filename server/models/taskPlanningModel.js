@@ -736,7 +736,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }
 
 
-    /** Make Release Plan updates **/
+    /******************************** RELEASE PLAN UPDATES **************************************************/
     let releasePlanUpdateData = {}
     // The reported status would become final status if reported date is same or greater than max reported date
     if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
@@ -751,18 +751,23 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }
 
     if (!reReport) {
+
+        // Increment task counts that are reported
+        releasePlanUpdateData['$inc']['report.reportedTaskCounts'] = 1
+
         if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
-            releasePlanUpdateData['$set'] = {
-                'report.minReportedDate': reportedMoment.toDate(),
-                'report.minReportedDateString': taskReport.reportedDate
-            }
+            if (!releasePlanUpdateData['$set'])
+                releasePlanUpdateData['$set'] = {}
+            releasePlanUpdateData['$set']['report.minReportedDate'] = reportedMoment.toDate()
+            releasePlanUpdateData['$set']['report.minReportedDateString'] = taskReport.reportedDate
         }
 
         if (!releasePlan.report || !releasePlan.report.maxReportedDate || reportedMoment.isAfter(releasePlan.report.maxReportedDate)) {
-            releasePlanUpdateData['$set'] = {
-                'report.maxReportedDate': reportedMoment.toDate(),
-                'report.maxReportedDateString': taskReport.reportedDate
-            }
+
+            if (!releasePlanUpdateData['$set'])
+                releasePlanUpdateData['$set'] = {}
+            releasePlanUpdateData['$set']['report.maxReportedDate'] = reportedMoment.toDate()
+            releasePlanUpdateData['$set']['report.maxReportedDateString'] = taskReport.reportedDate
         }
     }
 
@@ -772,7 +777,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }, releasePlanUpdateData).exec()
 
 
-    /** Make Release Updates **/
+    /************************************** RELEASE UPDATES  ***************************************/
     let release = MDL.ReleaseModel.findById(releasePlan.release._id, {initial: 1, additional: 1})
     let releaseUpdateData = {}
 
@@ -780,8 +785,10 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (releasePlan.task.initiallyEstimated) {
         // this task was initially estimated
         releaseUpdateData['$inc'] = {'initial.reportedHours': reportedHoursToIncrement}
-        if (!reReport) {
-            // Add planned hours only if this is first time reporting else it would add same planned hours more than once
+
+        // See if this is first time release plan was reported if yes then increment planned hours reported tasks
+
+        if (releasePlan.report && releasePlan.report.reportedTaskCounts == 0) {
             releaseUpdateData['$inc']['initial.plannedHoursReportedTasks'] = releasePlan.planning.plannedHours
         }
 
@@ -789,10 +796,19 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             // if reported date is greater than earlier max reported date change that
             releaseUpdateData['$set'] = {'initial.maxReportedDate': reportedMoment.toDate()}
         }
+
+        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)){
+            // Task was reported as complete and it was not reported as complete earlier so we can add to estimatedHoursCompletedTasks
+            releaseUpdateData['$inc']['initial.estimatedHoursCompletedTasks'] = releasePlan.task.estimatedHours
+        } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
+            // completed status is changed to pending we have to decrement estimated hours from overall statistics
+            releaseUpdateData['$inc']['initial.estimatedHoursCompletedTasks'] = -releasePlan.task.estimatedHours
+        }
+
     } else {
         releaseUpdateData['$inc'] = {'additional.reportedHours': reportedHoursToIncrement}
-        if (!reReport) {
-            // Add planned hours only if this is first time reporting else it would add same planned hours more than once
+
+        if (releasePlan.report && releasePlan.report.reportedTaskCounts == 0) {
             releaseUpdateData['$inc']['additional.plannedHoursReportedTasks'] = releasePlan.planning.plannedHours
         }
 
@@ -800,11 +816,22 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             // if reported date is greater than earlier max reported date change that
             releaseUpdateData['$set'] = {'additional.maxReportedDate': reportedMoment.toDate()}
         }
+
+        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)){
+            // Task was reported as complete and it was not reported as complete earlier so we can add to estimatedHoursCompletedTasks
+            releaseUpdateData['$inc']['additional.estimatedHoursCompletedTasks'] = releasePlan.task.estimatedHours
+        } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
+            // completed status is changed to pending we have to decrement estimated hours from overall statistics
+            releaseUpdateData['$inc']['additional.estimatedHoursCompletedTasks'] = -releasePlan.task.estimatedHours
+        }
     }
     logger.debug('release update data formed as ', {releaseUpdateData: releaseUpdateData})
     await MDL.ReleaseModel.update({
         '_id': mongoose.Types.ObjectId(releasePlan.release._id)
     }, releaseUpdateData).exec()
+
+
+    /*************************** TASK PLAN UPDATES ***********************************/
 
     if (!taskPlan.report)
         taskPlan.report = {}

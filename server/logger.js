@@ -12,7 +12,7 @@ const logger = winston.createLogger({
             format: 'YYYY-MM-DD HH:mm:ss'
         }),
         format.printf(info => {
-            return `${info.timestamp} ${info.level}: ${info.message}` + JSON.stringify(
+            return `${info.timestamp} ${info.level}: ${info.message} ` + JSON.stringify(
                 Object.assign({}, info, {
                     level: undefined,
                     message: undefined,

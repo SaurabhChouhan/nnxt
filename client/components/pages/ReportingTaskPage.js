@@ -96,16 +96,20 @@ class ReportingTaskPage extends Component {
     formatReportedStatus(cell, row) {
         if (cell)
             return cell
-        else if (row.report && row.report.status)
+        else if (row.report && row.report.status) {
+            row.status = row.report.status
             return row.report.status
+        }
         return SC.REPORT_UNREPORTED
     }
 
     formatReportedHours(cell, row) {
         if (cell)
             return cell
-        else if (row.report && row.report.reportedHours)
+        else if (row.report && row.report.reportedHours) {
+            row.reportedHours = row.report.reportedHours
             return row.report.reportedHours
+        }
         return ''
     }
 
@@ -290,7 +294,7 @@ class ReportingTaskPage extends Component {
                                                editable={{
                                                    type: 'select',
                                                    options: {
-                                                       values: [SC.REPORT_COMPLETED, SC.REPORT_PENDING]
+                                                       values: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]
                                                    }
                                                }} dataFormat={this.formatReportedStatus}>Reported
                                 Status</TableHeaderColumn>

@@ -40,11 +40,12 @@ let releasePlanSchema = mongoose.Schema({
         plannedTaskCounts: {type: Number, default: 0}  // Number of tasks-plans against this release plan
     },
     report: {
+        reportedHours: {type: Number, default: 0},
         minReportedDate: Date,
         minReportedDateString: String,
         maxReportedDate: Date,
         maxReportedDateString: String,
-        reportedHours: {type: Number, default: 0},
+        reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
         finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
     },
     comments: [{
