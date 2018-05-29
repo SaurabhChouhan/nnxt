@@ -136,9 +136,7 @@ export const DATE_HALF_WEAK_MONTH_FORMAT = 'ddd'
 export const DEFAULT_TIMEZONE = 'UTC'
 // !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!
 
-export const INDIAN_TIMEZONE = 'IST'
-export const INDIAN_TIMEZONE_NAME = 'Asia/Calcutta'
-
+export const INDIAN_TIMEZONE = 'Asia/Calcutta'
 //Comment Types
 export const COMMENT_EMERGENCY = 'Emergency'
 export const COMMENT_CRITICAL = 'Critical'

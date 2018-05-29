@@ -1,5 +1,6 @@
 import * as SC from './serverconstants'
 import moment from 'moment-timezone'
+import logger from './logger'
 
 export const isAuthenticated = (ctx) => {
     if (ctx.isAuthenticated())
@@ -45,15 +46,26 @@ export const userHasRole = (user, roleName) => {
     return false
 }
 
-export const dateInDefaultTimeZone = (dateString) => {
+export const dateInUTC = (dateString) => {
     let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
     if (momentDate.isValid())
         return momentDate.toDate()
     return undefined
 }
 
-export const momentInDefaultTimeZone = (dateString) => {
+export const momentInUTC = (dateString) => {
     let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
+    if (momentDate.isValid())
+        return momentDate
+    return undefined
+}
+
+export const formatDateInUTC = (date) => {
+    return moment(date).utc().format(SC.DATE_FORMAT)
+}
+
+export const momentInTimeZone = (dateString, timeZone) => {
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, timeZone)
     if (momentDate.isValid())
         return momentDate
     return undefined
