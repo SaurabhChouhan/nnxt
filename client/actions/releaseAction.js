@@ -1,13 +1,13 @@
 import * as AC from './actionConsts'
 
-export const addReleaseProjects = (projects) => ({
-    type: AC.ADD_RELEASE_PROJECTS,
-    projects: projects
+export const addReleases = (releases) => ({
+    type: AC.ADD_RELEASES,
+    releases: releases
 })
 
-export const addReleasePlans = (releaseProjectTasks) => ({
-    type: AC.ADD_RELEASE_PROJECT_TASKS,
-    releaseProjectTasks: releaseProjectTasks
+export const addReleasePlans = (releasePlans) => ({
+    type: AC.ADD_RELEASE_PLANS,
+    releasePlans: releasePlans
 })
 export const addReleaseTaskPlannings = (taskPlans) => ({
     type: AC.ADD_RELEASE_TASK_PLANNINGS,
@@ -24,9 +24,9 @@ export const updateReleaseTaskPlanningToState = (taskPlan) => ({
     taskPlan: taskPlan
 })
 
-export const releaseProjectSelected = (project) => ({
-    type: AC.RELEASE_PROJECT_SELECTED,
-    project: project
+export const releaseSelected = (release) => ({
+    type: AC.RELEASE_SELECTED,
+    release: release
 })
 
 export const releaseTaskPlanSelected = (taskPlan) => ({
@@ -70,7 +70,7 @@ export const setFromDate = (date) => ({
     date: date
 })
 
-export const getAllReleaseProjectsFromServer = (status) => {
+export const getAllReleasesFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {
                 method: 'get',
@@ -85,7 +85,29 @@ export const getAllReleaseProjectsFromServer = (status) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseProjects(json.data))
+                    dispatch(addReleases(json.data))
+                }
+            })
+    }
+}
+
+
+export const getReleaseFromServer = (releaseID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/release/' + releaseID, {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(releaseSelected(json.data))
                 }
             })
     }
@@ -113,9 +135,9 @@ export const getAllTaskPlannedFromServer = (releasePlanID) => {
     }
 }
 
-export const getTaskReleaseFromServer = (release, status, empFlag) => {
+export const getReleasePlansFromServer = (releaseID, status, empFlag) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + release._id + '/release-plans-with/status/' + status + '/empflag/' + empFlag, {
+        return fetch('/api/releases/' + releaseID + '/status/' + status + '/flag/' + empFlag + '/release-plans', {
                 method: 'get',
                 credentials: "include",
                 headers: {

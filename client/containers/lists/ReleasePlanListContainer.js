@@ -6,16 +6,20 @@ import {withRouter} from 'react-router-dom'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    taskPlanSelected: (releasePlan) => {
+    releasePlanSelected: (releasePlan, role) => {
+        console.log("Role", role)
+        // get all developers from user list when user role in this release is manager
         dispatch(A.getAllDeveloperFromServer()),
+            // get project developers from user list when user role in this release is leader
+            //dispatch(A.getProjectDeveloperFromServer()),
+
         dispatch(A.releaseTaskPlanSelected(releasePlan)),
-            dispatch(A.addDeveloperFilteredData([])),
             dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
         dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
     },
 
     ReleaseProjectGoBack: () => {
-        dispatch(A.getAllReleaseProjectsFromServer("all"))
+        dispatch(A.getAllReleasesFromServer("all"))
         dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
     },
 

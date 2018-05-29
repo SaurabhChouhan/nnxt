@@ -20,25 +20,28 @@ let initialState = {
 
 const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
-        case AC.ADD_RELEASE_PROJECTS:
-            // Stores all projects on Release section
-            return Object.assign({}, state, {all: action.projects ? action.projects : []})
+        case AC.ADD_RELEASES:
+            // add all releases from server
+            return Object.assign({}, state, {all: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})
 
-        case AC.RELEASE_PROJECT_SELECTED:
-            // Stores selected project on Release section
+        case AC.RELEASE_SELECTED:
+            // add selected release details from server
             return Object.assign({}, state, {
-                selectedProject: action.project
+                selectedProject: action.release
             })
 
-        case AC.ADD_RELEASE_PROJECT_TASKS:
-            // Stores all tasks on Release section of selected project
-            return Object.assign({}, state, {projectTasks: action.releaseProjectTasks})
+        case AC.ADD_RELEASE_PLANS:
+            // adding release plan li
+            return Object.assign({}, state, {projectTasks: action.releasePlans})
 
 
         case AC.RELEASE_TASK_PLAN_SELECTED:
             // Stores selected task details on Release section of selected project
             return Object.assign({}, state, {
-                selectedTask: action.taskPlan
+                selectedTask: action.taskPlan,
+                expanded: false,
+                schedules: [],
+                developerPlans: []
             })
 
         case AC.ADD_RELEASE_TASK_PLANNINGS:
