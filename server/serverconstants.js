@@ -143,6 +143,9 @@ export const COMMENT_URGENT = 'Urgent'
 export const COMMENT_REPORTING = 'Reporting'
 export const COMMENT_FYI_ONLY = 'FYI Only'
 
+//Dialog Names
+export const DIALOG_ESTIMATION_REQUEST_REVIEW = 'dialog-request-review'
+
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
