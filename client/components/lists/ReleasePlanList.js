@@ -14,17 +14,29 @@ class ReleasePlanList extends Component {
         }
         this.state = {
             status: "all",
-            flag: "all"
+            flag: "all",
+            showPlans: true
         }
         this.onFlagChange = this.onFlagChange.bind(this)
         this.onStatusChange = this.onStatusChange.bind(this)
+        this.showReleasePlans = this.showReleasePlans.bind(this)
+        this.showWarnings = this.showWarnings.bind(this)
 
+    }
+
+    showReleasePlans(flag) {
+        this.setState({showPlans: true})
+    }
+
+    showWarnings(flag) {
+        this.setState({showPlans: false})
     }
 
     onFlagChange(flag) {
         this.setState({flag: flag})
         this.props.changeReleaseFlag(this.props.selectedRelease, this.state.status, flag)
     }
+
 
     onStatusChange(status) {
         this.setState({status: status})
@@ -77,7 +89,9 @@ class ReleasePlanList extends Component {
     render() {
         let team = 0
         const {selectedRelease, releasePlans} = this.props
+        const {showPlans} = this.state
         return (
+
             <div key="estimation_list" className="clearfix">
 
                 <div className="col-md-12 releaseHeader">
@@ -174,6 +188,18 @@ class ReleasePlanList extends Component {
                         </div>
 
                     </div>
+                    <div className="col-md-12">
+                        <button className={showPlans ? "btn btnWarning" : "btn btnWarningSelected"}
+                                onClick={() => {
+                                    this.showWarnings()
+                                }}>Warnings
+                        </button>
+                        <button className={showPlans ? "btn btnReleasePlanSelected" : "btn btnReleasePlan"}
+                                onClick={() => {
+                                    this.showReleasePlans()
+                                }}>Release Plans
+                        </button>
+                    </div>
                     <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
                         <div className="col-md-6 ">
@@ -192,7 +218,8 @@ class ReleasePlanList extends Component {
                                         value={SC.WARNING_RELEASE_DATE_MISSED_3}>{SC.WARNING_RELEASE_DATE_MISSED_3}</option>
                                     <option
                                         value={SC.WARNING_RELEASE_DATE_MISSED_4}>{SC.WARNING_RELEASE_DATE_MISSED_4}</option>
-                                    <option value={SC.WARNING_HAS_UNREPORTED_DAYS}>{SC.WARNING_HAS_UNREPORTED_DAYS}</option>
+                                    <option
+                                        value={SC.WARNING_HAS_UNREPORTED_DAYS}>{SC.WARNING_HAS_UNREPORTED_DAYS}</option>
                                     <option
                                         value={SC.WARNING_PENDING_AFTER_END_DATE}>{SC.WARNING_PENDING_AFTER_END_DATE}</option>
                                     <option
@@ -220,33 +247,48 @@ class ReleasePlanList extends Component {
                     </div>
 
                     <div className="estimation">
-                        <BootstrapTable options={this.options} data={releasePlans}
-                                        multiColumnSearch={true}
-                                        search={true}
-                                        striped={true}
-                                        hover={true}>
-                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Raised</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='task'
-                                               dataFormat={this.formatTaskName.bind(this)}>Task
-                                Name</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='flags'>Emp./Team Flag</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='task'
-                                               dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='planning'
-                                               dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='report'
-                                               dataFormat={this.formatReportedHours.bind(this)}>Reported
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='report'
-                                               dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
+                        {showPlans ? <BootstrapTable options={this.options} data={releasePlans}
+                                                     multiColumnSearch={true}
+                                                     search={true}
+                                                     striped={true}
+                                                     hover={true}>
+                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Raised</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatTaskName.bind(this)}>Task
+                                    Name</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='flags'>Emp./Team Flag</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
+                                    Hours</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='planning'
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                                    Hours</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReportedHours.bind(this)}>Reported
+                                    Hours</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
 
-                        </BootstrapTable>
+                            </BootstrapTable> :
+                            <BootstrapTable options={this.options} data={releasePlans}
+                                            multiColumnSearch={true}
+                                            search={true}
+                                            striped={true}
+                                            hover={true}>
+                                <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                   hidden={true}>ID</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='created'
+                                                   dataFormat={this.formatDate.bind(this)}>Raised</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
+
+                            </BootstrapTable>
+                        }
                     </div>
                 </div>
             </div>
+
         )
     }
 }

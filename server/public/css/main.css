@@ -1854,3 +1854,49 @@ hr {
 .leaveRaiseDetail {
     min-height: 37%;
 }
+
+.btnReleasePlan {
+    float: right;
+    margin-right: 30px;
+    background-color: #003C79;
+    color: #FFFFFF;
+}
+
+.btnWarning {
+    float: right;
+    background-color: red;
+    color: #FFFFFF;
+}
+
+.releaseWarningAndPlanBtnSection {
+    margin-bottom: -11px;
+}
+
+.btnReleasePlan:hover {
+    background: #FFFFFF;
+    color: #003C79;
+    border: 2px solid #003C79;
+}
+
+.btnWarning:hover {
+    background: #FFFFFF;
+    color: red;
+    border: 2px solid red;
+}
+
+.btnWarningSelected {
+    float: right;
+    background: #FFFFFF;
+    color: red;
+    border: 2px solid red;
+}
+
+.btnReleasePlanSelected {
+    float: right;
+    margin-right: 30px;
+    background: #FFFFFF;
+    color: #003C79;
+    border: 2px solid #003C79;
+}
+
+
