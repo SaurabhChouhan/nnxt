@@ -8,7 +8,10 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import logger from '../logger'
-import {dateInUTC, momentInUTC, momentInTimeZone, momentNowInUTC, formatDateInUTC} from '../utils'
+import {
+    dateInUTC, momentInUTC, momentInTimeZone, formatDateInUTC, formatDateTimeInTimezone,
+    formatDateInTimezone
+} from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -337,12 +340,14 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
     //Conversion of now and dates into moment
     let now = new Date()
-    let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+    let todaysDateInIndia = momentInTimeZone(formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
+    let replanningDateInIndia = momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
+
     let rePlanningDateMoment = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     //Check that new planning date is a valid date or not is it before now
-    if (momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
+    if (todaysDateInIndia.isAfter(replanningDateInIndia)) {
         throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -356,8 +361,10 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
+    let taskPlanningDateInIndia = momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+
     //Check that previous planning date is a valid date and can be editable means is it before now
-    if (momentTZ.tz(taskPlanning.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
+    if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
         throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -473,6 +480,18 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      */
 
     let momentPlanningDateIndia = momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+
+    let momentPlanningDateUTC = momentInUTC(taskPlanning.planningDateString)
+
+    let now = new Date()
+
+    logger.debug('moment planning date india ', {dateTimeInIndia: formatDateTimeInTimezone(momentPlanningDateIndia.toDate(), SC.INDIAN_TIMEZONE)})
+    logger.debug('now in india ', {dateTimeInIndia: formatDateTimeInTimezone(now, SC.INDIAN_TIMEZONE)})
+    logger.debug('now in newyork ', {dateTimeInIndia: formatDateTimeInTimezone(now, 'America/New_York')})
+    logger.debug('now in utc ', {dateTimeInIndia: formatDateTimeInTimezone(now, 'UTC')})
+
+    logger.debug('moment planning date utc ', {momentPlanningDateUTC})
+
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
@@ -797,7 +816,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             releaseUpdateData['$set'] = {'initial.maxReportedDate': reportedMoment.toDate()}
         }
 
-        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)){
+        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
             // Task was reported as complete and it was not reported as complete earlier so we can add to estimatedHoursCompletedTasks
             releaseUpdateData['$inc']['initial.estimatedHoursCompletedTasks'] = releasePlan.task.estimatedHours
         } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
@@ -817,7 +836,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             releaseUpdateData['$set'] = {'additional.maxReportedDate': reportedMoment.toDate()}
         }
 
-        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)){
+        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
             // Task was reported as complete and it was not reported as complete earlier so we can add to estimatedHoursCompletedTasks
             releaseUpdateData['$inc']['additional.estimatedHoursCompletedTasks'] = releasePlan.task.estimatedHours
         } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
