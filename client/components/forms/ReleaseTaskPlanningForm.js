@@ -59,12 +59,15 @@ let ReleaseTaskPlanningForm = (props) => {
                        }}
                        validate={[required]}/>
 
-                <Field name="description"
-                       label={"Description:"}
-                       component={renderTextArea}
-                       type="text"
-                       placeholder="Enter task description"
-                       validate={[required]}/>
+                <div className="planTextArea">
+                    <Field name="description"
+                           label={"Description:"}
+                           component={renderTextArea}
+                           type="text"
+                           placeholder="Enter task description"
+                           validate={[required]}/>
+                </div>
+
             </div>
 
             <div className="col-md-12 releaseAlign">

@@ -1346,14 +1346,15 @@ p.task-description {
 
 .planchk input {
     zoom: 2.3;
+    margin-top:1px;
 }
 
 .planchk label {
     font-size: 20px;
     margin-left: 27px;
     margin-top: 2px;
+    font-weight: bold;
 }
-
 .planDivider {
     background-color: #ADADAD;
     height: 70px;
@@ -1853,3 +1854,8 @@ hr {
 .leaveRaiseDetail {
     min-height: 37%;
 }
+
+.planTextArea textarea{
+    height: 120px !important;
+}
+
