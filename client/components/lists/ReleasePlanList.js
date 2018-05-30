@@ -194,7 +194,7 @@ class ReleasePlanList extends Component {
                                         value={SC.WARNING_RELEASE_DATE_MISSED_4}>{SC.WARNING_RELEASE_DATE_MISSED_4}</option>
                                     <option value={SC.WARNING_HAS_UNREPORTED_DAYS}>{SC.WARNING_HAS_UNREPORTED_DAYS}</option>
                                     <option
-                                        value={SC.WARNING_PENDING_AFTER_END_DATE}>{SC.WARNING_PENDING_AFTER_END_DATE}</option>
+                                        value={SC.WARNING_PENDING_ON_END_DATE}>{SC.WARNING_PENDING_ON_END_DATE}</option>
                                     <option
                                         value={SC.WARNING_COMPLETED_BEFORE_END_DATE}>{SC.WARNING_COMPLETED_BEFORE_END_DATE}</option>
 

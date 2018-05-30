@@ -42,7 +42,7 @@ let taskPlanningSchema = mongoose.Schema({
     },
     flags: [{
         type: String,
-        enum: [SC.WARNING_EMPLOYEE_ON_LEAVE, SC.WARNING_TOO_MANY_HOURS, SC.WARNING_UNREPORTED]
+        enum: [SC.WARNING_EMPLOYEE_ON_LEAVE, SC.WARNING_TOO_MANY_HOURS, SC.WARNING_UNREPORTED, SC.WARNING_PENDING_ON_END_DATE, SC.WARNING_COMPLETED_BEFORE_END_DATE]
     }],
     planning: {
         plannedHours: {type: Number, default: 0}
@@ -63,6 +63,8 @@ let taskPlanningSchema = mongoose.Schema({
             commentType: String
         }
     }
+}, {
+    usePushEach: true
 })
 
 
@@ -755,12 +757,32 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }
 
 
+    let warnings = []
+
     /******************************** RELEASE PLAN UPDATES **************************************************/
+
     let releasePlanUpdateData = {}
     // The reported status would become final status if reported date is same or greater than max reported date
     if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
         releasePlanUpdateData['$set'] = {
             'report.finalStatus': taskReport.status
+        }
+    }
+
+    /** If task is reported as pending on last date of its planning add pending on end date warning **/
+    if (reportedMoment.isSame(releasePlan.planning.maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
+        logger.info('Task is reported as pending on last planning date raise appropriate warning ')
+        warnings.push(await MDL.WarningModel.addPendingOnEndDate(releasePlan, taskPlan))
+        if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
+            // remove flag and associated warning
+            logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
+            releasePlanUpdateData['$push'] = {flags: SC.WARNING_PENDING_ON_END_DATE}
+            // Add this flag to task plan as well
+
+            if (!taskPlan.flags)
+                taskPlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
+            else if (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)
+                taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
         }
     }
 
@@ -862,10 +884,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (!reReport) // only change reported on date if it is first report
         taskPlan.report.reportedOnDate = new Date()
 
-    taskPlan.report.reasons = [taskReport.reason]
-    taskPlan.report.reportedHours = taskReport.reportedHours
-    return await taskPlan.save()
+    if (taskReport.reason)
+        taskPlan.report.reasons = [taskReport.reason]
 
+    taskPlan.report.reportedHours = taskReport.reportedHours
+    taskPlan = await taskPlan.save()
+
+    return {
+        taskPlan,
+        warnings
+    }
 }
 
 
