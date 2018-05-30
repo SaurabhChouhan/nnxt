@@ -36,12 +36,18 @@ const releaseReducer = (state = initialState, action) => {
 
 
         case AC.RELEASE_PLAN_SELECTED:
-            // Stores selected task details on Release section of selected project
+            // selecting release plan and its initial data
             return Object.assign({}, state, {
                 selectedReleasePlan: action.releasePlan,
                 expanded: false,
                 schedules: [],
                 developerPlans: []
+            })
+
+        case AC.UPDATE_RELEASE_PLAN:
+            // update release plan details
+            return Object.assign({}, state, {
+                selectedReleasePlan: action.releasePlan
             })
 
         case AC.ADD_RELEASE_TASK_PLANNINGS:

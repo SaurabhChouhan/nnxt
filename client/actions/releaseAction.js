@@ -36,6 +36,12 @@ export const releasePlanSelected = (releasePlan) => ({
 })
 
 
+export const updateReleasePlan = (releasePlan) => ({
+    type: AC.UPDATE_RELEASE_PLAN,
+    releasePlan: releasePlan
+})
+
+
 export const removeTaskPlanning = (planID) => ({
     type: AC.DELETE_TASK_PLAN,
     planID: planID
@@ -180,6 +186,30 @@ export const getReleasePlanDetailsFromServer = (releasePlanID) => {
 }
 
 
+
+export const getUpdatedReleasePlanFromServer = (releasePlanID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateReleasePlan(json.data))
+                }
+            })
+    }
+}
+
+
+
 export const addTaskPlanningOnServer = (taskPlanning) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/plan-task/', {
@@ -197,6 +227,9 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
             json => {
                 if (json.success) {
                     dispatch(addReleaseTaskPlanningToState(json.data))
+                    if (json.data && json.data.releasePlan && json.data.releasePlan._id) {
+                        dispatch(getUpdatedReleasePlanFromServer(json.data.releasePlan._id))
+                    }
                 }
                 return json
             })
@@ -229,7 +262,7 @@ export const mergeTaskPlanningOnServer = (taskPlanning) => {
 }
 
 
-export const deleteTaskPlanningFromServer = (taskPlanningID) => {
+export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/plan-task/' + taskPlanningID, {
                 method: 'delete',
@@ -245,6 +278,9 @@ export const deleteTaskPlanningFromServer = (taskPlanningID) => {
             json => {
                 if (json.success) {
                     dispatch(removeTaskPlanning(taskPlanningID))
+                    if (releasePlanID) {
+                        dispatch(getUpdatedReleasePlanFromServer(releasePlanID))
+                    }
                 }
                 return json
             })

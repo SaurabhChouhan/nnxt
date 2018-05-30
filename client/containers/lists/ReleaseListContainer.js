@@ -6,9 +6,13 @@ import * as COC from '../../components/componentConsts'
 const mapDispatchToProps = (dispatch, ownProps) => ({
     changeReleaseStatus: (status) => dispatch(A.getAllReleasesFromServer(status)),
     releaseSelected: (release) => {
-        dispatch(A.getReleaseFromServer(release._id))
-        dispatch(A.getReleasePlansFromServer(release._id, "all", "all"))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+        dispatch(A.getReleaseFromServer(release._id)).then(json => {
+            if (json.success) {
+                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+            }
+        }),
+            dispatch(A.getReleasePlansFromServer(release._id, "all", "all"))
+
     }
 })
 

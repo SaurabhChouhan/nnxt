@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Failed")
     }),
 
-    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
+    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id, plan.releasePlan && plan.releasePlan._id ? plan.releasePlan._id : undefined)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
         }
@@ -49,8 +49,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     ReleaseTaskGoBack: (releasePlan) => {
+        dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)).then(json => {
+            if (json.success) {
+                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+            }
+        })
         dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
     },
     expandDescription: (flag) => dispatch(A.expandDescription(flag))
 })
