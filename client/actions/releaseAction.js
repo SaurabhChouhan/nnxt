@@ -209,27 +209,6 @@ export const getUpdatedReleasePlanFromServer = (releasePlanID) => {
 }
 
 
-export const getReleasePlanDetailsByTaskPlanFromServer = (taskPlanID) => {
-    return (dispatch, getState) => {
-        return fetch('/api/releases/release-plan/task-plan/' + taskPlanID, {
-                method: 'get',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success) {
-                    dispatch(updateReleasePlan(json.data))
-                }
-            })
-    }
-}
-
 
 export const addTaskPlanningOnServer = (taskPlanning) => {
     return (dispatch, getState) => {
@@ -283,7 +262,7 @@ export const mergeTaskPlanningOnServer = (taskPlanning) => {
 }
 
 
-export const deleteTaskPlanningFromServer = (taskPlanningID) => {
+export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/plan-task/' + taskPlanningID, {
                 method: 'delete',
@@ -299,8 +278,8 @@ export const deleteTaskPlanningFromServer = (taskPlanningID) => {
             json => {
                 if (json.success) {
                     dispatch(removeTaskPlanning(taskPlanningID))
-                    if (taskPlanningID) {
-                        dispatch(getReleasePlanDetailsByTaskPlanFromServer(taskPlanningID))
+                    if (releasePlanID) {
+                        dispatch(getUpdatedReleasePlanFromServer(releasePlanID))
                     }
                 }
                 return json

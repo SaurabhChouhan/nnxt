@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Failed")
     }),
 
-    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
+    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id, plan.releasePlan && plan.releasePlan._id ? plan.releasePlan._id : undefined)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
         }
