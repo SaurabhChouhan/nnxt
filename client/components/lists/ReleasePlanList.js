@@ -23,17 +23,17 @@ class ReleasePlanList extends Component {
 
     onFlagChange(flag) {
         this.setState({flag: flag})
-        this.props.changeReleaseFlag(this.props.selectedRelease, this.state.status, flag)
+        this.props.changeReleaseFlag(this.props.release, this.state.status, flag)
     }
 
     onStatusChange(status) {
         this.setState({status: status})
-        this.props.changeReleaseStatus(this.props.selectedRelease, status, this.state.flag)
+        this.props.changeReleaseStatus(this.props.release, status, this.state.flag)
     }
 
     onRowClick(row) {
         this.props.history.push("/app-home/release-task-planning")
-        this.props.releasePlanSelected(row, this.props.selectedRelease.highestRoleInThisRelease)
+        this.props.releasePlanSelected(row, this.props.release.highestRoleInThisRelease)
     }
 
     formatDate(row) {
@@ -76,7 +76,7 @@ class ReleasePlanList extends Component {
 
     render() {
         let team = 0
-        const {selectedRelease, releasePlans} = this.props
+        const {release, releasePlans} = this.props
         return (
             <div key="estimation_list" className="clearfix">
 
@@ -84,43 +84,43 @@ class ReleasePlanList extends Component {
                     <div className=" col-md-1 backarrow" title="Go Back">
                         <button className="btn-link" onClick={() => {
                             this.props.history.push("/app-home/release")
-                            this.props.ReleaseProjectGoBack()
+                            this.props.ReleaseProjectGoBack(release)
                         }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                     </div>
                     <div className="col-md-3">
                         <div className="releaseTitle">
                             <span
-                                title={selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}>Project Name</span>
+                                title={release && release.project && release.project.name ? release.project.name : ''}>Project Name</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}</p>
+                            <p>{release && release.project && release.project.name ? release.project.name : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedRelease && selectedRelease.initial && selectedRelease.initial.devStartDate ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                                title={release && release.initial && release.initial.devStartDate ? moment(release.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedRelease && selectedRelease.initial && selectedRelease.initial.devStartDate ? moment(selectedRelease.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.initial && release.initial.devStartDate ? moment(release.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedRelease && selectedRelease.initial && selectedRelease.initial.devEndDate ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                                title={release && release.initial && release.initial.devEndDate ? moment(release.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedRelease && selectedRelease.initial && selectedRelease.initial.devEndDate ? moment(selectedRelease.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.initial && release.initial.devEndDate ? moment(release.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={selectedRelease && selectedRelease.initial && selectedRelease.initial.clientReleaseDate ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                                title={release && release.initial && release.initial.clientReleaseDate ? moment(release.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{selectedRelease && selectedRelease.initial && selectedRelease.initial.clientReleaseDate ? moment(selectedRelease.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.initial && release.initial.clientReleaseDate ? moment(release.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className=" col-md-2 releasefileoption">
@@ -138,21 +138,21 @@ class ReleasePlanList extends Component {
                             <div className="releaseTeamManager"><span>Manager</span>
                             </div>
                             <div className="estimationuser tooltip"><span>M</span>
-                                <p className="tooltiptext">{selectedRelease && selectedRelease.manager && selectedRelease.manager.firstName ? selectedRelease.manager.firstName : ''}</p>
+                                <p className="tooltiptext">{release && release.manager && release.manager.firstName ? release.manager.firstName : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-2 pad ">
                             <div className="releaseTeamLeader"><span> Leader</span>
                             </div>
                             <div className="estimationuser tooltip"><span>L</span>
-                                <p className="tooltiptext">{selectedRelease && selectedRelease.leader && selectedRelease.leader.firstName ? selectedRelease.leader.firstName : ''}</p>
+                                <p className="tooltiptext">{release && release.leader && release.leader.firstName ? release.leader.firstName : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-5 pad ">
                             <div className="releaseTeam"><span>Team</span>
                             </div>
                             {
-                                selectedRelease && selectedRelease.team && Array.isArray(selectedRelease.team) && selectedRelease.team.length ? selectedRelease.team.map((teamMember, index) =>
+                                release && release.team && Array.isArray(release.team) && release.team.length ? release.team.map((teamMember, index) =>
                                     <div key={"teamMember" + index} className="estimationuser tooltip">
                                         <span>T{index + 1}</span>
                                         <p className="tooltiptext">{teamMember ? teamMember.name : ''}</p>
@@ -163,12 +163,12 @@ class ReleasePlanList extends Component {
                         <div className="col-md-3">
                             <div className="col-md-6  releaseClock  releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Estimated Hours"></i><b>{selectedRelease.initial ? selectedRelease.initial.estimatedHours : ''}
+                                   title="Estimated Hours"></i><b>{release.initial ? release.initial.estimatedHours : ''}
                                 Hrs</b>
                             </div>
                             <div className="col-md-6  releaseClock releasePlannedHrs releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Planned Hours"></i><b>{selectedRelease.initial ? selectedRelease.initial.plannedHours : ''}
+                                   title="Planned Hours"></i><b>{release.initial ? release.initial.plannedHours : ''}
                                 Hrs</b>
                             </div>
                         </div>

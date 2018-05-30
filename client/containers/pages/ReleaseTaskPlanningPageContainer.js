@@ -49,8 +49,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     ReleaseTaskGoBack: (releasePlan) => {
+        dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)).then(json => {
+            if (json.success) {
+                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+            }
+        })
         dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
     },
     expandDescription: (flag) => dispatch(A.expandDescription(flag))
 })
