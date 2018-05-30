@@ -3,26 +3,18 @@ import {ReleaseTaskPlanningPage} from '../../components'
 import {initialize} from 'redux-form'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
-import * as SC from '../../../server/serverconstants'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
-    showTaskPlanningCreationForm: (releasePlan, projectUsersOnly) => {
-        if(releasePlan.highestRoleInThisRelease === SC.ROLE_MANAGER){
-            if (projectUsersOnly) {
-                dispatch(A.getAllDeveloperFromServer())
-            } else {
-                dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
-            }
-        }
+    showTaskPlanningCreationForm: (releasePlan) => {
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
             task: releasePlan.task,
             releasePlan: {
                 _id: releasePlan._id,
             },
-            projectUsersOnly: projectUsersOnly
+            projectUsersOnly: true
 
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
