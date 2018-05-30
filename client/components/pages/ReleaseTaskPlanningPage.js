@@ -19,10 +19,6 @@ class ReleaseTaskPlanningPage extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            projectUsersOnly: true
-        }
-        this.projectUsersOnly = this.projectUsersOnly.bind(this);
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
@@ -40,13 +36,6 @@ class ReleaseTaskPlanningPage extends Component {
         </button>)
     }
 
-    projectUsersOnly(data) {
-        let checkBox = document.getElementById("projectUsersOnlyCheck");
-        if (checkBox.checked) {
-            this.setState({projectUsersOnly: true})
-        } else this.setState({projectUsersOnly: false})
-
-    }
 
     actionCellButton(cell, row, enumObject, rowIndex) {
         if (row && row.canMerge)
@@ -132,18 +121,10 @@ class ReleaseTaskPlanningPage extends Component {
                     </div>
                     <div className="col-md-12 releasePlanChkBtn">
                         <div className="col-md-4 planchk">
-                            <input name="projectUsersOnly"
-                                   type="checkbox"
-                                   id="projectUsersOnlyCheck"
-                                   checked={this.state && this.state.projectUsersOnly ? true : false}
-                                   onChange={() => {
-                                       this.projectUsersOnly(this)
-                                   }}/>
-                            <span>Project Users Only</span>
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn taskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, this.state.projectUsersOnly)}>
+                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan)}>
                                 <i className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>

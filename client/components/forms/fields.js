@@ -31,9 +31,10 @@ export const renderCheckBox = ({
                                    input,
                                    label,
                                    readOnly,
+                                   className = "input checkbox",
                                    meta: {touched, error, warning}
                                }) =>
-    <div className="input checkbox">
+    <div className={className}>
         {touched &&
         ((error &&
             <span className="validation-error">
