@@ -8,10 +8,7 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import logger from '../logger'
-import {
-    dateInUTC, momentInUTC, momentInTimeZone,momentNowInUTC, formatDateInUTC, formatDateTimeInTimezone,
-    formatDateInTimezone
-} from '../utils'
+import * as U from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -362,8 +359,8 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     //Conversion of now and dates into moment
     let now = new Date()
 
-    let todaysDateInIndia = momentInTimeZone(formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
-    let replanningDateInIndia = momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
+    let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
+    let replanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
 
     let rePlanningDateMoment = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
@@ -382,7 +379,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    let taskPlanningDateInIndia = momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+    let taskPlanningDateInIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
 
     //Check that previous planning date is a valid date and can be editable means is it before now
     if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
@@ -500,16 +497,16 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
      */
 
-    let momentPlanningDateIndia = momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
 
-    let momentPlanningDateUTC = momentInUTC(taskPlanning.planningDateString)
+    let momentPlanningDateUTC = U.momentInUTC(taskPlanning.planningDateString)
 
     let now = new Date()
 
-    logger.debug('moment planning date india ', {dateTimeInIndia: formatDateTimeInTimezone(momentPlanningDateIndia.toDate(), SC.INDIAN_TIMEZONE)})
-    logger.debug('now in india ', {dateTimeInIndia: formatDateTimeInTimezone(now, SC.INDIAN_TIMEZONE)})
-    logger.debug('now in newyork ', {dateTimeInIndia: formatDateTimeInTimezone(now, 'America/New_York')})
-    logger.debug('now in utc ', {dateTimeInIndia: formatDateTimeInTimezone(now, 'UTC')})
+    logger.debug('moment planning date india ', {dateTimeInIndia: U.formatDateTimeInTimezone(momentPlanningDateIndia.toDate(), SC.INDIAN_TIMEZONE)})
+    logger.debug('now in india ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, SC.INDIAN_TIMEZONE)})
+    logger.debug('now in newyork ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'America/New_York')})
+    logger.debug('now in utc ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'UTC')})
 
     logger.debug('moment planning date utc ', {momentPlanningDateUTC})
 
@@ -610,7 +607,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 if (results && results.length > 0) {
                     releasePlanUpdateData['$set'] = {
                         'planning.minPlanningDate': results[0].minPlanningDate,
-                        'planning.minPlanningDateString': formatDateInUTC(results[0].minPlanningDate)
+                        'planning.minPlanningDateString': U.formatDateInUTC(results[0].minPlanningDate)
                     }
                 }
 
@@ -650,7 +647,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 if (results && results.length > 0) {
                     releasePlanUpdateData['$set'] = {
                         'planning.maxPlanningDate': results[0].maxPlanningDate,
-                        'planning.maxPlanningDateString': formatDateInUTC(results[0].maxPlanningDate)
+                        'planning.maxPlanningDateString': U.formatDateInUTC(results[0].maxPlanningDate)
                     }
                 }
 
@@ -740,7 +737,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
         }
     }
 
-    let reportedMoment = momentInUTC(taskReport.reportedDate)
+    let reportedMoment = U.momentInUTC(taskReport.reportedDate)
     let maxReportedMoment
 
     /**
@@ -753,7 +750,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (releasePlan.report && releasePlan.report.minReportedDate) {
         // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
         if (releasePlan.report.maxReportedDateString) {
-            maxReportedMoment = momentInUTC(releasePlan.report.maxReportedDateString)
+            maxReportedMoment = U.momentInUTC(releasePlan.report.maxReportedDateString)
             // See if task was reported in future if so only possible status is pending
             if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status != SC.REPORT_PENDING)) {
                 throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
