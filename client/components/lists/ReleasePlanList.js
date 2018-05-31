@@ -277,11 +277,18 @@ class ReleasePlanList extends Component {
                                             striped={true}
                                             hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
-                                                   hidden={true}>ID</TableHeaderColumn>
+                                                   hidden={true}>ID
+                                </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='created'
-                                                   dataFormat={this.formatDate.bind(this)}>Raised</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReportedStatus.bind(this)}>Status</TableHeaderColumn>
+                                                   dataFormat={this.formatDate.bind(this)}>Raised
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatTaskName.bind(this)}>TaskName
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='warning'>Warning
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='flags'>Flag
+                                </TableHeaderColumn>
 
                             </BootstrapTable>
                         }
