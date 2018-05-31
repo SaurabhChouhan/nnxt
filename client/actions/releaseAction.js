@@ -94,6 +94,7 @@ export const getAllReleasesFromServer = (status) => {
                 if (json.success) {
                     dispatch(addReleases(json.data))
                 }
+                return json
             })
     }
 }
@@ -116,7 +117,9 @@ export const getReleaseFromServer = (releaseID) => {
                 if (json.success) {
                     dispatch(releaseSelected(json.data))
                 }
+                return json
             })
+
     }
 }
 
@@ -138,6 +141,7 @@ export const getAllTaskPlannedFromServer = (releasePlanID) => {
                 if (json.success) {
                     dispatch(addReleaseTaskPlannings(json.data))
                 }
+                return json
             })
     }
 }
@@ -159,6 +163,7 @@ export const getReleasePlansFromServer = (releaseID, status, empFlag) => {
                 if (json.success) {
                     dispatch(addReleasePlans(json.data))
                 }
+                return json
             })
     }
 }
@@ -181,6 +186,7 @@ export const getReleasePlanDetailsFromServer = (releasePlanID) => {
                 if (json.success) {
                     dispatch(releasePlanSelected(json.data))
                 }
+                return json
             })
     }
 }
@@ -204,6 +210,7 @@ export const getUpdatedReleasePlanFromServer = (releasePlanID) => {
                 if (json.success) {
                     dispatch(updateReleasePlan(json.data))
                 }
+                return json
             })
     }
 }
