@@ -64,6 +64,16 @@ export const formatDateInUTC = (date) => {
     return moment(date).utc().format(SC.DATE_FORMAT)
 }
 
+export const formatDateInTimezone = (date, timeZone) => {
+    return moment(date).tz(timeZone).format(SC.DATE_FORMAT)
+}
+
+export const formatDateTimeInTimezone = (date, timeZone) => {
+    return moment(date).tz(timeZone).format(SC.DATE_TIME_FORMAT)
+}
+
+
+
 export const momentInTimeZone = (dateString, timeZone) => {
     let momentDate = moment.tz(dateString, SC.DATE_FORMAT, timeZone)
     if (momentDate.isValid())
