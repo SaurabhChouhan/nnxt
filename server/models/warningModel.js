@@ -1,8 +1,5 @@
 import mongoose from 'mongoose'
-import AppError from '../AppError'
-import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
-import * as V from '../validation'
 
 mongoose.Promise = global.Promise
 
@@ -37,11 +34,36 @@ warningSchema.statics.addUnplanned = async (releasePlan) => {
     var warning = {}
     warning.type = SC.WARNING_UNPLANNED
     warning.releases = [{
-        _id: releasePlan.release._id
+        _id: mongoose.Types.ObjectId(releasePlan.release._id)
     }]
     warning.releasePlans = [{
-        _id: releasePlan._id
+        _id: mongoose.Types.ObjectId(releasePlan._id)
     }]
+    /*
+      I have not intentionally checked for existence of warning as duplicate warning would not cause
+      much problem and any such duplicate warning would be visible on UI and duplicate calls would be
+      fixed. This would save un-necessary existence check of warnings
+     */
+
+    return await WarningModel.create(warning)
+}
+
+
+warningSchema.statics.addToManyHours = async (taskPlanning) => {
+    // TODO: Add appropriate validation
+    // toManyHours warning would be raised against a single release and a single release plan
+    var warning = {}
+    warning.type = SC.WARNING_TOO_MANY_HOURS
+    warning.releases = [{
+        _id: mongoose.Types.ObjectId(taskPlanning.release._id)
+    }]
+    warning.releasePlans = [{
+        _id: mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+    }]
+    warning.taskPlans = [{
+        _id: mongoose.Types.ObjectId(taskPlanning._id)
+    }]
+
     /*
       I have not intentionally checked for existence of warning as duplicate warning would not cause
       much problem and any such duplicate warning would be visible on UI and duplicate calls would be

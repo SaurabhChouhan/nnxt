@@ -8,7 +8,7 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import logger from '../logger'
-import {dateInUTC, momentInUTC, momentInTimeZone, momentNowInUTC, formatDateInUTC} from '../utils'
+import {formatDateInUTC, momentInTimeZone, momentInUTC, momentNowInUTC} from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -274,8 +274,26 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
         releasePlanUpdateData['$pull'] = {flags: SC.WARNING_UNPLANNED}
         await MDL.WarningModel.removeUnplanned(releasePlan)
-
     }
+
+    // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
+    logger.debug('on adding planned hours for task planning check for task planning is having too many hours or not')
+    /*let employeeSetting = MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+    let employeeDays = MDL.EmployeeDaysModel.findOne({"date": momentPlanningDate})
+
+    if (numberPlannedHours > maxPlannedHoursNumber || employeeDays.plannedHours > maxPlannedHoursNumber) {
+        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
+            // Science check release plan flags is already having warning too many hours
+            await MDL.WarningModel.addToManyHours(employeeDays, releasePlan)
+
+        } else {
+            // Science release plan flags is not having warning too many hours so add it
+            releasePlanUpdateData['$push'] = {flags: SC.WARNING_TOO_MANY_HOURS}
+            await MDL.WarningModel.addToManyHours(releasePlan)
+        }
+
+    }*/
     await MDL.ReleasePlanModel.update({'_id': mongoose.Types.ObjectId(releasePlan._id)}, releasePlanUpdateData)
 
     // As task plan is added we have to increase release planned hours
@@ -310,6 +328,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     // creating new task plan
     let taskPlanning = new TaskPlanningModel()
+    console.log("task planning ID", taskPlanning._id)
     taskPlanning.created = Date.now()
     taskPlanning.planningDate = momentPlanningDate
     taskPlanning.planningDateString = taskPlanningInput.planningDate
@@ -447,7 +466,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlanning.releasePlan._id)
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanning.releasePlan._id))
     if (!releasePlan) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
