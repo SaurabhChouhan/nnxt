@@ -1355,6 +1355,7 @@ p.task-description {
     margin-top: 2px;
     font-weight: bold;
 }
+
 .planDivider {
     background-color: #ADADAD;
     height: 70px;
@@ -1854,8 +1855,3 @@ hr {
 .leaveRaiseDetail {
     min-height: 37%;
 }
-
-.planTextArea textarea{
-    height: 120px !important;
-}
-

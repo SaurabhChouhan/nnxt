@@ -10,29 +10,48 @@ const leaveRouter = new Router({
     prefix: "leaves"
 })
 
+/**
+ * Add all Leave  requested
+ */
 leaveRouter.post("/", async ctx => {
     return await MDL.LeaveModel.saveLeave(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
+/**
+ * Get all Leave   by ID
+ */
 leaveRouter.get("/", async ctx => {
     return await MDL.LeaveModel.getAllActive(ctx.state.user)
 })
 
+/**
+ * Cancel Leave request
+ */
 leaveRouter.put("/cancel-request", async ctx => {
     return await MDL.LeaveModel.cancelLeaveRequest(ctx.request.body)
 })
 
+/**
+ * Delete Leave request
+ */
 leaveRouter.del("/:leaveID/delete-request", async ctx => {
     return await MDL.LeaveModel.deleteLeaveRequest(ctx.params.leaveID)
 })
 
+/**
+ * Get all Leave types
+ */
 leaveRouter.get('/leave-types', async ctx => {
     return await MDL.LeaveTypeModel.getAllActiveLeaveTypes()
 })
 
+/**
+ * Get all Leave setting  by ID
+ */
 leaveRouter.get("/leave-setting", async ctx => {
     return await MDL.LeaveSettingModel.getLeaveSettings(ctx.state.user)
 })
+
 /**
  * Add Leave Setting
  */
@@ -43,6 +62,7 @@ leaveRouter.post("/leave-setting", async ctx => {
     return await MDL.LeaveSettingModel.createLeaveSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
+
 /**
  * Update Leave Setting
  */

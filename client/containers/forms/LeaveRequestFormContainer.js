@@ -8,7 +8,6 @@ import {SubmissionError} from "redux-form";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
-
         return dispatch(A.addLeaveRequestOnServer(values)).then(json => {
             if (json.success) {
                 NotificationManager.success('leave Request Added Successfully')
