@@ -48,19 +48,21 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Failed")
     }),
 
-    ReleaseTaskGoBack: (releasePlan) => {
-        dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)).then(json => {
+    ReleaseTaskGoBack: (release) => {
+        dispatch(A.getReleaseFromServer(release._id)).then(json => {
             if (json.success) {
                 dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
             }
         })
-        dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
+        dispatch(A.getReleasePlansFromServer(release._id, 'all', 'all'))
     },
+
     expandDescription: (flag) => dispatch(A.expandDescription(flag))
 })
 
 
 const mapStateToProps = (state) => ({
+    release: state.release.selectedRelease,
     releasePlan: state.release.selectedReleasePlan,
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,

@@ -170,8 +170,8 @@ class ReleasePlanList extends Component {
     render() {
         let team = 0
         const {release, releasePlans} = this.props
-        const {showPlans} = this.state
-        return (
+         const {showPlans} = this.state
+return (
 
             <div key="estimation_list" className="clearfix">
 
@@ -329,28 +329,28 @@ class ReleasePlanList extends Component {
 
                     <div className="estimation">
                         {showPlans ? <BootstrapTable options={this.options} data={releasePlans}
-                                                     multiColumnSearch={true}
-                                                     search={true}
-                                                     striped={true}
-                                                     hover={true}>
-                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
+                                        multiColumnSearch={true}
+                                        search={true}
+                                        striped={true}
+                                        hover={true}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Raised
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width=" 20%" columnTitle dataField='task'
-                                                   dataFormat={this.formatTaskName.bind(this)}>Task
-                                    Name</TableHeaderColumn>
+                                               dataFormat={this.formatTaskName.bind(this)}>Task
+                                Name</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='flags' dataFormat={this.formatFlags.bind(this)}>
                                     Flag</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'
-                                                   dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
-                                    Hours</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planning'
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                                    Hours</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReportedHours.bind(this)}>Reported
-                                    Hours</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='report'
+                            <TableHeaderColumn columnTitle dataField='task'
+                                               dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='planning'
+                                               dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)}>Reported
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='report'
                                                    dataFormat={this.formatReportedStatus.bind(this)}>Status
                                 </TableHeaderColumn>
 
@@ -372,7 +372,7 @@ class ReleasePlanList extends Component {
                                                    dataFormat={this.formatFlags.bind(this)}>Flags
                                 </TableHeaderColumn>
 
-                            </BootstrapTable>
+                        </BootstrapTable>
                         }
                     </div>
                 </div>

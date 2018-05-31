@@ -36,7 +36,7 @@ let ReleaseTaskPlanningForm = (props) => {
                 <Field name="planning.plannedHours"
                        placeholder={"Enter Hours"}
                        component={renderText}
-                       label={"Estimated Hours:"}
+                       label={"Planning Hours:"}
                        validate={[required, number]}/>
 
                 <Field name="employee.name" component="input" type="hidden"/>
