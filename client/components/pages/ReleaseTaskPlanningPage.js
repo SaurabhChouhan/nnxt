@@ -82,7 +82,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
 
-        const {releasePlan, taskPlans, developerPlans, expanded} = this.props
+        const {releasePlan, taskPlans, developerPlans, expanded, release} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -92,7 +92,7 @@ class ReleaseTaskPlanningPage extends Component {
                                 <h5>
                                     <button className="btn-link" title="Go Back" onClick={() => {
                                         this.props.history.push("/app-home/release-project-tasks")
-                                        this.props.ReleaseTaskGoBack(releasePlan)
+                                        this.props.ReleaseTaskGoBack(release)
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                                     <b title={releasePlan && releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
                                 </h5>
