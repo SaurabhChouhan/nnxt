@@ -8,7 +8,7 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import logger from '../logger'
-import {dateInUTC, momentInUTC, momentInTimeZone, momentNowInUTC, formatDateInUTC} from '../utils'
+import * as U from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -39,7 +39,7 @@ let taskPlanningSchema = mongoose.Schema({
     },
     flags: [{
         type: String,
-        enum: [SC.WARNING_EMPLOYEE_ON_LEAVE, SC.WARNING_TOO_MANY_HOURS, SC.WARNING_UNREPORTED]
+        enum: [SC.WARNING_EMPLOYEE_ON_LEAVE, SC.WARNING_TOO_MANY_HOURS, SC.WARNING_UNREPORTED, SC.WARNING_PENDING_ON_END_DATE, SC.WARNING_COMPLETED_BEFORE_END_DATE]
     }],
     planning: {
         plannedHours: {type: Number, default: 0}
@@ -60,6 +60,8 @@ let taskPlanningSchema = mongoose.Schema({
             commentType: String
         }
     }
+}, {
+    usePushEach: true
 })
 
 
@@ -275,6 +277,25 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.WarningModel.removeUnplanned(releasePlan)
 
     }
+
+    // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
+    logger.debug('on adding planned hours for task planning check for task planning is having too many hours or not')
+    /*let employeeSetting = MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+    let employeeDays = MDL.EmployeeDaysModel.findOne({"date": momentPlanningDate})
+
+    if (numberPlannedHours > maxPlannedHoursNumber || employeeDays.plannedHours > maxPlannedHoursNumber) {
+        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
+            // Science check release plan flags is already having warning too many hours
+            await MDL.WarningModel.addToManyHours(employeeDays, releasePlan)
+
+        } else {
+            // Science release plan flags is not having warning too many hours so add it
+            releasePlanUpdateData['$push'] = {flags: SC.WARNING_TOO_MANY_HOURS}
+            await MDL.WarningModel.addToManyHours(releasePlan)
+    }
+
+    }*/
     await MDL.ReleasePlanModel.update({'_id': mongoose.Types.ObjectId(releasePlan._id)}, releasePlanUpdateData)
 
     // As task plan is added we have to increase release planned hours
@@ -337,12 +358,14 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
     //Conversion of now and dates into moment
     let now = new Date()
-    let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+    let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
+    let replanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
+
     let rePlanningDateMoment = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     //Check that new planning date is a valid date or not is it before now
-    if (momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
+    if (todaysDateInIndia.isAfter(replanningDateInIndia)) {
         throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -356,8 +379,10 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
+    let taskPlanningDateInIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+
     //Check that previous planning date is a valid date and can be editable means is it before now
-    if (momentTZ.tz(taskPlanning.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc)) {
+    if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
         throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -446,7 +471,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlanning.releasePlan._id)
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanning.releasePlan._id))
     if (!releasePlan) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -472,7 +497,19 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
      */
 
-    let momentPlanningDateIndia = momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+
+    let momentPlanningDateUTC = U.momentInUTC(taskPlanning.planningDateString)
+
+    let now = new Date()
+
+    logger.debug('moment planning date india ', {dateTimeInIndia: U.formatDateTimeInTimezone(momentPlanningDateIndia.toDate(), SC.INDIAN_TIMEZONE)})
+    logger.debug('now in india ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, SC.INDIAN_TIMEZONE)})
+    logger.debug('now in newyork ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'America/New_York')})
+    logger.debug('now in utc ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'UTC')})
+
+    logger.debug('moment planning date utc ', {momentPlanningDateUTC})
+
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
@@ -570,7 +607,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 if (results && results.length > 0) {
                     releasePlanUpdateData['$set'] = {
                         'planning.minPlanningDate': results[0].minPlanningDate,
-                        'planning.minPlanningDateString': formatDateInUTC(results[0].minPlanningDate)
+                        'planning.minPlanningDateString': U.formatDateInUTC(results[0].minPlanningDate)
                     }
                 }
 
@@ -610,7 +647,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 if (results && results.length > 0) {
                     releasePlanUpdateData['$set'] = {
                         'planning.maxPlanningDate': results[0].maxPlanningDate,
-                        'planning.maxPlanningDateString': formatDateInUTC(results[0].maxPlanningDate)
+                        'planning.maxPlanningDateString': U.formatDateInUTC(results[0].maxPlanningDate)
                     }
                 }
 
@@ -700,7 +737,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
         }
     }
 
-    let reportedMoment = momentInUTC(taskReport.reportedDate)
+    let reportedMoment = U.momentInUTC(taskReport.reportedDate)
     let maxReportedMoment
 
     /**
@@ -713,7 +750,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (releasePlan.report && releasePlan.report.minReportedDate) {
         // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
         if (releasePlan.report.maxReportedDateString) {
-            maxReportedMoment = momentInUTC(releasePlan.report.maxReportedDateString)
+            maxReportedMoment = U.momentInUTC(releasePlan.report.maxReportedDateString)
             // See if task was reported in future if so only possible status is pending
             if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status != SC.REPORT_PENDING)) {
                 throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
@@ -736,12 +773,32 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }
 
 
+    let warnings = []
+
     /******************************** RELEASE PLAN UPDATES **************************************************/
+
     let releasePlanUpdateData = {}
     // The reported status would become final status if reported date is same or greater than max reported date
     if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
         releasePlanUpdateData['$set'] = {
             'report.finalStatus': taskReport.status
+        }
+    }
+
+    /** If task is reported as pending on last date of its planning add pending on end date warning **/
+    if (reportedMoment.isSame(releasePlan.planning.maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
+        logger.info('Task is reported as pending on last planning date raise appropriate warning ')
+        warnings.push(await MDL.WarningModel.addPendingOnEndDate(releasePlan, taskPlan))
+        if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
+            // remove flag and associated warning
+            logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
+            releasePlanUpdateData['$push'] = {flags: SC.WARNING_PENDING_ON_END_DATE}
+            // Add this flag to task plan as well
+
+            if (!taskPlan.flags)
+                taskPlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
+            else if (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)
+                taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
         }
     }
 
@@ -843,10 +900,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (!reReport) // only change reported on date if it is first report
         taskPlan.report.reportedOnDate = new Date()
 
+    if (taskReport.reason)
     taskPlan.report.reasons = [taskReport.reason]
-    taskPlan.report.reportedHours = taskReport.reportedHours
-    return await taskPlan.save()
 
+    taskPlan.report.reportedHours = taskReport.reportedHours
+    taskPlan = await taskPlan.save()
+
+    return {
+        taskPlan,
+        warnings
+    }
 }
 
 

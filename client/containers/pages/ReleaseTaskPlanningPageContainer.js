@@ -3,26 +3,18 @@ import {ReleaseTaskPlanningPage} from '../../components'
 import {initialize} from 'redux-form'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
-import * as SC from '../../../server/serverconstants'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
-    showTaskPlanningCreationForm: (releasePlan, projectUsersOnly) => {
-        if(releasePlan.highestRoleInThisRelease === SC.ROLE_MANAGER){
-            if (projectUsersOnly) {
-                dispatch(A.getAllDeveloperFromServer())
-            } else {
-                dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
-            }
-        }
+    showTaskPlanningCreationForm: (releasePlan) => {
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
             task: releasePlan.task,
             releasePlan: {
                 _id: releasePlan._id,
             },
-            projectUsersOnly: projectUsersOnly
+            projectUsersOnly: true
 
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
@@ -35,7 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Failed")
     }),
 
-    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
+    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id, plan.releasePlan && plan.releasePlan._id ? plan.releasePlan._id : undefined)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
         }
@@ -57,8 +49,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     ReleaseTaskGoBack: (releasePlan) => {
+        dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)).then(json => {
+            if (json.success) {
+                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+            }
+        })
         dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
     },
     expandDescription: (flag) => dispatch(A.expandDescription(flag))
 })

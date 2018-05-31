@@ -70,6 +70,7 @@ export const WARNING_RELEASE_DATE_MISSED_1 = 'release_date_missed_1'
 export const WARNING_RELEASE_DATE_MISSED_2 = 'release_date_missed_2'
 export const WARNING_RELEASE_DATE_MISSED_3 = 'release_date_missed_3'
 export const WARNING_RELEASE_DATE_MISSED_4 = 'release_date_missed_4'
+export const WARNING_PLANNED_BEYOND_RELEASE_DATE = 'planned_beyond_release_date'
 export const WARNING_LESS_PLANNED_HOURS = 'less_planned_hours'
 export const WARNING_MORE_PLANNED_HOURS = 'more_planned_hours'
 export const WARNING_MORE_REPORTED_HOURS_1 = 'more_reported_hours_1'
@@ -78,7 +79,7 @@ export const WARNING_MORE_REPORTED_HOURS_3 = 'more_reported_hours_3'
 export const WARNING_MORE_REPORTED_HOURS_4 = 'more_reported_hours_4'
 export const WARNING_HAS_UNREPORTED_DAYS = 'has-unreported-days'
 export const WARNING_UNREPORTED = 'unreported'
-export const WARNING_PENDING_AFTER_END_DATE = 'pending-after-enddate'
+export const WARNING_PENDING_ON_END_DATE = 'pending-on-enddate'
 export const WARNING_COMPLETED_BEFORE_END_DATE = 'completed-before-enddate'
 
 export const LEAVE_TYPE_FULL_DAY = 'Full'
@@ -143,6 +144,9 @@ export const COMMENT_CRITICAL = 'Critical'
 export const COMMENT_URGENT = 'Urgent'
 export const COMMENT_REPORTING = 'Reporting'
 export const COMMENT_FYI_ONLY = 'FYI Only'
+
+//Dialog Names
+export const DIALOG_ESTIMATION_REQUEST_REVIEW = 'dialog-request-review'
 
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
