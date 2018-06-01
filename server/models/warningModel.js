@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
 import * as U from '../utils'
 import logger from '../logger'
+import * as MDL from '../models'
 
 mongoose.Promise = global.Promise
 
@@ -16,10 +17,12 @@ let warningSchema = mongoose.Schema({
     }],
     releasePlans: [{
         _id: mongoose.Schema.ObjectId,
+        releaseID: mongoose.Schema.ObjectId,
         source: Boolean
     }],
     taskPlans: [{
         _id: mongoose.Schema.ObjectId,
+        releasePlanID: mongoose.Schema.ObjectId,
         source: Boolean
     }],
     employeeDays: [{
@@ -44,11 +47,11 @@ warningSchema.statics.addUnplanned = async (releasePlan) => {
     warning.type = SC.WARNING_UNPLANNED
     warning.releases = [{
         _id: mongoose.Types.ObjectId(releasePlan.release._id),
- source: true
+        source: true
     }]
     warning.releasePlans = [{
         _id: mongoose.Types.ObjectId(releasePlan._id),
-source: true
+        source: true
     }]
     /*
       I have not intentionally checked for existence of warning as duplicate warning would not cause
@@ -61,36 +64,23 @@ source: true
 
 warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
     // TODO: Add appropriate validation
+    let dateUtc = U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString)
+    let employeeId = toManyHoursWarningInput.employeeDay.employee._id
+    let taskPlanning = toManyHoursWarningInput.taskPlan._id
+
     /*
- let toManyHoursWarningInput = {
-    release: {
-        _id: release._id.toString(),
-        source: true
-    },
-    releasePlan: {
-        _id: releasePlan._id.toString(),
-        source: true
-    },
-    taskPlan: {
-        _id: taskPlanning._id.toString(),
-        source: true
-    },
-    employeeDay: {
-        _id: employeeDays._id.toString(),
-        employee: {
-            _id: employeeDays.employee._id.toString()
-        },
-        dateString: employeeDays.dateString
-    }
-}*/
-    let warning = await WarningModel.findOne({
+    * let warning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDay.date': U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString),
-        'employeeDay.employee_id': U.dateInUTC(toManyHoursWarningInput.employeeDay.employee._id)
+        'employeeDay.date': dateUtc,
+        'employeeDay.employee_id': employeeId
     })
 
     logger.debug('Existing warning to many hours ', {warning})
-
+    let taskPlannings = await MDL.TaskPlanningModel.find({
+        'planningDate': dateUtc,
+        'employee._id': employeeId
+    })
+    let taskPlans = taskPlannings && taskPlannings.length ? taskPlannings.map()
     if (warning) {
         warning = warning.toObject()
         let releaseAlreadyAdded = false
@@ -108,7 +98,7 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
         return await warning.save()
     } else {
         return await WarningModel.create(toManyHoursWarningInput)
-    }
+    }*/
 }
 
 

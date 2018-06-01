@@ -1779,7 +1779,6 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
     }) : new Promise((resolve, reject) => {
         return resolve(false)
     })
-    // console.log("saveEmployeePromises", saveEmployeePromises)
     return await Promise.all(saveEmployeePromises)
 
 }
@@ -1787,3 +1786,34 @@ const updateEmployeeDays = async (startDateString, endDateString, user) => {
 const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
 
+
+/*
+*
+*
+db.taskplannings.aggregate([{
+    $match: {planningDate: {$gte: new Date("2018-05-19"), $lte: new Date("2018-05-30")}}
+}, {
+    $project: {
+        release: 1,
+        planningDate: 1,
+        planningDateString: 1,
+        employee: 1,
+        planning: {
+            plannedHours: 1
+        }
+    }
+}, {
+    $group: {
+        _id: {
+            "planningDate": "$planningDate",
+            "employee": "$employee",
+            "release": "$release"
+        },
+        planningDate: {$first: "$planningDate"},
+        employee: {$first: "$employee"},
+        release: {$first: "$release"},
+        plannedHours: {$sum: "$planning.plannedHours"},
+        count: {$sum: 1}
+    }
+}])
+*/
