@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
 import * as U from '../utils'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 

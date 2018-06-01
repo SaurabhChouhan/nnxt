@@ -169,7 +169,6 @@ export const reportTaskToServer = (task) => {
 }
 
 
-
 export const addCommentToServer = (comment) => {
     return (dispatch, getState) => {
         return fetch('/api/reporting/comment', {

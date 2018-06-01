@@ -785,9 +785,10 @@ span.tag.new {
 button.taskbtn {
     background-color: #fff;
     color: #F6B841;
-    font-size: 19px;
+    font-size: 22px;
     float: right;
     margin-top: -7px;
+    margin-right: 40px;
 }
 
 button.featurebtn {
@@ -1346,7 +1347,7 @@ p.task-description {
 
 .planchk input {
     zoom: 2.3;
-    margin-top:1px;
+    margin-top: 1px;
 }
 
 .planchk label {
@@ -1936,5 +1937,9 @@ hr {
 .confirmationDialogBodyHasError {
     border-left: 5px solid #FF0000;
     border-right: 5px solid #FF0000;
+}
+
+.releasePlanFlagImg {
+    width: 25px;
 }
 
