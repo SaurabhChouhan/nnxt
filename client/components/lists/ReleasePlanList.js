@@ -119,7 +119,7 @@ class ReleasePlanList extends Component {
                             title="Release Date Missed 4"/>
             else if (flag === SC.WARNING_PLANNED_BEYOND_RELEASE_DATE)
                 return <img className="div-hover releasePlanFlagImg" key={"planned_beyond_release_date" + idx}
-                            src="/images/planned_after_release_date.png"
+                            src="/images/pending_after_enddate.png"
                             title="Planned Beyond Release Date"/>
             else if (flag === SC.WARNING_LESS_PLANNED_HOURS)
                 return <img className="div-hover releasePlanFlagImg" key={"less_planned_hours" + idx}
@@ -147,19 +147,19 @@ class ReleasePlanList extends Component {
                             title="More Reported Hours 4"/>
             else if (flag === SC.WARNING_HAS_UNREPORTED_DAYS)
                 return <img className="div-hover releasePlanFlagImg" key={"has-unreported-days" + idx}
-                            src="/images/has-unreported-days.png"
+                            src="/images/has_unreported_days.png"
                             title="Has Unreported Days"/>
             else if (flag === SC.WARNING_UNREPORTED)
                 return <img className="div-hover releasePlanFlagImg" key={"unreported" + idx}
                             src="/images/unreported.png"
                             title="Unreported"/>
             else if (flag === SC.WARNING_PENDING_ON_END_DATE)
-                return <img className="div-hover releasePlanFlagImg" key={"pending-after-enddate" + idx}
-                            src="/images/pending-after-enddate.png"
+                return <img className="div-hover releasePlanFlagImg" key={"pending-on-enddate" + idx}
+                            src="/images/pending_after_enddate.png"
                             title="Pending On Enddate"/>
             else if (flag === SC.WARNING_COMPLETED_BEFORE_END_DATE)
                 return <img className="div-hover releasePlanFlagImg" key={"completed-before-enddate" + idx}
-                            src="/images/completed-before-enddate.png"
+                            src="/images/completed_before_enddate.png"
                             title="Completed Before Enddate"/>
             else return ''
         }) : null
@@ -170,8 +170,8 @@ class ReleasePlanList extends Component {
     render() {
         let team = 0
         const {release, releasePlans} = this.props
-         const {showPlans} = this.state
-return (
+        const {showPlans} = this.state
+        return (
 
             <div key="estimation_list" className="clearfix">
 
@@ -329,28 +329,28 @@ return (
 
                     <div className="estimation">
                         {showPlans ? <BootstrapTable options={this.options} data={releasePlans}
-                                        multiColumnSearch={true}
-                                        search={true}
-                                        striped={true}
-                                        hover={true}>
-                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
+                                                     multiColumnSearch={true}
+                                                     search={true}
+                                                     striped={true}
+                                                     hover={true}>
+                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='created' dataFormat={this.formatDate.bind(this)}>Raised
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width=" 20%" columnTitle dataField='task'
-                                               dataFormat={this.formatTaskName.bind(this)}>Task
-                                Name</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='flags' dataFormat={this.formatFlags.bind(this)}>
+                                                   dataFormat={this.formatTaskName.bind(this)}>Task
+                                    Name</TableHeaderColumn>
+                                <TableHeaderColumn  dataField='flags' dataFormat={this.formatFlags.bind(this)}>
                                     Flag</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='task'
-                                               dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='planning'
-                                               dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='report'
-                                               dataFormat={this.formatReportedHours.bind(this)}>Reported
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='report'
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
+                                    Hours</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='planning'
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                                    Hours</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReportedHours.bind(this)}>Reported
+                                    Hours</TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
                                                    dataFormat={this.formatReportedStatus.bind(this)}>Status
                                 </TableHeaderColumn>
 
@@ -372,7 +372,7 @@ return (
                                                    dataFormat={this.formatFlags.bind(this)}>Flags
                                 </TableHeaderColumn>
 
-                        </BootstrapTable>
+                            </BootstrapTable>
                         }
                     </div>
                 </div>
