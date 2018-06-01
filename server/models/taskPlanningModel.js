@@ -132,7 +132,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
     }
 
-    /******************************** EMPLOYEE DAYS UPDATION **************************************************/
+    /******************************** EMPLOYEE DAYS UPDATE **************************************************/
 
 
     // Add or update employee days details when task is planned
@@ -364,7 +364,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     )
 
 
-    /******************************** TASK PLAN ADD**************************************************/
+    /******************************** TASK PLAN ADD **************************************************/
 
 
 
