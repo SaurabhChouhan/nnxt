@@ -5,12 +5,6 @@ export const addUserReleases = (releases) => ({
     releases: releases
 })
 
-
-export const addReportingTaskPlannings = (project) => ({
-    type: AC.ADD_SELECTED_PROJECT_AND_REPORTING_TASK_PLANNINGS,
-    project: project
-})
-
 export const addReportingTasksSelectedDate = (tasks, date) => ({
     type: AC.ADD_REPORTING_TASKS_SELECTED_DATE,
     tasks: tasks,
@@ -33,8 +27,8 @@ export const reportTaskSelected = (details) => ({
     details: details
 })
 
-export const updateSelectedTask = (taskPlan) => ({
-    type: AC.UPDATE_SELECTED_TASK,
+export const updateSelectedTaskPlan = (taskPlan) => ({
+    type: AC.UPDATE_SELECTED_TASK_PLAN,
     taskPlan: taskPlan
 })
 
@@ -49,6 +43,9 @@ export const setStatus = (status) => ({
 })
 
 
+/**
+ * Gets all releases date
+ */
 export const getUserReleasesFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/reporting/user-releases', {
@@ -147,7 +144,7 @@ export const getTaskDetailsForReportFromServer = (taskID, releaseID) => {
 
 export const reportTaskToServer = (task) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/task-plans/'+task._id, {
+        return fetch('/api/reporting/task-plans/' + task._id, {
                 method: 'put',
                 credentials: 'include',
                 headers: {
@@ -161,13 +158,15 @@ export const reportTaskToServer = (task) => {
         ).then(
             json => {
                 if (json.success) {
-                    //return dispatch(getReleasePlansByID(json.data.releasePlanID))
+                    if (json.data && json.data.taskPlan && json.data.taskPlan._id) {
+                        // return dispatch(getTaskPlanDetailsFromServer(json.data.taskPlan._id))
+                    }
+
                 }
                 return json
             })
     }
 }
-
 
 
 export const addCommentToServer = (comment) => {
@@ -185,8 +184,8 @@ export const addCommentToServer = (comment) => {
             response => response.json()
         ).then(
             json => {
-                if (json.success) {
-                    return dispatch(getReleasePlansByID(json.data.releasePlanID))
+                if (json.data && json.data.releasePlanID) {
+                    return dispatch(getReleasePlanByIdFromServer(json.data.releasePlanID))
                 }
                 return json
             })
@@ -194,11 +193,11 @@ export const addCommentToServer = (comment) => {
 }
 
 
-export const getReleasePlansByID = (releasePlanID) => {
+export const getReleasePlanByIdFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + releasePlanID + '/releasePlan', {
+        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
                 method: 'get',
-                credentials: 'include',
+            credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -215,5 +214,8 @@ export const getReleasePlansByID = (releasePlanID) => {
             })
     }
 }
+
+
+
 
 

@@ -5,17 +5,24 @@ import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import _ from 'lodash'
 
-// Added prefix
+/***
+ * Added prefix
+ */
+
 let releaseRouter = new Router({
     prefix: "releases"
 })
 
-//get all releases by status and all status
+/***
+ * Get all releases and by status filtering also
+ ***/
 releaseRouter.get("/status/:status", async ctx => {
     return await MDL.ReleaseModel.getReleases(ctx.params.status, ctx.state.user)
 })
 
-//get single release detail by ID
+/***
+ * Get release details by release Id
+ ***/
 releaseRouter.get("/release/:releaseID", async ctx => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
@@ -27,24 +34,32 @@ releaseRouter.get("/release/:releaseID", async ctx => {
 })
 
 
-//get single release plan detail by ID
+/***
+ * Get release plan details by release plan Id
+ ***/
 releaseRouter.get("/:releasePlanID/release-plan", async ctx => {
     return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
 
 })
 
-//get single release plan detail by ID
+/***
+ * Get release developer team details by using release Id
+ ***/
 releaseRouter.get("/release-plan/:releasePlanID/role/developers", async ctx => {
     return await MDL.ReleasePlanModel.getReleaseDevelopersByReleasePlanID(ctx.params.releasePlanID, ctx.state.user)
 
 })
 
-//get release details for reporting
+/***
+ * Get release list in which logged in user is involved as a manager or leader or developer or non project developer
+ ***/
 releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
     return await MDL.ReleaseModel.getReleaseDetailsForReporting(ctx.params.releaseID, ctx.state.user)
 })
 
-//get release plan list  by releaseID and task status
+/***
+ * Get release Plan list in which logged in user is involved as a manager or leader or developer or non project developer  by release ID and release plan status
+ ***/
 releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", async ctx => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
@@ -57,46 +72,69 @@ releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", asyn
 })
 
 
-// Add task planning by manager or leader
+/***
+ * Add task planning  in which logged in user is involved as a manager or leader
+ ***/
 releaseRouter.put("/plan-task/", async ctx => {
     return await MDL.TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 
-//Merge task plan to a perticular date
+/***
+ * Merge already planned task to another date for re-schedule
+ ***/
 releaseRouter.put("/merge-task-plan/", async ctx => {
     return await MDL.TaskPlanningModel.mergeTaskPlanning(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
-// shift tasks to future
+/***
+ * Shifting all task plans to future with base date and number of days to shift
+ * - Can not shift to any holiday date
+ * - Shift even task plan assigned on holiday to working days
+ * - Can-not shift task plan to a future days leave from base date
+ ***/
 releaseRouter.put("/shift-future/", async ctx => {
     return await MDL.TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
-// shift tasks to past
+/***
+ * Shifting all task plans to past with base date and number of days to shift
+ * - Can not shift to any holiday date
+ * - Shift even task plan assigned on holiday to working days
+ * - Can-not shift task plan to a past days leave from base date
+ ***/
 releaseRouter.put("/shift-past/", async ctx => {
     return await MDL.TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
-// Delete task planning
+/***
+ * Deletion of task plan by leader or manager of that release
+ ***/
 releaseRouter.del("/plan-task/:planID", async ctx => {
     return await MDL.TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
 })
 
-// fetch task planning detail
+
+/***
+ * Get all task plannings by release plan Id
+ ***/
 releaseRouter.get("/task-plans/:releasePlanID", async ctx => {
     return await MDL.TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.releasePlanID, ctx.state.user)
 
 })
 
-// get developer wise task planning schedule
+/***
+ * Get task planning schedule according to developer
+ ***/
 releaseRouter.get("/task-plans/employee/:employeeID/fromDate/:fromDate/toDate/:toDate", async ctx => {
     return await MDL.TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeID, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
 
 })
 
-// add employee days details
+/***
+ * Add employee days detail of a employee of a particular date on task planning
+ ***/
 releaseRouter.post("/employee-days", async ctx => {
     let employeeDays = await MDL.EmployeeDaysModel.addEmployeeDaysDetails(ctx.request.body, ctx.state.user)
     if (!employeeDays) {
@@ -106,27 +144,28 @@ releaseRouter.post("/employee-days", async ctx => {
 })
 
 
-// get employee days details
+/***
+ * Get all employee days detail without any filter
+ ***/
 releaseRouter.get("/employee-days/:id", async ctx => {
-
     return await MDL.EmployeeDaysModel.getActiveEmployeeDays(ctx.state.user)
+
 })
 
 
+/***
+ * Add employee statistics detail of a employee which is having all leaves and all task details by release
+ ***/
 releaseRouter.post("/employee-statistics/", async ctx => {
-    let employeeStatistics = await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(ctx.request.body, ctx.state.user)
-    if (!employeeStatistics) {
-        throw new AppError("Not allowed to add statistics", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    return employeeStatistics
+    return await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(ctx.request.body, ctx.state.user)
 })
 
+
+/***
+ * get all employee statistics detail
+ ***/
 releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await MDL.EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
-})
-
-releaseRouter.get("/:releasePlanID/releasePlan", async ctx => {
-    return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
 })
 
 export default releaseRouter

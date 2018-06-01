@@ -785,9 +785,10 @@ span.tag.new {
 button.taskbtn {
     background-color: #fff;
     color: #F6B841;
-    font-size: 19px;
+    font-size: 22px;
     float: right;
     margin-top: -7px;
+    margin-right: 40px;
 }
 
 button.featurebtn {
@@ -1346,7 +1347,7 @@ p.task-description {
 
 .planchk input {
     zoom: 2.3;
-    margin-top:1px;
+    margin-top: 1px;
 }
 
 .planchk label {
@@ -1900,4 +1901,45 @@ hr {
     border: 2px solid #003C79;
 }
 
+.confirmationDialogReviewRequestHasError {
+    background-color: #FF0000;
+}
+
+.confirmationDialogReviewRequestNoError {
+    background-color: green;
+}
+
+.confirmationDialogErrorImg {
+    background-color: #FFFFFF;
+    float: right;
+    margin-top: -30px;
+    padding: 6px;
+    margin-bottom: -2px;
+}
+
+.confirmationDialogFooterNoError {
+    border-bottom: 5px solid green;
+    border-left: 5px solid green;
+    border-right: 5px solid green;
+}
+
+.confirmationDialogBodyNoError {
+    border-left: 5px solid green;
+    border-right: 5px solid green;
+}
+
+.confirmationDialogFooterHasError {
+    border-bottom: 5px solid #FF0000;
+    border-left: 5px solid #FF0000;
+    border-right: 5px solid #FF0000;
+}
+
+.confirmationDialogBodyHasError {
+    border-left: 5px solid #FF0000;
+    border-right: 5px solid #FF0000;
+}
+
+.releasePlanFlagImg {
+    width: 25px;
+}
 

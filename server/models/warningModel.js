@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
-import * as V from '../validation'
+import * as U from '../utils'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -26,7 +27,8 @@ let warningSchema = mongoose.Schema({
         employee: {
             _id: mongoose.Schema.ObjectId
         },
-        dateString: String
+        dateString: String,
+        date: {type: Date, default: Date.now()},
     }],
     raisedOn: {type: Date, default: Date.now()},
     mute: {type: Boolean, default: false}
@@ -57,21 +59,55 @@ source: true
     return await WarningModel.create(warning)
 }
 
-
-warningSchema.statics.addToManyHours = async (taskPlanning) => {
+warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
     // TODO: Add appropriate validation
+    /*
+ let toManyHoursWarningInput = {
+    release: {
+        _id: release._id.toString(),
+        source: true
+    },
+    releasePlan: {
+        _id: releasePlan._id.toString(),
+        source: true
+    },
+    taskPlan: {
+        _id: taskPlanning._id.toString(),
+        source: true
+    },
+    employeeDay: {
+        _id: employeeDays._id.toString(),
+        employee: {
+            _id: employeeDays.employee._id.toString()
+        },
+        dateString: employeeDays.dateString
+    }
+}*/
     // toManyHours warning would be raised against a single release and a single release plan
-    var warning = {}
+    let warning = {}
     warning.type = SC.WARNING_TOO_MANY_HOURS
     warning.releases = [{
-        _id: mongoose.Types.ObjectId(taskPlanning.release._id)
+        _id: toManyHoursWarningInput.release._id,
+        source: toManyHoursWarningInput.release.source
     }]
+
     warning.releasePlans = [{
-        _id: mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+        _id: toManyHoursWarningInput.releasePlan._id,
+        source: toManyHoursWarningInput.releasePlan.source
     }]
     warning.taskPlans = [{
-        _id: mongoose.Types.ObjectId(taskPlanning._id)
+        _id: toManyHoursWarningInput.taskPlan._id,
+        source: toManyHoursWarningInput.taskPlan.source
     }]
+    warning.employeeDays = [{
+        _id: toManyHoursWarningInput.employeeDay._id,
+        employee: {
+            _id: toManyHoursWarningInput.employeeDay.employee._id
+        },
+        dateString: toManyHoursWarningInput.employeeDay.dateString,
+        date: U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString)
+    }]
+
 
     /*
       I have not intentionally checked for existence of warning as duplicate warning would not cause

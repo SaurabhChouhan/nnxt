@@ -134,8 +134,9 @@ releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
     releasePlan = releasePlan.toObject()
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releasePlan.release._id.toString(), user)
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release Plan Details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], roleInRelease)) {
+        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "or" + SC.ROLE_DEVELOPER + "or" + SC.ROLE_NON_PROJECT_DEVELOPER + "] can see Release Plan Details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN
+        )
     }
     releasePlan.highestRoleInThisRelease = roleInRelease
     return releasePlan

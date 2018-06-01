@@ -380,7 +380,6 @@ export const getDeveloperSchedulesFromServer = (employeeID, from) => {
         ).then(
             json => {
                 if (json.success) {
-                    console.log("json.data", json.data)
                     dispatch(setFromDate(from))
                     dispatch(setDevelopersSchedule(json.data))
                 }
