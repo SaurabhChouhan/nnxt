@@ -1,3 +1,4 @@
+
 import {connect} from 'react-redux'
 import {ReportingTaskDetailPage} from '../../components/index'
 import * as A from '../../actions/index'
