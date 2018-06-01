@@ -83,39 +83,32 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
         dateString: employeeDays.dateString
     }
 }*/
-    // toManyHours warning would be raised against a single release and a single release plan
-    let warning = {}
-    warning.type = SC.WARNING_TOO_MANY_HOURS
-    warning.releases = [{
-        _id: toManyHoursWarningInput.release._id,
-        source: toManyHoursWarningInput.release.source
-    }]
+    let warning = await WarningModel.findOne({
+        type: SC.WARNING_TOO_MANY_HOURS,
+        'employeeDay.date': U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString),
+        'employeeDay.employee_id': U.dateInUTC(toManyHoursWarningInput.employeeDay.employee._id)
+    })
 
-    warning.releasePlans = [{
-        _id: toManyHoursWarningInput.releasePlan._id,
-        source: toManyHoursWarningInput.releasePlan.source
-    }]
-    warning.taskPlans = [{
-        _id: toManyHoursWarningInput.taskPlan._id,
-        source: toManyHoursWarningInput.taskPlan.source
-    }]
-    warning.employeeDays = [{
-        _id: toManyHoursWarningInput.employeeDay._id,
-        employee: {
-            _id: toManyHoursWarningInput.employeeDay.employee._id
-        },
-        dateString: toManyHoursWarningInput.employeeDay.dateString,
-        date: U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString)
-    }]
+    logger.debug('Existing warning to many hours ', {warning})
 
+    if (warning) {
+        warning = warning.toObject()
+        let releaseAlreadyAdded = false
+        if (warning.releases && Array.isArray(warning.releases) && warning.releases.length && warning.toObject().releases.indexOf((r) => {
+                return r._id == toManyHoursWarningInput.release._id
+            }) == -1) {
+            warning.releases.push({_id: toManyHoursWarningInput.release._id})
+        }
 
-    /*
-      I have not intentionally checked for existence of warning as duplicate warning would not cause
-      much problem and any such duplicate warning would be visible on UI and duplicate calls would be
-      fixed. This would save un-necessary existence check of warnings
-     */
-
-    return await WarningModel.create(warning)
+        if (warning.releasePlans && Array.isArray(warning.releasePlans) && warning.releasePlans.length && warning.toObject().releasePlans.indexOf((r) => {
+                return r._id == toManyHoursWarningInput.releasePlan._id
+            }) == -1) {
+            warning.releasePlans.push({_id: toManyHoursWarningInput.releasePlan._id})
+        }
+        return await warning.save()
+    } else {
+        return await WarningModel.create(toManyHoursWarningInput)
+    }
 }
 
 

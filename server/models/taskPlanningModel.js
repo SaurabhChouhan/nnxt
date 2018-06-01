@@ -176,7 +176,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             'employee._id': mongoose.Types.ObjectId(selectedDeveloper._id),
             'release._id': mongoose.Types.ObjectId(release._id),
             'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
-
         }) > 0) {
 
         // Already added employees statics detail with task plan update inserted task plan hours of that task plan
@@ -225,7 +224,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.EmployeeStatisticsModel.addTaskDetailsToEmployeeStatistics(EmployeeStatisticsModelInput, user)
 
     } else {
-        // Not available employees statics detail so add employee statistics detail with task plan and planned hours
+        // Not available employees statics detail so add employee statistics detail with release plan ,release,employee details
 
         let EmployeeStatisticsModelInput = {
             release: {
@@ -257,106 +256,83 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well
      */
 
-    var releasePlanUpdateData = {
-        $inc: {
-            'planning.plannedHours': numberPlannedHours,
-            'planning.plannedTaskCounts': 1
-        }
-    }
+    releasePlan.planning = Object.assign({}, releasePlan.planning, {
+        plannedHours: releasePlan.planning.plannedHours + numberPlannedHours,
+        plannedTaskCounts: releasePlan.planning.plannedTaskCounts + 1
+    })
 
     if (!releasePlan.planning || !releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
-        releasePlanUpdateData['$set'] = {
-            'planning.minPlanningDate': momentPlanningDate.toDate(),
-            'planning.minPlanningDateString': taskPlanningInput.planningDate
-        }
+        releasePlan.planning = Object.assign({}, releasePlan.planning, {
+            minPlanningDate: momentPlanningDate.toDate(),
+            minPlanningDateString: taskPlanningInput.planningDate
+        })
     }
 
     if (!releasePlan.planning || !releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
-        if (!releasePlanUpdateData['$set']) {
-            releasePlanUpdateData['$set'] = {}
-        }
-        releasePlanUpdateData['$set']['planning.maxPlanningDate'] = momentPlanningDate.toDate()
-        releasePlanUpdateData['$set']['planning.maxPlanningDateString'] = taskPlanningInput.planningDate
+        releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
+        releasePlan.planning.maxPlanningDateString = taskPlanningInput.planningDate
     }
 
     // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
     if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) > -1) {
         // remove flag and associated warning
         logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
-        releasePlanUpdateData['$pull'] = {flags: SC.WARNING_UNPLANNED}
+        releasePlan.flags = releasePlan.flags && Array.isArray(releasePlan.flags) && releasePlan.flags.length ? releasePlan.flags.filter(flag => flag != SC.WARNING_UNPLANNED) : []
         await MDL.WarningModel.removeUnplanned(releasePlan)
-
     }
-    // creating new task plan
+
+    // Creating new task and to use task plan Id before save
     let taskPlanning = new TaskPlanningModel()
 
-    // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
-    logger.debug('on adding planned hours for task planning check for task planning is having too many hours or not')
-    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
 
-    logger.debug("employeeSetting", {bk1: employeeSetting})
-    logger.debug("employeeSetting.maxPlannedHours", {bk2: employeeSetting.maxPlannedHours})
-    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+    /******************************** TOO MANY HOURS FLAG WARNING UPDATE **************************************************/
+
+
+        // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours ? employeeSetting.maxPlannedHours : 8)
     let employeeDays = await MDL.EmployeeDaysModel.findOne({
         "date": momentPlanningDate,
         "employee._id": mongoose.Types.ObjectId(selectedDeveloper._id)
     })
 
-    logger.debug("employeeDays", {bk3: employeeDays})
-
     if (numberPlannedHours > maxPlannedHoursNumber || employeeDays.plannedHours > maxPlannedHoursNumber) {
-        logger.debug('inside warning ')
-        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
-            // Science check release plan flags is already having warning too many hours
-            logger.debug(' already available too much hour warning')
-            await MDL.WarningModel.update({
-                "release._id": mongoose.Types.ObjectId(release._id),
-                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)
-            }, {
-                $push: {
-                    "taskPlans": {
-                        _id: taskPlanning._id,
-                        source: true
-                    }
-                }
-            }, {multi: true}).exec()
-
-        } else {
-            // Science release plan flags is not having warning too many hours so add it
-            logger.debug(' not  available too much warning in this release plan add it')
-            releasePlanUpdateData['$push'] = {flags: SC.WARNING_TOO_MANY_HOURS}
-            let toManyHoursWarningInput = {
-                release: {
-                    _id: release._id.toString(),
-                    source: true
+        // task planning of employee of that day is more than maximum planned hours
+        let toManyHoursWarningInput = {
+            release: {
+                _id: release._id.toString(),
+                source: true
+            },
+            releasePlan: {
+                _id: releasePlan._id.toString(),
+                source: true
+            },
+            taskPlan: {
+                _id: taskPlanning._id.toString(),
+                source: true
+            },
+            employeeDay: {
+                _id: employeeDays._id.toString(),
+                employee: {
+                    _id: employeeDays.employee._id.toString()
                 },
-                releasePlan: {
-                    _id: releasePlan._id.toString(),
-                    source: true
-                },
-                taskPlan: {
-                    _id: taskPlanning._id.toString(),
-                    source: true
-                },
-                employeeDay: {
-                    _id: employeeDays._id.toString(),
-                    employee: {
-                        _id: employeeDays.employee._id.toString()
-                    },
-                    dateString: employeeDays.dateString
-                }
+                dateString: employeeDays.dateString
             }
-            await MDL.WarningModel.addToManyHours(toManyHoursWarningInput)
+        }
+
+        await MDL.WarningModel.addToManyHours(toManyHoursWarningInput)
+
+        //Check flags are having WARNING_TOO_MANY_HOURS or not if not then add WARNING_TOO_MANY_HOURS to flags
+        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1) {
+            releasePlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
+        }
     }
 
-    }
-    await MDL.ReleasePlanModel.update({'_id': mongoose.Types.ObjectId(releasePlan._id)}, releasePlanUpdateData).exec()
-
-
+    await releasePlan.save()
     /******************************** RELEASE UPDATES **************************************************/
 
 
-    // As task plan is added we have to increase release planned hours
+        // As task plan is added so we have to increase release planned hours
     let releaseUpdateData = {}
 
     if (releasePlan.task.initiallyEstimated) {
