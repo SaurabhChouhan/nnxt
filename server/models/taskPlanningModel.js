@@ -292,17 +292,38 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
     logger.debug('on adding planned hours for task planning check for task planning is having too many hours or not')
-    let employeeSetting = MDL.EmployeeSettingModel.findOne({})
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+
+    logger.debug("employeeSetting", {bk1: employeeSetting})
+    logger.debug("employeeSetting.maxPlannedHours", {bk2: employeeSetting.maxPlannedHours})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
-    let employeeDays = MDL.EmployeeDaysModel.findOne({"date": momentPlanningDate})
+    let employeeDays = await MDL.EmployeeDaysModel.findOne({
+        "date": momentPlanningDate,
+        "employee._id": mongoose.Types.ObjectId(selectedDeveloper._id)
+    })
+
+    logger.debug("employeeDays", {bk3: employeeDays})
 
     if (numberPlannedHours > maxPlannedHoursNumber || employeeDays.plannedHours > maxPlannedHoursNumber) {
+        logger.debug('inside warning ')
         if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
             // Science check release plan flags is already having warning too many hours
-            await MDL.WarningModel.addToManyHours(employeeDays, taskPlanning, releasePlan, release)
+            logger.debug(' already available too much hour warning')
+            await MDL.WarningModel.update({
+                "release._id": mongoose.Types.ObjectId(release._id),
+                "releasePlan._id": mongoose.Types.ObjectId(releasePlan._id)
+            }, {
+                $push: {
+                    "taskPlans": {
+                        _id: taskPlanning._id,
+                        source: true
+                    }
+                }
+            }, {multi: true}).exec()
 
         } else {
             // Science release plan flags is not having warning too many hours so add it
+            logger.debug(' not  available too much warning in this release plan add it')
             releasePlanUpdateData['$push'] = {flags: SC.WARNING_TOO_MANY_HOURS}
             let toManyHoursWarningInput = {
                 release: {
