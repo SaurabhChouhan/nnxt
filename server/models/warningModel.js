@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
-
+import logger from '../logger'
 mongoose.Promise = global.Promise
 
 let warningSchema = mongoose.Schema({

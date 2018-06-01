@@ -339,7 +339,7 @@ class ReleasePlanList extends Component {
                                 <TableHeaderColumn width=" 20%" columnTitle dataField='task'
                                                    dataFormat={this.formatTaskName.bind(this)}>Task
                                     Name</TableHeaderColumn>
-                                <TableHeaderColumn  dataField='flags' dataFormat={this.formatFlags.bind(this)}>
+                                <TableHeaderColumn dataField='flags' dataFormat={this.formatFlags.bind(this)}>
                                     Flag</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='task'
                                                    dataFormat={this.formatEstimatedHours.bind(this)}>Estimated

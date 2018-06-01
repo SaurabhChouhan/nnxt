@@ -147,7 +147,7 @@ export const getTaskDetailsForReportFromServer = (taskID, releaseID) => {
 
 export const reportTaskToServer = (task) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/task-plans/'+task._id, {
+        return fetch('/api/reporting/task-plans/' + task._id, {
                 method: 'put',
                 credentials: 'include',
                 headers: {
@@ -167,7 +167,6 @@ export const reportTaskToServer = (task) => {
             })
     }
 }
-
 
 
 export const addCommentToServer = (comment) => {
