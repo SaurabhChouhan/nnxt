@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import * as SC from '../serverconstants'
+import * as U from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -102,7 +103,8 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
         employee: {
             _id: toManyHoursWarningInput.employeeDay.employee._id
         },
-        dateString: toManyHoursWarningInput.employeeDay.dateString
+        dateString: toManyHoursWarningInput.employeeDay.dateString,
+        date: U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString)
     }]
 
 

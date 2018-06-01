@@ -5,17 +5,24 @@ import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import _ from 'lodash'
 
-// Added prefix
+/***
+ * Added prefix
+ */
+
 let releaseRouter = new Router({
     prefix: "releases"
 })
 
-//get all releases by status and all status
+/***
+ * Get all releases and by status filtering also
+ ***/
 releaseRouter.get("/status/:status", async ctx => {
     return await MDL.ReleaseModel.getReleases(ctx.params.status, ctx.state.user)
 })
 
-//get single release detail by ID
+/***
+ * Get release details by release Id
+ ***/
 releaseRouter.get("/release/:releaseID", async ctx => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
@@ -27,23 +34,32 @@ releaseRouter.get("/release/:releaseID", async ctx => {
 })
 
 
-//get single release plan detail by ID
+/***
+ * Get release plan details by release plan Id
+ ***/
 releaseRouter.get("/:releasePlanID/release-plan", async ctx => {
     return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
 
 })
 
-//get single release plan detail by ID
+/***
+ * Get release developer team details by using release Id
+ ***/
 releaseRouter.get("/release-plan/:releasePlanID/role/developers", async ctx => {
     return await MDL.ReleasePlanModel.getReleaseDevelopersByReleasePlanID(ctx.params.releasePlanID, ctx.state.user)
 
 })
 
-//get release details for reporting
+/***
+ * Get release list in which logged in user is involved as a manager or leader or developer or non project developer
+ ***/
 releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
     return await MDL.ReleaseModel.getReleaseDetailsForReporting(ctx.params.releaseID, ctx.state.user)
 })
 
+/***
+ * Get release Plan list in which logged in user is involved as a manager or leader or developer or non project developer  by release ID and release plan status
+ ***/
 //get release plan list  by releaseID and task status
 releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", async ctx => {
 
@@ -123,10 +139,6 @@ releaseRouter.post("/employee-statistics/", async ctx => {
 
 releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await MDL.EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
-})
-
-releaseRouter.get("/:releasePlanID/releasePlan", async ctx => {
-    return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
 })
 
 export default releaseRouter

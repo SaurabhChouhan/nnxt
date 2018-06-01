@@ -132,6 +132,9 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
     }
 
+    /******************************** EMPLOYEE DAYS UPDATION **************************************************/
+
+
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
@@ -162,6 +165,9 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
         await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput, user)
     }
+
+
+    /******************************** EMPLOYEE STATISTICS UPDATE **************************************************/
 
 
     // Add or update Employee Statistics Details when task is planned
@@ -244,6 +250,10 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(EmployeeStatisticsModelInput, user)
     }
 
+
+    /******************************** RELEASE PLAN UPDATES **************************************************/
+
+
     /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well
      */
 
@@ -319,10 +329,13 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     }
 
     }
-    await MDL.ReleasePlanModel.update({'_id': mongoose.Types.ObjectId(releasePlan._id)}, releasePlanUpdateData)
+    await MDL.ReleasePlanModel.update({'_id': mongoose.Types.ObjectId(releasePlan._id)}, releasePlanUpdateData).exec()
+
+
+    /******************************** RELEASE UPDATES **************************************************/
+
 
     // As task plan is added we have to increase release planned hours
-
     let releaseUpdateData = {}
 
     if (releasePlan.task.initiallyEstimated) {
@@ -345,11 +358,14 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             releaseUpdateData['$inc']['additional.estimatedHoursPlannedTasks'] = releasePlan.task.estimatedHours
         }
     }
-
     await MDL.ReleaseModel.update(
         {'_id': mongoose.Types.ObjectId(release._id)},
         releaseUpdateData
     )
+
+
+    /******************************** TASK PLAN ADD**************************************************/
+
 
 
     taskPlanning.created = Date.now()
