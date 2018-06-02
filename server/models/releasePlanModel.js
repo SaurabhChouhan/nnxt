@@ -60,6 +60,8 @@ let releasePlanSchema = mongoose.Schema({
     }],
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
+}, {
+    usePushEach: true
 })
 
 releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimationTask) => {
