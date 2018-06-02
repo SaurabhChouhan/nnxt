@@ -847,9 +847,10 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     /** If task is reported as pending on last date of its planning add pending on end date warning **/
     if (reportedMoment.isSame(releasePlan.planning.maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
         logger.info('Task is reported as pending on last planning date raise appropriate warning ')
-        warnings.push(await MDL.WarningModel.addPendingOnEndDate(releasePlan, taskPlan))
+        warnings.push(await MDL.WarningModel.taskReportedAsPendingOnEndDate(taskPlan))
+
         if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
-            // remove flag and associated warning
+            // Add flag as not already present
             logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
             releasePlanUpdateData['$push'] = {flags: SC.WARNING_PENDING_ON_END_DATE}
             // Add this flag to task plan as well
@@ -867,7 +868,6 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }
 
     if (!reReport) {
-
         // Increment task counts that are reported
         releasePlanUpdateData['$inc']['report.reportedTaskCounts'] = 1
 
