@@ -265,6 +265,24 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         releasePlan.planning.minPlanningDate = momentPlanningDate.toDate()
     }
 
+    // Update employee planning data
+
+    if (!releasePlan.planning.employees || releasePlan.planning.employees.filter(e => {
+            return e._id.toString() == selectedEmployee._id.toString()
+        }).length == 0) {
+        logger.debug("employee ["+selectedEmployee.firstName+"] has assigned first task in this release plan")
+        // This employee has never been assigned any task for this release plan so add a new entry
+        if (!releasePlan.planning.employees)
+            releasePlan.planning.employees = []
+        releasePlan.planning.employees.push({
+            _id: selectedEmployee._id,
+            plannedHours: numberPlannedHours,
+            minPlanningDate: momentPlanningDate.toDate(),
+            maxPlanningDate: momentPlanningDate.toDate(),
+            plannedTaskCounts: 1
+        })
+    }
+
     if (!releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
         releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
     }

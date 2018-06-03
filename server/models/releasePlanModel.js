@@ -36,7 +36,7 @@ let releasePlanSchema = mongoose.Schema({
         minPlanningDate: Date, // minimum planning date for this release plan
         maxPlanningDate: Date, // maximum planning for this release plan
         plannedTaskCounts: {type: Number, default: 0},  // Number of tasks-plans against this release plan
-        employee: [{
+        employees: [{
             _id: mongoose.Schema.ObjectId,
             plannedHours: {type: Number, default: 0}, // Number of planned hours against this employee
             minPlanningDate: Date, // minimum planned date against this employee
@@ -50,7 +50,7 @@ let releasePlanSchema = mongoose.Schema({
         maxReportedDate: Date,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
         finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
-        employee: [{
+        employees: [{
             _id: mongoose.Schema.ObjectId,
             reportedHours: {type: Number, default: 0}, // Number of reported hours by employee
             minReportedDate: Date, // minimum reported date against this employee
