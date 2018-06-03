@@ -387,7 +387,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     taskPlanning.release = release
     taskPlanning.releasePlan = releasePlan
     taskPlanning.employee = Object.assign({}, selectedEmployee.toObject(), {name: selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '' + selectedEmployee.lastName ? selectedEmployee.lastName : ''})
-    taskPlanning.planning = {plannedHOurs: numberPlannedHours}
+    taskPlanning.planning = {plannedHours: numberPlannedHours}
     taskPlanning.description = releasePlan.task.description ? releasePlan.task.description : ''
     return await taskPlanning.save()
 }
@@ -521,17 +521,17 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     }
 
     //check user highest role in this release
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(taskPlanning.release._id, user)
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
     if (!userRoleInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+    if (!_.includes(SC.ROLE_LEADER, userRoleInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRoleInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
     if (!employee) {
-        throw new AppError('Developer Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
 
@@ -542,17 +542,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      */
 
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
-
     let momentPlanningDateUTC = U.momentInUTC(taskPlanning.planningDateString)
-
-    let now = new Date()
-
-    logger.debug('moment planning date india ', {dateTimeInIndia: U.formatDateTimeInTimezone(momentPlanningDateIndia.toDate(), SC.INDIAN_TIMEZONE)})
-    logger.debug('now in india ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, SC.INDIAN_TIMEZONE)})
-    logger.debug('now in newyork ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'America/New_York')})
-    logger.debug('now in utc ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'UTC')})
-
-    logger.debug('moment planning date utc ', {momentPlanningDateUTC})
 
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
