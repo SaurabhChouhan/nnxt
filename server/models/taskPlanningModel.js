@@ -266,8 +266,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     if (!releasePlan.planning || !releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
         releasePlanUpdateData['$set'] = {
-            'planning.minPlanningDate': momentPlanningDate.toDate(),
-            'planning.minPlanningDateString': taskPlanningInput.planningDate
+            'planning.minPlanningDate': momentPlanningDate.toDate()
         }
     }
 
@@ -276,7 +275,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             releasePlanUpdateData['$set'] = {}
         }
         releasePlanUpdateData['$set']['planning.maxPlanningDate'] = momentPlanningDate.toDate()
-        releasePlanUpdateData['$set']['planning.maxPlanningDateString'] = taskPlanningInput.planningDate
     }
 
     // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
@@ -626,9 +624,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         // This is last task associated with this release plan so reset min/max planning date
         releasePlanUpdateData['$unset'] = {
             'planning.minPlanningDate': 1,
-            'planning.minPlanningDateString': 1,
-            'planning.maxPlanningDate': 1,
-            'planning.maxPlanningDateString': 1
+            'planning.maxPlanningDate': 1
         }
     } else {
         if (momentPlanningDate.isSame(releasePlan.planning.minPlanningDate)) {
@@ -665,8 +661,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
                 if (results && results.length > 0) {
                     releasePlanUpdateData['$set'] = {
-                        'planning.minPlanningDate': results[0].minPlanningDate,
-                        'planning.minPlanningDateString': U.formatDateInUTC(results[0].minPlanningDate)
+                        'planning.minPlanningDate': results[0].minPlanningDate
                     }
                 }
 
@@ -705,8 +700,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
                 if (results && results.length > 0) {
                     releasePlanUpdateData['$set'] = {
-                        'planning.maxPlanningDate': results[0].maxPlanningDate,
-                        'planning.maxPlanningDateString': U.formatDateInUTC(results[0].maxPlanningDate)
+                        'planning.maxPlanningDate': results[0].maxPlanningDate
                     }
                 }
 
