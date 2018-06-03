@@ -64,18 +64,17 @@ let warningSchema = mongoose.Schema({
 
 
 warningSchema.statics.addUnplanned = async (releasePlan) => {
+    logger.debug('addUnplanned(): ', {releasePlan})
+
     // TODO: Add appropriate validation
     // unplanned warning would be raised against a single release and a single release plan
     var warning = {}
     warning.type = SC.WARNING_UNPLANNED
-    warning.releases = [{
-        _id: mongoose.Types.ObjectId(releasePlan.release._id),
-        source: true
-    }]
-    warning.releasePlans = [{
-        _id: mongoose.Types.ObjectId(releasePlan._id),
-        source: true
-    }]
+
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {name: 1, project: 1})
+    logger.debug('addUnplanned(): ', {release})
+    warning.releases = [Object.assign({}, release.toObject(), {source: true})]
+    warning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
     /*
       I have not intentionally checked for existence of warning as duplicate warning would not cause
       much problem and any such duplicate warning would be visible on UI and duplicate calls would be
