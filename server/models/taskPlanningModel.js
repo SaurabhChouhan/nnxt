@@ -561,12 +561,17 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    //check user highest role in this release
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanning.release._id))
+    if (!releasePlan) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    if (!_.includes(SC.ROLE_LEADER, userRoleInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRoleInThisRelease)) {
+
+    //check user highest role in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
+    if (!userRolesInThisRelease) {
+        throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -583,8 +588,6 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      */
 
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
-    let momentPlanningDateUTC = U.momentInUTC(taskPlanning.planningDateString)
-
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
@@ -624,42 +627,34 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     }
     await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
-    /***************** UPDATING RELEASE PLAN ***************************/
+    /********************** RELEASE PLAN UPDATES ***************************/
 
-        // As task plan is removed we have to decrease release plan planned hours as well as task counts
-    var releasePlanUpdateData = {
-            $inc: {
-                'planning.plannedHours': -numberPlannedHours,
-                'planning.plannedTaskCounts': -1
-            }
-        }
+    // reduce planned hours & task count
+    releasePlan.planning.plannedHours -= numberPlannedHours
+    releasePlan.planning.plannedTaskCounts -= 1
 
     // SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN
 
     let momentPlanningDate = new moment(taskPlanning.planningDate)
 
-    if (releasePlan.planning.plannedTaskCounts == 1) {
+    // Update common planning data
+    if (releasePlan.planning.plannedTaskCounts == 0) {
         // This is last task associated with this release plan so reset min/max planning date
-        releasePlanUpdateData['$unset'] = {
-            'planning.minPlanningDate': 1,
-            'planning.maxPlanningDate': 1
-        }
+        releasePlan.planning.minPlanningDate = undefined
+        releasePlan.planning.maxPlanningDate = undefined
     } else {
         if (momentPlanningDate.isSame(releasePlan.planning.minPlanningDate)) {
             /*
               This means a task is deleted with date same as minimum planning date, this could make changes to minimum planning date if this is the only task
               on minimum planning date
              */
-
             let otherTaskCount = await MDL.TaskPlanningModel.count({
                 'planningDate': taskPlanning.planningDate,
                 '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
                 'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
-
             if (otherTaskCount == 0) {
-
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
@@ -678,12 +673,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 )
 
                 if (results && results.length > 0) {
-                    releasePlanUpdateData['$set'] = {
-                        'planning.minPlanningDate': results[0].minPlanningDate
-                    }
+                    releasePlan.planning.minPlanningDate = results[0].minPlanningDate
                 }
-
-                logger.debug('results found as ', {results})
             }
         }
 
@@ -699,9 +690,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
-
             if (otherTaskCount == 0) {
-
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
@@ -717,15 +706,104 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                     })
 
                 if (results && results.length > 0) {
-                    releasePlanUpdateData['$set'] = {
-                        'planning.maxPlanningDate': results[0].maxPlanningDate
-                    }
+                    releasePlan.planning.maxPlanningDate = results[0].maxPlanningDate
                 }
-
                 logger.debug('results found as ', {results})
             }
         }
     }
+
+    // Update employee specific planning data
+    // As task of employee is deleted we should find employee planning index below
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() == employee._id.toString()
+    })
+
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for delete task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts -= 1
+
+    if (releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts == 0) {
+        // This is last task against this employee in this release plan so remove employee section
+        releasePlan.planning.employees[employeePlanningIdx].remove()
+    } else {
+        releasePlan.planning.employees[employeePlanningIdx].plannedHours -= numberPlannedHours
+        if (momentPlanningDate.isSame(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
+            /*
+              This means a task is deleted with date same as minimum planning date for employee, this could make changes to minimum planning date if this is the only task
+              on minimum planning date
+             */
+            let otherTaskCount = await MDL.TaskPlanningModel.count({
+                'planningDate': taskPlanning.planningDate,
+                'employee._id': employee._id,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+            })
+            logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
+            if (otherTaskCount == 0) {
+                let results = await MDL.TaskPlanningModel.aggregate(
+                    {
+                        $match: {
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'employee._id': employee._id,
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                        }
+                    },
+                    {
+                        $group: {
+                            '_id': 'taskPlanning.releasePlan._id',
+                            'minPlanningDate': {
+                                '$min': '$planningDate'
+                            }
+                        }
+                    }
+                )
+
+                if (results && results.length > 0) {
+                    releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = results[0].minPlanningDate
+                }
+            }
+        }
+
+        if (momentPlanningDate.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
+            /*
+              This means a task is deleted with date same as minimum planning date for employee, this could make changes to minimum planning date if this is the only task
+              on minimum planning date
+             */
+            let otherTaskCount = await MDL.TaskPlanningModel.count({
+                'planningDate': taskPlanning.planningDate,
+                'employee._id': employee._id,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+            })
+            logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
+            if (otherTaskCount == 0) {
+                let results = await MDL.TaskPlanningModel.aggregate(
+                    {
+                        $match: {
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'employee._id': employee._id,
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                        }
+                    },
+                    {
+                        $group: {
+                            '_id': 'taskPlanning.releasePlan._id',
+                            'maxPlanningDate': {
+                                '$max': '$planningDate'
+                            }
+                        }
+                    }
+                )
+                if (results && results.length > 0) {
+                    releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = results[0].maxPlanningDate
+                }
+            }
+        }
+    }
+
 
     /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
        be added again
@@ -733,41 +811,30 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     let warning = undefined
 
-    if (releasePlan.planning.plannedTaskCounts === 1) {
+    if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
         logger.debug('Planned hours [' + releasePlan.planning.plannedHours + '] of release plan [' + releasePlan._id + '] matches [' + numberPlannedHours + '] of removed task planning. Hence need to again add unplanned flag and warning.')
-        releasePlanUpdateData['$push'] = {flags: SC.WARNING_UNPLANNED}
+        releasePlan.flags.push(SC.WARNING_UNPLANNED)
         warning = await MDL.WarningModel.addUnplanned(releasePlan)
     }
 
-    logger.debug('deleteTaskPlanning(): ', {releasePlanUpdateData})
+    logger.debug('deleteTaskPlanning(): saving release plan ', {releasePlan})
+    await releasePlan.save()
 
-    await MDL.ReleasePlanModel.update(
-        {'_id': mongoose.Types.ObjectId(releasePlan._id)},
-        releasePlanUpdateData
-    )
+    /******************************* RELEASE UPDATES *****************************************************/
 
-    let releaseUpdateData = {
-        $inc: {
-            'initial.plannedHours': -numberPlannedHours
-        }
+    if (releasePlan.task.initiallyEstimated) {
+        release.initial.plannedHours -= numberPlannedHours
+        if (releasePlan.planning.plannedTaskCounts === 0)
+            release.initial.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
+
+    } else {
+        release.additional.plannedHours -= numberPlannedHours
+        if (releasePlan.planning.plannedTaskCounts === 0)
+            release.additional.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
     }
-
-    if (releasePlan.planning.plannedTaskCounts === 1) {
-        // As this was last task planned against release plan we have to decrement estimated hours of this release plan from overall estimatedHoursPlannedTasks
-        if (releasePlan.task.initiallyEstimated) {
-            releaseUpdateData['$inc']['initial.estimatedHoursPlannedTasks'] = -releasePlan.task.estimatedHours
-        } else {
-            releaseUpdateData['$inc']['additional.estimatedHoursPlannedTasks'] = -releasePlan.task.estimatedHours
-        }
-    }
-
-    logger.debug('deleteTaskPlanning(): ', {releaseUpdateData})
-
-    // As task plan is removed we have to decrease release planned hours
-    await MDL.ReleaseModel.update(
-        {'_id': mongoose.Types.ObjectId(releasePlan.release._id)},
-        releaseUpdateData)
+    logger.debug('deleteTaskPlanning(): saving release ', {release})
+    await release.save()
 
     let taskPlanningResponse = await TaskPlanningModel.remove({'_id': mongoose.Types.ObjectId(taskPlanning._id)})
 
