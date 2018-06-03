@@ -264,13 +264,25 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
         releasePlan.planning.minPlanningDate = momentPlanningDate.toDate()
     }
+    if (!releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
+        releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
+    }
+
 
     // Update employee planning data
 
-    if (!releasePlan.planning.employees || releasePlan.planning.employees.filter(e => {
+    let employeePlanningIdx = -1
+
+    if (releasePlan.planning.employees) {
+        employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
             return e._id.toString() == selectedEmployee._id.toString()
-        }).length == 0) {
-        logger.debug("employee ["+selectedEmployee.firstName+"] has assigned first task in this release plan")
+        })
+    }
+
+    logger.debug('employee planning: ', {employeePlanningIdx})
+
+    if (employeePlanningIdx == -1) {
+        logger.debug('employee [' + selectedEmployee.firstName + '] has assigned first task in this release plan')
         // This employee has never been assigned any task for this release plan so add a new entry
         if (!releasePlan.planning.employees)
             releasePlan.planning.employees = []
@@ -281,10 +293,19 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             maxPlanningDate: momentPlanningDate.toDate(),
             plannedTaskCounts: 1
         })
-    }
+    } else {
+        // This employee already has entry modify existing entry
+        if (momentPlanningDate.isBefore(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
+            logger.debug('employee planning entry mininmum planning date would be modified for emp')
+            releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = momentPlanningDate
+        }
 
-    if (!releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
-        releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
+        if (momentPlanningDate.isAfter(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
+            logger.debug('employee planning entry mininmum planning date would be modified for emp')
+            releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = momentPlanningDate
+        }
+        releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts += 1
+        releasePlan.planning.employees[employeePlanningIdx].plannedHours += numberPlannedHours
     }
 
     // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
@@ -295,7 +316,9 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.WarningModel.removeUnplanned(releasePlan)
     }
 
-    // creating new task plan
+    /********************************* TASK PLANNING UPDATES ************************************/
+
+        // creating new task plan
     let taskPlanning = new TaskPlanningModel()
 
     // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
