@@ -785,6 +785,15 @@ span.tag.new {
 button.taskbtn {
     background-color: #fff;
     color: #F6B841;
+    font-size: 19px;
+    float: right;
+    margin-top: -7px;
+
+}
+
+button.releasePlanTaskbtn {
+    background-color: #fff;
+    color: #F6B841;
     font-size: 22px;
     float: right;
     margin-top: -7px;
