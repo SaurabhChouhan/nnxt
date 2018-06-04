@@ -88,7 +88,7 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
      * We can create warning in the background as these unplanned warnings are not visible on project
      * award.
      */
-    MDL.WarningModel.addUnplanned(releasePlan)
+    MDL.WarningModel.addUnplanned(release,releasePlan)
 
     return releasePlan
 }

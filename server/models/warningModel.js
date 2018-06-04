@@ -64,19 +64,22 @@ let warningSchema = mongoose.Schema({
 })
 
 
-warningSchema.statics.addUnplanned = async (releasePlan) => {
+warningSchema.statics.getWarnings = async (releasePlan) => {
+    return await WarningModel.find({})
+}
+
+warningSchema.statics.addUnplanned = async (release,releasePlan) => {
     // TODO: Add appropriate validation
     // unplanned warning would be raised against a single release and a single release plan
-    var warning = {}
+    let warning = {}
     warning.type = SC.WARNING_UNPLANNED
-    warning.releases = [{
-        _id: mongoose.Types.ObjectId(releasePlan.release._id),
+    warning.releases = [Object.assign({}, release, {
  source: true
-    }]
-    warning.releasePlans = [{
-        _id: mongoose.Types.ObjectId(releasePlan._id),
+    })],
+    warning.releasePlans = [Object.assign({}, releasePlan, {
 source: true
-    }]
+    })],
+    warning.taskPlans = []
     /*
       I have not intentionally checked for existence of warning as duplicate warning would not cause
       much problem and any such duplicate warning would be visible on UI and duplicate calls would be
@@ -112,8 +115,8 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
         })
         let taskPlans = await MDL.TaskPlanningModel.find({
             'planningDate': planningDateUtc,
-            'employee._id': employeeId
-        })
+        'employee._id': employeeId
+    })
         console.log("taskPlans", taskPlans)
         //release fetch
 

@@ -123,7 +123,7 @@ class ReleaseTaskPlanningPage extends Component {
                         <div className="col-md-4 planchk">
                         </div>
                         <div className="col-md-4 planBtn">
-                            <button type="button" className="btn taskbtn"
+                            <button type="button" className="btn releasePlanTaskbtn"
                                     onClick={() => this.props.showTaskPlanningCreationForm(releasePlan)}>
                                 <i className="fa fa-plus-circle"></i>
                                 Plan Task
