@@ -63,19 +63,22 @@ let warningSchema = mongoose.Schema({
 })
 
 
-warningSchema.statics.addUnplanned = async (releasePlan) => {
+warningSchema.statics.getWarnings = async (releasePlan) => {
+    return await WarningModel.find({})
+}
+
+warningSchema.statics.addUnplanned = async (release,releasePlan) => {
     // TODO: Add appropriate validation
     // unplanned warning would be raised against a single release and a single release plan
-    var warning = {}
+    let warning = {}
     warning.type = SC.WARNING_UNPLANNED
-    warning.releases = [{
-        _id: mongoose.Types.ObjectId(releasePlan.release._id),
- source: true
-    }]
-    warning.releasePlans = [{
-        _id: mongoose.Types.ObjectId(releasePlan._id),
-source: true
-    }]
+    warning.releases = [Object.assign({}, release, {
+        source: true
+    })],
+    warning.releasePlans = [Object.assign({}, releasePlan, {
+        source: true
+    })],
+    warning.taskPlans = []
     /*
       I have not intentionally checked for existence of warning as duplicate warning would not cause
       much problem and any such duplicate warning would be visible on UI and duplicate calls would be
@@ -168,12 +171,12 @@ warningSchema.statics.taskReportedAsPendingOnEndDate = async (taskPlan) => {
             warning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
             // since this task plan was not already add we would have to see if addition of this task plan would cause new release/releaseplan against this warning
 
-        var releaseAlreadyAdded = false
-        if (warning.releases) {
-            releaseAlreadyAdded = warning.releases.filter(r => {
+            var releaseAlreadyAdded = false
+            if (warning.releases) {
+                releaseAlreadyAdded = warning.releases.filter(r => {
                     return r._id.toString() == taskPlan.release._id.toString()
-            }).length > 0
-        }
+                }).length > 0
+            }
 
             logger.debug('taskReportedAsPendingOnEndDate(): release already added [' + releaseAlreadyAdded + ']')
             if (!releaseAlreadyAdded) {
@@ -182,12 +185,12 @@ warningSchema.statics.taskReportedAsPendingOnEndDate = async (taskPlan) => {
                 warning.releases.push(Object.assign({}, release.toObject(), {source: true}))
             }
 
-        var releasePlanAlreadyAdded = false
-        if (warning.releasePlans) {
-            releasePlanAlreadyAdded = warning.releasePlans.filter(r => {
+            var releasePlanAlreadyAdded = false
+            if (warning.releasePlans) {
+                releasePlanAlreadyAdded = warning.releasePlans.filter(r => {
                     return r._id.toString() == taskPlan.releasePlan._id.toString()
-            }).length > 0
-        }
+                }).length > 0
+            }
             logger.debug('taskReportedAsPendingOnEndDate(): release plan already added [' + releasePlanAlreadyAdded + ']')
             if (!releasePlanAlreadyAdded) {
                 // As release plan not already added, fetch and add
@@ -212,7 +215,7 @@ warningSchema.statics.taskReportedAsPendingOnEndDate = async (taskPlan) => {
         logger.debug('taskReportedAsPendingOnEndDate():  creating warning ', {warning})
         return await WarningModel.create(warning)
     }
-        }
+}
 
 /**
  * Task reported as completed see what warning changes can be made
