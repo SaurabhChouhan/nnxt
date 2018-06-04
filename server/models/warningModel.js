@@ -3,6 +3,7 @@ import * as SC from '../serverconstants'
 import * as U from '../utils'
 import logger from '../logger'
 import * as MDL from '../models'
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -87,41 +88,70 @@ source: true
 
 warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
     // TODO: Add appropriate validation
-    let dateUtc = U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString)
+    //  logger.debug('toManyHoursWarning: taskplan ', {taskPlan})
+    /**
+     * It is possible that this warning is raised earlier as well like when task is reported as pending again on end date by other developer or same developer
+     * Check to see if release plan of this task already has this warning raised
+     */
+    let planningDateUtc = U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString)
     let employeeId = toManyHoursWarningInput.employeeDay.employee._id
-    let taskPlanning = toManyHoursWarningInput.taskPlan._id
+    let taskPlanningID = toManyHoursWarningInput.taskPlan._id
 
-    /*
-    * let warning = await WarningModel.findOne({
+    let warning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDay.date': dateUtc,
+        'employeeDay.date': {$gte: new Date("2018-06-4"), $lte: new Date("2018-06-8")},
         'employeeDay.employee_id': employeeId
     })
-
-    logger.debug('Existing warning to many hours ', {warning})
-    let taskPlannings = await MDL.TaskPlanningModel.find({
-        'planningDate': dateUtc,
-        'employee._id': employeeId
-    })
-    let taskPlans = taskPlannings && taskPlannings.length ? taskPlannings.map()
     if (warning) {
-        warning = warning.toObject()
-        let releaseAlreadyAdded = false
-        if (warning.releases && Array.isArray(warning.releases) && warning.releases.length && warning.toObject().releases.indexOf((r) => {
-                return r._id == toManyHoursWarningInput.release._id
-            }) == -1) {
-            warning.releases.push({_id: toManyHoursWarningInput.release._id})
+
+    } else {
+
+        let employeeDays = await MDL.EmployeeDaysModel.find({
+            'date': planningDateUtc,
+            'employee_id': employeeId
+        })
+        let taskPlans = await MDL.TaskPlanningModel.find({
+            'planningDate': planningDateUtc,
+            'employee._id': employeeId
+        })
+        console.log("taskPlans", taskPlans)
+        //release fetch
+
+        let uniqueTaskPlansByReleases = _.uniqBy(taskPlans, 'release._id')
+        console.log("uniqueTaskPlansByReleases", uniqueTaskPlansByReleases)
+        let releasesPromises = uniqueTaskPlansByReleases.map(async taskPlan => {
+            let release = await MDL.ReleaseModel.findById(taskPlan.release._id)
+
+            return Object.assign({}, release, {
+                source: true
+            })
+        })
+        let releases = await Promise.all(releasesPromises)
+        console.log("releases", releases)
+
+        //release plan fetch
+
+        let uniqueTaskPlansByReleasePlans = _.uniqBy(taskPlans, 'releasePlan._id')
+        console.log("uniqueTaskPlansByReleasePlans", uniqueTaskPlansByReleasePlans)
+        let releasePlansPromises = uniqueTaskPlansByReleases.map(async taskPlan => {
+            let releasePlan = MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+            return Object.assign({}, releasePlan, {
+                source: true
+            })
+        })
+        let releasePlans = await Promise.all(releasePlansPromises)
+        console.log("releasesPlans", releasePlans)
+        warning = {
+            type: SC.WARNING_TOO_MANY_HOURS,
+            taskPlans: taskPlans,
+            releasePlans: releasePlans,
+            releases: releases,
+            employeeDays: employeeDays
         }
 
-        if (warning.releasePlans && Array.isArray(warning.releasePlans) && warning.releasePlans.length && warning.toObject().releasePlans.indexOf((r) => {
-                return r._id == toManyHoursWarningInput.releasePlan._id
-            }) == -1) {
-            warning.releasePlans.push({_id: toManyHoursWarningInput.releasePlan._id})
+        return await WarningModel.create(warning)
     }
-        return await warning.save()
-    } else {
-        return await WarningModel.create(toManyHoursWarningInput)
-}*/
+
 }
 
 
