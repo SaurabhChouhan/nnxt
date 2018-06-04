@@ -1837,3 +1837,92 @@ db.taskplannings.aggregate([{
     }
 }])
 */
+/*
+db.taskplannings.aggregate([{
+    $match: {
+        $expr: {
+            $and: [
+                {$eq: ["planningDate", new Date("2018-06-04")]}
+            ]
+        }
+    }
+}, {
+    $lookup: {
+        from: 'releases',
+        let: {releaseID: "$_id"},
+        pipeline: [{
+            $match: {
+                $expr: {
+                    $and: [
+                        {$eq: ["$release._id", "$$releaseID"]}
+                    ]
+                }
+            }
+        }, {
+            $group: {
+                _id: "$$releaseID",
+                project: {$first: "$project"},
+            }
+        }],
+        as: 'release'
+    }
+}])
+*/
+/*
+db.taskplannings.aggregate([{
+    $match: {$and: [
+                {"planningDate":{$eq:{new Date("2018-06-04")}}}
+            ]
+    }
+}])
+*//*
+db.taskplannings.aggregate([{
+    $match: {
+        $expr: {
+            $and: [
+                {$eq: ["$planningDate", new Date("2018-06-04")]}
+            ]
+        }
+    }
+}])*/
+/**/
+/*
+* db.taskplannings.aggregate([{
+    $match: {
+        $expr: {
+            $and: [
+                {$eq: ["$planningDate", new Date("2018-06-04")]}
+            ]
+        }
+    },
+}])*/
+/*
+* db.taskplannings.aggregate([{
+    $match: {
+        $expr: {
+            $and: [
+                {$eq: ["$planningDate", new Date("2018-06-04")]}
+            ]
+        }
+    },
+},{
+    $lookup: {
+        from: 'releases',
+        let: {releaseID: "$_id"},
+        pipeline: [{
+            $match: {
+                $expr: {
+                    $and: [
+                        {$eq: ["$release._id", "$$releaseID"]}
+                    ]
+                }
+            }
+        }, {
+            $group: {
+                _id: "$$releaseID",
+                project: {$first: "$$releaseID"},
+            }
+        }],
+        as: 'release'
+    }
+}])*/
