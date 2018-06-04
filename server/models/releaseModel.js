@@ -76,6 +76,8 @@ let releaseSchema = mongoose.Schema({
     },
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
+}, {
+    usePushEach: true
 })
 
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
