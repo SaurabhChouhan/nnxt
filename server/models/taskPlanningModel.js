@@ -84,63 +84,67 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         throw new AppError('Release Plan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    //check user highest role in this release
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
+    // Get all roles user have in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    logger.debug('user roles ', {userRolesInThisRelease})
+
+    if (!userRolesInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    let selectedDeveloper = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
-    if (!selectedDeveloper) {
-        throw new AppError('Developer Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanningInput.employee._id)).exec()
+    if (!selectedEmployee) {
+        throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
+    let momentPlanningDate = U.momentInUTC(taskPlanningInput.planningDate)
+   
 
-    let momentPlanningDate = momentTZ.tz(taskPlanningInput.planningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    /* Conversion of planned hours in number format */
+  /* Conversion of planned hours in number format */
     let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
     if (numberPlannedHours <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-    /* checking that developer is part of project or not*/
-    if (taskPlanningInput && !taskPlanningInput.projectUsersOnly) {
 
-        /* if developer is not part of project  then it is added in non Project team of release*/
+    // Get employee roles in this project that this task is planned against
+    let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
-        /*
-           [saurabh-review] - Manager/Leader would not be developer of a release until they were added as part of team so I don't think we need to check
-           employee id against manager or leader id.
+    logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
+    if (!employeeRolesInThisRelease || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
+        /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
+           or manager/leader of this release are now working on this task and hence became ad developer of this release
          */
-        if (await MDL.ReleaseModel.count({
-                '_id': release._id,
-                $or: [{'manager._id': taskPlanningInput.employee._id},
-                    {'leader._id': taskPlanningInput.employee._id},
-                    {'team._id': taskPlanningInput.employee._id},
-                    {'nonProjectTeam._id': taskPlanningInput.employee._id}]
-            }) <= 0) {
-            /* Checking that user who is not  a developer of this project is assigned to a task plan ,so add that user to the project as a nonProjectTeam */
-            let nonProjectUser = {
-                '_id': selectedDeveloper._id.toString(),
-                'name': selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName,
-                'email': selectedDeveloper.email,
+
+        // Only manager is allowed to rope in people outside of developer team assigned to this release so check if logged in user is manager
+        if (!_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+            throw new AppError('Only manager of release can rope in additional employee for Release', EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE, EC.HTTP_FORBIDDEN)
             }
-            await MDL.ReleaseModel.update({
-                '_id': mongoose.Types.ObjectId(release._id)
-            }, {$push: {'nonProjectTeam': nonProjectUser}}).exec()
+
+        // See if this employee is already roped in for this project if not add it as a non project user
+
+        if (!employeeRolesInThisRelease || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
+            // this is an extra employee note down
+            if (!release.nonProjectTeam)
+                release.nonProjectTeam = []
+
+            release.nonProjectTeam.push({
+                '_id': selectedEmployee._id.toString(),
+                'name': selectedEmployee.firstName + ' ' + selectedEmployee.lastName,
+                'email': selectedEmployee.email,
+            })
         }
     }
 
     /******************************** EMPLOYEE DAYS UPDATE **************************************************/
 
-
-    /* Add or update employee days details when task is planned */
-    /* Check the details of already added employees days is available or not */
+    // Add or update employee days details when task is planned
+    // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': selectedDeveloper._id.toString(),
+            'employee._id': selectedEmployee._id.toString(),
             'date': momentPlanningDate
         }) > 0) {
 
@@ -148,8 +152,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         let EmployeeDaysModelInput = {
             plannedHours: numberPlannedHours,
             employee: {
-                _id: selectedDeveloper._id.toString(),
-                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+                _id: selectedEmployee._id.toString(),
+                name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName
             },
             dateString: taskPlanningInput.planningDate,
         }
@@ -159,8 +163,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         /*  Add employee days details with planned hour  if not added */
         let EmployeeDaysModelInput = {
             employee: {
-                _id: selectedDeveloper._id.toString(),
-                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+                _id: selectedEmployee._id.toString(),
+                name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName
             },
             plannedHours: numberPlannedHours,
             dateString: taskPlanningInput.planningDate,
@@ -175,9 +179,10 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(selectedDeveloper._id),
+            'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
             'release._id': mongoose.Types.ObjectId(release._id),
             'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+
         }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
@@ -187,8 +192,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 version: release.name
             },
             employee: {
-                _id: selectedDeveloper._id.toString(),
-                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+                _id: selectedEmployee._id.toString(),
+                name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName
             },
             task: {
                 _id: releasePlan._id.toString(),
@@ -201,7 +206,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(selectedDeveloper._id),
+            'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
             'release._id': mongoose.Types.ObjectId(release._id)
         }) > 0) {
 
@@ -212,8 +217,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 version: release.name
             },
             employee: {
-                _id: selectedDeveloper._id.toString(),
-                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+                _id: selectedEmployee._id.toString(),
+                name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName
             },
             task: {
                 _id: releasePlan._id.toString(),
@@ -234,8 +239,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 version: release.name
             },
             employee: {
-                _id: selectedDeveloper._id.toString(),
-                name: selectedDeveloper.firstName + ' ' + selectedDeveloper.lastName
+                _id: selectedEmployee._id.toString(),
+                name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName
             },
             leaves: [],
             tasks: [
@@ -257,52 +262,115 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well
      */
+    releasePlan.planning.plannedHours += numberPlannedHours
+    releasePlan.planning.plannedTaskCounts += 1
 
-    releasePlan.planning = Object.assign({}, releasePlan.planning, {
-        plannedHours: releasePlan.planning.plannedHours + numberPlannedHours,
-        plannedTaskCounts: releasePlan.planning.plannedTaskCounts + 1
-    })
-
-    if (!releasePlan.planning || !releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
-        releasePlan.planning = Object.assign({}, releasePlan.planning, {
-            minPlanningDate: momentPlanningDate.toDate(),
-            minPlanningDateString: taskPlanningInput.planningDate
-        })
+    if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
+        releasePlan.planning.minPlanningDate = momentPlanningDate.toDate()
+        }
+    if (!releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
+        releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
     }
 
-    if (!releasePlan.planning || !releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
-        releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
-        releasePlan.planning.maxPlanningDateString = taskPlanningInput.planningDate
+
+    // Update employee planning data
+
+    let employeePlanningIdx = -1
+
+    if (releasePlan.planning.employees) {
+        employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+            return e._id.toString() == selectedEmployee._id.toString()
+        })
+        }
+
+    logger.debug('employee planning: ', {employeePlanningIdx})
+
+    if (employeePlanningIdx == -1) {
+        logger.debug('employee [' + selectedEmployee.firstName + '] has assigned first task in this release plan')
+        // This employee has never been assigned any task for this release plan so add a new entry
+        if (!releasePlan.planning.employees)
+            releasePlan.planning.employees = []
+        releasePlan.planning.employees.push({
+            _id: selectedEmployee._id,
+            plannedHours: numberPlannedHours,
+            minPlanningDate: momentPlanningDate.toDate(),
+            maxPlanningDate: momentPlanningDate.toDate(),
+            plannedTaskCounts: 1
+        })
+    } else {
+        // This employee already has entry modify existing entry
+        if (momentPlanningDate.isBefore(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
+            logger.debug('employee planning entry mininmum planning date would be modified for emp')
+            releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = momentPlanningDate
+    }
+
+        if (momentPlanningDate.isAfter(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
+            logger.debug('employee planning entry mininmum planning date would be modified for emp')
+            releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = momentPlanningDate
+        }
+        releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts += 1
+        releasePlan.planning.employees[employeePlanningIdx].plannedHours += numberPlannedHours
     }
 
     // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
     if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) > -1) {
         // remove flag and associated warning
-        logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
-        releasePlan.flags = releasePlan.flags && Array.isArray(releasePlan.flags) && releasePlan.flags.length ? releasePlan.flags.filter(flag => flag != SC.WARNING_UNPLANNED) : []
+        logger.debug('addTaskPlanning(): Removing [' + SC.WARNING_UNPLANNED + '] flag from this release plan')
+        releasePlan.flags.pull(SC.WARNING_UNPLANNED)
         await MDL.WarningModel.removeUnplanned(releasePlan)
     }
 
-    // Creating new task and to use task plan Id before save
+    /********************************* TASK PLANNING UPDATES ************************************/
+
+    // creating new task plan
     let taskPlanning = new TaskPlanningModel()
 
-
-    /******************************** TOO MANY HOURS FLAG WARNING UPDATE **************************************************/
-
-
     // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
+    logger.debug('on adding planned hours for task planning check for task planning is having too many hours or not')
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
 
-    logger.debug("employeeSetting", {bk1: employeeSetting})
-    logger.debug("employeeSetting.maxPlannedHours", {bk2: employeeSetting.maxPlannedHours})
+    logger.debug('employeeSetting', {bk1: employeeSetting})
+    logger.debug('employeeSetting.maxPlannedHours', {bk2: employeeSetting.maxPlannedHours})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
     let employeeDays = await MDL.EmployeeDaysModel.findOne({
-        "date": momentPlanningDate,
-        "employee._id": mongoose.Types.ObjectId(selectedDeveloper._id)
+        'date': momentPlanningDate,
+        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id)
     })
 
+    logger.debug('employeeDays', {bk3: employeeDays})
+
     if (numberPlannedHours > maxPlannedHoursNumber || employeeDays.plannedHours > maxPlannedHoursNumber) {
-        // task planning of employee of that day is more than maximum planned hours
+        logger.debug('inside warning ')
+        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
+            // Since release plan already has too many hours flag update that warning
+
+            /**
+             * [saurabh-review] - Please add a method in Warning modeal and call it from here rather than calling update directly from here
+             */
+            logger.debug(' already available too much hour warning')
+            await MDL.WarningModel.update({
+                'release._id': mongoose.Types.ObjectId(release._id),
+                'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id)
+            }, {
+                $push: {
+                    'taskPlans': {
+                        _id: taskPlanning._id,
+                        source: true
+                    }
+                }
+            }, {multi: true}).exec()
+
+        } else {
+            // Since release plan flags is not having warning too many hours so add it
+            logger.debug(' addTaskPlanning(): adding [' + SC.WARNING_TOO_MANY_HOURS + '] to release plan')
+            if (!releasePlan.flags)
+                releasePlan.flags = []
+
+            releasePlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
+
+            /**
+             * [saurabh-review]: Please only send task plan to addToomanyHours method and then do all these things you did below in that method
+             */
             let toManyHoursWarningInput = {
                 release: {
                     _id: release._id.toString(),
@@ -324,67 +392,48 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                     dateString: employeeDays.dateString
                 }
             }
-
             await MDL.WarningModel.addToManyHours(toManyHoursWarningInput)
+        }
 
-        //Check flags are having WARNING_TOO_MANY_HOURS or not if not then add WARNING_TOO_MANY_HOURS to flags
-        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1) {
-            releasePlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
-    }
-    }
+        }
 
+    logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
     await releasePlan.save()
+
+
     /******************************** RELEASE UPDATES **************************************************/
 
 
-    /* Increase release planned hours as task plan is added  */
-    let releaseUpdateData = {}
-
+        // As task plan is added we have to increase release planned hours
     if (releasePlan.task.initiallyEstimated) {
-        /* Increase release planned hours in initials as task plan is added */
-        releaseUpdateData['$inc'] = {
-            'initial.plannedHours': numberPlannedHours
-        }
-
-        if (releasePlan.planning.plannedTaskCounts == 0) {
-            /* Add estimated Hours planned task when first task-plan is added  to this release plan   */
-            releaseUpdateData['$inc']['initial.estimatedHoursPlannedTasks'] = releasePlan.task.estimatedHours
+        // this task was part of initial estimation so need to add data under initial object
+        release.initial.plannedHours += numberPlannedHours
+        if (releasePlan.planning.plannedTaskCounts == 1) {
+            // this means that this is the first task-plan added against this release plan hence we can add estimated Hours planned task here
+            release.initial.estimatedHoursPlannedTasks += releasePlan.task.estimatedHours
         }
     } else {
-        releaseUpdateData['$inc'] = {
-            'additional.plannedHours': numberPlannedHours
-        }
-
-        if (releasePlan.planning.plannedTaskCounts == 0) {
-            /* Add estimated Hours planned task when first task-plan is added  to this  release plan   */
-            releaseUpdateData['$inc']['additional.estimatedHoursPlannedTasks'] = releasePlan.task.estimatedHours
+        release.additional.plannedHours += numberPlannedHours
+        if (releasePlan.planning.plannedTaskCounts == 1) {
+            // this means that this is the first task-plan added against this release plan hence we can add estimated Hours planned task here
+            release.additional.estimatedHoursPlannedTasks += releasePlan.task.estimatedHours
         }
     }
-    await MDL.ReleaseModel.update(
-        {'_id': mongoose.Types.ObjectId(release._id)},
-        releaseUpdateData
-    )
+
+    logger.debug('addTaskPlanning(): adding release ', {release})
+    await release.save()
 
 
     /******************************** TASK PLAN ADD **************************************************/
-
-
-
     taskPlanning.created = Date.now()
     taskPlanning.planningDate = momentPlanningDate
     taskPlanning.planningDateString = taskPlanningInput.planningDate
-    taskPlanning.task = taskPlanningInput.task
-    taskPlanning.release = taskPlanningInput.release
-    taskPlanning.releasePlan = taskPlanningInput.releasePlan
-    taskPlanning.employee = taskPlanningInput.employee
-    taskPlanning.planning = taskPlanningInput.planning
-    taskPlanning.report = taskPlanningInput.report
-    taskPlanning.description = taskPlanningInput.description ? taskPlanningInput.description : ''
-    taskPlanning.user = {
-        _id: user._id,
-        name: user.firstName + ' ' + user.lastName,
-        role: userRoleInThisRelease
-    }
+    taskPlanning.task = releasePlan.task
+    taskPlanning.release = release
+    taskPlanning.releasePlan = releasePlan
+    taskPlanning.employee = Object.assign({}, selectedEmployee.toObject(), {name: selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '' + selectedEmployee.lastName ? selectedEmployee.lastName : ''})
+    taskPlanning.planning = {plannedHours: numberPlannedHours}
+    taskPlanning.description = releasePlan.task.description ? releasePlan.task.description : ''
     return await taskPlanning.save()
 }
 
@@ -526,18 +575,23 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    /* check user highest role in this release */
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(taskPlanning.release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanning.release._id))
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+
+    //check user highest role in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
+    if (!userRolesInThisRelease) {
+        throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
     if (!employee) {
-        throw new AppError('Developer Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
 
@@ -548,19 +602,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      */
 
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
-
-    let momentPlanningDateUTC = U.momentInUTC(taskPlanning.planningDateString)
-
-    let now = new Date()
-
-    logger.debug('moment planning date india ', {dateTimeInIndia: U.formatDateTimeInTimezone(momentPlanningDateIndia.toDate(), SC.INDIAN_TIMEZONE)})
-    logger.debug('now in india ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, SC.INDIAN_TIMEZONE)})
-    logger.debug('now in newyork ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'America/New_York')})
-    logger.debug('now in utc ', {dateTimeInIndia: U.formatDateTimeInTimezone(now, 'UTC')})
-
-    logger.debug('moment planning date utc ', {momentPlanningDateUTC})
-
-    /* add 1 day to this date */
+    // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
     logger.debug('moment planning date india ', {momentPlanningDateIndia})
@@ -599,44 +641,34 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     }
     await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
-    /***************** UPDATING RELEASE PLAN ***************************/
+    /********************** RELEASE PLAN UPDATES ***************************/
 
-    /* when task plan is removed we have to decrease release plan planned hours as well as task counts */
-    var releasePlanUpdateData = {
-            $inc: {
-                'planning.plannedHours': -numberPlannedHours,
-                'planning.plannedTaskCounts': -1
-            }
-        }
+    // reduce planned hours & task count
+    releasePlan.planning.plannedHours -= numberPlannedHours
+    releasePlan.planning.plannedTaskCounts -= 1
 
     /* SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN */
 
     let momentPlanningDate = new moment(taskPlanning.planningDate)
 
-    if (releasePlan.planning.plannedTaskCounts == 1) {
+    // Update common planning data
+    if (releasePlan.planning.plannedTaskCounts == 0) {
         // This is last task associated with this release plan so reset min/max planning date
-        releasePlanUpdateData['$unset'] = {
-            'planning.minPlanningDate': 1,
-            'planning.minPlanningDateString': 1,
-            'planning.maxPlanningDate': 1,
-            'planning.maxPlanningDateString': 1
-        }
+        releasePlan.planning.minPlanningDate = undefined
+        releasePlan.planning.maxPlanningDate = undefined
     } else {
         if (momentPlanningDate.isSame(releasePlan.planning.minPlanningDate)) {
             /*
               This means when a task is deleted with date same as minimum planning date, this could make changes to minimum planning date ,if this is the only task
               on minimum planning date
              */
-
             let otherTaskCount = await MDL.TaskPlanningModel.count({
                 'planningDate': taskPlanning.planningDate,
                 '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
                 'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
-
             if (otherTaskCount == 0) {
-
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
@@ -655,19 +687,14 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 )
 
                 if (results && results.length > 0) {
-                    releasePlanUpdateData['$set'] = {
-                        'planning.minPlanningDate': results[0].minPlanningDate,
-                        'planning.minPlanningDateString': U.formatDateInUTC(results[0].minPlanningDate)
+                    releasePlan.planning.minPlanningDate = results[0].minPlanningDate
                     }
                 }
-
-                logger.debug('results found as ', {results})
-            }
         }
 
         if (momentPlanningDate.isSame(releasePlan.planning.maxPlanningDate)) {
             /*
-              This means when a task is deleted with date same as maximum planning date, this could make changes to maximum planning date ,if this is the only task
+              This means a task is deleted with date same as maximum planning date, this could make changes to maximum planning date if this is the only task
               on maximum planning date
              */
 
@@ -677,9 +704,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
-
             if (otherTaskCount == 0) {
-
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
@@ -695,57 +720,135 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                     })
 
                 if (results && results.length > 0) {
-                    releasePlanUpdateData['$set'] = {
-                        'planning.maxPlanningDate': results[0].maxPlanningDate,
-                        'planning.maxPlanningDateString': U.formatDateInUTC(results[0].maxPlanningDate)
-                    }
+                    releasePlan.planning.maxPlanningDate = results[0].maxPlanningDate
                 }
-
                 logger.debug('results found as ', {results})
             }
         }
     }
 
-    /* when a task plan is removed it is possible that there is no planning left for this release plan, so check that if there is a need to add again unplanned warning/flag
+    // Update employee specific planning data
+    // As task of employee is deleted we should find employee planning index below
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() == employee._id.toString()
+    })
+
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for delete task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts -= 1
+
+    if (releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts == 0) {
+        // This is last task against this employee in this release plan so remove employee section
+        releasePlan.planning.employees[employeePlanningIdx].remove()
+    } else {
+        releasePlan.planning.employees[employeePlanningIdx].plannedHours -= numberPlannedHours
+        if (momentPlanningDate.isSame(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
+            /*
+              This means a task is deleted with date same as minimum planning date for employee, this could make changes to minimum planning date if this is the only task
+              on minimum planning date
+             */
+            let otherTaskCount = await MDL.TaskPlanningModel.count({
+                'planningDate': taskPlanning.planningDate,
+                'employee._id': employee._id,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+            })
+            logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
+            if (otherTaskCount == 0) {
+                let results = await MDL.TaskPlanningModel.aggregate(
+                    {
+                        $match: {
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'employee._id': employee._id,
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                        }
+                    },
+                    {
+                        $group: {
+                            '_id': 'taskPlanning.releasePlan._id',
+                            'minPlanningDate': {
+                                '$min': '$planningDate'
+                            }
+                        }
+                    }
+                )
+
+                if (results && results.length > 0) {
+                    releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = results[0].minPlanningDate
+                }
+                    }
+                }
+
+        if (momentPlanningDate.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
+            /*
+              This means a task is deleted with date same as minimum planning date for employee, this could make changes to minimum planning date if this is the only task
+              on minimum planning date
+             */
+            let otherTaskCount = await MDL.TaskPlanningModel.count({
+                'planningDate': taskPlanning.planningDate,
+                'employee._id': employee._id,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+            })
+            logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
+            if (otherTaskCount == 0) {
+                let results = await MDL.TaskPlanningModel.aggregate(
+                    {
+                        $match: {
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'employee._id': employee._id,
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                        }
+                    },
+                    {
+                        $group: {
+                            '_id': 'taskPlanning.releasePlan._id',
+                            'maxPlanningDate': {
+                                '$max': '$planningDate'
+                            }
+                        }
+                    }
+                )
+                if (results && results.length > 0) {
+                    releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = results[0].maxPlanningDate
+                }
+            }
+        }
+    }
+
+
+    /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
+       be added again
      */
 
     let warning = undefined
 
-    if (releasePlan.planning.plannedTaskCounts === 1) {
+    if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
         logger.debug('Planned hours [' + releasePlan.planning.plannedHours + '] of release plan [' + releasePlan._id + '] matches [' + numberPlannedHours + '] of removed task planning. Hence need to again add unplanned flag and warning.')
-        releasePlanUpdateData['$push'] = {flags: SC.WARNING_UNPLANNED}
+        releasePlan.flags.push(SC.WARNING_UNPLANNED)
         warning = await MDL.WarningModel.addUnplanned(releasePlan)
     }
 
-    logger.debug('deleteTaskPlanning(): ', {releasePlanUpdateData})
+    logger.debug('deleteTaskPlanning(): saving release plan ', {releasePlan})
+    await releasePlan.save()
 
-    await MDL.ReleasePlanModel.update(
-        {'_id': mongoose.Types.ObjectId(releasePlan._id)},
-        releasePlanUpdateData
-    )
+    /******************************* RELEASE UPDATES *****************************************************/
 
-    let releaseUpdateData = {
-        $inc: {
-            'initial.plannedHours': -numberPlannedHours
-        }
-    }
+    if (releasePlan.task.initiallyEstimated) {
+        release.initial.plannedHours -= numberPlannedHours
+        if (releasePlan.planning.plannedTaskCounts === 0)
+            release.initial.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
 
-    if (releasePlan.planning.plannedTaskCounts === 1) {
-        /* As this was last task planned against release plan ,we have to decrement estimated hours of this release plan from overall estimatedHoursPlannedTasks */
-        if (releasePlan.task.initiallyEstimated) {
-            releaseUpdateData['$inc']['initial.estimatedHoursPlannedTasks'] = -releasePlan.task.estimatedHours
         } else {
-            releaseUpdateData['$inc']['additional.estimatedHoursPlannedTasks'] = -releasePlan.task.estimatedHours
+        release.additional.plannedHours -= numberPlannedHours
+        if (releasePlan.planning.plannedTaskCounts === 0)
+            release.additional.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
         }
-    }
-
-    logger.debug('deleteTaskPlanning(): ', {releaseUpdateData})
-
-    /* When task plan is removed we have to decrease release planned hours */
-    await MDL.ReleaseModel.update(
-        {'_id': mongoose.Types.ObjectId(releasePlan.release._id)},
-        releaseUpdateData)
+    logger.debug('deleteTaskPlanning(): saving release ', {release})
+    await release.save()
 
     let taskPlanningResponse = await TaskPlanningModel.remove({'_id': mongoose.Types.ObjectId(taskPlanning._id)})
 
@@ -753,10 +856,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     return {warning: warning, taskPlan: taskPlanningResponse}
 }
 
-/**
- * Add task report
- **/
-taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
+
+taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     /* Get task plan */
@@ -765,7 +866,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (!taskPlan)
         throw new AppError('Reported task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (taskPlan.employee._id != user._id)
+    if (taskPlan.employee._id != employee._id)
         throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
 
@@ -791,21 +892,29 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     let reportedMoment = U.momentInUTC(taskReport.reportedDate)
     let maxReportedMoment
 
+    // Find out existing employee report data for this release plan
+
+    let employeeReportIdx = -1
+    if (releasePlan.report.employees) {
+        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+            return e._id.toString() == employee._id.toString()
+        })
+    }
+
+    if (employeeReportIdx != -1) {
     /**
-     * Now we need to check if reported status is a valid status or not. Employee cannot report status as
-     *  any status, if task was already reported as 'completed' in past
-     *  'completed' if task was already reported as 'pending' in future
-     *  'completed' if task was already reported as 'completed' in future
+         * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
+         * 'pending' or 'completed' , if task was already reported as 'completed' in past
+         * 'completed' if task was already reported as 'pending' or 'completed' in future
      */
 
-    if (releasePlan.report && releasePlan.report.minReportedDate) {
+        if (releasePlan.report.employees[employeeReportIdx].maxReportedDate) {
         // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
-        if (releasePlan.report.maxReportedDateString) {
-            maxReportedMoment = U.momentInUTC(releasePlan.report.maxReportedDateString)
+            maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
             // See if task was reported in future if so only possible status is pending
             if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status != SC.REPORT_PENDING)) {
                 throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
-            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.finalStatus == SC.REPORT_COMPLETED)
+            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus == SC.REPORT_COMPLETED)
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
         }
     }
@@ -828,26 +937,101 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
 
     /******************************** RELEASE PLAN UPDATES **************************************************/
 
-    
-    /* The reported status would become final status if reported date is same or greater than max reported date */
-    if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
-        releasePlan.report.finalStatus = taskReport.status
+    let finalStatusChanged = false
+    releasePlan.report.reportedHours += reportedHoursToIncrement
+
+    if (!reReport) {
+        // Increment task counts that are reported
+        releasePlan.report.reportedTaskCounts += 1
+
+        if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
+            releasePlan.report.minReportedDate = reportedMoment.toDate()
+        }
+
+        if (!releasePlan.report || !releasePlan.report.maxReportedDate || reportedMoment.isAfter(releasePlan.report.maxReportedDate)) {
+            releasePlan.report.maxReportedDate = reportedMoment.toDate()
+        }
     }
 
-    /** If task is reported as pending on last date of its planning add pending on end date warning **/
-    if (reportedMoment.isSame(releasePlan.planning.maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
-        logger.info('Task is reported as pending on last planning date raise appropriate warning ')
-        warnings.push(await MDL.WarningModel.taskReportedAsPendingOnEndDate(taskPlan))
+    if (employeeReportIdx == -1) {
+        // Employee has never reported task for this release plan so add entries
+        releasePlan.report.employees.push({
+            _id: employee._id,
+            reportedHours: taskReport.reportedHours,
+            minReportedDate: reportedMoment.toDate(),
+            maxReportedDate: reportedMoment.toDate(),
+            reportedTaskCounts: 1,
+            finalStatus: taskReport.status
+        })
+        finalStatusChanged = true
+    } else {
+        // The reported status would become final status of employee reporting, if reported date is same or greater than max reported date
+    if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
+            releasePlan.report.employees[employeeReportIdx].finalStatus = taskReport.status
+            finalStatusChanged = true
+        }
+
+        if (!reReport) {
+            releasePlan.report.employees[employeeReportIdx].reportedHours += taskReport.reportedHours
+            releasePlan.report.employees[employeeReportIdx].reportedTaskCounts += 1
+            if (reportedMoment.isBefore(releasePlan.report.employees[employeeReportIdx].minReportedDate)) {
+                releasePlan.report.employees[employeeReportIdx].minReportedDate = reportedMoment.toDate()
+            }
+
+            if (reportedMoment.isAfter(releasePlan.report.employees[employeeReportIdx].maxReportedDate)) {
+                releasePlan.report.employees[employeeReportIdx].maxReportedDate = reportedMoment.toDate()
+            }
+        }
+    }
+
+    if (finalStatusChanged) {
+        if (taskReport.status === SC.REPORT_PENDING) {
+            // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
+            releasePlan.report.finalStatus = SC.REPORT_PENDING
+        } else if (taskReport.status === SC.REPORT_COMPLETED) {
+            // TODO: we would have to see all employee with plannings to evaluate completion of release plan rather than relying on reporting only
+            /* this means that employee has reported its part as completed we would have to check final statuses of all other employee involved in this
+               release plan to see if there final status is completed as well
+             */
+            // check statuses of other employees to see if they are completed as well
+            let finalStatuses = releasePlan.report.employees.filter(e => e._id.toString() != taskPlan.employee._id).map(e => e.finalStatus)
+
+            logger.debug('final statuses found as ', {finalStatuses})
+            let taskPlanCompleted = true
+            finalStatuses.forEach(s => {
+                if (s == SC.REPORT_PENDING)
+                    taskPlanCompleted = false
+            })
+            if (taskPlanCompleted) {
+                releasePlan.report.finalStatus = SC.REPORT_COMPLETED
+            }
+        }
+    }
+
+    // Find this employee planning index
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() == employee._id.toString()
+    })
+
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    /**
+     * Check if employee has reported task as pending on last date of planning against this employee
+     */
+    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
+        let returnedWarnings = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
+        if (returnedWarnings) {
+            warnings.push(returnedWarnings)
+        }
 
         if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
-            /* remove flag and associate warning */
-            logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
-
+            // Add flag as not already present
             if (!releasePlan.flags)
                 releasePlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
             else
                 releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
- /* Add this flag to task plan as well */
 
             if (!taskPlan.flags)
                 taskPlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
@@ -857,14 +1041,17 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }
 
     /** If task is reported as completed, there is possibility that there are warnings that becomes resolved due to this reporting **/
+
+    /*
     if (taskReport.status == SC.REPORT_COMPLETED) {
-        // As task is marked as completed remove any pending-on-enddate warning
+
 
         if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)
             releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
 
 
         let warningsDueToCompletion = undefined
+
         if (reportedMoment.isBefore(releasePlan.planning.maxPlanningDate)) {
             // as task is repored as completed before max planning date we need to raise completed-before-enddate warning
             warningsDueToCompletion = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, true)
@@ -875,29 +1062,13 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
                     releasePlan.flags = [SC.WARNING_COMPLETED_BEFORE_END_DATE]
                 else
                     releasePlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
-    }
+            }
         } else {
             warningsDueToCompletion = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, false)
             // this would not result in warning completed before end date
         }
     }
-
-    releasePlan.report.reportedHours += reportedHoursToIncrement
-
-    if (!reReport) {
-        /* Increment task counts that are reported */
-        releasePlan.report.reportedTaskCounts += 1
-
-        if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
-            releasePlan.report.minReportedDate = reportedMoment.toDate()
-            releasePlan.report.minReportedDateString = taskReport.reportedDate
-        }
-
-        if (!releasePlan.report || !releasePlan.report.maxReportedDate || reportedMoment.isAfter(releasePlan.report.maxReportedDate)) {
-            releasePlan.report.minReportedDate = reportedMoment.toDate()
-            releasePlan.report.minReportedDateString = taskReport.reportedDate
-        }
-    }
+    */
 
     logger.debug('release plan before save ', {releasePlan})
     await releasePlan.save()
@@ -923,7 +1094,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             releaseUpdateData['$set'] = {'initial.maxReportedDate': reportedMoment.toDate()}
         }
 
-        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)){
+        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
             /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
             releaseUpdateData['$inc']['initial.estimatedHoursCompletedTasks'] = releasePlan.task.estimatedHours
         } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
@@ -943,7 +1114,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             releaseUpdateData['$set'] = {'additional.maxReportedDate': reportedMoment.toDate()}
         }
 
-        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)){
+        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
             /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
             releaseUpdateData['$inc']['additional.estimatedHoursCompletedTasks'] = releasePlan.task.estimatedHours
         } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
@@ -971,7 +1142,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
         taskPlan.report.reportedOnDate = new Date()
 
     if (taskReport.reason)
-    taskPlan.report.reasons = [taskReport.reason]
+        taskPlan.report.reasons = [taskReport.reason]
 
     taskPlan.report.reportedHours = taskReport.reportedHours
     taskPlan = await taskPlan.save()
@@ -1277,6 +1448,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
         /* Shifting starts with loop */
         let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async (PlanningDate, idx) => {
+            //
             let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
             /* calculating index of working day list where planning date and working date is same */
             let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1

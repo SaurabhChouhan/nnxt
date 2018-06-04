@@ -33,20 +33,31 @@ let releasePlanSchema = mongoose.Schema({
     }],
     planning: {
         plannedHours: {type: Number, default: 0},
-        minPlanningDate: Date,
-        maxPlanningDate: Date,
-        minPlanningDateString: String,
-        maxPlanningDateString: String, // Maximum date task-plan is planned against this release
-        plannedTaskCounts: {type: Number, default: 0}  // Number of tasks-plans against this release plan
+        minPlanningDate: Date, // minimum planning date for this release plan
+        maxPlanningDate: Date, // maximum planning for this release plan
+        plannedTaskCounts: {type: Number, default: 0},  // Number of tasks-plans against this release plan
+        employees: [{
+            _id: mongoose.Schema.ObjectId,
+            plannedHours: {type: Number, default: 0}, // Number of planned hours against this employee
+            minPlanningDate: Date, // minimum planned date against this employee
+            maxPlanningDate: Date, // maximum planned date against this employee
+            plannedTaskCounts: {type: Number, default: 0} // number of task plans against this employee
+        }]
     },
     report: {
         reportedHours: {type: Number, default: 0},
         minReportedDate: Date,
-        minReportedDateString: String,
         maxReportedDate: Date,
-        maxReportedDateString: String,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
         finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
+        employees: [{
+            _id: mongoose.Schema.ObjectId,
+            reportedHours: {type: Number, default: 0}, // Number of reported hours by employee
+            minReportedDate: Date, // minimum reported date against this employee
+            maxReportedDate: Date, // maximum reported date against this employee
+            reportedTaskCounts: {type: Number, default: 0}, // number of task reported this employee,
+            finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]} // final status reported by employee
+        }]
     },
     comments: [{
         name: {type: String, required: [true, 'Comment name is required']},
@@ -137,7 +148,7 @@ releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
 
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releasePlan.release._id.toString(), user)
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], roleInRelease)) {
-        throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "or" + SC.ROLE_DEVELOPER + "or" + SC.ROLE_NON_PROJECT_DEVELOPER + "] can see Release Plan Details", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + 'or' + SC.ROLE_DEVELOPER + 'or' + SC.ROLE_NON_PROJECT_DEVELOPER + '] can see Release Plan Details', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN
         )
     }
     releasePlan.highestRoleInThisRelease = roleInRelease
