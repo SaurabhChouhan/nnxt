@@ -92,24 +92,23 @@ warningSchema.statics.addUnplanned = async (release,releasePlan) => {
     return await WarningModel.create(warning)
 }
 
-warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
+warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, employeeDay, plannedDate) => {
     // TODO: Add appropriate validation
     //  logger.debug('toManyHoursWarning: taskplan ', {taskPlan})
     /**
      * It is possible that this warning is raised earlier as well like when task is reported as pending again on end date by other developer or same developer
      * Check to see if release plan of this task already has this warning raised
      */
-    let planningDateUtc = U.dateInUTC(toManyHoursWarningInput.employeeDay.dateString)
-    let employeeId = toManyHoursWarningInput.employeeDay.employee._id
-    let taskPlanningID = toManyHoursWarningInput.taskPlan._id
+    let planningDateUtc = U.dateInUTC(plannedDate)
+    let employeeId = employeeDay.employee._id
 
     let warning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDay.date': {$gte: new Date("2018-06-4"), $lte: new Date("2018-06-8")},
+        'employeeDay.date': planningDateUtc,
         'employeeDay.employee_id': employeeId
     })
     if (warning) {
-
+/* Update Existing warning*/
     } else {
 
         let employeeDays = await MDL.EmployeeDaysModel.find({
@@ -118,8 +117,8 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
         })
         let taskPlans = await MDL.TaskPlanningModel.find({
             'planningDate': planningDateUtc,
-        'employee._id': employeeId
-    })
+            'employee._id': employeeId
+        })
         console.log("taskPlans", taskPlans)
         //release fetch
 
@@ -129,7 +128,7 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
             let release = await MDL.ReleaseModel.findById(taskPlan.release._id)
 
             return Object.assign({}, release, {
-        source: true
+                source: true
             })
         })
         let releases = await Promise.all(releasesPromises)
@@ -141,8 +140,9 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
         console.log("uniqueTaskPlansByReleasePlans", uniqueTaskPlansByReleasePlans)
         let releasePlansPromises = uniqueTaskPlansByReleases.map(async taskPlan => {
             let releasePlan = MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+
             return Object.assign({}, releasePlan, {
-        source: true
+                source: true
             })
         })
         let releasePlans = await Promise.all(releasePlansPromises)
@@ -153,7 +153,7 @@ warningSchema.statics.addToManyHours = async (toManyHoursWarningInput) => {
             releasePlans: releasePlans,
             releases: releases,
             employeeDays: employeeDays
-    }
+        }
 
         return await WarningModel.create(warning)
     }

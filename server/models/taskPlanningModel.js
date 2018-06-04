@@ -332,70 +332,21 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     logger.debug('employeeSetting', {bk1: employeeSetting})
     logger.debug('employeeSetting.maxPlannedHours', {bk2: employeeSetting.maxPlannedHours})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
-    let employeeDays = await MDL.EmployeeDaysModel.findOne({
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
         'date': momentPlanningDate,
         'employee._id': mongoose.Types.ObjectId(selectedEmployee._id)
     })
 
-    logger.debug('employeeDays', {bk3: employeeDays})
+    logger.debug('employeeDay', {bk3: employeeDay})
 
-    if (numberPlannedHours > maxPlannedHoursNumber || employeeDays.plannedHours > maxPlannedHoursNumber) {
-        logger.debug('inside warning ')
-        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
-            // Since release plan already has too many hours flag update that warning
+    if (numberPlannedHours > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
+        await MDL.WarningModel.addToManyHours(taskPlanning, release, releasePlan, employeeDay, momentPlanningDate)
 
-            /**
-             * [saurabh-review] - Please add a method in Warning modeal and call it from here rather than calling update directly from here
-             */
-            logger.debug(' already available too much hour warning')
-            await MDL.WarningModel.update({
-                'release._id': mongoose.Types.ObjectId(release._id),
-                'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id)
-            }, {
-                $push: {
-                    'taskPlans': {
-                        _id: taskPlanning._id,
-                        source: true
-                    }
-                }
-            }, {multi: true}).exec()
-
-        } else {
-            // Since release plan flags is not having warning too many hours so add it
-            logger.debug(' addTaskPlanning(): adding [' + SC.WARNING_TOO_MANY_HOURS + '] to release plan')
-            if (!releasePlan.flags)
-                releasePlan.flags = []
-
+        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1) {
+            /*Since release plan already has too many hours flag update that warning*/
             releasePlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
-
-            /**
-             * [saurabh-review]: Please only send task plan to addToomanyHours method and then do all these things you did below in that method
-             */
-            let toManyHoursWarningInput = {
-                release: {
-                    _id: release._id.toString(),
-                    source: true
-                },
-                releasePlan: {
-                    _id: releasePlan._id.toString(),
-                    source: true
-                },
-                taskPlan: {
-                    _id: taskPlanning._id.toString(),
-                    source: true
-                },
-                employeeDay: {
-                    _id: employeeDays._id.toString(),
-                    employee: {
-                        _id: employeeDays.employee._id.toString()
-                    },
-                    dateString: employeeDays.dateString
-                }
-            }
-            await MDL.WarningModel.addToManyHours(toManyHoursWarningInput)
         }
-
-        }
+    }
 
     logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
     await releasePlan.save()
