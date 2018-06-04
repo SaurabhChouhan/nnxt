@@ -118,3 +118,6 @@ export {default as ReportingCommentForm} from './forms/ReportingCommentForm'
 export {default as ReportingDateNavBar} from './forms/ReportingDateNavBar'
 export {default as ReportingTaskPage} from './pages/ReportingTaskPage'
 export {default as ReportingTaskDetailPage} from './pages/ReportingTaskDetailPage'
+
+// Warnings
+export {default as WarningList} from './lists/WarningList'

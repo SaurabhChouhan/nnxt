@@ -107,3 +107,5 @@ export {default as ReportingTaskPageContainer} from './pages/ReportingTaskPageCo
 export {default as ReportingTaskDetailPageContainer} from './pages/ReportingTaskDetailPageContainer'
 export {default as ReportingDateNavBarContainer} from './pages/ReportingDateNavBarContainer'
 
+//Warning
+export {default as WarningListContainer} from './lists/WarningListContainer'

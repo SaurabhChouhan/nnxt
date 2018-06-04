@@ -18,15 +18,15 @@ const apiRouter = new Router({
 apiRouter.use(RR.publicRouter.routes())
 
 apiRouter.use(async (ctx, next) => {
-    if (ctx.request.query && typeof(ctx.request.query.schema) != 'undefined') {
-        // User is requesting schema for this API
-        ctx.schemaRequested = true
-        return await next()
-    } else if (isAuthenticated(ctx)) {
-        return await next()
-    } else {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, 403)
-    }
+        if (ctx.request.query && typeof(ctx.request.query.schema) != 'undefined') {
+            // User is requesting schema for this API
+            ctx.schemaRequested = true
+            return await next()
+        } else if (isAuthenticated(ctx)) {
+            return await next()
+        } else {
+            throw new AppError("Access Denied", EC.ACCESS_DENIED, 403)
+        }
     }, RR.userRouter.routes(),
     RR.permissionRouter.routes(),
     RR.roleRouter.routes(),
@@ -40,7 +40,8 @@ apiRouter.use(async (ctx, next) => {
     RR.releaseRouter.routes(),
     RR.calendarRouter.routes(),
     RR.reportingRouter.routes(),
-    RR.employeeRouter.routes()
+    RR.employeeRouter.routes(),
+    RR.warningRouter.routes()
 )
 
 export default apiRouter
