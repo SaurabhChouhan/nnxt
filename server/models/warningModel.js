@@ -187,7 +187,7 @@ warningSchema.statics.taskReportedAsPendingOnEndDate = async (taskPlan) => {
 
     if (warning) {
         var taskPlanAlreadyAdded = false
-        if (warning.taskPlans) {
+        if (warning.taskPlans && Array.isArray(warning.taskPlans) && warning.taskPlans.length) {
             taskPlanAlreadyAdded = warning.taskPlans.filter(t => {
                 return t._id.toString() == taskPlan._id.toString()
             }).length > 0
@@ -199,7 +199,7 @@ warningSchema.statics.taskReportedAsPendingOnEndDate = async (taskPlan) => {
             // since this task plan was not already add we would have to see if addition of this task plan would cause new release/releaseplan against this warning
 
         var releaseAlreadyAdded = false
-        if (warning.releases) {
+            if (warning.releases && Array.isArray(warning.releases) && warning.releases.length) {
             releaseAlreadyAdded = warning.releases.filter(r => {
                     return r._id.toString() == taskPlan.release._id.toString()
             }).length > 0
@@ -213,7 +213,7 @@ warningSchema.statics.taskReportedAsPendingOnEndDate = async (taskPlan) => {
             }
 
         var releasePlanAlreadyAdded = false
-        if (warning.releasePlans) {
+            if (warning.releasePlans && Array.isArray(warning.releasePlans) && warning.releasePlans.length) {
             releasePlanAlreadyAdded = warning.releasePlans.filter(r => {
                     return r._id.toString() == taskPlan.releasePlan._id.toString()
             }).length > 0
