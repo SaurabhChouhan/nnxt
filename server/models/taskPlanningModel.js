@@ -843,7 +843,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 }
 
 
-taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
+taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     // Get task plan
@@ -852,7 +852,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     if (!taskPlan)
         throw new AppError('Reported task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (taskPlan.employee._id != user._id)
+    if (taskPlan.employee._id != employee._id)
         throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
 
@@ -878,25 +878,32 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     let reportedMoment = U.momentInUTC(taskReport.reportedDate)
     let maxReportedMoment
 
-    /**
-     * Now we need to check if reported status is a valid status or not. Employee cannot report status as
-     *  any status, if task was already reported as 'completed' in past
-     *  'completed' if task was already reported as 'pending' in future
-     *  'completed' if task was already reported as 'completed' in future
-     */
+    // Find out existing employee report data for this release plan
 
-    if (releasePlan.report && releasePlan.report.minReportedDate) {
-        // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
-        if (releasePlan.report.maxReportedDateString) {
-            maxReportedMoment = U.momentInUTC(releasePlan.report.maxReportedDateString)
+    let employeeReportIdx = -1
+    if (releasePlan.report.employees) {
+        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+            return e._id.toString() == employee._id.toString()
+        })
+    }
+
+    if (employeeReportIdx != -1) {
+        /**
+         * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
+         * 'pending' or 'completed' , if task was already reported as 'completed' in past
+         * 'completed' if task was already reported as 'pending' or 'completed' in future
+         */
+
+        if (releasePlan.report.employees[employeeReportIdx].maxReportedDate) {
+            // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
+            maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
             // See if task was reported in future if so only possible status is pending
             if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status != SC.REPORT_PENDING)) {
                 throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
-            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.finalStatus == SC.REPORT_COMPLETED)
+            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus == SC.REPORT_COMPLETED)
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
         }
     }
-
     // In case this is re-reporting this diff reported hours would help in adjusting statistics
     let reportedHoursToIncrement = 0
 
@@ -915,20 +922,97 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
 
     /******************************** RELEASE PLAN UPDATES **************************************************/
 
-    // The reported status would become final status if reported date is same or greater than max reported date
-    if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
-        releasePlan.report.finalStatus = taskReport.status
+    let finalStatusChanged = false
+    releasePlan.report.reportedHours += reportedHoursToIncrement
+
+    if (!reReport) {
+        // Increment task counts that are reported
+        releasePlan.report.reportedTaskCounts += 1
+
+        if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
+            releasePlan.report.minReportedDate = reportedMoment.toDate()
+        }
+
+        if (!releasePlan.report || !releasePlan.report.maxReportedDate || reportedMoment.isAfter(releasePlan.report.maxReportedDate)) {
+            releasePlan.report.maxReportedDate = reportedMoment.toDate()
+        }
     }
 
-    /** If task is reported as pending on last date of its planning add pending on end date warning **/
-    if (reportedMoment.isSame(releasePlan.planning.maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
-        logger.info('Task is reported as pending on last planning date raise appropriate warning ')
-        warnings.push(await MDL.WarningModel.taskReportedAsPendingOnEndDate(taskPlan))
+    if (employeeReportIdx == -1) {
+        // Employee has never reported task for this release plan so add entries
+        releasePlan.report.employees.push({
+            _id: employee._id,
+            reportedHours: taskReport.reportedHours,
+            minReportedDate: reportedMoment.toDate(),
+            maxReportedDate: reportedMoment.toDate(),
+            reportedTaskCounts: 1,
+            finalStatus: taskReport.status
+        })
+        finalStatusChanged = true
+    } else {
+        // The reported status would become final status of employee reporting, if reported date is same or greater than max reported date
+        if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
+            releasePlan.report.employees[employeeReportIdx].finalStatus = taskReport.status
+            finalStatusChanged = true
+        }
+
+        if (!reReport) {
+            releasePlan.report.employees[employeeReportIdx].reportedHours += taskReport.reportedHours
+            releasePlan.report.employees[employeeReportIdx].reportedTaskCounts += 1
+            if (reportedMoment.isBefore(releasePlan.report.employees[employeeReportIdx].minReportedDate)) {
+                releasePlan.report.employees[employeeReportIdx].minReportedDate = reportedMoment.toDate()
+            }
+
+            if (reportedMoment.isAfter(releasePlan.report.employees[employeeReportIdx].maxReportedDate)) {
+                releasePlan.report.employees[employeeReportIdx].maxReportedDate = reportedMoment.toDate()
+            }
+        }
+    }
+
+    if (finalStatusChanged) {
+        if (taskReport.status === SC.REPORT_PENDING) {
+            // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
+            releasePlan.report.finalStatus = SC.REPORT_PENDING
+        } else if (taskReport.status === SC.REPORT_COMPLETED) {
+            // TODO: we would have to see all employee with plannings to evaluate completion of release plan rather than relying on reporting only
+            /* this means that employee has reported its part as completed we would have to check final statuses of all other employee involved in this
+               release plan to see if there final status is completed as well
+             */
+            // check statuses of other employees to see if they are completed as well
+            let finalStatuses = releasePlan.report.employees.filter(e => e._id.toString() != taskPlan.employee._id).map(e => e.finalStatus)
+
+            logger.debug('final statuses found as ', {finalStatuses})
+            let taskPlanCompleted = true
+            finalStatuses.forEach(s => {
+                if (s == SC.REPORT_PENDING)
+                    taskPlanCompleted = false
+            })
+            if (taskPlanCompleted) {
+                releasePlan.report.finalStatus = SC.REPORT_COMPLETED
+            }
+        }
+    }
+
+    // Find this employee planning index
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() == employee._id.toString()
+    })
+
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    /**
+     * Check if employee has reported task as pending on last date of planning against this employee
+     */
+    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
+        let returnedWarnings = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
+        if (returnedWarnings) {
+            warnings.push(returnedWarnings)
+        }
 
         if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
             // Add flag as not already present
-            logger.debug('release plan has unplanned flag remove that flag as well as associated warning')
-
             if (!releasePlan.flags)
                 releasePlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
             else
@@ -942,14 +1026,17 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
     }
 
     /** If task is reported as completed, there is possibility that there are warnings that becomes resolved due to this reporting **/
+
+    /*
     if (taskReport.status == SC.REPORT_COMPLETED) {
-        // As task is marked as completed remove any pending-on-enddate warning
+
 
         if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)
             releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
 
 
         let warningsDueToCompletion = undefined
+
         if (reportedMoment.isBefore(releasePlan.planning.maxPlanningDate)) {
             // as task is repored as completed before max planning date we need to raise completed-before-enddate warning
             warningsDueToCompletion = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, true)
@@ -966,23 +1053,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, user) => {
             // this would not result in warning completed before end date
         }
     }
-
-    releasePlan.report.reportedHours += reportedHoursToIncrement
-
-    if (!reReport) {
-        // Increment task counts that are reported
-        releasePlan.report.reportedTaskCounts += 1
-
-        if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
-            releasePlan.report.minReportedDate = reportedMoment.toDate()
-            releasePlan.report.minReportedDateString = taskReport.reportedDate
-        }
-
-        if (!releasePlan.report || !releasePlan.report.maxReportedDate || reportedMoment.isAfter(releasePlan.report.maxReportedDate)) {
-            releasePlan.report.minReportedDate = reportedMoment.toDate()
-            releasePlan.report.minReportedDateString = taskReport.reportedDate
-        }
-    }
+    */
 
     logger.debug('release plan before save ', {releasePlan})
     await releasePlan.save()
