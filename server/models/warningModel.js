@@ -22,6 +22,7 @@ let warningSchema = mongoose.Schema({
         type: String,
         enum: SC.ALL_WARNING_NAME_ARRAY
     },
+    isUnresolvable: {type: Boolean, default: false},
     releases: [{
         _id: mongoose.Schema.ObjectId,
         name: {type: String},
