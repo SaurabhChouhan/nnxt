@@ -128,16 +128,16 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
     let rolesInRelease = []
 
     if (release) {
-        if (release.manager && release.manager._id == user._id)
+        if (release.manager && release.manager._id.toString() == user._id.toString())
             rolesInRelease.push(SC.ROLE_MANAGER)
 
-        if (release.leader && release.leader._id == user._id)
+        if (release.leader && release.leader._id.toString() == user._id.toString())
             rolesInRelease.push(SC.ROLE_LEADER)
 
-        if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1)
+        if (release.team && release.team.length && release.team.findIndex(t => t._id.toString() == user._id.toString()) != -1)
             rolesInRelease.push(SC.ROLE_DEVELOPER)
 
-        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id == user._id) != -1)
+        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id.toString() == user._id.toString()) != -1)
             rolesInRelease.push(SC.ROLE_NON_PROJECT_DEVELOPER)
     }
 

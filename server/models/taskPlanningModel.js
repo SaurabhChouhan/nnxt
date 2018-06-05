@@ -944,23 +944,37 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (finalStatusChanged) {
         if (taskReport.status === SC.REPORT_PENDING) {
             // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
+
+            logger.debug('As employeed reported task as pending final status of release plan would be pending as well ')
             releasePlan.report.finalStatus = SC.REPORT_PENDING
         } else if (taskReport.status === SC.REPORT_COMPLETED) {
-            // TODO: we would have to see all employee with plannings to evaluate completion of release plan rather than relying on reporting only
+            logger.debug('Employee has reported task as completed, we would now check if this makes release plan as completed')
+
             /* this means that employee has reported its part as completed we would have to check final statuses of all other employee involved in this
                release plan to see if there final status is completed as well
              */
             // check statuses of other employees to see if they are completed as well
-            let finalStatuses = releasePlan.report.employees.filter(e => e._id.toString() != taskPlan.employee._id).map(e => e.finalStatus)
 
-            logger.debug('final statuses found as ', {finalStatuses})
             let taskPlanCompleted = true
-            finalStatuses.forEach(s => {
-                if (s == SC.REPORT_PENDING)
+            // here we are iterating on all the employees that are part of planning and see if all have reported their tasks as completed
+            releasePlan.planning.employees.forEach(e => {
+                let employeeOfReport = releasePlan.report.employees.find(er => er._id.toString() == e._id.toString())
+                if (!employeeOfReport) {
+                    logger.debug('Employee ['+e._id+'] has not reported so far so release plan final status would be pending')
+                    // this means that employee has not reported till now so we will consider release plan as pending
                     taskPlanCompleted = false
+                } else if (employeeOfReport.finalStatus == SC.STATUS_PENDING) {
+                    logger.debug('Employee ['+e._id+'] has reported final status as pending so release plan final status would be pending')
+                    taskPlanCompleted = false
+                }
             })
-            if (taskPlanCompleted) {
-                releasePlan.report.finalStatus = SC.REPORT_COMPLETED
+
+            if(taskPlanCompleted){
+                logger.debug('Release plan status would now be marked as completed')
+                releasePlan.report.finalStatus = SC.STATUS_COMPLETED
+            } else {
+                logger.debug('Release plan status would now be marked as pending')
+                releasePlan.report.finalStatus = SC.REPORT_PENDING
             }
         }
     }
