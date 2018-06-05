@@ -101,9 +101,9 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     }
 
     let momentPlanningDate = U.momentInUTC(taskPlanningInput.planningDate)
-   
 
-  /* Conversion of planned hours in number format */
+
+    /* Conversion of planned hours in number format */
     let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
 
     if (numberPlannedHours <= 0)
@@ -114,19 +114,23 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
     logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
-    if (!employeeRolesInThisRelease || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
+    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length == 0 || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
         /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
            or manager/leader of this release are now working on this task and hence became ad developer of this release
          */
 
+        logger.debug('addTaskPlanning(): employee has no role in this release or not a developer. So it needs to be considered as out of project team ')
+
         // Only manager is allowed to rope in people outside of developer team assigned to this release so check if logged in user is manager
         if (!_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
             throw new AppError('Only manager of release can rope in additional employee for Release', EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE, EC.HTTP_FORBIDDEN)
-            }
+        }
 
         // See if this employee is already roped in for this project if not add it as a non project user
 
-        if (!employeeRolesInThisRelease || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
+        if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length == 0 || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
+
+            logger.debug('addTaskPlanning(): non-developer of this release has given task first time so need to add hime to nonProject team ')
             // this is an extra employee note down
             if (!release.nonProjectTeam)
                 release.nonProjectTeam = []
@@ -136,6 +140,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 'name': selectedEmployee.firstName + ' ' + selectedEmployee.lastName,
                 'email': selectedEmployee.email,
             })
+
+            logger.debug('addTaskPlanning(): after adding non-developer to release release becomes ', {release})
         }
     }
 
@@ -267,7 +273,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
         releasePlan.planning.minPlanningDate = momentPlanningDate.toDate()
-        }
+    }
     if (!releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
         releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
     }
@@ -281,7 +287,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
             return e._id.toString() == selectedEmployee._id.toString()
         })
-        }
+    }
 
     logger.debug('employee planning: ', {employeePlanningIdx})
 
@@ -302,7 +308,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         if (momentPlanningDate.isBefore(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
             logger.debug('employee planning entry mininmum planning date would be modified for emp')
             releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = momentPlanningDate
-    }
+        }
 
         if (momentPlanningDate.isAfter(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
             logger.debug('employee planning entry mininmum planning date would be modified for emp')
@@ -322,7 +328,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     /********************************* TASK PLANNING UPDATES ************************************/
 
-    // creating new task plan
+        // creating new task plan
     let taskPlanning = new TaskPlanningModel()
 
     // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
@@ -355,7 +361,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     /******************************** RELEASE UPDATES **************************************************/
 
 
-        // As task plan is added we have to increase release planned hours
+    // As task plan is added we have to increase release planned hours
     if (releasePlan.task.initiallyEstimated) {
         // this task was part of initial estimation so need to add data under initial object
         release.initial.plannedHours += numberPlannedHours
@@ -639,8 +645,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
                 if (results && results.length > 0) {
                     releasePlan.planning.minPlanningDate = results[0].minPlanningDate
-                    }
                 }
+            }
         }
 
         if (momentPlanningDate.isSame(releasePlan.planning.maxPlanningDate)) {
@@ -729,8 +735,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
                 if (results && results.length > 0) {
                     releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = results[0].minPlanningDate
                 }
-                    }
-                }
+            }
+        }
 
         if (momentPlanningDate.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
             /*
@@ -793,11 +799,11 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         if (releasePlan.planning.plannedTaskCounts === 0)
             release.initial.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
 
-        } else {
+    } else {
         release.additional.plannedHours -= numberPlannedHours
         if (releasePlan.planning.plannedTaskCounts === 0)
             release.additional.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
-        }
+    }
     logger.debug('deleteTaskPlanning(): saving release ', {release})
     await release.save()
 
@@ -853,14 +859,14 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     }
 
     if (employeeReportIdx != -1) {
-    /**
+        /**
          * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
          * 'pending' or 'completed' , if task was already reported as 'completed' in past
          * 'completed' if task was already reported as 'pending' or 'completed' in future
-     */
+         */
 
         if (releasePlan.report.employees[employeeReportIdx].maxReportedDate) {
-        // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
+            // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
             maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
             // See if task was reported in future if so only possible status is pending
             if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status != SC.REPORT_PENDING)) {
@@ -917,7 +923,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         finalStatusChanged = true
     } else {
         // The reported status would become final status of employee reporting, if reported date is same or greater than max reported date
-    if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
+        if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
             releasePlan.report.employees[employeeReportIdx].finalStatus = taskReport.status
             finalStatusChanged = true
         }
@@ -1517,10 +1523,17 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 GetReportTasks
  */
 taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, taskStatus) => {
-    let role = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releaseID, user)
-    logger.info('Logged in user has highest role of [' + role + '] in this release')
+    let userRoles = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+    logger.info('getReportTasks(): user roles in this release ', {userRoles})
     /* As highest role of user in release is developer only we will return only tasks that this employee is assigned */
-    if (role == SC.ROLE_DEVELOPER) {
+
+    if (!userRoles)
+        throw new AppError('Employee has no role in this release, not allowed to see reports', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    if (_.includes(SC.ROLE_MANAGER, userRoles) || _.includes(SC.ROLE_LEADER, userRoles)) {
+        // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
+        throw new AppError('Manager/Leader would see all the tasks of a release for date, need to implement that.', EC.UNIMPLEMENTED_SO_FAR, EC.HTTP_SERVER_ERROR)
+    } else if (_.includes(SC.ROLE_DEVELOPER, userRoles) || _.includes(SC.ROLE_NON_PROJECT_DEVELOPER, userRoles)) {
         let criteria = {
             'release._id': mongoose.Types.ObjectId(releaseID),
             'planningDateString': dateString,
@@ -1530,8 +1543,6 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, 
             criteria['report.status'] = taskStatus
         }
         return await MDL.TaskPlanningModel.find(criteria)
-    } else {
-        // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
     }
 }
 
@@ -2004,7 +2015,8 @@ db.taskplannings.aggregate([{
             ]
     }
 }])
-*//*
+*/
+/*
 db.taskplannings.aggregate([{
     $match: {
         $expr: {

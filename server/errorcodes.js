@@ -11,6 +11,7 @@ export const API_VALIDATION_FAILED = "API_VALIDATION_FAILED"
 export const BAD_ARGUMENTS = "BAD_ARGUMENTS"
 export const INVALID_USER = "INVALID_USER"
 export const INVALID_OPERATION = "INVALID_OPERATION"
+export const UNIMPLEMENTED_SO_FAR = "UNIMPLEMENTED_SO_FAR"
 
 //task and feature approval error codes
 export const TASK_APPROVAL_ERROR = "TASK_APPROVAL_ERROR"
