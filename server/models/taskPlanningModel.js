@@ -84,7 +84,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         throw new AppError('Release Plan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    // Get all roles user have in this release
+     // Get all roles user have in this release
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     logger.debug('user roles ', {userRolesInThisRelease})
 
@@ -102,6 +102,12 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     let momentPlanningDate = U.momentInUTC(taskPlanningInput.planningDate)
 
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanningInput.planningDate, SC.INDIAN_TIMEZONE)
+    // add 1 day to this date
+    momentPlanningDateIndia.add(1, 'days')
+    if (momentPlanningDateIndia.isBefore(new Date())) {
+        throw new AppError('Cannot add planning for past date', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+    }
 
     /* Conversion of planned hours in number format */
     let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
@@ -109,8 +115,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (numberPlannedHours <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-
-    // Get employee roles in this project that this task is planned against
+        // Get employee roles in this project that this task is planned against
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
     logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
@@ -316,6 +321,20 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
         releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts += 1
         releasePlan.planning.employees[employeePlanningIdx].plannedHours += numberPlannedHours
+
+        // As new plan is added against an employee if this employee has reporting data we need to reset final status to pending
+        if(Array.isArray(releasePlan.report.employees)){
+            let employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+                return e._id.toString() == selectedEmployee._id.toString()
+            })
+
+            if(employeeReportIdx!= -1){
+                releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
+            }
+        }
+
+        // release plan status would also be reset to pending in this case
+        releasePlan.report.finalStatus = SC.STATUS_PENDING
     }
 
     // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
