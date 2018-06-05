@@ -99,28 +99,34 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
      * It is possible that this warning is raised earlier as well like when task is reported as pending again on end date by other developer or same developer
      * Check to see if release plan of this task already has this warning raised
      */
+
     let planningDateUtc = U.dateInUTC(plannedDate)
-    let employeeId = employeeDay.employee._id
+    let employeeID = employeeDay.employee._id
 
     let warning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
         'employeeDay.date': planningDateUtc,
-        'employeeDay.employee_id': employeeId
+        'employeeDay.employee_id': mongoose.Types.ObjectId(employeeID)
     })
     if (warning) {
-/* Update Existing warning*/
+        /* Update Existing warning WARNING_TOO_MANY_HOURS*/
+
+
     } else {
+        /* create a new WARNING_TOO_MANY_HOURS warning */
 
         let employeeDays = await MDL.EmployeeDaysModel.find({
             'date': planningDateUtc,
-            'employee_id': employeeId
+            'employee_id': mongoose.Types.ObjectId(employeeID)
         })
+
         let taskPlans = await MDL.TaskPlanningModel.find({
             'planningDate': planningDateUtc,
-            'employee._id': employeeId
+            'employee._id': mongoose.Types.ObjectId(employeeID)
         })
+
         console.log("taskPlans", taskPlans)
-        //release fetch
+        // all release fetch which are involed in these task plan list with source true
 
         let uniqueTaskPlansByReleases = _.uniqBy(taskPlans, 'release._id')
         console.log("uniqueTaskPlansByReleases", uniqueTaskPlansByReleases)
@@ -146,10 +152,20 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
             })
         })
         let releasePlans = await Promise.all(releasePlansPromises)
+        let currentTaskPlan = {
+            _id: taskPlan._id,
+            release: {
+                _id: release._id,
+            },
+            releasePlan: {
+                _id: releasePlan._id,
+            },
+            source: true
+        }
         console.log("releasesPlans", releasePlans)
         warning = {
             type: SC.WARNING_TOO_MANY_HOURS,
-            taskPlans: taskPlans,
+            taskPlans: [...taskPlans, currentTaskPlan],
             releasePlans: releasePlans,
             releases: releases,
             employeeDays: employeeDays
