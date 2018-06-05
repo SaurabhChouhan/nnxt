@@ -3,7 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-import {ReleaseTaskSearchFormContainer} from '../../containers'
+import {WarningListContainer} from '../../containers'
 
 class ReleasePlanList extends Component {
 
@@ -272,7 +272,8 @@ class ReleasePlanList extends Component {
                     <div className="col-md-12">
                         <button className={showPlans ? "btn btnWarning" : "btn btnWarningSelected"}
                                 onClick={() => {
-                                    this.showWarnings()
+                                    this.showWarnings(),
+                                        this.props.getAllWarnings()
                                 }}>Warnings
                         </button>
                         <button className={showPlans ? "btn btnReleasePlanSelected" : "btn btnReleasePlan"}
@@ -355,24 +356,7 @@ class ReleasePlanList extends Component {
                                 </TableHeaderColumn>
 
                             </BootstrapTable> :
-                            <BootstrapTable options={this.options} data={releasePlans}
-                                            multiColumnSearch={true}
-                                            search={true}
-                                            striped={true}
-                                            hover={true}>
-                                <TableHeaderColumn columnTitle isKey dataField='_id'
-                                                   hidden={true}>ID
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'
-                                                   dataFormat={this.formatTaskName.bind(this)}>TaskName
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='flags'>Warnings
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='flags'
-                                                   dataFormat={this.formatFlags.bind(this)}>Flags
-                                </TableHeaderColumn>
-
-                            </BootstrapTable>
+                            <WarningListContainer />
                         }
                     </div>
                 </div>

@@ -192,7 +192,6 @@ export const getReleasePlanDetailsFromServer = (releasePlanID) => {
 }
 
 
-
 export const getUpdatedReleasePlanFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/' + releasePlanID + '/release-plan', {
@@ -214,7 +213,6 @@ export const getUpdatedReleasePlanFromServer = (releasePlanID) => {
             })
     }
 }
-
 
 
 export const addTaskPlanningOnServer = (taskPlanning) => {

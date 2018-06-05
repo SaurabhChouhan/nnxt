@@ -66,6 +66,7 @@ export const WARNING_TYPE_TASK_PLAN = 'task_plan'
 export const WARNING_UNPLANNED = 'unplanned'
 export const WARNING_TOO_MANY_HOURS = 'too_many_hours'
 export const WARNING_EMPLOYEE_ON_LEAVE = 'employee-on-leave'
+export const WARNING_EMPLOYEE_ASK_FOR_LEAVE = 'employee-ask-for-leave'
 export const WARNING_RELEASE_DATE_MISSED_1 = 'release_date_missed_1'
 export const WARNING_RELEASE_DATE_MISSED_2 = 'release_date_missed_2'
 export const WARNING_RELEASE_DATE_MISSED_3 = 'release_date_missed_3'
@@ -81,6 +82,30 @@ export const WARNING_HAS_UNREPORTED_DAYS = 'has-unreported-days'
 export const WARNING_UNREPORTED = 'unreported'
 export const WARNING_PENDING_ON_END_DATE = 'pending-on-enddate'
 export const WARNING_COMPLETED_BEFORE_END_DATE = 'completed-before-enddate'
+
+
+export const ALL_WARNING_NAME_ARRAY = [
+    WARNING_TYPE_RELEASE,
+    WARNING_TYPE_RELEASE_TASK,
+    WARNING_TYPE_TASK_PLAN,
+    WARNING_UNPLANNED,
+    WARNING_TOO_MANY_HOURS,
+    WARNING_EMPLOYEE_ON_LEAVE,
+    WARNING_RELEASE_DATE_MISSED_1,
+    WARNING_RELEASE_DATE_MISSED_2,
+    WARNING_LESS_PLANNED_HOURS,
+    WARNING_MORE_PLANNED_HOURS,
+    WARNING_MORE_REPORTED_HOURS_1,
+    WARNING_MORE_REPORTED_HOURS_2,
+    WARNING_MORE_REPORTED_HOURS_3,
+    WARNING_RELEASE_DATE_MISSED_4,
+    WARNING_HAS_UNREPORTED_DAYS,
+    WARNING_UNREPORTED,
+    WARNING_PENDING_ON_END_DATE,
+    WARNING_COMPLETED_BEFORE_END_DATE,
+]
+
+
 
 export const LEAVE_TYPE_FULL_DAY = 'Full'
 export const LEAVE_TYPE_HALF_DAY = 'Half'

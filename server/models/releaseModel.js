@@ -4,6 +4,7 @@ import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import momentTZ from 'moment-timezone'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -100,12 +101,12 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
         else if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1) {
             return SC.ROLE_DEVELOPER
         }
-        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1) {
+        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id == user._id) != -1) {
             return SC.ROLE_NON_PROJECT_DEVELOPER
         }
         else {
             let User = await MDL.UserModel.findById(mongoose.Types.ObjectId(user._id))
-            if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
+            if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name == SC.ROLE_DEVELOPER) != -1) {
                 return SC.ROLE_NON_PROJECT_DEVELOPER
             } else return undefined
         }
@@ -122,6 +123,8 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
         nonProjectTeam: 1
     })
 
+    logger.debug("getUserRolesInThisRelease(): ", {release})
+
     let rolesInRelease = []
 
     if (release) {
@@ -134,9 +137,13 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
         if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1)
             rolesInRelease.push(SC.ROLE_DEVELOPER)
 
-        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id === user._id) != -1)
+        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id == user._id) != -1)
             rolesInRelease.push(SC.ROLE_NON_PROJECT_DEVELOPER)
     }
+
+    if(rolesInRelease.length == 0)
+        return undefined;
+
     return rolesInRelease
 }
 
