@@ -84,7 +84,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         throw new AppError('Release Plan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    // Get all roles user have in this release
+     // Get all roles user have in this release
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     logger.debug('user roles ', {userRolesInThisRelease})
 
@@ -102,6 +102,12 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     let momentPlanningDate = U.momentInUTC(taskPlanningInput.planningDate)
 
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanningInput.planningDate, SC.INDIAN_TIMEZONE)
+    // add 1 day to this date
+    momentPlanningDateIndia.add(1, 'days')
+    if (momentPlanningDateIndia.isBefore(new Date())) {
+        throw new AppError('Cannot add planning for past date', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+    }
 
     /* Conversion of planned hours in number format */
     let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
@@ -109,8 +115,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (numberPlannedHours <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-
-    // Get employee roles in this project that this task is planned against
+        // Get employee roles in this project that this task is planned against
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
     logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
@@ -316,6 +321,20 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
         releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts += 1
         releasePlan.planning.employees[employeePlanningIdx].plannedHours += numberPlannedHours
+
+        // As new plan is added against an employee if this employee has reporting data we need to reset final status to pending
+        if(Array.isArray(releasePlan.report.employees)){
+            let employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+                return e._id.toString() == selectedEmployee._id.toString()
+            })
+
+            if(employeeReportIdx!= -1){
+                releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
+            }
+        }
+
+        // release plan status would also be reset to pending in this case
+        releasePlan.report.finalStatus = SC.STATUS_PENDING
     }
 
     // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
@@ -944,23 +963,37 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (finalStatusChanged) {
         if (taskReport.status === SC.REPORT_PENDING) {
             // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
+
+            logger.debug('As employeed reported task as pending final status of release plan would be pending as well ')
             releasePlan.report.finalStatus = SC.REPORT_PENDING
         } else if (taskReport.status === SC.REPORT_COMPLETED) {
-            // TODO: we would have to see all employee with plannings to evaluate completion of release plan rather than relying on reporting only
+            logger.debug('Employee has reported task as completed, we would now check if this makes release plan as completed')
+
             /* this means that employee has reported its part as completed we would have to check final statuses of all other employee involved in this
                release plan to see if there final status is completed as well
              */
             // check statuses of other employees to see if they are completed as well
-            let finalStatuses = releasePlan.report.employees.filter(e => e._id.toString() != taskPlan.employee._id).map(e => e.finalStatus)
 
-            logger.debug('final statuses found as ', {finalStatuses})
             let taskPlanCompleted = true
-            finalStatuses.forEach(s => {
-                if (s == SC.REPORT_PENDING)
+            // here we are iterating on all the employees that are part of planning and see if all have reported their tasks as completed
+            releasePlan.planning.employees.forEach(e => {
+                let employeeOfReport = releasePlan.report.employees.find(er => er._id.toString() == e._id.toString())
+                if (!employeeOfReport) {
+                    logger.debug('Employee ['+e._id+'] has not reported so far so release plan final status would be pending')
+                    // this means that employee has not reported till now so we will consider release plan as pending
                     taskPlanCompleted = false
+                } else if (employeeOfReport.finalStatus == SC.STATUS_PENDING) {
+                    logger.debug('Employee ['+e._id+'] has reported final status as pending so release plan final status would be pending')
+                    taskPlanCompleted = false
+                }
             })
-            if (taskPlanCompleted) {
-                releasePlan.report.finalStatus = SC.REPORT_COMPLETED
+
+            if(taskPlanCompleted){
+                logger.debug('Release plan status would now be marked as completed')
+                releasePlan.report.finalStatus = SC.STATUS_COMPLETED
+            } else {
+                logger.debug('Release plan status would now be marked as pending')
+                releasePlan.report.finalStatus = SC.REPORT_PENDING
             }
         }
     }
