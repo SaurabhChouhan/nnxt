@@ -6,4 +6,8 @@
     .planDividerDate span {
         font-size: 17px;
     }
+
+    .releaseSearchStatus {
+        margin-left: 115px;
+    }
 }
