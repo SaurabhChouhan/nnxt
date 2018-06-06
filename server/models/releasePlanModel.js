@@ -90,16 +90,20 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
         description: estimationTask.estimator.description,
         initiallyEstimated: estimationTask.initiallyEstimated
     }
+    releasePlanInput.planning = {
+        employees: release.team
+    }
 
     if (estimationTask.feature && estimationTask.feature._id)
         releasePlanInput.feature = estimationTask.feature
 
-    let releasePlan = await ReleasePlanModel.create(releasePlanInput)
+    let releasePlan = await
+        ReleasePlanModel.create(releasePlanInput)
     /**
      * We can create warning in the background as these unplanned warnings are not visible on project
      * award.
      */
-    MDL.WarningModel.addUnplanned(release,releasePlan)
+    MDL.WarningModel.addUnplanned(release, releasePlan)
 
     return releasePlan
 }
