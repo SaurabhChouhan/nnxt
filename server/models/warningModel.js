@@ -161,7 +161,7 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
             logger.debug("taskPlans of selected employee and selected date", {taskPlans})
 
             /*All release fetch which are involved in these task plan list with source true and others with source false*/
-            let uniqueTaskPlansByReleases = _.uniqBy(taskPlans, 'release._id')
+        let uniqueTaskPlansByReleases = _.uniqBy(taskPlans, 'release._id')
             logger.debug("uniqueTaskPlansByReleases", {uniqueTaskPlansByReleases})
             let releasesPromises = uniqueTaskPlansByReleases.map(taskPlanParam => {
                 return MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanParam.release._id)).then(releaseDetail => {
@@ -177,39 +177,39 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
                     }
                 })
 
-            })
-            let releases = await Promise.all(releasesPromises)
+        })
+        let releases = await Promise.all(releasesPromises)
             logger.debug("releases", {releases})
 
             /*All releasePlan fetch which are involved in these task plan list with source true and others with source false*/
 
-            let uniqueTaskPlansByReleasePlans = _.uniqBy(taskPlans, 'releasePlan._id')
+        let uniqueTaskPlansByReleasePlans = _.uniqBy(taskPlans, 'releasePlan._id')
             logger.debug("uniqueTaskPlansByReleasePlans", {uniqueTaskPlansByReleasePlans})
             let releasePlansPromises = uniqueTaskPlansByReleases.map(taskPlanParam => {
                 return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanParam.releasePlan._id)).then(releasePlanDetail => {
                     logger.debug("releasePlanDetail", {releasePlanDetail})
                     if (releasePlanDetail._id.toString() === releasePlan.toObject()._id.toString()) {
                         return Object.assign({}, releasePlanDetail.toObject(), {
-                            source: true
-                        })
+                source: true
+            })
                     } else {
                         return Object.assign({}, releasePlanDetail.toObject(), {
                             source: false
                         })
                     }
                 })
-            })
+        })
 
             logger.debug("releasePlansPromises :-", {releasePlansPromises})
-            let releasePlans = await Promise.all(releasePlansPromises)
+        let releasePlans = await Promise.all(releasePlansPromises)
             logger.debug("releasesPlans :- ", {releasePlans})
-            warning = {
-                type: SC.WARNING_TOO_MANY_HOURS,
+        warning = {
+            type: SC.WARNING_TOO_MANY_HOURS,
                 taskPlans: [...taskPlans, currentTaskPlan],
                 releasePlans: releasePlans && releasePlans.length && releasePlans.findIndex(rp => rp._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releasePlans : [...releasePlans, releasePlan.toObject()],
                 releases: releases && releases.length && releases.findIndex(r => r._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releases : [...releases, release.toObject()],
-                employeeDays: employeeDays
-            }
+            employeeDays: employeeDays
+        }
         } else {
             warning = {
                 type: SC.WARNING_TOO_MANY_HOURS,
@@ -423,10 +423,9 @@ warningSchema.statics.addEmployeeAskForLeave = async (startDateMoment, endDateMo
         'employeeDay.date': {$gte: startDateMoment, $lte: endDateMoment},
         'employeeDay.employee_id': user._id
     })
-    // let taskPlans = []
-    //let releasePlans = []
-    //let releases = []
-    //let planningDate = new Date("2018-06-05")
+    let releasePlans = []
+    let releases = []
+    let planningDate = new Date("2018-06-05")
     new Promise((resolve, reject) => {
         return resolve(false)
     })
