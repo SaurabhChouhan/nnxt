@@ -118,8 +118,8 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
     /* fetch warning WARNING_TOO_MANY_HOURS of selected employee and planned date */
     let warning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDay.date': planningDateUtc,
-        'employeeDay.employee_id': mongoose.Types.ObjectId(employeeID)
+        'employeeDays.date': planningDateUtc,
+        'employeeDays.employee_id': mongoose.Types.ObjectId(employeeID)
     })
 
     logger.debug("warning after fetch is available or not", {warning})
@@ -146,7 +146,7 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
 
     } else {
         /* create a new warning :- WARNING_TOO_MANY_HOURS -: warning for selected developer and selected date as a planned date*/
-
+        let newWarning = new WarningModel()
         let employeeDays = await MDL.EmployeeDaysModel.find({
             'date': planningDateUtc,
             'employee._id': mongoose.Types.ObjectId(employeeID)
@@ -190,38 +190,37 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
                     logger.debug("releasePlanDetail", {releasePlanDetail})
                     if (releasePlanDetail._id.toString() === releasePlan.toObject()._id.toString()) {
                         return Object.assign({}, releasePlanDetail.toObject(), {
-                source: true
-            })
+                            source: true
+                        })
                     } else {
                         return Object.assign({}, releasePlanDetail.toObject(), {
                             source: false
                         })
                     }
                 })
-        })
+            })
 
             logger.debug("releasePlansPromises :-", {releasePlansPromises})
         let releasePlans = await Promise.all(releasePlansPromises)
             logger.debug("releasesPlans :- ", {releasePlans})
-        warning = {
-            type: SC.WARNING_TOO_MANY_HOURS,
-                taskPlans: [...taskPlans, currentTaskPlan],
-                releasePlans: releasePlans && releasePlans.length && releasePlans.findIndex(rp => rp._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releasePlans : [...releasePlans, releasePlan.toObject()],
-                releases: releases && releases.length && releases.findIndex(r => r._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releases : [...releases, release.toObject()],
-            employeeDays: employeeDays
-        }
+
+            newWarning.type = SC.WARNING_TOO_MANY_HOURS,
+                newWarning.taskPlans = [...taskPlans, currentTaskPlan],
+                newWarning.releasePlans = releasePlans && releasePlans.length && releasePlans.findIndex(rp => rp._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releasePlans : [...releasePlans, releasePlan.toObject()],
+                newWarning.releases = releases && releases.length && releases.findIndex(r => r._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releases : [...releases, release.toObject()],
+                newWarning.employeeDays = employeeDays
+
         } else {
-            warning = {
-                type: SC.WARNING_TOO_MANY_HOURS,
-                taskPlans: [Object.assign({}, currentTaskPlan, {source: true})],
-                releasePlans: [Object.assign({}, releasePlan.toObject(), {source: true})],
-                releases: [Object.assign({}, release.toObject(), {source: true})],
-                employeeDays: employeeDays && employeeDays.length ? employeeDays : [Object.assign({}, employeeDay, {source: true})]
-            }
+            newWarning.type = SC.WARNING_TOO_MANY_HOURS,
+                newWarning.taskPlans = [Object.assign({}, currentTaskPlan, {source: true})],
+                newWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})],
+                newWarning.releases = [Object.assign({}, release.toObject(), {source: true})],
+                newWarning.employeeDays = employeeDays && employeeDays.length ? employeeDays : [Object.assign({}, employeeDay, {source: true})]
+
         }
 
-        logger.debug("warning which have to create:- ", {warning})
-        return await WarningModel.create(warning)
+        logger.debug("warning which have to create:- ", {newWarning})
+        return await newWarning.save()
     }
 }
 
@@ -237,11 +236,11 @@ warningSchema.statics.deleteToManyHours = async (taskPlan, release, releasePlan,
 
     let planningDateUtc = U.dateInUTC(plannedDate)
     let employeeID = employeeDay.employee && employeeDay.employee._id ? employeeDay.employee._id : undefined
-
+    console.log("planningDateUtc", planningDateUtc)
     let warning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDay.date': planningDateUtc,
-        'employeeDay.employee_id': mongoose.Types.ObjectId(employeeID)
+        'employeeDays.date': planningDateUtc,
+        'employeeDays.employee_id': mongoose.Types.ObjectId(employeeID)
     })
 
     if (!warning) {

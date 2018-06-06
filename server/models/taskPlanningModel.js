@@ -830,7 +830,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     }
 
     //logger.debug('deleteTaskPlanning(): saving release plan ', {releasePlan})
-    await releasePlan.save()
+
 
     /******************************* RELEASE UPDATES *****************************************************/
 
@@ -845,7 +845,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
             release.additional.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
     }
     //logger.debug('deleteTaskPlanning(): saving release ', {release})
-    await release.save()
+
 
     let plannedDateMoment = U.dateInUTC(taskPlanning.planningDateString)
     let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
@@ -855,7 +855,15 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, plannedDateMoment)
 
     let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlanning._id))
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
+    if (employeeDayOfPlanned.plannedHours < maxPlannedHoursNumber) {
+        releasePlan.flag = releasePlan.flag
+    }
+
+    await releasePlan.save()
+    await release.save()
     /* remove task planning */
     return {warning: warning, taskPlan: taskPlanningResponse}
 }
