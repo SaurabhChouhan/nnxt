@@ -312,7 +312,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
                 }
     })
 
-        //logger.debug('taskReportedAsPendingOnEndDate(): existing warning ', {pendingOnEndDateWarning})
+        logger.debug('taskReportedAsPendingOnEndDate(): existing warning ', {pendingOnEndDateWarning})
 
         if (pendingOnEndDateWarning) {
             if (!pendingOnEndDateWarning.taskPlans || pendingOnEndDateWarning.taskPlans.findIndex(t => {
@@ -346,19 +346,20 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
             pendingOnEndDateWarning.type = SC.WARNING_PENDING_ON_END_DATE
 
         let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
-            //logger.debug('taskReportedAsPendingOnEndDate(): ', {release})
+            logger.debug('taskReportedAsPendingOnEndDate(): ', {release})
             pendingOnEndDateWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
         let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
-            //logger.debug('taskReportedAsPendingOnEndDate(): ', {releasePlan})
+        logger.debug('taskReportedAsPendingOnEndDate(): ', {releasePlan})
             pendingOnEndDateWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
-                source: true, employee: {
+                source: true,
+                employee: {
                 _id:taskPlan.employee._id
                 }
             })]
             pendingOnEndDateWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {
                 source: true
             })]
-            //logger.debug('taskReportedAsPendingOnEndDate():  creating warning ', {warning: pendingOnEndDateWarning})
+            logger.debug('taskReportedAsPendingOnEndDate():  creating warning ', {warning: pendingOnEndDateWarning})
             return await WarningModel.create(pendingOnEndDateWarning)
         }
     }
@@ -368,42 +369,49 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
 
 /**
  * Task reported as completed see what warning changes can be made
- * @param taskPlan
- * @returns {Promise.<void>}
+ *
  */
-warningSchema.statics.taskReportedAsCompleted = async (taskPlan, beforeEndDate) => {
-
-    //logger.debug('taskReportedAsCompleted(): ', {taskPlan}, {beforeEndDate})
-
+warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, beforeEndDate) => {
+    logger.debug('taskReportedAsCompleted(): ', {taskPlan}, {releasePlan}, {beforeEndDate})
     /**
-     * See if there is warning with type pending on reported date against release plan of this task plan against employee, remove that warning
+     * Remove warning pending-on-enddate against this releaseplan/employee if present
      */
 
-    let pendingOnEndDateWarning = await WarningModel.remove({
+    let pendingOnEndDateResult = await WarningModel.remove({
         type: SC.WARNING_PENDING_ON_END_DATE,
-        'releasePlans._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
+        'releasePlans': {
+            '$elemMatch': {
+                _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                'employee._id': taskPlan.employee._id
+            }
+        }
     })
+    logger.debug('taskReportedAsCompleted(): ', {pendingOnEndDateResult})
 
-    //logger.debug('taskReportedAsCompleted(): ', {pendingOnEndDateWarning})
     if (beforeEndDate) {
-        // Task is reported as completed before end date, we need to raise that warning so that manager can plan other tasks on saved days
-
-        /**
-         * As a release plan can only be completed once we can safely assume that there will be no such warning present and hence can directly create one.
-         * We are here trusting our code that it will not allow multiple completions and would also remove any such warning if task is marked pending again
+        /* Task is reported as completed before end date, we need to raise that warning so that manager can plan other tasks on saved days
+           It is important to understand that a release plan can be worked on by multiple employees and advance completion would go against a particular
+           employee so there can be multiple such warnings each against one employee that have completed there task plan before time
          */
+
+        // since an employee can mark only mark maximum of one task as complete we can safely assume that there will be no existing warning
+        // We are trusting existing code here that shouldn't allow completion of multiple task plans and also remove this warning whenever necessary
 
         let completeBeforeWarning = {}
         completeBeforeWarning.type = SC.WARNING_COMPLETED_BEFORE_END_DATE
-
         let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
-        //logger.debug('taskReportedAsCompleted(): ', {release})
+        logger.debug('taskReportedAsCompleted(): ', {release})
         completeBeforeWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
         let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
-        //logger.debug('taskReportedAsCompleted(): ', {releasePlan})
-        completeBeforeWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+        logger.debug('taskReportedAsCompleted(): ', {releasePlan})
+        completeBeforeWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
+            source: true,
+            employee: {
+                _id: taskPlan.employee._id
+            }
+        })]
         completeBeforeWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
-        //logger.debug('taskReportedAsCompleted():  creating warning ', {warning: completeBeforeWarning})
+        logger.debug('taskReportedAsCompleted():  creating warning ', {warning: completeBeforeWarning})
         return await WarningModel.create(completeBeforeWarning)
     }
 
