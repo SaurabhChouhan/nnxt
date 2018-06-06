@@ -92,21 +92,21 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
         /**
          * Check to see user's highest role in this release as user can have multiple role in release like he can be leader as well as developer
          */
-        if (release.manager && release.manager._id == user._id) {
+        if (release.manager && release.manager._id.toString() === user._id.toString()) {
             return SC.ROLE_MANAGER
         }
-        else if (release.leader && release.leader._id == user._id) {
+        else if (release.leader && release.leader._id.toString() === user._id.toString()) {
             return SC.ROLE_LEADER
         }
-        else if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1) {
+        else if (release.team && release.team.length && release.team.findIndex(t => t._id.toString() === user._id.toString()) != -1) {
             return SC.ROLE_DEVELOPER
         }
-        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id == user._id) != -1) {
+        else if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id.toString() === user._id.toString()) != -1) {
             return SC.ROLE_NON_PROJECT_DEVELOPER
         }
         else {
             let User = await MDL.UserModel.findById(mongoose.Types.ObjectId(user._id))
-            if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name == SC.ROLE_DEVELOPER) != -1) {
+            if (User && User.roles && User.roles.length && User.roles.findIndex(role => role.name === SC.ROLE_DEVELOPER) != -1) {
                 return SC.ROLE_NON_PROJECT_DEVELOPER
             } else return undefined
         }
@@ -128,16 +128,16 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
     let rolesInRelease = []
 
     if (release) {
-        if (release.manager && release.manager._id == user._id)
+        if (release.manager && release.manager._id.toString() === user._id.toString())
             rolesInRelease.push(SC.ROLE_MANAGER)
 
-        if (release.leader && release.leader._id == user._id)
+        if (release.leader && release.leader._id.toString() === user._id.toString())
             rolesInRelease.push(SC.ROLE_LEADER)
 
-        if (release.team && release.team.length && release.team.findIndex(t => t._id == user._id) != -1)
+        if (release.team && release.team.length && release.team.findIndex(t => t._id.toString() === user._id.toString()) != -1)
             rolesInRelease.push(SC.ROLE_DEVELOPER)
 
-        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id == user._id) != -1)
+        if (release.nonProjectTeam && release.nonProjectTeam.length && release.nonProjectTeam.findIndex(t => t._id.toString() === user._id.toString()) != -1)
             rolesInRelease.push(SC.ROLE_NON_PROJECT_DEVELOPER)
     }
 

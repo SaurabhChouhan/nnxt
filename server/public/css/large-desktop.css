@@ -1,0 +1,13 @@
+@media (min-width: 1300px) {
+    button.customBtn, button.customBtn:focus {
+        font-size: 20px;
+    }
+
+    .planDividerDate span {
+        font-size: 17px;
+    }
+
+    .releaseSearchStatus {
+        margin-left: 115px;
+    }
+}

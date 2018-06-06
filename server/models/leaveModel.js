@@ -74,6 +74,8 @@ leaveSchema.statics.saveLeave = async (leaveInput, user, schemaRequested) => {
     if (!leaveDaysCount)
         leaveDaysCount = 0
 
+    await MDL.WarningModel.addEmployeeAskForLeave(startDateMoment, endDateMoment, user)
+
     leaveDaysCount = Number(leaveDaysCount)
     leaveInput.startDate = startDateMoment
     leaveInput.endDate = endDateMoment
@@ -84,7 +86,6 @@ leaveSchema.statics.saveLeave = async (leaveInput, user, schemaRequested) => {
     leaveInput.user = user
     if (!leaveInput.dayType)
         leaveInput.dayType = SC.LEAVE_TYPE_FULL_DAY
-
     return await LeaveModel.create(leaveInput)
 }
 
