@@ -223,7 +223,6 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
         logger.debug("warning which have to create:- ", {warning})
         return await WarningModel.create(warning)
     }
-
 }
 
 
@@ -233,10 +232,11 @@ warningSchema.statics.deleteToManyHours = async (taskPlan, release, releasePlan,
      * It is possible that this warning is  earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised
      */
-
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
     let planningDateUtc = U.dateInUTC(plannedDate)
-    let employeeID = employeeDay.employee._id
+    let employeeID = employeeDay.employee && employeeDay.employee._id ? employeeDay.employee._id : undefined
 
     let warning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
@@ -250,6 +250,9 @@ warningSchema.statics.deleteToManyHours = async (taskPlan, release, releasePlan,
 
     if (warning && warning.taskPlans && warning.taskPlans.length > 1) {
         /* Update Existing warning WARNING_TOO_MANY_HOURS*/
+        if (employeeDay && employeeDay.plannedHours && Number(employeeDay.plannedHours) <= maxPlannedHoursNumber) {
+            return await WarningModel.findByIdAndRemove(warning._id)
+        }
         warning.taskPlans = warning.taskPlans.filter(tp => tp && tp._id && taskPlan && taskPlan.toObject()._id && tp._id.toString() != taskPlan.toObject()._id.toString())
         let otherTaskPlanReleaseExists = false
         otherTaskPlanReleaseExists = warning.taskPlans.findIndex(tp => tp && tp.release && tp.release._id.toString() != release.toObject()._id.toString()) != -1

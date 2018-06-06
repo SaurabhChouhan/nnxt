@@ -407,6 +407,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     taskPlanning.task = releasePlan.task
     taskPlanning.release = release
     taskPlanning.releasePlan = releasePlan
+    taskPlanning.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
     taskPlanning.employee = Object.assign({}, selectedEmployee.toObject(), {name: selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '' + selectedEmployee.lastName ? selectedEmployee.lastName : ''})
     taskPlanning.planning = {plannedHours: plannedHourNumber}
     taskPlanning.description = releasePlan.task.description ? releasePlan.task.description : ''
@@ -429,7 +430,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
     let replanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
 
-    let rePlanningDateMoment = momentTZ.tz(taskPlanningInput.rePlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let rePlanningDateUtc = U.dateInUTC(taskPlanningInput.rePlanningDate)
 
     /*Checking that  new planning date is a valid date or not */
     /*Checking that new planning date  is before now or not */
@@ -524,9 +525,29 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         }
         await MDL.EmployeeDaysModel.addEmployeeDaysDetails(newEmployeeDaysModelInput, user)
     }
+    let planningDateMoment = U.dateInUTC(taskPlanning.planningDateString)
+    let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
+        "employee._id": taskPlanning.employee._id,
+        "date": planningDateMoment
+    })
 
+    await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, planningDateMoment)
+
+    let employeeDayOfReplanned = await MDL.EmployeeDaysModel.findOne({
+        "employee._id": taskPlanning.employee._id,
+        "date": planningDateMoment
+    })
+    console.log("employeeDayOfReplanned", employeeDayOfReplanned)
+
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+
+    if (plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber) {
+        await MDL.WarningModel.addToManyHours(taskPlanning, release, releasePlan, employeeDayOfReplanned, rePlanningDateUtc)
+    }
     /* Updating task plan with new planning date */
     taskPlanning.created = Date.now()
+    taskPlanning.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
     taskPlanning.planningDate = rePlanningDateUtc
     taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
     await taskPlanning.save()
