@@ -84,7 +84,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         throw new AppError('Release Plan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-     // Get all roles user have in this release
+    // Get all roles user have in this release
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     logger.debug('user roles ', {userRolesInThisRelease})
 
@@ -115,7 +115,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (numberPlannedHours <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-        // Get employee roles in this project that this task is planned against
+    // Get employee roles in this project that this task is planned against
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
     logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
@@ -323,12 +323,12 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         releasePlan.planning.employees[employeePlanningIdx].plannedHours += numberPlannedHours
 
         // As new plan is added against an employee if this employee has reporting data we need to reset final status to pending
-        if(Array.isArray(releasePlan.report.employees)){
+        if (Array.isArray(releasePlan.report.employees)) {
             let employeeReportIdx = releasePlan.report.employees.findIndex(e => {
                 return e._id.toString() == selectedEmployee._id.toString()
             })
 
-            if(employeeReportIdx!= -1){
+            if (employeeReportIdx != -1) {
                 releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
             }
         }
@@ -979,16 +979,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
             releasePlan.planning.employees.forEach(e => {
                 let employeeOfReport = releasePlan.report.employees.find(er => er._id.toString() == e._id.toString())
                 if (!employeeOfReport) {
-                    logger.debug('Employee ['+e._id+'] has not reported so far so release plan final status would be pending')
+                    logger.debug('Employee [' + e._id + '] has not reported so far so release plan final status would be pending')
                     // this means that employee has not reported till now so we will consider release plan as pending
                     taskPlanCompleted = false
                 } else if (employeeOfReport.finalStatus == SC.STATUS_PENDING) {
-                    logger.debug('Employee ['+e._id+'] has reported final status as pending so release plan final status would be pending')
+                    logger.debug('Employee [' + e._id + '] has reported final status as pending so release plan final status would be pending')
                     taskPlanCompleted = false
                 }
             })
 
-            if(taskPlanCompleted){
+            if (taskPlanCompleted) {
                 logger.debug('Release plan status would now be marked as completed')
                 releasePlan.report.finalStatus = SC.STATUS_COMPLETED
             } else {
@@ -1008,57 +1008,43 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     }
 
     /**
-     * Check if employee has reported task as pending on last date of planning against this employee
+     * Check if employee has reported task on last date of planning against this employee
      */
-    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate) && taskReport.status == SC.REPORT_PENDING) {
-        let returnedWarnings = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
-        if (returnedWarnings) {
-            warnings.push(returnedWarnings)
-        }
-
-        if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
-            // Add flag as not already present
-            if (!releasePlan.flags)
-                releasePlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
-            else
-                releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
-
-            if (!taskPlan.flags)
-                taskPlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
-            else if (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)
-                taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
-        }
-    }
-
-    /** If task is reported as completed, there is possibility that there are warnings that becomes resolved due to this reporting **/
-
-    /*
-    if (taskReport.status == SC.REPORT_COMPLETED) {
-
-
-        if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)
-            releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
-
-
-        let warningsDueToCompletion = undefined
-
-        if (reportedMoment.isBefore(releasePlan.planning.maxPlanningDate)) {
-            // as task is repored as completed before max planning date we need to raise completed-before-enddate warning
-            warningsDueToCompletion = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, true)
-            if (warningsDueToCompletion) {
-                warnings.push(warningsDueToCompletion)
-                // Only warning possible currently from above function is completed-before-enddate so add that flag to release plan and task plan
-                if (!releasePlan.flags)
-                    releasePlan.flags = [SC.WARNING_COMPLETED_BEFORE_END_DATE]
-                else
-                    releasePlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
+    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
+        if (taskReport.status == SC.REPORT_PENDING) {
+            // As employee reported task as pending we need to add pending on end date warning
+            let returnedWarnings = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
+            if (returnedWarnings) {
+                warnings.push(returnedWarnings)
             }
-        } else {
-            warningsDueToCompletion = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, false)
-            // this would not result in warning completed before end date
+
+            if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
+                // Add flag as not already present
+                if (!releasePlan.flags)
+                    releasePlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
+                else
+                    releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
+
+                if (!taskPlan.flags)
+                    taskPlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
+                else if (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)
+                    taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
+            }
+
         }
     }
-    */
+
+    // Task is reported as completed this can make changes to existing warnings/flags like pending on end date
+    if (taskReport.status == SC.REPORT_COMPLETED) {
+        if (employeeReportIdx != -1) {
+            // This means that employee has reported in past, see if there is pending-on-end-date flag if yes remove that
+            releasePlan.report.employees[employeeReportIdx].flags.pull(SC.WARNING_PENDING_ON_END_DATE)
+        }
+        if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate))
+            await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, false)
+        else
+            await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, false)
+    }
 
     logger.debug('release plan before save ', {releasePlan})
     await releasePlan.save()
