@@ -76,10 +76,10 @@ warningSchema.statics.addUnplanned = async (release,releasePlan) => {
     // unplanned warning would be raised against a single release and a single release plan
     let warning = {}
     warning.type = SC.WARNING_UNPLANNED
-    warning.releases = [Object.assign({}, release, {
+    warning.releases = [Object.assign({}, release.toObject(), {
         source: true
     })],
-    warning.releasePlans = [Object.assign({}, releasePlan, {
+        warning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
         source: true
     })],
     warning.taskPlans = []
@@ -132,6 +132,7 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
         }
         warning.taskPlans.push(currentTaskPlan)
 
+        return await warning.save()
     } else {
         /* create a new WARNING_TOO_MANY_HOURS warning */
 
@@ -152,10 +153,11 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
         console.log("uniqueTaskPlansByReleases", uniqueTaskPlansByReleases)
             let releasesPromises = uniqueTaskPlansByReleases.map(taskPlanParam => {
                 return MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanParam.release._id)).then(releaseDetail => {
-                    if (releaseDetail.toObject()._id.toString() === release.toObject()._id.toString()) {
+                    console.log("releaseDetail", releaseDetail)
+                    if (releaseDetail._id.toString() === release.toObject()._id.toString()) {
                         return Object.assign({}, releaseDetail.toObject(), {
-                source: true
-            })
+                            source: true
+                        })
                     } else {
                         return Object.assign({}, releaseDetail.toObject(), {
                             source: false
@@ -173,7 +175,8 @@ warningSchema.statics.addToManyHours = async (taskPlan, release, releasePlan, em
         console.log("uniqueTaskPlansByReleasePlans", uniqueTaskPlansByReleasePlans)
             let releasePlansPromises = uniqueTaskPlansByReleases.map(taskPlanParam => {
                 return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanParam.releasePlan._id)).then(releasePlanDetail => {
-                    if (releasePlanDetail.toObject()._id.toString() === releasePlan.toObject()._id.toString()) {
+                    console.log("releasePlanDetail", releasePlanDetail)
+                    if (releasePlanDetail._id.toString() === releasePlan.toObject()._id.toString()) {
                         return Object.assign({}, releasePlanDetail.toObject(), {
                 source: true
             })
@@ -245,6 +248,7 @@ warningSchema.statics.deleteToManyHours = async (taskPlan, release, releasePlan,
         if (!otherTaskPlanReleasePlanExists) {
             warning.releasePlans = warning.releasePlans.filter(r => r._id.toString() != releasePlan._id.toString())
         }
+        return await warning.save()
     } else {
         return await WarningModel.findByIdAndRemove(warning._id)
     }
