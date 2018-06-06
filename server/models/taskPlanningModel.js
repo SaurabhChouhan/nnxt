@@ -110,9 +110,9 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     }
 
     /* Conversion of planned hours in number format */
-    let numberPlannedHours = Number(taskPlanningInput.planning.plannedHours)
+    let plannedHourNumber = Number(taskPlanningInput.planning.plannedHours)
 
-    if (numberPlannedHours <= 0)
+    if (plannedHourNumber <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
         // Get employee roles in this project that this task is planned against
@@ -161,7 +161,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             employee: {
                 _id: selectedEmployee._id.toString(),
                 name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName
@@ -177,7 +177,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 _id: selectedEmployee._id.toString(),
                 name: selectedEmployee.firstName + ' ' + selectedEmployee.lastName
             },
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             dateString: taskPlanningInput.planningDate,
         }
         await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput, user)
@@ -209,7 +209,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             task: {
                 _id: releasePlan._id.toString(),
                 name: releasePlan.task.name,
-                plannedHours: numberPlannedHours,
+                plannedHours: plannedHourNumber,
                 reportedHours: Number(0),
                 plannedHoursReportedTasks: Number(0)
             }
@@ -234,7 +234,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             task: {
                 _id: releasePlan._id.toString(),
                 name: releasePlan.task.name,
-                plannedHours: numberPlannedHours,
+                plannedHours: plannedHourNumber,
                 reportedHours: 0,
                 plannedHoursReportedTasks: 0
             }
@@ -258,7 +258,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 {
                     _id: releasePlan._id.toString(),
                     name: releasePlan.task.name,
-                    plannedHours: numberPlannedHours,
+                    plannedHours: plannedHourNumber,
                     reportedHours: 0,
                     plannedHoursReportedTasks: 0
                 }
@@ -273,7 +273,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well
      */
-    releasePlan.planning.plannedHours += numberPlannedHours
+    releasePlan.planning.plannedHours += plannedHourNumber
     releasePlan.planning.plannedTaskCounts += 1
 
     if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
@@ -303,7 +303,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             releasePlan.planning.employees = []
         releasePlan.planning.employees.push({
             _id: selectedEmployee._id,
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             minPlanningDate: momentPlanningDate.toDate(),
             maxPlanningDate: momentPlanningDate.toDate(),
             plannedTaskCounts: 1
@@ -320,7 +320,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = momentPlanningDate
         }
         releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts += 1
-        releasePlan.planning.employees[employeePlanningIdx].plannedHours += numberPlannedHours
+        releasePlan.planning.employees[employeePlanningIdx].plannedHours += plannedHourNumber
 
         // As new plan is added against an employee if this employee has reporting data we need to reset final status to pending
         if(Array.isArray(releasePlan.report.employees)){
@@ -364,7 +364,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     //logger.debug('employeeDay', {bk3: employeeDay})
 
-    if (numberPlannedHours > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
+    if (plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
         await MDL.WarningModel.addToManyHours(taskPlanning, release, releasePlan, employeeDay, momentPlanningDate)
 
         if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1) {
@@ -383,13 +383,13 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     // As task plan is added we have to increase release planned hours
     if (releasePlan.task.initiallyEstimated) {
         // this task was part of initial estimation so need to add data under initial object
-        release.initial.plannedHours += numberPlannedHours
+        release.initial.plannedHours += plannedHourNumber
         if (releasePlan.planning.plannedTaskCounts == 1) {
             // this means that this is the first task-plan added against this release plan hence we can add estimated Hours planned task here
             release.initial.estimatedHoursPlannedTasks += releasePlan.task.estimatedHours
         }
     } else {
-        release.additional.plannedHours += numberPlannedHours
+        release.additional.plannedHours += plannedHourNumber
         if (releasePlan.planning.plannedTaskCounts == 1) {
             // this means that this is the first task-plan added against this release plan hence we can add estimated Hours planned task here
             release.additional.estimatedHoursPlannedTasks += releasePlan.task.estimatedHours
@@ -408,7 +408,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     taskPlanning.release = release
     taskPlanning.releasePlan = releasePlan
     taskPlanning.employee = Object.assign({}, selectedEmployee.toObject(), {name: selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '' + selectedEmployee.lastName ? selectedEmployee.lastName : ''})
-    taskPlanning.planning = {plannedHours: numberPlannedHours}
+    taskPlanning.planning = {plannedHours: plannedHourNumber}
     taskPlanning.description = releasePlan.task.description ? releasePlan.task.description : ''
     return await taskPlanning.save()
 }
@@ -469,7 +469,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     /* Conversion of planned hours in number format */
-    let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
+    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
 
 
     /******************************** EMPLOYEE DAYS UPDATE **************************************************/
@@ -479,12 +479,12 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     /* Check the details of already added employees days is available or not */
     if (await MDL.EmployeeDaysModel.count({
             'employee._id': taskPlanning.employee._id.toString(),
-            'date': rePlanningDateMoment.toDate()
+            'date': rePlanningDateUtc
         }) > 0) {
 
         /* Update employee days details by increasing  planned hours and decreasing planned hours from previous date  if employees day detail is  added already*/
         let oldEmployeeDaysModelInput = {
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             employee: {
                 _id: taskPlanning.employee._id.toString(),
                 name: taskPlanning.employee.name
@@ -493,7 +493,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         }
         await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
         let newEmployeeDaysModelInput = {
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             employee: {
                 _id: taskPlanning.employee._id.toString(),
                 name: taskPlanning.employee.name
@@ -505,7 +505,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
         /* Add employee days details with planned hour and decrease planned hours from previous date ,if employee days details is not added  */
         let oldEmployeeDaysModelInput = {
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             employee: {
                 _id: taskPlanning.employee._id.toString(),
                 name: taskPlanning.employee.name
@@ -519,7 +519,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
                 _id: taskPlanning.employee._id.toString(),
                 name: taskPlanning.employee.name
             },
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             dateString: taskPlanningInput.rePlanningDate,
         }
         await MDL.EmployeeDaysModel.addEmployeeDaysDetails(newEmployeeDaysModelInput, user)
@@ -527,7 +527,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
     /* Updating task plan with new planning date */
     taskPlanning.created = Date.now()
-    taskPlanning.planningDate = rePlanningDateMoment
+    taskPlanning.planningDate = rePlanningDateUtc
     taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
     await taskPlanning.save()
 
@@ -587,7 +587,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Planning date is already over, cannot delete planning now', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
-    let numberPlannedHours = Number(taskPlanning.planning.plannedHours)
+    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
 
     /* when task plan is removed we have to decrease employee statistics  planned hours*/
     let EmployeeStatisticsModelInput = {
@@ -599,7 +599,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         },
         task: {
             _id: releasePlan._id.toString(),
-            plannedHours: numberPlannedHours,
+            plannedHours: plannedHourNumber,
             reportedHours: Number(0),
             plannedHoursReportedTasks: Number(0)
         }
@@ -608,7 +608,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     /* when task plan is removed we have to decrease employee days  planned hours */
     let oldEmployeeDaysModelInput = {
-        plannedHours: numberPlannedHours,
+        plannedHours: plannedHourNumber,
         employee: {
             _id: employee._id.toString(),
             name: taskPlanning.employee.name
@@ -620,7 +620,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     /********************** RELEASE PLAN UPDATES ***************************/
 
     // reduce planned hours & task count
-    releasePlan.planning.plannedHours -= numberPlannedHours
+    releasePlan.planning.plannedHours -= plannedHourNumber
     releasePlan.planning.plannedTaskCounts -= 1
 
     /* SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN */
@@ -719,7 +719,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         // This is last task against this employee in this release plan so remove employee section
         releasePlan.planning.employees[employeePlanningIdx].remove()
     } else {
-        releasePlan.planning.employees[employeePlanningIdx].plannedHours -= numberPlannedHours
+        releasePlan.planning.employees[employeePlanningIdx].plannedHours -= plannedHourNumber
         if (momentPlanningDate.isSame(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
             /*
               This means a task is deleted with date same as minimum planning date for employee, this could make changes to minimum planning date if this is the only task
@@ -803,9 +803,9 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
-        //logger.debug('Planned hours [' + releasePlan.planning.plannedHours + '] of release plan [' + releasePlan._id + '] matches [' + numberPlannedHours + '] of removed task planning. Hence need to again add unplanned flag and warning.')
+        //logger.debug('Planned hours [' + releasePlan.planning.plannedHours + '] of release plan [' + releasePlan._id + '] matches [' + plannedHourNumber + '] of removed task planning. Hence need to again add unplanned flag and warning.')
         releasePlan.flags.push(SC.WARNING_UNPLANNED)
-        warning = await MDL.WarningModel.addUnplanned(releasePlan)
+        warning = await MDL.WarningModel.addUnplanned(release, releasePlan)
     }
 
     //logger.debug('deleteTaskPlanning(): saving release plan ', {releasePlan})
@@ -814,19 +814,26 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     /******************************* RELEASE UPDATES *****************************************************/
 
     if (releasePlan.task.initiallyEstimated) {
-        release.initial.plannedHours -= numberPlannedHours
+        release.initial.plannedHours -= plannedHourNumber
         if (releasePlan.planning.plannedTaskCounts === 0)
             release.initial.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
 
     } else {
-        release.additional.plannedHours -= numberPlannedHours
+        release.additional.plannedHours -= plannedHourNumber
         if (releasePlan.planning.plannedTaskCounts === 0)
             release.additional.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
     }
     //logger.debug('deleteTaskPlanning(): saving release ', {release})
     await release.save()
 
-    let taskPlanningResponse = await TaskPlanningModel.remove({'_id': mongoose.Types.ObjectId(taskPlanning._id)})
+    let plannedDateMoment = U.dateInUTC(taskPlanning.planningDateString)
+    let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
+        "employee._id": taskPlanning.employee._id,
+        "date": plannedDateMoment
+    })
+    await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, plannedDateMoment)
+
+    let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlanning._id))
 
     /* remove task planning */
     return {warning: warning, taskPlan: taskPlanningResponse}
