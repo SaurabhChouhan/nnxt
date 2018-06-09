@@ -455,19 +455,19 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
         warningResponse.added.push({
             _id: release._id,
             warningType: SC.WARNING_TYPE_RELEASE,
-            type: SC.WARNING_PENDING_ON_END_DATE,
+            type: SC.WARNING_COMPLETED_BEFORE_END_DATE,
             source: true
         })
         warningResponse.added.push({
             _id: releasePlan._id,
             warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-            type: SC.WARNING_PENDING_ON_END_DATE,
+            type: SC.WARNING_COMPLETED_BEFORE_END_DATE,
             source: true
         })
         warningResponse.added.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_PENDING_ON_END_DATE,
+            type: SC.WARNING_COMPLETED_BEFORE_END_DATE,
             source: true
         })
     } else {
@@ -496,28 +496,9 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
 
         logger.debug('taskReportedAsCompleted(): ', {removedWarnings})
 
+        let promiseArray = []
 
         removedWarnings.forEach(w => {
-            if (w.releases && w.releases.length) {
-                w.releases.forEach(r => {
-                    warningResponse.removed.push({
-                        _id: r._id,
-                        warningType: SC.WARNING_TYPE_RELEASE,
-                        type: SC.WARNING_PENDING_ON_END_DATE,
-                        source: r.source
-                    })
-                })
-            }
-            if (w.releasePlans && w.releasePlans.length) {
-                w.releasePlans.forEach(r => {
-                    warningResponse.removed.push({
-                        _id: r._id,
-                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                        type: SC.WARNING_PENDING_ON_END_DATE,
-                        source: r.source
-                    })
-                })
-            }
             if (w.taskPlans && w.taskPlans.length) {
                 w.taskPlans.forEach(t => {
                     warningResponse.removed.push({
@@ -529,6 +510,47 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
                 })
             }
         })
+
+        let releasePlanIDs = []
+        removedWarnings.forEach(w => {
+            if (w.releasePlans && w.releasePlans.length) {
+                w.releasePlans.forEach(r => {
+                    if (releasePlanIDs.indexOf(r._id) == -1)
+                        releasePlanIDs.push(r._id)
+                })
+            }
+        })
+        logger.debug('release plan ids ', {releasePlanIDs})
+
+        if (releasePlanIDs.length) {
+            let promises = releasePlanIDs.map(id => {
+                return WarningModel.count({
+                    type: SC.WARNING_PENDING_ON_END_DATE,
+                    'releasePlans._id': mongoose.Types.ObjectId(id)
+                }).then(count => {
+                    return {
+                        _id: id,
+                        count: count
+                    }
+                })
+            })
+            //logger.debug('count promises are ', {promises})
+            let promisesResult = await Promise.all(promises)
+            logger.debug('count promises results are ', {promiseResult: promisesResult})
+            if(promisesResult && promisesResult.length){
+                promisesResult.forEach(p=>{
+                    logger.debug('iterating on p ', {p})
+                    if(p.count == 0){
+                        // add to removed list only if there is no associated pending on end date warning against this release plan
+                        warningResponse.removed.push({
+                            _id: p._id,
+                            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                            type: SC.WARNING_PENDING_ON_END_DATE
+                        })
+                    }
+                })
+            }
+        }
     }
     return warningResponse
 }
