@@ -84,7 +84,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         throw new AppError('Release Plan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-     // Get all roles user have in this release
+    // Get all roles user have in this release
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     logger.debug('user roles ', {userRolesInThisRelease})
 
@@ -115,7 +115,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (plannedHourNumber <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-        // Get employee roles in this project that this task is planned against
+    // Get employee roles in this project that this task is planned against
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
     //logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
@@ -323,12 +323,12 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         releasePlan.planning.employees[employeePlanningIdx].plannedHours += plannedHourNumber
 
         // As new plan is added against an employee if this employee has reporting data we need to reset final status to pending
-        if(Array.isArray(releasePlan.report.employees)){
+        if (Array.isArray(releasePlan.report.employees)) {
             let employeeReportIdx = releasePlan.report.employees.findIndex(e => {
                 return e._id.toString() == selectedEmployee._id.toString()
             })
 
-            if(employeeReportIdx!= -1){
+            if (employeeReportIdx != -1) {
                 releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
             }
         }
@@ -527,17 +527,17 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     }
     let planningDateMoment = U.dateInUTC(taskPlanning.planningDateString)
     let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
-        "employee._id": taskPlanning.employee._id,
-        "date": planningDateMoment
+        'employee._id': taskPlanning.employee._id,
+        'date': planningDateMoment
     })
 
     await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, planningDateMoment)
 
     let employeeDayOfReplanned = await MDL.EmployeeDaysModel.findOne({
-        "employee._id": taskPlanning.employee._id,
-        "date": planningDateMoment
+        'employee._id': taskPlanning.employee._id,
+        'date': planningDateMoment
     })
-    console.log("employeeDayOfReplanned", employeeDayOfReplanned)
+    console.log('employeeDayOfReplanned', employeeDayOfReplanned)
 
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
@@ -849,8 +849,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     let plannedDateMoment = U.dateInUTC(taskPlanning.planningDateString)
     let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
-        "employee._id": taskPlanning.employee._id,
-        "date": plannedDateMoment
+        'employee._id': taskPlanning.employee._id,
+        'date': plannedDateMoment
     })
     await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, plannedDateMoment)
 
@@ -888,6 +888,10 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
+    let release = MDL.ReleaseModel.findById(releasePlan.release._id, {initial: 1, additional: 1})
+
+    if (!release)
+        throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
     /* See if this is a re-report if yes then check if time for re-reporting is gone */
     let reReport = false
@@ -944,8 +948,6 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         //logger.debug('Reported hours to increment ', {reportedHoursToIncrement: reportedHoursToIncrement})
     }
 
-
-    let warnings = []
 
     /******************************** RELEASE PLAN UPDATES **************************************************/
 
@@ -1024,7 +1026,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
                 }
             })
 
-            if(taskPlanCompleted){
+            if (taskPlanCompleted) {
                 logger.debug('Release plan status would now be marked as completed')
                 releasePlan.report.finalStatus = SC.STATUS_COMPLETED
             } else {
@@ -1043,30 +1045,39 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
+    let generatedWarnings = undefined
+
     /**
      * Check if employee has reported task on last date of planning against this employee
      */
     if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
         if (taskReport.status == SC.REPORT_PENDING) {
-            // As employee reported task as pending we need to add pending on end date warning
-        let returnedWarnings = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
-        if (returnedWarnings) {
-            warnings.push(returnedWarnings)
-        }
+            // Add appropriate warnings
+            let generatedWarnings = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
 
-        if (!releasePlan.flags || releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1) {
-            // Add flag as not already present
-            if (!releasePlan.flags)
-                releasePlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
-            else
-                releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
+            logger.debug("addTaskPlanning(): Generated warnings ", {generatedWarnings})
 
-            if (!taskPlan.flags)
-                taskPlan.flags = [SC.WARNING_PENDING_ON_END_DATE]
-            else if (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)
-                taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
-        }
+            // Iterate through warnings and see what flags needs to be added to which task plans/release plans/releases
 
+            if (generatedWarnings && generatedWarnings.length) {
+                generatedWarnings.forEach(w => {
+                    logger.debug("addTaskPlanning(): iterating on warning ", {w})
+                    if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
+                        logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
+                        if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
+                            if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
+                                logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan ['+releasePlan._id+"]")
+                                releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
+                            }
+                        } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
+                            if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
+                                logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan ['+taskPlan._id+"]")
+                                taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
+                            }
+                        }
+                    }
+                })
+            }
         }
     }
 
@@ -1078,7 +1089,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         }
         if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate))
             await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, false)
-                else
+        else
             await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, false)
     }
 
@@ -1087,7 +1098,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
 
     /************************************** RELEASE UPDATES  ***************************************/
-    let release = MDL.ReleaseModel.findById(releasePlan.release._id, {initial: 1, additional: 1})
+
     let releaseUpdateData = {}
 
     /* check to see if this task was initially estimated or new one */
@@ -1161,7 +1172,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     return {
         taskPlan,
-        warnings
+        warnings: generatedWarnings
     }
 }
 
