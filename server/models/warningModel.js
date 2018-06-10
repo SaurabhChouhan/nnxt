@@ -85,14 +85,14 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
     if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see warnings of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await WarningModel.find({"releases._id":releaseID})
+    return await WarningModel.find({'releases._id': releaseID})
 }
 
 
 /**
  * Called when any task is planned
  */
-warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
+warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
     // See if this addition of planning causes too many hours warning
     // Check if planned hours crossed limit of maximum hours as per configuration, if yes generate too many hours warning
     logger.debug('warning.taskPlanned(): on adding planned hours for task planning check for task planning is having too many hours or not')
@@ -172,6 +172,15 @@ warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, emplo
                 warningType: SC.WARNING_TYPE_RELEASE_PLAN,
                 type: SC.WARNING_PENDING_ON_END_DATE
             })
+
+            // iterate on each task plan that was added against this warning and return removal of those task plans
+            pendingOnEndDateWarning.taskPlans.forEach(t => {
+                warningResponse.removed.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_PENDING_ON_END_DATE
+                })
+            })
         }
 
         /**
@@ -200,6 +209,19 @@ warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, emplo
     }
 
     return warningResponse
+}
+
+/**
+ * Called when task plan is removed. Make necessary warning changes
+ *
+ */
+warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) => {
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
 }
 
 warningSchema.statics.addUnplanned = async (release, releasePlan) => {
