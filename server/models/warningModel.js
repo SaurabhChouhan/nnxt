@@ -69,8 +69,23 @@ let warningSchema = mongoose.Schema({
 })
 
 
-warningSchema.statics.getWarnings = async (releasePlan) => {
-    return await WarningModel.find({})
+warningSchema.statics.getWarnings = async (releaseID, user) => {
+    //
+
+    let release = await MDL.ReleaseModel.findById(releaseID)
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    // Get all roles user have in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    logger.debug('warningModel.getWarnings(): ', {userRolesInThisRelease})
+    if (!userRolesInThisRelease) {
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see warnings of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    return await WarningModel.find({"releases._id":releaseID})
 }
 
 
