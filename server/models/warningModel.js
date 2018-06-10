@@ -93,8 +93,6 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
  * Called when any task is planned
  */
 warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
-
-
     // See if this addition of planning causes too many hours warning
     // Check if planned hours crossed limit of maximum hours as per configuration, if yes generate too many hours warning
     logger.debug('warning.taskPlanned(): on adding planned hours for task planning check for task planning is having too many hours or not')
@@ -205,7 +203,6 @@ warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, emplo
 }
 
 warningSchema.statics.addUnplanned = async (release, releasePlan) => {
-    // TODO: Add appropriate validation
     // unplanned warning would be raised against a single release and a single release plan
     let warning = {}
     warning.type = SC.WARNING_UNPLANNED
@@ -226,7 +223,6 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
 }
 
 warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
-    // TODO: Add appropriate validation
     logger.info('toManyHoursWarning():  ')
     /**
      * It is possible that this warning is raised earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
@@ -433,7 +429,6 @@ warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, e
 
 
 warningSchema.statics.deleteToManyHours = async (taskPlan, release, releasePlan, employeeDay, plannedDate) => {
-    // TODO: Add appropriate validation
     /**
      * It is possible that this warning is  earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised

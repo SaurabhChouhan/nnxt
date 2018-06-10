@@ -188,8 +188,8 @@ const updateEmployeeStaticsOnTaskPlanning = async (releasePlan, release, employe
 
 const updateReleasePlanTaskPlanning = async (releasePlan, employee, plannedHourNumber, momentPlanningDate) => {
 
-    /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well
-     */
+    /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well */
+
     releasePlan.planning.plannedHours += plannedHourNumber
     releasePlan.planning.plannedTaskCounts += 1
 
@@ -433,6 +433,20 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (plannedHourNumber <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
+    /* Task cannot be planned against an employee if it is already marked as 'completed' by that employee. To remove that check, manager/leader would have
+       to reopen that task against an employee
+    */
+
+    let employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+        return e._id.toString() == selectedEmployee._id.toString()
+    })
+
+    if(employeeReportIdx > -1){
+        // check to see if employee has reported this task as completed if 'yes', task cannot be planned against this employee
+        if(releasePlan.report.employees[employeeReportIdx].finalStatus == SC.REPORT_COMPLETED)
+            throw new AppError('Employee reported this task as ['+SC.REPORT_COMPLETED+"]. Cannot plan until reopen.", EC.CANT_PLAN, EC.HTTP_BAD_REQUEST)
+    }
+
     // Get employee roles in this project that this task is planned against
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
@@ -452,7 +466,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         // See if this employee is already roped in for this project if not add it as a non project user
 
         if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length == 0 || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
-
             logger.debug('addTaskPlanning(): non-developer of this release has given task first time so need to add hime to nonProject team ')
             // this is an extra employee note down
             if (!release.nonProjectTeam)
@@ -463,7 +476,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 'name': selectedEmployee.firstName + ' ' + selectedEmployee.lastName,
                 'email': selectedEmployee.email,
             })
-
             logger.debug('addTaskPlanning(): after adding non-developer to release release becomes ', {release})
         }
     }
