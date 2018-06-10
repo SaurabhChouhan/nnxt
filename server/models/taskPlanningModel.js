@@ -188,8 +188,8 @@ const updateEmployeeStaticsOnTaskPlanning = async (releasePlan, release, employe
 
 const updateReleasePlanTaskPlanning = async (releasePlan, employee, plannedHourNumber, momentPlanningDate) => {
 
-    /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well
-     */
+    /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well */
+
     releasePlan.planning.plannedHours += plannedHourNumber
     releasePlan.planning.plannedTaskCounts += 1
 
@@ -299,7 +299,7 @@ const makeWarningUpdatesTaskPlanning = async (taskPlan, releasePlan, release, em
         added: [],
         removed: []
     }
-    let warningsTaskPlanned = await MDL.WarningModel.taskPlanned(taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
+    let warningsTaskPlanned = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
 
     logger.debug('addTaskPlanning(): warnings task planned ', {warningsTaskPlanned})
 
@@ -321,8 +321,8 @@ const makeWarningUpdatesTaskPlanning = async (taskPlan, releasePlan, release, em
                         releasePlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
-                        MDL.ReleasePlanModel.findById(w._id).then(r=>{
-                            if(r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1){
+                        MDL.ReleasePlanModel.findById(w._id).then(r => {
+                            if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1) {
                                 r.flags.push(SC.WARNING_TOO_MANY_HOURS)
                                 r.save()
                             }
@@ -336,8 +336,8 @@ const makeWarningUpdatesTaskPlanning = async (taskPlan, releasePlan, release, em
                         taskPlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
-                        MDL.TaskPlanningModel.findById(w._id).then(t=>{
-                            if(t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1){
+                        MDL.TaskPlanningModel.findById(w._id).then(t => {
+                            if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1) {
                                 logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
                                 t.flags.push(SC.WARNING_TOO_MANY_HOURS)
                                 t.save()
@@ -362,15 +362,25 @@ const makeWarningUpdatesTaskPlanning = async (taskPlan, releasePlan, release, em
                 }
             } else if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_UNPLANNED + '] is removed against release plan with id [' + w._id + ']')
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed against release plan with id [' + w._id + ']')
                     if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
                         logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
                     }
+                } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed against task plan with id [' + w._id + ']')
+                    // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                    MDL.TaskPlanningModel.findById(w._id).then(t => {
+                        if (t && t.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1) {
+                            logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + t._id + ']')
+                            t.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
+                            t.save()
+                        }
+                    })
                 }
             } else if (w.type == SC.WARNING_COMPLETED_BEFORE_END_DATE) {
                 if (w.warningType == SC.WARNING_COMPLETED_BEFORE_END_DATE) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_UNPLANNED + '] is removed against task plan with id [' + w._id + ']')
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is removed against task plan with id [' + w._id + ']')
                     if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) > -1)) {
                         logger.debug('Pulling  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_COMPLETED_BEFORE_END_DATE)
@@ -433,6 +443,20 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     if (plannedHourNumber <= 0)
         throw new AppError('Planned hours need to be positive number', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
+    /* Task cannot be planned against an employee if it is already marked as 'completed' by that employee. To remove that check, manager/leader would have
+       to reopen that task against an employee
+    */
+
+    let employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+        return e._id.toString() == selectedEmployee._id.toString()
+    })
+
+    if (employeeReportIdx > -1) {
+        // check to see if employee has reported this task as completed if 'yes', task cannot be planned against this employee
+        if (releasePlan.report.employees[employeeReportIdx].finalStatus == SC.REPORT_COMPLETED)
+            throw new AppError('Employee reported this task as [' + SC.REPORT_COMPLETED + ']. Cannot plan until reopen.', EC.CANT_PLAN, EC.HTTP_BAD_REQUEST)
+    }
+
     // Get employee roles in this project that this task is planned against
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
@@ -452,7 +476,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         // See if this employee is already roped in for this project if not add it as a non project user
 
         if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length == 0 || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
-
             logger.debug('addTaskPlanning(): non-developer of this release has given task first time so need to add hime to nonProject team ')
             // this is an extra employee note down
             if (!release.nonProjectTeam)
@@ -463,16 +486,22 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 'name': selectedEmployee.firstName + ' ' + selectedEmployee.lastName,
                 'email': selectedEmployee.email,
             })
-
             logger.debug('addTaskPlanning(): after adding non-developer to release release becomes ', {release})
         }
     }
     // ### All validations should be performed above, it is assumed that things are valid beyond this line ###
 
     // this code should be placed before updating release plan else max planning date would be changed
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() == selectedEmployee._id.toString()
+    })
+
     let plannedAfterMaxDate = false
-    if (releasePlan.planning.maxPlanningDate && momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate))
+    if (employeePlanningIdx > -1 && releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate && momentPlanningDate.isAfter(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
         plannedAfterMaxDate = true
+    }
+
+    logger.debug('taskPlanningModel.addTaskPlanning(): planned after max date is ', {plannedAfterMaxDate})
 
     await updateEmployeeDaysOnTaskPlanning(selectedEmployee, plannedHourNumber, momentPlanningDate)
     await updateEmployeeStaticsOnTaskPlanning(releasePlan, release, selectedEmployee, plannedHourNumber)

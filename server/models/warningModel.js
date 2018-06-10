@@ -85,16 +85,14 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
     if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see warnings of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await WarningModel.find({"releases._id":releaseID})
+    return await WarningModel.find({'releases._id': releaseID})
 }
 
 
 /**
  * Called when any task is planned
  */
-warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
-
-
+warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
     // See if this addition of planning causes too many hours warning
     // Check if planned hours crossed limit of maximum hours as per configuration, if yes generate too many hours warning
     logger.debug('warning.taskPlanned(): on adding planned hours for task planning check for task planning is having too many hours or not')
@@ -116,7 +114,7 @@ warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, emplo
 
     logger.debug('warning.taskPlanned(): employeeDay', {bk3: employeeDay})
     if (plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
-        let warningsTooManyHours = await WarningModel.addTooManyHours(taskPlan, release, releasePlan, employee, momentPlanningDate)
+        let warningsTooManyHours = await addTooManyHours(taskPlan, release, releasePlan, employee, momentPlanningDate)
         if (warningsTooManyHours.added && warningsTooManyHours.added.length)
             warningResponse.added.push(...warningsTooManyHours.added)
         if (warningsTooManyHours.removed && warningsTooManyHours.removed.length)
@@ -174,6 +172,15 @@ warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, emplo
                 warningType: SC.WARNING_TYPE_RELEASE_PLAN,
                 type: SC.WARNING_PENDING_ON_END_DATE
             })
+
+            // iterate on each task plan that was added against this warning and return removal of those task plans
+            pendingOnEndDateWarning.taskPlans.forEach(t => {
+                warningResponse.removed.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_PENDING_ON_END_DATE
+                })
+            })
         }
 
         /**
@@ -204,8 +211,20 @@ warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, emplo
     return warningResponse
 }
 
+/**
+ * Called when task plan is removed. Make necessary warning changes
+ *
+ */
+warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) => {
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+}
+
 warningSchema.statics.addUnplanned = async (release, releasePlan) => {
-    // TODO: Add appropriate validation
     // unplanned warning would be raised against a single release and a single release plan
     let warning = {}
     warning.type = SC.WARNING_UNPLANNED
@@ -225,8 +244,7 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
     return await WarningModel.create(warning)
 }
 
-warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
-    // TODO: Add appropriate validation
+const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
     logger.info('toManyHoursWarning():  ')
     /**
      * It is possible that this warning is raised earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
@@ -433,7 +451,6 @@ warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, e
 
 
 warningSchema.statics.deleteToManyHours = async (taskPlan, release, releasePlan, employeeDay, plannedDate) => {
-    // TODO: Add appropriate validation
     /**
      * It is possible that this warning is  earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised
