@@ -114,7 +114,7 @@ warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, emplo
 
     logger.debug('warning.taskPlanned(): employeeDay', {bk3: employeeDay})
     if (plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
-        let warningsTooManyHours = await WarningModel.addTooManyHours(taskPlan, release, releasePlan, employee, momentPlanningDate)
+        let warningsTooManyHours = await addTooManyHours(taskPlan, release, releasePlan, employee, momentPlanningDate)
         if (warningsTooManyHours.added && warningsTooManyHours.added.length)
             warningResponse.added.push(...warningsTooManyHours.added)
         if (warningsTooManyHours.removed && warningsTooManyHours.removed.length)
@@ -222,7 +222,7 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
     return await WarningModel.create(warning)
 }
 
-warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
+const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
     logger.info('toManyHoursWarning():  ')
     /**
      * It is possible that this warning is raised earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
