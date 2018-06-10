@@ -273,7 +273,7 @@ class ReleasePlanList extends Component {
                         <button className={showPlans ? "btn btnWarning" : "btn btnWarningSelected"}
                                 onClick={() => {
                                     this.showWarnings(),
-                                        this.props.getAllWarnings()
+                                        this.props.getAllWarnings(release)
                                 }}>Warnings
                         </button>
                         <button className={showPlans ? "btn btnReleasePlanSelected" : "btn btnReleasePlan"}
