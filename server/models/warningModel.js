@@ -404,8 +404,8 @@ warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, e
 
         newWarning.type = SC.WARNING_TOO_MANY_HOURS
         newWarning.taskPlans = [...taskPlans, currentTaskPlan]
-        newWarning.releasePlans = releasePlans && releasePlans.length && releasePlans.findIndex(rp => rp._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releasePlans : [...releasePlans, releasePlan.toObject()]
-        newWarning.releases = releases && releases.length && releases.findIndex(r => r._id.toString() === releasePlan.toObject()._id.toString()) != -1 ? releases : [...releases, release.toObject()]
+        newWarning.releasePlans = [...releasePlans]
+        newWarning.releases = [...releases]
         newWarning.employeeDays = employeeDays
         await newWarning.save()
     }
