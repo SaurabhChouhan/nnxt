@@ -37,7 +37,7 @@ let employeeStatisticsSchema = mongoose.Schema({
     ]
 })
 
-employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeStatisticsInput, user) => {
+employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeStatisticsInput) => {
     //console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeAddEmployeeStatisticsStruct)
     let countStatistics = await EmployeeStatisticsModel.count({
@@ -51,7 +51,7 @@ employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeS
 }
 
 
-employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
+employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (EmployeeStatisticsInput) => {
    // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeAddTaskEmployeeStatisticsStruct)
     let countTaskStatistics = await EmployeeStatisticsModel.count({
@@ -69,7 +69,7 @@ employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (Emp
 }
 
 
-employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
+employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput) => {
     //console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
     let employeeStatistics = await EmployeeStatisticsModel.find({

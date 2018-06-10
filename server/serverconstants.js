@@ -61,7 +61,7 @@ export const OPERATION_SUBTRACTION_AND_ADDITION = 'subtraction-and-addition'
 //warning related
 
 export const WARNING_TYPE_RELEASE = 'release'
-export const WARNING_TYPE_RELEASE_TASK = 'realease_task'
+export const WARNING_TYPE_RELEASE_PLAN = 'realease_plan'
 export const WARNING_TYPE_TASK_PLAN = 'task_plan'
 export const WARNING_UNPLANNED = 'unplanned'
 export const WARNING_TOO_MANY_HOURS = 'too_many_hours'
@@ -86,7 +86,7 @@ export const WARNING_COMPLETED_BEFORE_END_DATE = 'completed-before-enddate'
 
 export const ALL_WARNING_NAME_ARRAY = [
     WARNING_TYPE_RELEASE,
-    WARNING_TYPE_RELEASE_TASK,
+    WARNING_TYPE_RELEASE_PLAN,
     WARNING_TYPE_TASK_PLAN,
     WARNING_UNPLANNED,
     WARNING_TOO_MANY_HOURS,

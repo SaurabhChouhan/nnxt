@@ -231,7 +231,7 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReleaseTaskPlanningToState(json.data))
+                    dispatch(addReleaseTaskPlanningToState(json.data.taskPlan))
                     if (json.data && json.data.releasePlan && json.data.releasePlan._id) {
                         dispatch(getUpdatedReleasePlanFromServer(json.data.releasePlan._id))
                     }

@@ -90,10 +90,7 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
         description: estimationTask.estimator.description,
         initiallyEstimated: estimationTask.initiallyEstimated
     }
-    releasePlanInput.planning = {
-        employees: release.team
-    }
-
+    
     if (estimationTask.feature && estimationTask.feature._id)
         releasePlanInput.feature = estimationTask.feature
 
