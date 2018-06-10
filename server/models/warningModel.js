@@ -253,11 +253,11 @@ warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, e
     /* See if there is already a too many hours warning */
     let tooManyHoursWarning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDays.date': planningDateUtc,
-        'employeeDays.employee_id': mongoose.Types.ObjectId(employee._id)
+        'employeeDays.date': momentPlanningDate.toDate(),
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
     })
 
-    logger.debug('too many hours warning ', {tooManyHoursWarning})
+    logger.debug('WarningModel.addTooManyHours(): existing warning ', {tooManyHoursWarning})
     if (tooManyHoursWarning) {
         logger.debug('too many hours warning already exists')
         /* Update Existing warning WARNING_TOO_MANY_HOURS of same employee and planned date */
@@ -290,6 +290,9 @@ warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, e
         }
 
         tooManyHoursWarning.taskPlans.push(currentTaskPlan)
+
+        await tooManyHoursWarning.save()
+
         warningResponse.added.push({
             _id: currentTaskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -408,7 +411,7 @@ warningSchema.statics.addTooManyHours = async (taskPlan, release, releasePlan, e
             source: true
         })
 
-        taskPlans.forEach(t=>{
+        taskPlans.forEach(t => {
             warningResponse.added.push({
                 _id: t._id,
                 warningType: SC.WARNING_TYPE_TASK_PLAN,
