@@ -20,7 +20,7 @@ let employeeDaysSchema = mongoose.Schema({
 })
 
 
-employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput, user) => {
+employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) => {
     V.validate(EmployeeDaysInput, V.employeeAddEmployeeDaysStruct)
     let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
     EmployeeDaysInput.date = momentEmployeeDate
@@ -35,7 +35,7 @@ employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput, us
     return await EmployeeDaysModel.create(EmployeeDaysInput)
 }
 
-employeeDaysSchema.statics.increasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput, user) => {
+employeeDaysSchema.statics.increasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput) => {
     V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
     let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
     EmployeeDaysInput.date = momentEmployeeDate
