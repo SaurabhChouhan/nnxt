@@ -73,6 +73,98 @@ warningSchema.statics.getWarnings = async (releasePlan) => {
     return await WarningModel.find({})
 }
 
+
+/**
+ * Called when any task is planned
+ */
+warningSchema.statics.taskPlanned = async (taskPlan, releasePlan, release, firstTaskOfReleasePlan, addedAfterMaxDate) => {
+    // If this is first task planned against a release plan, unplanned warning would be removed from release plan
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    if (firstTaskOfReleasePlan) {
+        logger.debug("warning.taskPlanned(): this is first task of release")
+        // since this is first task of release plan, unplanned warning would be removed from release plan
+        let unplannedWarnings = await WarningModel.find({
+            type: SC.WARNING_UNPLANNED,
+            'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
+        })
+
+        logger.debug("warning.taskPlanned(): unplanned warnings ", {unplannedWarnings})
+
+        if (unplannedWarnings && unplannedWarnings.length) {
+            let unplannedWarningPromises = unplannedWarnings.map(up=>{
+                return up.remove()
+            })
+            let unplannedResult = await Promise.all(unplannedWarningPromises)
+
+            warningResponse.removed.push({
+                _id: taskPlan.releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_UNPLANNED
+            })
+        }
+    }
+
+    if (addedAfterMaxDate) {
+
+        logger.debug("warning.taskPlanned(): task is planned after maximum planned date")
+
+        /**
+         * Since this planning is added after max planning date, if there are pending on end date warning remove those
+         */
+
+        let pendingOnEndDateWarning = await WarningModel.findOne({
+            type: SC.WARNING_PENDING_ON_END_DATE,
+            'releasePlans': {
+                '$elemMatch': {
+                    _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                    'employee._id': taskPlan.employee._id
+                }
+            }
+        })
+
+        if (pendingOnEndDateWarning) {
+            // remove warning
+            pendingOnEndDateWarning.remove()
+            warningResponse.removed.push({
+                _id: taskPlan.releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_PENDING_ON_END_DATE
+            })
+        }
+
+        /**
+         * Since this planning is added after max planning date, if there are warnings like completed before end date against this employee remove those
+         */
+
+        let completedBeforeEndDateWarning = await WarningModel.findOne({
+            type: SC.WARNING_COMPLETED_BEFORE_END_DATE,
+            'releasePlans': {
+                '$elemMatch': {
+                    _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                    'employee._id': taskPlan.employee._id
+                }
+            }
+        })
+
+        if (completedBeforeEndDateWarning) {
+            // remove warning
+            completedBeforeEndDateWarning.remove()
+            warningResponse.removed.push({
+                _id: taskPlan.releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_COMPLETED_BEFORE_END_DATE
+            })
+        }
+    }
+
+    return warningResponse
+}
+
 warningSchema.statics.addUnplanned = async (release, releasePlan) => {
     // TODO: Add appropriate validation
     // unplanned warning would be raised against a single release and a single release plan
@@ -537,10 +629,10 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
             //logger.debug('count promises are ', {promises})
             let promisesResult = await Promise.all(promises)
             logger.debug('count promises results are ', {promiseResult: promisesResult})
-            if(promisesResult && promisesResult.length){
-                promisesResult.forEach(p=>{
+            if (promisesResult && promisesResult.length) {
+                promisesResult.forEach(p => {
                     logger.debug('iterating on p ', {p})
-                    if(p.count == 0){
+                    if (p.count == 0) {
                         // add to removed list only if there is no associated pending on end date warning against this release plan
                         warningResponse.removed.push({
                             _id: p._id,

@@ -276,13 +276,17 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     releasePlan.planning.plannedHours += plannedHourNumber
     releasePlan.planning.plannedTaskCounts += 1
 
+    let plannedAfterMaximumDate = false
+
     if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
         releasePlan.planning.minPlanningDate = momentPlanningDate.toDate()
     }
     if (!releasePlan.planning.maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.maxPlanningDate)) {
+        if (releasePlan.planning.maxPlanningDate)
+            plannedAfterMaximumDate = true
+
         releasePlan.planning.maxPlanningDate = momentPlanningDate.toDate()
     }
-
 
     // Update employee planning data
 
@@ -294,7 +298,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         })
     }
 
-    logger.debug('employee planning: ', {employeePlanningIdx})
+    logger.debug('addTaskPlanning(): employee planning: ', {employeePlanningIdx})
 
     if (employeePlanningIdx == -1) {
         logger.debug('employee [' + selectedEmployee.firstName + '] has assigned first task in this release plan')
@@ -341,6 +345,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
             releasePlan.report.finalStatus = SC.STATUS_PENDING
     }
 
+    /*
     // Since a planning is added into release plan task, we would have to remove unplanned warning from this plan and also remove unplanned flag
     if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) > -1) {
         // remove flag and associated warning
@@ -348,11 +353,21 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         releasePlan.flags.pull(SC.WARNING_UNPLANNED)
         await MDL.WarningModel.removeUnplanned(releasePlan)
     }
+    */
 
     /********************************* TASK PLANNING UPDATES ************************************/
 
         // creating new task plan
-    let taskPlanning = new TaskPlanningModel()
+    let taskPlan = new TaskPlanningModel()
+    taskPlan.created = Date.now()
+    taskPlan.planningDate = momentPlanningDate
+    taskPlan.planningDateString = taskPlanningInput.planningDate
+    taskPlan.task = releasePlan.task
+    taskPlan.release = release
+    taskPlan.releasePlan = releasePlan
+    taskPlan.employee = Object.assign({}, selectedEmployee.toObject(), {name: selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '' + selectedEmployee.lastName ? selectedEmployee.lastName : ''})
+    taskPlan.planning = {plannedHours: plannedHourNumber}
+    taskPlan.description = releasePlan.task.description ? releasePlan.task.description : ''
 
     // Science a planning is added into release plan task, we would have to check for number planned is very high or not for that add too many hours flag
     logger.debug('on adding planned hours for task planning check for task planning is having too many hours or not')
@@ -369,7 +384,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     logger.debug('employeeDay', {bk3: employeeDay})
 
     if (plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
-        await MDL.WarningModel.addToManyHours(taskPlanning, release, releasePlan, employeeDay, momentPlanningDate)
+        await MDL.WarningModel.addToManyHours(taskPlan, release, releasePlan, employeeDay, momentPlanningDate)
 
         if (releasePlan.flags && releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) == -1) {
             /*Since release plan already has too many hours flag update that warning*/
@@ -377,9 +392,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
     }
 
-    logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
-    await releasePlan.save()
-
+    taskPlan.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
 
     /******************************** RELEASE UPDATES **************************************************/
 
@@ -400,22 +413,59 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         }
     }
 
+    let generatedWarnings = {
+        added: [],
+        removed: []
+    }
+
+    let warningsTaskPlanned = await MDL.WarningModel.taskPlanned(taskPlan, releasePlan, release, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaximumDate)
+
+    logger.debug('addTaskPlanning(): warnings task planned ', {warningsTaskPlanned})
+
+    if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
+        generatedWarnings.added.push(...warningsTaskPlanned.added)
+    if (warningsTaskPlanned.removed && warningsTaskPlanned.removed.length)
+        generatedWarnings.removed.push(...warningsTaskPlanned.removed)
+
+    logger.debug('addTaskPlanning(): Generated warnings ', {generatedWarnings})
+
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        generatedWarnings.removed.forEach(w => {
+            logger.debug('addTaskPlanning(): iterating on removed warning ', {w})
+            if (w.type == SC.WARNING_UNPLANNED) {
+                logger.debug('Warning  [' + SC.WARNING_UNPLANNED + '] is removed')
+                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
+                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) > -1)) {
+                        logger.debug('Pulling  [' + SC.WARNING_UNPLANNED + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.pull(SC.WARNING_UNPLANNED)
+                    }
+                }
+            } else if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
+                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed')
+                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
+                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
+                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
+                    }
+                }
+            } else if (w.type == SC.WARNING_COMPLETED_BEFORE_END_DATE) {
+                logger.debug('Warning  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is removed')
+                if (w.warningType == SC.WARNING_COMPLETED_BEFORE_END_DATE) {
+                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) > -1)) {
+                        logger.debug('Pulling  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.pull(SC.WARNING_COMPLETED_BEFORE_END_DATE)
+                    }
+                }
+            }
+        })
+    }
+
     logger.debug('addTaskPlanning(): adding release ', {release})
     await release.save()
-
-
-    /******************************** TASK PLAN ADD **************************************************/
-    taskPlanning.created = Date.now()
-    taskPlanning.planningDate = momentPlanningDate
-    taskPlanning.planningDateString = taskPlanningInput.planningDate
-    taskPlanning.task = releasePlan.task
-    taskPlanning.release = release
-    taskPlanning.releasePlan = releasePlan
-    taskPlanning.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
-    taskPlanning.employee = Object.assign({}, selectedEmployee.toObject(), {name: selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '' + selectedEmployee.lastName ? selectedEmployee.lastName : ''})
-    taskPlanning.planning = {plannedHours: plannedHourNumber}
-    taskPlanning.description = releasePlan.task.description ? releasePlan.task.description : ''
-    return await taskPlanning.save()
+    logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
+    await releasePlan.save()
+    logger.debug('addTaskPlanning(): saving task plan ', {releasePlan})
+    return await taskPlan.save()
 }
 
 
@@ -1067,7 +1117,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
             // Add appropriate warnings
             let warningsReportedAsPending = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
 
-            logger.debug('addTaskPlanning(): Generated warnings ', {generatedWarnings})
+            logger.debug('addTaskReport(): Generated warnings ', {generatedWarnings})
 
             // Iterate through warnings and see what flags needs to be added to which task plans/release plans/releases
 
@@ -1093,7 +1143,6 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         if (warningReportedAsCompleted.removed && warningReportedAsCompleted.removed.length)
             generatedWarnings.removed.push(...warningReportedAsCompleted.removed)
     }
-
 
 
     /************************************** RELEASE UPDATES  ***************************************/
@@ -1163,10 +1212,10 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     // Iterate over all generated warnings and add appropriate flags to taskplans and release plans
 
-    logger.debug("addTaskReport(): All generated warnings of this operation is ", {generatedWarnings})
+    logger.debug('addTaskReport(): All generated warnings of this operation is ', {generatedWarnings})
     if (generatedWarnings.added && generatedWarnings.added.length) {
         generatedWarnings.added.forEach(w => {
-            logger.debug('addTaskPlanning(): iterating on warning ', {w})
+            logger.debug('addTaskReport(): iterating on warning ', {w})
             if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
                 logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
@@ -1199,9 +1248,9 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
-            logger.debug('addTaskPlanning(): iterating on removed warning ', {w})
+            logger.debug('addTaskReport(): iterating on removed warning ', {w})
             if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
+                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed')
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
                         logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
