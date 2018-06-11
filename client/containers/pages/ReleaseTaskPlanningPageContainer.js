@@ -4,6 +4,7 @@ import {initialize} from 'redux-form'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
+import * as EC from '../../../server/errorcodes'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
@@ -31,7 +32,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
         }
-        else NotificationManager.error("Task Planning Deletion Failed")
+        else {
+            if (json.errorCode === EC.NOT_FOUND) {
+                return NotificationManager.error(json.messaqge)
+            } else if (json.errorCode === EC.ACCESS_DENIED) {
+                return NotificationManager.error(json.messaqge)
+            } else if (json.errorCode === EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE) {
+                return NotificationManager.error(json.messaqge)
+            } else if (json.errorCode === EC.TIME_OVER) {
+                return NotificationManager.error(json.messaqge)
+            } else NotificationManager.error("Task Planning Deletion Failed")
+        }
     }),
 
     openMergeTaskPlanningForm: (releasePlan) => {
