@@ -216,12 +216,16 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
  *
  */
 warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) => {
-
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'date': momentPlanningDate,
+        'employee._id': mongoose.Types.ObjectId(employee._id)
+    })
     let warningResponse = {
         added: [],
         removed: []
     }
-
 }
 
 warningSchema.statics.addUnplanned = async (release, releasePlan) => {
@@ -240,7 +244,6 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
       much problem and any such duplicate warning would be visible on UI and duplicate calls would be
       fixed. This would save un-necessary existence check of warnings
      */
-
     return await WarningModel.create(warning)
 }
 
