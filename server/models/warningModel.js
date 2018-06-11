@@ -95,11 +95,11 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
 warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
     // See if this addition of planning causes too many hours warning
     // Check if planned hours crossed limit of maximum hours as per configuration, if yes generate too many hours warning
-    logger.debug('warning.taskPlanned(): on adding planned hours for task planning check for task planning is having too many hours or not')
+    //logger.debug('warning.taskPlanned(): on adding planned hours for task planning check for task planning is having too many hours or not')
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
 
-    logger.debug('warning.taskPlanned(): employeeSetting', {bk1: employeeSetting})
-    logger.debug('warning.taskPlanned(): employeeSetting.maxPlannedHours', {bk2: employeeSetting.maxPlannedHours})
+    //logger.debug('warning.taskPlanned(): employeeSetting', {bk1: employeeSetting})
+    //logger.debug('warning.taskPlanned(): employeeSetting.maxPlannedHours', {bk2: employeeSetting.maxPlannedHours})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
     let employeeDay = await MDL.EmployeeDaysModel.findOne({
