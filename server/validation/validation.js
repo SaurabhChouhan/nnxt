@@ -3,7 +3,7 @@ import * as EC from '../errorcodes'
 import _ from 'lodash'
 import mongoose from 'mongoose'
 import Moment from 'moment-timezone'
-import {DATE_FORMAT, DEFAULT_TIMEZONE} from '../serverconstants'
+import * as SC from '../serverconstants'
 
 /**
  * Required string rule
@@ -24,7 +24,7 @@ export let ObjectId = t.refinement(t.String, s => mongoose.Types.ObjectId.isVali
 
 export let validDate = t.refinement(t.String, s => {
     console.log('validDate: s is ', s)
-    let m = Moment.tz(s, DATE_FORMAT, DEFAULT_TIMEZONE)
+    let m = Moment.tz(s, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
     console.log('validDate: s is ', s)
     console.log('moment is ', m)
     console.log('is valid ', m.isValid())
