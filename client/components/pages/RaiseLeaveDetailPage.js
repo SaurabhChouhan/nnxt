@@ -4,9 +4,7 @@ import moment from 'moment'
 class RaiseLeaveDetailPage extends Component {
     constructor(props) {
         super(props)
-
     }
-
 
     render() {
         const {raiseLeave} = this.props

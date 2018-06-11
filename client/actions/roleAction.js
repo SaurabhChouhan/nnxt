@@ -4,8 +4,7 @@ import * as AC from "./actionConsts"
 export const addAllRoles = (roles) => ({
         type: AC.ADD_ROLES,
         roles: roles
-    }
-)
+})
 
 export const addRole = (role) => ({
     type: AC.ADD_ROLE,

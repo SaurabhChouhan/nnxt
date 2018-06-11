@@ -1,5 +1,4 @@
 import * as AC from './actionConsts'
-import * as A from '../actions'
 
 export const addWarnings = (warnings) => ({
     type: AC.ADD_WARNINGS,

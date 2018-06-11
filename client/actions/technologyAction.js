@@ -9,6 +9,7 @@ export const addTechnology = (technology) => ({
     type: AC.ADD_TECHNOLOGY,
     technology: technology
 })
+
 export const deleteTechnology = (TechnologyID) => ({
     type: AC.DELETE_TECHNOLOGY,
     TechnologyID: TechnologyID
@@ -34,6 +35,7 @@ export const getAllTechnologiesFromServer = () => {
             })
     }
 }
+
 
 export const addTechnologyOnServer = (formInput) => {
     return function (dispatch, getState) {
@@ -62,6 +64,8 @@ export const addTechnologyOnServer = (formInput) => {
         )
     }
 }
+
+
 export const deleteTechnologyOnServer = (TechnologyID) => {
     return function (dispatch, getState) {
         return fetch('/api/technologies/' + TechnologyID,
