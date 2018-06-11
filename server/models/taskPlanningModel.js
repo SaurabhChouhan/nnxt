@@ -9,6 +9,7 @@ import * as MDL from '../models'
 import * as V from '../validation'
 import logger from '../logger'
 import * as U from '../utils'
+import * as EM from '../errormessages'
 
 mongoose.Promise = global.Promise
 
@@ -532,148 +533,37 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 }
 
 
-/**
- *  merge task plan to another date
- **/
-taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, schemaRequested) => {
-    if (schemaRequested)
-        return V.generateSchema(V.releaseMergeTaskPlanningStruct)
+const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee) => {
 
-    V.validate(taskPlanningInput, V.releaseMergeTaskPlanningStruct)
-
-    /* Conversion of now and dates into moment */
-    let now = new Date()
-
-    let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
-    let replanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
-
-    let rePlanningDateUtc = U.dateInUTC(taskPlanningInput.rePlanningDate)
-
-    /*Checking that  new planning date is a valid date or not */
-    /*Checking that new planning date  is before now or not */
-
-    if (todaysDateInIndia.isAfter(replanningDateInIndia)) {
-        throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    }
-
-    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
-    if (!releasePlan) {
-        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
-    if (!taskPlanning) {
-        throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    }
-
-    let taskPlanningDateInIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
-
-    /*Checking  that previous planning date is a valid date and can be editable means is it before now */
-    if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
-        throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    }
-
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
-    if (!release) {
-        throw new AppError('ReleasePlan is not having release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    /*checking  user highest role in this release */
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
-        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    /* Conversion of planned hours in number format */
-    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
-
-
-    /******************************** EMPLOYEE DAYS UPDATE **************************************************/
-
-
-    /* Add or update employee days details when task is replanned */
-    /* Check the details of already added employees days is available or not */
-    if (await MDL.EmployeeDaysModel.count({
-            'employee._id': taskPlanning.employee._id.toString(),
-            'date': rePlanningDateUtc
-        }) > 0) {
-
-        /* Update employee days details by increasing  planned hours and decreasing planned hours from previous date  if employees day detail is  added already*/
-        let oldEmployeeDaysModelInput = {
+    let EmployeeStatisticsModelInput = {
+        release: {
+            _id: taskPlanning.release._id.toString(),
+        },
+        employee: {
+            _id: employee._id.toString(),
+        },
+        task: {
+            _id: releasePlan._id.toString(),
             plannedHours: plannedHourNumber,
-            employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
-            },
-            dateString: taskPlanning.planningDateString,
+            reportedHours: Number(0),
+            plannedHoursReportedTasks: Number(0)
         }
-        await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
-        let newEmployeeDaysModelInput = {
-            plannedHours: plannedHourNumber,
-            employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
-            },
-            dateString: taskPlanningInput.rePlanningDate,
-        }
-        await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(newEmployeeDaysModelInput, user)
-    } else {
-
-        /* Add employee days details with planned hour and decrease planned hours from previous date ,if employee days details is not added  */
-        let oldEmployeeDaysModelInput = {
-            plannedHours: plannedHourNumber,
-            employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
-            },
-            dateString: taskPlanning.planningDateString
-        }
-        await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
-
-        let newEmployeeDaysModelInput = {
-            employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
-            },
-            plannedHours: plannedHourNumber,
-            dateString: taskPlanningInput.rePlanningDate,
-        }
-        await MDL.EmployeeDaysModel.addEmployeeDaysDetails(newEmployeeDaysModelInput, user)
     }
-    let planningDateMoment = U.dateInUTC(taskPlanning.planningDateString)
-    let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlanning.employee._id,
-        'date': planningDateMoment
-    })
+    await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
 
-    await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, planningDateMoment)
-
-    let employeeDayOfReplanned = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlanning.employee._id,
-        'date': planningDateMoment
-    })
-    console.log('employeeDayOfReplanned', employeeDayOfReplanned)
-
-    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
-    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
-
-    if (plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber) {
-        await MDL.WarningModel.addTooManyHours(taskPlanning, release, releasePlan, employeeDayOfReplanned, rePlanningDateUtc)
+    /* when task plan is removed we have to decrease employee days  planned hours */
+    let oldEmployeeDaysModelInput = {
+        plannedHours: plannedHourNumber,
+        employee: {
+            _id: employee._id.toString(),
+            name: taskPlanning.employee.name
+        },
+        dateString: taskPlanning.planningDateString,
     }
-    /* Updating task plan with new planning date */
-    taskPlanning.created = Date.now()
-    taskPlanning.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
-    taskPlanning.planningDate = rePlanningDateUtc
-    taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
-    await taskPlanning.save()
+    await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
-    taskPlanning = taskPlanning.toObject()
-    taskPlanning.canMerge = true
-    return taskPlanning
+
 }
-
 
 /**
  * Delete task planning
@@ -686,7 +576,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanning.releasePlan._id))
     if (!releasePlan) {
-        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError(EM.RELEASE_PLAN_NOT_FOUND, EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanning.release._id))
@@ -728,32 +618,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
 
     /* when task plan is removed we have to decrease employee statistics  planned hours*/
-    let EmployeeStatisticsModelInput = {
-        release: {
-            _id: taskPlanning.release._id.toString(),
-        },
-        employee: {
-            _id: employee._id.toString(),
-        },
-        task: {
-            _id: releasePlan._id.toString(),
-            plannedHours: plannedHourNumber,
-            reportedHours: Number(0),
-            plannedHoursReportedTasks: Number(0)
-        }
-    }
-    await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+    await EmployeeStatisticsUpdateOnDeleteTaskPlanning()
 
-    /* when task plan is removed we have to decrease employee days  planned hours */
-    let oldEmployeeDaysModelInput = {
-        plannedHours: plannedHourNumber,
-        employee: {
-            _id: employee._id.toString(),
-            name: taskPlanning.employee.name
-        },
-        dateString: taskPlanning.planningDateString,
-    }
-    await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
     /********************** RELEASE PLAN UPDATES ***************************/
 
@@ -961,7 +827,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         if (releasePlan.planning.plannedTaskCounts === 0)
             release.additional.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
     }
-    ////logger.debug('deleteTaskPlanning(): saving release ', {release})
+    //logger.debug('deleteTaskPlanning(): saving release ', {release})
 
 
     let plannedDateMoment = U.dateInUTC(taskPlanning.planningDateString)
@@ -983,6 +849,149 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await release.save()
     /* remove task planning */
     return {warning: warning, taskPlan: taskPlanningResponse}
+}
+
+
+/**
+ *  merge task plan to another date
+ **/
+taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseMergeTaskPlanningStruct)
+
+    V.validate(taskPlanningInput, V.releaseMergeTaskPlanningStruct)
+
+    /* Conversion of now and dates into moment */
+    let now = new Date()
+
+    let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
+    let replanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
+
+    let rePlanningDateUtc = U.dateInUTC(taskPlanningInput.rePlanningDate)
+
+    /*Checking that  new planning date is a valid date or not */
+    /*Checking that new planning date  is before now or not */
+
+    if (todaysDateInIndia.isAfter(replanningDateInIndia)) {
+        throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
+    if (!releasePlan) {
+        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
+    if (!taskPlanning) {
+        throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    let taskPlanningDateInIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+
+    /*Checking  that previous planning date is a valid date and can be editable means is it before now */
+    if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
+        throw new AppError('Can not merge task plan whose planned date is before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release) {
+        throw new AppError('ReleasePlan is not having release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    /*checking  user highest role in this release */
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    if (!userRoleInThisRelease) {
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    /* Conversion of planned hours in number format */
+    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
+
+
+    /******************************** EMPLOYEE DAYS UPDATE **************************************************/
+
+
+    /* Add or update employee days details when task is replanned */
+    /* Check the details of already added employees days is available or not */
+    if (await MDL.EmployeeDaysModel.count({
+            'employee._id': taskPlanning.employee._id.toString(),
+            'date': rePlanningDateUtc
+        }) > 0) {
+
+        /* Update employee days details by increasing  planned hours and decreasing planned hours from previous date  if employees day detail is  added already*/
+        let oldEmployeeDaysModelInput = {
+            plannedHours: plannedHourNumber,
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            dateString: taskPlanning.planningDateString,
+        }
+        await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+        let newEmployeeDaysModelInput = {
+            plannedHours: plannedHourNumber,
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            dateString: taskPlanningInput.rePlanningDate,
+        }
+        await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(newEmployeeDaysModelInput, user)
+    } else {
+
+        /* Add employee days details with planned hour and decrease planned hours from previous date ,if employee days details is not added  */
+        let oldEmployeeDaysModelInput = {
+            plannedHours: plannedHourNumber,
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            dateString: taskPlanning.planningDateString
+        }
+        await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+
+        let newEmployeeDaysModelInput = {
+            employee: {
+                _id: taskPlanning.employee._id.toString(),
+                name: taskPlanning.employee.name
+            },
+            plannedHours: plannedHourNumber,
+            dateString: taskPlanningInput.rePlanningDate,
+        }
+        await MDL.EmployeeDaysModel.addEmployeeDaysDetails(newEmployeeDaysModelInput, user)
+    }
+    let planningDateMoment = U.dateInUTC(taskPlanning.planningDateString)
+    let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': taskPlanning.employee._id,
+        'date': planningDateMoment
+    })
+
+    await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, planningDateMoment)
+
+    let employeeDayOfReplanned = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': taskPlanning.employee._id,
+        'date': planningDateMoment
+    })
+    console.log('employeeDayOfReplanned', employeeDayOfReplanned)
+
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+
+    if (plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber) {
+        await MDL.WarningModel.addTooManyHours(taskPlanning, release, releasePlan, employeeDayOfReplanned, rePlanningDateUtc)
+    }
+    /* Updating task plan with new planning date */
+    taskPlanning.created = Date.now()
+    taskPlanning.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
+    taskPlanning.planningDate = rePlanningDateUtc
+    taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
+    await taskPlanning.save()
+
+    taskPlanning = taskPlanning.toObject()
+    taskPlanning.canMerge = true
+    return taskPlanning
 }
 
 
