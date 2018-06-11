@@ -6,9 +6,9 @@ export const addWarnings = (warnings) => ({
     warnings: warnings
 })
 
-export const getAllWarningsFromServer = (release) => {
+export const getAllWarningsOfThisReleaseFromServer = (releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/warning/releases/'+release._id, {
+        return fetch('/api/warning/release/'+releaseID, {
                 method: 'get',
                 credentials: "include",
                 headers: {
