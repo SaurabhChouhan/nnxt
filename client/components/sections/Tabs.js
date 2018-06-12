@@ -21,7 +21,9 @@ import {
     EMPLOYEE_SETTING_TAB,
     EMPLOYEE_SETTING_FORM,
     LEAVE_SETTING_TAB,
-    LEAVE_SETTING_FORM
+    HOLIDAY_TAB,
+    LEAVE_SETTING_FORM,
+    HOLIDAY_FORM
 } from "../componentConsts"
 
 import {
@@ -44,7 +46,8 @@ import {
     UserListContainer,
     UserProfileFormContainer,
     EmployeeSettingFormContainer,
-    LeaveSettingFormContainer
+    LeaveSettingFormContainer,
+    HolidayFormContainer
 
 } from "../../containers"
 import * as A from "../../actions";
@@ -156,6 +159,17 @@ class Tabs extends Component {
                 }
             })
         }
+        if (permissions.includes(CREATE_USER)) {
+            this.tabData.push({
+                name: HOLIDAY_TAB,
+                url: "/holiday",
+                render: (props) => {
+                    return <TabSectionContainer>
+                        <HolidayFormContainer name={HOLIDAY_FORM}/>
+                    </TabSectionContainer>
+                }
+            })
+        }
 
 
         if (this.tabData.length > 0) {
@@ -205,6 +219,10 @@ class Tabs extends Component {
             case LEAVE_SETTING_TAB:
                 store.dispatch(A.getLeaveSettingFromServer())
                 store.dispatch(A.showComponentHideOthers(LEAVE_SETTING_FORM))
+                break
+            case HOLIDAY_TAB:
+               // store.dispatch(A.getLeaveSettingFromServer())
+                store.dispatch(A.showComponentHideOthers(HOLIDAY_FORM))
                 break
         }
         this.setState({
