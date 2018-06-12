@@ -123,7 +123,7 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
         nonProjectTeam: 1
     })
 
-    logger.debug("getUserRolesInThisRelease(): ", {release})
+    //logger.debug("getUserRolesInThisRelease(): ", {release})
 
     let rolesInRelease = []
 

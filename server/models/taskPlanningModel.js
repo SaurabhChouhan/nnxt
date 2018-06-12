@@ -212,7 +212,7 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
     logger.debug('updateReleasePlanOnAddTaskPlanning(): employee planning: ', {employeePlanningIdx})
 
     if (employeePlanningIdx == -1) {
-        logger.debug('updateReleasePlanOnAddTaskPlanning(): employee [' + employee.firstName + '] has assigned first task in this release plan')
+        //logger.debug('updateReleasePlanOnAddTaskPlanning(): employee [' + employee.firstName + '] has assigned first task in this release plan')
         // This employee has never been assigned any task for this release plan so add a new entry
         if (!releasePlan.planning.employees)
             releasePlan.planning.employees = []
@@ -224,15 +224,15 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
             plannedTaskCounts: 1
         })
     } else {
-        logger.debug('updateReleasePlanOnAddTaskPlanning(): employee already has planning entry in database with employee planning index as ' + employeePlanningIdx, {employeeEntry: releasePlan.planning.employees[employeePlanningIdx]})
+        //logger.debug('updateReleasePlanOnAddTaskPlanning(): employee already has planning entry in database with employee planning index as ' + employeePlanningIdx, {employeeEntry: releasePlan.planning.employees[employeePlanningIdx]})
         // This employee already has entry modify existing entry
         if (!releasePlan.planning.employees[employeePlanningIdx].minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
-            logger.debug('updateReleasePlanOnAddTaskPlanning(): employee planning entry minimum planning date would be modified for emp')
+            //logger.debug('updateReleasePlanOnAddTaskPlanning(): employee planning entry minimum planning date would be modified for emp')
             releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = momentPlanningDate
         }
 
         if (!releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-            logger.debug('updateReleasePlanOnAddTaskPlanning(): employee planning entry maximum planning date would be modified for emp')
+            //logger.debug('updateReleasePlanOnAddTaskPlanning(): employee planning entry maximum planning date would be modified for emp')
             releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = momentPlanningDate
         }
         releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts += 1
@@ -461,7 +461,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     /* Get employee roles in this project that this task is planned against*/
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
-    ////logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
+    //logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
     if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length == 0 || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
         /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
            or manager/leader of this release are now working on this task and hence became ad developer of this release
@@ -1133,10 +1133,10 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         if (taskReport.status === SC.REPORT_PENDING) {
             // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
 
-            logger.debug('As employeed reported task as pending final status of release plan would be pending as well ')
+            //logger.debug('As employeed reported task as pending final status of release plan would be pending as well ')
             releasePlan.report.finalStatus = SC.REPORT_PENDING
         } else if (taskReport.status === SC.REPORT_COMPLETED) {
-            logger.debug('Employee has reported task as completed, we would now check if this makes release plan as completed')
+            //logger.debug('Employee has reported task as completed, we would now check if this makes release plan as completed')
 
             /* this means that employee has reported its part as completed we would have to check final statuses of all other employee involved in this
                release plan to see if there final status is completed as well
@@ -1148,20 +1148,20 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
             releasePlan.planning.employees.forEach(e => {
                 let employeeOfReport = releasePlan.report.employees.find(er => er._id.toString() == e._id.toString())
                 if (!employeeOfReport) {
-                    logger.debug('Employee [' + e._id + '] has not reported so far so release plan final status would be pending')
+                    //logger.debug('Employee [' + e._id + '] has not reported so far so release plan final status would be pending')
                     // this means that employee has not reported till now so we will consider release plan as pending
                     taskPlanCompleted = false
                 } else if (employeeOfReport.finalStatus == SC.STATUS_PENDING) {
-                    logger.debug('Employee [' + e._id + '] has reported final status as pending so release plan final status would be pending')
+                    //logger.debug('Employee [' + e._id + '] has reported final status as pending so release plan final status would be pending')
                     taskPlanCompleted = false
                 }
             })
 
             if (taskPlanCompleted) {
-                logger.debug('Release plan status would now be marked as completed')
+                //logger.debug('Release plan status would now be marked as completed')
                 releasePlan.report.finalStatus = SC.STATUS_COMPLETED
             } else {
-                logger.debug('Release plan status would now be marked as pending')
+                //logger.debug('Release plan status would now be marked as pending')
                 releasePlan.report.finalStatus = SC.REPORT_PENDING
             }
         }
@@ -1189,7 +1189,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
             // Add appropriate warnings
             let warningsReportedAsPending = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
 
-            logger.debug('addTaskReport(): Generated warnings ', {generatedWarnings})
+            //logger.debug('addTaskReport(): Generated warnings ', {generatedWarnings})
 
             // Iterate through warnings and see what flags needs to be added to which task plans/release plans/releases
 
@@ -1284,33 +1284,33 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     // Iterate over all generated warnings and add appropriate flags to taskplans and release plans
 
-    logger.debug('addTaskReport(): All generated warnings of this operation is ', {generatedWarnings})
+    //logger.debug('addTaskReport(): All generated warnings of this operation is ', {generatedWarnings})
     if (generatedWarnings.added && generatedWarnings.added.length) {
         generatedWarnings.added.forEach(w => {
-            logger.debug('addTaskReport(): iterating on warning ', {w})
+            //logger.debug('addTaskReport(): iterating on warning ', {w})
             if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
+                //logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
+                        //logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
                     }
                 } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
                     if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
+                        //logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
                     }
                 }
             } else if (w.type == SC.WARNING_COMPLETED_BEFORE_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is raised')
+                //logger.debug('Warning  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is raised')
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
+                        //logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
                     }
                 } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
                     if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
+                        //logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
                     }
                 }
@@ -1320,17 +1320,17 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
-            logger.debug('addTaskReport(): iterating on removed warning ', {w})
+            //logger.debug('addTaskReport(): iterating on removed warning ', {w})
             if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed')
+                //logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed')
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
+                        //logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
                     }
                 } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
                     if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
+                        //logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
                     }
                 }
@@ -1339,11 +1339,11 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     }
 
 
-    logger.debug('release before save ', {release})
+    //logger.debug('release before save ', {release})
     await release.save()
-    logger.debug('release plan before save ', {releasePlan})
+    //logger.debug('release plan before save ', {releasePlan})
     await releasePlan.save()
-    logger.debug('task plan before save ', {taskPlan})
+    //logger.debug('task plan before save ', {taskPlan})
     taskPlan = await taskPlan.save()
 
     return {
@@ -1766,7 +1766,7 @@ GetReportTasks
  */
 taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, taskStatus) => {
     let userRoles = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
-    logger.info('getReportTasks(): user roles in this release ', {userRoles})
+    //logger.info('getReportTasks(): user roles in this release ', {userRoles})
     /* As highest role of user in release is developer only we will return only tasks that this employee is assigned */
 
     if (!userRoles)

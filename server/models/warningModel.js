@@ -112,7 +112,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
         removed: []
     }
 
-    logger.debug('warning.taskPlanned(): employeeDay', {bk3: employeeDay})
+   // logger.debug('warning.taskPlanned(): employeeDay', {bk3: employeeDay})
     if (plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
         let warningsTooManyHours = await addTooManyHours(taskPlan, release, releasePlan, employee, momentPlanningDate)
         if (warningsTooManyHours.added && warningsTooManyHours.added.length)
@@ -123,14 +123,14 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     if (firstTaskOfReleasePlan) {
         // If this is first task planned against a release plan, unplanned warning would be removed from release plan
-        logger.debug('warning.taskPlanned(): this is first task of release')
+        //logger.debug('warning.taskPlanned(): this is first task of release')
         // since this is first task of release plan, unplanned warning would be removed from release plan
         let unplannedWarnings = await WarningModel.find({
             type: SC.WARNING_UNPLANNED,
             'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
         })
 
-        logger.debug('warning.taskPlanned(): unplanned warnings ', {unplannedWarnings})
+        //logger.debug('warning.taskPlanned(): unplanned warnings ', {unplannedWarnings})
 
         if (unplannedWarnings && unplannedWarnings.length) {
             let unplannedWarningPromises = unplannedWarnings.map(up => {
@@ -148,7 +148,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     if (addedAfterMaxDate) {
 
-        logger.debug('warning.taskPlanned(): task is planned after maximum planned date')
+        //logger.debug('warning.taskPlanned(): task is planned after maximum planned date')
 
         /**
          * Since this planning is added after max planning date, if there are pending on end date warning remove those
@@ -248,7 +248,7 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
 }
 
 const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
-    logger.info('toManyHoursWarning():  ')
+    //logger.info('toManyHoursWarning():  ')
     /**
      * It is possible that this warning is raised earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised
@@ -278,9 +278,9 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
     })
 
-    logger.debug('WarningModel.addTooManyHours(): existing warning ', {tooManyHoursWarning})
+    //logger.debug('WarningModel.addTooManyHours(): existing warning ', {tooManyHoursWarning})
     if (tooManyHoursWarning) {
-        logger.debug('too many hours warning already exists')
+        //logger.debug('too many hours warning already exists')
         /* Update Existing warning WARNING_TOO_MANY_HOURS of same employee and planned date */
         /* Check current release is available in release list of warning if not available then push it to list*/
         if (tooManyHoursWarning.releases.findIndex(r => r && r._id && release.toObject()._id && r._id.toString() === release.toObject()._id.toString()) === -1) {
@@ -342,11 +342,11 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         } else {
             distinctReleaseIDs = [release._id]
         }
-        logger.debug('distinct released ids ', {distinctReleaseIDs})
+        //logger.debug('distinct released ids ', {distinctReleaseIDs})
 
         let releasesPromises = distinctReleaseIDs.map(releaseID => {
             return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
-                logger.debug('releaseDetail', {releaseDetail})
+                //logger.debug('releaseDetail', {releaseDetail})
                 if (releaseDetail && releaseDetail._id.toString() === release.toObject()._id.toString()) {
                     warningResponse.added.push({
                         _id: releaseDetail._id,
@@ -387,11 +387,11 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         } else {
             distinctReleasePlanIDs = [releasePlan._id]
         }
-        logger.debug('distinct released plan ids ', {distinctReleasePlanIDs})
+        //logger.debug('distinct released plan ids ', {distinctReleasePlanIDs})
 
         let releasePlanPromises = distinctReleasePlanIDs.map(releasePlanID => {
             return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID)).then(releasePlanDetail => {
-                logger.debug('releasePlanDetail', {releasePlanDetail})
+                //logger.debug('releasePlanDetail', {releasePlanDetail})
                 if (releasePlanDetail._id.toString() === releasePlan.toObject()._id.toString()) {
 
                     warningResponse.added.push({
@@ -514,7 +514,7 @@ warningSchema.statics.removeUnplanned = async (releasePlan) => {
  */
 
 warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
-    logger.debug('taskReportedAsPendingOnEndDate(): taskplan ', {taskPlan})
+    //logger.debug('taskReportedAsPendingOnEndDate(): taskplan ', {taskPlan})
 
     var warningResponse = {
         added: [],
@@ -542,7 +542,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
                 }
             })
 
-        logger.debug('taskReportedAsPendingOnEndDate(): existing warning ', {pendingOnEndDateWarning})
+        //logger.debug('taskReportedAsPendingOnEndDate(): existing warning ', {pendingOnEndDateWarning})
 
         if (pendingOnEndDateWarning) {
             // there is already a pending on end date warning
@@ -600,10 +600,10 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
             pendingOnEndDateWarning.type = SC.WARNING_PENDING_ON_END_DATE
 
             let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
-            logger.debug('taskReportedAsPendingOnEndDate(): ', {release})
+            //logger.debug('taskReportedAsPendingOnEndDate(): ', {release})
             pendingOnEndDateWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
             let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
-            logger.debug('taskReportedAsPendingOnEndDate(): ', {releasePlan})
+            //logger.debug('taskReportedAsPendingOnEndDate(): ', {releasePlan})
             pendingOnEndDateWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
                 source: true,
                 employee: {
@@ -613,7 +613,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
             pendingOnEndDateWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {
                 source: true
             })]
-            logger.debug('taskReportedAsPendingOnEndDate():  creating warning ', {warning: pendingOnEndDateWarning})
+            //logger.debug('taskReportedAsPendingOnEndDate():  creating warning ', {warning: pendingOnEndDateWarning})
             await WarningModel.create(pendingOnEndDateWarning)
 
             warningResponse.added.push({
@@ -644,7 +644,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
  *
  */
 warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, beforeEndDate) => {
-    logger.debug('taskReportedAsCompleted(): ', {taskPlan}, {releasePlan}, {beforeEndDate})
+    //logger.debug('taskReportedAsCompleted(): ', {taskPlan}, {releasePlan}, {beforeEndDate})
     /**
      * As task is reported as completed remove pending-on-enddate warning (if any)
      */
@@ -666,10 +666,10 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
         let completeBeforeWarning = {}
         completeBeforeWarning.type = SC.WARNING_COMPLETED_BEFORE_END_DATE
         let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
-        logger.debug('taskReportedAsCompleted(): ', {release})
+        //logger.debug('taskReportedAsCompleted(): ', {release})
         completeBeforeWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
         let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
-        logger.debug('taskReportedAsCompleted(): ', {releasePlan})
+        //logger.debug('taskReportedAsCompleted(): ', {releasePlan})
         completeBeforeWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
             source: true,
             employee: {
@@ -677,7 +677,7 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
             }
         })]
         completeBeforeWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
-        logger.debug('taskReportedAsCompleted():  creating warning ', {warning: completeBeforeWarning})
+        //logger.debug('taskReportedAsCompleted():  creating warning ', {warning: completeBeforeWarning})
 
         warningResponse.added.push({
             _id: release._id,
@@ -713,7 +713,7 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
             }
         })
 
-        logger.debug('taskReportedAsCompleted(): found [' + warningsPendingEndDate.length + '] pending on end date warnings')
+        //logger.debug('taskReportedAsCompleted(): found [' + warningsPendingEndDate.length + '] pending on end date warnings')
 
         // remove all warnings
 
@@ -721,7 +721,7 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
 
         let removedWarnings = await Promise.all(warningPendingEndDatePromises)
 
-        logger.debug('taskReportedAsCompleted(): ', {removedWarnings})
+        //logger.debug('taskReportedAsCompleted(): ', {removedWarnings})
 
         let promiseArray = []
 
@@ -747,7 +747,7 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
                 })
             }
         })
-        logger.debug('release plan ids ', {releasePlanIDs})
+        //logger.debug('release plan ids ', {releasePlanIDs})
 
         if (releasePlanIDs.length) {
             let promises = releasePlanIDs.map(id => {
@@ -761,12 +761,12 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
                     }
                 })
             })
-            //logger.debug('count promises are ', {promises})
+            ////logger.debug('count promises are ', {promises})
             let promisesResult = await Promise.all(promises)
-            logger.debug('count promises results are ', {promiseResult: promisesResult})
+            //logger.debug('count promises results are ', {promiseResult: promisesResult})
             if (promisesResult && promisesResult.length) {
                 promisesResult.forEach(p => {
-                    logger.debug('iterating on p ', {p})
+                    //logger.debug('iterating on p ', {p})
                     if (p.count == 0) {
                         // add to removed list only if there is no associated pending on end date warning against this release plan
                         warningResponse.removed.push({
