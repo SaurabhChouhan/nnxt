@@ -1270,7 +1270,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         taskPlan.report = {}
 
 
-    let todaysDateString = momentTZ.tz(SC.DEFAULT_TIMEZONE).format(SC.DATE_FORMAT)
+    let todaysDateString = momentTZ.tz(SC.UTC_TIMEZONE).format(SC.DATE_FORMAT)
     taskPlan.report.status = taskReport.status
 
     if (!reReport)
@@ -1399,13 +1399,13 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
         let fromDateMoment = moment(fromDate)
         let fromDateMomentToDate = fromDateMoment.toDate()
-        fromDateMomentTz = momentTZ.tz(fromDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        fromDateMomentTz = momentTZ.tz(fromDateMomentToDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
 
     if (toDate && toDate != 'undefined' && toDate != undefined) {
         let toDateMoment = moment(toDate)
         let toDateMomentToDate = toDateMoment.toDate()
-        toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }
 
     /* list of release Id`s where user is either manager or leader */
@@ -1420,24 +1420,24 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
 
     /* Conditions applied for filter according to required data and fromDate to toDate */
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
     else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz))
     }
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
+        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
     }
 
 
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     /* Return of filtered task plannings and checking it can be merged or not */
     return taskPlannings.map(tp => {
         tp = tp.toObject()
-        let check = momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
+        let check = momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
         if (check) {
             tp.canMerge = false
         } else {
@@ -1573,9 +1573,9 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     let now = new Date()
     /* Now in UTC */
     let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     /* Base Date in UTC */
-    let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     /* can not shift task whose planning date is before now */
     if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
@@ -1635,7 +1635,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         })
 
         /*Form base date to end date of task plannings and added some extra days multiple of 10 so that when holiday will be getting then also operation can be performed */
-        let toTz = momentTZ.tz(taskPlannings[taskPlannings.length - 1], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(10 * daysToShiftNumber, 'days').hour(0).minute(0).second(0).millisecond(0)
+        let toTz = momentTZ.tz(taskPlannings[taskPlannings.length - 1], SC.DATE_FORMAT, SC.UTC_TIMEZONE).add(10 * daysToShiftNumber, 'days').hour(0).minute(0).second(0).millisecond(0)
 
         /* Getting data of all days, working days, and work on holidays */
         let daysDetails = await getWorkingDaysAndHolidays(baseDateMomentInUtc.format(SC.DATE_FORMAT), toTz.format(SC.DATE_FORMAT), taskPlannings, user)
@@ -1643,19 +1643,19 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         /* counter to count task occur in holidays */
         let taskOnHolidayCount = 0
 
-        startShiftDateString = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? momentTZ.tz(daysDetails.taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format(SC.DATE_FORMAT) : nowMomentInUtc.format(SC.DATE_FORMAT)
+        startShiftDateString = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? momentTZ.tz(daysDetails.taskPlannings[0], SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).format(SC.DATE_FORMAT) : nowMomentInUtc.format(SC.DATE_FORMAT)
 
         /* Shifting starts with loop */
         let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async (PlanningDate, idx) => {
             //
-            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
             /* calculating index of working day list where planning date and working date is same */
             let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1
             if (index != -1) {
                 /* if true then  plannig must have done in working days */
                 let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) + daysToShiftNumber)]
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
-                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone()
                 /* updating Task planning to proper date */
 
                 /* Calculating last transfer date */
@@ -1704,7 +1704,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 /* new Shifting date where task has to be placed */
                 let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) + daysToShiftNumber)]
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
-                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone()
                 /* Calculating last transfer date */
                 if (idx === (Number(daysDetails.taskPlannings.length - 1))) {
                     endShiftDateString = newShiftingDateString
@@ -1870,9 +1870,9 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
     let now = new Date()
     /* Now in UTC */
     let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     /* Base Date in UTC */
-    let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let baseDateMomentInUtc = momentTZ.tz(planning.baseDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
         throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
@@ -1928,13 +1928,13 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
             return a < b ? -1 : a > b ? 1 : 0
         })
 
-        let startShiftingDateMoment = momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let startShiftingDateMoment = momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
         let startShiftingDate = startShiftingDateMoment.subtract(daysToShiftNumber, 'days')
         /* Can not shift task plannings before now */
         if (startShiftingDate.isBefore(nowMomentInUtc)) {
             throw new AppError('Can not shift before now ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         } else {
-            let previousDaysDetails = await getWorkingDaysAndHolidays(moment(taskPlannings[taskPlannings.length - 1]).subtract(10 * daysToShiftNumber, 'days'), momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0))
+            let previousDaysDetails = await getWorkingDaysAndHolidays(moment(taskPlannings[taskPlannings.length - 1]).subtract(10 * daysToShiftNumber, 'days'), momentTZ.tz(taskPlannings[0], SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0))
             let idx = previousDaysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(baseDateMomentInUtc))
             let idx2 = previousDaysDetails.AllTasksOnHolidayList.findIndex(wd => wd.isSame(baseDateMomentInUtc))
             if (idx != -1 && idx > daysToShiftNumber && previousDaysDetails.AllWorkingDayList[Number(idx - daysToShiftNumber)].isBefore(nowMomentInUtc)) {
@@ -1956,14 +1956,14 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         let taskOnHolidayCount = 0
         let ShiftingPromises = daysDetails.taskPlannings && daysDetails.taskPlannings.length ? daysDetails.taskPlannings.map(async PlanningDate => {
             /* calculating index of working day list where planning date and working date is same */
-            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+            let PlanningDateMoment = momentTZ.tz(PlanningDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
             let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(moment(PlanningDate))) : -1
             if (index != -1) {
                 //if true then  planing must have done in working days
                 let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(index) + Number(taskOnHolidayCount) - daysToShiftNumber)]
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
-                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone()
                 /* updating Task planning to proper date */
                 if (planning.employeeId == 'all') {
                     /* task planning of all employee will shift */
@@ -2006,7 +2006,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 let newShiftingDate = daysDetails.AllWorkingDayList[Number(Number(taskOnHolidayCount) + Number(daysDetails.AllTasksOnHolidayList[index].index) - daysToShiftNumber)]
 
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
-                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone()
+                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone()
                 taskOnHolidayCount++
                 /* updating Task planning to proper date */
                 if (planning.employeeId == 'all') {
@@ -2085,7 +2085,7 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
 
     /* Converting holiday Object List to Date with UTC moment */
     let holidayDateList = holidayObjectList && holidayObjectList.length ? _.map(holidayObjectList, function (obj) {
-        return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        return momentTZ.tz(obj.date, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     }) : []
 
     /* Getting All Dates, AllWorkingDayList, AllTasksOnHolidayList, object ,Arrays and other Fields after calculation */
@@ -2096,8 +2096,8 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlannings, user) => {
 
 /* to calculate working days and Task on holidays */
 const getDates = async (from, to, taskPlannings, holidayList) => {
-    let fromMoment = momentTZ.tz(from, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let toMoment = momentTZ.tz(to, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let fromMoment = momentTZ.tz(from, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let toMoment = momentTZ.tz(to, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let AllDateList = []
     let AllWorkingDayList = []
     let AllTasksOnHolidayList = []
@@ -2105,9 +2105,9 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
     while (fromMoment.isSameOrBefore(toMoment.clone())) {
         AllDateList.push(fromMoment.clone())
         /* date which is not part of holidays */
-        if (holidayList && holidayList.length && holidayList.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
+        if (holidayList && holidayList.length && holidayList.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
             /*Date is available in holiday list so we have to check that on that day any task is planned or not */
-            if (taskPlannings && taskPlannings.length && taskPlannings.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
+            if (taskPlannings && taskPlannings.length && taskPlannings.findIndex(obj => momentTZ.tz(obj, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSame(fromMoment.clone())) != -1) {
                 /* if true then on this date (fromMoment) any task is planned so push on AllTasksOnHolidayList */
                 AllTasksOnHolidayList.push({date: fromMoment, index: AllWorkingDayList.length})
             }
@@ -2133,8 +2133,8 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
 const updateEmployeeDays = async (startDateString, endDateString, user) => {
     let startDateToString = moment(startDateString).format(SC.DATE_FORMAT)
     let endDateToString = moment(endDateString).format(SC.DATE_FORMAT)
-    let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     /*
     * task planning model group by (employee && planningDate)*/

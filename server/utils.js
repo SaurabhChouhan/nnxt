@@ -46,14 +46,15 @@ export const userHasRole = (user, roleName) => {
 }
 
 export const dateInUTC = (dateString) => {
-    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     if (momentDate.isValid())
         return momentDate.toDate()
     return undefined
 }
 
+
 export const momentInUTC = (dateString) => {
-    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     if (momentDate.isValid())
         return momentDate
     return undefined
@@ -70,7 +71,6 @@ export const formatDateInTimezone = (date, timeZone) => {
 export const formatDateTimeInTimezone = (date, timeZone) => {
     return moment(date).tz(timeZone).format(SC.DATE_TIME_FORMAT)
 }
-
 
 
 export const momentInTimeZone = (dateString, timeZone) => {

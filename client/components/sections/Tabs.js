@@ -221,7 +221,7 @@ class Tabs extends Component {
                 store.dispatch(A.showComponentHideOthers(LEAVE_SETTING_FORM))
                 break
             case HOLIDAY_TAB:
-               // store.dispatch(A.getLeaveSettingFromServer())
+                // store.dispatch(A.getLeaveSettingFromServer())
                 store.dispatch(A.showComponentHideOthers(HOLIDAY_FORM))
                 break
         }

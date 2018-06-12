@@ -110,7 +110,6 @@ export const ALL_WARNING_NAME_ARRAY = [
 ]
 
 
-
 export const LEAVE_TYPE_FULL_DAY = 'Full'
 export const LEAVE_TYPE_HALF_DAY = 'Half'
 
@@ -137,7 +136,19 @@ export const HOLIDAY_REASON_EMERGENCY = "Emergency"
 export const HOLIDAY_REASON_PUBLIC_HOLIDAY = "Public Holiday"
 export const HOLIDAY_REASON_NATIONAL_DAY = "National Day"
 export const HOLIDAY_REASON_GAZETTED_HOLIDAYS = "Gazetted Holidays"
+export const HOLIDAY_TYPE_LIST_WITH_NAME = [
+    {name: HOLIDAY_REASON_EMERGENCY},
+    {name: HOLIDAY_REASON_PUBLIC_HOLIDAY},
+    {name: HOLIDAY_REASON_NATIONAL_DAY},
+    {name: HOLIDAY_REASON_GAZETTED_HOLIDAYS}]
 
+
+export const HOLIDAY_TYPE_LIST = [
+    HOLIDAY_REASON_EMERGENCY,
+    HOLIDAY_REASON_PUBLIC_HOLIDAY,
+    HOLIDAY_REASON_NATIONAL_DAY,
+    HOLIDAY_REASON_GAZETTED_HOLIDAYS
+]
 export const REASON_MEDICAL = "medical"
 export const REASON_PERSONAL = "personal"
 export const REASON_OCCASION = "occasion"
@@ -163,9 +174,10 @@ export const DATE_HALF_WEAK_MONTH_FORMAT = 'ddd'
 
 // Time Zones
 // !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!
-export const DEFAULT_TIMEZONE = 'UTC'
-// !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!
 
+// !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!
+export const UTC_TIMEZONE = 'UTC'
+export const DEFAULT_TIMEZONE = 'UTC'
 export const INDIAN_TIMEZONE = 'Asia/Calcutta'
 //Comment Types
 export const COMMENT_EMERGENCY = 'Emergency'
@@ -179,4 +191,42 @@ export const DIALOG_ESTIMATION_REQUEST_REVIEW = 'dialog-request-review'
 
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+export const MONTHS_WITH_MONTH_NUMBER = [
+    {
+        name: "January",
+        number: 0
+    }, {
+        name: "February",
+        number: 1
+    }, {
+        name: "March",
+        number: 2
+    }, {
+        name: "April",
+        number: 3
+    }, {
+        name: "May",
+        number: 4
+    }, {
+        name: "June",
+        number: 5
+    }, {
+        name: "July",
+        number: 6
+    }, {
+        name: "August",
+        number: 7
+    }, {
+        name: "September",
+        number: 8
+    }, {
+        name: "October",
+        number: 9
+    }, {
+        name: "November",
+        number: 10
+    }, {
+        name: "December",
+        number: 11
+    }]
 
