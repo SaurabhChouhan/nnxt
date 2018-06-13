@@ -46,6 +46,7 @@ export const deleteUser = (userID) => ({
     type: AC.DELETE_USER,
     userID: userID
 })
+
 export const updateUserProfileState = (user) => ({
     type: AC.UPDATE_USER_PROFILE_STATE,
     user: user

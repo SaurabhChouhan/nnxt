@@ -79,3 +79,8 @@ export const momentInTimeZone = (dateString, timeZone) => {
         return momentDate
     return undefined
 }
+
+export const getCurrentYear = () => {
+    let now = new Date()
+    return now.getFullYear()
+}
