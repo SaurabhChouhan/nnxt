@@ -1,14 +1,5 @@
 import React from 'react'
-import {
-    arrayInsert,
-    arrayPush,
-    arrayRemove,
-    change,
-    Field,
-    Form,
-    reduxForm,
-    reset
-} from 'redux-form'
+import {arrayInsert, arrayPush, arrayRemove, change, Field, Form, reduxForm, reset} from 'redux-form'
 import {renderCheckBox, renderSelect, renderText} from "./fields"
 import {required} from "./validation"
 import {connect} from 'react-redux'

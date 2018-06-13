@@ -16,7 +16,7 @@ let warningRouter = new Router({
 /***
  * Get all warnings and by status filtering also
  ***/
-warningRouter.get("/releases/:releaseID", async ctx => {
+warningRouter.get("/release/:releaseID", async ctx => {
     return await MDL.WarningModel.getWarnings(ctx.params.releaseID, ctx.state.user)
 })
 

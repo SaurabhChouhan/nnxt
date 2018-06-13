@@ -10,6 +10,7 @@ export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASE_PLANS,
     releasePlans: releasePlans
 })
+
 export const addReleaseTaskPlannings = (taskPlans) => ({
     type: AC.ADD_RELEASE_TASK_PLANNINGS,
     taskPlans: taskPlans

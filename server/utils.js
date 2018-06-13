@@ -1,6 +1,5 @@
 import * as SC from './serverconstants'
 import moment from 'moment-timezone'
-import logger from './logger'
 
 export const isAuthenticated = (ctx) => {
     if (ctx.isAuthenticated())

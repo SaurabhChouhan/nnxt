@@ -5,8 +5,7 @@ import * as logger from '../clientLogger'
 export const addAllPermissions = (permissions) => ({
         type: AC.ADD_PERMISSIONS,
         permissions: permissions
-    }
-)
+})
 
 export const addPermission = (permission) => ({
     type: AC.ADD_PERMISSION,
@@ -124,8 +123,7 @@ export const getAllPermissionsFromServer = () => {
                     dispatch(addAllPermissions(json.data))
                 }
                 return json
-            }
-        )
+        })
     }
 }
 

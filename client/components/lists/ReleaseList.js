@@ -12,7 +12,6 @@ class ReleaseList extends Component {
         this.options = {
             onRowClick: this.onRowClick.bind(this)
         }
-
     }
 
     onRowClick(row) {

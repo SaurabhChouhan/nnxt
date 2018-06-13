@@ -34,7 +34,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     changeReleaseFlag: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release, status, flag)),
     changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release, status, flag)),
-    getAllWarnings: (release) => dispatch(A.getAllWarningsFromServer(release))
+    getAllWarnings: (release) => dispatch(A.getAllWarningsOfThisReleaseFromServer(release._id))
 })
 
 const mapStateToProps = (state) => ({
