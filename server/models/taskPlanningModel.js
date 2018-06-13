@@ -1077,6 +1077,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!reReport) {
         // Increment task counts that are reported
         releasePlan.report.reportedTaskCounts += 1
+        releasePlan.report.plannedHoursReportedTasks += taskPlan.planning.plannedHours
 
         if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
             releasePlan.report.minReportedDate = reportedMoment.toDate()
@@ -1096,7 +1097,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
             minReportedDate: reportedMoment.toDate(),
             maxReportedDate: reportedMoment.toDate(),
             reportedTaskCounts: 1,
-            finalStatus: taskReport.status
+            finalStatus: taskReport.status,
+            plannedHoursReportedTasks: taskPlan.planning.plannedHours
         })
         finalStatusChanged = true
     } else {
@@ -1109,6 +1111,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         if (!reReport) {
             releasePlan.report.employees[employeeReportIdx].reportedHours += taskReport.reportedHours
             releasePlan.report.employees[employeeReportIdx].reportedTaskCounts += 1
+            releasePlan.report.employees[employeeReportIdx].plannedHoursReportedTasks += taskPlan.planning.plannedHours
+
             if (reportedMoment.isBefore(releasePlan.report.employees[employeeReportIdx].minReportedDate)) {
                 releasePlan.report.employees[employeeReportIdx].minReportedDate = reportedMoment.toDate()
             }
@@ -1214,11 +1218,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (releasePlan.task.initiallyEstimated) {
         /* this task was initially estimated */
         release.initial.reportedHours += reportedHoursToIncrement
-        /* See if this is first time release plan was reported if yes then increment planned hours  of reported tasks */
-
-        if (releasePlan.report && releasePlan.report.reportedTaskCounts == 0) {
-            release.initial.plannedHoursReportedTasks += releasePlan.planning.plannedHours
-        }
+        // Add planned hours of reported task to release
+        release.initial.plannedHoursReportedTasks += taskPlan.planning.plannedHours
 
         if (!release.initial || !release.initial.maxReportedDate || (release.initial.maxReportedDate && reportedMoment.isAfter(release.initial.maxReportedDate))) {
             /* if reported date is greater than earlier max reported date change that */
@@ -1236,10 +1237,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     } else {
         release.additional.reportedHours += reportedHoursToIncrement
         /* See if this is first time release plan was reported if yes then increment planned hours  of reported tasks */
-
-        if (releasePlan.report && releasePlan.report.reportedTaskCounts == 0) {
-            release.additional.plannedHoursReportedTasks += releasePlan.planning.plannedHours
-        }
+        release.additional.plannedHoursReportedTasks += taskPlan.planning.plannedHours
 
         if (!release.additional || !release.additional.maxReportedDate || (release.additional.maxReportedDate && reportedMoment.isAfter(release.additional.maxReportedDate))) {
             /* if reported date is greater than earlier max reported date change that */

@@ -36,14 +36,12 @@ let releasePlanSchema = mongoose.Schema({
     }],
     planning: {
         plannedHours: {type: Number, default: 0},
-        plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
         minPlanningDate: Date, // minimum planning date for this release plan
         maxPlanningDate: Date, // maximum planning for this release plan
         plannedTaskCounts: {type: Number, default: 0},  // Number of tasks-plans against this release plan
         employees: [{
             _id: mongoose.Schema.ObjectId,
             plannedHours: {type: Number, default: 0}, // Number of planned hours against this employee
-            plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
             minPlanningDate: Date, // minimum planned date against this employee
             maxPlanningDate: Date, // maximum planned date against this employee
             plannedTaskCounts: {type: Number, default: 0} // number of task plans against this employee
@@ -54,6 +52,7 @@ let releasePlanSchema = mongoose.Schema({
         minReportedDate: Date,
         maxReportedDate: Date,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
+        plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
         finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
         employees: [{
             _id: mongoose.Schema.ObjectId,
@@ -61,6 +60,7 @@ let releasePlanSchema = mongoose.Schema({
             minReportedDate: Date, // minimum reported date against this employee
             maxReportedDate: Date, // maximum reported date against this employee
             reportedTaskCounts: {type: Number, default: 0}, // number of task reported this employee,
+            plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
             finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]} // final status reported by employee
         }]
     },
