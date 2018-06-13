@@ -46,7 +46,8 @@ let releaseSchema = mongoose.Schema({
         email: {type: String, required: [true, 'Developer email name is required']}
     }],
     initial: {
-        billedHours: {type: Number, default: 0},
+        expectedBilledHours: {type: Number, default: 0},
+        billingRate: {type: Number, default: 0},
         estimatedHours: {type: Number, default: 0},
         plannedHours: {type: Number, default: 0},
         reportedHours: {type: Number, default: 0},
@@ -123,7 +124,7 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
         nonProjectTeam: 1
     })
 
-    logger.debug("getUserRolesInThisRelease(): ", {release})
+    logger.debug('getUserRolesInThisRelease(): ', {release})
 
     let rolesInRelease = []
 
@@ -141,8 +142,8 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
             rolesInRelease.push(SC.ROLE_NON_PROJECT_DEVELOPER)
     }
 
-    if(rolesInRelease.length == 0)
-        return undefined;
+    if (rolesInRelease.length == 0)
+        return undefined
 
     return rolesInRelease
 }
@@ -174,7 +175,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) =>
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
     initial.estimatedHours = estimation.estimatedHours
-    initial.billedHours = projectAwardData.billedHours
+    initial.expectedBilledHours = projectAwardData.billedHours
     initial.clientReleaseDate = projectAwardData.clientReleaseDate
     initial.devStartDate = projectAwardData.devStartDate
     initial.devEndDate = projectAwardData.devReleaseDate
