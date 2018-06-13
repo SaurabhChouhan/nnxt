@@ -49,6 +49,7 @@ let releasePlanSchema = mongoose.Schema({
     },
     report: {
         reportedHours: {type: Number, default: 0},
+        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
         minReportedDate: Date,
         maxReportedDate: Date,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
@@ -57,6 +58,7 @@ let releasePlanSchema = mongoose.Schema({
         employees: [{
             _id: mongoose.Schema.ObjectId,
             reportedHours: {type: Number, default: 0}, // Number of reported hours by employee
+            baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
             minReportedDate: Date, // minimum reported date against this employee
             maxReportedDate: Date, // maximum reported date against this employee
             reportedTaskCounts: {type: Number, default: 0}, // number of task reported this employee,
@@ -89,11 +91,11 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
     releasePlanInput.flags = [SC.WARNING_UNPLANNED]
     releasePlanInput.report = {}
 
-    logger.debug("project award addRelease(): estimationTask.estimator.estimatedHours is "+estimationTask.estimator.estimatedHours)
-    logger.debug("project award addRelease(): release.expectedBilledHours is "+release.initial.expectedBilledHours)
-    logger.debug("project award addRelease(): estimation.estimatedHours is "+estimation.estimatedHours)
+    logger.debug('project award addRelease(): estimationTask.estimator.estimatedHours is ' + estimationTask.estimator.estimatedHours)
+    logger.debug('project award addRelease(): release.expectedBilledHours is ' + release.initial.expectedBilledHours)
+    logger.debug('project award addRelease(): estimation.estimatedHours is ' + estimation.estimatedHours)
     let expectedBilledHours = estimationTask.estimator.estimatedHours * (release.initial.expectedBilledHours / estimation.estimatedHours)
-    logger.debug("project award addRelease(): expected billed hours is "+expectedBilledHours)
+    logger.debug('project award addRelease(): expected billed hours is ' + expectedBilledHours)
 
     releasePlanInput.task = {
         _id: estimationTask._id,
@@ -102,6 +104,10 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
         description: estimationTask.estimator.description,
         initiallyEstimated: estimationTask.initiallyEstimated,
         estimatedBilledHours: expectedBilledHours.toFixed(2)
+    }
+
+    releasePlanInput.report = {
+        baseHoursProgress: estimationTask.estimator.estimatedHours // initial base hours would be estimated hours
     }
 
     if (estimationTask.feature && estimationTask.feature._id)

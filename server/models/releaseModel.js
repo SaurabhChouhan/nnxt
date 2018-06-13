@@ -51,6 +51,7 @@ let releaseSchema = mongoose.Schema({
         estimatedHours: {type: Number, default: 0},
         plannedHours: {type: Number, default: 0},
         reportedHours: {type: Number, default: 0},
+        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
         estimatedHoursPlannedTasks: {type: Number, default: 0},
         estimatedHoursCompletedTasks: {type: Number, default: 0},
         plannedHoursReportedTasks: {type: Number, default: 0},
@@ -66,6 +67,7 @@ let releaseSchema = mongoose.Schema({
         estimatedHours: {type: Number, default: 0},
         plannedHours: {type: Number, default: 0},
         reportedHours: {type: Number, default: 0},
+        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
         estimatedHoursPlannedTasks: {type: Number, default: 0},
         estimatedHoursCompletedTasks: {type: Number, default: 0},
         plannedHoursReportedTasks: {type: Number, default: 0},
@@ -179,6 +181,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) =>
     initial.clientReleaseDate = projectAwardData.clientReleaseDate
     initial.devStartDate = projectAwardData.devStartDate
     initial.devEndDate = projectAwardData.devReleaseDate
+    initial.baseHoursProgress = estimation.estimatedHours // initial estimated hours is used to calculate progress
     releaseInput.project = project
     releaseInput.manager = manager
     releaseInput.leader = leader
