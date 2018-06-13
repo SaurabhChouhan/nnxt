@@ -679,23 +679,23 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
  * Delete task planning
  **/
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
-    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
-    if (!taskPlanning) {
+    let taskPlan = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+    if (!taskPlan) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanning.releasePlan._id))
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id))
     if (!releasePlan) {
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanning.release._id))
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id))
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
     //check user highest role in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlan.release._id, user)
     if (!userRolesInThisRelease) {
         throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -703,7 +703,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
+    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlan.employee._id)).exec()
     if (!employee) {
         throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -715,7 +715,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
      */
 
-    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
@@ -725,12 +725,16 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Planning date is already over, cannot delete planning now', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
-    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
+    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+        throw new AppError('Cannot delete task plan that is already reported', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+    }
+
+    let plannedHourNumber = Number(taskPlan.planning.plannedHours)
 
     /* when task plan is removed we have to decrease employee statistics  planned hours*/
     let EmployeeStatisticsModelInput = {
         release: {
-            _id: taskPlanning.release._id.toString(),
+            _id: taskPlan.release._id.toString(),
         },
         employee: {
             _id: employee._id.toString(),
@@ -749,9 +753,9 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         plannedHours: plannedHourNumber,
         employee: {
             _id: employee._id.toString(),
-            name: taskPlanning.employee.name
+            name: taskPlan.employee.name
         },
-        dateString: taskPlanning.planningDateString,
+        dateString: taskPlan.planningDateString,
     }
     await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
@@ -763,7 +767,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     /* SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN */
 
-    let momentPlanningDate = new moment(taskPlanning.planningDate)
+    let momentPlanningDate = new moment(taskPlan.planningDate)
 
     // Update common planning data
     if (releasePlan.planning.plannedTaskCounts == 0) {
@@ -777,22 +781,22 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
               on minimum planning date
              */
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                'planningDate': taskPlan.planningDate,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
                         $group: {
-                            '_id': 'taskPlanning.releasePlan._id',
+                            '_id': 'taskPlan.releasePlan._id',
                             'minPlanningDate': {
                                 '$min': '$planningDate'
                             }
@@ -813,22 +817,22 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
              */
 
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                'planningDate': taskPlan.planningDate,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
                         $group: {
-                            '_id': 'taskPlanning.releasePlan._id',
+                            '_id': 'taskPlan.releasePlan._id',
                             'maxPlanningDate': {'$max': '$planningDate'}
                         }
                     })
@@ -864,24 +868,24 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
               on minimum planning date
              */
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
+                'planningDate': taskPlan.planningDate,
                 'employee._id': employee._id,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
                             'employee._id': employee._id,
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
                         $group: {
-                            '_id': 'taskPlanning.releasePlan._id',
+                            '_id': 'taskPlan.releasePlan._id',
                             'minPlanningDate': {
                                 '$min': '$planningDate'
                             }
@@ -901,24 +905,24 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
               on minimum planning date
              */
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
+                'planningDate': taskPlan.planningDate,
                 'employee._id': employee._id,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
                             'employee._id': employee._id,
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
                         $group: {
-                            '_id': 'taskPlanning.releasePlan._id',
+                            '_id': 'taskPlan.releasePlan._id',
                             'maxPlanningDate': {
                                 '$max': '$planningDate'
                             }
@@ -964,14 +968,14 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     //logger.debug('deleteTaskPlanning(): saving release ', {release})
 
 
-    let plannedDateMoment = U.dateInUTC(taskPlanning.planningDateString)
+    let plannedDateMoment = U.dateInUTC(taskPlan.planningDateString)
     let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlanning.employee._id,
+        'employee._id': taskPlan.employee._id,
         'date': plannedDateMoment
     })
     await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, plannedDateMoment)
 
-    let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlanning._id))
+    let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
