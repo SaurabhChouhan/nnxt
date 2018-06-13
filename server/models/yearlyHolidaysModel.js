@@ -42,15 +42,28 @@ let yearlyHolidaysSchema = mongoose.Schema({
     ]
 })
 
-yearlyHolidaysSchema.statics.getAllYearlyHolidays = async (loggedInUser) => {
-    if (U.userHasRole(loggedInUser, SC.ROLE_ADMIN) || U.userHasRole(loggedInUser, SC.ROLE_SUPER_ADMIN)) {
-        // Only admin and super admin can see holidays
-        return await YearlyHolidaysModel.find({}).exec()
+yearlyHolidaysSchema.statics.getAllHolidayYearsFromServer = async (loggedInUser) => {
+    if (!U.userHasRole(loggedInUser, SC.ROLE_ADMIN) && !U.userHasRole(loggedInUser, SC.ROLE_SUPER_ADMIN)) {
+        throw new AppError(" Only admin and super admin can see holidays", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    else {
-        return await YearlyHolidaysModel.find({}).exec()
-        //throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    return await YearlyHolidaysModel.find({}, {
+        calendarYear: 1
+    }).exec()
+
+}
+
+yearlyHolidaysSchema.statics.getAllHolidaysOfYearFromServer = async (year, loggedInUser) => {
+    if (!U.userHasRole(loggedInUser, SC.ROLE_ADMIN) && !U.userHasRole(loggedInUser, SC.ROLE_SUPER_ADMIN)) {
+        throw new AppError(" Only admin and super admin can see holidays", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
+
+    let yearlyHoliday = await YearlyHolidaysModel.findOne({
+        "calendarYear": year
+    }, {
+        holidays: 1
+    }).exec()
+    return yearlyHoliday && yearlyHoliday.holidays ? yearlyHoliday.holidays : []
 }
 
 yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDateString, endDateString, loggedInUser) => {
