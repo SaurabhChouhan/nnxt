@@ -461,7 +461,7 @@ const deleteToManyHours = async (taskPlan, release, releasePlan, plannedDateUTC)
         removed: []
     }
     let employeeDay = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlanning.employee._id,
+        'employee._id': taskPlan.employee._id,
         'date': plannedDateUTC
     })
 //fetch employee setting
@@ -566,7 +566,7 @@ const deleteWarningWithResponse = async (warning, warningResponse, warningType) 
 }
 
 
-warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release,taskPlanning, plannedHourNumber) => {
+warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, plannedHourNumber) => {
     /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
      be added again
    */
@@ -576,7 +576,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release,ta
     }
 
     let deleteTooManyHoursWarningResponse = undefined
-    let plannedDateUTC = U.dateInUTC(taskPlanning.planningDateString)
+    let plannedDateUTC = U.dateInUTC(taskPlan.planningDateString)
     if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
         // unplanned warning would be raised against a single release and a single release plan
