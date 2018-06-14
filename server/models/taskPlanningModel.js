@@ -66,8 +66,23 @@ let taskPlanningSchema = mongoose.Schema({
 })
 
 
-const performValidationTaskPlanning = async () => {
-
+const getNewBaseHours = (releasePlan) => {
+    let possibleBaseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+    logger.debug('getNewBaseHours(): [basehours] ', {possibleBaseHours})
+    // see if possible base hours crossed estimated hours, only then it can become new base hours
+    if (possibleBaseHours > releasePlan.task.estimatedHours) {
+        logger.debug('getNewBaseHours(): [basehours] possible base hours crossed estimated hours ', {
+            possibleBaseHours,
+            estimatedHours: releasePlan.task.estimatedHours
+        })
+        return possibleBaseHours
+    } else {
+        logger.debug('getNewBaseHours(): [basehours] possible base hours did not crossed estimated hours ', {
+            possibleBaseHours,
+            estimatedHours: releasePlan.task.estimatedHours
+        })
+        return releasePlan.task.estimatedHours
+    }
 }
 
 const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, momentPlanningDate) => {
@@ -194,27 +209,11 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
     releasePlan.planning.plannedHours += plannedHourNumber
     releasePlan.planning.plannedTaskCounts += 1
 
-    // reported hours by user + planned hours remaining would become new base hours for progress if it crosses current base hours
-    let possibleBaseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
-    logger.debug('addTaskPlanning(): [basehours] ', {possibleBaseHours})
+    let newBaseHours = getNewBaseHours(releasePlan)
+    releasePlan.diffBaseHours = newBaseHours - releasePlan.report.baseHoursProgress
+    releasePlan.report.baseHoursProgress = newBaseHours
 
-    let diffBaseHours = 0
-    // see if possible base hours crossed estimated hours, only then it can become new base hours
-    if (possibleBaseHours > releasePlan.task.estimatedHours) {
-        logger.debug('addTaskPlanning(): [basehours] possible base hours crossed estimated hours ', {
-            possibleBaseHours,
-            estimatedHours: releasePlan.task.estimatedHours
-        })
-        // get diff of new base hours with previous base hours as this would be added to release base hours
-        diffBaseHours = possibleBaseHours - releasePlan.report.baseHoursProgress
-        releasePlan.report.baseHoursProgress = possibleBaseHours
-        releasePlan.diffBaseHours = diffBaseHours // there is no such field in release plan, this is done so that this information can be extracted for release base hours update
-    } else {
-        logger.debug('addTaskPlanning(): [basehours] possible base hours did not crossed estimated hours ', {
-            possibleBaseHours,
-            estimatedHours: releasePlan.task.estimatedHours
-        })
-    }
+    // reported hours by user + planned hours remaining would become new base hours for progress if it crosses current base hours
 
     if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
         releasePlan.planning.minPlanningDate = momentPlanningDate.toDate()
@@ -1120,21 +1119,12 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     let finalStatusChanged = false
     releasePlan.report.reportedHours += reportedHoursToIncrement
 
-    let baseHoursDiff = 0
+    let diffBaseHours = undefined
 
     if (!reReport) {
         // Increment task counts that are reported
         releasePlan.report.reportedTaskCounts += 1
         releasePlan.report.plannedHoursReportedTasks += taskPlan.planning.plannedHours
-
-        let unreportedPlannedHours = releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
-        // base hours calculation
-        var previousBaseHours = releasePlan.report.baseHoursProgress
-        if (releasePlan.report.reportedHours + unreportedPlannedHours > releasePlan.task.estimatedHours)
-            releasePlan.report.baseHoursProgress = releasePlan.report.reportedHours + unreportedPlannedHours
-        else
-            releasePlan.report.baseHoursProgress = releasePlan.task.estimatedHours
-        baseHoursDiff = releasePlan.report.baseHoursProgress - previousBaseHours
 
         if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
             releasePlan.report.minReportedDate = reportedMoment.toDate()
@@ -1144,6 +1134,11 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
             releasePlan.report.maxReportedDate = reportedMoment.toDate()
         }
     }
+
+    let newBaseHours = getNewBaseHours(releasePlan)
+    diffBaseHours = newBaseHours - releasePlan.report.baseHoursProgress
+    releasePlan.report.baseHoursProgress = newBaseHours
+
 
     // EMPLOYEE SPECIFIC SUMMARY DATA UPDATES
     if (employeeReportIdx == -1) {
@@ -1277,7 +1272,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         release.initial.reportedHours += reportedHoursToIncrement
         // Add planned hours of reported task to release
         release.initial.plannedHoursReportedTasks += taskPlan.planning.plannedHours
-        release.initial.baseHoursProgress += baseHoursDiff
+        if (diffBaseHours)
+            release.initial.baseHoursProgress += diffBaseHours
 
         if (!release.initial || !release.initial.maxReportedDate || (release.initial.maxReportedDate && reportedMoment.isAfter(release.initial.maxReportedDate))) {
             /* if reported date is greater than earlier max reported date change that */
@@ -1294,6 +1290,9 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     } else {
         release.additional.reportedHours += reportedHoursToIncrement
+
+        if (diffBaseHours)
+            release.additional.baseHoursProgress += diffBaseHours
         /* See if this is first time release plan was reported if yes then increment planned hours  of reported tasks */
         release.additional.plannedHoursReportedTasks += taskPlan.planning.plannedHours
         if (!release.additional || !release.additional.maxReportedDate || (release.additional.maxReportedDate && reportedMoment.isAfter(release.additional.maxReportedDate))) {

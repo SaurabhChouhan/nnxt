@@ -58,7 +58,6 @@ let releasePlanSchema = mongoose.Schema({
         employees: [{
             _id: mongoose.Schema.ObjectId,
             reportedHours: {type: Number, default: 0}, // Number of reported hours by employee
-            baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
             minReportedDate: Date, // minimum reported date against this employee
             maxReportedDate: Date, // maximum reported date against this employee
             reportedTaskCounts: {type: Number, default: 0}, // number of task reported this employee,
