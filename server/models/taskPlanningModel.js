@@ -564,7 +564,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 }
 
 
-const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee) => {
+const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee, plannedHourNumber, user) => {
     /* when task plan is removed we have to decrease employee statistics  planned hours*/
     let EmployeeStatisticsModelInput = {
         release: {
@@ -581,11 +581,25 @@ const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releas
         }
     }
     return await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+}
 
+
+const employeeDaysUpdateOnDeleteTaskPlanning = async (taskPlanning, employee, plannedHourNumber, user) => {
+
+    /* when task plan is removed we have to decrease employee days  planned hours */
+    let oldEmployeeDaysModelInput = {
+        plannedHours: plannedHourNumber,
+        employee: {
+            _id: employee._id.toString(),
+            name: taskPlanning.employee.name
+        },
+        dateString: taskPlanning.planningDateString,
     }
+    return await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+}
 
 
-const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee) => {
+const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee, plannedHourNumber) => {
     // due to task plan deletion reduce planned hours & task count
 
     releasePlan.planning.plannedHours -= plannedHourNumber
@@ -770,7 +784,7 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, 
 }
 
 
-const releaseUpdateOnDeleteTaskPlanning = async (release, taskPlanning, releasePlan) => {
+const releaseUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, release, plannedHourNumber) => {
 
     if (releasePlan.task.initiallyEstimated) {
         release.initial.plannedHours -= plannedHourNumber
@@ -786,21 +800,6 @@ const releaseUpdateOnDeleteTaskPlanning = async (release, taskPlanning, releaseP
 
 
     return release
-}
-
-
-const employeeDaysUpdateOnDeleteTaskPlanning = async (employee, taskPlanning, plannedHourNumber) => {
-
-    /* when task plan is removed we have to decrease employee days  planned hours */
-    let oldEmployeeDaysModelInput = {
-        plannedHours: plannedHourNumber,
-        employee: {
-            _id: employee._id.toString(),
-            name: taskPlanning.employee.name
-        },
-        dateString: taskPlanning.planningDateString,
-    }
-    return await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 }
 
 /**
@@ -857,18 +856,18 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
 
     /********************** EMPLOYEE STATISTICS UPDATES ***************************/
-    await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee)
+    await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee, plannedHourNumber, user)
 
     /********************** EMPLOYEE DAYS UPDATES ***************************/
-    await employeeDaysUpdateOnDeleteTaskPlanning(employee, taskPlanning, plannedHourNumber)
+    await employeeDaysUpdateOnDeleteTaskPlanning(taskPlanning, employee, plannedHourNumber, user)
 
     /********************** RELEASE PLAN UPDATES ***************************/
-    releasePlan = await releasePlanUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee)
+    releasePlan = await releasePlanUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee, plannedHourNumber)
 
     /******************************* RELEASE UPDATES *****************************************************/
-    release = await releaseUpdateOnDeleteTaskPlanning(release, taskPlanning, releasePlan)
-    let warningResponse = MDL.WarningModel.taskPlanDeleted(taskPlanning, release, releasePlan)
-
+    release = await releaseUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, release, plannedHourNumber)
+    let warningResponse = MDL.WarningModel.taskPlanDeleted(taskPlanning, releasePlan, release, plannedHourNumber)
+    console.log("warningResponse---", warningResponse)
     let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlanning._id))
 
 
