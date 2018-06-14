@@ -50,7 +50,6 @@ yearlyHolidaysSchema.statics.getAllHolidayYearsFromServer = async (loggedInUser)
     return await YearlyHolidaysModel.find({}, {
         calendarYear: 1
     }).exec()
-
 }
 
 yearlyHolidaysSchema.statics.getAllHolidaysOfYearFromServer = async (year, loggedInUser) => {
@@ -103,7 +102,7 @@ yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
 
 
 yearlyHolidaysSchema.statics.createHoliday = async holidayObj => {
-    var validation = {
+    let validation = {
         "holidayName": "",
         "dateString": "",
         "holidayType": "",
@@ -210,40 +209,50 @@ yearlyHolidaysSchema.statics.updateHoliday = async holidayInput => {
     if (!holidayYear) {
         throw new AppError("Holiday Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
+    let oldHoliday = holidayYear.holidays.find(holiday => holiday._id.toString() === holidayInput._id.toString())
+
     // check that new date which is selected is from same year or not
     if (holidayYear.calendarYear != calendarYear && holidayYear.holidays.length > 1) {
         //pull from old holiday year and push to new holiday year
         console.log("pull from old holiday year and push to new holiday year")
-    } else if (holidayYear.calendarYear != calendarYear) {
-        holidayYear.calendarYear = calendarYear
-    }
+        await YearlyHolidaysModel.deleteHolidayFromYear(oldHoliday.dateString)
+        let holidayYearResponse = await YearlyHolidaysModel.createHoliday(Object.assign({}, holidayInput, {
+            _id: null
+        }))
+        holidayYearResponse = holidayYearResponse.toObject()
+        holidayYearResponse.yearChange = true
+        return holidayYearResponse
+    } else {
+        if (holidayYear.calendarYear != calendarYear) {
+            holidayYear.calendarYear = calendarYear
 
-    let oldHoliday = holidayYear.holidays.find(holiday => holiday._id.toString() === holidayInput._id.toString())
-    // check that new date which is selected is from same month or not
-    if (calendarMonth != oldHoliday.monthNo) {
-        holidayYear.holidaysInMonth = holidayYear.holidaysInMonth.map(hm => {
-            if (hm.month == oldHoliday.monthNo) {
-                let month = SC.MONTHS_WITH_MONTH_NUMBER.find(m => m.number == Number(calendarMonth))
-                return {
-                    month: month.number,
-                    monthName: month.name
-                }
-            } else return hm
-        })
+            // check that new date which is selected is from same month or not
+            if (calendarMonth != oldHoliday.monthNo) {
+                holidayYear.holidaysInMonth = holidayYear.holidaysInMonth.map(hm => {
+                    if (hm.month == oldHoliday.monthNo) {
+                        let month = SC.MONTHS_WITH_MONTH_NUMBER.find(m => m.number == Number(calendarMonth))
+                        return {
+                            month: month.number,
+                            monthName: month.name
+                        }
+                    } else return hm
+                })
+            }
+            let newHoliday = {}
+            newHoliday.monthNo = calendarMonth
+            newHoliday.holidayName = holidayInput.holidayName
+            newHoliday.description = holidayInput.description
+            newHoliday.holidayType = holidayInput.holidayType
+            newHoliday.date = U.dateInUTC(holidayInput.dateString)
+            newHoliday.dateString = holidayInput.dateString
+            holidayYear.holidays = holidayYear.holidays.map(holiday => {
+                if (holiday._id.toString() === holidayInput._id.toString()) {
+                    return newHoliday
+                } else return holiday
+            })
+            return await holidayYear.save()
+        }
     }
-    let newHoliday = {}
-    newHoliday.monthNo = calendarMonth
-    newHoliday.holidayName = holidayInput.holidayName
-    newHoliday.description = holidayInput.description
-    newHoliday.holidayType = holidayInput.holidayType
-    newHoliday.date = U.dateInUTC(holidayInput.dateString)
-    newHoliday.dateString = holidayInput.dateString
-    holidayYear.holidays = holidayYear.holidays.map(holiday => {
-        if (holiday._id.toString() === holidayInput._id.toString()) {
-            return newHoliday
-        } else return holiday
-    })
-    return await holidayYear.save()
 }
 
 yearlyHolidaysSchema.statics.addHolidayToYear = async (holidayYearID, holidayObj) => {

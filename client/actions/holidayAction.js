@@ -153,7 +153,10 @@ export const updateHolidayOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    return dispatch(getAllHolidaysOfYearFromServer(json.data.calendarYear))
+                    dispatch(getAllHolidaysOfYearFromServer(json.data.calendarYear))
+                    if (json.data.yearChange) {
+                        dispatch(getAllHolidayYearsFromServer())
+                    }
                 }
                 return json
             }
