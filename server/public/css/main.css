@@ -1966,6 +1966,7 @@ hr {
     transition: 0.3s;
     font-size: 17px;
 }
+
 .tab span:hover {
     background-color: #ddd;
 }
