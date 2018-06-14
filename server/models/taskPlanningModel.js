@@ -66,10 +66,6 @@ let taskPlanningSchema = mongoose.Schema({
 })
 
 
-const performValidationTaskPlanning = async () => {
-
-}
-
 const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, momentPlanningDate) => {
 
     // Add or update employee days details when task is planned
@@ -88,7 +84,7 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
             },
             dateString: momentPlanningDate.format(SC.DATE_FORMAT),
         }
-        await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput)
+        return await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput)
     } else {
 
         /*  Add employee days details with planned hour  if not added */
@@ -101,7 +97,7 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
             dateString: momentPlanningDate.format(SC.DATE_FORMAT),
         }
 
-        await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput)
+        return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput)
     }
 }
 
@@ -133,7 +129,7 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
                 plannedHoursReportedTasks: Number(0)
             }
         }
-        await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
+        return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
             'employee._id': mongoose.Types.ObjectId(employee._id),
@@ -158,7 +154,7 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
                 plannedHoursReportedTasks: 0
             }
         }
-        await MDL.EmployeeStatisticsModel.addTaskDetailsToEmployeeStatistics(EmployeeStatisticsModelInput)
+        return await MDL.EmployeeStatisticsModel.addTaskDetailsToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else {
         /* Add employee statistics details with release plan and planned hours   */
@@ -183,7 +179,7 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
                 }
             ]
         }
-        await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(EmployeeStatisticsModelInput)
+        return await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(EmployeeStatisticsModelInput)
     }
 }
 
@@ -405,7 +401,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     V.validate(taskPlanningInput, V.releaseTaskPlanningStruct)
 
     // Perform all validations as first step
-    let userRole
     let release = await MDL.ReleaseModel.findById(taskPlanningInput.release._id)
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -534,7 +529,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
 
 const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee) => {
-
+    /* when task plan is removed we have to decrease employee statistics  planned hours*/
     let EmployeeStatisticsModelInput = {
         release: {
             _id: taskPlanning.release._id.toString(),
@@ -549,81 +544,14 @@ const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releas
             plannedHoursReportedTasks: Number(0)
         }
     }
-    await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
-
-    /* when task plan is removed we have to decrease employee days  planned hours */
-    let oldEmployeeDaysModelInput = {
-        plannedHours: plannedHourNumber,
-        employee: {
-            _id: employee._id.toString(),
-            name: taskPlanning.employee.name
-        },
-        dateString: taskPlanning.planningDateString,
-    }
-    await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
-
+    return await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
 
 }
 
-/**
- * Delete task planning
- **/
-taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
-    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
-    if (!taskPlanning) {
-        throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    }
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanning.releasePlan._id))
-    if (!releasePlan) {
-        throw new AppError(EM.RELEASE_PLAN_NOT_FOUND, EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
+const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee) => {
+    // due to task plan deletion reduce planned hours & task count
 
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanning.release._id))
-    if (!release) {
-        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    //check user highest role in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
-    if (!userRolesInThisRelease) {
-        throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
-        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-
-    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
-    if (!employee) {
-        throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-
-    /**
-     * A task plan can only be deleted before or on date it is planned after that it cannot be deleted.
-     * Now here is tricky part, the date is over or not is based on timezone, for now we will consider timezone of project as indian time zone
-     * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
-     */
-
-    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
-    // add 1 day to this date
-    momentPlanningDateIndia.add(1, 'days')
-
-    //logger.debug('moment planning date india ', {momentPlanningDateIndia})
-
-    if (momentPlanningDateIndia.isBefore(new Date())) {
-        throw new AppError('Planning date is already over, cannot delete planning now', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
-    }
-
-    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
-
-    /* when task plan is removed we have to decrease employee statistics  planned hours*/
-    await EmployeeStatisticsUpdateOnDeleteTaskPlanning()
-
-
-    /********************** RELEASE PLAN UPDATES ***************************/
-
-    // reduce planned hours & task count
     releasePlan.planning.plannedHours -= plannedHourNumber
     releasePlan.planning.plannedTaskCounts -= 1
 
@@ -797,25 +725,16 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
             }
         }
     }
-
-
-    /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
-       be added again
-     */
-
-    let warning = undefined
-
     if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
-        //logger.debug('Planned hours [' + releasePlan.planning.plannedHours + '] of release plan [' + releasePlan._id + '] matches [' + plannedHourNumber + '] of removed task planning. Hence need to again add unplanned flag and warning.')
         releasePlan.flags.push(SC.WARNING_UNPLANNED)
-        warning = await MDL.WarningModel.addUnplanned(release, releasePlan)
     }
 
-    //logger.debug('deleteTaskPlanning(): saving release plan ', {releasePlan})
+    return releasePlan
+}
 
 
-    /******************************* RELEASE UPDATES *****************************************************/
+const releaseUpdateOnDeleteTaskPlanning = async (release, taskPlanning, releasePlan) => {
 
     if (releasePlan.task.initiallyEstimated) {
         release.initial.plannedHours -= plannedHourNumber
@@ -830,25 +749,97 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     //logger.debug('deleteTaskPlanning(): saving release ', {release})
 
 
-    let plannedDateMoment = U.dateInUTC(taskPlanning.planningDateString)
-    let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlanning.employee._id,
-        'date': plannedDateMoment
-    })
-    await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, plannedDateMoment)
+    return release
+}
+
+
+const employeeDaysUpdateOnDeleteTaskPlanning = async (employee, taskPlanning, plannedHourNumber) => {
+
+    /* when task plan is removed we have to decrease employee days  planned hours */
+    let oldEmployeeDaysModelInput = {
+        plannedHours: plannedHourNumber,
+        employee: {
+            _id: employee._id.toString(),
+            name: taskPlanning.employee.name
+        },
+        dateString: taskPlanning.planningDateString,
+    }
+    return await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+}
+
+/**
+ * Delete task planning
+ **/
+taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
+    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+    if (!taskPlanning) {
+        throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanning.releasePlan._id))
+    if (!releasePlan) {
+        throw new AppError(EM.RELEASE_PLAN_NOT_FOUND, EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanning.release._id))
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    //check user highest role in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
+    if (!userRolesInThisRelease) {
+        throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
+    if (!employee) {
+        throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+
+    /**
+     * A task plan can only be deleted before or on date it is planned after that it cannot be deleted.
+     * Now here is tricky part, the date is over or not is based on timezone, for now we will consider timezone of project as indian time zone
+     * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
+     */
+
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+    // add 1 day to this date
+    momentPlanningDateIndia.add(1, 'days')
+
+    //logger.debug('moment planning date india ', {momentPlanningDateIndia})
+
+    if (momentPlanningDateIndia.isBefore(new Date())) {
+        throw new AppError('Planning date is already over, cannot delete planning now', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+    }
+
+    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
+
+
+    /********************** EMPLOYEE STATISTICS UPDATES ***************************/
+    await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee)
+
+    /********************** EMPLOYEE DAYS UPDATES ***************************/
+    await employeeDaysUpdateOnDeleteTaskPlanning(employee, taskPlanning, plannedHourNumber)
+
+    /********************** RELEASE PLAN UPDATES ***************************/
+    releasePlan = await releasePlanUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee)
+
+    /******************************* RELEASE UPDATES *****************************************************/
+    release = await releaseUpdateOnDeleteTaskPlanning(release, taskPlanning, releasePlan)
+    let warningResponse = MDL.WarningModel.taskPlanDeleted(taskPlanning, release, releasePlan)
 
     let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlanning._id))
-    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
-    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
-    if (employeeDayOfPlanned.plannedHours < maxPlannedHoursNumber) {
-        releasePlan.flag = releasePlan.flag
-    }
 
     await releasePlan.save()
     await release.save()
     /* remove task planning */
-    return {warning: warning, taskPlan: taskPlanningResponse}
+    return {warning: warningResponse, taskPlan: taskPlanningResponse}
 }
 
 

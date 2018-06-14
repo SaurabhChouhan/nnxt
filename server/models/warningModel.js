@@ -88,6 +88,35 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
     return await WarningModel.find({'releases._id': releaseID})
 }
 
+warningSchema.statics.addUnplanned = async (release, releasePlan) => {
+    // unplanned warning would be raised against a single release and a single release plan
+    let warning = {}
+    warning.type = SC.WARNING_UNPLANNED
+    warning.releases = [Object.assign({}, release.toObject(), {
+        source: true
+    })],
+        warning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
+            source: true
+        })],
+        warning.taskPlans = []
+    /*
+      I have not intentionally checked for existence of warning as duplicate warning would not cause
+      much problem and any such duplicate warning would be visible on UI and duplicate calls would be
+      fixed. This would save un-necessary existence check of warnings
+     */
+    return await WarningModel.create(warning)
+}
+
+
+warningSchema.statics.removeUnplanned = async (releasePlan) => {
+    // TODO: Add appropriate validation
+    // remove unplanned warning from release plan
+    return await WarningModel.remove({
+        type: SC.WARNING_UNPLANNED,
+        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
+    })
+}
+
 
 /**
  * Called when any task is planned
@@ -211,41 +240,6 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
     return warningResponse
 }
 
-/**
- * Called when task plan is removed. Make necessary warning changes
- *
- */
-warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) => {
-    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
-    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
-    let employeeDay = await MDL.EmployeeDaysModel.findOne({
-        'date': momentPlanningDate,
-        'employee._id': mongoose.Types.ObjectId(employee._id)
-    })
-    let warningResponse = {
-        added: [],
-        removed: []
-    }
-}
-
-warningSchema.statics.addUnplanned = async (release, releasePlan) => {
-    // unplanned warning would be raised against a single release and a single release plan
-    let warning = {}
-    warning.type = SC.WARNING_UNPLANNED
-    warning.releases = [Object.assign({}, release.toObject(), {
-        source: true
-    })],
-        warning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
-            source: true
-        })],
-        warning.taskPlans = []
-    /*
-      I have not intentionally checked for existence of warning as duplicate warning would not cause
-      much problem and any such duplicate warning would be visible on UI and duplicate calls would be
-      fixed. This would save un-necessary existence check of warnings
-     */
-    return await WarningModel.create(warning)
-}
 
 const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
     //logger.info('toManyHoursWarning():  ')
@@ -445,7 +439,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         newWarning.taskPlans = [...taskPlans, currentTaskPlan]
         newWarning.releasePlans = [...releasePlans]
         newWarning.releases = [...releases]
-        newWarning.employeeDays = employeeDays
+        newWarning.employeeDays = [...employeeDays]
         await newWarning.save()
     }
 
@@ -453,58 +447,164 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
 }
 
 
-warningSchema.statics.deleteToManyHours = async (taskPlan, release, releasePlan, employeeDay, plannedDate) => {
+/**
+ * Called when task plan is removed. Make necessary warning changes
+ *
+ */
+warningSchema.statics.taskPlanDeleted = async (taskPlan, release, releasePlan) => {
+    /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
+     be added again
+   */
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    let deleteTooManyHoursWarningResponse = undefined
+    let plannedDateUTC = U.dateInUTC(taskPlanning.planningDateString)
+    if (releasePlan.planning.plannedTaskCounts === 0) {
+        // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
+        // unplanned warning would be raised against a single release and a single release plan
+        let warning = {}
+        warning.type = SC.WARNING_UNPLANNED
+        warning.releases = [Object.assign({}, release.toObject(), {
+            source: true
+        })],
+            warning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
+                source: true
+            })],
+            warning.taskPlans = []
+        await WarningModel.create(warning)
+        warningResponse.added.push({
+            _id: releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_UNPLANNED,
+            source: true
+        })
+        warningResponse.added.push({
+            _id: release._id,
+            warningType: SC.WARNING_TYPE_RELEASE,
+            type: SC.WARNING_UNPLANNED,
+            source: true
+        })
+    }
+    deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, release, releasePlan, plannedDateUTC)
+
+    return warningResponse
+}
+
+const deleteWarningWithResponse = async (warning, warningResponse, warningType) => {
+
+    warning.taskPlans.forEach(tp => {
+        if (tp) {
+            warningResponse.removed.push({
+                _id: tp._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: warningType,
+                source: tp.source
+            })
+        }
+    })
+    warning.releasePlans.forEach(rp => {
+        if (rp) {
+            warningResponse.removed.push({
+                _id: rp._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: warningType,
+                source: rp.source
+            })
+        }
+    })
+    warning.releases.forEach(r => {
+        if (r) {
+            warningResponse.removed.push({
+                _id: r._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: warningType,
+                source: r.source
+            })
+        }
+    })
+    await WarningModel.findByIdAndRemove(warning._id)
+    return warningResponse
+}
+
+
+const deleteToManyHours = async (taskPlan, release, releasePlan, plannedDateUTC) => {
     /**
      * It is possible that this warning is  earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised
      */
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': taskPlanning.employee._id,
+        'date': plannedDateUTC
+    })
+//fetch employee setting
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
-    let planningDateUtc = U.dateInUTC(plannedDate)
-    let employeeID = employeeDay.employee && employeeDay.employee._id ? employeeDay.employee._id : undefined
-    console.log('planningDateUtc', planningDateUtc)
-    let warning = await WarningModel.findOne({
+    let employeeID = employeeDay.employee._id
+
+    let tooManyHourWarning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDays.date': planningDateUtc,
-        'employeeDays.employee_id': mongoose.Types.ObjectId(employeeID)
+        'employeeDays.date': plannedDateUTC,
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employeeID)
     })
 
-    if (!warning) {
-        throw new AppError('Warning is not available to delete ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    if (warning && warning.taskPlans && warning.taskPlans.length > 1) {
+    if (tooManyHourWarning) {
         /* Update Existing warning WARNING_TOO_MANY_HOURS*/
         if (employeeDay && employeeDay.plannedHours && Number(employeeDay.plannedHours) <= maxPlannedHoursNumber) {
-            return await WarningModel.findByIdAndRemove(warning._id)
+            //tooManyHourWarning reponse calculation
+            warningResponse = await deleteWarningWithResponse(tooManyHourWarning, warningResponse, SC.WARNING_TOO_MANY_HOURS)
+        } else {
+            tooManyHourWarning.taskPlans = tooManyHourWarning.taskPlans.filter(tp => tp && tp._id && taskPlan && taskPlan.toObject()._id && tp._id.toString() != taskPlan.toObject()._id.toString())
+            warningResponse.removed.push({
+                _id: taskPlan._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_TOO_MANY_HOURS,
+                source: true
+            })
+
+            if (tooManyHourWarning.taskPlans && tooManyHourWarning.taskPlans.length) {
+                let otherTaskPlanReleaseExists = false
+
+                otherTaskPlanReleaseExists = tooManyHourWarning.taskPlans.findIndex(tp => tp && tp.release && tp.release._id.toString() != release.toObject()._id.toString()) != -1
+                if (!otherTaskPlanReleaseExists) {
+                    tooManyHourWarning.releases = tooManyHourWarning.releases.filter(r => r._id.toString() != release.toObject()._id.toString())
+                    warningResponse.removed.push({
+                        _id: release._id,
+                        warningType: SC.WARNING_TYPE_RELEASE,
+                        type: SC.WARNING_TOO_MANY_HOURS,
+                        source: true
+                    })
+                }
+
+                let otherTaskPlanReleasePlanExists = false
+                otherTaskPlanReleasePlanExists = tooManyHourWarning.taskPlans.findIndex(tp => tp && tp.releasePlan && tp.releasePlan._id.toString() != releasePlan.toObject()._id.toString()) != -1
+                if (!otherTaskPlanReleasePlanExists) {
+                    tooManyHourWarning.releasePlans = tooManyHourWarning.releasePlans.filter(r => r._id.toString() != releasePlan.toObject()._id.toString())
+                    warningResponse.removed.push({
+                        _id: releasePlan._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_TOO_MANY_HOURS,
+                        source: true
+                    })
+                }
+                await tooManyHourWarning.save()
+            } else {
+                //warning reponse calculation
+                warningResponse = await deleteWarningWithResponse(tooManyHourWarning, warningResponse, SC.WARNING_TOO_MANY_HOURS)
+            }
+
         }
-        warning.taskPlans = warning.taskPlans.filter(tp => tp && tp._id && taskPlan && taskPlan.toObject()._id && tp._id.toString() != taskPlan.toObject()._id.toString())
-        let otherTaskPlanReleaseExists = false
-        otherTaskPlanReleaseExists = warning.taskPlans.findIndex(tp => tp && tp.release && tp.release._id.toString() != release.toObject()._id.toString()) != -1
-        if (!otherTaskPlanReleaseExists) {
-            warning.releases = warning.releases.filter(r => r._id.toString() != release._id.toString())
-        }
-        let otherTaskPlanReleasePlanExists = false
-        otherTaskPlanReleasePlanExists = warning.taskPlans.findIndex(tp => tp && tp.releasePlan && tp.releasePlan._id.toString() != releasePlan.toObject()._id.toString()) != -1
-        if (!otherTaskPlanReleasePlanExists) {
-            warning.releasePlans = warning.releasePlans.filter(r => r._id.toString() != releasePlan._id.toString())
-        }
-        return await warning.save()
     } else {
-        return await WarningModel.findByIdAndRemove(warning._id)
+        throw new AppError('Warning is not available to delete ', EC.DATA_INCONSISTENT, EC.HTTP_BAD_REQUEST)
     }
-
-}
-
-
-warningSchema.statics.removeUnplanned = async (releasePlan) => {
-    // TODO: Add appropriate validation
-    // remove unplanned warning from release plan
-    return await WarningModel.remove({
-        type: SC.WARNING_UNPLANNED,
-        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
-    })
+    return warningResponse
 }
 
 /**
