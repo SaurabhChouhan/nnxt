@@ -14,8 +14,8 @@ let holidayReducer = (state = initialState, action) => {
 
         case AC.ADD_HOLIDAYS:
             return Object.assign({}, state, {all: action.holidays})
-        case AC.ADD_ALL_YEARS:
 
+        case AC.ADD_ALL_YEARS:
             let currentYear = U.getCurrentYear()
             let years = action.years && action.years.length ? action.years.map(y => y.calendarYear) : []
             return Object.assign({}, state, {allYears: years && years.length && years.findIndex(y => y == currentYear) != -1 ? years : [...years, currentYear]})
@@ -24,9 +24,9 @@ let holidayReducer = (state = initialState, action) => {
             let holidayDateMoment = U.momentInUTC(action.holidayDateString)
             return Object.assign({}, state, {all: state.all.filter(item => !U.momentInUTC(item.dateString).isSame(holidayDateMoment))})
 
-        case AC.EDIT_HOLIDAY:
+        case AC.UPDATE_HOLIDAY:
             return Object.assign({}, state, {
-                all: state.all.map(item => item._id == action.holiday._id ? action.holiday : item)
+                all: state.all.map(item => item._id.toString() == action.holiday._id.toString() ? action.holiday : item)
             })
 
 

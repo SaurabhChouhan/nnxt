@@ -21,8 +21,8 @@ export const addHoliday = (holiday) => ({
     holiday: holiday
 })
 
-export const editHoliday = (holiday) => ({
-    type: AC.EDIT_HOLIDAY,
+export const updateHoliday = (holiday) => ({
+    type: AC.UPDATE_HOLIDAY,
     holiday: holiday
 })
 
@@ -99,7 +99,7 @@ export const addHolidayOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addHoliday(json.data))
+                    return dispatch(getAllHolidaysOfYearFromServer(json.data.calendarYear))
                 }
 
                 return json
@@ -125,7 +125,7 @@ export const deleteHolidayOnServer = (holidayDateString) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(deleteHoliday(holidayDateString))
+                    return dispatch(getAllHolidaysOfYearFromServer(json.data.calendarYear))
                 }
                 return json
             }
@@ -134,7 +134,8 @@ export const deleteHolidayOnServer = (holidayDateString) => {
 }
 
 
-export const editHolidayOnServer = (holiday) => {
+export const updateHolidayOnServer = (formInput) => {
+    console.log("formInput", formInput)
     return function (dispatch, getState) {
         return fetch('/api/holiday',
             {
@@ -144,7 +145,7 @@ export const editHolidayOnServer = (holiday) => {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(holiday)
+                body: JSON.stringify(formInput)
             }
         ).then(
             response => {
@@ -152,7 +153,7 @@ export const editHolidayOnServer = (holiday) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(editHoliday(json.data))
+                    return dispatch(getAllHolidaysOfYearFromServer(json.data.calendarYear))
                 }
                 return json
             }

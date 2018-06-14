@@ -13,6 +13,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (!holiday._id) {
             return dispatch(A.addHolidayOnServer(holiday)).then(json => {
                 if (json.success) {
+                    dispatch(A.showComponentHideOthers(COC.HOLIDAY_LIST))
                     NotificationManager.success('Holiday Added Successfully')
                 } else {
                     NotificationManager.error('Holiday Not Added!')
@@ -23,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             })
         }
         else {
-            return dispatch(A.editHolidayOnServer(holiday)).then((json) => {
+            return dispatch(A.updateHolidayOnServer(holiday)).then((json) => {
                     if (json.success) {
                         dispatch(A.showComponentHideOthers(COC.HOLIDAY_LIST))
                         NotificationManager.success('Holiday Updated Successful');
