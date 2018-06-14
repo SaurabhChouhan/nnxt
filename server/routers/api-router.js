@@ -1,8 +1,8 @@
 import Router from 'koa-router'
-import * as RR from "../routers"
-import {isAuthenticated} from "../utils"
+import * as RR from '../routers'
+import {isAuthenticated} from '../utils'
 import AppError from '../AppError'
-import * as EC from "../errorcodes"
+import * as EC from '../errorcodes'
 
 /**
  * This router would contain all API routes
@@ -11,7 +11,7 @@ import * as EC from "../errorcodes"
 
 
 const apiRouter = new Router({
-    prefix: "/api"
+    prefix: '/api'
 })
 
 // public URLs
@@ -25,7 +25,7 @@ apiRouter.use(async (ctx, next) => {
         } else if (isAuthenticated(ctx)) {
             return await next()
         } else {
-            throw new AppError("Access Denied", EC.ACCESS_DENIED, 403)
+            throw new AppError('Access Denied', EC.ACCESS_DENIED, 403)
         }
     }, RR.userRouter.routes(),
     RR.permissionRouter.routes(),
@@ -42,7 +42,8 @@ apiRouter.use(async (ctx, next) => {
     RR.reportingRouter.routes(),
     RR.employeeRouter.routes(),
     RR.warningRouter.routes(),
-    RR.holidayRouter.routes()
+    RR.holidayRouter.routes(),
+    RR.dashboardRouter.routes()
 )
 
 export default apiRouter

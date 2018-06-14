@@ -15,6 +15,8 @@ export {default as calendarRouter} from './calendar-router'
 export {default as reportingRouter} from './reporting-router'
 export {default as employeeRouter} from './employee-router'
 export {default as warningRouter} from './warning-router'
+export {default as dashboardRouter} from './dashboard-router'
 export {default as holidayRouter} from './holiday-router'
+
 // Please export all routers above this router
 export {default as apiRouter} from './api-router'
