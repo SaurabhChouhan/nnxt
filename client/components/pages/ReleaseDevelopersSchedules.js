@@ -20,8 +20,8 @@ class ReleaseDevelopersSchedules extends React.Component {
 
         const {schedules, employeeSetting, from} = this.props
         let fromString = moment(from).format(SC.DATE_FORMAT)
-        let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-        let startMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+        let startMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
         let toMoment = fromMoment.clone().add(6, 'days')
         let weekArray = []
         while (startMoment.isSameOrBefore(toMoment)) {
@@ -45,7 +45,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                                 <div className="releaseDayRow">
                                     {
                                         weekArray && weekArray.length ? weekArray.map((weekDate, index) => {
-                                            let scheduleDay = schedule.days && schedule.days.length ? schedule.days.find(day => momentTZ.tz(day.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).isSame(weekDate)) : undefined
+                                            let scheduleDay = schedule.days && schedule.days.length ? schedule.days.find(day => momentTZ.tz(day.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).isSame(weekDate)) : undefined
                                             if (scheduleDay && scheduleDay != undefined) {
                                                 return <div key={'day' + index} className="releaseDayCell">
                                                     <h5> {moment(scheduleDay.dateString).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>

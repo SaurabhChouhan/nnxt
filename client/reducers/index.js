@@ -15,6 +15,7 @@ import releaseReducer from './releaseReducer'
 import calendarReducer from './calendarReducer'
 import reportingReducer from './reportingReducer'
 import warningReducer from './warningReducer'
+import holidayReducer from './holidayReducer'
 
 
 const reducers = combineReducers({
@@ -33,6 +34,7 @@ const reducers = combineReducers({
     release: releaseReducer,
     calendar: calendarReducer,
     report: reportingReducer,
-    warning: warningReducer
+    warning: warningReducer,
+    holiday:holidayReducer
 })
 export default reducers

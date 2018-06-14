@@ -126,3 +126,10 @@ export const SET_EMPLOYEE_SETTINGS = "SET_EMPLOYEE_SETTINGS"
 
 //warning
 export const ADD_WARNINGS = "ADD_WARNINGS"
+
+//holiday
+export const ADD_HOLIDAY = "ADD_HOLIDAY"
+export const ADD_HOLIDAYS = "ADD_HOLIDAYS"
+export const ADD_ALL_YEARS = "ADD_ALL_YEARS"
+export const DELETE_HOLIDAY = "DELETE_HOLIDAY"
+export const UPDATE_HOLIDAY = "UPDATE_HOLIDAY"

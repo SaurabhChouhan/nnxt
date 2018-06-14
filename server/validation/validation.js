@@ -24,7 +24,7 @@ export let ObjectId = t.refinement(t.String, s => mongoose.Types.ObjectId.isVali
 
 export let validDate = t.refinement(t.String, s => {
     console.log('validDate: s is ', s)
-    let m = Moment.tz(s, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
+    let m = Moment.tz(s, SC.DATE_FORMAT, SC.UTC_TIMEZONE)
     console.log('validDate: s is ', s)
     console.log('moment is ', m)
     console.log('is valid ', m.isValid())

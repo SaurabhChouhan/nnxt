@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import Tab from '../tabs/Tab'
 import {Loader} from 'react-loaders'
 import {Route} from 'react-router-dom'
+import * as U from "../../../server/utils";
+
 import {
     ADMIN_PERMISSION_TAB,
     ADMIN_ROLE_FORM,
@@ -21,7 +23,10 @@ import {
     EMPLOYEE_SETTING_TAB,
     EMPLOYEE_SETTING_FORM,
     LEAVE_SETTING_TAB,
-    LEAVE_SETTING_FORM
+    HOLIDAY_TAB,
+    LEAVE_SETTING_FORM,
+    HOLIDAY_FORM,
+    HOLIDAY_LIST
 } from "../componentConsts"
 
 import {
@@ -44,7 +49,9 @@ import {
     UserListContainer,
     UserProfileFormContainer,
     EmployeeSettingFormContainer,
-    LeaveSettingFormContainer
+    LeaveSettingFormContainer,
+    HolidayFormContainer,
+    HolidayListContainer
 
 } from "../../containers"
 import * as A from "../../actions";
@@ -156,6 +163,18 @@ class Tabs extends Component {
                 }
             })
         }
+        if (permissions.includes(LIST_USERS)) {
+            this.tabData.push({
+                name: HOLIDAY_TAB,
+                url: "/holiday",
+                render: (props) => {
+                    return <TabSectionContainer>
+                        <HolidayFormContainer name={HOLIDAY_FORM}/>
+                        <HolidayListContainer name={HOLIDAY_LIST}/>
+                    </TabSectionContainer>
+                }
+            })
+        }
 
 
         if (this.tabData.length > 0) {
@@ -180,32 +199,45 @@ class Tabs extends Component {
                 store.dispatch(A.showUserInfo())
                 store.dispatch(A.showComponentHideOthers(USER_PROFILE_FORM))
                 break;
+
             case PERMISSION_TAB:
                 store.dispatch(A.getAllRolesFromServer())
                 store.dispatch(A.getAllPermissionsFromServer())
                 store.dispatch(A.showComponentHideOthers(PERMISSION_LIST))
-                break
+                break;
+
             case ROLE_TAB:
                 store.dispatch(A.getAllRolesFromServer())
                 store.dispatch(A.showComponentHideOthers(ROLE_LIST))
-                break
+                break;
+
             case USER_TAB:
                 store.dispatch(A.getAllRolesFromServer())
                 store.dispatch(A.getAllUsersFromServer())
                 store.dispatch(A.showComponentHideOthers(USER_LIST))
-                break
+                break;
+
             case ADMIN_PERMISSION_TAB:
                 store.dispatch(A.getAllRolesFromServer())
                 store.dispatch(A.showComponentHideOthers(ADMIN_ROLE_LIST))
                 break
+
             case EMPLOYEE_SETTING_TAB:
                 store.dispatch(A.getEmployeeSettingFromServer())
                 store.dispatch(A.showComponentHideOthers(EMPLOYEE_SETTING_FORM))
-                break
+                break;
+
             case LEAVE_SETTING_TAB:
                 store.dispatch(A.getLeaveSettingFromServer())
                 store.dispatch(A.showComponentHideOthers(LEAVE_SETTING_FORM))
-                break
+                break;
+
+            case HOLIDAY_TAB:
+                store.dispatch(A.getAllHolidayYearsFromServer())
+                let currentYear = U.getCurrentYear()
+                store.dispatch(A.getAllHolidaysOfYearFromServer(currentYear))
+                store.dispatch(A.showComponentHideOthers(HOLIDAY_LIST))
+                break;
         }
         this.setState({
             activeTab: tab

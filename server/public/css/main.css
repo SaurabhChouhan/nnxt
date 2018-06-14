@@ -1908,7 +1908,7 @@ hr {
     border: 2px solid #003C79;
 }
 
-.confirmationDialogReviewRequestHasError {
+. confirmationDialogReviewRequestHasError {
     background-color: #FF0000;
 }
 
@@ -1950,3 +1950,27 @@ hr {
     width: 25px;
 }
 
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+.tab span {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+.tab span:hover {
+    background-color: #ddd;
+}
+
+.tab span.active {
+    background-color: #ccc;
+}
