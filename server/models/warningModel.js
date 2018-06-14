@@ -451,7 +451,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
  * Called when task plan is removed. Make necessary warning changes
  *
  */
-const deleteToManyHours = async (taskPlan, release, releasePlan, plannedDateUTC) => {
+const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC) => {
     /**
      * It is possible that this warning is  earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised
@@ -482,7 +482,8 @@ const deleteToManyHours = async (taskPlan, release, releasePlan, plannedDateUTC)
             //tooManyHourWarning reponse calculation
             warningResponse = await deleteWarningWithResponse(tooManyHourWarning, warningResponse, SC.WARNING_TOO_MANY_HOURS)
         } else {
-            tooManyHourWarning.taskPlans = tooManyHourWarning.taskPlans.filter(tp => tp && tp._id && taskPlan && taskPlan.toObject()._id && tp._id.toString() != taskPlan.toObject()._id.toString())
+            tooManyHourWarning.taskPlans = tooManyHourWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
+            console.log(" tooManyHourWarning.taskPlans----------", tooManyHourWarning.taskPlans)
             warningResponse.removed.push({
                 _id: taskPlan._id,
                 warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -493,9 +494,9 @@ const deleteToManyHours = async (taskPlan, release, releasePlan, plannedDateUTC)
             if (tooManyHourWarning.taskPlans && tooManyHourWarning.taskPlans.length) {
                 let otherTaskPlanReleaseExists = false
 
-                otherTaskPlanReleaseExists = tooManyHourWarning.taskPlans.findIndex(tp => tp && tp.release && tp.release._id.toString() != release.toObject()._id.toString()) != -1
+                otherTaskPlanReleaseExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) !== -1
                 if (!otherTaskPlanReleaseExists) {
-                    tooManyHourWarning.releases = tooManyHourWarning.releases.filter(r => r._id.toString() != release.toObject()._id.toString())
+                    tooManyHourWarning.releases = tooManyHourWarning.releases.filter(r => r._id.toString() !== release._id.toString())
                     warningResponse.removed.push({
                         _id: release._id,
                         warningType: SC.WARNING_TYPE_RELEASE,
@@ -505,9 +506,9 @@ const deleteToManyHours = async (taskPlan, release, releasePlan, plannedDateUTC)
                 }
 
                 let otherTaskPlanReleasePlanExists = false
-                otherTaskPlanReleasePlanExists = tooManyHourWarning.taskPlans.findIndex(tp => tp && tp.releasePlan && tp.releasePlan._id.toString() != releasePlan.toObject()._id.toString()) != -1
+                otherTaskPlanReleasePlanExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) !== -1
                 if (!otherTaskPlanReleasePlanExists) {
-                    tooManyHourWarning.releasePlans = tooManyHourWarning.releasePlans.filter(r => r._id.toString() != releasePlan.toObject()._id.toString())
+                    tooManyHourWarning.releasePlans = tooManyHourWarning.releasePlans.filter(r => r._id.toString() !== releasePlan._id.toString())
                     warningResponse.removed.push({
                         _id: releasePlan._id,
                         warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -520,7 +521,6 @@ const deleteToManyHours = async (taskPlan, release, releasePlan, plannedDateUTC)
                 //warning reponse calculation
                 warningResponse = await deleteWarningWithResponse(tooManyHourWarning, warningResponse, SC.WARNING_TOO_MANY_HOURS)
             }
-
         }
     } else {
         throw new AppError('Warning is not available to delete ', EC.DATA_INCONSISTENT, EC.HTTP_BAD_REQUEST)
@@ -603,8 +603,13 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, p
             source: true
         })
     }
-    deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, release, releasePlan, plannedDateUTC)
-
+    deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, releasePlan, release, plannedDateUTC)
+    if (true) {
+        releasePlan.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+        await releasePlan.save()
+    }
+    warningResponse.added = [...warningResponse.added, ...deleteTooManyHoursWarningResponse.added]
+    warningResponse.removed = [...warningResponse.removed, ...deleteTooManyHoursWarningResponse.removed]
     return warningResponse
 }
 

@@ -233,8 +233,8 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
             json => {
                 if (json.success) {
                     dispatch(addReleaseTaskPlanningToState(json.data.taskPlan))
-                    if (json.data && json.data.releasePlan && json.data.releasePlan._id) {
-                        dispatch(getUpdatedReleasePlanFromServer(json.data.releasePlan._id))
+                    if (json.data && json.data.taskPlan.releasePlan && json.data.taskPlan.releasePlan._id) {
+                        dispatch(getUpdatedReleasePlanFromServer(json.data.taskPlan.releasePlan._id))
                     }
                 }
                 return json
@@ -283,9 +283,11 @@ export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(removeTaskPlanning(taskPlanningID))
-                    if (releasePlanID) {
-                        dispatch(getUpdatedReleasePlanFromServer(releasePlanID))
+                    if (json.data && json.data.taskPlan && json.data.taskPlan._id) {
+                        dispatch(removeTaskPlanning(json.data.taskPlan._id))
+                    }
+                    if (json.data && json.data.taskPlan && json.data.taskPlan.releasePlan && json.data.taskPlan.releasePlan._id) {
+                        dispatch(getUpdatedReleasePlanFromServer(json.data.taskPlan.releasePlan._id))
                     }
                 }
                 return json
