@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import ContentSection from './ContentSection'
 import {
     AttendanceSettingFormContainer,
+    CalendarTaskDetailPageContainer,
+    CalendarTaskPageContainer,
     ClientListContainer,
     EstimationDetailContainer,
     EstimationListContainer,
@@ -10,12 +12,10 @@ import {
     ReleaseListContainer,
     ReleasePlanListContainer,
     ReleaseTaskPlanningPageContainer,
-    ReportingTaskPageContainer,
     ReportingTaskDetailPageContainer,
+    ReportingTaskPageContainer,
     TechnologyListContainer,
-    UserProfileFormContainer,
-    CalendarTaskPageContainer,
-    CalendarTaskDetailPageContainer
+    UserProfileFormContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'

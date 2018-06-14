@@ -11,8 +11,6 @@ class TechnologyList extends Component {
         this.state = {
             showTechnologyDeletionDialog: false,
             addRow: null
-
-
         }
 
     }

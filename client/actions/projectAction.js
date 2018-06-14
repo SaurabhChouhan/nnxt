@@ -10,10 +10,12 @@ export const addProject = (project) => ({
     type: AC.ADD_PROJECT,
     project: project
 })
+
 export const deleteProject = (projectID) => ({
     type: AC.DELETE_PROJECT,
     projectID: projectID
 })
+
 export const editProject = (project) => ({
 
     type: AC.EDIT_PROJECT,
@@ -64,10 +66,11 @@ export const addProjectOnServer = (formInput) => {
 
                 }
                 return json
-            }
-        )
+        })
     }
 }
+
+
 export const deleteProjectOnServer = (projectID) => {
     return function (dispatch, getState) {
         return fetch('/api/projects/' + projectID,
@@ -89,10 +92,11 @@ export const deleteProjectOnServer = (projectID) => {
                     // clear user form after update is successful
                 }
                 return json
-            }
-        )
+        })
     }
 }
+
+
 export const editProjectOnServer = (project) => {
     return function (dispatch, getState) {
         return fetch('/api/projects',
@@ -114,7 +118,6 @@ export const editProjectOnServer = (project) => {
                     dispatch(editProject(json.data))
                 }
                 return json
-            }
-        )
+        })
     }
 }

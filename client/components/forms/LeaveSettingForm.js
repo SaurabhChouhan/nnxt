@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderField} from './fields'
-import {required, number} from "./validation";
+import {number, required} from "./validation";
 import {connect} from 'react-redux'
 
 class LeaveSettingForm extends Component {

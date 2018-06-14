@@ -1,14 +1,13 @@
 import * as AC from './actionConsts'
-import * as A from '../actions'
 
 export const addWarnings = (warnings) => ({
     type: AC.ADD_WARNINGS,
     warnings: warnings
 })
 
-export const getAllWarningsFromServer = (release) => {
+export const getAllWarningsOfThisReleaseFromServer = (releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/warning/releases/'+release._id, {
+        return fetch('/api/warning/release/'+releaseID, {
                 method: 'get',
                 credentials: "include",
                 headers: {

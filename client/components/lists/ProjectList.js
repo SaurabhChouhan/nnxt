@@ -14,7 +14,6 @@ class ProjectList extends Component {
 
 
         }
-
     }
 
     onClose() {

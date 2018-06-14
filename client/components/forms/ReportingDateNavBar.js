@@ -5,6 +5,7 @@ import moment from 'moment'
 import {connect} from 'react-redux'
 import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
+
 moment.locale('en')
 momentLocalizer()
 

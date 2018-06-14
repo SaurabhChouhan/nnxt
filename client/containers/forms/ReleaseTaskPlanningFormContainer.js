@@ -3,6 +3,7 @@ import {ReleaseTaskPlanningForm} from "../../components"
 import * as A from "../../actions"
 import * as COC from "../../components/componentConsts";
 import {NotificationManager} from 'react-notifications'
+import * as EC from '../../../server/errorcodes'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (task) => {
@@ -12,7 +13,19 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 NotificationManager.success("Task Planning Added")
                 dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
             }
-            else NotificationManager.error("Task Planning Not Added")
+            else {
+                if (json.errorCode === EC.NOT_FOUND) {
+                    return NotificationManager.error(json.messaqge)
+                } else if (json.errorCode === EC.ACCESS_DENIED) {
+                    return NotificationManager.error(json.messaqge)
+                } else if (json.errorCode === EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE) {
+                    return NotificationManager.error(json.messaqge)
+                } else if (json.errorCode === EC.TIME_OVER) {
+                    return NotificationManager.error(json.messaqge)
+                } else if (json.errorCode === EC.CANT_PLAN) {
+                    return NotificationManager.error(json.messaqge)
+                } else NotificationManager.error("Task Planning Failed!")
+            }
         })
 
     }

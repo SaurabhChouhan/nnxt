@@ -4,6 +4,7 @@ import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import _ from 'lodash'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -20,7 +21,9 @@ let releasePlanSchema = mongoose.Schema({
         name: {type: String, required: [true, 'Task name is required']},
         description: String,
         estimatedHours: {type: Number, default: 0},
-        initiallyEstimated: {type: Boolean, default: false}
+        initiallyEstimated: {type: Boolean, default: false},
+        estimatedBilledHours: {type: Number, default: 0},
+        alreadyBilledHours: {type: Number, default: 0}
     },
     feature: {
         _id: mongoose.Schema.ObjectId,
@@ -46,9 +49,11 @@ let releasePlanSchema = mongoose.Schema({
     },
     report: {
         reportedHours: {type: Number, default: 0},
+        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
         minReportedDate: Date,
         maxReportedDate: Date,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
+        plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
         finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
         employees: [{
             _id: mongoose.Schema.ObjectId,
@@ -56,6 +61,7 @@ let releasePlanSchema = mongoose.Schema({
             minReportedDate: Date, // minimum reported date against this employee
             maxReportedDate: Date, // maximum reported date against this employee
             reportedTaskCounts: {type: Number, default: 0}, // number of task reported this employee,
+            plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
             finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]} // final status reported by employee
         }]
     },
@@ -83,14 +89,26 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
     releasePlanInput.release = release
     releasePlanInput.flags = [SC.WARNING_UNPLANNED]
     releasePlanInput.report = {}
+
+    logger.debug('project award addRelease(): estimationTask.estimator.estimatedHours is ' + estimationTask.estimator.estimatedHours)
+    logger.debug('project award addRelease(): release.expectedBilledHours is ' + release.initial.expectedBilledHours)
+    logger.debug('project award addRelease(): estimation.estimatedHours is ' + estimation.estimatedHours)
+    let expectedBilledHours = estimationTask.estimator.estimatedHours * (release.initial.expectedBilledHours / estimation.estimatedHours)
+    logger.debug('project award addRelease(): expected billed hours is ' + expectedBilledHours)
+
     releasePlanInput.task = {
         _id: estimationTask._id,
         name: estimationTask.estimator.name,
         estimatedHours: estimationTask.estimator.estimatedHours,
         description: estimationTask.estimator.description,
-        initiallyEstimated: estimationTask.initiallyEstimated
+        initiallyEstimated: estimationTask.initiallyEstimated,
+        estimatedBilledHours: expectedBilledHours.toFixed(2)
     }
-    
+
+    releasePlanInput.report = {
+        baseHoursProgress: estimationTask.estimator.estimatedHours // initial base hours would be estimated hours
+    }
+
     if (estimationTask.feature && estimationTask.feature._id)
         releasePlanInput.feature = estimationTask.feature
 
