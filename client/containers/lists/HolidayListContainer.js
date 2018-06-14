@@ -30,7 +30,12 @@ const mapStateToProps = (state, ownProps) => {
     return {
         loggedInUser: state.user.loggedIn,
         holidays: state.holiday.all,
-        allYears: state.holiday.allYears
+        allYears: state.holiday.allYears.sort(function (a, b) {
+            a = Number(a)
+            b = Number(b)
+            return a < b ? -1 : a > b ? 1 : 0
+        })
+
     }
 }
 
