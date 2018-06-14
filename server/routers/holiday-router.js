@@ -35,7 +35,7 @@ holidayRouter.del('/:holidayDateString', async (ctx) => {
 })
 
 holidayRouter.put('/', async ctx => {
-    return await MDL.YearlyHolidaysModel.updateHolidayYear(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.YearlyHolidaysModel.updateHoliday(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
