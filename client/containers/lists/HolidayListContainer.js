@@ -20,7 +20,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
     }),
 
-    showHolidayForm: () => dispatch(A.showComponentHideOthers(COC.HOLIDAY_FORM))
+    showHolidayForm: () => dispatch(A.showComponentHideOthers(COC.HOLIDAY_FORM)),
+    getHolidaysOfYear: (year) => {
+        dispatch(A.getAllHolidaysOfYearFromServer(year))
+    }
 })
 
 const mapStateToProps = (state, ownProps) => {

@@ -31,17 +31,15 @@ class HolidayList extends Component {
         return (
             <div className="row">
                 <div className="col-md-10">
-                    <Dialog ref={(el) => {
-                        this.dialog = el
-                    }}/>
-
-
                     <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showHolidayForm()}>
                         Create Holiday
                     </button>
                     <div className="tab">
                         {allYears.map((y, index) =>
-                            <span key={"y" + index}>{y}</span>
+                            <span key={"year" + index} onClick={() => {
+                                this.props.getHolidaysOfYear(y)
+
+                            }}>{y}</span>
                         )}
                     </div>
 
