@@ -564,11 +564,11 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 }
 
 
-const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee) => {
+const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, employee, plannedHourNumber, user) => {
     /* when task plan is removed we have to decrease employee statistics  planned hours*/
     let EmployeeStatisticsModelInput = {
         release: {
-            _id: taskPlanning.release._id.toString(),
+            _id: taskPlan.release._id.toString(),
         },
         employee: {
             _id: employee._id.toString(),
@@ -581,11 +581,25 @@ const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlanning, releas
         }
     }
     return await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
+}
 
+
+const employeeDaysUpdateOnDeleteTaskPlanning = async (taskPlan, employee, plannedHourNumber, user) => {
+
+    /* when task plan is removed we have to decrease employee days  planned hours */
+    let oldEmployeeDaysModelInput = {
+        plannedHours: plannedHourNumber,
+        employee: {
+            _id: employee._id.toString(),
+            name: taskPlan.employee.name
+        },
+        dateString: taskPlan.planningDateString,
     }
+    return await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+}
 
 
-const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, employee) => {
+const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, employee, plannedHourNumber) => {
     // due to task plan deletion reduce planned hours & task count
 
     releasePlan.planning.plannedHours -= plannedHourNumber
@@ -593,7 +607,7 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, 
 
     /* SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN */
 
-    let momentPlanningDate = new moment(taskPlanning.planningDate)
+    let momentPlanningDate = new moment(taskPlan.planningDate)
 
     // Update common planning data
     if (releasePlan.planning.plannedTaskCounts == 0) {
@@ -607,17 +621,17 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, 
               on minimum planning date
              */
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                'planningDate': taskPlan.planningDate,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             //logger.debug('other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
@@ -643,17 +657,17 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, 
              */
 
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                'planningDate': taskPlan.planningDate,
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             logger.debug('other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
@@ -694,19 +708,19 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, 
               on minimum planning date
              */
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
+                'planningDate': taskPlan.planningDate,
                 'employee._id': employee._id,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
                             'employee._id': employee._id,
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
@@ -731,19 +745,19 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, 
               on minimum planning date
              */
             let otherTaskCount = await MDL.TaskPlanningModel.count({
-                'planningDate': taskPlanning.planningDate,
+                'planningDate': taskPlan.planningDate,
                 'employee._id': employee._id,
-                '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)},
-                'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id)
+                '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
             //logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
                         $match: {
-                            'releasePlan._id': mongoose.Types.ObjectId(taskPlanning.releasePlan._id),
+                            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
                             'employee._id': employee._id,
-                            '_id': {$ne: mongoose.Types.ObjectId(taskPlanning._id)}
+                            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
                         }
                     },
                     {
@@ -770,7 +784,7 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlanning, releasePlan, 
 }
 
 
-const releaseUpdateOnDeleteTaskPlanning = async (release, taskPlanning, releasePlan) => {
+const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release, plannedHourNumber) => {
 
     if (releasePlan.task.initiallyEstimated) {
         release.initial.plannedHours -= plannedHourNumber
@@ -788,42 +802,27 @@ const releaseUpdateOnDeleteTaskPlanning = async (release, taskPlanning, releaseP
     return release
 }
 
-
-const employeeDaysUpdateOnDeleteTaskPlanning = async (employee, taskPlanning, plannedHourNumber) => {
-
-    /* when task plan is removed we have to decrease employee days  planned hours */
-    let oldEmployeeDaysModelInput = {
-        plannedHours: plannedHourNumber,
-        employee: {
-            _id: employee._id.toString(),
-            name: taskPlanning.employee.name
-        },
-        dateString: taskPlanning.planningDateString,
-    }
-    return await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
-}
-
 /**
  * Delete task planning
  **/
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
-    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
-    if (!taskPlanning) {
+    let taskPlan = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+    if (!taskPlan) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanning.releasePlan._id))
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id))
     if (!releasePlan) {
         throw new AppError(EM.RELEASE_PLAN_NOT_FOUND, EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlanning.release._id))
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id))
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
     //check user highest role in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlanning.release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlan.release._id, user)
     if (!userRolesInThisRelease) {
         throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -831,7 +830,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlanning.employee._id)).exec()
+    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlan.employee._id)).exec()
     if (!employee) {
         throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -843,7 +842,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
      */
 
-    let momentPlanningDateIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
@@ -853,23 +852,23 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Planning date is already over, cannot delete planning now', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
-    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
+    let plannedHourNumber = Number(taskPlan.planning.plannedHours)
 
 
     /********************** EMPLOYEE STATISTICS UPDATES ***************************/
-    await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee)
+    await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, employee, plannedHourNumber, user)
 
     /********************** EMPLOYEE DAYS UPDATES ***************************/
-    await employeeDaysUpdateOnDeleteTaskPlanning(employee, taskPlanning, plannedHourNumber)
+    await employeeDaysUpdateOnDeleteTaskPlanning(taskPlan, employee, plannedHourNumber, user)
 
     /********************** RELEASE PLAN UPDATES ***************************/
-    releasePlan = await releasePlanUpdateOnDeleteTaskPlanning(taskPlanning, releasePlan, employee)
+    releasePlan = await releasePlanUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, employee, plannedHourNumber)
 
     /******************************* RELEASE UPDATES *****************************************************/
-    release = await releaseUpdateOnDeleteTaskPlanning(release, taskPlanning, releasePlan)
-    let warningResponse = MDL.WarningModel.taskPlanDeleted(taskPlanning, release, releasePlan)
-
-    let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlanning._id))
+    release = await releaseUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, release, plannedHourNumber)
+    let warningResponse = MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release, plannedHourNumber)
+console.log("warningResponse---",warningResponse)
+    let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
 
 
     await releasePlan.save()
@@ -908,12 +907,12 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let taskPlanning = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
-    if (!taskPlanning) {
+    let taskPlan = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
+    if (!taskPlan) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    let taskPlanningDateInIndia = U.momentInTimeZone(taskPlanning.planningDateString, SC.INDIAN_TIMEZONE)
+    let taskPlanningDateInIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
 
     /*Checking  that previous planning date is a valid date and can be editable means is it before now */
     if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
@@ -934,7 +933,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     /* Conversion of planned hours in number format */
-    let plannedHourNumber = Number(taskPlanning.planning.plannedHours)
+    let plannedHourNumber = Number(taskPlan.planning.plannedHours)
 
 
     /******************************** EMPLOYEE DAYS UPDATE **************************************************/
@@ -943,7 +942,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     /* Add or update employee days details when task is replanned */
     /* Check the details of already added employees days is available or not */
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': taskPlanning.employee._id.toString(),
+            'employee._id': taskPlan.employee._id.toString(),
             'date': rePlanningDateUtc
         }) > 0) {
 
@@ -951,17 +950,17 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         let oldEmployeeDaysModelInput = {
             plannedHours: plannedHourNumber,
             employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
+                _id: taskPlan.employee._id.toString(),
+                name: taskPlan.employee.name
             },
-            dateString: taskPlanning.planningDateString,
+            dateString: taskPlan.planningDateString,
         }
         await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
         let newEmployeeDaysModelInput = {
             plannedHours: plannedHourNumber,
             employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
+                _id: taskPlan.employee._id.toString(),
+                name: taskPlan.employee.name
             },
             dateString: taskPlanningInput.rePlanningDate,
         }
@@ -972,33 +971,33 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         let oldEmployeeDaysModelInput = {
             plannedHours: plannedHourNumber,
             employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
+                _id: taskPlan.employee._id.toString(),
+                name: taskPlan.employee.name
             },
-            dateString: taskPlanning.planningDateString
+            dateString: taskPlan.planningDateString
         }
         await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
 
         let newEmployeeDaysModelInput = {
             employee: {
-                _id: taskPlanning.employee._id.toString(),
-                name: taskPlanning.employee.name
+                _id: taskPlan.employee._id.toString(),
+                name: taskPlan.employee.name
             },
             plannedHours: plannedHourNumber,
             dateString: taskPlanningInput.rePlanningDate,
         }
         await MDL.EmployeeDaysModel.addEmployeeDaysDetails(newEmployeeDaysModelInput, user)
     }
-    let planningDateMoment = U.dateInUTC(taskPlanning.planningDateString)
+    let planningDateMoment = U.dateInUTC(taskPlan.planningDateString)
     let employeeDayOfPlanned = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlanning.employee._id,
+        'employee._id': taskPlan.employee._id,
         'date': planningDateMoment
     })
 
-    await MDL.WarningModel.deleteToManyHours(taskPlanning, release, releasePlan, employeeDayOfPlanned, planningDateMoment)
+    await MDL.WarningModel.deleteToManyHours(taskPlan, release, releasePlan, employeeDayOfPlanned, planningDateMoment)
 
     let employeeDayOfReplanned = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlanning.employee._id,
+        'employee._id': taskPlan.employee._id,
         'date': planningDateMoment
     })
     console.log('employeeDayOfReplanned', employeeDayOfReplanned)
@@ -1007,18 +1006,18 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
     if (plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber) {
-        await MDL.WarningModel.addTooManyHours(taskPlanning, release, releasePlan, employeeDayOfReplanned, rePlanningDateUtc)
+        await MDL.WarningModel.addTooManyHours(taskPlan, release, releasePlan, employeeDayOfReplanned, rePlanningDateUtc)
     }
     /* Updating task plan with new planning date */
-    taskPlanning.created = Date.now()
-    taskPlanning.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
-    taskPlanning.planningDate = rePlanningDateUtc
-    taskPlanning.planningDateString = taskPlanningInput.rePlanningDate
-    await taskPlanning.save()
+    taskPlan.created = Date.now()
+    taskPlan.flags = plannedHourNumber > maxPlannedHoursNumber || employeeDayOfReplanned.plannedHours > maxPlannedHoursNumber ? [SC.WARNING_TOO_MANY_HOURS] : []
+    taskPlan.planningDate = rePlanningDateUtc
+    taskPlan.planningDateString = taskPlanningInput.rePlanningDate
+    await taskPlan.save()
 
-    taskPlanning = taskPlanning.toObject()
-    taskPlanning.canMerge = true
-    return taskPlanning
+    taskPlan = taskPlan.toObject()
+    taskPlan.canMerge = true
+    return taskPlan
 }
 
 
