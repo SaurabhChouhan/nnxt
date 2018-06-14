@@ -21,7 +21,8 @@ let holidayReducer = (state = initialState, action) => {
             return Object.assign({}, state, {allYears: years && years.length && years.findIndex(y => y == currentYear) != -1 ? years : [...years, currentYear]})
 
         case AC.DELETE_HOLIDAY:
-            return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.holidayID)})
+            let holidayDateMoment = U.momentInUTC(action.holidayDateString)
+            return Object.assign({}, state, {all: state.all.filter(item => !U.momentInUTC(item.dateString).isSame(holidayDateMoment))})
 
         case AC.EDIT_HOLIDAY:
             return Object.assign({}, state, {

@@ -6,9 +6,9 @@ export const addAllYears = (years) => ({
     years: years
 })
 
-export const deleteHoliday = (holidayID) => ({
+export const deleteHoliday = (holidayDateString) => ({
     type: AC.DELETE_HOLIDAY,
-    holidayID: holidayID
+    holidayDateString: holidayDateString
 })
 
 export const addAllHolidays = (holidays) => ({
@@ -108,9 +108,9 @@ export const addHolidayOnServer = (formInput) => {
     }
 }
 
-export const deleteHolidayOnServer = (holidayId) => {
+export const deleteHolidayOnServer = (holidayDateString) => {
     return function (dispatch, getState) {
-        return fetch('/api/holiday/' + holidayId,
+        return fetch('/api/holiday/' + holidayDateString,
             {
                 method: "delete",
                 credentials: "include",
@@ -125,7 +125,7 @@ export const deleteHolidayOnServer = (holidayId) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(deleteHoliday(holidayId))
+                    dispatch(deleteHoliday(holidayDateString))
                 }
                 return json
             }

@@ -10,14 +10,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponentHideOthers(COC.HOLIDAY_FORM)),
             dispatch(initialize('holiday-form', holiday))
     },
-    deleteHoliday: (holidayId) => dispatch(A.deleteHolidayOnServer(holidayId)).then(json => {
+
+    deleteHoliday: (holiday) => dispatch(A.deleteHolidayOnServer(holiday.dateString)).then(json => {
         if (json.success) {
-            NotificationManager.success('Holiday  Deleted Successfully')
+            NotificationManager.success('Holiday Deleted Successfully')
         } else {
             NotificationManager.error('Holiday Not Deleted!')
             throw new SubmissionError({Holidays: "Holiday Deletion Failed"})
         }
     }),
+
     showHolidayForm: () => dispatch(A.showComponentHideOthers(COC.HOLIDAY_FORM))
 })
 

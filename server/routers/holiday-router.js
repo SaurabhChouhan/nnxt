@@ -26,9 +26,9 @@ holidayRouter.get("/holidays/:year/year", async ctx => {
     return await MDL.YearlyHolidaysModel.getAllHolidaysOfYearFromServer(ctx.params.year, ctx.state.user)
 })
 
-holidayRouter.del('/:id', async (ctx) => {
+holidayRouter.del('/:holidayDateString', async (ctx) => {
     if (isSuperAdmin(ctx) || isAdmin(ctx)) {
-        return await MDL.YearlyHolidaysModel.deleteHolidayFromYear(ctx.params.id)
+        return await MDL.YearlyHolidaysModel.deleteHolidayFromYear(ctx.params.holidayDateString)
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }

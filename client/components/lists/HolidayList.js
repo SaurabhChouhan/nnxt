@@ -19,22 +19,7 @@ class HolidayList extends Component {
     deleteCellButton(cell, row, enumObject, rowIndex) {
         return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
                         onClick={() => {
-                            this.dialog.show({
-                                title: "Delete Holiday",
-                                body: "",
-                                actions: [
-                                    Dialog.DefaultAction('Delete', () => {
-                                        this.props.deleteHoliday(row._id)
-                                    }, 'btn-custom'),
-                                    Dialog.DefaultAction('Close', () => {
-                                        this.dialog.hide()
-                                    }, 'btn-custom')
-                                ],
-                                bsSize: 'small',
-                                onHide: (dialog) => {
-                                    this.dialog.hide()
-                                }
-                            })
+                            this.props.deleteHoliday(row)
                         }}>
             </button>
         )

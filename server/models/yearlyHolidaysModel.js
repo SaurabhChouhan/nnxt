@@ -81,23 +81,23 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDat
 
 
 yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
-    //   console.log("holidayYear before", holidayYear)
-    if (!holidayYear.calendarYear || _.isEmpty(holidayYear.calendarYear))
-        throw new AppError("Calendar Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    /* //   console.log("holidayYear before", holidayYear)
+     if (!holidayYear.calendarYear || _.isEmpty(holidayYear.calendarYear))
+         throw new AppError("Calendar Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-    let count = await YearlyHolidaysModel.count({calendarYear: holidayYear.calendarYear})
-    if (count !== 0)
-        throw new AppError("Calendar year already exists, please edit that or use different calendar year.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+     let count = await YearlyHolidaysModel.count({calendarYear: holidayYear.calendarYear})
+     if (count !== 0)
+         throw new AppError("Calendar year already exists, please edit that or use different calendar year.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
 
-    holidayYear.holidays = holidayYear.holidays.map(h => {
-        let toDate = new Date(h.date)
-        let toMoment = U.dateInUTC(toDate)
-        return Object.assign({}, h, {
-            date: toMoment.toDate(),
-            dateString: toMoment
-        })
-    })
-    //  console.log("holidayYear after ", holidayYear)
+     holidayYear.holidays = holidayYear.holidays.map(h => {
+         let toDate = new Date(h.date)
+         let toMoment = U.dateInUTC(toDate)
+         return Object.assign({}, h, {
+             date: toMoment.toDate(),
+             dateString: toMoment
+         })
+     })
+     //  console.log("holidayYear after ", holidayYear)*/
     return await YearlyHolidaysModel.create(holidayYear)
 }
 
@@ -166,18 +166,53 @@ yearlyHolidaysSchema.statics.createHoliday = async holidayObj => {
 }
 
 
+yearlyHolidaysSchema.statics.deleteHolidayFromYear = async (holidayDateString) => {
+    if (_.isEmpty(holidayDateString))
+        throw new AppError("Holiday date is required to remove holiday.", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let holidayDate = U.dateInUTC(holidayDateString)
+    let holidayDateMoment = U.momentInUTC(holidayDateString)
+    let calendarMonth = holidayDate.getMonth()
+    console.log("holidayDate", holidayDate)
+
+
+    let holidayYear = await YearlyHolidaysModel.findOne({"holidays.date": holidayDate})
+
+    if (!holidayYear)
+        throw new AppError("Holiday year not found of this holiday.", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    holidayYear.holidays = holidayYear.holidays && holidayYear.holidays.length ? holidayYear.holidays.filter(holiday => !holidayDateMoment.isSame(U.momentInUTC(holiday.dateString))) : []
+
+    let holidayMonthIndex = holidayYear.holidays && holidayYear.holidays.length ? holidayYear.holidays.findIndex(holiday => holiday.monthNo == calendarMonth) : -1
+
+    if (holidayMonthIndex == -1) {
+        holidayYear.holidaysInMonth = holidayYear.holidaysInMonth && holidayYear.holidaysInMonth.length ? holidayYear.holidaysInMonth.filter(holidayMonth => holidayMonth.month != calendarMonth) : []
+    }
+    if (holidayYear.holidays && holidayYear.holidays.length) {
+        holidayYear.save()
+
+    } else {
+        await YearlyHolidaysModel.remove({"_id": mongoose.Types.ObjectId(holidayYear._id)})
+    }
+    return holidayDateString
+}
+
+
 yearlyHolidaysSchema.statics.updateHolidayYear = async holidayYearInput => {
-    // console.log("holidayYearInput", holidayYearInput)
-    if (_.isEmpty(holidayYearInput.calendarYear))
+    let holidayDate = U.dateInUTC(holidayYearInput.dateString)
+    let calendarYear = holidayDate.getFullYear()
+    console.log("holidayYearInput", holidayYearInput)
+    console.log("holidayYearInput.calendarYear", calendarYear)
+    if (!(calendarYear))
         throw new AppError("Calendar Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-    let count = await YearlyHolidaysModel.count({calendarYear: holidayYearInput.calendarYear})
+    let count = await YearlyHolidaysModel.count({calendarYear: calendarYear})
     if (count == 0)
         throw new AppError("Calendar year not exists, please create that or use different calendar year.", EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
 
 
     let holidayYear = await YearlyHolidaysModel.find({
-        "calendarYear": holidayYearInput.calendarYear
+        "calendarYear": calendarYear
     })
 
     holidayYear.holidaysInMonth[0].push(holidayYearInput.holidaysInMonth[0])
@@ -207,22 +242,8 @@ yearlyHolidaysSchema.statics.updateHolidayToYear = async (holidayYearID, holiday
 
 
 }
-yearlyHolidaysSchema.statics.deleteHolidayFromYear = async (holidayYearID, holidayObj) => {
-    let holidayYear = await YearlyHolidaysModel.findById(holidayYearID)
 
-    if (!holidayYear)
-        throw new AppError("Invalid holiday year.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
-    if (_.isEmpty(holidayObj._id))
-        throw new AppError("Holiday id is required to remove Holiday.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-    await YearlyHolidaysModel.update(
-        {_id: holidayYearID},
-        {$pull: {holidays: {_id: holidayObj._id}}},
-        {multi: false});
-    return holidayObj;
-    // holidayYear.holidays.pop({_id:holidayObj._id});
-}
 const YearlyHolidaysModel = mongoose.model("yearlyholidays", yearlyHolidaysSchema)
 
 export default YearlyHolidaysModel
