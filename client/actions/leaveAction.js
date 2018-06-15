@@ -35,7 +35,7 @@ export const addLeaveTypes = (leaveTypes) => ({
 
 export const addLeaveRequestOnServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves',
+        return fetch('/api/leave',
             {
                 method: "post",
                 credentials: "include",
@@ -63,7 +63,7 @@ export const addLeaveRequestOnServer = (formInput) => {
 
 export const getAllLeaveRequestFromServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves',
+        return fetch('/api/leave',
             {
                 method: "get",
                 credentials: "include",
@@ -91,7 +91,7 @@ export const getAllLeaveRequestFromServer = (formInput) => {
 
 export const deleteLeaveRequestFromServer = (leaveID) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/' + leaveID + '/delete-request',
+        return fetch('/api/leave/' + leaveID + '/delete-request',
             {
                 method: "delete",
                 credentials: "include",
@@ -117,7 +117,7 @@ export const deleteLeaveRequestFromServer = (leaveID) => {
 
 export const cancelLeaveRequestFromServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/cancel-request',
+        return fetch('/api/leave/cancel-request',
             {
                 method: "put",
                 credentials: "include",
@@ -145,7 +145,7 @@ export const cancelLeaveRequestFromServer = (formInput) => {
 
 export const getAllLeavetypesFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/leaves/leave-types', {
+        return fetch('/api/leave/leave-types', {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -167,7 +167,7 @@ export const getAllLeavetypesFromServer = () => {
 
 export const addLeaveSettingOnServer = (leaveSetting) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/leave-setting',
+        return fetch('/api/leave/leave-setting',
             {
                 method: "post",
                 credentials: "include",
@@ -194,7 +194,7 @@ export const addLeaveSettingOnServer = (leaveSetting) => {
 
 export const getLeaveSettingFromServer = () => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/leave-setting',
+        return fetch('/api/leave/leave-setting',
             {
                 method: "get",
                 credentials: "include",
@@ -220,7 +220,7 @@ export const getLeaveSettingFromServer = () => {
 
 export const updateLeaveSettingOnServer = (leaveSetting) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/leave-setting',
+        return fetch('/api/leave/leave-setting',
             {
                 method: "put",
                 credentials: "include",

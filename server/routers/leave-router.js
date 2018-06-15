@@ -7,43 +7,9 @@ import * as EC from '../errorcodes'
 
 
 const leaveRouter = new Router({
-    prefix: "leaves"
+    prefix: "leave"
 })
 
-/**
- * Add all Leave  requested
- */
-leaveRouter.post("/", async ctx => {
-    return await MDL.LeaveModel.saveLeave(ctx.request.body, ctx.state.user, ctx.schemaRequested)
-})
-
-/**
- * Get all Leave   by ID
- */
-leaveRouter.get("/", async ctx => {
-    return await MDL.LeaveModel.getAllActive(ctx.state.user)
-})
-
-/**
- * Cancel Leave request
- */
-leaveRouter.put("/cancel-request", async ctx => {
-    return await MDL.LeaveModel.cancelLeaveRequest(ctx.request.body)
-})
-
-/**
- * Delete Leave request
- */
-leaveRouter.del("/:leaveID/delete-request", async ctx => {
-    return await MDL.LeaveModel.deleteLeaveRequest(ctx.params.leaveID)
-})
-
-/**
- * Get all Leave types
- */
-leaveRouter.get('/leave-types', async ctx => {
-    return await MDL.LeaveTypeModel.getAllActiveLeaveTypes()
-})
 
 /**
  * Get all Leave setting  by ID
@@ -71,6 +37,42 @@ leaveRouter.put("/leave-setting", async ctx => {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     return await MDL.LeaveSettingModel.updateLeaveSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+})
+
+/**
+ * Get all Leave types
+ */
+leaveRouter.get('/leave-types', async ctx => {
+    return await MDL.LeaveTypeModel.getAllActiveLeaveTypes()
+})
+
+/**
+ * Get all Leaves
+ */
+leaveRouter.get("/", async ctx => {
+    return await MDL.LeaveModel.getAllActive(ctx.state.user)
+})
+
+/**
+ * Add all Leave  requested
+ */
+leaveRouter.post("/", async ctx => {
+    return await MDL.LeaveModel.leaveRaised(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+})
+
+/**
+ * Cancel Leave request
+ */
+leaveRouter.put("/cancel-request", async ctx => {
+    return await MDL.LeaveModel.cancelLeaveRequest(ctx.request.body)
+})
+
+/**
+ * Delete Leave request
+ */
+
+leaveRouter.del("/:leaveID/delete-request", async ctx => {
+    return await MDL.LeaveModel.deleteLeaveRequest(ctx.params.leaveID)
 })
 
 export default leaveRouter
