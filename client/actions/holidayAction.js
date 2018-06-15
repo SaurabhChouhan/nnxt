@@ -99,12 +99,11 @@ export const addHolidayOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    return dispatch(getAllHolidaysOfYearFromServer(json.data.calendarYear))
+                    dispatch(getAllHolidaysOfYearFromServer(json.data.calendarYear))
+                    dispatch(getAllHolidayYearsFromServer())
                 }
-
                 return json
-            }
-        )
+        })
     }
 }
 
