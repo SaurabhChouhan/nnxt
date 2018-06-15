@@ -16,7 +16,10 @@ let leaveSchema = mongoose.Schema({
         firstName: {type: String, required: true},
         lastName: {type: String, required: true},
     },
-    status: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_APPROVED, SC.STATUS_REJECTED, SC.STATUS_CANCELLED]},
+    status: {
+        type: String,
+        enum: ALL_LEAVE_STATUS_ARRAY
+    },
     dayType: {type: String, enum: [SC.LEAVE_TYPE_FULL_DAY, SC.LEAVE_TYPE_HALF_DAY]},
     approver: {
         _id: mongoose.Schema.ObjectId,
@@ -37,7 +40,24 @@ let leaveSchema = mongoose.Schema({
 })
 
 
-leaveSchema.statics.leaveRaised = async (leaveInput, user, schemaRequested) => {
+leaveSchema.statics.getAllLeaves = async (status, user) => {
+
+    if (status && status.toLowerCase() != 'all') {
+        return await LeaveModel.find({
+            "user._id": mongoose.Types.ObjectId(user._id),
+            "isDeleted": false
+        }).exec()
+    } else {
+        return await LeaveModel.find({
+            "user._id": mongoose.Types.ObjectId(user._id),
+            "status": status,
+            "isDeleted": false
+        }).exec()
+    }
+}
+
+
+leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.leaveRequestAdditionStruct)
 
@@ -86,16 +106,12 @@ leaveSchema.statics.leaveRaised = async (leaveInput, user, schemaRequested) => {
     leaveInput.user = user
     if (!leaveInput.dayType)
         leaveInput.dayType = SC.LEAVE_TYPE_FULL_DAY
+
     return await LeaveModel.create(leaveInput)
 }
 
-leaveSchema.statics.getAllActive = async (loggedInUser) => {
-
-    return await LeaveModel.find({"user._id": loggedInUser._id}).exec()
-}
-
-leaveSchema.statics.cancelLeaveRequest = async (inputLeaveRequest) => {
-    let leaveRequest = await LeaveModel.findById(inputLeaveRequest._id)
+leaveSchema.statics.cancelLeaveRequest = async (leaveID) => {
+    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
         throw new AppError("leave reqest Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -106,8 +122,14 @@ leaveSchema.statics.cancelLeaveRequest = async (inputLeaveRequest) => {
 }
 
 leaveSchema.statics.deleteLeaveRequest = async (leaveID) => {
-    await LeaveModel.remove({"_id": mongoose.Types.ObjectId(leaveID)})
-    return {_id: leaveID}
+    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
+
+    if (!leaveRequest) {
+        throw new AppError("leave reqest Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    leaveRequest.isDeleted = true
+    return await leaveRequest.save()
 }
 
 const LeaveModel = mongoose.model("Leave", leaveSchema)

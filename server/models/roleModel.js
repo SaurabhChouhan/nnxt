@@ -7,7 +7,7 @@ import * as SC from "../serverconstants"
 mongoose.Promise = global.Promise
 
 let roleSchema = mongoose.Schema({
-    name: String,
+    name: {type: String, required: true},
     permissions: [{
         _id: mongoose.Schema.ObjectId,
         name: String,

@@ -13,6 +13,19 @@ export const ROLE_MANAGER = 'Manager'
 export const ROLE_LEADER = 'Leader'
 export const ROLE_DEVELOPER = 'Developer'
 export const ROLE_NON_PROJECT_DEVELOPER = 'Non Project Developer'
+export const ROLE_HIGHEST_MANAGEMENT_ROLE = 'Highest Management'
+export const ALL_ROLE_ARRAY = [
+    ROLE_ADMIN,
+    ROLE_SUPER_ADMIN,
+    ROLE_APP_USER,
+    ROLE_ESTIMATOR,
+    ROLE_NEGOTIATOR,
+    ROLE_MANAGER,
+    ROLE_LEADER,
+    ROLE_DEVELOPER,
+    ROLE_HIGHEST_MANAGEMENT_ROLE
+]
+
 
 
 // test emails
@@ -38,6 +51,18 @@ export const STATUS_PROJECT_AWARDED = 'project-awarded'
 export const STATUS_REJECTED = 'rejected'
 export const STATUS_CANCELLED = 'cancelled'
 
+//Leave Status
+
+
+export const LEAVE_TYPE_FULL_DAY = 'Full'
+export const LEAVE_TYPE_HALF_DAY = 'Half'
+
+
+export const LEAVE_STATUS_RAISED = 'raised'
+export const LEAVE_STATUS_PENDING = 'pending'
+export const LEAVE_STATUS_APPROVED = 'approved'
+export const LEAVE_STATUS_REJECTED = 'rejected'
+export const ALL_LEAVE_STATUS_ARRAY = [LEAVE_STATUS_RAISED, LEAVE_STATUS_PENDING, LEAVE_STATUS_APPROVED, LEAVE_STATUS_REJECTED]
 
 //reporting status
 export const STATUS_PLAN_REQUESTED = 'plan-requested'
@@ -108,10 +133,6 @@ export const ALL_WARNING_NAME_ARRAY = [
     WARNING_PENDING_ON_END_DATE,
     WARNING_COMPLETED_BEFORE_END_DATE,
 ]
-
-
-export const LEAVE_TYPE_FULL_DAY = 'Full'
-export const LEAVE_TYPE_HALF_DAY = 'Half'
 
 
 //Designation
