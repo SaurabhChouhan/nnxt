@@ -42,7 +42,7 @@ let leaveSchema = mongoose.Schema({
 
 leaveSchema.statics.getAllLeaves = async (status, user) => {
 
-    if (status && status.toLowerCase() != 'all') {
+    if (status && status.toLowerCase() === 'all') {
         return await LeaveModel.find({
             "user._id": mongoose.Types.ObjectId(user._id),
             "isDeleted": false

@@ -8,7 +8,7 @@ import clientReducer from './clientReducer'
 import estimationReducer from './estimationReducer'
 import projectReducer from './projectReducer'
 import technologyReducer from './technologyReducer'
-import leaveRequestReducer from './leaveRequestReducer'
+import leaveReducer from './leaveReducer'
 import repositoryReducer from './repositoryReducer'
 import attendanceSettingReducer from './attendanceSettingReducer'
 import releaseReducer from './releaseReducer'
@@ -28,7 +28,7 @@ const reducers = combineReducers({
     estimation: estimationReducer,
     project: projectReducer,
     technology: technologyReducer,
-    leaveRequest: leaveRequestReducer,
+    leaveRequest: leaveReducer,
     repository: repositoryReducer,
     attendanceSetting: attendanceSettingReducer,
     release: releaseReducer,
