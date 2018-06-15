@@ -80,6 +80,24 @@ export const momentInTimeZone = (dateString, timeZone) => {
     return undefined
 }
 
+export const getNowMoment = () => {
+    let now = new Date()
+    let nowMoment = moment.tz(now, SC.DATE_FORMAT, SC.UTC_TIMEZONE)
+    if (nowMoment.isValid())
+        return nowMoment
+    return undefined
+}
+
+export const getTodayStartingMoment = () => {
+    let now = new Date()
+    let nowString = moment(now).format(SC.DATE_FORMAT)
+    let nowMoment = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+
+    if (nowMoment.isValid())
+        return nowMoment
+    return undefined
+}
+
 export const getCurrentYear = () => {
     let now = new Date()
     return now.getFullYear()

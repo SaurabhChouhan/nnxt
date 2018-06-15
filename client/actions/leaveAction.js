@@ -141,7 +141,7 @@ export const getAllLeaveTypesFromServer = () => {
 
 export const getAllLeavesFromServer = (status) => {
     return function (dispatch, getState) {
-        return fetch('/api/leave',
+        return fetch('/api/leave/' + status,
             {
                 method: "get",
                 credentials: "include",
@@ -216,7 +216,7 @@ export const deleteLeaveRequestFromServer = (leaveID) => {
 }
 
 
-export const cancelLeaveRequestFromServer = (formInput) => {
+export const cancelLeaveRequestFromServer = (leaveID) => {
     return function (dispatch, getState) {
         return fetch('/api/leave/cancel-request',
             {
@@ -225,8 +225,7 @@ export const cancelLeaveRequestFromServer = (formInput) => {
                 headers: {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
+                }
             }
         ).then(
             response => {

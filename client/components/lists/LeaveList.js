@@ -40,8 +40,6 @@ class LeaveList extends Component {
     }
 
     viewButton(cell, row, enumObject, rowIndex) {
-
-
         return (<button className=" btn btn-custom" type="button" onClick={() => {
                 this.props.showLeaveDetails(row)
             }}>
@@ -58,7 +56,7 @@ class LeaveList extends Component {
 
 
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                this.props.deleteRaiseLeaveRequestCall(row)
+                this.props.deleteLeave(row)
             }}>
                 <i className="fa fa-trash"></i>
             </button>
@@ -68,7 +66,7 @@ class LeaveList extends Component {
 
 
     render() {
-        const {leaveRequests} = this.props
+        const {leaves} = this.props
         return (
             <div>
                 <div key="raise_leave_key" className="clearfix">
@@ -104,7 +102,7 @@ class LeaveList extends Component {
 
                                 <div className="estimation">
 
-                                    <BootstrapTable options={this.options} data={leaveRequests}
+                                    <BootstrapTable options={this.options} data={leaves}
                                                     striped={true}
                                                     hover={true}>
                                         <TableHeaderColumn columnTitle isKey dataField='_id'

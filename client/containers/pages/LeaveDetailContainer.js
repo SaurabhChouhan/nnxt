@@ -9,7 +9,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    raiseLeave: state.leaveRequest.selected
+    leave: state.leave.selected
 })
 
 const LeaveDetailContainer = connect(

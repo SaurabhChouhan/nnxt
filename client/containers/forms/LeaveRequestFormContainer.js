@@ -26,14 +26,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    leaveRequests: state.leaveRequest.all,
-    leaveTypes: state.leaveRequest.leaveTypes,
-    initialValues: {
-        "user._id": state.user.loggedIn._id,
-        "user.firstName": state.user.loggedIn.firstName,
-        "user.lastName": state.user.loggedIn.lastName
-    }
-
+    leaveTypes: state.leave.leaveTypes
 })
 
 const LeaveRequestFormCOntainer = connect(

@@ -4,6 +4,7 @@ import {Field, reduxForm} from 'redux-form'
 import React from 'react'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
+import * as SC from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
@@ -13,12 +14,9 @@ let LeaveRequestForm = (props) => {
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
-                <Field name="user.user._id" component="input" type="hidden"/>
-                <Field name="user.user.firstName" component="input" type="hidden"/>
-                <Field name="user.user.lastName" component="input" type="hidden"/>
-
+                <Field name="_id" component="input" type="hidden"/>
                 <Field name="dayType" placeholder={"Leave day"} displayField={"name"} valueField={"name"}
-                       component={renderSelect} options={[{name: "Full"}, {name: "Half"}]}
+                       component={renderSelect} options={SC.LEAVE_TYPE_DAY_WITH_NAME_ARRAY}
                        label={"Day type :"} validate={[required]}/>
 
                 <Field name="startDate" placeholder={"Leave Start Date :"} component={renderDateTimePickerString}
