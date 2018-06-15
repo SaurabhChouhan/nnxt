@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 import _ from 'lodash'
-import momentTZ from 'moment-timezone'
 import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import * as U from "../utils"
@@ -223,35 +222,41 @@ yearlyHolidaysSchema.statics.updateHoliday = async holidayInput => {
         holidayYearResponse.yearChange = true
         return holidayYearResponse
     } else {
+        let yearChange = false
         if (holidayYear.calendarYear != calendarYear) {
             holidayYear.calendarYear = calendarYear
-
-            // check that new date which is selected is from same month or not
-            if (calendarMonth != oldHoliday.monthNo) {
-                holidayYear.holidaysInMonth = holidayYear.holidaysInMonth.map(hm => {
-                    if (hm.month == oldHoliday.monthNo) {
-                        let month = SC.MONTHS_WITH_MONTH_NUMBER.find(m => m.number == Number(calendarMonth))
-                        return {
-                            month: month.number,
-                            monthName: month.name
-                        }
-                    } else return hm
-                })
-            }
-            let newHoliday = {}
-            newHoliday.monthNo = calendarMonth
-            newHoliday.holidayName = holidayInput.holidayName
-            newHoliday.description = holidayInput.description
-            newHoliday.holidayType = holidayInput.holidayType
-            newHoliday.date = U.dateInUTC(holidayInput.dateString)
-            newHoliday.dateString = holidayInput.dateString
-            holidayYear.holidays = holidayYear.holidays.map(holiday => {
-                if (holiday._id.toString() === holidayInput._id.toString()) {
-                    return newHoliday
-                } else return holiday
-            })
-            return await holidayYear.save()
+            yearChange = true
         }
+
+        // check that new date which is selected is from same month or not
+        if (calendarMonth != oldHoliday.monthNo) {
+            holidayYear.holidaysInMonth = holidayYear.holidaysInMonth.map(hm => {
+                if (hm.month == oldHoliday.monthNo) {
+                    let month = SC.MONTHS_WITH_MONTH_NUMBER.find(m => m.number == Number(calendarMonth))
+                    return {
+                        month: month.number,
+                        monthName: month.name
+                    }
+                } else return hm
+            })
+        }
+
+        let newHoliday = {}
+        newHoliday.monthNo = calendarMonth
+        newHoliday.holidayName = holidayInput.holidayName
+        newHoliday.description = holidayInput.description
+        newHoliday.holidayType = holidayInput.holidayType
+        newHoliday.date = U.dateInUTC(holidayInput.dateString)
+        newHoliday.dateString = holidayInput.dateString
+        holidayYear.holidays = holidayYear.holidays.map(holiday => {
+            if (holiday._id.toString() === holidayInput._id.toString()) {
+                return newHoliday
+            } else return holiday
+        })
+        await holidayYear.save()
+        holidayYear = holidayYear.toObject()
+        holidayYear.yearChange = yearChange
+        return holidayYear
     }
 }
 

@@ -483,7 +483,7 @@ const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC)
             warningResponse = await deleteWarningWithResponse(tooManyHourWarning, warningResponse, SC.WARNING_TOO_MANY_HOURS)
         } else {
             tooManyHourWarning.taskPlans = tooManyHourWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
-            console.log(" tooManyHourWarning.taskPlans----------", tooManyHourWarning.taskPlans)
+
             warningResponse.removed.push({
                 _id: taskPlan._id,
                 warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -518,7 +518,7 @@ const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC)
                 }
                 await tooManyHourWarning.save()
             } else {
-                //warning reponse calculation
+                //warning response calculation
                 warningResponse = await deleteWarningWithResponse(tooManyHourWarning, warningResponse, SC.WARNING_TOO_MANY_HOURS)
             }
         }
@@ -604,10 +604,6 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, p
         })
     }
     deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, releasePlan, release, plannedDateUTC)
-    if (true) {
-        releasePlan.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-        await releasePlan.save()
-    }
     warningResponse.added = [...warningResponse.added, ...deleteTooManyHoursWarningResponse.added]
     warningResponse.removed = [...warningResponse.removed, ...deleteTooManyHoursWarningResponse.removed]
     return warningResponse

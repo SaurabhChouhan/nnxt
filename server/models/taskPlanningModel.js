@@ -866,10 +866,19 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     /******************************* RELEASE UPDATES *****************************************************/
     release = await releaseUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, release, plannedHourNumber)
-    let warningResponse = MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release, plannedHourNumber)
-console.log("warningResponse---",warningResponse)
+    let warningResponse = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release, plannedHourNumber)
+
     let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
 
+
+    let count = await MDL.WarningModel.count({
+        "type": SC.WARNING_TOO_MANY_HOURS,
+        "releasePlans._id": mongoose.Types.ObjectId(releasePlan._id)
+    })
+
+    if (count == 0) {
+        releasePlan.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+    }
 
     await releasePlan.save()
     await release.save()
@@ -1000,7 +1009,6 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         'employee._id': taskPlan.employee._id,
         'date': planningDateMoment
     })
-    console.log('employeeDayOfReplanned', employeeDayOfReplanned)
 
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
