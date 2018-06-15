@@ -18,21 +18,6 @@ class LeaveList extends Component {
         return ''
     }
 
-    formatStartDate(leave) {
-
-        if (leave) {
-
-            return moment(leave).format("DD-MM-YYYY")
-        }
-        return ''
-    }
-
-    formatEndDate(leave) {
-        if (leave)
-            return moment(leave).format("DD-MM-YYYY")
-        return ''
-    }
-
     formatLeaveType(leaveType) {
         if (leaveType)
             return leaveType.name
@@ -103,30 +88,42 @@ class LeaveList extends Component {
                                 <div className="estimation">
 
                                     <BootstrapTable options={this.options} data={leaves}
+                                                    multiColumnSearch={true}
+                                                    search={true}
                                                     striped={true}
                                                     hover={true}>
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                                            hidden={true}>ID</TableHeaderColumn>
+
                                         <TableHeaderColumn width="8%" dataField='button'
                                                            dataFormat={this.viewButton.bind(this)}>View
                                         </TableHeaderColumn>
+
                                         <TableHeaderColumn columnTitle dataField='created'
                                                            dataFormat={this.formatCreatedDate.bind(this)}>Created
                                         </TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle dataField='startDate'
-                                                           dataFormat={this.formatStartDate.bind(this)}>Start Date
+
+                                        <TableHeaderColumn columnTitle dataField='startDateString'
+                                        >Start Date
                                         </TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle dataField='endDate'
-                                                           dataFormat={this.formatEndDate.bind(this)}>End Date
+
+                                        <TableHeaderColumn columnTitle dataField='endDateString'
+                                        >End Date
                                         </TableHeaderColumn>
+
                                         <TableHeaderColumn columnTitle dataField='dayType'>Day Type</TableHeaderColumn>
+
                                         <TableHeaderColumn width="25%" columnTitle dataField='leaveType'
-                                                           dataFormat={this.formatLeaveType.bind(this)}>Leave
-                                            Type</TableHeaderColumn>
+                                                           dataFormat={this.formatLeaveType.bind(this)}>
+                                            Leave Type
+                                        </TableHeaderColumn>
+
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
+
                                         <TableHeaderColumn width="10%" dataField='deleteButton'
-                                                           dataFormat={this.viewDeleteButton.bind(this)}>Delete
-                                            Leave</TableHeaderColumn>
+                                                           dataFormat={this.viewDeleteButton.bind(this)}>
+                                            Delete Leave</TableHeaderColumn>
+
                                     </BootstrapTable>
                                 </div>
 
