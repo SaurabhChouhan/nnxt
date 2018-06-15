@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import moment from 'moment'
 
-class RaiseLeaveDetailPage extends Component {
+class LeaveDetailPage extends Component {
     constructor(props) {
         super(props)
     }
@@ -54,4 +54,4 @@ class RaiseLeaveDetailPage extends Component {
 
 }
 
-export default RaiseLeaveDetailPage
+export default LeaveDetailPage

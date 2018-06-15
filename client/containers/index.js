@@ -74,8 +74,8 @@ export {default as ClientFormContainer} from './forms/ClientFormContainer'
 
 //leave
 export {default as LeaveRequestFormContainer} from './forms/LeaveRequestFormContainer'
-export {default as RaiseLeaveListContainer} from './lists/RaiseLeaveListContainer'
-export {default as RaiseLeaveListDetailContainer} from './pages/RaiseLeaveListDetailContainer'
+export {default as LeaveListContainer} from './lists/LeaveListContainer'
+export {default as LeaveDetailContainer} from './pages/LeaveDetailContainer'
 
 
 //Leave Setting

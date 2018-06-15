@@ -3,7 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
 
-class RaiseLeaveList extends Component {
+class LeaveList extends Component {
 
     constructor(props) {
         super(props)
@@ -42,7 +42,7 @@ class RaiseLeaveList extends Component {
 
 
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                this.props.showRaiseLeaveDetail(row)
+                this.props.showLeaveDetails(row)
             }}>
                 <i className="fa fa-eye"></i>
             </button>
@@ -51,18 +51,7 @@ class RaiseLeaveList extends Component {
     }
 
 
-    viewCancelButton(cell, row, enumObject, rowIndex) {
 
-
-        return (<button className=" btn btn-custom " type="button"
-                        disabled={(row.status == "cancelled") ? true : false} onClick={() => {
-                return this.props.cancelRaiseLeaveRequestCall(row)
-            }}>
-                <i className="fa fa-remove"></i>
-            </button>
-        )
-
-    }
 
     viewDeleteButton(cell, row, enumObject, rowIndex) {
 
@@ -114,9 +103,6 @@ class RaiseLeaveList extends Component {
                                                            dataFormat={this.formatLeaveType.bind(this)}>Leave
                                             Type</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
-                                        <TableHeaderColumn width="10%" dataField='cancelButton'
-                                                           dataFormat={this.viewCancelButton.bind(this)}>Cancel
-                                            Leave</TableHeaderColumn>
                                         <TableHeaderColumn width="10%" dataField='deleteButton'
                                                            dataFormat={this.viewDeleteButton.bind(this)}>Delete
                                             Leave</TableHeaderColumn>
@@ -133,4 +119,4 @@ class RaiseLeaveList extends Component {
     }
 }
 
-export default withRouter(RaiseLeaveList)
+export default withRouter(LeaveList)

@@ -8,7 +8,7 @@ import {
     EstimationDetailContainer,
     EstimationListContainer,
     ProjectListContainer,
-    RaiseLeaveListContainer,
+    LeaveListContainer,
     ReleaseListContainer,
     ReleasePlanListContainer,
     ReleaseTaskPlanningPageContainer,
@@ -28,7 +28,7 @@ import {
     EstimationSuggestFeatureDialog,
     EstimationSuggestTaskDialog,
     EstimationTaskDialog,
-    LeaveRequestDetailDialog,
+    LeaveDetailDialog,
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
@@ -177,7 +177,7 @@ class ContentMain extends Component {
         })
 
         routes.push({
-            url: "/raise_leave",
+            url: "/leave",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
                 return <ContentSection>
@@ -186,12 +186,12 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                         }
                     }/>
-                    <LeaveRequestDetailDialog name={COC.LEAVE_DETAIL_DIALOG} show={true} close={
+                    <LeaveDetailDialog name={COC.LEAVE_DETAIL_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.LEAVE_DETAIL_DIALOG))
                         }
                     }/>
-                    <RaiseLeaveListContainer name={COC.RAISE_LEAVE_LIST}/>
+                    <LeaveListContainer name={COC.LEAVE_LIST}/>
                 </ContentSection>
             }
         })

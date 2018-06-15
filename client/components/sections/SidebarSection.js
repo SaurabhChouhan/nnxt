@@ -37,7 +37,7 @@ const SidebarSection = (props) => <section className="sidebar">
                     }}>Estimation</Link></li>
 
                     <li><Link to="/app-home/raise_leave" onClick={() => {
-                        props.dispatch(A.getAllLeaveRequestFromServer('all'))
+                        props.dispatch(A.getAllLeavesFromServer('all'))
                         props.dispatch(A.getAllLeaveTypesFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.RAISE_LEAVE_LIST))
 
