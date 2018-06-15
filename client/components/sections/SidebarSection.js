@@ -36,12 +36,12 @@ const SidebarSection = (props) => <section className="sidebar">
 
                     }}>Estimation</Link></li>
 
-                    <li><Link to="/app-home/raise_leave" onClick={() => {
+                    <li><Link to="/app-home/leave" onClick={() => {
                         props.dispatch(A.getAllLeavesFromServer('all'))
                         props.dispatch(A.getAllLeaveTypesFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.RAISE_LEAVE_LIST))
+                        props.dispatch(A.showComponentHideOthers(COC.LEAVE_LIST))
 
-                    }}>Raise-leave</Link></li>
+                    }}>Leave</Link></li>
 
                     <li><Link to="/app-home/attendance" onClick={() => {
                         props.dispatch(A.getAttendanceSettingFromServer())

@@ -68,6 +68,7 @@ export {default as ClientForm} from './forms/ClientForm'
 
 
 //leave
+export {default as LeaveRequestFormDialog} from './dialogs/LeaveRequestFormDialog'
 export {default as LeaveSettingForm} from './forms/LeaveSettingForm'
 export {default as LeaveDetailDialog} from './dialogs/LeaveDetailDialog'
 export {default as LeaveRequestForm} from './forms/LeaveRequestForm'

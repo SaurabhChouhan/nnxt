@@ -28,7 +28,7 @@ const reducers = combineReducers({
     estimation: estimationReducer,
     project: projectReducer,
     technology: technologyReducer,
-    leaveRequest: leaveReducer,
+    leave: leaveReducer,
     repository: repositoryReducer,
     attendanceSetting: attendanceSettingReducer,
     release: releaseReducer,

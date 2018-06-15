@@ -179,7 +179,7 @@ class ContentMain extends Component {
         routes.push({
             url: "/leave",
             render: (props) => {
-                logger.debug(logger.CONTENT_MAIN_RENDER, "/raise_leave: props:", props)
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/leave: props:", props)
                 return <ContentSection>
                     <LeaveRequestFormDialog name={COC.LEAVE_REQUEST_FORM_DIALOG} show={true} close={
                         () => {

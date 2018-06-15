@@ -14,7 +14,7 @@ let leaveReducer = (state = initialState, action) => {
             return Object.assign({}, state, {leaveTypes: action.leaveTypes})
 
         case AC.ADD_LEAVES:
-            return Object.assign({}, state, {all: action.leaveRequests})
+            return Object.assign({}, state, {all: action.leaves})
 
         case AC.LEAVE_SELECTED:
             return Object.assign({}, state, {selected: action.leave})

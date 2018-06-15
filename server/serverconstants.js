@@ -56,6 +56,8 @@ export const STATUS_CANCELLED = 'cancelled'
 
 export const LEAVE_TYPE_FULL_DAY = 'Full'
 export const LEAVE_TYPE_HALF_DAY = 'Half'
+export const LEAVE_TYPE_DAY_WITH_NAME_ARRAY = [{name: LEAVE_TYPE_HALF_DAY}, {name: LEAVE_TYPE_FULL_DAY}]
+export const LEAVE_TYPE_DAY_ARRAY = [LEAVE_TYPE_HALF_DAY, LEAVE_TYPE_FULL_DAY]
 
 
 export const LEAVE_STATUS_RAISED = 'raised'

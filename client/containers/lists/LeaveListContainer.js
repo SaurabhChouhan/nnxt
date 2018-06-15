@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.LEAVE_DETAIL_DIALOG))
     },
 
-    deleteRaiseLeaveRequestCall: (leave) => dispatch(A.deleteLeaveRequestFromServer(leave._id)).then(json => {
+    deleteLeave: (leave) => dispatch(A.deleteLeaveRequestFromServer(leave._id)).then(json => {
             if (json.success) {
             NotificationManager.success('Leave deleted successfully')
             } else {
@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             return json
     }),
 
-    cancelRaiseLeaveRequestCall: (leave) => {
+    cancelLeaveRequestCall: (leave) => {
         return dispatch(A.cancelLeaveRequestFromServer(leave._id)).then(json => {
         if (json.success) {
             NotificationManager.success('Leave request Cancelled Successfully')
@@ -42,7 +42,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
         loggedInUser: state.user.loggedIn,
-        leaveRequests: state.leaveRequest.all
+    leaves: state.leave.all
 })
 
 const LeaveListContainer = connect(

@@ -18,9 +18,9 @@ let leaveSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ALL_LEAVE_STATUS_ARRAY
+        enum: SC.ALL_LEAVE_STATUS_ARRAY
     },
-    dayType: {type: String, enum: [SC.LEAVE_TYPE_FULL_DAY, SC.LEAVE_TYPE_HALF_DAY]},
+    dayType: {type: String, enum: SC.LEAVE_TYPE_DAY_ARRAY},
     approver: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: false},
