@@ -6,7 +6,7 @@ const ConfirmationRequestReviewDialog = (props) => {
     const {show, onClose, body,hasError, title} = props
     return <Modal show={show} onHide={onClose}>
         {<ModalHeader
-            className={hasError ? "confirmationDialogReviewRequestHasError " : "confirmationDialogReviewRequestNoError"}>
+            className={hasError ? " confirmationDialogReviewRequestHasError " : "confirmationDialogReviewRequestNoError"}>
             <ModalTitle>{title ? title : 'Confirm Operation'}</ModalTitle>
             {hasError ? <img key="exclaimation" className=" errorClass confirmationDialogErrorImg"
                              src="/images/exclamation.png" title="Error Detected"/> : null}
