@@ -77,29 +77,6 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDat
     }).exec()
 }
 
-
-yearlyHolidaysSchema.statics.createHolidayYear = async holidayYear => {
-    /* //   console.log("holidayYear before", holidayYear)
-     if (!holidayYear.calendarYear || _.isEmpty(holidayYear.calendarYear))
-         throw new AppError("Calendar Year is required to save Holidays.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-     let count = await YearlyHolidaysModel.count({calendarYear: holidayYear.calendarYear})
-     if (count !== 0)
-         throw new AppError("Calendar year already exists, please edit that or use different calendar year.", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-
-     holidayYear.holidays = holidayYear.holidays.map(h => {
-         let toDate = new Date(h.date)
-         let toMoment = U.dateInUTC(toDate)
-         return Object.assign({}, h, {
-             date: toMoment.toDate(),
-             dateString: toMoment
-         })
-     })
-     //  console.log("holidayYear after ", holidayYear)*/
-    return await YearlyHolidaysModel.create(holidayYear)
-}
-
-
 yearlyHolidaysSchema.statics.createHoliday = async holidayObj => {
     let validation = {
         "holidayName": "",
@@ -259,29 +236,6 @@ yearlyHolidaysSchema.statics.updateHoliday = async holidayInput => {
         return holidayYear
     }
 }
-
-yearlyHolidaysSchema.statics.addHolidayToYear = async (holidayYearID, holidayObj) => {
-    let holidayYear = await YearlyHolidaysModel.findById(holidayYearID)
-    if (!holidayYear)
-        throw new AppError("Invalid holiday year.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-    if (_.isEmpty(holidayObj.holidayName))
-        throw new AppError("Holiday name is required to save Holiday.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-    if (_.isEmpty(holidayObj.date))
-        throw new AppError("Holiday date is required to save Holiday.", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-    holidayYear.holidays.push(holidayObj);
-    let queryResponse = await holidayYear.save()
-    return queryResponse.holidays[queryResponse.holidays.length - 1];
-
-}
-
-yearlyHolidaysSchema.statics.updateHolidayToYear = async (holidayYearID, holidayObj) => {
-
-
-}
-
 
 const YearlyHolidaysModel = mongoose.model("yearlyholidays", yearlyHolidaysSchema)
 

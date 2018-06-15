@@ -37,7 +37,7 @@ let leaveSchema = mongoose.Schema({
 })
 
 
-leaveSchema.statics.saveLeave = async (leaveInput, user, schemaRequested) => {
+leaveSchema.statics.leaveRaised = async (leaveInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.leaveRequestAdditionStruct)
 
