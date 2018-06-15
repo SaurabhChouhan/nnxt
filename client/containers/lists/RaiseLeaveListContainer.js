@@ -33,7 +33,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error('process failed')
         }
         return json
-    })
+    }),
+
+    changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status)),
 
 
 })

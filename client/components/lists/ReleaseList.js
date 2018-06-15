@@ -49,7 +49,7 @@ class ReleaseList extends Component {
 
     formatBilledHours(row) {
         if (row) {
-            return row.billedHours
+            return row.expectedBilledHours
         }
         return ''
     }

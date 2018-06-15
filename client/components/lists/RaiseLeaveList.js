@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import moment from 'moment'
+import * as SC from '../../../server/serverconstants'
 
 class RaiseLeaveList extends Component {
 
@@ -78,6 +79,7 @@ class RaiseLeaveList extends Component {
 
 
     render() {
+        const {leaveRequests} = this.props
         return (
             <div>
                 <div key="raise_leave_key" className="clearfix">
@@ -86,13 +88,34 @@ class RaiseLeaveList extends Component {
                         <div className="col-md-12 pad">
 
                             <div className="col-md-12">
-                                <button className="btn customBtn"
-                                        onClick={() => this.props.showRaiseLeaveForm()}>Raise-Leave
-                                </button>
+                                <div className="col-md-12">
+                                    <div className="col-md-6">
+                                        <button className="btn customBtn"
+                                                onClick={() => this.props.showRaiseLeaveForm()}>Raise-Leave
+                                        </button>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <div className="col-md-4  releaseSearchContent ">
+                                            <div className="estimation releaseSelect  releaseSearchStatus">
+                                                <select className="form-control" title="Select Status"
+                                                        onChange={(status) =>
+                                                            this.props.changeLeaveStatus(status.target.value)
+                                                        }>
+                                                    <option value="all">All Status</option>
+                                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                                    <option value={SC.STATUS_APPROVED}>{SC.STATUS_APPROVED}</option>
+                                                    <option value={SC.STATUS_CANCELLED}>{SC.STATUS_CANCELLED}</option>
+                                                    <option value={SC.STATUS_REJECTED}>{SC.STATUS_REJECTED}</option>
+                                                </select>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div className="estimation">
 
-                                    <BootstrapTable options={this.options} data={this.props.leaveRequests}
+                                    <BootstrapTable options={this.options} data={leaveRequests}
                                                     striped={true}
                                                     hover={true}>
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
