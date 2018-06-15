@@ -7,6 +7,7 @@ export const USER_PROFILE_TAB = "Profile"
 export const ADMIN_PERMISSION_TAB = "Manage Permission"
 export const EMPLOYEE_SETTING_TAB = "Employee Setting"
 export const LEAVE_SETTING_TAB = "Leave Setting"
+export const HOLIDAY_TAB = "Holiday "
 
 // forms
 export const PERMISSION_FORM = "PERMISSION_FORM"
@@ -23,6 +24,7 @@ export const ATTENDANCE_SETTING_FORM = "ATTENDANCE_SETTING_FORM"
 export const MERGE_TASK_PLANNING_FORM = "MERGE_TASK_PLANNING_FORM"
 export const EMPLOYEE_SETTING_FORM = "EMPLOYEE_SETTING_FORM"
 export const LEAVE_SETTING_FORM = "LEAVE_SETTING_FORM"
+export const HOLIDAY_FORM = "HOLIDAY_FORM"
 
 
 // lists
@@ -35,10 +37,11 @@ export const ESTIMATION_LIST = "ESTIMATION_LIST"
 export const PROJECT_LIST = "PROJECT_LIST"
 export const TECHNOLOGIES_LIST = "TECHNOLOGIES_LIST"
 export const CLIENT_LIST = "CLIENT_LIST"
-export const RAISE_LEAVE_LIST = "RAISE_LEAVE_LIST"
+export const LEAVE_LIST = "LEAVE_LIST"
 export const RELEASE_LIST = "RELEASE_LIST"
 export const RELEASE_PLAN_LIST = "RELEASE_PLAN_LIST"
 export const RELEASE_TASK_PLANNING_PAGE = "RELEASE_TASK_DETAIL_PAGE"
+export const HOLIDAY_LIST = "HOLIDAY_LIST"
 
 
 // dialogs

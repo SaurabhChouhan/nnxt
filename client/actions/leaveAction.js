@@ -1,30 +1,30 @@
 import * as AC from "./actionConsts"
 import {initialize} from 'redux-form'
 
-export const addLeaveRequests = (leaveRequests) => ({
-    type: AC.ADD_LEAVE_REQUESTS,
-    leaveRequests: leaveRequests
+export const addLeaves = (leaves) => ({
+    type: AC.ADD_LEAVES,
+    leaves: leaves
 })
 
-export const selectRaiseLeave = (leaveDetail) => ({
-    type: AC.SELECTED_LEAVE_DETAIL,
-    leaveDetail: leaveDetail
+export const selectLeave = (leave) => ({
+    type: AC.LEAVE_SELECTED,
+    leave: leave
 })
 
-export const addLeaveRequest = (leaveRequest) => ({
-    type: AC.ADD_LEAVE_REQUEST,
-    leaveRequest: leaveRequest
+export const addLeave = (leave) => ({
+    type: AC.ADD_LEAVE,
+    leave: leave
 })
 
-export const cancelLeaveRequest = (leaveRequest) => ({
-    type: AC.CANCEL_LEAVE_REQUEST,
-    leaveRequest: leaveRequest
+export const updateLeave = (leave) => ({
+    type: AC.UPDATE_LEAVE,
+    leave: leave
 })
 
 
-export const deleteLeaveRequest = (leaveRequest) => ({
-    type: AC.DELETE_LEAVE_REQUEST,
-    leaveRequest: leaveRequest
+export const deleteLeave = (leave) => ({
+    type: AC.DELETE_LEAVE,
+    leaveRequest: leave
 })
 
 export const addLeaveTypes = (leaveTypes) => ({
@@ -32,10 +32,38 @@ export const addLeaveTypes = (leaveTypes) => ({
     leaveTypes: leaveTypes
 })
 
+/*-----------------------  LEAVE SETTING SECTION ---------------------------------*/
 
-export const addLeaveRequestOnServer = (formInput) => {
+
+export const getLeaveSettingFromServer = () => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves',
+        return fetch('/api/leave/leave-setting',
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(initialize("leave-setting", json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+
+export const addLeaveSettingOnServer = (leaveSetting) => {
+    return function (dispatch, getState) {
+        return fetch('/api/leave/leave-setting',
             {
                 method: "post",
                 credentials: "include",
@@ -43,7 +71,7 @@ export const addLeaveRequestOnServer = (formInput) => {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formInput)
+                body: JSON.stringify(leaveSetting)
             }
         ).then(
             response => {
@@ -51,62 +79,7 @@ export const addLeaveRequestOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addLeaveRequest(json.data))
-                }
-
-                return json
-            }
-        )
-    }
-}
-
-
-export const getAllLeaveRequestFromServer = (formInput) => {
-    return function (dispatch, getState) {
-        return fetch('/api/leaves',
-            {
-                method: "get",
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
-            }
-        ).then(
-            response => {
-                return response.json()
-            }
-        ).then(json => {
-                if (json.success) {
-                    dispatch(addLeaveRequests(json.data))
-                }
-
-                return json
-            }
-        )
-    }
-}
-
-
-export const deleteLeaveRequestFromServer = (leaveID) => {
-    return function (dispatch, getState) {
-        return fetch('/api/leaves/' + leaveID + '/delete-request',
-            {
-                method: "delete",
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                }
-            }
-        ).then(
-            response => {
-                return response.json()
-            }
-        ).then(json => {
-                if (json.success) {
-                    dispatch(deleteLeaveRequest(json.data))
+                    dispatch(initialize("leave-setting", json.data))
                 }
                 return json
             }
@@ -115,17 +88,17 @@ export const deleteLeaveRequestFromServer = (leaveID) => {
 }
 
 
-export const cancelLeaveRequestFromServer = (formInput) => {
+export const updateLeaveSettingOnServer = (leaveSetting) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/cancel-request',
+        return fetch('/api/leave/leave-setting',
             {
                 method: "put",
                 credentials: "include",
                 headers: {
-                    'Accept': 'application/json, text/plain, */*',
+                    'Accept': 'application/json, text/plain, *!/!*',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formInput)
+                body: JSON.stringify(leaveSetting)
             }
         ).then(
             response => {
@@ -133,19 +106,19 @@ export const cancelLeaveRequestFromServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(cancelLeaveRequest(json.data))
+                    dispatch(initialize("leave-setting", json.data))
                 }
-
                 return json
             }
         )
     }
 }
 
+/*---------------------------  LEAVE SECTION --------------------------------------*/
 
-export const getAllLeavetypesFromServer = () => {
+export const getAllLeaveTypesFromServer = () => {
     return (dispatch, getState) => {
-        return fetch('/api/leaves/leave-types', {
+        return fetch('/api/leave/leave-types', {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -165,36 +138,10 @@ export const getAllLeavetypesFromServer = () => {
     }
 }
 
-export const addLeaveSettingOnServer = (leaveSetting) => {
-    return function (dispatch, getState) {
-        return fetch('/api/leaves/leave-setting',
-            {
-                method: "post",
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(leaveSetting)
-            }
-        ).then(
-            response => {
-                return response.json()
-            }
-        ).then(json => {
-                if (json.success) {
-                    dispatch(initialize("leave-setting", json.data))
-                }
-                return json
-            }
-        )
-    }
-}
 
-
-export const getLeaveSettingFromServer = () => {
+export const getAllLeavesFromServer = (status) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/leave-setting',
+        return fetch('/api/leave',
             {
                 method: "get",
                 credentials: "include",
@@ -208,8 +155,33 @@ export const getLeaveSettingFromServer = () => {
                 return response.json()
             }
         ).then(json => {
+            if (json.success) {
+                dispatch(addLeaves(json.data))
+            }
+            return json
+        })
+    }
+}
+
+export const addLeaveRequestOnServer = (formInput) => {
+    return function (dispatch, getState) {
+        return fetch('/api/leave',
+            {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
                 if (json.success) {
-                    dispatch(initialize("leave-setting", json.data))
+                    dispatch(addLeave(json.data))
                 }
                 return json
             }
@@ -218,17 +190,16 @@ export const getLeaveSettingFromServer = () => {
 }
 
 
-export const updateLeaveSettingOnServer = (leaveSetting) => {
+export const deleteLeaveRequestFromServer = (leaveID) => {
     return function (dispatch, getState) {
-        return fetch('/api/leaves/leave-setting',
+        return fetch('/api/leave/' + leaveID + '/delete-request',
             {
-                method: "put",
+                method: "delete",
                 credentials: "include",
                 headers: {
-                    'Accept': 'application/json, text/plain, *!/!*',
+                    'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(leaveSetting)
+                }
             }
         ).then(
             response => {
@@ -236,7 +207,34 @@ export const updateLeaveSettingOnServer = (leaveSetting) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(initialize("leave-setting", json.data))
+                    dispatch(deleteLeave(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+
+export const cancelLeaveRequestFromServer = (formInput) => {
+    return function (dispatch, getState) {
+        return fetch('/api/leave/cancel-request',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(updateLeave(json.data))
                 }
                 return json
             }

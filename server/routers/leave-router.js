@@ -7,53 +7,19 @@ import * as EC from '../errorcodes'
 
 
 const leaveRouter = new Router({
-    prefix: "leaves"
+    prefix: "leave"
 })
 
-/**
- * Add all Leave  requested
- */
-leaveRouter.post("/", async ctx => {
-    return await MDL.LeaveModel.saveLeave(ctx.request.body, ctx.state.user, ctx.schemaRequested)
-})
 
 /**
- * Get all Leave   by ID
- */
-leaveRouter.get("/", async ctx => {
-    return await MDL.LeaveModel.getAllActive(ctx.state.user)
-})
-
-/**
- * Cancel Leave request
- */
-leaveRouter.put("/cancel-request", async ctx => {
-    return await MDL.LeaveModel.cancelLeaveRequest(ctx.request.body)
-})
-
-/**
- * Delete Leave request
- */
-leaveRouter.del("/:leaveID/delete-request", async ctx => {
-    return await MDL.LeaveModel.deleteLeaveRequest(ctx.params.leaveID)
-})
-
-/**
- * Get all Leave types
- */
-leaveRouter.get('/leave-types', async ctx => {
-    return await MDL.LeaveTypeModel.getAllActiveLeaveTypes()
-})
-
-/**
- * Get all Leave setting  by ID
+ * Get only leave setting
  */
 leaveRouter.get("/leave-setting", async ctx => {
     return await MDL.LeaveSettingModel.getLeaveSettings(ctx.state.user)
 })
 
 /**
- * Add Leave Setting
+ * create leave Setting
  */
 leaveRouter.post("/leave-setting", async ctx => {
     if (!hasRole(ctx, SC.ROLE_ADMIN)) {
@@ -64,7 +30,7 @@ leaveRouter.post("/leave-setting", async ctx => {
 })
 
 /**
- * Update Leave Setting
+ * Update leave setting
  */
 leaveRouter.put("/leave-setting", async ctx => {
     if (!hasRole(ctx, SC.ROLE_ADMIN)) {
@@ -72,5 +38,44 @@ leaveRouter.put("/leave-setting", async ctx => {
     }
     return await MDL.LeaveSettingModel.updateLeaveSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
+
+/**
+ * Get all Leave types
+ */
+leaveRouter.get('/leave-types', async ctx => {
+    return await MDL.LeaveTypeModel.getAllActiveLeaveTypes()
+})
+
+/**
+ * Get all active leaves of loggedIn user
+ */
+leaveRouter.get("/:status", async ctx => {
+    return await MDL.LeaveModel.getAllLeaves(ctx.params.status, ctx.state.user)
+})
+
+/**
+ * Add all Leave  requested
+ */
+leaveRouter.post("/", async ctx => {
+    return await MDL.LeaveModel.raiseLeaveRequest(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+})
+
+/**
+ * Add all Leave  requested
+ */
+leaveRouter.put("/:leaveID/delete-request", async ctx => {
+    return await MDL.LeaveModel.deleteLeaveRequest(ctx.params.leaveID, ctx.state.user)
+})
+
+/**
+ * Cancel Leave request
+ */
+leaveRouter.put("/:leaveID/cancel-request", async ctx => {
+    return await MDL.LeaveModel.cancelLeaveRequest(ctx.params.leaveID, ctx.state.user)
+})
+
+/**
+ * Delete Leave request
+ */
 
 export default leaveRouter

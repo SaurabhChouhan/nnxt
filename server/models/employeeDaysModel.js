@@ -22,7 +22,7 @@ let employeeDaysSchema = mongoose.Schema({
 
 employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) => {
     V.validate(EmployeeDaysInput, V.employeeAddEmployeeDaysStruct)
-    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
+    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
     EmployeeDaysInput.date = momentEmployeeDate
 
     let countDate = await EmployeeDaysModel.count({
@@ -37,7 +37,7 @@ employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) =>
 
 employeeDaysSchema.statics.increasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput) => {
     V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
-    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
+    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
     EmployeeDaysInput.date = momentEmployeeDate
     let count = await EmployeeDaysModel.count({"date": EmployeeDaysInput.date})
     if (count <= 0) {
@@ -52,7 +52,7 @@ employeeDaysSchema.statics.increasePlannedHoursOnEmployeeDaysDetails = async (Em
 }
 
 employeeDaysSchema.statics.decreasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput, user) => {
-    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
+    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
     EmployeeDaysInput.date = momentEmployeeDate
 
     V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
@@ -83,16 +83,16 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
     }
 
     let fromString = moment(from).format(SC.DATE_FORMAT)
-    let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
 
     let now = new Date()
     let nowString = moment(from).format(SC.DATE_FORMAT)
-    let nowMoment = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let nowMoment = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     if (fromMoment.isBefore(nowMoment)) {
         throw new AppError('Selected date is before now can not see details before now', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).add(6, 'days').hour(0).minute(0).second(0).millisecond(0)
+    let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).add(6, 'days').hour(0).minute(0).second(0).millisecond(0)
     if (employeeID && employeeID.toLowerCase() == "all") {
         //console.log("selected employee", employeeID)
         let allDevelopers = await MDL.UserModel.find({"roles.name": SC.ROLE_DEVELOPER}).exec()

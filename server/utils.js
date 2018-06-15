@@ -46,14 +46,15 @@ export const userHasRole = (user, roleName) => {
 }
 
 export const dateInUTC = (dateString) => {
-    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     if (momentDate.isValid())
         return momentDate.toDate()
     return undefined
 }
 
+
 export const momentInUTC = (dateString) => {
-    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE)
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     if (momentDate.isValid())
         return momentDate
     return undefined
@@ -72,10 +73,14 @@ export const formatDateTimeInTimezone = (date, timeZone) => {
 }
 
 
-
 export const momentInTimeZone = (dateString, timeZone) => {
     let momentDate = moment.tz(dateString, SC.DATE_FORMAT, timeZone)
     if (momentDate.isValid())
         return momentDate
     return undefined
+}
+
+export const getCurrentYear = () => {
+    let now = new Date()
+    return now.getFullYear()
 }

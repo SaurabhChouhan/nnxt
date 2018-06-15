@@ -14,9 +14,9 @@ let ReleaseDeveloperScheduleForm = (props) => {
     let now = new Date()
     let nowMoment = moment(now)
     let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentTz = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let nowMomentTz = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let fromScheduleString = moment(fromSchedule).format(SC.DATE_FORMAT)
-    let fromScheduleTz = momentTZ.tz(fromScheduleString, SC.DATE_FORMAT, SC.DEFAULT_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let fromScheduleTz = momentTZ.tz(fromScheduleString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     let canGoPrevious = fromScheduleTz.clone().subtract(7, 'days').isSameOrAfter(nowMomentTz)
 
     return <div>

@@ -1,8 +1,8 @@
 import {Modal, ModalBody, ModalHeader} from 'react-bootstrap'
 import React from 'react'
-import {RaiseLeaveListDetailContainer} from "../../containers"
+import {LeaveDetailContainer} from "../../containers"
 
-const LeaveRequestDetailDialog = (props) => {
+const LeaveDetailDialog = (props) => {
     return <Modal className="estimationModal" show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
             <div className="clearfix ModalHeading">
@@ -11,9 +11,9 @@ const LeaveRequestDetailDialog = (props) => {
             </div>
         </ModalHeader>
         <ModalBody>
-            <RaiseLeaveListDetailContainer/>
+            <LeaveDetailContainer/>
         </ModalBody>
     </Modal>
 }
 
-export default LeaveRequestDetailDialog
+export default LeaveDetailDialog

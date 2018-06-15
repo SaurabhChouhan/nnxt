@@ -42,6 +42,7 @@ apiRouter.use(async (ctx, next) => {
     RR.reportingRouter.routes(),
     RR.employeeRouter.routes(),
     RR.warningRouter.routes(),
+    RR.holidayRouter.routes(),
     RR.dashboardRouter.routes()
 )
 

@@ -1,7 +1,7 @@
 import * as A from "../../actions";
 import * as COC from "../../components/componentConsts";
 import {connect} from "react-redux";
-import RaiseLeaveList from "../../components/lists/RaiseLeaveList";
+import {LeaveList} from "../../components";
 import {NotificationManager} from "react-notifications";
 
 
@@ -10,23 +10,22 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
     },
 
-    showRaiseLeaveDetail: (leave) => {
-        dispatch(A.selectRaiseLeave(leave))
+    showLeaveDetails: (leave) => {
+        dispatch(A.selectLeave(leave))
         dispatch(A.showComponent(COC.LEAVE_DETAIL_DIALOG))
     },
 
-    cancelRaiseLeaveRequestCall: (leave) => {
-        return dispatch(A.cancelLeaveRequestFromServer(leave._id)).then(json => {
+    deleteRaiseLeaveRequestCall: (leave) => dispatch(A.deleteLeaveRequestFromServer(leave._id)).then(json => {
             if (json.success) {
-                NotificationManager.success('Leave request Cancelled Successfully')
+            NotificationManager.success('Leave deleted successfully')
             } else {
-                NotificationManager.error('process failed')
+            NotificationManager.error('Leave deletion failed')
             }
             return json
+    }),
 
-        })
-    },
-    deleteRaiseLeaveRequestCall: (leave) => dispatch(A.deleteLeaveRequestFromServer(leave._id)).then(json => {
+    cancelRaiseLeaveRequestCall: (leave) => {
+        return dispatch(A.cancelLeaveRequestFromServer(leave._id)).then(json => {
         if (json.success) {
             NotificationManager.success('Leave request Cancelled Successfully')
         } else {
@@ -34,21 +33,21 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
         return json
     })
+    },
+ changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status)),
 
 
 })
 
 
-const mapStateToProps = (state, ownProps) => {
-    return {
+const mapStateToProps = (state, ownProps) => ({
         loggedInUser: state.user.loggedIn,
         leaveRequests: state.leaveRequest.all
-    }
-}
+})
 
-const RaiseLeaveListContainer = connect(
+const LeaveListContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(RaiseLeaveList)
+)(LeaveList)
 
-export default RaiseLeaveListContainer
+export default LeaveListContainer

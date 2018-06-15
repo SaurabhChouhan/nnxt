@@ -8,13 +8,14 @@ import clientReducer from './clientReducer'
 import estimationReducer from './estimationReducer'
 import projectReducer from './projectReducer'
 import technologyReducer from './technologyReducer'
-import leaveRequestReducer from './leaveRequestReducer'
+import leaveReducer from './leaveReducer'
 import repositoryReducer from './repositoryReducer'
 import attendanceSettingReducer from './attendanceSettingReducer'
 import releaseReducer from './releaseReducer'
 import calendarReducer from './calendarReducer'
 import reportingReducer from './reportingReducer'
 import warningReducer from './warningReducer'
+import holidayReducer from './holidayReducer'
 
 
 const reducers = combineReducers({
@@ -27,12 +28,13 @@ const reducers = combineReducers({
     estimation: estimationReducer,
     project: projectReducer,
     technology: technologyReducer,
-    leaveRequest: leaveRequestReducer,
+    leaveRequest: leaveReducer,
     repository: repositoryReducer,
     attendanceSetting: attendanceSettingReducer,
     release: releaseReducer,
     calendar: calendarReducer,
     report: reportingReducer,
-    warning: warningReducer
+    warning: warningReducer,
+    holiday:holidayReducer
 })
 export default reducers

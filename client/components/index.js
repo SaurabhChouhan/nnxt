@@ -53,7 +53,7 @@ export {default as EstimationProjectAwardDialog} from './dialogs/EstimationProje
 export {default as AttendenceSettingForm} from './forms/AttendanceSettingForm'
 export {default as EstimationFilterDialog} from './dialogs/EstimationFilterDialog'
 export {default as EstimationFilterForm} from './forms/EstimationFilterForm'
-export {default as LeaveRequestDetailDialog} from './dialogs/LeaveRequestDetailDialog'
+export {default as LeaveRequestDetailDialog} from './dialogs/LeaveDetailDialog'
 
 
 //ProjectDialog
@@ -67,10 +67,13 @@ export {default as ClientList} from './lists/ClientList'
 export {default as ClientForm} from './forms/ClientForm'
 
 
-//raise leave request
-export {default as LeaveRequestFormDialog} from './dialogs/LeaveRequestFormDialog'
+//leave
+export {default as LeaveSettingForm} from './forms/LeaveSettingForm'
+export {default as LeaveDetailDialog} from './dialogs/LeaveDetailDialog'
 export {default as LeaveRequestForm} from './forms/LeaveRequestForm'
-export {default as RaiseLeaveList} from './lists/RaiseLeaveList'
+export {default as LeaveList} from './lists/LeaveList'
+export {default as LeaveDetailPage} from './pages/LeaveDetailPage'
+//Raise Leave
 
 
 //technology RelatedForm
@@ -104,9 +107,6 @@ export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSc
 export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'
 
 
-//Raise Leave
-export {default as RaiseLeaveDetailPage} from './pages/RaiseLeaveDetailPage'
-export {default as LeaveSettingForm} from './forms/LeaveSettingForm'
 
 
 //Calendar Page
@@ -121,3 +121,7 @@ export {default as ReportingTaskDetailPage} from './pages/ReportingTaskDetailPag
 
 // Warnings
 export {default as WarningList} from './lists/WarningList'
+
+// Holiday
+export {default as HolidayForm} from './forms/HolidayForm'
+export {default as HolidayList} from './lists/HolidayList'

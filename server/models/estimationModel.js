@@ -404,7 +404,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                                 "isDeleted": false,
                                 "status": SC.STATUS_PENDING
                             }).then((count) => {
-                               // console.log("count is ", count)
+                                // console.log("count is ", count)
                                 if (count) {
                                     // console.log("bk3")
                                     MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false}).then(() => {

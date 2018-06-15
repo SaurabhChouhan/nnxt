@@ -74,8 +74,8 @@ export {default as ClientFormContainer} from './forms/ClientFormContainer'
 
 //leave
 export {default as LeaveRequestFormContainer} from './forms/LeaveRequestFormContainer'
-export {default as RaiseLeaveListContainer} from './lists/RaiseLeaveListContainer'
-export {default as RaiseLeaveListDetailContainer} from './pages/RaiseLeaveListDetailContainer'
+export {default as LeaveListContainer} from './lists/LeaveListContainer'
+export {default as LeaveDetailContainer} from './pages/LeaveDetailContainer'
 
 
 //Leave Setting
@@ -109,3 +109,7 @@ export {default as ReportingDateNavBarContainer} from './pages/ReportingDateNavB
 
 //Warning
 export {default as WarningListContainer} from './lists/WarningListContainer'
+
+//
+export {default as HolidayFormContainer} from './forms/HolidayFormContainer'
+export {default as HolidayListContainer} from './lists/HolidayListContainer'
