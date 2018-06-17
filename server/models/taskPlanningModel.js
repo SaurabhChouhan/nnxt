@@ -644,6 +644,23 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
     releasePlan.planning.plannedHours -= plannedHourNumber
     releasePlan.planning.plannedTaskCounts -= 1
 
+    if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] releaseplan.plannedHOurs < estimated hours ')
+        releasePlan.diffPlannedHoursEstimatedTasks = releasePlan.planning.plannedHours - releasePlan.planning.plannedHoursEstimatedTasks
+        releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.planning.plannedHours
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] diff planned hours estimated tasks ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] new planned hours estimated tasks ', {plannedHoursEstimatedTasks: releasePlan.planning.plannedHoursEstimatedTasks})
+    }
+    else {
+        releasePlan.diffPlannedHoursEstimatedTasks = 0
+        releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.task.estimatedHours
+    }
+
+    let progress = getNewProgressPercentage(releasePlan)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
+
+
     /* SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN */
 
     let momentPlanningDate = new moment(taskPlan.planningDate)
@@ -827,16 +844,29 @@ const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release,
 
     if (releasePlan.task.initiallyEstimated) {
         release.initial.plannedHours -= plannedHourNumber
-        if (releasePlan.planning.plannedTaskCounts === 0)
-            release.initial.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
+        if (releasePlan.diffProgress) {
+            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
+            release.initial.progress += releasePlan.diffProgress
+        }
+
+        if (releasePlan.diffPlannedHoursEstimatedTasks) {
+            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+            release.initial.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
+        }
 
     } else {
         release.additional.plannedHours -= plannedHourNumber
-        if (releasePlan.planning.plannedTaskCounts === 0)
-            release.additional.estimatedHoursPlannedTasks -= releasePlan.task.estimatedHours
-    }
-    //logger.debug('deleteTaskPlanning(): saving release ', {release})
 
+        if (releasePlan.diffProgress) {
+            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
+            release.additional.progress += releasePlan.diffProgress
+        }
+
+        if (releasePlan.diffPlannedHoursEstimatedTasks) {
+            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+            release.additional.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
+        }
+    }
 
     return release
 }
@@ -1175,6 +1205,9 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     let progress = getNewProgressPercentage(releasePlan)
     releasePlan.diffProgress = progress - releasePlan.report.progress
     releasePlan.report.progress = progress
+
+    logger.info('addTaskReport(): [progress] new progress is ', {progress})
+    logger.info('addTaskReport(): [progress] new diff progress is ', {progress: releasePlan.diffProgress})
 
     // EMPLOYEE SPECIFIC SUMMARY DATA UPDATES
     if (employeeReportIdx == -1) {
