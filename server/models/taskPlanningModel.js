@@ -85,6 +85,21 @@ const getNewBaseHours = (releasePlan) => {
     }
 }
 
+const getNewProgressPercentage = (releasePlan) => {
+    let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+
+    // see if base hours crossed estimated hours, only then it is a new base hours to calculate progress
+    if (baseHours < releasePlan.task.estimatedHours) {
+        baseHours = releasePlan.task.estimatedHours
+    }
+    logger.debug('getNewProgressPercentage(): [basehours] ', {baseHours})
+    // now that we have base hours we would calculate progress by comparing it against reported hours
+    let progress = releasePlan.report.reportedHours * 100 / baseHours
+    logger.debug('getNewProgressPercentage(): [progress] ', {progress})
+    return progress.toFixed(2)
+}
+
+
 const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, momentPlanningDate) => {
 
     // Add or update employee days details when task is planned
@@ -209,9 +224,31 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
     releasePlan.planning.plannedHours += plannedHourNumber
     releasePlan.planning.plannedTaskCounts += 1
 
-    let newBaseHours = getNewBaseHours(releasePlan)
-    releasePlan.diffBaseHours = newBaseHours - releasePlan.report.baseHoursProgress
-    releasePlan.report.baseHoursProgress = newBaseHours
+    // if total planned hours is less than estimated hours plannedHoursEstimatedTasks would change
+
+    if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] releaseplan.plannedHOurs < estimated hours ')
+        releasePlan.diffPlannedHoursEstimatedTasks = releasePlan.planning.plannedHours - releasePlan.planning.plannedHoursEstimatedTasks
+        releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.planning.plannedHours
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] diff planned hours estimated tasks ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] new planned hours estimated tasks ', {plannedHoursEstimatedTasks: releasePlan.planning.plannedHoursEstimatedTasks})
+    }
+    else {
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] releaseplan.plannedHOurs >= estimated hours ')
+        releasePlan.diffPlannedHoursEstimatedTasks = releasePlan.task.estimatedHours - releasePlan.planning.plannedHoursEstimatedTasks
+        releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.task.estimatedHours
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] diff planned hours estimated tasks ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] new planned hours estimated tasks ', {plannedHoursEstimatedTasks: releasePlan.planning.plannedHoursEstimatedTasks})
+    }
+
+    let progress = getNewProgressPercentage(releasePlan)
+
+    logger.info('addTaskPlanning(): [progress] new progress percentage is ', {progress})
+
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
+
+    logger.info('addTaskPlanning(): [progress] diff progress is ', releasePlan.diffProgress)
 
     // reported hours by user + planned hours remaining would become new base hours for progress if it crosses current base hours
 
@@ -286,24 +323,26 @@ const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourN
         // this task was part of initial estimation so need to add data under initial object
         release.initial.plannedHours += plannedHourNumber
 
-        if (releasePlan.diffBaseHours) {
-            logger.debug('addTaskPlanning(): [basehours] diff base hours found as ', {diffHours: releasePlan.diffBaseHours})
-            release.initial.baseHoursProgress += releasePlan.diffBaseHours
+        if (releasePlan.diffProgress) {
+            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
+            release.initial.progress += releasePlan.diffProgress
         }
 
-        if (releasePlan.planning.plannedTaskCounts == 1) {
-            // this means that this is the first task-plan added against this release plan hence we can add estimated Hours planned task here
-            release.initial.estimatedHoursPlannedTasks += releasePlan.task.estimatedHours
+        if (releasePlan.diffPlannedHoursEstimatedTasks) {
+            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+            release.initial.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
         }
+
     } else {
         release.additional.plannedHours += plannedHourNumber
+        if (releasePlan.diffProgress) {
+            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
+            release.additional.progress += releasePlan.diffProgress
+        }
 
-        if (releasePlan.diffBaseHours)
-            release.additional.baseHoursProgress += releasePlan.diffBaseHours
-
-        if (releasePlan.planning.plannedTaskCounts == 1) {
-            // this means that this is the first task-plan added against this release plan hence we can add estimated Hours planned task here
-            release.additional.estimatedHoursPlannedTasks += releasePlan.task.estimatedHours
+        if (releasePlan.diffPlannedHoursEstimatedTasks) {
+            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+            release.additional.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
         }
     }
 
@@ -872,8 +911,8 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
 
     let count = await MDL.WarningModel.count({
-        "type": SC.WARNING_TOO_MANY_HOURS,
-        "releasePlans._id": mongoose.Types.ObjectId(releasePlan._id)
+        'type': SC.WARNING_TOO_MANY_HOURS,
+        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
 
     if (count == 0) {
@@ -1133,10 +1172,9 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         }
     }
 
-    let newBaseHours = getNewBaseHours(releasePlan)
-    diffBaseHours = newBaseHours - releasePlan.report.baseHoursProgress
-    releasePlan.report.baseHoursProgress = newBaseHours
-
+    let progress = getNewProgressPercentage(releasePlan)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
 
     // EMPLOYEE SPECIFIC SUMMARY DATA UPDATES
     if (employeeReportIdx == -1) {
@@ -1268,10 +1306,12 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (releasePlan.task.initiallyEstimated) {
         /* this task was initially estimated */
         release.initial.reportedHours += reportedHoursToIncrement
-        // Add planned hours of reported task to release
-        release.initial.plannedHoursReportedTasks += taskPlan.planning.plannedHours
-        if (diffBaseHours)
-            release.initial.baseHoursProgress += diffBaseHours
+        if (!reReport) {
+            // Add planned hours of reported task to release if it is first time reporting
+            release.initial.plannedHoursReportedTasks += taskPlan.planning.plannedHours
+            if (releasePlan.diffProgress)
+                release.initial.progress += releasePlan.diffProgress
+        }
 
         if (!release.initial || !release.initial.maxReportedDate || (release.initial.maxReportedDate && reportedMoment.isAfter(release.initial.maxReportedDate))) {
             /* if reported date is greater than earlier max reported date change that */
@@ -1289,10 +1329,13 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     } else {
         release.additional.reportedHours += reportedHoursToIncrement
 
-        if (diffBaseHours)
-            release.additional.baseHoursProgress += diffBaseHours
-        /* See if this is first time release plan was reported if yes then increment planned hours  of reported tasks */
-        release.additional.plannedHoursReportedTasks += taskPlan.planning.plannedHours
+        if (!reReport) {
+            // Add planned hours of reported task to release if it is first time reporting
+            release.additional.plannedHoursReportedTasks += taskPlan.planning.plannedHours
+            if (releasePlan.diffProgress)
+                release.additional.progress += releasePlan.diffProgress
+        }
+
         if (!release.additional || !release.additional.maxReportedDate || (release.additional.maxReportedDate && reportedMoment.isAfter(release.additional.maxReportedDate))) {
             /* if reported date is greater than earlier max reported date change that */
             release.additional.maxReportedDate = reportedMoment.toDate()
