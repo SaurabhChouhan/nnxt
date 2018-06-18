@@ -15,6 +15,14 @@ export const isSuperAdmin = (ctx) => {
     return false
 }
 
+export const isHighestManagementRole = (ctx) => {
+    if (ctx.isAuthenticated()) {
+        if (ctx.state.user && Array.isArray(ctx.state.user.roles) && ctx.state.user.roles.findIndex(r => r.name == SC.ROLE_HIGHEST_MANAGEMENT_ROLE) != -1)
+            return true
+    }
+    return false
+}
+
 export const isAdmin = (ctx) => {
     if (ctx.isAuthenticated()) {
         if (ctx.state.user && Array.isArray(ctx.state.user.roles) && ctx.state.user.roles.findIndex(r => r.name == SC.ROLE_ADMIN) != -1)
@@ -40,6 +48,13 @@ export const hasRole = (ctx, roleName) => {
 }
 
 export const userHasRole = (user, roleName) => {
+    if (user && Array.isArray(user.roles) && user.roles.findIndex(r => r.name == roleName) != -1)
+        return true
+    return false
+}
+
+
+export const userHasOnlyRole = (user, roleName) => {
     if (user && Array.isArray(user.roles) && user.roles.findIndex(r => r.name == roleName) != -1)
         return true
     return false

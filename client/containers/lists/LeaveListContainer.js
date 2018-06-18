@@ -16,32 +16,44 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     deleteLeave: (leave) => dispatch(A.deleteLeaveFromServer(leave._id)).then(json => {
-            if (json.success) {
+        if (json.success) {
             NotificationManager.success('Leave deleted successfully')
-            } else {
+        } else {
             NotificationManager.error('Leave deletion failed')
-            }
-            return json
+        }
+        return json
     }),
 
     cancelLeaveRequestCall: (leave) => {
         return dispatch(A.cancelLeaveRequestFromServer(leave._id)).then(json => {
-        if (json.success) {
-            NotificationManager.success('Leave request Cancelled Successfully')
-        } else {
-            NotificationManager.error('process failed')
-        }
-        return json
-    })
+            if (json.success) {
+                NotificationManager.success('Leave request Cancelled Successfully')
+            } else {
+                NotificationManager.error('process failed')
+            }
+            return json
+        })
     },
- changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status)),
+
+    approveLeaveRequestCall: (leave) => {
+        return dispatch(A.approveLeaveRequestFromServer(leave._id)).then(json => {
+            if (json.success) {
+                NotificationManager.success('Leave request Approved Successfully')
+            } else {
+                NotificationManager.error('Leave request Approval failed')
+            }
+            return json
+        })
+    },
+
+    changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status)),
 
 
 })
 
 
 const mapStateToProps = (state, ownProps) => ({
-        loggedInUser: state.user.loggedIn,
+    loggedInUser: state.user.loggedIn,
     leaves: state.leave.all
 })
 

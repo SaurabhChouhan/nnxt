@@ -1974,3 +1974,17 @@ hr {
 .tab span.active {
     background-color: #ccc;
 }
+
+.leaveSelect {
+    margin-left: -75px !important;
+    width: 288px;
+    margin-top: 14px;
+}
+
+.leaveBtn {
+    margin-left: 835px;
+}
+
+.leave {
+    margin-top: -46px;
+}
