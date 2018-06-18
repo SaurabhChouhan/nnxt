@@ -889,22 +889,106 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
 
 /**
  * Employee raised request for leave
- * @param startDateMoment, endDateMoment, user
+ * @param startDate, endDate, user
  * @returns {Promise.<void>}
  */
-warningSchema.statics.addEmployeeAskForLeave = async (startDateMoment, endDateMoment, user) => {
-    let warnings = await WarningModel.find({
-        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-        'employeeDay.date': {$gte: startDateMoment, $lte: endDateMoment},
-        'employeeDay.employee_id': user._id
-    })
-    let releasePlans = []
-    let releases = []
-    let planningDate = new Date('2018-06-05')
-    new Promise((resolve, reject) => {
-        return resolve(false)
-    })
+warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
+    let startDateMoment = U.momentInUTC(startDate)
+    let endDateMoment = U.momentInUTC(endDate)
+    let singleDateMoment = startDateMoment.clone()
 
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+    /*---------------------Employee Ask For leave ----------------------*/
+
+    while (singleDateMoment.isSameOrBefore(endDateMoment)) {
+
+        let warning = await WarningModel.findOne({
+            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+            'employeeDay.date': singleDateMoment.toDate(),
+            'employeeDay.employee._id': employee._id
+        })
+        if (!warning) {
+            //create warning WARNING_EMPLOYEE_ASK_FOR_LEAVE for this date
+            let newWarning = new WarningModel()
+            let taskPlans = await MDL.TaskPlanningModel.find({
+                'planningDate': singleDateMoment.toDate(),
+                'employee._id': mongoose.Types.ObjectId(employee._id)
+            })
+            taskPlans.forEach(tp => {
+                warningResponse.added.push({
+                    _id: tp._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                    source: true
+                })
+            })
+
+            let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
+                'planningDate': singleDateMoment.toDate(),
+                'employee._id': mongoose.Types.ObjectId(employee._id)
+            })
+
+            let releasesPromises = distinctReleaseIDs.map(releaseID => {
+                return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
+                    warningResponse.added.push({
+                        _id: releaseDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE,
+                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                        source: true
+                    })
+                    return Object.assign({}, releaseDetail.toObject(), {
+                        source: true
+                    })
+
+                })
+            })
+
+            let releases = await Promise.all(releasesPromises)
+
+
+            let distinctReleasePlansIDs = await MDL.TaskPlanningModel.distinct('releasePlan._id', {
+                'planningDate': singleDateMoment.toDate(),
+                'employee._id': mongoose.Types.ObjectId(employee._id)
+            })
+
+            let releasePlansPromises = distinctReleasePlansIDs.map(releasePlanID => {
+                return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
+                    warningResponse.added.push({
+                        _id: releasePlanDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                        source: true
+                    })
+                    return Object.assign({}, releasePlanDetail.toObject(), {
+                        source: true
+                    })
+
+                })
+            })
+            let employeeDay = {
+                employee: employee,
+                dateString: singleDateMoment.format(SC.DATE_FORMAT),
+                date: singleDateMoment.toDate
+            }
+
+            let releasePlans = await Promise.all(releasePlansPromises)
+            newWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+            newWarning.taskPlans = [...taskPlans]
+            newWarning.releasePlans = [...releasePlans]
+            newWarning.releases = [...releases]
+            newWarning.employeeDays = [employeeDay]
+            await newWarning.save()
+
+
+        } else {
+            //warning already exists for that day no need to do any thing
+        }
+        singleDateMoment = singleDateMoment.add(1, "days")
+    }
+    return warningResponse
 }
 
 const WarningModel = mongoose.model('Warning', warningSchema)
