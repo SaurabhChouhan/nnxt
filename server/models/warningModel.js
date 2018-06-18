@@ -523,7 +523,9 @@ const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC)
             }
         }
     } else {
-        throw new AppError('Warning is not available to delete ', EC.DATA_INCONSISTENT, EC.HTTP_BAD_REQUEST)
+        // As per current code that is called without any precondition, it is possible that no warning exists with too many hours so commenting code to throw error
+
+        //throw new AppError('Warning is not available to delete ', EC.DATA_INCONSISTENT, EC.HTTP_BAD_REQUEST)
     }
     return warningResponse
 }

@@ -39,6 +39,7 @@ let releasePlanSchema = mongoose.Schema({
         minPlanningDate: Date, // minimum planning date for this release plan
         maxPlanningDate: Date, // maximum planning for this release plan
         plannedTaskCounts: {type: Number, default: 0},  // Number of tasks-plans against this release plan
+        plannedHoursEstimatedTasks: {type: Number, default: 0}, // sum of planned hours of all task plans but it will not cross estimated hours
         employees: [{
             _id: mongoose.Schema.ObjectId,
             plannedHours: {type: Number, default: 0}, // Number of planned hours against this employee
@@ -53,7 +54,8 @@ let releasePlanSchema = mongoose.Schema({
         minReportedDate: Date,
         maxReportedDate: Date,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
-        plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
+        plannedHoursReportedTasks: {type: Number, default: 0}, // sum of planned hours of reported task plans
+        progress: {type: Number, default: 0.0}, // overall progress of this release plan in percentage
         finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
         employees: [{
             _id: mongoose.Schema.ObjectId,
@@ -105,9 +107,11 @@ releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimatio
         estimatedBilledHours: expectedBilledHours.toFixed(2)
     }
 
+    /*
     releasePlanInput.report = {
         baseHoursProgress: estimationTask.estimator.estimatedHours // initial base hours would be estimated hours
     }
+    */
 
     if (estimationTask.feature && estimationTask.feature._id)
         releasePlanInput.feature = estimationTask.feature

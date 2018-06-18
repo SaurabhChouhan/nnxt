@@ -46,21 +46,21 @@ let releaseSchema = mongoose.Schema({
         email: {type: String, required: [true, 'Developer email name is required']}
     }],
     initial: {
-        expectedBilledHours: {type: Number, default: 0},
-        billingRate: {type: Number, default: 0},
-        estimatedHours: {type: Number, default: 0},
-        plannedHours: {type: Number, default: 0},
-        reportedHours: {type: Number, default: 0},
-        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
-        estimatedHoursPlannedTasks: {type: Number, default: 0},
-        estimatedHoursCompletedTasks: {type: Number, default: 0},
-        plannedHoursReportedTasks: {type: Number, default: 0},
-        devStartDate: Date,
-        devEndDate: Date,
-        clientReleaseDate: Date,
-        actualReleaseDate: Date,
-        maxReportedDate: Date,
-        maxReportedDateString: String
+        expectedBilledHours: {type: Number, default: 0}, // expected billed hours
+        billingRate: {type: Number, default: 0}, // Billing rate per hours
+        estimatedHours: {type: Number, default: 0}, // sum of estimated hours of all release plan
+        plannedHours: {type: Number, default: 0}, // sum of planned hours of all task plans across this release
+        reportedHours: {type: Number, default: 0},// sum of reported hours of all task plans across this release
+        plannedHoursEstimatedTasks: {type: Number, default: 0}, // sum of planned hours of all release plans but maximum planned hours added per release plan would be estimated hours
+        estimatedHoursCompletedTasks: {type: Number, default: 0}, // sum of estimated hours of release plans that are completed
+        plannedHoursReportedTasks: {type: Number, default: 0}, // Sum of planned hours of all the reported task plans
+        progress: {type: Number, default: 0.0}, // overall progress of this release in percentage
+        devStartDate: Date, // Expected development start date
+        devEndDate: Date, // Expected development end date
+        clientReleaseDate: Date, // Client release date
+        actualReleaseDate: Date, // Actual release date
+        maxReportedDate: Date, // Maximum reported date
+        maxReportedDateString: String // Maximum reported date string
     },
     additional: {
         billedHours: {type: Number, default: 0},
@@ -181,7 +181,7 @@ releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) =>
     initial.clientReleaseDate = projectAwardData.clientReleaseDate
     initial.devStartDate = projectAwardData.devStartDate
     initial.devEndDate = projectAwardData.devReleaseDate
-    initial.baseHoursProgress = estimation.estimatedHours // initial estimated hours is used to calculate progress
+    //initial.baseHoursProgress = estimation.estimatedHours // initial estimated hours is used to calculate progress
     releaseInput.project = project
     releaseInput.manager = manager
     releaseInput.leader = leader
