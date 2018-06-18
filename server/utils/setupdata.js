@@ -457,7 +457,7 @@ const addNNXTUsers = async () => {
     }
 
     let higherManagementRole = await MDL.RoleModel.findOne({name: SC.ROLE_HIGHEST_MANAGEMENT_ROLE}).lean()
-    if (!await MDL.UserModel.exists('higherManament1@test.com')) {
+    if (!await MDL.UserModel.exists('higherMana ment1@test.com')) {
         await MDL.UserModel.createUser({
             email: 'higherManament1@test.com',
             firstName: "higher Manament-1",

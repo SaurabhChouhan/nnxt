@@ -5,6 +5,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as V from "../validation"
 import * as U from "../utils"
+import _ from "lodash"
 
 mongoose.Promise = global.Promise
 
@@ -35,28 +36,52 @@ let leaveSchema = mongoose.Schema({
     endDate: {type: Date, required: true},
     endDateString: {type: String, required: true},
     numberOfLeaveDays: {type: Number, required: true},
-    isDeleted: {type: Boolean, default: false},
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
 })
 
 
 leaveSchema.statics.getAllLeaves = async (status, user) => {
+    let leaves
+    if (U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)) {
+        leaves = await getLeaves(status, user)
+    } else {
+        leaves = await getUserLeaves(status, user)
+    }
+
+    leaves = leaves && leaves.length ? leaves.map(leave => Object.assign({}, leave.toObject(), {
+            canDelete: leave.user._id.toString() === user._id.toString(),
+            canCancel: _.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_PENDING], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
+            canApprove: _.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_PENDING], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+        })
+    ) : []
+    return leaves
+}
+
+
+const getUserLeaves = async (status, user) => {
 
     if (status && status.toLowerCase() === 'all') {
         return await LeaveModel.find({
-            "user._id": mongoose.Types.ObjectId(user._id),
-            "isDeleted": false
+            "user._id": mongoose.Types.ObjectId(user._id)
         }).exec()
     } else {
         return await LeaveModel.find({
             "user._id": mongoose.Types.ObjectId(user._id),
-            "status": status,
-            "isDeleted": false
+            "status": status
         }).exec()
     }
 }
 
+const getLeaves = async (status, user) => {
+    if (status && status.toLowerCase() === 'all') {
+        return await LeaveModel.find({}).exec()
+    } else {
+        return await LeaveModel.find({
+            "status": status
+        }).exec()
+    }
+}
 
 leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested) => {
     if (schemaRequested)
@@ -100,29 +125,61 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.user = user
     newLeave.dayType = leaveInput.dayType ? leaveInput.dayType : SC.LEAVE_TYPE_FULL_DAY
 
-    return await newLeave.save(leaveInput)
+    await newLeave.save(leaveInput)
+    newLeave = newLeave.toObject()
+    newLeave.canDelete = true
+    newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? true : false
+    newLeave.canApprove = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? true : false
+    return newLeave
 }
 
-leaveSchema.statics.cancelLeaveRequest = async (leaveID) => {
+leaveSchema.statics.cancelLeaveRequest = async (leaveID, user) => {
+    let Roles = await MDL.UserModel.findById()
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
-        throw new AppError("leave reqest Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    leaveRequest.status = SC.STATUS_CANCELLED
-    return await leaveRequest.save()
+    leaveRequest.status = SC.LEAVE_STATUS_CANCELLED
+    await leaveRequest.save()
+
+    leaveRequest = leaveRequest.toObject()
+    leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
+    leaveRequest.canCancel = true
+    leaveRequest.canApprove = true
+    return leaveRequest
 }
 
-leaveSchema.statics.deleteLeave = async (leaveID) => {
+leaveSchema.statics.approveLeaveRequest = async (leaveID, user) => {
+    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID),)
+
+    if (!leaveRequest) {
+        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    leaveRequest.status = SC.LEAVE_STATUS_APPROVED
+    await leaveRequest.save()
+
+    leaveRequest = leaveRequest.toObject()
+    leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
+    leaveRequest.canCancel = true
+    leaveRequest.canApprove = true
+    return leaveRequest
+}
+
+leaveSchema.statics.deleteLeave = async (leaveID, user) => {
+
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
-        throw new AppError("leave reqest Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    if (leaveRequest.user._id.toString() !== user._id.toString()) {
+        throw new AppError("This leave is not belongs to your leave ,user can delete his own leave only", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
-    leaveRequest.isDeleted = true
-    return await leaveRequest.save()
+    return await leaveRequest.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
 }
 
 const LeaveModel = mongoose.model("Leave", leaveSchema)

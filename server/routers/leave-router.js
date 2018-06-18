@@ -1,9 +1,9 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
 import * as SC from "../serverconstants"
-import {hasRole} from "../utils"
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
+import * as U from '../utils'
 
 
 const leaveRouter = new Router({
@@ -22,7 +22,7 @@ leaveRouter.get("/leave-setting", async ctx => {
  * create leave Setting
  */
 leaveRouter.post("/leave-setting", async ctx => {
-    if (!hasRole(ctx, SC.ROLE_ADMIN)) {
+    if (!U.hasRole(ctx, SC.ROLE_ADMIN)) {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     return await MDL.LeaveSettingModel.createLeaveSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
@@ -33,7 +33,7 @@ leaveRouter.post("/leave-setting", async ctx => {
  * Update leave setting
  */
 leaveRouter.put("/leave-setting", async ctx => {
-    if (!hasRole(ctx, SC.ROLE_ADMIN)) {
+    if (!U.hasRole(ctx, SC.ROLE_ADMIN)) {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     return await MDL.LeaveSettingModel.updateLeaveSettings(ctx.request.body, ctx.state.user, ctx.schemaRequested)
@@ -61,7 +61,7 @@ leaveRouter.post("/", async ctx => {
 })
 
 /**
- * Add all Leave  requested
+ *Delete Leave request
  */
 leaveRouter.del("/:leaveID", async ctx => {
     return await MDL.LeaveModel.deleteLeave(ctx.params.leaveID, ctx.state.user)
@@ -71,11 +71,24 @@ leaveRouter.del("/:leaveID", async ctx => {
  * Cancel Leave request
  */
 leaveRouter.put("/:leaveID/cancel-request", async ctx => {
-    return await MDL.LeaveModel.cancelLeaveRequest(ctx.params.leaveID, ctx.state.user)
+    if (U.isHighestManagementRole(ctx)) {
+        return await MDL.LeaveModel.cancelLeaveRequest(ctx.params.leaveID, ctx.state.user)
+    } else {
+        throw new AppError("Only role with " + SC.ROLE_HIGHEST_MANAGEMENT_ROLE + " can cancel request ", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
 })
 
 /**
- * Delete Leave request
+ * approve Leave Request
  */
+
+leaveRouter.put("/:leaveID/approve-request", async ctx => {
+    if (U.isHighestManagementRole(ctx)) {
+        return await MDL.LeaveModel.approveLeaveRequest(ctx.params.leaveID, ctx.state.user)
+    } else {
+        throw new AppError("Only role with " + SC.ROLE_HIGHEST_MANAGEMENT_ROLE + " can approve ", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
 
 export default leaveRouter
