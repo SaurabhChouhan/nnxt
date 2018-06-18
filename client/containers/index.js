@@ -82,7 +82,7 @@ export {default as LeaveDetailContainer} from './pages/LeaveDetailContainer'
 export {default as LeaveSettingFormContainer} from './forms/LeaveSettingFormContainer'
 
 
-//attendence setting
+//attendance setting
 export {default as AttendanceSettingFormContainer} from './forms/AttendanceSettingFormContainer'
 
 
