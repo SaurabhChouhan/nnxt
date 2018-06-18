@@ -46,15 +46,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
 
-    changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status)),
-
+    changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status))
 
 })
 
 
 const mapStateToProps = (state, ownProps) => ({
     loggedInUser: state.user.loggedIn,
-    leaves: state.leave.all
+    leaves: state.leave && state.leave.all && Array.isArray(state.leave.all) && state.leave.all.length ? state.leave.all : []
 })
 
 const LeaveListContainer = connect(
