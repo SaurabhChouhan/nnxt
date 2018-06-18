@@ -21,10 +21,9 @@ export const updateLeave = (leave) => ({
     leave: leave
 })
 
-
 export const deleteLeave = (leave) => ({
     type: AC.DELETE_LEAVE,
-    leaveRequest: leave
+    leave: leave
 })
 
 export const addLeaveTypes = (leaveTypes) => ({
@@ -190,9 +189,9 @@ export const addLeaveRequestOnServer = (formInput) => {
 }
 
 
-export const deleteLeaveRequestFromServer = (leaveID) => {
+export const deleteLeaveFromServer = (leaveID) => {
     return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/delete-request',
+        return fetch('/api/leave/' + leaveID,
             {
                 method: "delete",
                 credentials: "include",
