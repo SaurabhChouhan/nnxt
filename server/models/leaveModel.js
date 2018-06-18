@@ -114,7 +114,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID) => {
     return await leaveRequest.save()
 }
 
-leaveSchema.statics.deleteLeaveRequest = async (leaveID) => {
+leaveSchema.statics.deleteLeave = async (leaveID) => {
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
