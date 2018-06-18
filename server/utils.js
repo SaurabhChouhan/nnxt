@@ -55,7 +55,7 @@ export const userHasRole = (user, roleName) => {
 
 
 export const userHasOnlyRole = (user, roleName) => {
-    if (user && Array.isArray(user.roles) && user.roles.findIndex(r => r.name == roleName) != -1)
+    if (user && Array.isArray(user.roles) && user.roles.length && user.roles.findIndex(r => r.name == roleName) != -1)
         return true
     return false
 }
