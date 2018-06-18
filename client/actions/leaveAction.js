@@ -21,10 +21,9 @@ export const updateLeave = (leave) => ({
     leave: leave
 })
 
-
 export const deleteLeave = (leave) => ({
     type: AC.DELETE_LEAVE,
-    leaveRequest: leave
+    leave: leave
 })
 
 export const addLeaveTypes = (leaveTypes) => ({
@@ -190,9 +189,9 @@ export const addLeaveRequestOnServer = (formInput) => {
 }
 
 
-export const deleteLeaveRequestFromServer = (leaveID) => {
+export const deleteLeaveFromServer = (leaveID) => {
     return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/delete-request',
+        return fetch('/api/leave/' + leaveID,
             {
                 method: "delete",
                 credentials: "include",
@@ -217,8 +216,9 @@ export const deleteLeaveRequestFromServer = (leaveID) => {
 
 
 export const cancelLeaveRequestFromServer = (leaveID) => {
+    console.log("leaveID", leaveID)
     return function (dispatch, getState) {
-        return fetch('/api/leave/cancel-request',
+        return fetch('/api/leave/' + leaveID + '/cancel-request/',
             {
                 method: "put",
                 credentials: "include",
@@ -240,3 +240,30 @@ export const cancelLeaveRequestFromServer = (leaveID) => {
         )
     }
 }
+
+export const approveLeaveRequestFromServer = (leaveID) => {
+    console.log("leaveID", leaveID)
+    return function (dispatch, getState) {
+        return fetch('/api/leave/' + leaveID + '/approve-request/',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(updateLeave(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+

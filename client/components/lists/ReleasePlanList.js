@@ -356,7 +356,7 @@ class ReleasePlanList extends Component {
                                 </TableHeaderColumn>
 
                             </BootstrapTable> :
-                            <WarningListContainer />
+                            <WarningListContainer/>
                         }
                     </div>
                 </div>

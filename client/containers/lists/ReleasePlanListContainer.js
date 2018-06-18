@@ -32,15 +32,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     },
 
-    changeReleaseFlag: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release, status, flag)),
-    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release, status, flag)),
+    changeReleaseFlag: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
+    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
     getAllWarnings: (release) => dispatch(A.getAllWarningsOfThisReleaseFromServer(release._id))
 })
 
 const mapStateToProps = (state) => ({
-        loggedInUser: state.user.loggedIn,
-        release: state.release.selectedRelease,
-        releasePlans: state.release.releasePlans
+    loggedInUser: state.user.loggedIn,
+    release: state.release.selectedRelease,
+    releasePlans: state.release.releasePlans
 })
 
 const ReleasePlanListContainer = withRouter(connect(

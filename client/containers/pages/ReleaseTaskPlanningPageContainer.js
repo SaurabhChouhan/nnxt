@@ -34,13 +34,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
         else {
             if (json.errorCode === EC.NOT_FOUND) {
-                return NotificationManager.error(json.messaqge)
+                return NotificationManager.error(json.message)
             } else if (json.errorCode === EC.ACCESS_DENIED) {
-                return NotificationManager.error(json.messaqge)
+                return NotificationManager.error(json.message)
             } else if (json.errorCode === EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE) {
-                return NotificationManager.error(json.messaqge)
+                return NotificationManager.error(json.message)
             } else if (json.errorCode === EC.TIME_OVER) {
-                return NotificationManager.error(json.messaqge)
+                return NotificationManager.error(json.message)
             } else NotificationManager.error("Task Planning Deletion Failed")
         }
     }),

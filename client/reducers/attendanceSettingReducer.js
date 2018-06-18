@@ -8,7 +8,7 @@ let initialState = {
 
 const attendanceSettingReducer = (state = initialState, action) => {
     switch (action.type) {
-        case AC.ADD_UPDATE_ATTENDENCE_SETTING:
+        case AC.ADD_UPDATE_ATTENDANCE_SETTING:
             return Object.assign({}, state, {
                 selected: Object.assign(action.attendanceSetting)
             })

@@ -255,6 +255,12 @@ const addRolesPermissions = async () => {
             permissions: permissions
         })
     }
+    if (!await MDL.RoleModel.exists(SC.ROLE_HIGHEST_MANAGEMENT_ROLE)) {
+        await MDL.RoleModel.createRole({
+            name: SC.ROLE_HIGHEST_MANAGEMENT_ROLE,
+            permissions: permissions
+        })
+    }
 }
 
 const addNNXTUsers = async () => {
@@ -369,7 +375,7 @@ const addNNXTUsers = async () => {
     }
 
     let leaderRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
-    // create manager user
+    // create leader user
     if (!await MDL.UserModel.exists('leader1@test.com')) {
         await MDL.UserModel.createUser({
             email: 'leader1@test.com',
@@ -446,6 +452,20 @@ const addNNXTUsers = async () => {
             password: "developer",
             employeeCode: 'emp-014',
             designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    let highestManagementRole = await MDL.RoleModel.findOne({name: SC.ROLE_HIGHEST_MANAGEMENT_ROLE}).lean()
+    if (!await MDL.UserModel.exists('highestManament1@test.com')) {
+        await MDL.UserModel.createUser({
+            email: 'highestManament1@test.com',
+            firstName: "highest Manament-1",
+            lastName: "One",
+            roles: [highestManagementRole],
+            password: "highestManament",
+            employeeCode: 'emp-015',
+            designation: SC.DESIGNATION_MANAGER,
             dateJoined: '01-01-2018'
         })
     }

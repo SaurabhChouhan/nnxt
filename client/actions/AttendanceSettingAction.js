@@ -2,7 +2,7 @@ import * as AC from "./actionConsts"
 
 
 export const addAttendanceSetting = (attendanceSetting) => ({
-    type: AC.ADD_UPDATE_ATTENDENCE_SETTING,
+    type: AC.ADD_UPDATE_ATTENDANCE_SETTING,
     attendanceSetting: attendanceSetting
 })
 
