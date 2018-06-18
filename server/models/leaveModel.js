@@ -1,10 +1,12 @@
+import mongoose from 'mongoose'
+import AppError from '../AppError'
+import logger from '../logger'
+import * as V from "../validation"
+import * as U from "../utils"
 import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
 import * as MDL from "../models";
-import mongoose from 'mongoose'
-import AppError from '../AppError'
-import * as V from "../validation"
-import * as U from "../utils"
+
 
 mongoose.Promise = global.Promise
 
@@ -84,7 +86,8 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
     leaveDaysCount = Number(leaveDaysCount)
 
-    await MDL.WarningModel.addEmployeeAskForLeave(startDateMoment, endDateMoment, user)
+    let warningResponses = await MDL.WarningModel.leaveAdded(leaveInput.startDate, leaveInput.endDate, user)
+    logger.debug('Add leave :  ', {warningResponses})
     let leaveType = await MDL.LeaveTypeModel.findById(mongoose.Types.ObjectId(leaveInput.leaveType._id))
     let newLeave = new LeaveModel()
 

@@ -1,13 +1,13 @@
 import mongoose from 'mongoose'
-import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import momentTZ from 'moment-timezone'
 import _ from 'lodash'
 import moment from 'moment'
+import logger from '../logger'
+import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
-import logger from '../logger'
 import * as U from '../utils'
 import * as EM from '../errormessages'
 
@@ -958,7 +958,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await releasePlan.save()
     await release.save()
     /* remove task planning */
-    return {warning: warningResponse, taskPlan: taskPlanningResponse}
+    return {warning: warningResponse, taskPlan: taskPlanningResponse, updateTaskPlans: []}
 }
 
 

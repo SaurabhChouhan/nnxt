@@ -456,14 +456,14 @@ const addNNXTUsers = async () => {
         })
     }
 
-    let higherManagementRole = await MDL.RoleModel.findOne({name: SC.ROLE_HIGHEST_MANAGEMENT_ROLE}).lean()
-    if (!await MDL.UserModel.exists('higherManament1@test.com')) {
+    let highestManagementRole = await MDL.RoleModel.findOne({name: SC.ROLE_HIGHEST_MANAGEMENT_ROLE}).lean()
+    if (!await MDL.UserModel.exists('highestManament1@test.com')) {
         await MDL.UserModel.createUser({
-            email: 'higherManament1@test.com',
-            firstName: "higher Manament-1",
+            email: 'highestManament1@test.com',
+            firstName: "highest Manament-1",
             lastName: "One",
-            roles: [higherManagementRole],
-            password: "highermanagement",
+            roles: [highestManagementRole],
+            password: "highestManament",
             employeeCode: 'emp-015',
             designation: SC.DESIGNATION_MANAGER,
             dateJoined: '01-01-2018'
