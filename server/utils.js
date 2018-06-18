@@ -74,7 +74,7 @@ export const formatDateTimeInTimezone = (date, timeZone) => {
 
 
 export const momentInTimeZone = (dateString, timeZone) => {
-    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, timeZone)
+    let momentDate = momentTZ.tz(dateString, SC.DATE_FORMAT, timeZone)
     if (momentDate.isValid())
         return momentDate
     return undefined
@@ -82,7 +82,7 @@ export const momentInTimeZone = (dateString, timeZone) => {
 
 export const getNowMoment = () => {
     let now = new Date()
-    let nowMoment = moment.tz(now, SC.DATE_FORMAT, SC.UTC_TIMEZONE)
+    let nowMoment = momentTZ.tz(now, SC.DATE_FORMAT, SC.UTC_TIMEZONE)
     if (nowMoment.isValid())
         return nowMoment
     return undefined

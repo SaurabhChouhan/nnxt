@@ -573,18 +573,24 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     }
 
     logger.debug('taskPlanningModel.addTaskPlanning(): planned after max date is ', {plannedAfterMaxDate})
-
+    /*-------------------------------- EMPLOYEE DAYS UPDATE SECTION -------------------------------------------*/
     await updateEmployeeDaysOnAddTaskPlanning(selectedEmployee, plannedHourNumber, momentPlanningDate)
+
+    /*-------------------------------- EMPLOYEE STATISTICS UPDATE SECTION -------------------------------------------*/
     await updateEmployeeStaticsOnAddTaskPlanning(releasePlan, release, selectedEmployee, plannedHourNumber)
 
+
     // Get updated release/release plan objects
-    releasePlan = await updateReleasePlanOnAddTaskPlanning(releasePlan, selectedEmployee, plannedHourNumber, momentPlanningDate)
+    /*-------------------------------- RELEASE PLAN UPDATE SECTION -------------------------------------------*/
+        releasePlan = await updateReleasePlanOnAddTaskPlanning(releasePlan, selectedEmployee, plannedHourNumber, momentPlanningDate)
+
+    /*-------------------------------- RELEASE UPDATE SECTION -------------------------------------------*/
     release = await updateReleaseOnAddTaskPlanning(release, releasePlan, plannedHourNumber)
 
-    // creating new task plan
+    /*-------------------------------- TASK PLAN CREATE SECTION -------------------------------------------*/
     let taskPlan = await createTaskPlan(releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate)
 
-    /******************************** RELEASE UPDATES **************************************************/
+    /******************************** WARNING UPDATE SECTION **************************************************/
     let generatedWarnings = await makeWarningUpdatesOnAddTaskPlanning(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, plannedAfterMaxDate)
 
     // all objects would now have appropriate changes we can save and return appropriate response

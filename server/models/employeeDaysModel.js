@@ -38,7 +38,7 @@ employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) =>
 employeeDaysSchema.statics.increasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput) => {
     V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
     let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
-    EmployeeDaysInput.date = momentEmployeeDate
+    EmployeeDaysInput.date = momentEmployeeDate.toDate()
     let count = await EmployeeDaysModel.count({"date": EmployeeDaysInput.date})
     if (count <= 0) {
         throw new AppError('Employee days detail is not available on this date ' + EmployeeDaysInput.date + 'with employee ' + EmployeeDaysInput.employee.name + ' can not update ', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
