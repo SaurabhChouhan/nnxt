@@ -45,6 +45,7 @@ class LeaveList extends Component {
 
     viewButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom" type="button" onClick={() => {
+                this.props.history.push('/app-home/leave-detail')
                 this.props.showLeaveDetails(row)
             }}>
                 <i className="fa fa-eye"></i>
@@ -74,7 +75,7 @@ class LeaveList extends Component {
 
         return (<button className=" btn btn-custom " type="button"
                         disabled={!row.canCancel} onClick={() => {
-                return this.props.cancelLeaveRequestCall(row)
+                return this.props.cancelLeave(row)
             }}>
                 <i className="fa fa-remove"></i>
             </button>
@@ -89,7 +90,7 @@ class LeaveList extends Component {
                         type="button"
                         disabled={!row.canApprove}
                         onClick={() => {
-                            return this.props.approveLeaveRequestCall(row)
+                            return this.props.approveLeave(row)
                         }}>
                 <i className="fa fa-check approveLeave"></i>
             </button>
@@ -151,7 +152,7 @@ class LeaveList extends Component {
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                                            hidden={true}>ID</TableHeaderColumn>
 
-                                        <TableHeaderColumn width="8%" dataField='button'
+                                        <TableHeaderColumn width="6%" dataField='button'
                                                            dataFormat={this.viewButton.bind(this)}>View
                                         </TableHeaderColumn>
 
@@ -162,7 +163,7 @@ class LeaveList extends Component {
                                             </TableHeaderColumn>
                                             : <TableHeaderColumn columnTitle dataField='created'
                                                                  dataFormat={this.formatCreatedDate.bind(this)}>Created
-                                        </TableHeaderColumn>
+                                            </TableHeaderColumn>
                                         }
 
                                         <TableHeaderColumn columnTitle dataField='startDateString'
@@ -175,30 +176,30 @@ class LeaveList extends Component {
 
                                         <TableHeaderColumn columnTitle dataField='dayType'>Day Type</TableHeaderColumn>
 
-                                        <TableHeaderColumn width="25%" columnTitle dataField='leaveType'
+                                        <TableHeaderColumn width="20%" columnTitle dataField='leaveType'
                                                            dataFormat={this.formatLeaveType.bind(this)}>
                                             Leave Type
                                         </TableHeaderColumn>
 
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle dataField='approver'
+                                        <TableHeaderColumn columnTitle width="10%" dataField='approver'
                                                            dataFormat={this.formatLeaveApproverUser.bind(this)}>Approver</TableHeaderColumn>
 
                                         {loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
                                             <TableHeaderColumn width="10%" dataField='deleteButton'
                                                                dataFormat={this.viewDeleteButton.bind(this)}>
-                                                Delete Leave</TableHeaderColumn>}
+                                                Delete</TableHeaderColumn>}
                                         {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
-                                        <TableHeaderColumn width="10%"
+                                        <TableHeaderColumn width="7%"
                                                            dataField='cancelButton'
                                                            dataFormat={this.viewCancelButton.bind(this)}>
-                                            Cancel Leave
+                                            Cancel
                                         </TableHeaderColumn>}
                                         {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
-                                        <TableHeaderColumn width="10%"
+                                        <TableHeaderColumn width="7%"
                                                            dataField='approveButton'
                                                            dataFormat={this.viewApproveButton.bind(this)}>
-                                            Approve Leave
+                                            Approve
                                         </TableHeaderColumn>}
 
 

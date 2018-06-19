@@ -53,7 +53,6 @@ export {default as EstimationProjectAwardDialog} from './dialogs/EstimationProje
 export {default as AttendenceSettingForm} from './forms/AttendanceSettingForm'
 export {default as EstimationFilterDialog} from './dialogs/EstimationFilterDialog'
 export {default as EstimationFilterForm} from './forms/EstimationFilterForm'
-export {default as LeaveRequestDetailDialog} from './dialogs/LeaveDetailDialog'
 
 
 //ProjectDialog
@@ -70,7 +69,9 @@ export {default as ClientForm} from './forms/ClientForm'
 //leave
 export {default as LeaveRequestFormDialog} from './dialogs/LeaveRequestFormDialog'
 export {default as LeaveSettingForm} from './forms/LeaveSettingForm'
-export {default as LeaveDetailDialog} from './dialogs/LeaveDetailDialog'
+export {default as LeaveApproveDialog} from './dialogs/LeaveApproveDialog'
+export {default as LeaveRejectDialog} from './dialogs/LeaveRejectDialog'
+export {default as LeaveApprovelResonForm} from './forms/LeaveApprovalReasonForm'
 export {default as LeaveRequestForm} from './forms/LeaveRequestForm'
 export {default as LeaveList} from './lists/LeaveList'
 export {default as LeaveDetailPage} from './pages/LeaveDetailPage'

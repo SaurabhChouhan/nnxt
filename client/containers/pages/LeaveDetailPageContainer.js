@@ -12,9 +12,9 @@ const mapStateToProps = (state) => ({
     leave: state.leave.selected
 })
 
-const LeaveDetailContainer = connect(
+const LeaveDetailPageContainer = connect(
     mapStateToProps,
     mapDispatchToProps
 )(LeaveDetailPage)
 
-export default LeaveDetailContainer
+export default LeaveDetailPageContainer
