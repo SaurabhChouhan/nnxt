@@ -51,9 +51,9 @@ leaveSchema.statics.getAllLeaves = async (status, user) => {
     }
 
     leaves = leaves && leaves.length ? leaves.map(leave => Object.assign({}, leave.toObject(), {
-            canDelete: leave.user._id.toString() === user._id.toString(),
-            canCancel: _.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_PENDING], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
-            canApprove: _.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_PENDING], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+        canDelete: leave.user._id.toString() === user._id.toString(),
+        canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
+        canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
         })
     ) : []
     return leaves
@@ -111,7 +111,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     leaveDaysCount = Number(leaveDaysCount)
 
     let warningResponses = await MDL.WarningModel.leaveAdded(leaveInput.startDate, leaveInput.endDate, user)
-    logger.debug('Add leave :  ', {warningResponses})
+    logger.debug('Leave Added warning response:  ', {warningResponses})
     let leaveType = await MDL.LeaveTypeModel.findById(mongoose.Types.ObjectId(leaveInput.leaveType._id))
     let newLeave = new LeaveModel()
 
