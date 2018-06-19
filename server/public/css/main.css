@@ -1988,3 +1988,35 @@ hr {
 .leave {
     margin-top: -46px;
 }
+
+.leaveSelectHighestRole {
+    margin-left: 25px !important;
+    width: 288px;
+    margin-top: 22px;
+}
+
+.approveLeave {
+    color: #2fda2f !important;
+}
+
+.td-row-approved {
+    background-color: #7ffb7f6b !important;
+}
+
+.td-row-cancelled {
+    background-color: #e8080859 !important;
+}
+
+.modal-body b {
+
+    color: red;
+    font-size: 23px;
+
+}
+
+.modal-body h4 span {
+
+    color: #2fda2f;
+    font-size: 23px;
+
+}

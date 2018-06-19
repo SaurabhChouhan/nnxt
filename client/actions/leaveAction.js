@@ -6,7 +6,7 @@ export const addLeaves = (leaves) => ({
     leaves: leaves
 })
 
-export const selectLeave = (leave) => ({
+export const leaveSelected = (leave) => ({
     type: AC.LEAVE_SELECTED,
     leave: leave
 })
@@ -215,10 +215,10 @@ export const deleteLeaveFromServer = (leaveID) => {
 }
 
 
-export const cancelLeaveRequestFromServer = (leaveID) => {
+export const cancelLeaveRequestFromServer = (leaveID, reason) => {
     console.log("leaveID", leaveID)
     return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/cancel-request/',
+        return fetch('/api/leave/' + leaveID + '/cancel-request/' + reason,
             {
                 method: "put",
                 credentials: "include",
@@ -241,10 +241,10 @@ export const cancelLeaveRequestFromServer = (leaveID) => {
     }
 }
 
-export const approveLeaveRequestFromServer = (leaveID) => {
+export const approveLeaveRequestFromServer = (leaveID, reason) => {
     console.log("leaveID", leaveID)
     return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/approve-request/',
+        return fetch('/api/leave/' + leaveID + '/approve-request/' + reason,
             {
                 method: "put",
                 credentials: "include",

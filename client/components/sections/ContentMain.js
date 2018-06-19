@@ -15,7 +15,8 @@ import {
     ReportingTaskDetailPageContainer,
     ReportingTaskPageContainer,
     TechnologyListContainer,
-    UserProfileFormContainer
+    UserProfileFormContainer,
+    LeaveDetailPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -28,7 +29,6 @@ import {
     EstimationSuggestFeatureDialog,
     EstimationSuggestTaskDialog,
     EstimationTaskDialog,
-    LeaveDetailDialog,
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
@@ -36,7 +36,9 @@ import {
     ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
     RepositoryTaskDetailDialog,
-    TechnologyFormDialog
+    TechnologyFormDialog,
+    LeaveApproveDialog,
+    LeaveRejectDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -186,12 +188,26 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
                         }
                     }/>
-                    <LeaveDetailDialog name={COC.LEAVE_DETAIL_DIALOG} show={true} close={
+                    <LeaveApproveDialog name={COC.LEAVE_APPROVE_DIALOG} show={true} close={
                         () => {
-                            this.props.dispatch(A.hideComponent(COC.LEAVE_DETAIL_DIALOG))
+                            this.props.dispatch(A.hideComponent(COC.LEAVE_APPROVE_DIALOG))
+                        }
+                    }/>
+                    <LeaveRejectDialog name={COC.LEAVE_REJECT_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.LEAVE_REJECT_DIALOG))
                         }
                     }/>
                     <LeaveListContainer name={COC.LEAVE_LIST}/>
+                </ContentSection>
+            }
+        })
+    routes.push({
+            url: "/leave-detail",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/leave: props:", props)
+                return <ContentSection>
+                    <LeaveDetailPageContainer name={COC.LEAVE_DETAIL_PAGE}/>
                 </ContentSection>
             }
         })

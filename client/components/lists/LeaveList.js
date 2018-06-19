@@ -5,10 +5,15 @@ import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import * as U from '../../../server/utils'
 
+
 class LeaveList extends Component {
 
     constructor(props) {
         super(props)
+    }
+
+    rowClassNameFormat(row, rowIdx) {
+        return row.status === SC.LEAVE_STATUS_APPROVED ? 'td-row-approved' : row.status === SC.LEAVE_STATUS_CANCELLED ? 'td-row-cancelled' : '';
     }
 
     formatCreatedDate(leave) {
@@ -17,6 +22,21 @@ class LeaveList extends Component {
         }
         return ''
     }
+
+    formatLeaveRaisedUser(user) {
+        if (user && user.firstName) {
+            return user.firstName + ' ' + user.lastName
+        }
+        return ''
+    }
+
+    formatLeaveApproverUser(user) {
+        if (user && user.name) {
+            return user.name
+        }
+        return ''
+    }
+
     formatLeaveType(leaveType) {
         if (leaveType)
             return leaveType.name
@@ -25,6 +45,7 @@ class LeaveList extends Component {
 
     viewButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom" type="button" onClick={() => {
+                this.props.history.push('/app-home/leave-detail')
                 this.props.showLeaveDetails(row)
             }}>
                 <i className="fa fa-eye"></i>
@@ -54,7 +75,7 @@ class LeaveList extends Component {
 
         return (<button className=" btn btn-custom " type="button"
                         disabled={!row.canCancel} onClick={() => {
-                return this.props.cancelLeaveRequestCall(row)
+                return this.props.cancelLeave(row)
             }}>
                 <i className="fa fa-remove"></i>
             </button>
@@ -69,9 +90,9 @@ class LeaveList extends Component {
                         type="button"
                         disabled={!row.canApprove}
                         onClick={() => {
-                            return this.props.approveLeaveRequestCall(row)
+                            return this.props.approveLeave(row)
                         }}>
-                <i className="fa fa-check"></i>
+                <i className="fa fa-check approveLeave"></i>
             </button>
         )
 
@@ -99,7 +120,8 @@ class LeaveList extends Component {
                                     </div>
                                     <div className="col-md-6">
                                         <div className="col-md-4  releaseSearchContent ">
-                                            <div className="estimation releaseSelect  releaseSearchStatus LeaveSelect">
+                                            <div
+                                                className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? "estimation releaseSelect  releaseSearchStatus leaveSelectHighestRole" : "estimation releaseSelect  releaseSearchStatus leaveSelect"}>
                                                 <select className="form-control" title="Select Status"
                                                         onChange={(status) =>
                                                             this.props.changeLeaveStatus(status.target.value)
@@ -118,23 +140,31 @@ class LeaveList extends Component {
                                     </div>
                                 </div>
 
-                                <div className="estimation leave">
+                                <div
+                                    className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? "estimation" : "estimation leave"}>
 
                                     <BootstrapTable options={this.options} data={leaves}
                                                     multiColumnSearch={true}
                                                     search={true}
                                                     striped={true}
+                                                    trClassName={this.rowClassNameFormat.bind(this)}
                                                     hover={true}>
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                                            hidden={true}>ID</TableHeaderColumn>
 
-                                        <TableHeaderColumn width="8%" dataField='button'
+                                        <TableHeaderColumn width="6%" dataField='button'
                                                            dataFormat={this.viewButton.bind(this)}>View
                                         </TableHeaderColumn>
 
-                                        <TableHeaderColumn columnTitle dataField='created'
-                                                           dataFormat={this.formatCreatedDate.bind(this)}>Created
-                                        </TableHeaderColumn>
+                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ?
+                                            <TableHeaderColumn columnTitle dataField='user'
+                                                               dataFormat={this.formatLeaveRaisedUser.bind(this)}>Raised
+                                                By
+                                            </TableHeaderColumn>
+                                            : <TableHeaderColumn columnTitle dataField='created'
+                                                                 dataFormat={this.formatCreatedDate.bind(this)}>Created
+                                            </TableHeaderColumn>
+                                        }
 
                                         <TableHeaderColumn columnTitle dataField='startDateString'
                                         >Start Date
@@ -146,30 +176,32 @@ class LeaveList extends Component {
 
                                         <TableHeaderColumn columnTitle dataField='dayType'>Day Type</TableHeaderColumn>
 
-                                        <TableHeaderColumn width="25%" columnTitle dataField='leaveType'
+                                        <TableHeaderColumn width="20%" columnTitle dataField='leaveType'
                                                            dataFormat={this.formatLeaveType.bind(this)}>
                                             Leave Type
                                         </TableHeaderColumn>
 
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle width="10%" dataField='approver'
+                                                           dataFormat={this.formatLeaveApproverUser.bind(this)}>Approver</TableHeaderColumn>
 
                                         {loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
                                             <TableHeaderColumn width="10%" dataField='deleteButton'
                                                                dataFormat={this.viewDeleteButton.bind(this)}>
-                                                Delete Leave</TableHeaderColumn>}
+                                                Delete</TableHeaderColumn>}
                                         {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
-                                        <TableHeaderColumn width="10%"
+                                        <TableHeaderColumn width="7%"
                                                            dataField='cancelButton'
                                                            dataFormat={this.viewCancelButton.bind(this)}>
-                                            Cancel Leave
-                                        </TableHeaderColumn>
-                                        &&
-                                        <TableHeaderColumn width="10%"
-                                                           dataField='deleteButton'
+                                            Cancel
+                                        </TableHeaderColumn>}
+                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
+                                        <TableHeaderColumn width="7%"
+                                                           dataField='approveButton'
                                                            dataFormat={this.viewApproveButton.bind(this)}>
-                                            Approve Leave
-                                        </TableHeaderColumn>
-                                        }
+                                            Approve
+                                        </TableHeaderColumn>}
+
 
                                     </BootstrapTable>
                                 </div>

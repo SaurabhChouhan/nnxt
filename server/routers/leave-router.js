@@ -70,9 +70,9 @@ leaveRouter.del("/:leaveID", async ctx => {
 /**
  * Cancel Leave request
  */
-leaveRouter.put("/:leaveID/cancel-request", async ctx => {
+leaveRouter.put("/:leaveID/cancel-request/:reason", async ctx => {
     if (U.isHighestManagementRole(ctx)) {
-        return await MDL.LeaveModel.cancelLeaveRequest(ctx.params.leaveID, ctx.state.user)
+        return await MDL.LeaveModel.cancelLeaveRequest(ctx.params.leaveID, ctx.params.reason, ctx.state.user)
     } else {
         throw new AppError("Only role with " + SC.ROLE_HIGHEST_MANAGEMENT_ROLE + " can cancel request ", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -83,9 +83,9 @@ leaveRouter.put("/:leaveID/cancel-request", async ctx => {
  * approve Leave Request
  */
 
-leaveRouter.put("/:leaveID/approve-request", async ctx => {
+leaveRouter.put("/:leaveID/approve-request/:reason", async ctx => {
     if (U.isHighestManagementRole(ctx)) {
-        return await MDL.LeaveModel.approveLeaveRequest(ctx.params.leaveID, ctx.state.user)
+        return await MDL.LeaveModel.approveLeaveRequest(ctx.params.leaveID, ctx.params.reason, ctx.state.user)
     } else {
         throw new AppError("Only role with " + SC.ROLE_HIGHEST_MANAGEMENT_ROLE + " can approve ", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
