@@ -4,7 +4,6 @@ import * as MDL from "../models"
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
 
-
 /**
  * All authentication releated APIs would go here
  * @type {Router}
@@ -32,6 +31,11 @@ publicRouter.post('/login', async (ctx, next) => {
 
     await ctx.login(ctx.loggedInUser)
     return ctx.loggedInUser
+})
+
+publicRouter.post('/user_check_in_out', async (ctx, next) => {
+    console.log("***Get user check in/out request*** \n ", ctx.request.body);
+    return MDL.AttendanceModel.addUpdateAttendance(ctx.request.body);//ctx.body = {"msg":"this is completed"}
 })
 
 publicRouter.get('/execute', async ctx => {
