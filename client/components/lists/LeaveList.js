@@ -17,6 +17,7 @@ class LeaveList extends Component {
         }
         return ''
     }
+
     formatLeaveType(leaveType) {
         if (leaveType)
             return leaveType.name
@@ -71,7 +72,7 @@ class LeaveList extends Component {
                         onClick={() => {
                             return this.props.approveLeaveRequestCall(row)
                         }}>
-                <i className="fa fa-check"></i>
+                <i className="fa fa-check approveLeave"></i>
             </button>
         )
 
@@ -99,7 +100,8 @@ class LeaveList extends Component {
                                     </div>
                                     <div className="col-md-6">
                                         <div className="col-md-4  releaseSearchContent ">
-                                            <div className="estimation releaseSelect  releaseSearchStatus LeaveSelect">
+                                            <div
+                                                className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? "estimation releaseSelect  releaseSearchStatus leaveSelectHighestRole" : "estimation releaseSelect  releaseSearchStatus leaveSelect"}>
                                                 <select className="form-control" title="Select Status"
                                                         onChange={(status) =>
                                                             this.props.changeLeaveStatus(status.target.value)
@@ -118,7 +120,8 @@ class LeaveList extends Component {
                                     </div>
                                 </div>
 
-                                <div className="estimation leave">
+                                <div
+                                    className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? "estimation" : "estimation leave"}>
 
                                     <BootstrapTable options={this.options} data={leaves}
                                                     multiColumnSearch={true}
@@ -165,7 +168,7 @@ class LeaveList extends Component {
                                         </TableHeaderColumn>
                                         &&
                                         <TableHeaderColumn width="10%"
-                                                           dataField='deleteButton'
+                                                           dataField='approveButton'
                                                            dataFormat={this.viewApproveButton.bind(this)}>
                                             Approve Leave
                                         </TableHeaderColumn>

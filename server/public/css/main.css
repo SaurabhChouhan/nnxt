@@ -1988,3 +1988,13 @@ hr {
 .leave {
     margin-top: -46px;
 }
+
+.leaveSelectHighestRole{
+    margin-left: 25px !important;
+    width: 288px;
+    margin-top: 22px;
+}
+
+.approveLeave{
+    color:green !important;
+}
