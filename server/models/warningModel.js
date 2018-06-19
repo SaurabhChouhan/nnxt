@@ -540,34 +540,81 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
 
     if (EmployeeAskForLeaveWarning) {
         //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
-        EmployeeAskForLeaveWarning.taskPlans = [...EmployeeAskForLeaveWarning.taskPlans, taskPlan]
-        EmployeeAskForLeaveWarning.releasePlans = EmployeeAskForLeaveWarning.releasePlans && EmployeeAskForLeaveWarning.releasePlans.length && EmployeeAskForLeaveWarning.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) ? [...EmployeeAskForLeaveWarning.releasePlans] : [...EmployeeAskForLeaveWarning.releasePlans, releasePlan]
-        EmployeeAskForLeaveWarning.releases = EmployeeAskForLeaveWarning.releases && EmployeeAskForLeaveWarning.releases.length && EmployeeAskForLeaveWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) ? [...EmployeeAskForLeaveWarning.releases] : [...EmployeeAskForLeaveWarning.releases, release]
-        await EmployeeAskForLeaveWarning.save()
+        EmployeeAskForLeaveWarning.taskPlans = [...EmployeeAskForLeaveWarning.taskPlans, Object.assign({}, taskPlan, {source: true})]
         warningResponse.added.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             source: true
         })
-        warningResponse.added.push({
-            _id: releasePlan._id,
-            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-            source: true
-        })
-        warningResponse.added.push({
-            _id: release._id,
-            warningType: SC.WARNING_TYPE_RELEASE,
-            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-            source: true
-        })
+
+        if (EmployeeAskForLeaveWarning.releasePlans && EmployeeAskForLeaveWarning.releasePlans.length && EmployeeAskForLeaveWarning.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) === -1) {
+            EmployeeAskForLeaveWarning.releasePlans = [...EmployeeAskForLeaveWarning.releasePlans]
+        } else {
+            EmployeeAskForLeaveWarning.releasePlans = [...EmployeeAskForLeaveWarning.releasePlans, Object.assign({}, releasePlan, {source: true})]
+            warningResponse.added.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+        }
+        if (EmployeeAskForLeaveWarning.releases && EmployeeAskForLeaveWarning.releases.length && EmployeeAskForLeaveWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
+            EmployeeAskForLeaveWarning.releases = [...EmployeeAskForLeaveWarning.releases]
+        } else {
+            EmployeeAskForLeaveWarning.releases = [...EmployeeAskForLeaveWarning.releases, Object.assign({}, release, {source: true})]
+            warningResponse.added.push({
+                _id: release._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+        }
+
+        await EmployeeAskForLeaveWarning.save()
+
+
     } else {
-        // Check that any leave available for that day of selected employee
+        let leaves = await MDL.LeaveModel.find({
+            "user._id": employee._id,
+            "startDate": {$gte: momentPlanningDate.toDate()},
+            "endDate": {$lte: momentPlanningDate.toDate()},
+            "status": SC.LEAVE_STATUS_RAISED
+        })
+
+        if (leaves) {
+
+            let employeeAskedForLeaveWarning = new WarningModel()
+            employeeAskedForLeaveWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+            employeeAskedForLeaveWarning.taskPlans = [Object.assign({}, taskPlan, {source: true})]
+            employeeAskedForLeaveWarning.releasePlans = [Object.assign({}, releasePlan, {source: true})]
+            employeeAskedForLeaveWarning.releases = [Object.assign({}, release, {source: true})]
+
+            warningResponse.added.push({
+                _id: taskPlan._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+            warningResponse.added.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+            warningResponse.added.push({
+                _id: release._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+        }
 
     }
     return warningResponse
 }
+
+
 const deleteWarningWithResponse = async (warning, warningResponse, warningType) => {
 
     warning.taskPlans.forEach(tp => {
