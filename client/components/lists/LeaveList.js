@@ -5,6 +5,10 @@ import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import * as U from '../../../server/utils'
 
+function rowClassNameFormat(row, rowIdx) {
+    return row.status === SC.LEAVE_STATUS_APPROVED ? 'td-row-approved' : row.status === SC.LEAVE_STATUS_CANCELLED ? 'td-row-cancelled' : '';
+}
+
 class LeaveList extends Component {
 
     constructor(props) {
@@ -127,6 +131,7 @@ class LeaveList extends Component {
                                                     multiColumnSearch={true}
                                                     search={true}
                                                     striped={true}
+                                                    trClassName={rowClassNameFormat}
                                                     hover={true}>
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                                            hidden={true}>ID</TableHeaderColumn>
@@ -165,14 +170,14 @@ class LeaveList extends Component {
                                                            dataField='cancelButton'
                                                            dataFormat={this.viewCancelButton.bind(this)}>
                                             Cancel Leave
-                                        </TableHeaderColumn>
-                                        &&
+                                        </TableHeaderColumn>}
+                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
                                         <TableHeaderColumn width="10%"
                                                            dataField='approveButton'
                                                            dataFormat={this.viewApproveButton.bind(this)}>
                                             Approve Leave
-                                        </TableHeaderColumn>
-                                        }
+                                        </TableHeaderColumn>}
+
 
                                     </BootstrapTable>
                                 </div>
