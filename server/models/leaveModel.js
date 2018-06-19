@@ -65,22 +65,22 @@ const getUserLeaves = async (status, user) => {
     if (status && status.toLowerCase() === 'all') {
         return await LeaveModel.find({
             "user._id": mongoose.Types.ObjectId(user._id)
-        }).exec()
+        }).sort({'startDate': -1})
     } else {
         return await LeaveModel.find({
             "user._id": mongoose.Types.ObjectId(user._id),
             "status": status
-        }).exec()
+        }).sort({'startDate': -1})
     }
 }
 
 const getLeaves = async (status, user) => {
     if (status && status.toLowerCase() === 'all') {
-        return await LeaveModel.find({}).exec()
+        return await LeaveModel.find({}).sort({'startDate': -1})
     } else {
         return await LeaveModel.find({
             "status": status
-        }).exec()
+        }).sort({'startDate': -1})
     }
 }
 

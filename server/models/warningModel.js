@@ -1008,7 +1008,7 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
             let employeeDay = {
                 employee: employee,
                 dateString: singleDateMoment.format(SC.DATE_FORMAT),
-                date: singleDateMoment.toDate
+                date: singleDateMoment.toDate()
             }
 
             let releasePlans = await Promise.all(releasePlansPromises)
