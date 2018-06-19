@@ -1019,7 +1019,6 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
             newWarning.employeeDays = [employeeDay]
             await newWarning.save()
 
-
         } else {
             //warning already exists for that day no need to do any thing
         }

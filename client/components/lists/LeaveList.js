@@ -22,6 +22,20 @@ class LeaveList extends Component {
         return ''
     }
 
+    formatLeaveRaisedUser(user) {
+        if (user && user.firstName) {
+            return user.firstName + ' ' + user.lastName
+        }
+        return ''
+    }
+
+    formatLeaveApproverUser(user) {
+        if (user && user.name) {
+            return user.name + ' ' + user.name
+        }
+        return ''
+    }
+
     formatLeaveType(leaveType) {
         if (leaveType)
             return leaveType.name
@@ -140,9 +154,15 @@ class LeaveList extends Component {
                                                            dataFormat={this.viewButton.bind(this)}>View
                                         </TableHeaderColumn>
 
-                                        <TableHeaderColumn columnTitle dataField='created'
-                                                           dataFormat={this.formatCreatedDate.bind(this)}>Created
+                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ?
+                                            <TableHeaderColumn columnTitle dataField='user'
+                                                               dataFormat={this.formatLeaveRaisedUser.bind(this)}>Raised
+                                                By
+                                            </TableHeaderColumn>
+                                            : <TableHeaderColumn columnTitle dataField='created'
+                                                                 dataFormat={this.formatCreatedDate.bind(this)}>Created
                                         </TableHeaderColumn>
+                                        }
 
                                         <TableHeaderColumn columnTitle dataField='startDateString'
                                         >Start Date
@@ -160,6 +180,8 @@ class LeaveList extends Component {
                                         </TableHeaderColumn>
 
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='approver'
+                                                           dataFormat={this.formatLeaveApproverUser.bind(this)}>Approver</TableHeaderColumn>
 
                                         {loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
                                             <TableHeaderColumn width="10%" dataField='deleteButton'
