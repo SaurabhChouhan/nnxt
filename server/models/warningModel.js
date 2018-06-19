@@ -535,12 +535,12 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
     let EmployeeAskForLeaveWarning = await WarningModel.findOne({
         type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
         'employeeDay.date': momentPlanningDate,
-        'employeeDay.employee._id': employee._id
+        'employeeDay.employee._id': mongoose.Types.ObjectId(employee._id)
     })
 
     if (EmployeeAskForLeaveWarning) {
         //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
-        EmployeeAskForLeaveWarning.taskPlans = [...EmployeeAskForLeaveWarning.taskPlans, Object.assign({}, taskPlan, {source: true})]
+        EmployeeAskForLeaveWarning.taskPlans = [...EmployeeAskForLeaveWarning.taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
         warningResponse.added.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -551,7 +551,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
         if (EmployeeAskForLeaveWarning.releasePlans && EmployeeAskForLeaveWarning.releasePlans.length && EmployeeAskForLeaveWarning.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) === -1) {
             EmployeeAskForLeaveWarning.releasePlans = [...EmployeeAskForLeaveWarning.releasePlans]
         } else {
-            EmployeeAskForLeaveWarning.releasePlans = [...EmployeeAskForLeaveWarning.releasePlans, Object.assign({}, releasePlan, {source: true})]
+            EmployeeAskForLeaveWarning.releasePlans = [...EmployeeAskForLeaveWarning.releasePlans, Object.assign({}, releasePlan.toObject(), {source: true})]
             warningResponse.added.push({
                 _id: releasePlan._id,
                 warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -562,7 +562,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
         if (EmployeeAskForLeaveWarning.releases && EmployeeAskForLeaveWarning.releases.length && EmployeeAskForLeaveWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
             EmployeeAskForLeaveWarning.releases = [...EmployeeAskForLeaveWarning.releases]
         } else {
-            EmployeeAskForLeaveWarning.releases = [...EmployeeAskForLeaveWarning.releases, Object.assign({}, release, {source: true})]
+            EmployeeAskForLeaveWarning.releases = [...EmployeeAskForLeaveWarning.releases, Object.assign({}, release.toObject(), {source: true})]
             warningResponse.added.push({
                 _id: release._id,
                 warningType: SC.WARNING_TYPE_RELEASE,
@@ -586,9 +586,9 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
 
             let employeeAskedForLeaveWarning = new WarningModel()
             employeeAskedForLeaveWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
-            employeeAskedForLeaveWarning.taskPlans = [Object.assign({}, taskPlan, {source: true})]
-            employeeAskedForLeaveWarning.releasePlans = [Object.assign({}, releasePlan, {source: true})]
-            employeeAskedForLeaveWarning.releases = [Object.assign({}, release, {source: true})]
+            employeeAskedForLeaveWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
+            employeeAskedForLeaveWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+            employeeAskedForLeaveWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
 
             warningResponse.added.push({
                 _id: taskPlan._id,
