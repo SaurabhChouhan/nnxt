@@ -11,7 +11,8 @@ const LeaveRejectDialog = (props) => {
             </div>
         </ModalHeader>
         <ModalBody>
-            <h4>Are you sure you want to Reject this leave. Please confirm!</h4>
+            <h4>Are you sure you want to <b> Reject </b>this leave. Please confirm!
+            </h4>
             <LeaveApprovalReasonFormContainer isApproved={false}/>
         </ModalBody>
     </Modal>

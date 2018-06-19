@@ -2006,3 +2006,17 @@ hr {
 .td-row-cancelled {
     background-color: #e8080859 !important;
 }
+
+.modal-body b {
+
+    color: red;
+    font-size: 23px;
+
+}
+
+.modal-body h4 span {
+
+    color: #2fda2f;
+    font-size: 23px;
+
+}

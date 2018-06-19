@@ -187,7 +187,7 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
         throw new AppError("This leave is not belongs to your leave ,user can delete his own leave only", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
-    return await leaveRequest.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
+    return await LeaveModel.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
 }
 
 const LeaveModel = mongoose.model("Leave", leaveSchema)
