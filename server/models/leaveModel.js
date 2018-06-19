@@ -130,12 +130,12 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     await newLeave.save(leaveInput)
     newLeave = newLeave.toObject()
     newLeave.canDelete = true
-    newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? true : false
-    newLeave.canApprove = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? true : false
+    newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+    newLeave.canApprove = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
     return newLeave
 }
 
-leaveSchema.statics.cancelLeaveRequest = async (leaveID, user) => {
+leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
     
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
@@ -143,17 +143,20 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, user) => {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
+    leaveRequest.approver = user
+    leaveRequest.approver.name = user.firstName + user.lastName
+    leaveRequest.approver.reason = reason
     leaveRequest.status = SC.LEAVE_STATUS_CANCELLED
     await leaveRequest.save()
 
     leaveRequest = leaveRequest.toObject()
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
-    leaveRequest.canCancel = true
-    leaveRequest.canApprove = true
+    leaveRequest.canCancel = false
+    leaveRequest.canApprove = false
     return leaveRequest
 }
 
-leaveSchema.statics.approveLeaveRequest = async (leaveID, user) => {
+leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID),)
 
     if (!leaveRequest) {
@@ -161,12 +164,15 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, user) => {
     }
 
     leaveRequest.status = SC.LEAVE_STATUS_APPROVED
+    leaveRequest.approver = user
+    leaveRequest.approver.name = user.firstName + user.lastName
+    leaveRequest.approver.reason = reason
     await leaveRequest.save()
 
     leaveRequest = leaveRequest.toObject()
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
-    leaveRequest.canCancel = true
-    leaveRequest.canApprove = true
+    leaveRequest.canCancel = false
+    leaveRequest.canApprove = false
     return leaveRequest
 }
 
