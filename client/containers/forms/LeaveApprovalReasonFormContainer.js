@@ -1,37 +1,54 @@
 import {connect} from 'react-redux'
-import {LeaveRequestForm} from "../../components"
+import {LeaveApprovelResonForm} from "../../components"
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
+import {change} from 'redux-form'
 import * as EC from "../../../server/errorcodes";
 import {SubmissionError} from "redux-form";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+    saveIsApproved: (isApproved) => {
+        return dispatch(change("leave-approval", "isApproved", isApproved))
+    },
     onSubmit: (values) => {
-        return dispatch(A.addLeaveRequestOnServer(values)).then(json => {
-            if (json.success) {
-                NotificationManager.success('leave Request Added Successfully')
-                dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
+        if (!values.leaveID || !values.reason) {
+            console.log("Reason not provided")
+        }
+        if (values.isApproved) {
+            return dispatch(A.approveLeaveRequestFromServer(values.leaveID, values.reason)).then(json => {
+                if (json.success) {
+                    NotificationManager.success('Leave request Approved Successfully')
+                } else {
+                    NotificationManager.error('Leave request Approval failed')
+                }
+                return json
+            })
+        } else {
+            return dispatch(A.cancelLeaveRequestFromServer(values.leaveID, values.reason)).then(json => {
+                if (json.success) {
+                    NotificationManager.success('Leave request Cancelled Successfully')
+                } else {
+                    NotificationManager.error('process failed')
+                }
+                return json
+            })
 
-            } else {
-                NotificationManager.error('leave Request Not Added!')
-                if (json.code == EC.ALREADY_EXISTS)
-                    throw new SubmissionError({name: "leave Request Already Exists"})
-            }
-            return json
-        })
+        }
 
 
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    leaveTypes: state.leave.leaveTypes
+    initialValues: {
+        "leaveID": state.leave.selected._id
+    }
 })
 
-const LeaveRequestFormCOntainer = connect(
+const LeaveApprovalReasonFormContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(LeaveRequestForm)
+)(LeaveApprovelResonForm)
 
-export default LeaveRequestFormCOntainer
+export default LeaveApprovalReasonFormContainer

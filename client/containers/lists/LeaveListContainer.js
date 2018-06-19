@@ -11,8 +11,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     showLeaveDetails: (leave) => {
-        dispatch(A.selectLeave(leave))
-        dispatch(A.showComponent(COC.LEAVE_DETAIL_DIALOG))
+        dispatch(A.leaveSelected(leave))
+        dispatch(A.showComponentHideOthers(COC.LEAVE_DETAIL_PAGE))
     },
 
     deleteLeave: (leave) => dispatch(A.deleteLeaveFromServer(leave._id)).then(json => {
@@ -24,30 +24,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         return json
     }),
 
-    cancelLeaveRequestCall: (leave) => {
-        return dispatch(A.cancelLeaveRequestFromServer(leave._id)).then(json => {
-            if (json.success) {
-                NotificationManager.success('Leave request Cancelled Successfully')
-            } else {
-                NotificationManager.error('process failed')
-            }
-            return json
-        })
+    changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status)),
+
+    approveLeave: (leave) => {
+        dispatch(A.leaveSelected(leave))
+        dispatch(A.showComponent(COC.LEAVE_APPROVE_DIALOG))
     },
 
-    approveLeaveRequestCall: (leave) => {
-        return dispatch(A.approveLeaveRequestFromServer(leave._id)).then(json => {
-            if (json.success) {
-                NotificationManager.success('Leave request Approved Successfully')
-            } else {
-                NotificationManager.error('Leave request Approval failed')
-            }
-            return json
-        })
-    },
-
-    changeLeaveStatus: (status) => dispatch(A.getAllLeavesFromServer(status))
-
+    cancelLeave: (leave) => {
+        dispatch(A.leaveSelected(leave))
+        dispatch(A.showComponent(COC.LEAVE_REJECT_DIALOG))
+    }
 })
 
 

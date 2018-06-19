@@ -9,42 +9,37 @@ import * as SC from '../../../server/serverconstants'
 moment.locale('en')
 momentLocalizer()
 
-let LeaveRequestForm = (props) => {
-    const {pristine, submitting, reset, handleSubmit} = props
-    return <form onSubmit={handleSubmit}>
-        <div className="row">
-            <div className="col-md-6">
-                <Field name="_id" component="input" type="hidden"/>
-                <Field name="dayType" placeholder={"Leave day"} displayField={"name"} valueField={"name"}
-                       component={renderSelect} options={SC.LEAVE_TYPE_DAY_WITH_NAME_ARRAY}
-                       label={"Day type :"} validate={[required]}/>
+class LeaveApprovalReasonForm extends React.Component {
 
-                <Field name="startDate" placeholder={"Leave Start Date :"} component={renderDateTimePickerString}
-                      showTime={false}
-                       label={"Start Date :"} validate={[required]}/>
+    constructor(props) {
+        super(props)
+    }
 
-                <Field name="endDate" placeholder={"Leave End Date :"} component={renderDateTimePickerString}
-                       showTime={false}
-                       label={"End Date :"} validate={[required]}/>
+    componentDidMount() {
+        this.props.saveIsApproved(this.props.isApproved)
+    }
 
-                <Field name="leaveType._id" placeholder={"type of leave"} displayField={"name"} valueField={"_id"}
-                       component={renderSelect} options={props.leaveTypes}
-                       label={"Type :"} validate={[required]}/>
+    render() {
+        const {pristine, submitting, reset, handleSubmit, isApproved} = this.props
+        return <form onSubmit={handleSubmit}>
+            <div className="row">
+                <div className="col-md-6">
+                    <Field name="leaveID" component="input" type="hidden"/>
+                    <Field name="isApproved" component="input" type="hidden"/>
+                    <Field width="80%" name="reason" validate={[required]} component={renderTextArea}
+                           label="Reason:"/>
+                    <button type="submit" disabled={pristine || submitting} className="btn customBtn"> Submit</button>
+                </div>
 
-                <Field width="80%" name="description" validate={[required]} component={renderTextArea}
-                       label="Description:"/>
-
-                <button type="submit" disabled={pristine || submitting} className="btn customBtn"> Submit</button>
             </div>
 
-        </div>
-
-    </form>
+        </form>
+    }
 }
 
-LeaveRequestForm = reduxForm({
-    form: 'leave-request'
+LeaveApprovalReasonForm = reduxForm({
+    form: 'leave-approval'
 
-})(LeaveRequestForm)
+})(LeaveApprovalReasonForm)
 
-export default LeaveRequestForm
+export default LeaveApprovalReasonForm

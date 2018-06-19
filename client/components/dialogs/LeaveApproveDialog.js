@@ -1,19 +1,22 @@
 import {Modal, ModalBody, ModalHeader} from 'react-bootstrap'
 import React from 'react'
-import {LeaveDetailContainer} from "../../containers"
+import {LeaveApprovalReasonFormContainer} from "../../containers"
 
-const LeaveDetailDialog = (props) => {
+const LeaveApproveDialog = (props) => {
     return <Modal className="estimationModal" show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
             <div className="clearfix ModalHeading">
                 <div className="col-md-1 ModalSideLabel"></div>
-                <h3>Leave Detail</h3>
+                <h3>Leave Approve</h3>
             </div>
         </ModalHeader>
         <ModalBody>
-            <LeaveDetailContainer/>
+            <h4>Are you sure you want to approve this leave. Please confirm! <img className="div-hover" key="approve"
+                                                                                  src="/images/approve.png"
+                                                                                  title="Approve"/></h4>
+            <LeaveApprovalReasonFormContainer isApproved={true}/>
         </ModalBody>
     </Modal>
 }
 
-export default LeaveDetailDialog
+export default LeaveApproveDialog
