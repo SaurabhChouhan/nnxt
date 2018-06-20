@@ -1,17 +1,29 @@
 import {required} from "./validation"
 import {renderDateTimePickerString, renderSelect, renderTextArea} from "./fields"
-import {Field, reduxForm} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
 import React from 'react'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
+import * as U from '../../../server/utils'
+import {connect} from 'react-redux'
+import _ from 'lodash'
+
 
 moment.locale('en')
 momentLocalizer()
 
 let LeaveRequestForm = (props) => {
-    const {pristine, submitting, reset, handleSubmit} = props
+    const {pristine, submitting, reset, handleSubmit, startDate, endDate} = props
     let now = new Date()
+    const startDateMoment = startDate && !_.isEmpty(startDate) ? U.momentInTimeZone(startDate, SC.INDIAN_TIMEZONE) : undefined
+    const endDateMoment = endDate && !_.isEmpty(endDate) ? U.momentInTimeZone(endDate, SC.INDIAN_TIMEZONE) : undefined
+    const startDateMomentDate = startDateMoment && startDateMoment.isValid() ? startDateMoment.toDate() : undefined
+    const endDateMomentDate = endDateMoment && endDateMoment.isValid() ? endDateMoment.toDate() : undefined
+
+    console.log("startDateMomentDate", startDateMomentDate)
+    console.log("endDateMomentDate", endDateMomentDate)
+
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
@@ -24,12 +36,12 @@ let LeaveRequestForm = (props) => {
                        showTime={false}
                        label={"Start Date :"}
                        min={now}
+                       max={endDateMomentDate}
                        validate={[required]}/>
 
                 <Field name="endDate" placeholder={"Leave End Date :"} component={renderDateTimePickerString}
                        showTime={false}
-                       min={now}
-
+                       min={startDateMomentDate ? startDateMomentDate : now}
                        label={"End Date :"}
                        validate={[required]}/>
 
@@ -52,5 +64,16 @@ LeaveRequestForm = reduxForm({
     form: 'leave-request'
 
 })(LeaveRequestForm)
+const selector = formValueSelector('leave-request')
+
+LeaveRequestForm = connect(
+    state => {
+        const {startDate, endDate} = selector(state, 'startDate', 'endDate')
+        return {
+            startDate,
+            endDate,
+        }
+    }
+)(LeaveRequestForm)
 
 export default LeaveRequestForm
