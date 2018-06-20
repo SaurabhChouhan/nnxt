@@ -21,53 +21,68 @@ class LeaveDetailPage extends Component {
                             }}>
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
-                {/*<TimelineEvent style={{fontSize: '20px'}}*/}
-                {/*title={'Project Name :'}*/}
-                {/*icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>*/}
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Created Date:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
 
-                {/*{selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}*/}
-                {/*</TimelineEvent>*/}
+                {leave && leave.created ? moment(leave.created).format("DD-MM-YYYY hh:mm:ss") : ''}
+                </TimelineEvent>
 
-                <div className="leaveRaiseDetail">
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Created Date:</b></div>
-                        <div
-                            className="col-md-7 leaveRaiseContent">{moment(leave.created).format("DD-MM-YYYY hh:mm:ss")} </div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Start Date:</b></div>
-                        <div
-                            className="col-md-7 leaveRaiseContent">{moment(leave.startDate).format("DD-MM-YYYY")}</div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>End Date: </b></div>
-                        <div className="col-md-7 leaveRaiseContent">{moment(leave.endDate).format("DD-MM-YYYY")} </div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Leave Day Type:</b></div>
-                        <div className="col-md-7 leaveRaiseContent">{leave.dayType}</div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Leave Type:</b></div>
-                        <div className="col-md-7 leaveRaiseContent">{leave.leaveType.name}</div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Leave Status:</b></div>
-                        <div className="col-md-7 leaveRaiseContent">{leave.status}</div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Leave Description:</b></div>
-                        <div className="col-md-7 leaveRaiseContent">{leave.dayType}</div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Total Leave Days:</b></div>
-                        <div className="col-md-7 leaveRaiseContent">{leave.numberOfLeaveDays}</div>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="col-md-5 leaveRaiseTitle"><b>Leave Description:</b></div>
-                        <div className="col-md-7 leaveRaiseContent">{leave.description}</div>
-                    </div>
-                </div>
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Start Date:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                {leave && leave.startDate ? moment(leave.startDate).format("DD-MM-YYYY hh:mm:ss") : ''}
+                </TimelineEvent>
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'End Date:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                {leave && leave.endDate ? moment(leave.endDate).format("DD-MM-YYYY hh:mm:ss") : ''}
+                </TimelineEvent>
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Leave Day Type:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                {leave && leave.dayType ? leave.dayType : ''}
+                </TimelineEvent>
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Leave Status:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                {leave && leave.status ? leave.status : ''}
+                </TimelineEvent>
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Leave Raised By:'}
+                icon={<i className="glyphicon glyphicon-user calendar_icon"></i>}>
+
+                {leave && leave.user && leave.user.name ? leave.user.name : ''}
+                </TimelineEvent>
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Leave Type:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                {leave && leave.leaveType && leave.leaveType.name ? leave.leaveType.name : ''}
+                </TimelineEvent>
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Total Leave Days:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                {leave && leave.numberOfLeaveDays  ? leave.numberOfLeaveDays : ''}
+                </TimelineEvent>
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                title={'Leave Description:'}
+                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                {leave && leave.description  ? leave.description : ''}
+                </TimelineEvent>
             </Timeline>
 
 
