@@ -126,8 +126,9 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.status = SC.LEAVE_STATUS_RAISED
     newLeave.user = user
     newLeave.dayType = leaveInput.dayType ? leaveInput.dayType : SC.LEAVE_TYPE_FULL_DAY
+    newLeave.description = leaveInput.description
 
-    await newLeave.save(leaveInput)
+    await newLeave.save()
     newLeave = newLeave.toObject()
     newLeave.canDelete = true
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
