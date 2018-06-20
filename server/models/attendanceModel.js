@@ -100,7 +100,7 @@ attendanceSchema.statics.addUpdateAttendance = async (attendanceInfo) => {
 
         let createdAttendanceObj = await AttendanceModel.create(attendanceOBJ);
         createdAttendanceObj.lastEntryId = createdAttendanceObj.entries[0]._id;
-        await  createdAttendanceObj.save();
+        attendance = await  createdAttendanceObj.save();
         //console.log("***Created attendance entry is *** \n ", createdAttendanceObj);
         console.log("*** New attandance entry created for user " + attendanceInfo.employee_code);
     }
