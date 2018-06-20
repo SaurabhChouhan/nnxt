@@ -32,7 +32,7 @@ class LeaveList extends Component {
 
     formatLeaveApproverUser(user) {
         if (user && user.name) {
-            return user.name + ' ' + user.name
+            return user.name
         }
         return ''
     }
