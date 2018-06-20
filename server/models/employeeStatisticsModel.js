@@ -17,7 +17,8 @@ let employeeStatisticsSchema = mongoose.Schema({
     },
     leaves: [
         {
-            date: {type: Date, default: Date.now()},
+            startDate: {type: Date, default: Date.now()},
+            endDate: {type: Date, default: Date.now()},
             reason: [{
                 type: String,
                 enum: [SC.REASON_MEDICAL, SC.REASON_PERSONAL, SC.REASON_OCCASION, SC.REASON_FESTIVAL]

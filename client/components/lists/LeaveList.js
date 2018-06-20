@@ -4,12 +4,22 @@ import {withRouter} from 'react-router-dom'
 import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import * as U from '../../../server/utils'
-
+import {ConfirmationDialog} from "../index";
 
 class LeaveList extends Component {
 
     constructor(props) {
         super(props)
+        this.state = {
+            showLeaveDeleteRequestDialog: false,
+            row: {}
+        };
+    }
+
+    onClose() {
+        this.setState({
+            showLeaveDeleteRequestDialog: false,
+        })
     }
 
     rowClassNameFormat(row, rowIdx) {
@@ -62,7 +72,7 @@ class LeaveList extends Component {
                 disabled={!row.canDelete}
                 type="button"
                 onClick={() => {
-                    this.props.deleteLeave(row)
+                    this.setState({showLeaveDeleteRequestDialog: true, row: row})
                 }}>
                 <i className="fa fa-trash"></i>
             </button>
@@ -84,8 +94,6 @@ class LeaveList extends Component {
     }
 
     viewApproveButton(cell, row, enumObject, rowIndex) {
-
-
         return (<button className=" btn btn-custom"
                         type="button"
                         disabled={!row.canApprove}
@@ -96,6 +104,11 @@ class LeaveList extends Component {
             </button>
         )
 
+    }
+
+    onConfirmDeleteRequest() {
+        this.setState({showLeaveDeleteRequestDialog: false})
+        this.props.deleteLeave(this.state.row)
     }
 
 
@@ -204,6 +217,13 @@ class LeaveList extends Component {
 
 
                                     </BootstrapTable>
+                                    {
+                                        this.state && this.state.showLeaveDeleteRequestDialog &&
+                                        <ConfirmationDialog show={true}
+                                                            onConfirm={this.onConfirmDeleteRequest.bind(this)}
+                                                            title="Leave Delete" onClose={this.onClose.bind(this)}
+                                                            body="Are you sure you want to delete this leave. Please confirm!"/>
+                                    }
                                 </div>
 
                             </div>
@@ -212,6 +232,7 @@ class LeaveList extends Component {
                     </div>
                 </div>
             </div>
+
         )
     }
 }
