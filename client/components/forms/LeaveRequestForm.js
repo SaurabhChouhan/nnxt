@@ -11,6 +11,7 @@ momentLocalizer()
 
 let LeaveRequestForm = (props) => {
     const {pristine, submitting, reset, handleSubmit} = props
+    let now = new Date()
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
@@ -20,12 +21,17 @@ let LeaveRequestForm = (props) => {
                        label={"Day type :"} validate={[required]}/>
 
                 <Field name="startDate" placeholder={"Leave Start Date :"} component={renderDateTimePickerString}
-                      showTime={false}
-                       label={"Start Date :"} validate={[required]}/>
+                       showTime={false}
+                       label={"Start Date :"}
+                       min={now}
+                       validate={[required]}/>
 
                 <Field name="endDate" placeholder={"Leave End Date :"} component={renderDateTimePickerString}
                        showTime={false}
-                       label={"End Date :"} validate={[required]}/>
+                       min={now}
+
+                       label={"End Date :"}
+                       validate={[required]}/>
 
                 <Field name="leaveType._id" placeholder={"type of leave"} displayField={"name"} valueField={"_id"}
                        component={renderSelect} options={props.leaveTypes}

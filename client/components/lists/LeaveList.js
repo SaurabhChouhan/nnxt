@@ -131,7 +131,7 @@ class LeaveList extends Component {
                                                     }
                                                     {
                                                         SC.ALL_LEAVE_STATUS_ARRAY.map(leave => <option
-                                                            value={leave}>{leave}</option>)
+                                                             value={leave}>{leave}</option>)
                                                     }
                                                 </select>
                                             </div>

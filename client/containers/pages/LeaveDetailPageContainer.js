@@ -5,6 +5,7 @@ import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+    leaveGoBack: (event) => dispatch(A.showComponentHideOthers(COC.LEAVE_LIST))
 })
 
 
