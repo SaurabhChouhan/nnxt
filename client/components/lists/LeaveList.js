@@ -131,7 +131,7 @@ class LeaveList extends Component {
                                                     }
                                                     {
                                                         SC.ALL_LEAVE_STATUS_ARRAY.map(leave => <option
-                                                             value={leave}>{leave}</option>)
+                                                            value={leave}>{leave}</option>)
                                                     }
                                                 </select>
                                             </div>
@@ -157,7 +157,7 @@ class LeaveList extends Component {
                                         </TableHeaderColumn>
 
                                         {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ?
-                                            <TableHeaderColumn columnTitle dataField='user'
+                                            <TableHeaderColumn width="10%" columnTitle dataField='user'
                                                                dataFormat={this.formatLeaveRaisedUser.bind(this)}>Raised
                                                 By
                                             </TableHeaderColumn>
@@ -166,11 +166,11 @@ class LeaveList extends Component {
                                             </TableHeaderColumn>
                                         }
 
-                                        <TableHeaderColumn columnTitle dataField='startDateString'
+                                        <TableHeaderColumn columnTitle width="8%" dataField='startDateString'
                                         >Start Date
                                         </TableHeaderColumn>
 
-                                        <TableHeaderColumn columnTitle dataField='endDateString'
+                                        <TableHeaderColumn columnTitle width="8%" dataField='endDateString'
                                         >End Date
                                         </TableHeaderColumn>
 
@@ -182,11 +182,11 @@ class LeaveList extends Component {
                                         </TableHeaderColumn>
 
                                         <TableHeaderColumn columnTitle dataField='status'>Status</TableHeaderColumn>
-                                        <TableHeaderColumn columnTitle width="10%" dataField='approver'
+                                        <TableHeaderColumn columnTitle width="12%" dataField='approver'
                                                            dataFormat={this.formatLeaveApproverUser.bind(this)}>Approver</TableHeaderColumn>
 
                                         {loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
-                                            <TableHeaderColumn width="10%" dataField='deleteButton'
+                                            <TableHeaderColumn width="7%" dataField='deleteButton'
                                                                dataFormat={this.viewDeleteButton.bind(this)}>
                                                 Delete</TableHeaderColumn>}
                                         {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
