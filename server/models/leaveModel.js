@@ -110,6 +110,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
     leaveDaysCount = Number(leaveDaysCount)
 
+    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
     let warningResponses = await MDL.WarningModel.leaveAdded(leaveInput.startDate, leaveInput.endDate, user)
     logger.debug('Leave Added warning response:  ', {warningResponses})
     let leaveType = await MDL.LeaveTypeModel.findById(mongoose.Types.ObjectId(leaveInput.leaveType._id))
@@ -132,28 +133,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.canDelete = true
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
     newLeave.canApprove = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
-    return newLeave
-}
-
-leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
-    
-    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
-
-    if (!leaveRequest) {
-        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    leaveRequest.approver = user
-    leaveRequest.approver.name = user.firstName + user.lastName
-    leaveRequest.approver.reason = reason
-    leaveRequest.status = SC.LEAVE_STATUS_CANCELLED
-    await leaveRequest.save()
-
-    leaveRequest = leaveRequest.toObject()
-    leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
-    leaveRequest.canCancel = false
-    leaveRequest.canApprove = false
-    return leaveRequest
+    return {leave: newLeave, warnings: warningResponses}
 }
 
 leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
@@ -162,6 +142,12 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     if (!leaveRequest) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+    /*--------------------------------------WARNING UPDATE SECTION ----------------------------------*/
+    let warningResponses
+
+    /*--------------------------------EMPLOYEE STATISTICS UPDATE SECTION---------------------------*/
+
+    /*------------------------------------LEAVE APPROVAL SECTION----------------------------------*/
 
     leaveRequest.status = SC.LEAVE_STATUS_APPROVED
     leaveRequest.approver = user
@@ -173,8 +159,35 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
-    return leaveRequest
+
+    return {leave: leaveRequest, warnings: warningResponses}
 }
+
+leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
+
+    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
+
+    if (!leaveRequest) {
+        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
+    let warningResponses
+
+    /*------------------------------------LEAVE CANCELLATION SECTION----------------------------------*/
+    leaveRequest.approver = user
+    leaveRequest.approver.name = user.firstName + user.lastName
+    leaveRequest.approver.reason = reason
+    leaveRequest.status = SC.LEAVE_STATUS_CANCELLED
+    await leaveRequest.save()
+
+    leaveRequest = leaveRequest.toObject()
+    leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
+    leaveRequest.canCancel = false
+    leaveRequest.canApprove = false
+
+    return {leave: leaveRequest, warnings: warningResponses}
+}
+
 
 leaveSchema.statics.deleteLeave = async (leaveID, user) => {
 
@@ -187,7 +200,14 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
         throw new AppError("This leave is not belongs to your leave ,user can delete his own leave only", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
-    return await LeaveModel.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
+    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
+    let warningResponses
+
+    /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
+
+    let leave = await LeaveModel.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
+
+    return {leave: leave, warnings: warningResponses}
 }
 
 const LeaveModel = mongoose.model("Leave", leaveSchema)
