@@ -103,6 +103,11 @@ export const getNowMoment = () => {
     return undefined
 }
 
+export const getNow = () => {
+    let now = new Date()
+    return now
+}
+
 export const getTodayStartingMoment = () => {
     let now = new Date()
     let nowString = moment(now).format(SC.DATE_FORMAT)

@@ -51,9 +51,9 @@ leaveSchema.statics.getAllLeaves = async (status, user) => {
     }
 
     leaves = leaves && leaves.length ? leaves.map(leave => Object.assign({}, leave.toObject(), {
-        canDelete: leave.user._id.toString() === user._id.toString(),
-        canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
-        canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+            canDelete: leave.user._id.toString() === user._id.toString(),
+            canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
+            canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
         })
     ) : []
     return leaves
@@ -136,7 +136,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 }
 
 leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
-    
+
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
@@ -153,6 +153,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
+    leaveRequest.updated = U.getNow()
     return leaveRequest
 }
 
@@ -173,6 +174,7 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
+    leaveRequest.updated = U.getNow()
     return leaveRequest
 }
 
