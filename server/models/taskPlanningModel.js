@@ -322,14 +322,16 @@ const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourN
 
     release.iterations[releasePlan.release.iterationIndex].plannedHours += plannedHourNumber
 
+    let iterationIndex = releasePlan.release.iterationIndex
     if (releasePlan.diffProgress) {
         logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
-        release.iterations[releasePlan.release.iterationIndex].progress += releasePlan.diffProgress
+        release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours/release.iterations[iterationIndex].estimatedHours)
+        release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
     }
 
     if (releasePlan.diffPlannedHoursEstimatedTasks) {
         logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-        release.iterations[releasePlan.release.iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
+        release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
     }
 
     return release
@@ -834,15 +836,17 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
 
 const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release, plannedHourNumber) => {
 
-    release.iterations[releasePlan.release.iterationIndex].plannedHours -= plannedHourNumber
+    let iterationIndex = releasePlan.release.iterationIndex
+    release.iterations[iterationIndex].plannedHours -= plannedHourNumber
     if (releasePlan.diffProgress) {
         logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
-        release.iterations[releasePlan.release.iterationIndex].progress += releasePlan.diffProgress
+        release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours/release.iterations[iterationIndex].estimatedHours)
+        release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
     }
 
     if (releasePlan.diffPlannedHoursEstimatedTasks) {
         logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-        release.iterations[releasePlan.release.iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
+        release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
     }
 
     return release
@@ -1319,7 +1323,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         // Add planned hours of reported task to release if it is first time reporting
         release.iterations[iterationIndex].plannedHoursReportedTasks += taskPlan.planning.plannedHours
         if (releasePlan.diffProgress)
-            release.iterations[iterationIndex].progress += releasePlan.diffProgress
+            release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours/release.iterations[iterationIndex].estimatedHours)
+        release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
     }
 
     if (!release.iterations[iterationIndex].maxReportedDate || (release.iterations[iterationIndex].maxReportedDate && reportedMoment.isAfter(release.iterations[iterationIndex].maxReportedDate))) {
