@@ -182,7 +182,7 @@ class ReportingTaskPage extends Component {
                                 <span>Start Date</span>
                             </div>
                             <div className="releasecontent">
-                                <p>{selectedRelease.iterations[0] && selectedRelease.iterations[0].devStartDate ? moment(selectedRelease.iterations[0].devStartDate).format('DD-MM-YYYY') : ''}</p>
+                                <p>{selectedRelease.iterations && selectedRelease.iterations[0].devStartDate ? moment(selectedRelease.iterations[0].devStartDate).format('DD-MM-YYYY') : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-2">
@@ -190,7 +190,7 @@ class ReportingTaskPage extends Component {
                                 <span>End Date</span>
                             </div>
                             <div className="releasecontent">
-                                <p>{selectedRelease.iterations[0] && selectedRelease.iterations[0].devEndDate ? moment(selectedRelease.iterations[0].devEndDate).format('DD-MM-YYYY') : ''}</p>
+                                <p>{selectedRelease.iterations && selectedRelease.iterations[0].devEndDate ? moment(selectedRelease.iterations[0].devEndDate).format('DD-MM-YYYY') : ''}</p>
                             </div>
                         </div>
                         <div className="col-md-2">
@@ -198,7 +198,7 @@ class ReportingTaskPage extends Component {
                                 <span>Release Date</span>
                             </div>
                             <div className="releasecontent">
-                                <p>{selectedRelease.iterations[0] && selectedRelease.iterations[0].clientReleaseDate ? moment(selectedRelease.iterations[0].clientReleaseDate).format('DD-MM-YYYY') : ''}</p>
+                                <p>{selectedRelease.iterations && selectedRelease.iterations[0].clientReleaseDate ? moment(selectedRelease.iterations[0].clientReleaseDate).format('DD-MM-YYYY') : ''}</p>
                             </div>
                         </div>
                         <div className=" col-md-2 releasefileoption">
