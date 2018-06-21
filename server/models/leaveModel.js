@@ -51,9 +51,9 @@ leaveSchema.statics.getAllLeaves = async (status, user) => {
     }
 
     leaves = leaves && leaves.length ? leaves.map(leave => Object.assign({}, leave.toObject(), {
-        canDelete: leave.user._id.toString() === user._id.toString(),
-        canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
-        canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+            canDelete: leave.user._id.toString() === user._id.toString(),
+            canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
+            canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
         })
     ) : []
     return leaves
@@ -126,8 +126,9 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.status = SC.LEAVE_STATUS_RAISED
     newLeave.user = user
     newLeave.dayType = leaveInput.dayType ? leaveInput.dayType : SC.LEAVE_TYPE_FULL_DAY
+    newLeave.description = leaveInput.description
 
-    await newLeave.save(leaveInput)
+    await newLeave.save()
     newLeave = newLeave.toObject()
     newLeave.canDelete = true
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
@@ -136,7 +137,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 }
 
 leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
-    
+
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
@@ -153,6 +154,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
+    leaveRequest.updated = U.getNow()
     return leaveRequest
 }
 
@@ -173,6 +175,7 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
+    leaveRequest.updated = U.getNow()
     return leaveRequest
 }
 
@@ -185,6 +188,9 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
     }
     if (leaveRequest.user._id.toString() !== user._id.toString()) {
         throw new AppError("This leave is not belongs to your leave ,user can delete his own leave only", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
+    if (U.momentInUTC(leaveRequest.startDateString).isBefore(U.getNowMoment()) || U.momentInUTC(leaveRequest.startDateString).isBefore(U.getNowMoment())) {
+        throw new AppError("This leave already started or ended can not be delete", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
     return await LeaveModel.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))

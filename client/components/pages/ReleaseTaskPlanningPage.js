@@ -11,6 +11,7 @@ import {
     ReleaseDevelopersSchedulesContainer,
     ReleaseTaskPlanningShiftFormContainer,
 } from '../../containers'
+import {ConfirmationDialog} from "../";
 
 moment.locale('en')
 momentLocalizer()
@@ -19,6 +20,17 @@ class ReleaseTaskPlanningPage extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            showLeaveDeleteRequestDialog: false,
+            row: {}
+        };
+    }
+
+
+    onClose() {
+        this.setState({
+            showLeaveDeleteRequestDialog: false,
+        })
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
@@ -30,7 +42,7 @@ class ReleaseTaskPlanningPage extends Component {
             return ''
         else return (<button className=" pull-left btn btn-custom" type="button"
                              onClick={() => {
-                                 this.props.deleteTaskPlanningRow(row)
+                                 this.setState({showLeaveDeleteRequestDialog: true, row: row})
                              }}>
             <i className="fa fa-trash"></i>
         </button>)
@@ -78,6 +90,11 @@ class ReleaseTaskPlanningPage extends Component {
             return task.name
         }
         return ''
+    }
+
+    onConfirmDeleteRequest() {
+        this.setState({showLeaveDeleteRequestDialog: false})
+        this.props.deleteTaskPlanningRow(this.state.row)
     }
 
     formatFlags(flags) {
@@ -236,6 +253,13 @@ class ReleaseTaskPlanningPage extends Component {
                                     className="fa fa-trash"></i>
                                 </TableHeaderColumn>
                             </BootstrapTable>
+                            {
+                                this.state && this.state.showLeaveDeleteRequestDialog &&
+                                <ConfirmationDialog show={true}
+                                                    onConfirm={this.onConfirmDeleteRequest.bind(this)}
+                                                    title="Leave Delete" onClose={this.onClose.bind(this)}
+                                                    body="Are you sure you want to delete this task plan. Please confirm!"/>
+                            }
                         </div>
                     </div>
                     <div>

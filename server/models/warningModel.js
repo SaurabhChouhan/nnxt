@@ -661,7 +661,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, p
         removed: []
     }
 
-    let deleteTooManyHoursWarningResponse = undefined
+
     let plannedDateUTC = U.dateInUTC(taskPlan.planningDateString)
     if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
@@ -689,7 +689,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, p
             source: true
         })
     }
-    deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, releasePlan, release, plannedDateUTC)
+    let deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, releasePlan, release, plannedDateUTC)
     warningResponse.added = [...warningResponse.added, ...deleteTooManyHoursWarningResponse.added]
     warningResponse.removed = [...warningResponse.removed, ...deleteTooManyHoursWarningResponse.removed]
     return warningResponse

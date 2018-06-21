@@ -45,7 +45,7 @@ let releaseSchema = mongoose.Schema({
         name: {type: String, required: [true, 'Team name is required']},
         email: {type: String, required: [true, 'Developer email name is required']}
     }],
-    initial: {
+    iterations: [{
         expectedBilledHours: {type: Number, default: 0}, // expected billed hours
         billingRate: {type: Number, default: 0}, // Billing rate per hours
         estimatedHours: {type: Number, default: 0}, // sum of estimated hours of all release plan
@@ -61,23 +61,7 @@ let releaseSchema = mongoose.Schema({
         actualReleaseDate: Date, // Actual release date
         maxReportedDate: Date, // Maximum reported date
         maxReportedDateString: String // Maximum reported date string
-    },
-    additional: {
-        billedHours: {type: Number, default: 0},
-        estimatedHours: {type: Number, default: 0},
-        plannedHours: {type: Number, default: 0},
-        reportedHours: {type: Number, default: 0},
-        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
-        estimatedHoursPlannedTasks: {type: Number, default: 0},
-        estimatedHoursCompletedTasks: {type: Number, default: 0},
-        plannedHoursReportedTasks: {type: Number, default: 0},
-        devStartDate: Date,
-        devEndDate: Date,
-        clientReleaseDate: Date,
-        actualReleaseDate: Date,
-        maxReportedDate: Date,
-        maxReportedDateString: String
-    },
+    }],
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
 }, {
@@ -151,7 +135,7 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
 }
 
 
-releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) => {
+releaseSchema.statics.createRelease = async (projectAwardData, user, estimation) => {
     let releaseInput = {}
     let initial = {}
     const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(projectAwardData.estimation.project._id))
@@ -186,11 +170,16 @@ releaseSchema.statics.addRelease = async (projectAwardData, user, estimation) =>
     releaseInput.manager = manager
     releaseInput.leader = leader
     releaseInput.team = projectAwardData.team
-    releaseInput.initial = initial
+    releaseInput.iterations = [{
+        estimatedHours: estimation.estimatedHours,
+        expectedBilledHours: projectAwardData.billedHours,
+        clientReleaseDate: projectAwardData.clientReleaseDate,
+        devStartDate: projectAwardData.devStartDate,
+        devEndDate: projectAwardData.devReleaseDate
+    }]
     releaseInput.name = projectAwardData.releaseVersionName
     releaseInput.status = SC.STATUS_PLAN_REQUESTED
     releaseInput.user = user
-
     return await ReleaseModel.create(releaseInput)
 }
 

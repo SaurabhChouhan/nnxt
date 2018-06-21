@@ -22,7 +22,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     //team: state.release.selectedRelease && state.release.selectedRelease.team ? state.release.selectedRelease.team : [],
-    initial: state.release.selectedRelease.initial
+    initial: state.release.selectedRelease.iterations[0]
 })
 
 
