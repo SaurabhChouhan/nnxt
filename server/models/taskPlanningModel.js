@@ -314,6 +314,34 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
 
         if (releasePlan.report.finalStatus)
             releasePlan.report.finalStatus = SC.STATUS_PENDING
+
+
+        let releasePlanEstimatedHours = Number(releasePlan.task.estimatedHours)
+        let releasePlanPlannedHours = Number(releasePlan.planning.plannedHours)
+
+        if (releasePlanPlannedHours < releasePlanEstimatedHours) {
+            if (releasePlan.flags.findIndex(SC.WARNING_LESS_PLANNED_HOURS) === -1) {
+                /*PUSH TO RELEASE PLAN IF FLAG IS NOT AVAILABLE*/
+                releasePlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
+            }
+
+        } else if (releasePlanPlannedHours > releasePlanEstimatedHours) {
+            if (releasePlan.flags.findIndex(SC.WARNING_LESS_PLANNED_HOURS) > -1) {
+                /*PUSH TO RELEASE PLAN IF FLAG IS NOT AVAILABLE*/
+                releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
+
+            }
+            if (releasePlan.flags.findIndex(SC.WARNING_MORE_PLANNED_HOURS) === -1) {
+                /*PUSH TO RELEASE PLAN IF FLAG IS NOT AVAILABLE*/
+                releasePlan.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
+
+            }
+
+        } else {
+
+            releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
+            releasePlan.flags.pull(SC.WARNING_MORE_PLANNED_HOURS)
+        }
     }
     return releasePlan
 }
@@ -618,18 +646,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
 
 
-    let releasePlanEstimatedHours = Number(releasePlan.task.estimatedHours)
-    let releasePlanPlannedHours = Number(releasePlan.planning.plannedHours)
-
-    if (releasePlanPlannedHours < releasePlanEstimatedHours) {
-        releasePlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
-    } else if (releasePlanPlannedHours > releasePlanEstimatedHours) {
-        releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
-        releasePlan.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
-    } else {
-        releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
-        releasePlan.flags.pull(SC.WARNING_MORE_PLANNED_HOURS)
-    }
     await releasePlan.save()
     logger.debug('addTaskPlanning(): saving task plan ', {releasePlan})
 
