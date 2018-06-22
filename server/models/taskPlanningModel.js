@@ -618,7 +618,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
 
 
-    let releasePlanEstimatedHours = Number(releasePlan.task.billedHours)
+    let releasePlanEstimatedHours = Number(releasePlan.task.estimatedHours)
     let releasePlanPlannedHours = Number(releasePlan.planning.plannedHours)
 
     if (releasePlanPlannedHours < releasePlanEstimatedHours) {

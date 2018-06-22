@@ -397,12 +397,13 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
 }
 
 
-const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, employee, plannedHourNumber, warningResponse) => {
+const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, plannedHourNumber, warningResponse) => {
 
     let LessPlannedHoursWarning = await WarningModel.findOne({
         type: SC.WARNING_LESS_PLANNED_HOURS,
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
+
     if (LessPlannedHoursWarning) {
         // For release check
         if (LessPlannedHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
@@ -439,7 +440,6 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, 
             type: SC.WARNING_LESS_PLANNED_HOURS,
             source: true
         })
-        return warningResponse
     } else {
         let newLessPlannedHoursWarning = new WarningModel()
         newLessPlannedHoursWarning.type = SC.WARNING_LESS_PLANNED_HOURS
@@ -466,10 +466,11 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, 
             source: true
         })
     }
+    return warningResponse
 }
 
 
-const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, employee, plannedHourNumber, warningResponse) => {
+const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, plannedHourNumber, warningResponse) => {
     let MorePlannedHoursWarning = await WarningModel.findOne({
         type: SC.WARNING_MORE_PLANNED_HOURS,
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
@@ -663,11 +664,13 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     warningResponse = await updateEmployeeAskForLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate, warningResponse)
 
-    let releasePlanEstimatedHours = Number(releasePlan.task.billedHours)
+    let releasePlanEstimatedHours = Number(releasePlan.task.estimatedHours)
     let releasePlanPlannedHours = Number(releasePlan.planning.plannedHours)
     if (releasePlanPlannedHours < releasePlanEstimatedHours) {
+        console.log("---------------add Less planned-------------", releasePlanPlannedHours < releasePlanEstimatedHours)
         warningResponse = await addLessPlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release, plannedHourNumber, warningResponse)
     } else if (releasePlanPlannedHours > releasePlanEstimatedHours) {
+        console.log("---------------add More planned-------------", releasePlanPlannedHours > releasePlanEstimatedHours)
         warningResponse = await addMorePlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release, plannedHourNumber, warningResponse)
     }
 
