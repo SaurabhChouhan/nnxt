@@ -14,7 +14,9 @@ let releasePlanSchema = mongoose.Schema({
     },
     release: {
         _id: {type: mongoose.Schema.ObjectId, required: true},
-        name: {type: String, required: [true, 'Release name is required']}
+        name: {type: String, required: [true, 'Release name is required']},
+        iterationID: {type: mongoose.Schema.ObjectId, required: true},
+        iterationIndex:{type: Number}
     },
     task: {
         _id: mongoose.Schema.ObjectId,
@@ -83,19 +85,24 @@ let releasePlanSchema = mongoose.Schema({
     usePushEach: true
 })
 
-releasePlanSchema.statics.addReleasePlan = async (release, estimation, estimationTask) => {
+releasePlanSchema.statics.addReleasePlan = async (release, iterationIndex, estimation, estimationTask) => {
     let releasePlanInput = {}
     releasePlanInput.estimation = {
         _id: estimation._id
     }
-    releasePlanInput.release = release
+
+    releasePlanInput.release = Object.assign({}, release.toObject(), {
+        iterationID: release.iterations[iterationIndex]._id,
+        iterationIndex: iterationIndex
+    })
+
     releasePlanInput.flags = [SC.WARNING_UNPLANNED]
     releasePlanInput.report = {}
 
     logger.debug('project award addRelease(): estimationTask.estimator.estimatedHours is ' + estimationTask.estimator.estimatedHours)
-    logger.debug('project award addRelease(): release.expectedBilledHours is ' + release.initial.expectedBilledHours)
+    logger.debug('project award addRelease(): release.expectedBilledHours is ' + release.iterations[iterationIndex].expectedBilledHours)
     logger.debug('project award addRelease(): estimation.estimatedHours is ' + estimation.estimatedHours)
-    let expectedBilledHours = estimationTask.estimator.estimatedHours * (release.initial.expectedBilledHours / estimation.estimatedHours)
+    let expectedBilledHours = estimationTask.estimator.estimatedHours * (release.iterations[iterationIndex].expectedBilledHours / estimation.estimatedHours)
     logger.debug('project award addRelease(): expected billed hours is ' + expectedBilledHours)
 
     releasePlanInput.task = {
