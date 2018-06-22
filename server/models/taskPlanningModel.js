@@ -911,6 +911,91 @@ const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release,
     return release
 }
 
+
+const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, release, plannedHourNumber) => {
+
+    let generatedWarnings = {
+        added: [],
+        removed: []
+    }
+    let updatedTaskPlans = []
+    let warningsTaskPlanned = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release, plannedHourNumber)
+
+    logger.debug('addTaskPlanning(): warnings task planned ', {warningsTaskPlanned})
+
+    if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
+        generatedWarnings.added.push(...warningsTaskPlanned.added)
+    if (warningsTaskPlanned.removed && warningsTaskPlanned.removed.length)
+        generatedWarnings.removed.push(...warningsTaskPlanned.removed)
+
+    logger.debug('addTaskPlanning(): Generated warnings ', {generatedWarnings})
+
+    // HANDLE ALL WARNINGS THAT COULD HAVE POSSIBLY BE ADDED BECAUSE OF THIS OPERATION
+    let promises = []
+
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        generatedWarnings.removed.forEach(w => {
+            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed against release plan with id [' + w._id + ']')
+                    if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1)) {
+                        logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+                    } else {
+                        // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                        MDL.ReleasePlanModel.findById(w._id).then(r => {
+                            if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
+                                r.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+                                return r.save()
+                            }
+                        })
+                    }
+                }
+                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                    if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1)) {
+                        logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning from task plan [' + taskPlan._id + ']')
+                        taskPlan.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+                    } else {
+                        // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                        promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                                if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
+                                    logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning from task plan [' + t._id + ']')
+                                    t.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+                                    return t.save()
+
+                                }
+                            }).then(t => {
+                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                return t
+                            }
+                            )
+                        )//promises pull closing
+                    }
+                }
+            }
+        })
+    }
+
+    // HANDLE ALL WARNINGS THAT COULD HAVE POSSIBLY BE REMOVED BECAUSE OF THIS OPERATION
+    if (generatedWarnings.added && generatedWarnings.added.length) {
+        generatedWarnings.added.forEach(w => {
+            if (w.type === SC.WARNING_UNPLANNED) {
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_UNPLANNED + '] is added against release with id [' + w._id + ']')
+                    if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) === -1)) {
+                        logger.debug('Pushing  [' + SC.WARNING_UNPLANNED + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.push(SC.WARNING_UNPLANNED)
+                    }
+                }
+            }
+        })
+    }
+    let promisesResult = await Promise.all(promises)
+    return {generatedWarnings, updatedTaskPlans}
+}
+
+
 /**
  * Delete task planning
  **/
@@ -975,8 +1060,10 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     /******************************* RELEASE UPDATES *****************************************************/
     release = await releaseUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, release, plannedHourNumber)
-    let warningResponse = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release, plannedHourNumber)
 
+    let warningResponseObject = await makeWarningUpdatesOnDeleteTaskPlanning(taskPlan, releasePlan, release, plannedHourNumber)
+    let warningResponse = warningResponseObject.generatedWarnings
+    let updatedTaskPlans = warningResponseObject.updatedTaskPlans
     let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
 
 
@@ -992,7 +1079,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await releasePlan.save()
     await release.save()
     /* remove task planning */
-    return {warning: warningResponse, taskPlan: taskPlanningResponse, updateTaskPlans: []}
+    return {warning: warningResponse, taskPlan: taskPlanningResponse, updatedTaskPlans: updatedTaskPlans}
 }
 
 
