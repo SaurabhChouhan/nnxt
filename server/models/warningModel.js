@@ -399,15 +399,15 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
 
 const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, plannedHourNumber, warningResponse) => {
 
-    let LessPlannedHoursWarning = await WarningModel.findOne({
+    let lessPlannedHoursWarning = await WarningModel.findOne({
         type: SC.WARNING_LESS_PLANNED_HOURS,
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
 
-    if (LessPlannedHoursWarning) {
+    if (lessPlannedHoursWarning) {
         // For release check
-        if (LessPlannedHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
-            LessPlannedHoursWarning.releases.push(Object.assign({}, release.toObject(), {
+        if (lessPlannedHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
+            lessPlannedHoursWarning.releases.push(Object.assign({}, release.toObject(), {
                 source: true
             }))
             logger.debug('WARNING_LESS_PLANNED_HOURS release', {release})
@@ -419,8 +419,8 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, 
             })
         }
         // For releasePlan check
-        if (LessPlannedHoursWarning.releasePlans.findIndex(rp => rp && rp._id && releasePlan.toObject()._id && rp._id.toString() === releasePlan.toObject()._id.toString()) === -1) {
-            LessPlannedHoursWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {
+        if (lessPlannedHoursWarning.releasePlans.findIndex(rp => rp && rp._id && releasePlan.toObject()._id && rp._id.toString() === releasePlan.toObject()._id.toString()) === -1) {
+            lessPlannedHoursWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {
                 source: true
             }))
             warningResponse.added.push({
@@ -431,7 +431,7 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, 
             })
         }
         //No need to check for task plan it will always be a new task plan
-        LessPlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {
+        lessPlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {
             source: true
         }))
         warningResponse.added.push({
@@ -440,6 +440,7 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, 
             type: SC.WARNING_LESS_PLANNED_HOURS,
             source: true
         })
+        await lessPlannedHoursWarning.save()
     } else {
         let newLessPlannedHoursWarning = new WarningModel()
         newLessPlannedHoursWarning.type = SC.WARNING_LESS_PLANNED_HOURS
@@ -465,6 +466,7 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release, 
             type: SC.WARNING_LESS_PLANNED_HOURS,
             source: true
         })
+        await newLessPlannedHoursWarning.save()
     }
     return warningResponse
 }
