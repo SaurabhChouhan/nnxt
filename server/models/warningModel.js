@@ -131,17 +131,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
     }
 
     let planningDateUtc = U.dateInUTC(momentPlanningDate)
-    /* A task plan which is going to be created */
-    let currentTaskPlan = {
-        _id: taskPlan._id,
-        release: {
-            _id: release.toObject()._id,
-        },
-        releasePlan: {
-            _id: releasePlan.toObject()._id,
-        },
-        source: true
-    }
+
     /* See if there is already a too many hours warning */
     let tooManyHoursWarning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
@@ -154,7 +144,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         //logger.debug('too many hours warning already exists')
         /* Update Existing warning WARNING_TOO_MANY_HOURS of same employee and planned date */
         /* Check current release is available in release list of warning if not available then push it to list*/
-        if (tooManyHoursWarning.releases.findIndex(r => r && r._id && release.toObject()._id && r._id.toString() === release.toObject()._id.toString()) === -1) {
+        if (tooManyHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
             tooManyHoursWarning.releases.push(Object.assign({}, release.toObject(), {
                 source: true
             }))
@@ -168,7 +158,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         }
 
         /* Check current releasePlan is available in releasePlan list of warning if not available then push it to list*/
-        if (tooManyHoursWarning.releasePlans.findIndex(rp => rp && rp._id && releasePlan.toObject()._id && rp._id.toString() === releasePlan.toObject()._id.toString()) === -1) {
+        if (tooManyHoursWarning.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) === -1) {
             tooManyHoursWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {
                 source: true
             }))
@@ -181,12 +171,12 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
             })
         }
 
-        tooManyHoursWarning.taskPlans.push(currentTaskPlan)
+        tooManyHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
 
         await tooManyHoursWarning.save()
 
         warningResponse.added.push({
-            _id: currentTaskPlan._id,
+            _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_TOO_MANY_HOURS,
             source: true
@@ -207,7 +197,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         })
 
         if (distinctReleaseIDs && distinctReleaseIDs.length) {
-            if (distinctReleaseIDs.findIndex(d => d.toString() == release._id.toString()) == -1)
+            if (distinctReleaseIDs.findIndex(d => d.toString() === release._id.toString()) === -1)
                 distinctReleaseIDs.push(release._id) // adding release of current task plan if not already there
 
         } else {
@@ -218,7 +208,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         let releasesPromises = distinctReleaseIDs.map(releaseID => {
             return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
                 //logger.debug('releaseDetail', {releaseDetail})
-                if (releaseDetail && releaseDetail._id.toString() === release.toObject()._id.toString()) {
+                if (releaseDetail && releaseDetail._id.toString() === release._id.toString()) {
                     warningResponse.added.push({
                         _id: releaseDetail._id,
                         warningType: SC.WARNING_TYPE_RELEASE,
@@ -252,7 +242,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         })
 
         if (distinctReleasePlanIDs && distinctReleasePlanIDs.length) {
-            if (distinctReleaseIDs.findIndex(d => d.toString() == releasePlan._id.toString()) == -1)
+            if (distinctReleasePlanIDs.findIndex(d => d.toString() === releasePlan._id.toString()) === -1)
                 distinctReleasePlanIDs.push(releasePlan._id) // adding release plan of current task plan if not already there
 
         } else {
@@ -263,7 +253,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         let releasePlanPromises = distinctReleasePlanIDs.map(releasePlanID => {
             return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID)).then(releasePlanDetail => {
                 //logger.debug('releasePlanDetail', {releasePlanDetail})
-                if (releasePlanDetail._id.toString() === releasePlan.toObject()._id.toString()) {
+                if (releasePlanDetail._id.toString() === releasePlan._id.toString()) {
 
                     warningResponse.added.push({
                         _id: releasePlanDetail._id,
@@ -297,7 +287,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         })
 
         warningResponse.added.push({
-            _id: currentTaskPlan._id,
+            _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_TOO_MANY_HOURS,
             source: true
@@ -311,9 +301,8 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
                 source: false
             })
         })
-
         newWarning.type = SC.WARNING_TOO_MANY_HOURS
-        newWarning.taskPlans = [...taskPlans, currentTaskPlan]
+        newWarning.taskPlans = [...taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
         newWarning.releasePlans = [...releasePlans]
         newWarning.releases = [...releases]
         newWarning.employeeDays = [...employeeDays]
@@ -582,7 +571,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
             "status": SC.LEAVE_STATUS_RAISED
         })
 
-        if (leaves) {
+        if (leaves && leaves.length > 0) {
 
             let employeeAskedForLeaveWarning = new WarningModel()
             employeeAskedForLeaveWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
