@@ -15,7 +15,7 @@ class ReleaseList extends Component {
     }
 
     onRowClick(row) {
-        this.props.history.push("/app-home/release-project-tasks")
+        this.props.history.push("/app-home/release-plan")
         this.props.releaseSelected(row)
 
     }
@@ -47,38 +47,38 @@ class ReleaseList extends Component {
         return ''
     }
 
-    formatBilledHours(row) {
-        if (row) {
-            return row.expectedBilledHours
+    formatBilledHours(column, row) {
+        if (row.iterations[0]) {
+            return row.iterations[0].expectedBilledHours
         }
         return ''
     }
 
-    formatPlannedHours(row) {
-        if (row) {
-            return row.plannedHours
+    formatPlannedHours(column, row) {
+        if (row.iterations[0]) {
+            return row.iterations[0].plannedHours
         }
         return ''
     }
 
-    formatStartDate(row) {
-        if (row) {
-            return moment(row.devStartDate).format("DD-MM-YYYY")
+    formatStartDate(column, row) {
+        if (row.iterations[0]) {
+            return moment(row.iterations[0].devStartDate).format("DD-MM-YYYY")
         }
         return ''
     }
 
-    formatEndDate(row) {
-        if (row) {
-            return moment(row.devEndDate).format("DD-MM-YYYY")
+    formatEndDate(column, row) {
+        if (row.iterations[0]) {
+            return moment(row.iterations[0].devEndDate).format("DD-MM-YYYY")
         }
         return ''
     }
 
 
-    formatReleaseDate(row) {
-        if (row) {
-            return moment(row.clientReleaseDate).format("DD-MM-YYYY")
+    formatReleaseDate(column, row) {
+        if (row.iterations[0]) {
+            return moment(row.iterations[0].clientReleaseDate).format("DD-MM-YYYY")
         }
         return ''
     }
@@ -130,23 +130,23 @@ class ReleaseList extends Component {
                                                dataFormat={this.formatLeader.bind(this)}>
                                 Leader
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
+                            <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatBilledHours.bind(this)}>
                                 Billed Hours
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
+                            <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatPlannedHours.bind(this)}>
                                 Planned Hours
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
+                            <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatStartDate.bind(this)}>
                                 Start Date
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
+                            <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatEndDate.bind(this)}>
                                 End Date
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='initial'
+                            <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatReleaseDate.bind(this)}>
                                 Release Date
                             </TableHeaderColumn>

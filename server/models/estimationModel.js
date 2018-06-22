@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
-import * as MDL from "./index"
+import * as MDL from './index'
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
-import {userHasRole} from "../utils"
+import {userHasRole} from '../utils'
 import * as V from '../validation'
 import _ from 'lodash'
 
@@ -85,7 +85,7 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
         let estimatorEstimations = await EstimationModel.find({
             isArchived: false,
             isDeleted: false,
-            "estimator._id": mongoose.Types.ObjectId(user._id),
+            'estimator._id': mongoose.Types.ObjectId(user._id),
             status: {$ne: SC.STATUS_INITIATED}
         }, {
             description: 1,
@@ -109,7 +109,7 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
         let negotiatorEstimations = await EstimationModel.find({
             isArchived: false,
             isDeleted: false,
-            "negotiator._id": mongoose.Types.ObjectId(user._id)
+            'negotiator._id': mongoose.Types.ObjectId(user._id)
         }, {
             description: 1,
             project: 1,
@@ -123,11 +123,11 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
-    if (status == "all" && projectID == 'all') {
+    if (status == 'all' && projectID == 'all') {
 
         return estimations
 
-    } else if (status == "all") {
+    } else if (status == 'all') {
 
         return estimations.filter(estimation => estimation.project._id == projectID)
 
@@ -150,13 +150,13 @@ estimationSchema.statics.getById = async estimationID => {
     }, {
         $lookup: {
             from: 'estimationtasks',
-            let: {estimationID: "$_id"},
+            let: {estimationID: '$_id'},
             pipeline: [{
                 $match: {
                     $expr: {
                         $and: [
-                            {$eq: ["$estimation._id", "$$estimationID"]},
-                            {$eq: [{$ifNull: ["$feature._id", true]}, true]}
+                            {$eq: ['$estimation._id', '$$estimationID']},
+                            {$eq: [{$ifNull: ['$feature._id', true]}, true]}
                         ]
                     }
                 }
@@ -166,12 +166,12 @@ estimationSchema.statics.getById = async estimationID => {
     }, {
         $lookup: {
             from: 'estimationfeatures',
-            let: {estimationID: "$_id"},
+            let: {estimationID: '$_id'},
             pipeline: [{
                 $match: {
                     $expr: {
                         $and: [
-                            {$eq: ["$estimation._id", "$$estimationID"]}
+                            {$eq: ['$estimation._id', '$$estimationID']}
                         ]
                     }
                 }
@@ -179,9 +179,9 @@ estimationSchema.statics.getById = async estimationID => {
             }, {
                 $lookup: {
                     from: 'estimationtasks',
-                    localField: "_id",
-                    foreignField: "feature._id",
-                    as: "tasks"
+                    localField: '_id',
+                    foreignField: 'feature._id',
+                    as: 'tasks'
                 }
             }],
             as: 'features'
@@ -252,14 +252,14 @@ estimationSchema.statics.deleteEstimationById = async (estimationID, negotiator)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED, SC.STATUS_INITIATED], estimation.status))
-        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + " or " + SC.STATUS_INITIATED + "] can delete Estimation", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + ' or ' + SC.STATUS_INITIATED + '] can delete Estimation', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (estimation.negotiator._id != negotiator._id)
         throw new AppError('You are not a negotiator of this Estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    await MDL.EstimationTaskModel.remove({"estimation._id": estimationID})
-    await MDL.EstimationFeatureModel.remove({"estimation._id": estimationID})
-    await EstimationModel.remove({"_id": estimationID})
+    await MDL.EstimationTaskModel.remove({'estimation._id': estimationID})
+    await MDL.EstimationFeatureModel.remove({'estimation._id': estimationID})
+    await EstimationModel.remove({'_id': estimationID})
     return {estimationID}
 }
 
@@ -278,7 +278,7 @@ estimationSchema.statics.updateEstimationByNegotiator = async (estimationInput, 
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (estimation.status != SC.STATUS_INITIATED)
-        throw new AppError('Only estimations with status [' + SC.STATUS_INITIATED + "] can Edit", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_INITIATED + '] can Edit', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
@@ -324,7 +324,7 @@ estimationSchema.statics.request = async (estimationID, negotiator) => {
         throw new AppError('This estimation has different negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (estimation.status != SC.STATUS_INITIATED)
-        throw new AppError('Only estimations with status [' + SC.STATUS_INITIATED + "] can be requested", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_INITIATED + '] can be requested', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     estimation.status = SC.STATUS_ESTIMATION_REQUESTED
     estimation.statusHistory.push({
@@ -346,14 +346,14 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
         let estimationTaskPromises
         let EstimationPendingFeatures
 
-        let EstimationTasks = await MDL.EstimationTaskModel.find({"estimation._id": estimationID}, {"isDeleted": false})
+        let EstimationTasks = await MDL.EstimationTaskModel.find({'estimation._id': estimationID}, {'isDeleted': false})
         if (!EstimationTasks || !(EstimationTasks.length)) {
             return new Promise((resolve, reject) => {
                 return resolve(false)
             })
         }
 
-        let EstimationPendingTasks = await MDL.EstimationTaskModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
+        let EstimationPendingTasks = await MDL.EstimationTaskModel.find({'estimation._id': estimationID}, {'isDeleted': false}, {'status': SC.STATUS_PENDING})
         let estimationTasks
 
         if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
@@ -362,8 +362,8 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                     || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
                     || _.isEmpty(task.estimator.name)
                     || _.isEmpty(task.estimator.description)) {
-                    return MDL.EstimationTaskModel.updateOne({_id: task._id}, {"canApprove": false})
-                } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {"canApprove": true})
+                    return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'canApprove': false})
+                } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'canApprove': true})
 
             })
 
@@ -375,8 +375,8 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                 if ((!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
                     || _.isEmpty(task.estimator.name)
                     || _.isEmpty(task.estimator.description)) {
-                    return MDL.EstimationTaskModel.updateOne({_id: task._id}, {"hasError": true})
-                } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {"hasError": false})
+                    return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'hasError': true})
+                } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'hasError': false})
 
             })
 
@@ -385,7 +385,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
         }
         if (EstimationTasks && EstimationTasks.length) {
 
-            EstimationPendingFeatures = await MDL.EstimationFeatureModel.find({"estimation._id": estimationID}, {"isDeleted": false}, {"status": SC.STATUS_PENDING})
+            EstimationPendingFeatures = await MDL.EstimationFeatureModel.find({'estimation._id': estimationID}, {'isDeleted': false}, {'status': SC.STATUS_PENDING})
             if (EstimationPendingFeatures && EstimationPendingFeatures.length) {
 
                 let estimationFeaturePromises = EstimationPendingFeatures.map(async feature => {
@@ -394,26 +394,26 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
                         || _.isEmpty(feature.estimator.name)
                         || _.isEmpty(feature.estimator.description)) {
                         // console.log("bk 6")
-                        return MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false})
+                        return MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {'canApprove': false})
                     } else {
 
                         return new Promise((resolve, reject) => {
                             //  console.log("bk 7")
                             MDL.EstimationTaskModel.count({
-                                "feature._id": feature._id,
-                                "isDeleted": false,
-                                "status": SC.STATUS_PENDING
+                                'feature._id': feature._id,
+                                'isDeleted': false,
+                                'status': SC.STATUS_PENDING
                             }).then((count) => {
                                 // console.log("count is ", count)
                                 if (count) {
                                     // console.log("bk3")
-                                    MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": false}).then(() => {
+                                    MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {'canApprove': false}).then(() => {
                                         resolve(true)
                                     })
                                 }
                                 else {
                                     // console.log("bk4")
-                                    MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {"canApprove": true}).then(() => {
+                                    MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {'canApprove': true}).then(() => {
                                         resolve(true)
                                     })
                                 }
@@ -431,18 +431,18 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
             }
         }
         let isEstimationTaskPending = await MDL.EstimationTaskModel.count({
-            "estimation._id": estimationID,
-            "isDeleted": false,
-            "status": SC.STATUS_PENDING
+            'estimation._id': estimationID,
+            'isDeleted': false,
+            'status': SC.STATUS_PENDING
         })
         let isEstimationFeaturePending = await MDL.EstimationFeatureModel.count({
-            "estimation._id": estimationID,
-            "isDeleted": false,
-            "status": SC.STATUS_PENDING
+            'estimation._id': estimationID,
+            'isDeleted': false,
+            'status': SC.STATUS_PENDING
         })
         if (isEstimationTaskPending == 0 && isEstimationFeaturePending == 0) {
 
-            let a = await EstimationModel.updateOne({_id: estimationID}, {"canApprove": true}).then(() => {
+            let a = await EstimationModel.updateOne({_id: estimationID}, {'canApprove': true}).then(() => {
                 return new Promise((resolve, reject) => {
                     return resolve(true)
                 })
@@ -450,7 +450,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
 
             return a
         }
-        else return await EstimationModel.updateOne({_id: estimationID}, {"canApprove": false})
+        else return await EstimationModel.updateOne({_id: estimationID}, {'canApprove': false})
     }
     catch (e) {
         //  console.log("can approve error : ", e)
@@ -470,80 +470,80 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
         throw new AppError('Not an estimator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-        throw new AppError('Only estimations with status [' + SC.STATUS_ESTIMATION_REQUESTED + "," + SC.STATUS_CHANGE_REQUESTED + "] can be requested for review", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_ESTIMATION_REQUESTED + ',' + SC.STATUS_CHANGE_REQUESTED + '] can be requested for review', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     let result = await EstimationModel.canApprove(estimation._id, estimator)
     // console.log("can Approve Result", result)
     await MDL.EstimationTaskModel.update({
-        "estimation._id": estimation._id,
-        "owner": SC.OWNER_NEGOTIATOR
+        'estimation._id': estimation._id,
+        'owner': SC.OWNER_NEGOTIATOR
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
     // Reset change request by estimator, if edit was already granted
     await MDL.EstimationTaskModel.update({
-        "estimation._id": estimation._id,
-        "negotiator.changeGranted": true,
-        "estimator.changeRequested": true,
-    }, {$set: {"estimator.changeRequested": false}}, {multi: true})
+        'estimation._id': estimation._id,
+        'negotiator.changeGranted': true,
+        'estimator.changeRequested': true,
+    }, {$set: {'estimator.changeRequested': false}}, {multi: true})
 
     // Reset removal request by estimator, if negotiator has deleted that task
     await MDL.EstimationTaskModel.update({
-        "estimation._id": estimation._id,
-        "isDeleted": true,
-        "estimator.removalRequested": true
-    }, {$set: {"estimator.removalRequested": false}}, {multi: true})
+        'estimation._id': estimation._id,
+        'isDeleted': true,
+        'estimator.removalRequested': true
+    }, {$set: {'estimator.removalRequested': false}}, {multi: true})
 
 
     /**
      * Reset negotiator flags
      */
     await MDL.EstimationTaskModel.update({
-        "estimation._id": estimation._id,
+        'estimation._id': estimation._id,
     }, {
         $set: {
-            "negotiator.changedInThisIteration": false,
-            "negotiator.changeSuggested": false,
-            "negotiator.changeGranted": false,
-            "negotiator.isMovedToFeature": false,
-            "negotiator.isMovedOutOfFeature": false
+            'negotiator.changedInThisIteration': false,
+            'negotiator.changeSuggested': false,
+            'negotiator.changeGranted': false,
+            'negotiator.isMovedToFeature': false,
+            'negotiator.isMovedOutOfFeature': false
         }
     }, {multi: true})
 
     // Add changed in this iteration flag of estimator to true if there are pending requests (change, removal)
     await MDL.EstimationTaskModel.update({
-            $and: [{"estimation._id": estimation._id}, {
+            $and: [{'estimation._id': estimation._id}, {
                 $or: [
-                    {"estimator.changeRequested": true},
-                    {"estimator.removalRequested": true}
+                    {'estimator.changeRequested': true},
+                    {'estimator.removalRequested': true}
                 ]
             }]
         },
         {
             $set:
-                {"estimator.changedInThisIteration": true}
+                {'estimator.changedInThisIteration': true}
         }, {multi: true}
     )
 
     await
         MDL.EstimationFeatureModel.update({
-            "estimation._id": estimation._id,
-            "owner": SC.OWNER_NEGOTIATOR
+            'estimation._id': estimation._id,
+            'owner': SC.OWNER_NEGOTIATOR
         }, {$set: {addedInThisIteration: false}}, {multi: true})
 
 // Reset change request by estimator, if edit was already granted
     await
         MDL.EstimationFeatureModel.update({
-            "estimation._id": estimation._id,
-            "negotiator.changeGranted": true,
-            "estimator.changeRequested": true,
-        }, {$set: {"estimator.changeRequested": false}}, {multi: true})
+            'estimation._id': estimation._id,
+            'negotiator.changeGranted': true,
+            'estimator.changeRequested': true,
+        }, {$set: {'estimator.changeRequested': false}}, {multi: true})
 
 // Reset removal request by estimator, if negotiator has deleted that task
     await
         MDL.EstimationFeatureModel.update({
-            "estimation._id": estimation._id,
-            "isDeleted": true,
-            "estimator.removalRequested": true
-        }, {$set: {"estimator.removalRequested": false}}, {multi: true})
+            'estimation._id': estimation._id,
+            'isDeleted': true,
+            'estimator.removalRequested': true
+        }, {$set: {'estimator.removalRequested': false}}, {multi: true})
 
 
     /**
@@ -551,21 +551,21 @@ estimationSchema.statics.requestReview = async (estimationID, estimator) => {
      */
     await
         MDL.EstimationFeatureModel.update({
-            "estimation._id": estimation._id,
+            'estimation._id': estimation._id,
         }, {
             $set: {
-                "negotiator.changedInThisIteration": false,
-                "negotiator.changeSuggested": false,
-                "negotiator.changeGranted": false
+                'negotiator.changedInThisIteration': false,
+                'negotiator.changeSuggested': false,
+                'negotiator.changeGranted': false
             }
         }, {multi: true})
 
 // Add changed in this iteration flag of estimator to true if there are pending requests (change, removal)
     await
         MDL.EstimationFeatureModel.update({
-            "estimation._id": estimation._id,
-            "$or": [{"estimator.removalRequested": true, "estimator.changeRequested": true}]
-        }, {$set: {"estimator.changedInThisIteration": true}}, {multi: true})
+            'estimation._id': estimation._id,
+            '$or': [{'estimator.removalRequested': true, 'estimator.changeRequested': true}]
+        }, {$set: {'estimator.changedInThisIteration': true}}, {multi: true})
 
 
     estimation = await
@@ -597,39 +597,39 @@ estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can be requested for change", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + '] can be requested for change', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     await MDL.EstimationTaskModel.update({
-        "estimation._id": estimation._id,
-        "owner": SC.OWNER_ESTIMATOR
+        'estimation._id': estimation._id,
+        'owner': SC.OWNER_ESTIMATOR
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
     await MDL.EstimationTaskModel.update({
-            "estimation._id": estimation._id,
+            'estimation._id': estimation._id,
         },
         {
             $set: {
-                "estimator.changedInThisIteration": false,
-                "estimator.changedKeyInformation": false,
-                "estimator.isMovedToFeature": false,
-                "estimator.isMovedOutOfFeature": false
+                'estimator.changedInThisIteration': false,
+                'estimator.changedKeyInformation': false,
+                'estimator.isMovedToFeature': false,
+                'estimator.isMovedOutOfFeature': false
             }
         }, {multi: true})
 
     await MDL.EstimationFeatureModel.update({
-        "estimation._id": estimation._id,
-        "owner": SC.OWNER_ESTIMATOR
+        'estimation._id': estimation._id,
+        'owner': SC.OWNER_ESTIMATOR
     }, {$set: {addedInThisIteration: false}}, {multi: true})
 
     await MDL.EstimationFeatureModel.update({
-            "estimation._id": estimation._id
+            'estimation._id': estimation._id
         },
         {
             $set: {
-                "estimator.changedInThisIteration": false,
-                "estimator.changedKeyInformation": false,
-                "estimator.isMovedToFeature": false,
-                "estimator.isMovedOutOfFeature": false
+                'estimator.changedInThisIteration': false,
+                'estimator.changedKeyInformation': false,
+                'estimator.isMovedToFeature': false,
+                'estimator.isMovedOutOfFeature': false
             }
         }, {multi: true}
     )
@@ -666,21 +666,21 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + '] can approve by negotiator', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let pendingTasksCount = await MDL.EstimationTaskModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false,
+        'estimation._id': estimation._id,
+        'isDeleted': false,
         status: SC.STATUS_PENDING
     })
     let pendingFeaturesCount = await MDL.EstimationFeatureModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false,
+        'estimation._id': estimation._id,
+        'isDeleted': false,
         status: SC.STATUS_PENDING
     })
     let availableTasksCount = await MDL.EstimationTaskModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false
+        'estimation._id': estimation._id,
+        'isDeleted': false
     })
 
     if (availableTasksCount == 0)
@@ -730,28 +730,28 @@ estimationSchema.statics.canApproveEstimationByNegotiator = async (estimationID,
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Only estimations with status [" + SC.STATUS_REVIEW_REQUESTED + "] can approve by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + '] can approve by negotiator', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (estimation.estimatedHours == 0)
         throw new AppError('Estimation approve failed as there is no estimated hours for estimator tasks/features', EC.NO_ESTIMATED_HOUR_ERROR, EC.HTTP_BAD_REQUEST)
 
     let availableTasksCount = await MDL.EstimationTaskModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false
+        'estimation._id': estimation._id,
+        'isDeleted': false
     })
 
     if (availableTasksCount == 0)
         throw new AppError('Estimation approve failed as there are no tasks available', EC.NO_TASKS_ERROR, EC.HTTP_BAD_REQUEST)
 
     let pendingTasksCount = await MDL.EstimationTaskModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false,
+        'estimation._id': estimation._id,
+        'isDeleted': false,
         status: SC.STATUS_PENDING
     })
 
     let pendingFeaturesCount = await MDL.EstimationFeatureModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false,
+        'estimation._id': estimation._id,
+        'isDeleted': false,
         status: SC.STATUS_PENDING
     })
 
@@ -797,22 +797,22 @@ estimationSchema.statics.projectAwardByNegotiator = async (projectAwardData, neg
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))
-        throw new AppError("Only estimations with status [" + SC.STATUS_APPROVED + "] can project award by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_APPROVED + '] can project award by negotiator', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     projectAwardData.estimation = estimation
-    const release = await  MDL.ReleaseModel.addRelease(projectAwardData, negotiator, estimation)
+    const release = await  MDL.ReleaseModel.createRelease(projectAwardData, negotiator, estimation)
     if (!release)
         throw new AppError('No such release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     const taskList = await MDL.EstimationTaskModel.find({
-        "estimation._id": estimation._id,
-        "isDeleted": false
+        'estimation._id': estimation._id,
+        'isDeleted': false
     })
     if (!taskList && !taskList.length > 0)
         throw new AppError('Task list not found for default release plan', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(estimationTask => {
-        return MDL.ReleasePlanModel.addReleasePlan(release, estimation, estimationTask)
+        return MDL.ReleasePlanModel.addReleasePlan(release, 0, estimation, estimationTask)
     })
 
     let releasePlans = await Promise.all(estimationTasksCopyAndReadyForReleasePlanPromises)
@@ -852,7 +852,7 @@ estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, neg
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))
-        throw new AppError("Only estimations with status [" + SC.STATUS_APPROVED + "] can reopen by negotiator", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_APPROVED + '] can reopen by negotiator', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
 
     let statusHistory = {}
@@ -890,18 +890,18 @@ estimationSchema.statics.hasErrorEstimationByEstimator = async (estimationID, es
         throw new AppError('Not a estimator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (_.includes([SC.STATUS_APPROVED], estimation.status))
-        throw new AppError("estimation with status [" + SC.STATUS_APPROVED + "] can not have any error no need to check", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('estimation with status [' + SC.STATUS_APPROVED + '] can not have any error no need to check', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
 
     let errorTaskCount = await MDL.EstimationTaskModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false,
-        "hasError": true
+        'estimation._id': estimation._id,
+        'isDeleted': false,
+        'hasError': true
     })
     let errorFeatureCount = await MDL.EstimationFeatureModel.count({
-        "estimation._id": estimation._id,
-        "isDeleted": false,
-        "hasError": true
+        'estimation._id': estimation._id,
+        'isDeleted': false,
+        'hasError': true
     })
 
     estimation.hasError = (errorTaskCount > 0 || errorFeatureCount > 0) ? true : false
@@ -915,5 +915,5 @@ estimationSchema.statics.hasErrorEstimationByEstimator = async (estimationID, es
 }
 
 
-const EstimationModel = mongoose.model("Estimation", estimationSchema)
+const EstimationModel = mongoose.model('Estimation', estimationSchema)
 export default EstimationModel

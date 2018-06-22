@@ -348,31 +348,19 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
 
 const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourNumber) => {
     // As task plan is added we have to increase release planned hours
-    if (releasePlan.task.initiallyEstimated) {
-        // this task was part of initial estimation so need to add data under initial object
-        release.initial.plannedHours += plannedHourNumber
 
-        if (releasePlan.diffProgress) {
-            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
-            release.initial.progress += releasePlan.diffProgress
-        }
+    release.iterations[releasePlan.release.iterationIndex].plannedHours += plannedHourNumber
 
-        if (releasePlan.diffPlannedHoursEstimatedTasks) {
-            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-            release.initial.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
-        }
+    let iterationIndex = releasePlan.release.iterationIndex
+    if (releasePlan.diffProgress) {
+        logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
+        release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours/release.iterations[iterationIndex].estimatedHours)
+        release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
+    }
 
-    } else {
-        release.additional.plannedHours += plannedHourNumber
-        if (releasePlan.diffProgress) {
-            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
-            release.additional.progress += releasePlan.diffProgress
-        }
-
-        if (releasePlan.diffPlannedHoursEstimatedTasks) {
-            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-            release.additional.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
-        }
+    if (releasePlan.diffPlannedHoursEstimatedTasks) {
+        logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+        release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
     }
 
     return release
@@ -898,30 +886,17 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
 
 const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release, plannedHourNumber) => {
 
-    if (releasePlan.task.initiallyEstimated) {
-        release.initial.plannedHours -= plannedHourNumber
-        if (releasePlan.diffProgress) {
-            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
-            release.initial.progress += releasePlan.diffProgress
-        }
+    let iterationIndex = releasePlan.release.iterationIndex
+    release.iterations[iterationIndex].plannedHours -= plannedHourNumber
+    if (releasePlan.diffProgress) {
+        logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
+        release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours/release.iterations[iterationIndex].estimatedHours)
+        release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
+    }
 
-        if (releasePlan.diffPlannedHoursEstimatedTasks) {
-            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-            release.initial.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
-        }
-
-    } else {
-        release.additional.plannedHours -= plannedHourNumber
-
-        if (releasePlan.diffProgress) {
-            logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
-            release.additional.progress += releasePlan.diffProgress
-        }
-
-        if (releasePlan.diffPlannedHoursEstimatedTasks) {
-            logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-            release.additional.plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
-        }
+    if (releasePlan.diffPlannedHoursEstimatedTasks) {
+        logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+        release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
     }
 
     return release
@@ -1260,7 +1235,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {initial: 1, additional: 1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -1478,53 +1453,30 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     /************************************** RELEASE UPDATES  ***************************************/
 
-    /* check to see if this task was initially estimated or new one */
-    if (releasePlan.task.initiallyEstimated) {
-        /* this task was initially estimated */
-        release.initial.reportedHours += reportedHoursToIncrement
-        if (!reReport) {
-            // Add planned hours of reported task to release if it is first time reporting
-            release.initial.plannedHoursReportedTasks += taskPlan.planning.plannedHours
-            if (releasePlan.diffProgress)
-                release.initial.progress += releasePlan.diffProgress
-        }
+    let iterationIndex = releasePlan.release.iterationIndex
 
-        if (!release.initial || !release.initial.maxReportedDate || (release.initial.maxReportedDate && reportedMoment.isAfter(release.initial.maxReportedDate))) {
-            /* if reported date is greater than earlier max reported date change that */
-            release.initial.maxReportedDate = reportedMoment.toDate()
-        }
-
-        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
-            /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
-            release.initial.estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
-        } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
-            /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
-            release.initial.estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
-        }
-
-    } else {
-        release.additional.reportedHours += reportedHoursToIncrement
-
-        if (!reReport) {
-            // Add planned hours of reported task to release if it is first time reporting
-            release.additional.plannedHoursReportedTasks += taskPlan.planning.plannedHours
-            if (releasePlan.diffProgress)
-                release.additional.progress += releasePlan.diffProgress
-        }
-
-        if (!release.additional || !release.additional.maxReportedDate || (release.additional.maxReportedDate && reportedMoment.isAfter(release.additional.maxReportedDate))) {
-            /* if reported date is greater than earlier max reported date change that */
-            release.additional.maxReportedDate = reportedMoment.toDate()
-        }
-
-        if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
-            /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
-            release.additional.estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
-        } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
-            /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
-            release.additional.estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
-        }
+    release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
+    if (!reReport) {
+        // Add planned hours of reported task to release if it is first time reporting
+        release.iterations[iterationIndex].plannedHoursReportedTasks += taskPlan.planning.plannedHours
+        if (releasePlan.diffProgress)
+            release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours/release.iterations[iterationIndex].estimatedHours)
+        release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
     }
+
+    if (!release.iterations[iterationIndex].maxReportedDate || (release.iterations[iterationIndex].maxReportedDate && reportedMoment.isAfter(release.iterations[iterationIndex].maxReportedDate))) {
+        /* if reported date is greater than earlier max reported date change that */
+        release.iterations[iterationIndex].maxReportedDate = reportedMoment.toDate()
+    }
+
+    if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
+        /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
+        release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
+    } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
+        /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
+        release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
+    }
+
 
     /*************************** TASK PLAN UPDATES ***********************************/
 

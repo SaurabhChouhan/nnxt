@@ -194,28 +194,28 @@ class ReleasePlanList extends Component {
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={release && release.initial && release.initial.devStartDate ? moment(release.initial.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                                title={release && release.iterations[0] && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.initial && release.initial.devStartDate ? moment(release.initial.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.iterations[0] && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={release && release.initial && release.initial.devEndDate ? moment(release.initial.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                                title={release && release.iterations[0] && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.initial && release.initial.devEndDate ? moment(release.initial.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.iterations[0] && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={release && release.initial && release.initial.clientReleaseDate ? moment(release.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                                title={release && release.iterations[0] && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.initial && release.initial.clientReleaseDate ? moment(release.initial.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.iterations[0] && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className=" col-md-2 releasefileoption">
@@ -258,12 +258,12 @@ class ReleasePlanList extends Component {
                         <div className="col-md-3">
                             <div className="col-md-6  releaseClock  releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Estimated Hours"></i><b>{release.initial ? release.initial.estimatedHours : ''}
+                                   title="Estimated Hours"></i><b>{release.iterations[0] ? release.iterations[0].estimatedHours : ''}
                                 Hrs</b>
                             </div>
                             <div className="col-md-6  releaseClock releasePlannedHrs releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Planned Hours"></i><b>{release.initial ? release.initial.plannedHours : ''}
+                                   title="Planned Hours"></i><b>{release.iterations[0] ? release.iterations[0].plannedHours : ''}
                                 Hrs</b>
                             </div>
                         </div>
