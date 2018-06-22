@@ -27,6 +27,7 @@ let taskPlanningSchema = mongoose.Schema({
     task: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
+        description: {type: String},
     },
     release: {
         _id: mongoose.Schema.ObjectId,
@@ -350,7 +351,7 @@ const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourN
 }
 
 
-const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber, momentPlanningDate) => {
+const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber, momentPlanningDate, taskPlanningInput) => {
     let taskPlan = new TaskPlanningModel()
     taskPlan.created = Date.now()
     taskPlan.planningDate = momentPlanningDate
@@ -358,9 +359,9 @@ const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber,
     taskPlan.task = releasePlan.task
     taskPlan.release = release
     taskPlan.releasePlan = releasePlan
-    taskPlan.employee = Object.assign({}, employee.toObject(), {name: employee.firstName ? employee.firstName + ' ' : '' + employee.lastName ? employee.lastName : ''})
+    taskPlan.employee = Object.assign({}, employee.toObject(), {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
-    taskPlan.description = releasePlan.task.description ? releasePlan.task.description : ''
+    taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
     return taskPlan
 }
 
