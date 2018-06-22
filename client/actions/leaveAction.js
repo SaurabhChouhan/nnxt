@@ -180,7 +180,10 @@ export const addLeaveRequestOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addLeave(json.data))
+                    if (json.data.leave) {
+                        dispatch(addLeave(json.data.leave))
+                    }
+
                 }
                 return json
             }
@@ -206,7 +209,9 @@ export const deleteLeaveFromServer = (leaveID) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(deleteLeave(json.data))
+                    if (json.data.leave) {
+                        dispatch(deleteLeave(json.data.leave))
+                    }
                 }
                 return json
             }
@@ -233,7 +238,10 @@ export const cancelLeaveRequestFromServer = (leaveID, reason) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(updateLeave(json.data))
+                    if (json.data.leave) {
+                        dispatch(updateLeave(json.data.leave))
+                    }
+
                 }
                 return json
             }
@@ -259,7 +267,9 @@ export const approveLeaveRequestFromServer = (leaveID, reason) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(updateLeave(json.data))
+                    if (json.data.leave) {
+                        dispatch(updateLeave(json.data.leave))
+                    }
                 }
                 return json
             }
