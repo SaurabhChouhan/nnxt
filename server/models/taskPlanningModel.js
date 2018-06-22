@@ -959,7 +959,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
-                                if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
+                                if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
                                     logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning from task plan [' + t._id + ']')
                                     t.flags.pull(SC.WARNING_TOO_MANY_HOURS)
                                     return t.save()
