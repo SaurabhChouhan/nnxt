@@ -26,6 +26,11 @@ export const updateTaskPlanning = (taskPlan) => ({
     taskPlan: taskPlan
 })
 
+export const updateTaskPlans = (taskPlans) => ({
+    type: AC.UPDATE_TASK_PLANS,
+    taskPlans: taskPlans
+})
+
 export const releaseSelected = (release) => ({
     type: AC.RELEASE_SELECTED,
     release: release
@@ -236,6 +241,10 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
                     if (json.data && json.data.taskPlan.releasePlan && json.data.taskPlan.releasePlan._id) {
                         dispatch(getUpdatedReleasePlanFromServer(json.data.taskPlan.releasePlan._id))
                     }
+                    if (json.data && json.data.updatedTaskPlans && json.data.updatedTaskPlans.length > 0) {
+                        dispatch(updateTaskPlans(json.data && json.data.updatedTaskPlans))
+                    }
+
                 }
                 return json
             })
@@ -288,6 +297,9 @@ export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
                     }
                     if (json.data && json.data.taskPlan && json.data.taskPlan.releasePlan && json.data.taskPlan.releasePlan._id) {
                         dispatch(getUpdatedReleasePlanFromServer(json.data.taskPlan.releasePlan._id))
+                    }
+                    if (json.data && json.data.updatedTaskPlans && json.data.updatedTaskPlans.length > 0) {
+                        dispatch(updateTaskPlans(json.data && json.data.updatedTaskPlans))
                     }
                 }
                 return json

@@ -71,6 +71,17 @@ const releaseReducer = (state = initialState, action) => {
                     (tp._id === action.taskPlan._id) ? Object.assign({}, action.taskPlan) : tp) : []
             })
 
+        case AC.UPDATE_TASK_PLANS:
+            // update task plans from planning list
+            return Object.assign({}, state, {
+                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.map(tp => {
+                    if (action.taskPlans.findIndex(taskPlan => taskPlan._id.toString() === tp._id.toString() === -1))
+                        return tp
+                    else return action.taskPlans.find(taskPlan => taskPlan._id.toString() === tp._id.toString())
+                }) : []
+
+            })
+
         case AC.DELETE_TASK_PLAN:
             // Delete task planning from planning list
             return Object.assign({}, state, {

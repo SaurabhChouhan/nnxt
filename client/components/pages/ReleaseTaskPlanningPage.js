@@ -188,7 +188,7 @@ class ReleaseTaskPlanningPage extends Component {
                             <div className="backarrow">
                                 <h5>
                                     <button className="btn-link" title="Go Back" onClick={() => {
-                                        this.props.history.push("/app-home/release-project-tasks")
+                                        this.props.history.push("/app-home/release-plan")
                                         this.props.ReleaseTaskGoBack(release)
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                                     <b title={releasePlan && releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
