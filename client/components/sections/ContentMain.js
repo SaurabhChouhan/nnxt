@@ -235,7 +235,7 @@ class ContentMain extends Component {
         })
 
         routes.push({
-            url: "/release-project-tasks",
+            url: "/release-plan",
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
