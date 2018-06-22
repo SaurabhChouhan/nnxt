@@ -598,8 +598,23 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     logger.debug('addTaskPlanning(): adding release ', {release})
     await release.save()
     logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
+
+
+    let releasePlanEstimatedHours = Number(releasePlan.task.billedHours)
+    let releasePlanPlannedHours = Number(releasePlan.planning.plannedHours)
+
+    if (releasePlanPlannedHours < releasePlanEstimatedHours) {
+        releasePlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
+    } else if (releasePlanPlannedHours > releasePlanEstimatedHours) {
+        releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
+        releasePlan.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
+    } else {
+        releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
+        releasePlan.flags.pull(SC.WARNING_MORE_PLANNED_HOURS)
+    }
     await releasePlan.save()
     logger.debug('addTaskPlanning(): saving task plan ', {releasePlan})
+
     await taskPlan.save()
 
     return {
