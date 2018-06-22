@@ -189,7 +189,7 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
     if (leaveRequest.user._id.toString() !== user._id.toString()) {
         throw new AppError("This leave is not belongs to your leave ,user can delete his own leave only", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
-    if (U.momentInUTC(leaveRequest.startDateString).isBefore(U.getNowMoment()) || U.momentInUTC(leaveRequest.startDateString).isBefore(U.getNowMoment())) {
+    if (U.momentInUTC(leaveRequest.startDateString).isBefore(U.getTodayStartingMoment()) || U.momentInUTC(leaveRequest.endDateString).isBefore(U.getTodayStartingMoment())) {
         throw new AppError("This leave already started or ended can not be delete", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
