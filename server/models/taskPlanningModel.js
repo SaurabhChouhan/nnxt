@@ -1926,9 +1926,71 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
             await Promise.all(ShiftingPromises).then(async promise => {
                 // Tasks are now updated with new dates, what we will do now is calculate new employee days hours for each shifted date/existing date
+                // As dates can overlap between existing/shifting we have to remove duplicacy
+                let momentsToProcess = []
+                shiftingData.forEach(data => {
+                    if (momentsToProcess.findIndex(moments => data.existingDate.isSame(moments)) == -1)
+                        momentsToProcess.push(data.existingDate)
+                    if (momentsToProcess.findIndex(moments => data.shiftingDate.isSame(moments)) == -1)
+                        momentsToProcess.push(data.shiftingDate)
+                })
 
+                // now that we have unique dates to process we would start calculating employee days
+                logger.debug('[task-shift] dates to process ', {datesToProcess: momentsToProcess})
 
-                //return await TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
+                TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
+
+                let employeeDaysPromises = momentsToProcess.map(moments => {
+                    return MDL.TaskPlanningModel.aggregate([{
+                        $match: {planningDate: moments.toDate(), 'employee._id': employee._id}
+                    }, {
+                        $project: {
+                            planningDate: 1,
+                            planningDateString: 1,
+                            employee: 1,
+                            plannedHours: {$sum: '$planning.plannedHours'},
+                            count: {$sum: 1}
+                        }
+                    }]).exec().then(result => {
+                        logger.info('result is ', {result})
+                        if (result.length) {
+                            let updates = result[0]
+                            return MDL.EmployeeDaysModel.findOne({
+                                date: moments.toDate(),
+                                'employee._id': employee._id
+                            }).exec().then(ed => {
+                                if (!ed) {
+
+                                    let employeeDays = new MDL.EmployeeDaysModel()
+                                    employeeDays.date = moments.toDate()
+                                    employeeDays.dateString = U.formatDateInUTC(moments)
+                                    employeeDays.employee = employee
+                                    employeeDays.employee.name = employee.firstName
+                                    employeeDays.plannedHours = updates.plannedHours
+                                    logger.debug('No employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], creating... employee days', {employeeDays})
+                                    return employeeDays.save()
+                                } else {
+
+                                    ed.plannedHours = updates.plannedHours
+                                    logger.debug('Employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], updating... employee days ', {ed})
+                                    return ed.save()
+                                }
+                            })
+                        } else {
+                            // no planned hours remaining for this date so remove that entry
+                            logger.debug('No planning day left for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], removing... employee days')
+                            return MDL.EmployeeDaysModel.remove({
+                                date: moments.toDate(),
+                                'employee._id': employee._id
+                            }).exec()
+                        }
+                    })
+                })
+
+                await Promise.all(employeeDaysPromises).then(() => {
+
+                })
+
             })
 
         }
