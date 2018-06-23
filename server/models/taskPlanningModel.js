@@ -1850,9 +1850,13 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
         /*
          *  - Iterate on all planning dates
-         *  - See if planning date is part of work day list
+         *  - See if planning date is part of work day list or holiday list
+         *  - Update tasks accordingly
          *
          */
+
+        // This array would hold an object with existingDate key holding existing date while shiftDate key holding date to shift
+        let shiftingData = []
 
         let ShiftingPromises = daysDetails.taskPlanningDates && daysDetails.taskPlanningDates.length ? daysDetails.taskPlanningDates.map(async (planningDate, idx) => {
             //
@@ -1863,6 +1867,11 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 // Task is planned on business day
                 logger.debug('[task-shift]: planning date [' + planningDate + '] is part of busiess day')
                 let newShiftingDate = daysDetails.AllWorkingDayList[index + taskOnHolidayCount + daysToShiftNumber]
+                shiftingData.push({
+                    existingDate: planningDateMoment,
+                    shiftingDate: newShiftingDate
+                })
+
                 logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
                 let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
                 let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone()
@@ -1872,87 +1881,28 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 if (idx === (Number(daysDetails.taskPlanningDates.length - 1))) {
                     endShiftDateString = newShiftingDateString
                 }
-                if (employee._id == 'all') {
-                    /* task planning of all employee will shift */
-
-                    return await TaskPlanningModel.update({
-                            'release._id': mongoose.Types.ObjectId(release._id),
-                            'planningDate': planningDateMoment.clone().toDate(),
-                            'isShifted': false
-                        },
-                        {
-                            $set: {
-                                'planningDate': newShiftingDateMomentTz.toDate(),
-                                'planningDateString': newShiftingDateString,
-                                'isShifted': true
-                            }
-                        }, {multi: true}).exec()
-                } else {
-                    /* task planning of selected employee will shift */
-
-                    return await TaskPlanningModel.update({
-                            'release._id': mongoose.Types.ObjectId(release._id),
-                            'planningDate': planningDateMoment.clone().toDate(),
-                            'employee._id': mongoose.Types.ObjectId(employee._id),
-                            'isShifted': false
-                        },
-                        {
-                            $set: {
-                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
-                                'planningDateString': newShiftingDateString,
-                                'isShifted': true
-                            }
-                        }, {multi: true}).exec()
-                }
 
             } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(planningDateMoment))) != -1) {
                 /* Task was planned on holidays */
                 logger.debug('[task-shift]: planning date [' + planningDate + '] is part of holiday day')
                 index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(planningDateMoment))
-                logger.debug('[task-shift]: index is [' + index + '] is index.index is ['+daysDetails.AllTasksOnHolidayList[index].index+"]")
+                logger.debug('[task-shift]: index is [' + index + '] is index.index is [' + daysDetails.AllTasksOnHolidayList[index].index + ']')
                 /* new Shifting date where task has to be placed */
-                let newShiftingDate = daysDetails.AllWorkingDayList[taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index + daysToShiftNumber]
-                logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is ['+U.formatDateInUTC(newShiftingDate)+"]")
-                let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
-                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone()
+                let newShiftingDateMoment = daysDetails.AllWorkingDayList[taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index + daysToShiftNumber]
+                logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDateMoment) + ']')
+
+                shiftingData.push({
+                    existingDate: planningDateMoment,
+                    shiftingDate: newShiftingDateMoment
+                })
+
                 /* Calculating last transfer date */
                 if (idx === (Number(daysDetails.taskPlanningDates.length - 1))) {
-                    endShiftDateString = newShiftingDateString
+                    endShiftDateString = U.formatDateInUTC(newShiftingDateMoment)
                 }
                 taskOnHolidayCount++
                 /* updating Task planning to proper date */
-                if (planning.employeeId == 'all') {
-                    /* task planning of all employee will shift */
-                    return await TaskPlanningModel.update({
-                            'release._id': release._id,
-                            'planningDate': planningDateMoment.toDate(),
-                            'isShifted': false
-                        },
-                        {
-                            $set: {
-                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
-                                'planningDateString': newShiftingDateString,
-                                'isShifted': true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                } else {
-                    /* task planning of selected employee will shift */
-                    return await TaskPlanningModel.update({
-                            'release._id': release._id,
-                            'planningDate': planningDateMoment.clone().toDate(),
-                            'employee._id': mongoose.Types.ObjectId(employee._id),
-                            'isShifted': false
-                        },
-                        {
-                            $set: {
-                                'planningDate': newShiftingDateMomentTz.clone().toDate(),
-                                'planningDateString': newShiftingDateString,
-                                'isShifted': true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                }
+
             } else {
                 /* System inconsistency */
                 logger.debug('[task-shift]: planning date [' + planningDate + '] is not found in working days or holidays')
@@ -1961,11 +1911,56 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         }) : new Promise((resolve, reject) => {
             return resolve(false)
         })
-        await Promise.all(ShiftingPromises).then(async promise => {
-            return await TaskPlanningModel.update({'releasePlan._id': planning.releasePlanID}, {$set: {'isShifted': false}}, {multi: true}).exec()
-        })
 
-        await updateEmployeeDays(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc, user)
+        logger.debug('shiftings data is ', {shiftingData})
+
+        /**
+         * We now have existing/shifting date, we would now iterate through every date and then execute updates for one date at a time,
+         * would also update employee days and add any warning generate due to this movement
+         */
+
+        if (shiftingData.length) {
+            let ShiftingPromises = shiftingData.map(data => {
+                if (planning.employeeId == 'all') {
+                    /* task planning of all employee will shift */
+                    return TaskPlanningModel.update({
+                            'release._id': release._id,
+                            'planningDate': data.existingDate.toDate(),
+                            'isShifted': false
+                        },
+                        {
+                            $set: {
+                                'planningDate': data.shiftingDate.toDate(),
+                                'planningDateString': U.formatDateInUTC(data.shiftingDate),
+                                'isShifted': true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                } else {
+                    /* task planning of selected employee will shift */
+                    return TaskPlanningModel.update({
+                            'release._id': release._id,
+                            'planningDate': data.existingDate.toDate(),
+                            'employee._id': mongoose.Types.ObjectId(employee._id),
+                            'isShifted': false
+                        },
+                        {
+                            $set: {
+                                'planningDate': data.shiftingDate.toDate(),
+                                'planningDateString': U.formatDateInUTC(data.shiftingDate),
+                                'isShifted': true
+                            }
+                        }, {multi: true}
+                    ).exec()
+                }
+            })
+            await Promise.all(ShiftingPromises).then(async promise => {
+                return await TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
+            })
+
+        }
+
+        //await updateEmployeeDaysTaskShift(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc, user)
     } else {
         logger.debug('[task-shift]: no tasks found')
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -2266,7 +2261,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         await Promise.all(ShiftingPromises).then(async promise => {
             return await TaskPlanningModel.update({'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id)}, {$set: {'isShifted': false}}, {multi: true}).exec()
         })
-        await updateEmployeeDays(startShiftingDate.toDate(), to.toDate(), user)
+        await updateEmployeeDaysTaskShift(startShiftingDate.toDate(), to.toDate(), user)
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -2324,7 +2319,10 @@ const getDates = async (from, to, taskPlannings, holidayList) => {
 
 }
 
-const updateEmployeeDays = async (startDateString, endDateString, user) => {
+const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user) => {
+
+    logger.debug('[task-shift] updateEmployeeDaysTaskShift() startDateString [' + startDateString + '] endDateString [' + endDateString + ']')
+
     let startDateToString = moment(startDateString).format(SC.DATE_FORMAT)
     let endDateToString = moment(endDateString).format(SC.DATE_FORMAT)
     let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
