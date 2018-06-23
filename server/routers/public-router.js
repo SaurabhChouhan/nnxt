@@ -36,7 +36,7 @@ publicRouter.post('/login', async (ctx, next) => {
 
 publicRouter.get('/execute', async ctx => {
     console.log("execute query")
-    return await MDL.YearlyHolidaysModel.getAllHolidayDates('2018-06-02', '2018-08-01')
+    return await MDL.YearlyHolidaysModel.getAllHolidayMoments('2018-06-02', '2018-08-01')
 })
 
 export default publicRouter

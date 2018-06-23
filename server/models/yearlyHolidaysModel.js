@@ -66,9 +66,9 @@ yearlyHolidaysSchema.statics.getAllHolidaysOfYearFromServer = async (year, logge
 
 yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDateString, endDateString, loggedInUser) => {
 
-    let startDateMoment = U.dateInUTC(startDateString)
+    let startDateMoment = U.momentInUTC(startDateString)
     //  startDateString = startDateMoment.clone().toDate()
-    let endDateMoment = U.dateInUTC(endDateString)
+    let endDateMoment = U.momentInUTC(endDateString)
     //   endDateString = endDateMoment.clone().toDate()
     if (!startDateMoment || !endDateMoment)
         throw new AppError('conversionFailed', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
@@ -78,7 +78,7 @@ yearlyHolidaysSchema.statics.getAllYearlyHolidaysBaseDateToEnd = async (startDat
 }
 
 
-yearlyHolidaysSchema.statics.getAllHolidayDates = async (startDateString, endDateString) => {
+yearlyHolidaysSchema.statics.getAllHolidayMoments = async (startDateString, endDateString) => {
     console.log("inside getAllHolidayDates()")
     let startMoment = U.momentInUTC(startDateString)
     let endMoment = U.momentInUTC(endDateString)
@@ -106,7 +106,7 @@ yearlyHolidaysSchema.statics.getAllHolidayDates = async (startDateString, endDat
         startMoment.days(6)
         saturdayMoment = startMoment.clone()
         console.log(U.formatDateInUTC(saturdayMoment.toDate())+" is Saturday")
-        holidays.push(sundayMoment.format(SC.DATE_FORMAT))
+        holidays.push(sundayMoment.clone())
         sundayMoment.add(1, 'weeks')
     } else {
         // it is a week day
@@ -119,14 +119,13 @@ yearlyHolidaysSchema.statics.getAllHolidayDates = async (startDateString, endDat
     }
 
     while (!saturdayMoment.isAfter(endMoment)) {
-        holidays.push(saturdayMoment.format(SC.DATE_FORMAT))
+        holidays.push(saturdayMoment.clone())
         saturdayMoment.add(1, 'weeks')
         if (!sundayMoment.isAfter(endMoment)) {
-            holidays.push(sundayMoment.format(SC.DATE_FORMAT))
+            holidays.push(sundayMoment.clone())
             sundayMoment.add(1, 'weeks')
         }
     }
-
     return holidays;
 }
 
