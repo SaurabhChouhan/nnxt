@@ -1757,16 +1757,9 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
     /* Days to shift is converted in number*/
     let daysToShiftNumber = Number(planning.daysToShift)
 
-    /* employeeId must be present or its value must be all */
-    let employee = {}
-    if (planning.employeeId && planning.employeeId.toLowerCase() != 'all') {
-        employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
-        if (!employee)
-            throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-    } else
-        employee._id = 'all'
-
+    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
+    if (!employee)
+        throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* Conversion of date into utc */
     let now = new Date()
@@ -1803,26 +1796,16 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    /* Fetch all task plannings on/after base date for this release against this employee id (or all employees) */
-    let taskPlanningDates
-    if (planning.employeeId && planning.employeeId.toLowerCase() == 'all') {
-        /* Get all employee`s task plannings */
-        taskPlanningDates = await TaskPlanningModel.distinct(
-            'planningDateString',
-            {
-                'planningDate': {$gte: baseDateMomentInUtc}
-            })
-    } else {
+    /* Fetch all task plannings on/after base date for this release against this employee id  */
+    /* Get selected employee`s task plannings for this release, task plans of other releases would not be impacted */
+    let taskPlanningDates = await TaskPlanningModel.distinct(
+        'planningDateString',
+        {
+            'employee._id': employee._id,
+            'planningDate': {$gte: baseDateMomentInUtc},
+            'release._id': release._id
+        })
 
-        /* Get selected employee`s task plannings */
-        taskPlanningDates = await TaskPlanningModel.distinct(
-            'planningDateString',
-            {
-                'employee._id': employee._id,
-                'planningDate': {$gte: baseDateMomentInUtc},
-                'release._id': release._id
-            })
-    }
 
     /* Sorting task plannings according to date */
     if (taskPlanningDates && taskPlanningDates.length) {
@@ -1871,16 +1854,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     existingDate: planningDateMoment,
                     shiftingDate: newShiftingDate
                 })
-
                 logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
-                let newShiftingDateString = moment(newShiftingDate).format(SC.DATE_FORMAT)
-                let newShiftingDateMomentTz = momentTZ.tz(newShiftingDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone()
-                /* updating Task planning to proper date */
 
-                /* Calculating last transfer date */
-                if (idx === (Number(daysDetails.taskPlanningDates.length - 1))) {
-                    endShiftDateString = newShiftingDateString
-                }
 
             } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(planningDateMoment))) != -1) {
                 /* Task was planned on holidays */
@@ -1895,11 +1870,6 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     existingDate: planningDateMoment,
                     shiftingDate: newShiftingDateMoment
                 })
-
-                /* Calculating last transfer date */
-                if (idx === (Number(daysDetails.taskPlanningDates.length - 1))) {
-                    endShiftDateString = U.formatDateInUTC(newShiftingDateMoment)
-                }
                 taskOnHolidayCount++
                 /* updating Task planning to proper date */
 
@@ -1921,41 +1891,28 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
         if (shiftingData.length) {
             let ShiftingPromises = shiftingData.map(data => {
-                if (planning.employeeId == 'all') {
-                    /* task planning of all employee will shift */
-                    return TaskPlanningModel.update({
-                            'release._id': release._id,
-                            'planningDate': data.existingDate.toDate(),
-                            'isShifted': false
-                        },
-                        {
-                            $set: {
-                                'planningDate': data.shiftingDate.toDate(),
-                                'planningDateString': U.formatDateInUTC(data.shiftingDate),
-                                'isShifted': true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                } else {
-                    /* task planning of selected employee will shift */
-                    return TaskPlanningModel.update({
-                            'release._id': release._id,
-                            'planningDate': data.existingDate.toDate(),
-                            'employee._id': mongoose.Types.ObjectId(employee._id),
-                            'isShifted': false
-                        },
-                        {
-                            $set: {
-                                'planningDate': data.shiftingDate.toDate(),
-                                'planningDateString': U.formatDateInUTC(data.shiftingDate),
-                                'isShifted': true
-                            }
-                        }, {multi: true}
-                    ).exec()
-                }
+                /* task planning of selected employee will shift */
+                return TaskPlanningModel.update({
+                        'release._id': release._id,
+                        'planningDate': data.existingDate.toDate(),
+                        'employee._id': mongoose.Types.ObjectId(employee._id),
+                        'isShifted': false
+                    },
+                    {
+                        $set: {
+                            'planningDate': data.shiftingDate.toDate(),
+                            'planningDateString': U.formatDateInUTC(data.shiftingDate),
+                            'isShifted': true
+                        }
+                    }, {multi: true}
+                ).exec()
             })
+
             await Promise.all(ShiftingPromises).then(async promise => {
-                return await TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
+                // Tasks are now updated with new dates, what we will do now is calculate new employee days hours for each shifted date/existing date
+
+
+                //return await TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
             })
 
         }
