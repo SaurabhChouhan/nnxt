@@ -156,9 +156,11 @@ releaseSchema.statics.createRelease = async (projectAwardData, user, estimation)
     if (!leader)
         throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    /*
     const projectAlreadyAwarded = await ReleaseModel.findOne({'project._id': mongoose.Types.ObjectId(projectAwardData.estimation.project._id)})
     if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+        */
 
     initial.estimatedHours = estimation.estimatedHours
     initial.expectedBilledHours = projectAwardData.billedHours

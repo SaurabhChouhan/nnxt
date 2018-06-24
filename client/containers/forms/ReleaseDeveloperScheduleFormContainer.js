@@ -2,7 +2,7 @@ import {connect} from 'react-redux'
 import {ReleaseDeveloperScheduleForm} from '../../components'
 import moment from 'moment'
 import * as A from '../../actions'
-import {NotificationManager} from "react-notifications";
+import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, from) => {
@@ -18,14 +18,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? [...state.user.allDevelopers,
-        {
-            "_id": "all",
-            "name": "All developer of this task"
-        }] : [],
+    team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? state.user.allDevelopers : [],
     initialValues: {
-        "employeeId": undefined,
-        "fromSchedule": moment(state.release.fromSchedule).toDate()
+        'employeeId': undefined,
+        'fromSchedule': moment(state.release.fromSchedule).toDate()
     }
 })
 
