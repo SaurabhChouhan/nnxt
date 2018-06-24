@@ -2047,7 +2047,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                             plannedHours: {$sum: '$planning.plannedHours'}
                         }
                     }]).exec().then(result => {
-                        logger.info('result is ', {result})
+                        logger.info('grouping of planned hours result for date  ['+U.formatDateInUTC(moments)+"] is ", {result})
                         if (result.length) {
                             let updates = result[0]
                             return MDL.EmployeeDaysModel.findOne({
@@ -2061,26 +2061,26 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                                     employeeDays.employee = employee
                                     employeeDays.employee.name = employee.firstName
                                     employeeDays.plannedHours = updates.plannedHours
-                                    logger.debug('No employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], creating... employee days', {employeeDays})
-
-                                    makeWarningUpdatesShiftToFuture(release, employeeDays, SC.OPERATION_CREATE).then(() => {
-                                        logger.debug('warning update on shift to future completed successfully')
-                                    }).catch((error) => {
-                                        console.log(error) // for appropriate line numbers
-                                        logger.error('warning update on shift to future failed ')
+                                    return employeeDays.save().then(()=>{
+                                        logger.debug('No employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], creating... employee days', {employeeDays})
+                                        makeWarningUpdatesShiftToFuture(release, employeeDays).then(() => {
+                                            logger.debug('warning update on shift to future completed successfully')
+                                        }).catch((error) => {
+                                            console.log(error) // for appropriate line numbers
+                                            logger.error('warning update on shift to future failed ')
+                                        })
                                     })
-
-                                    return employeeDays.save()
                                 } else {
-                                    ed.plannedHours = updates.plannedHours
-                                    makeWarningUpdatesShiftToFuture(release, ed, SC.OPERATION_UPDATE).then(() => {
-                                        logger.debug('warning update on shift to future completed successfully')
-                                    }).catch((error) => {
-                                        console.log(error) // for appropriate line numbers
-                                        logger.error('warning update on shift to future failed ')
-                                    })
                                     logger.debug('Employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], updating... employee days ', {ed})
-                                    return ed.save()
+                                    ed.plannedHours = updates.plannedHours
+                                    return ed.save().then(()=>{
+                                        makeWarningUpdatesShiftToFuture(release, ed).then(() => {
+                                            logger.debug('warning update on shift to future completed successfully')
+                                        }).catch((error) => {
+                                            console.log(error) // for appropriate line numbers
+                                            logger.error('warning update on shift to future failed ')
+                                        })
+                                    })
                                 }
                             })
                         } else {
