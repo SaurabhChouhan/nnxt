@@ -1783,7 +1783,7 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
                     // push too many hours flag if not already there into all release plans affected due to movement of this day's task
                     MDL.ReleasePlanModel.findById(w._id).then(r => {
                         if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
-                            logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + t._id + ']')
+                            logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
                             r.flags.push(SC.WARNING_TOO_MANY_HOURS)
                             return r.save()
                         }

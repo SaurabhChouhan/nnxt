@@ -1258,8 +1258,6 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
     }
 
     if (employeeDays.plannedHours > maxPlannedHours) {
-
-
         let taskPlanData = []
         logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] planned hours crossed max planned hours')
         // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
@@ -1444,8 +1442,8 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
     return warningResponse
 }
 
-warningSchema.statics.movedToFuture = async (release, employeeDays, action, maxPlannedHoursNumber) => {
-    logger.debug('WarningModel.movedToFuture() called: ', {employeeDays}, {action}, {maxPlannedHoursNumber})
+warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHoursNumber) => {
+    logger.debug('WarningModel.movedToFuture() called: ', {employeeDays}, {maxPlannedHoursNumber})
 
     let warningResponse = {
         added: [],
