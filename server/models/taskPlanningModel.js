@@ -475,7 +475,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                     promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                             if (t && t.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1) {
-                                logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + t._id + ']')
+                                logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + t._id + ']')
                                 t.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
                                 return t.save()
                             }
@@ -937,7 +937,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + releasePlan._id + ']')
+                        logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_TOO_MANY_HOURS)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
@@ -1766,12 +1766,12 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 }
 
 
-const makeWarningUpdatesShiftToFuture = async (release, employeeDays, action) => {
+const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
 
     // Max planned hours would come handy to add too many hours warning
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
-    let generatedWarnings = await MDL.WarningModel.movedToFuture(release, employeeDays, action, maxPlannedHoursNumber)
+    let generatedWarnings = await MDL.WarningModel.movedToFuture(release, employeeDays, maxPlannedHoursNumber)
 
     logger.debug('[task-shift] taskPlanningModel.makeWarningUpdatesShiftToFuture(): Generated warnings ', {generatedWarnings})
 
@@ -1779,10 +1779,11 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays, action) =>
         generatedWarnings.added.forEach(w => {
             if (w.type === SC.WARNING_TOO_MANY_HOURS) {
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
+                    logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
                     // push too many hours flag if not already there into all release plans affected due to movement of this day's task
                     MDL.ReleasePlanModel.findById(w._id).then(r => {
                         if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
+                            logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + t._id + ']')
                             r.flags.push(SC.WARNING_TOO_MANY_HOURS)
                             return r.save()
                         }
@@ -1790,7 +1791,7 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays, action) =>
 
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
+                    logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
                     // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                     MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
@@ -1811,7 +1812,39 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays, action) =>
         })
     }
 
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        generatedWarnings.removed.forEach(w => {
+            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed for release plan with id [' + w._id + ']')
+                    MDL.ReleasePlanModel.findById(w._id).then(r => {
+                        logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
+                        if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
+                            r.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+                            return r.save()
+                        }
+                    })
+                }
+                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
+                    // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
+                    MDL.TaskPlanningModel.findById(w._id).then(t => {
+                        if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
+                            logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
+                            t.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+                            return t.save()
 
+                        }
+                    })
+                }
+            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
+                // TODO - need to handle employee on leave warnings
+
+            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
+                // TODO - need to handle employee ask for leave warnings
+            }
+        })
+    }
 }
 
 /*
@@ -2053,10 +2086,22 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         } else {
                             // no planned hours remaining for this date so remove that entry
                             logger.debug('No planning day left for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], removing... employee days')
+                            makeWarningUpdatesShiftToFuture(release, {
+                                employee: employee,
+                                date: moments.toDate(),
+                                plannedHours: 0 // adding planned hours as 0 would ensure deletion of too many hours warning
+                            }, SC.OPERATION_DELETE).then(() => {
+                                logger.debug('warning update on shift to future completed successfully')
+                            }).catch((error) => {
+                                console.log(error) // for appropriate line numbers
+                                logger.error('warning update on shift to future failed ')
+                            })
                             return MDL.EmployeeDaysModel.remove({
                                 date: moments.toDate(),
                                 'employee._id': employee._id
                             }).exec()
+
+
                         }
                     })
                 })

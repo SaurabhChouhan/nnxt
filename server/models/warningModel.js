@@ -1248,7 +1248,7 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
     return warningResponse
 }
 
-const addTooManyHoursTasksMoved = async (release, employeeDays, action, maxPlannedHours) => {
+const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours) => {
 
     logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() handling too many hours task moved for date [' + U.formatDateInUTC(employeeDays.date) + ']')
 
@@ -1258,6 +1258,8 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, action, maxPlann
     }
 
     if (employeeDays.plannedHours > maxPlannedHours) {
+
+
         let taskPlanData = []
         logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] planned hours crossed max planned hours')
         // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
@@ -1385,7 +1387,6 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, action, maxPlann
     })
 
     if (tooManyHoursWarning) {
-
         logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] too many hours warning exists ', {tooManyHoursWarning})
 
         /* As too many warning already exists, there is a possibility that this warning is due to tasks that have now shift to other days or probably because
@@ -1401,12 +1402,7 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, action, maxPlann
         tooManyHoursWarning.releases.forEach(r => {
             logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] iterating on release id ' + r._id)
             // Add this release to remove list if it is not added in warning add response
-            if (warningResponse.added.findIndex(wa => {
-                    logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] iterating on added warning ', {wa})
-                    if (wa._id.toString() == r._id.toString() && wa.warningType == SC.WARNING_TYPE_RELEASE)
-                        return true
-                    return false;
-                }) == -1) {
+            if (warningResponse.added.findIndex(wa => wa._id.toString() === r._id.toString() && wa.warningType === SC.WARNING_TYPE_RELEASE) === -1) {
                 logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] release [' + r._id.toString() + '] not part of new warning hence removing')
                 warningResponse.removed.push({
                     _id: r._id,
@@ -1418,7 +1414,7 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, action, maxPlann
         })
 
         tooManyHoursWarning.releasePlans.forEach(rp => {
-            if (warningResponse.added.findIndex(wa => wa._id.toString() == rp._id.toString() && wa.warningType == SC.WARNING_TYPE_RELEASE_PLAN) == -1) {
+            if (warningResponse.added.findIndex(wa => wa._id.toString() === rp._id.toString() && wa.warningType === SC.WARNING_TYPE_RELEASE_PLAN) === -1) {
                 logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] release plan [' + rp._id.toString() + '] not part of new warning hence removing')
                 warningResponse.removed.push({
                     _id: rp._id,
@@ -1430,11 +1426,11 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, action, maxPlann
         })
 
         tooManyHoursWarning.taskPlans.forEach(tp => {
-            if (warningResponse.added.findIndex(wa => wa._id.toString() == tp._id.toString() && wa.warningType == SC.WARNING_TYPE_TASK_PLAN) == -1) {
+            if (warningResponse.added.findIndex(wa => wa._id.toString() === tp._id.toString() && wa.warningType === SC.WARNING_TYPE_TASK_PLAN) === -1) {
                 logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] task plan [' + tp._id.toString() + '] not part of new warning hence removing')
                 warningResponse.removed.push({
                     _id: tp._id,
-                    warningType: SC.WARNING_TYPE_RELEASE,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
                     type: SC.WARNING_TOO_MANY_HOURS,
                     source: tp.source
                 })
@@ -1456,7 +1452,7 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, action, maxP
         removed: []
     }
 
-    let tooManyHoursWarning = await addTooManyHoursTasksMoved(release, employeeDays, action, maxPlannedHoursNumber)
+    let tooManyHoursWarning = await addTooManyHoursTasksMoved(release, employeeDays, maxPlannedHoursNumber)
 
     if (tooManyHoursWarning.added && tooManyHoursWarning.added.length)
         warningResponse.added.push(...tooManyHoursWarning.added)
