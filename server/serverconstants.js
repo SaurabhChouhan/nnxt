@@ -82,6 +82,9 @@ export const TYPE_DEVELOPMENT = 'development'
 export const OPERATION_ADDITION = 'addition'
 export const OPERATION_SUBTRACTION = 'subtraction'
 export const OPERATION_SUBTRACTION_AND_ADDITION = 'subtraction-and-addition'
+export const OPERATION_CREATE = 'create'
+export const OPERATION_UPDATE = 'update'
+export const OPERATION_DELETE = 'delete'
 
 
 //warning related
