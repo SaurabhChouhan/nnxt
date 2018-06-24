@@ -1257,6 +1257,21 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
         removed: []
     }
 
+    /*     Get existing , there is a possibility that this warning is due to tasks that have now shift to other days or probably because
+           there are other tasks assigned against this employee on this day in other releases. In asynchronous environment it is very difficult to ascertain
+           that warnings of moved tasks would be removed before handling tasks that are moved to this date hence we would rather start afresh
+
+           We will therefore remove this warning later on and create new. We will just see if this warning has any release/plan/task
+           added against it that are now not part of new warning if so we would add those to removed list so that flags can be removed from those RPT
+         */
+
+    let tooManyHoursWarning = await WarningModel.findOne({
+        type: SC.WARNING_TOO_MANY_HOURS,
+        'employeeDays.date': employeeDays.date,
+        'employeeDays.employee._id': employeeDays.employee._id
+    })
+
+
     if (employeeDays.plannedHours > maxPlannedHours) {
         let taskPlanData = []
         logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] planned hours crossed max planned hours')
@@ -1373,27 +1388,19 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
         newWarning.taskPlans = [...taskPlanData]
         newWarning.releasePlans = [...releasePlans]
         newWarning.releases = [...releases]
-        newWarning.employeeDays = [...employeeDays]
-        await newWarning.save()
-    }
+        newWarning.employeeDays = [employeeDays]
+        logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] creating new warning ', {newWarning})
 
-    /* See if there is already a too many hours warning */
-    let tooManyHoursWarning = await WarningModel.findOne({
-        type: SC.WARNING_TOO_MANY_HOURS,
-        'employeeDays.date': employeeDays.date,
-        'employeeDays.employee._id': employeeDays.employee._id
-    })
+        try {
+            await newWarning.save()
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     if (tooManyHoursWarning) {
         logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] too many hours warning exists ', {tooManyHoursWarning})
 
-        /* As too many warning already exists, there is a possibility that this warning is due to tasks that have now shift to other days or probably because
-           there are other tasks assigned against this employee on this day in other releases. In asynchronous environment it is very difficult to ascertain
-           that warnings of moved tasks would be removed before handling tasks that are moved to this date hence we would rather start afresh
-
-           We will therefore remove this warning (we have created new warning in place of this above). We will just see if this warning has any release/plan/task
-           added against it that are now not part of new warning if so we would add those to removed list so that flags can be removed from those RPT
-         */
 
         // Iterate on warning response generated above and compare with date in existing warning to see what needs to keep and what needs to be removed
 
