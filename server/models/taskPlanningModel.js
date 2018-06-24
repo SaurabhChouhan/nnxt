@@ -1907,6 +1907,13 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
         logger.debug('shiftings data is ', {shiftingData})
 
+        // Max planned hours would come handy to add too many hours warning
+        let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+
+        //logger.debug('warning.taskPlanned(): employeeSetting', {bk1: employeeSetting})
+        //logger.debug('warning.taskPlanned(): employeeSetting.maxPlannedHours', {bk2: employeeSetting.maxPlannedHours})
+        let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+
         /**
          * We now have existing/shifting date, we would now iterate through every date and then execute updates for one date at a time,
          * would also update employee days and add any warning generate due to this movement
@@ -1930,6 +1937,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     }, {multi: true}
                 ).exec()
             })
+
 
             await Promise.all(ShiftingPromises).then(async promise => {
                 // Tasks are now updated with new dates, what we will do now is calculate new employee days hours for each shifted date/existing date
@@ -1955,8 +1963,14 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                             planningDate: 1,
                             planningDateString: 1,
                             employee: 1,
-                            plannedHours: {$sum: '$planning.plannedHours'},
-                            count: {$sum: 1}
+                            planning: {
+                                plannedHours: 1
+                            }
+                        }
+                    }, {
+                        $group: {
+                            _id: null, // Grouping all records
+                            plannedHours: {$sum: '$planning.plannedHours'}
                         }
                     }]).exec().then(result => {
                         logger.info('result is ', {result})
@@ -1967,7 +1981,6 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                                 'employee._id': employee._id
                             }).exec().then(ed => {
                                 if (!ed) {
-
                                     let employeeDays = new MDL.EmployeeDaysModel()
                                     employeeDays.date = moments.toDate()
                                     employeeDays.dateString = U.formatDateInUTC(moments)
@@ -1975,9 +1988,13 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                                     employeeDays.employee.name = employee.firstName
                                     employeeDays.plannedHours = updates.plannedHours
                                     logger.debug('No employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], creating... employee days', {employeeDays})
+
+                                    MDL.WarningModel.movedToFuture(employeeDays, 'created', maxPlannedHoursNumber).then(warningResponse => {
+                                        logger.debug('[task-shift]: Moved to future warning response ', warningResponse)
+                                    })
+
                                     return employeeDays.save()
                                 } else {
-
                                     ed.plannedHours = updates.plannedHours
                                     logger.debug('Employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], updating... employee days ', {ed})
                                     return ed.save()
