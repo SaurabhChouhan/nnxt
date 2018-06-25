@@ -1773,7 +1773,10 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
     let generatedWarnings = await MDL.WarningModel.movedToFuture(release, employeeDays, maxPlannedHoursNumber)
 
+
     logger.debug('[task-shift] taskPlanningModel.makeWarningUpdatesShiftToFuture(): Generated warnings ', {generatedWarnings})
+
+    let warningPromises = []
 
     if (generatedWarnings.added && generatedWarnings.added.length) {
         generatedWarnings.added.forEach(w => {
@@ -1781,26 +1784,26 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
                     // push too many hours flag if not already there into all release plans affected due to movement of this day's task
-                    MDL.ReleasePlanModel.findById(w._id).then(r => {
+                    warningPromises.push(MDL.ReleasePlanModel.findById(w._id).then(r => {
                         if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
                             logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
                             r.flags.push(SC.WARNING_TOO_MANY_HOURS)
                             return r.save()
                         }
-                    })
+                    }))
 
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
                     // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
-                    MDL.TaskPlanningModel.findById(w._id).then(t => {
+                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
                             logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
                             t.flags.push(SC.WARNING_TOO_MANY_HOURS)
                             return t.save()
 
                         }
-                    })
+                    }))
 
                 }
             } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
@@ -1817,25 +1820,25 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
             if (w.type === SC.WARNING_TOO_MANY_HOURS) {
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed for release plan with id [' + w._id + ']')
-                    MDL.ReleasePlanModel.findById(w._id).then(r => {
+                    warningPromises.push(MDL.ReleasePlanModel.findById(w._id).then(r => {
                         logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
                         if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
                             r.flags.pull(SC.WARNING_TOO_MANY_HOURS)
                             return r.save()
                         }
-                    })
+                    }))
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
                     // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
-                    MDL.TaskPlanningModel.findById(w._id).then(t => {
+                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
                             logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
                             t.flags.pull(SC.WARNING_TOO_MANY_HOURS)
                             return t.save()
 
                         }
-                    })
+                    }))
                 }
             } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
                 // TODO - need to handle employee on leave warnings
@@ -1845,6 +1848,9 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
             }
         })
     }
+    return await Promise.all(warningPromises).then(() => {
+        return generatedWarnings
+    })
 }
 
 /*
@@ -2013,7 +2019,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
             })
 
 
-            await Promise.all(ShiftingPromises).then(async promise => {
+            return await Promise.all(ShiftingPromises).then(async promise => {
                 // Tasks are now updated with new dates, what we will do now is calculate new employee days hours for each shifted date/existing date
                 // As dates can overlap between existing/shifting we have to remove duplicacy
                 let momentsToProcess = []
@@ -2047,7 +2053,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                             plannedHours: {$sum: '$planning.plannedHours'}
                         }
                     }]).exec().then(result => {
-                        logger.info('grouping of planned hours result for date  ['+U.formatDateInUTC(moments)+"] is ", {result})
+                        logger.info('grouping of planned hours result for date  [' + U.formatDateInUTC(moments) + '] is ', {result})
                         if (result.length) {
                             let updates = result[0]
                             return MDL.EmployeeDaysModel.findOne({
@@ -2061,65 +2067,69 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                                     employeeDays.employee = employee
                                     employeeDays.employee.name = employee.firstName
                                     employeeDays.plannedHours = updates.plannedHours
-                                    return employeeDays.save().then(()=>{
-                                        logger.debug('No employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], creating... employee days', {employeeDays})
-                                        makeWarningUpdatesShiftToFuture(release, employeeDays).then(() => {
-                                            logger.debug('warning update on shift to future completed successfully')
-                                        }).catch((error) => {
-                                            console.log(error) // for appropriate line numbers
-                                            logger.error('warning update on shift to future failed ')
-                                        })
-                                    })
+                                    return employeeDays.save()
+
                                 } else {
                                     logger.debug('Employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], updating... employee days ', {ed})
                                     ed.plannedHours = updates.plannedHours
-                                    return ed.save().then(()=>{
-                                        makeWarningUpdatesShiftToFuture(release, ed).then(() => {
-                                            logger.debug('warning update on shift to future completed successfully')
-                                        }).catch((error) => {
-                                            console.log(error) // for appropriate line numbers
-                                            logger.error('warning update on shift to future failed ')
-                                        })
-                                    })
+                                    return ed.save()
                                 }
                             })
                         } else {
                             // no planned hours remaining for this date so remove that entry
                             logger.debug('No planning day left for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], removing... employee days')
-                            makeWarningUpdatesShiftToFuture(release, {
-                                employee: employee,
-                                date: moments.toDate(),
-                                plannedHours: 0 // adding planned hours as 0 would ensure deletion of too many hours warning
-                            }, SC.OPERATION_DELETE).then(() => {
-                                logger.debug('warning update on shift to future completed successfully')
-                            }).catch((error) => {
-                                console.log(error) // for appropriate line numbers
-                                logger.error('warning update on shift to future failed ')
-                            })
                             return MDL.EmployeeDaysModel.remove({
                                 date: moments.toDate(),
                                 'employee._id': employee._id
-                            }).exec()
-
-
+                            }).then(() => {
+                                return {
+                                    employee: employee,
+                                    date: moments.toDate(),
+                                    plannedHours: 0 // adding planned hours as 0 would ensure deletion of too many hours warning
+                                }
+                            })
                         }
                     })
                 })
 
-                await Promise.all(employeeDaysPromises).then(() => {
+                let employeeDaysArray = await Promise.all(employeeDaysPromises)
+                logger.debug('[task-shift] employee days ', {employeeDaysArray})
 
-                })
+                if (employeeDaysArray && employeeDaysArray.length) {
+                    let warningPromises = employeeDaysArray.map(ed => {
+                        return makeWarningUpdatesShiftToFuture(release, ed).then((warningResponse) => {
+                            logger.debug('warning update on shift to future completed successfully')
+                            return warningResponse
+                        }).catch((error) => {
+                            console.log(error) // for appropriate line numbers
+                            logger.error('warning update on shift to future failed ')
+                            return {
+                                added: [],
+                                removed: []
+                            }
+                        })
+                    })
 
+                    let allWarningsTaskShift = await Promise.all(warningPromises)
+                    logger.debug('[task-shift] employee days ', {allWarningsTaskShift})
+
+                    logger.debug('[task-shift] returning response')
+                    return {
+                        taskPlan: planning,
+                        warnings: allWarningsTaskShift
+                    }
+                } else {
+                    return {
+                        taskPlan: planning,
+                        warnings: []
+                    }
+                }
             })
-
         }
-
-        //await updateEmployeeDaysTaskShift(startShiftDateString, endShiftDateString ? endShiftDateString : nowMomentInUtc, user)
     } else {
         logger.debug('[task-shift]: no tasks found')
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    return planning
 }
 
 /*
