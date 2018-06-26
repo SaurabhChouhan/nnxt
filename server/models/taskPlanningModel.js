@@ -2152,12 +2152,12 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     let tooManyHoursReleasePlanRemove = []
                     let tooManyHoursReleasePlanAdd = []
 
-                    allWarningsTaskShift.forEach(w=>{
+                    allWarningsTaskShift.forEach(w => {
                         tooManyHoursReleasePlanRemove.push(...w.tooManyHoursReleasePlanRemove)
                         tooManyHoursReleasePlanAdd.push(...w.tooManyHoursReleasePlanAdd)
                     })
 
-                    logger.debug("ADD/REMOVE REELASE PLANS ", {tooManyHoursReleasePlanRemove}, {tooManyHoursReleasePlanAdd})
+                    logger.debug('ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanRemove}, {tooManyHoursReleasePlanAdd})
 
                     // now add/remove release plan flags
                     tooManyHoursReleasePlanRemove.forEach(rid => {
@@ -2178,13 +2178,6 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                             }
                         })
                     })
-
-
-
-
-
-
-
 
 
                     logger.debug('[task-shift] employee days ', {allWarningsTaskShift})
