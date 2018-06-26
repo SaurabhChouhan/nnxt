@@ -161,6 +161,10 @@ class ReleasePlanList extends Component {
                 return <img className="div-hover releasePlanFlagImg" key={"completed-before-enddate" + idx}
                             src="/images/completed_before_enddate.png"
                             title="Completed Before Enddate"/>
+            else if (flag === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                return <img className="div-hover releasePlanFlagImg" key={"employee-ask-for-leave"}
+                            src="/images/employee-ask-for-leave.png"
+                            title="Employee Ask For Leave"/>
             else return ''
         }) : null
         return <span>{flagImageArray}</span>

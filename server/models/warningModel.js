@@ -152,7 +152,6 @@ const deleteWarningWithResponse = async (warning, warningResponse, warningType) 
 }
 
 
-
 /*-------------------------------------------------------------------TASK_PLAN_ADDED_SECTION-------------------------------------------------------------------*/
 const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
     //logger.info('toManyHoursWarning():  ')
@@ -405,7 +404,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
             'status': SC.LEAVE_STATUS_RAISED
         })
 
-        if (leaves) {
+        if (leaves && leaves.length) {
 
             let employeeAskedForLeaveWarning = new WarningModel()
             employeeAskedForLeaveWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
@@ -1534,6 +1533,49 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHo
     if (tooManyHoursWarning.removed && tooManyHoursWarning.removed.length)
         warningResponse.removed.push(...tooManyHoursWarning.removed)
 
+    return warningResponse
+
+}
+
+
+warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, user) => {
+    let startDateMoment = U.momentInUTC(startDate)
+    let endDateMoment = U.momentInUTC(endDate)
+    let singleDateMoment = startDateMoment.clone()
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    while (singleDateMoment.isSameOrBefore(endDateMoment)) {
+        let newWarningResponse = {
+            added: [],
+            removed: []
+        }
+        let leaveWarning = await WarningModel.findOne({
+            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+            'employeeDay.date': singleDateMoment.toDate(),
+            'employeeDay.employee._id': user._id
+        })
+        if (leaveWarning) {
+            let count = await MDL.LeaveModel.count({
+                "_id": {$neq: leave._id},
+                'user._id': user._id,
+                'startDate': {$gte: singleDateMoment.toDate()},
+                'endDate': {$lte: singleDateMoment.toDate()},
+                'status': SC.LEAVE_STATUS_RAISED
+
+            })
+            if (count == 0) {
+                newWarningResponse = await deleteWarningWithResponse(leaveWarning, warningResponse, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+            }
+        }
+        if (newWarningResponse.added && newWarningResponse.added.length)
+            warningResponse.added.push(...newWarningResponse.added)
+        if (newWarningResponse.removed && newWarningResponse.removed.length)
+            warningResponse.removed.push(...newWarningResponse.removed)
+        singleDateMoment = singleDateMoment.add(1, 'days')
+    }
     return warningResponse
 
 }
