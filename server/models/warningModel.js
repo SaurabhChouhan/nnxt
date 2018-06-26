@@ -785,18 +785,19 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             warningResponse.removed.push(...warningsMorePlannedHours.removed)
     } else {
         /*delete more planned hours warning and less planned hours warning*/
-        let warningsMorePlannedHours = await deleteMorePlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
-        if (warningsMorePlannedHours.added && warningsMorePlannedHours.added.length)
-            warningResponse.added.push(...warningsMorePlannedHours.added)
-        if (warningsMorePlannedHours.removed && warningsMorePlannedHours.removed.length)
-            warningResponse.removed.push(...warningsMorePlannedHours.removed)
+        let deleteWarningsMorePlannedHours = await deleteMorePlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
+        if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
+            warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
+        if (deleteWarningsMorePlannedHours.removed && deleteWarningsMorePlannedHours.removed.length)
+            warningResponse.removed.push(...deleteWarningsMorePlannedHours.removed)
 
-        let warningsLessPlannedHours = await deleteLessPlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
 
-        if (warningsLessPlannedHours.added && warningsLessPlannedHours.added.length)
-            warningResponse.added.push(...warningsLessPlannedHours.added)
-        if (warningsLessPlannedHours.removed && warningsLessPlannedHours.removed.length)
-            warningResponse.removed.push(...warningsLessPlannedHours.removed)
+        let deleteWarningsLessPlannedHours = await deleteLessPlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
+
+        if (deleteWarningsLessPlannedHours.added && deleteWarningsLessPlannedHours.added.length)
+            warningResponse.added.push(...deleteWarningsLessPlannedHours.added)
+        if (deleteWarningsLessPlannedHours.removed && deleteWarningsLessPlannedHours.removed.length)
+            warningResponse.removed.push(...deleteWarningsLessPlannedHours.removed)
     }
     return warningResponse
 }
