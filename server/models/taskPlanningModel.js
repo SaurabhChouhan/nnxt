@@ -387,26 +387,20 @@ const updateReleasePlanOnWarningResponseRemoved = async (taskPlan, releasePlan, 
 const updateTaskPlanOnWarningResponseAdded = async (taskPlan, releasePlan, release, warningAddedResponse, warningName) => {
 
     logger.debug('addTaskPlanning(): warning [' + warningName + '] is added against task plan with id [' + warningAddedResponse._id + ']')
-    let promises = []
-    let updatedTaskPlans = []
+
     if (warningAddedResponse._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(warningName) === -1)) {
         logger.debug('Pushing  [' + warningName + '] warning against task plan [' + taskPlan._id + ']')
-        taskPlan.flags.push(warningName)
+       return taskPlan.flags.push(warningName)
     } else {
         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
-        promises.push(MDL.TaskPlanningModel.findById(warningAddedResponse._id).then(t => {
+       return MDL.TaskPlanningModel.findById(warningAddedResponse._id).then(t => {
                 if (t && t.flags.indexOf(warningName) === -1) {
                     logger.debug('Pushing  [' + warningName + '] warning against task plan [' + t._id + ']')
                     t.flags.push(warningName)
                     return t.save()
 
                 }
-            }).then(t => {
-                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
-                return t
-            }
-            )
-        )//promises push closing
+            })
     }
     return {promises, updatedTaskPlans}
 }
@@ -469,10 +463,11 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
             if (w.type === SC.WARNING_TOO_MANY_HOURS) {
                 /*-----------------------------------------------WARNING_TOO_MANY_HOURS_SECTION-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    await updateReleasePlanOnWarningResponseAdded(taskPlan, releasePlan, release, w, SC.WARNING_TOO_MANY_HOURS)
+                    updateReleasePlanOnWarningResponseAdded(taskPlan, releasePlan, release, w, SC.WARNING_TOO_MANY_HOURS)
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     let taskPlanPromiseResponse = await updateTaskPlanOnWarningResponseAdded(taskPlan, releasePlan, release, w, SC.WARNING_TOO_MANY_HOURS)
+                    logger.debug("taskPlanPromiseResponse", {taskPlanPromiseResponse})
                     promises = [...promises, ...taskPlanPromiseResponse.promises]
                     updatedTaskPlans = [...updatedTaskPlans, ...taskPlanPromiseResponse.updatedTaskPlans]
 
@@ -514,7 +509,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                     await updateReleasePlanOnWarningResponseRemoved(taskPlan, releasePlan, release, w, SC.WARNING_UNPLANNED)
                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     let taskPlanPromiseResponse = await updateTaskPlanOnWarningResponseRemoved(taskPlan, releasePlan, release, w, SC.WARNING_UNPLANNED)
-                    promises = [...promises, ...taskPlanPromiseResponse.promises]
+                    promises.push(...taskPlanPromiseResponse.promises)
                     updatedTaskPlans = [...updatedTaskPlans, ...taskPlanPromiseResponse.updatedTaskPlans]
                 }
             } else if (w.type === SC.WARNING_PENDING_ON_END_DATE) {
@@ -541,7 +536,9 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
             }
         })
     }
-
+    logger.debug("make warning changes promises:-", {promises})
+    logger.debug("make warning changes updatedTaskPlans:-", {updatedTaskPlans})
+    logger.debug("make warning changes generatedWarnings:-", {generatedWarnings})
 
     let promisesResult = await Promise.all(promises)
     return {generatedWarnings, updatedTaskPlans}
