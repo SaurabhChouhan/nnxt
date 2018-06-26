@@ -27,7 +27,6 @@ export const ALL_ROLE_ARRAY = [
 ]
 
 
-
 // test emails
 export const SUPER_ADMIN_EMAIL = 'superadmin@test.com'
 export const ADMIN_EMAIL = 'admin@test.com'
