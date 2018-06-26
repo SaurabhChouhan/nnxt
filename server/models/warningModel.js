@@ -1400,8 +1400,6 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
 
     if (tooManyHoursWarning) {
         logger.debug('[task-shift] WarningModel.addTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDays.date) + '] too many hours warning exists ', {tooManyHoursWarning})
-
-
         // Iterate on warning response generated above and compare with date in existing warning to see what needs to keep and what needs to be removed
 
         tooManyHoursWarning.releases.forEach(r => {
