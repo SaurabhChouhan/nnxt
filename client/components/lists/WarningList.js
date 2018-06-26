@@ -90,6 +90,10 @@ class WarningList extends Component {
             return <img className="div-hover releasePlanFlagImg" key={"completed-before-enddate"}
                         src="/images/completed_before_enddate.png"
                         title="Completed Before Enddate"/>
+        else if (flag === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+            return <img className="div-hover releasePlanFlagImg" key={"employee-ask-for-leave"}
+                        src="/images/employee-ask-for-leave.png"
+                        title="Employee Ask For Leave"/>
 
     }
 
@@ -111,32 +115,27 @@ class WarningList extends Component {
     render() {
         const {warnings} = this.props
         return (
-            <div className="estimation">
-                <BootstrapTable options={this.options} data={warnings}
-                                multiColumnSearch={true}
-                                search={true}
-                                striped={true}
-                                hover={true}>
-                    <TableHeaderColumn columnTitle isKey dataField='_id'
-                                       hidden={true}>ID
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='type'>Warning
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='type'
-                                       dataFormat={this.formatFlags.bind(this)}>Warning Flag
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='releases'
-                                       dataFormat={this.formatReleases.bind(this)}>Projects
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='releasePlans'
-                                       dataFormat={this.formatReleasePlans.bind(this)}>Tasks
-                    </TableHeaderColumn>
+            <BootstrapTable options={this.options} data={warnings}
+                            multiColumnSearch={true}
+                            search={true}
+                            striped={true}
+                            hover={true}>
+                <TableHeaderColumn columnTitle isKey dataField='_id'
+                                   hidden={true}>ID
+                </TableHeaderColumn>
+                <TableHeaderColumn width="20%" columnTitle dataField='type'>Warning
+                </TableHeaderColumn>
+                <TableHeaderColumn width="12%" columnTitle dataField='type'
+                                   dataFormat={this.formatFlags.bind(this)}>Warning Flag
+                </TableHeaderColumn>
+                <TableHeaderColumn width="15%" columnTitle dataField='releases'
+                                   dataFormat={this.formatReleases.bind(this)}>Projects
+                </TableHeaderColumn>
+                <TableHeaderColumn columnTitle dataField='releasePlans'
+                                   dataFormat={this.formatReleasePlans.bind(this)}>Tasks
+                </TableHeaderColumn>
 
-                </BootstrapTable>
-
-            </div>
-
-
+            </BootstrapTable>
         )
     }
 }

@@ -346,7 +346,8 @@ export const shiftTasksToFutureOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(getAllTaskPlannedFromServer(json.data.releasePlanID))
+                    if(json.data && json.data.taskPlan)
+                    dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlanID))
                 }
                 return json
             })
