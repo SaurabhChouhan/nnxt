@@ -930,6 +930,8 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, p
     return warningResponse
 }
 
+/*-------------------------------------------------------------------TASK_REPORTED_AS_PENDING_SECTION-------------------------------------------------------------------*/
+
 /**
  * Task reported as pending on end date, see what warning changes can be made
  * @param taskPlan
@@ -1061,6 +1063,8 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
     }
     return warningResponse
 }
+
+/*-------------------------------------------------------------------TASK_REPORTED_AS_COMPLETE_SECTION-------------------------------------------------------------------*/
 
 /**
  * Task reported as completed see what warning changes can be made
@@ -1205,6 +1209,7 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
     return warningResponse
 }
 
+/*-------------------------------------------------------------------LEAVE_ADDED_SECTION-------------------------------------------------------------------*/
 
 /**
  * Employee raised request for leave
@@ -1307,6 +1312,8 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
     }
     return warningResponse
 }
+/*-------------------------------------------------------------------MOVE_TO_FUTURE_SECTION-------------------------------------------------------------------*/
+
 
 const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours) => {
 
@@ -1516,9 +1523,11 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHo
         added: [],
         removed: []
     }
-
+    /*-------------------------------------------WARNING UPDATION-------------------------------------------*/
     let tooManyHoursWarning = await addTooManyHoursTasksMoved(release, employeeDays, maxPlannedHoursNumber)
 
+
+    /*-------------------------------------------RESPONSE UPDATION-------------------------------------------*/
     if (tooManyHoursWarning.added && tooManyHoursWarning.added.length)
         warningResponse.added.push(...tooManyHoursWarning.added)
 
