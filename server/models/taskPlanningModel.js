@@ -1789,20 +1789,8 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
             if (w.type === SC.WARNING_TOO_MANY_HOURS) {
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
 
-                    /*
-                    logger.debug('taskShiftToFuture(): [' + U.formatDateInUTC(employeeDays.date) + '] warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed for release plan with id [' + w._id + ']')
-                    warningPromises.push(MDL.ReleasePlanModel.findById(w._id).then(r => {
-                        logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] [' + U.formatDateInUTC(employeeDays.date) + '] warning against release plan [' + r._id + ']')
-                        if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
-                            r.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-                            return r.save()
-                        }
-                    }))
-                    */
-
                     // add all release plan ids into this array
-                    if (tooManyHoursReleasePlanRemove.indexOf(w._id) == -1)
-                        tooManyHoursReleasePlanRemove.push(w._id)
+                    tooManyHoursReleasePlanRemove.push(w._id.toString())
 
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
@@ -1842,21 +1830,7 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
                     logger.debug('taskShiftToFuture(): [' + U.formatDateInUTC(employeeDays.date) + '] warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
 
                     // As release plan id is part of added list, remove it from remove list if present as even one addition would mean release plan still have that warning
-
-                    idx = tooManyHoursReleasePlanRemove.indexOf(w._id)
-                    if (idx > -1)
-                        tooManyHoursReleasePlanRemove.splice(idx, 1)
-
-                    /*
-
-                    warningPromises.push(MDL.ReleasePlanModel.findById(w._id).then(r => {
-                        if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
-                            logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] [' + U.formatDateInUTC(employeeDays.date) + '] warning against release plan [' + r._id + ']')
-                            r.flags.push(SC.WARNING_TOO_MANY_HOURS)
-                            return r.save()
-                        }
-                    }))
-                    */
+                    tooManyHoursReleasePlanAdd.push(w._id.toString())
                 }
 
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
@@ -2150,15 +2124,32 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
                     let allWarningsTaskShift = await Promise.all(warningPromises)
 
+                    logger.debug('all warning task shift ', {allWarningsTaskShift})
+
                     let tooManyHoursReleasePlanRemove = []
                     let tooManyHoursReleasePlanAdd = []
 
                     allWarningsTaskShift.forEach(w => {
+
+                        logger.debug('adding to remove ', {remove: w.tooManyHoursReleasePlanRemove})
+                        logger.debug('adding to add ', {add: w.tooManyHoursReleasePlanAdd})
                         tooManyHoursReleasePlanRemove.push(...w.tooManyHoursReleasePlanRemove)
                         tooManyHoursReleasePlanAdd.push(...w.tooManyHoursReleasePlanAdd)
                     })
 
-                    logger.debug('ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanRemove}, {tooManyHoursReleasePlanAdd})
+                    /*
+                    logger.debug('BEFORE FILTER ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanRemove})
+                    logger.debug('BEFORE FILTER ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanAdd})
+                    */
+
+                    logger.debug('BEFORE FILTER REMOVE ', {tooManyHoursReleasePlanRemove})
+                    tooManyHoursReleasePlanRemove = tooManyHoursReleasePlanRemove.filter(rid=>tooManyHoursReleasePlanAdd.indexOf(rid) == -1)
+                    logger.debug('FILTERED REMOVE ', {tooManyHoursReleasePlanRemove})
+                    tooManyHoursReleasePlanRemove = _.uniq(tooManyHoursReleasePlanRemove)
+                    tooManyHoursReleasePlanAdd = _.uniq(tooManyHoursReleasePlanAdd)
+
+                    logger.debug('ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanRemove})
+                    logger.debug('ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanAdd})
 
                     // now add/remove release plan flags
                     tooManyHoursReleasePlanRemove.forEach(rid => {
@@ -2166,7 +2157,11 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                             logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
                             if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
                                 r.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-                                return r.save()
+                                return r.save().then(() => {
+                                    logger.debug('release plan [' + r._id + '] has been saved')
+                                }).catch(error => {
+                                    logger.error('caught error ', {error})
+                                })
                             }
                         })
                     })
@@ -2180,13 +2175,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         })
                     })
 
-
-                    logger.debug('[task-shift] employee days ', {allWarningsTaskShift})
-
-                    logger.debug('[task-shift] returning response')
                     return {
-                        taskPlan: planning,
-                        warnings: allWarningsTaskShift
+                        taskPlan: planning
                     }
                 } else {
                     return {
