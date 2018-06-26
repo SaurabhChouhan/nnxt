@@ -51,9 +51,9 @@ leaveSchema.statics.getAllLeaves = async (status, user) => {
     }
 
     leaves = leaves && leaves.length ? leaves.map(leave => Object.assign({}, leave.toObject(), {
-        canDelete: leave.user._id.toString() === user._id.toString(),
-        canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
-        canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+            canDelete: leave.user._id.toString() === user._id.toString(),
+            canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
+            canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
         })
     ) : []
     return leaves
@@ -305,9 +305,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
 
 
 leaveSchema.statics.deleteLeave = async (leaveID, user) => {
-
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
-
     if (!leaveRequest) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -316,12 +314,11 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
     }
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
-    let warningResponses
-
+    let warningResponses = await MDL.WarningModel.leaveDeleted(leaveRequest.startDateString, leaveRequest.endDateString, user, leaveRequest)
+    logger.debug("leave model:-delete warningResponses ", {warningResponses})
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
 
     let leave = await LeaveModel.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
-
     return {leave: leave, warnings: warningResponses}
 }
 

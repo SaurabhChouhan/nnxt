@@ -619,7 +619,8 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
 
     // Get updated release/release plan objects
-    /*-------------------------------- RELEASE PLAN UPDATE SECTION -------------------------------------------*/
+    /*-------------------------------- RELEASE PLAN UPDATE SECTION --------
+    -----------------------------------*/
     releasePlan = await updateReleasePlanOnAddTaskPlanning(releasePlan, selectedEmployee, plannedHourNumber, momentPlanningDate)
 
     /*-------------------------------- RELEASE UPDATE SECTION -------------------------------------------*/
