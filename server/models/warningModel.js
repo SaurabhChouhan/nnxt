@@ -68,6 +68,8 @@ let warningSchema = mongoose.Schema({
     usePushEach: true
 })
 
+
+/*-------------------------------------------------------------------GET_WARNINGS_SECTION_START---------------------------------------------------------------------*/
 warningSchema.statics.getWarnings = async (releaseID, user) => {
     //
 
@@ -86,6 +88,12 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
     }
     return await WarningModel.find({'releases._id': releaseID})
 }
+
+/*-------------------------------------------------------------------GET_WARNINGS_SECTION_END------------------------------------------------------------------------*/
+
+
+/*-------------------------------------------------------------------ADD_UNPLANNED_SECTION_START---------------------------------------------------------------------*/
+
 
 warningSchema.statics.addUnplanned = async (release, releasePlan) => {
     // unplanned warning would be raised against a single release and a single release plan
@@ -106,6 +114,11 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
     return await WarningModel.create(warning)
 }
 
+/*-------------------------------------------------------------------ADD_UNPLANNED_SECTION_END---------------------------------------------------------------------*/
+
+
+/*-------------------------------------------------------------------REMOVED_UNPLANNED_SECTION_START-----------------------------------------------------------------*/
+
 warningSchema.statics.removeUnplanned = async (releasePlan) => {
     // TODO: Add appropriate validation
     // remove unplanned warning from release plan
@@ -114,6 +127,11 @@ warningSchema.statics.removeUnplanned = async (releasePlan) => {
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
 }
+
+/*-------------------------------------------------------------------REMOVED_UNPLANNED_SECTION_END-----------------------------------------------------------------*/
+
+
+/*-------------------------------------------------------------------DELETE_WARNING_WITH_RESPONSE_SECTION_START----------------------------------------------------------*/
 
 const deleteWarningWithResponse = async (warning, warningResponse, warningType) => {
 
@@ -151,8 +169,13 @@ const deleteWarningWithResponse = async (warning, warningResponse, warningType) 
     return warningResponse
 }
 
+/*-------------------------------------------------------------------DELETE_WARNING_WITH_RESPONSE_SECTION_END----------------------------------------------------------*/
 
-/*-------------------------------------------------------------------TASK_PLAN_ADDED_SECTION_START-------------------------------------------------------------------*/
+
+/*-------------------------------------------------------------------TASK_PLAN_ADDED_SECTION_START---------------------------------------------------------------------*/
+
+/*-------------------------------------------------------------------ADD_TOO_MANY_HOURS_SECTION_START-------------------------------------------------------------------*/
+
 const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
     //logger.info('toManyHoursWarning():  ')
     /**
@@ -343,6 +366,10 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
     return warningResponse
 }
 
+/*-------------------------------------------------------------------ADD_TOO_MANY_HOURS_SECTION_END-------------------------------------------------------------------*/
+
+/*-------------------------------------------------------------------UPDATE_EMPLOYEE_ASK_FOR_LEAVE_ON_ADD_TASK_PLAN_SECTION_START--------------------------------------*/
+
 const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release, employee, momentPlanningDate) => {
 
     let warningResponse = {
@@ -424,6 +451,10 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
     }
     return warningResponse
 }
+
+/*-------------------------------------------------------------------UPDATE_EMPLOYEE_ASK_FOR_LEAVE_ON_ADD_TASK_PLAN_SECTION_END--------------------------------------*/
+
+/*-------------------------------------------------------------------UPDATE_EMPLOYEE_ON_LEAVE_ON_ADD_TASK_PLAN_SECTION_START-----------------------------------------*/
 
 const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release, employee, momentPlanningDate) => {
 
@@ -510,6 +541,11 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
     return warningResponse
 }
 
+/*-------------------------------------------------------------------UPDATE_EMPLOYEE_ON_LEAVE_ON_ADD_TASK_PLAN_SECTION_END------------------------------------------*/
+
+
+/*-------------------------------------------------------------------ADD_LESS_PLANNED_HOURS_ON_ADD_TASK_PLAN_SECTION_START-------------------------------------------*/
+
 /**
  * Handles code related to add less planned hours warning
  */
@@ -589,6 +625,10 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
     return warningResponse
 }
 
+/*-------------------------------------------------------------------ADD_LESS_PLANNED_HOURS_ON_ADD_TASK_PLAN_SECTION_END-------------------------------------------*/
+
+/*-------------------------------------------------------------------ADD_MORE_PLANNED_HOURS_ON_ADD_TASK_PLAN_SECTION_START-------------------------------------------*/
+
 const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) => {
 
     let warningResponse = {
@@ -666,6 +706,10 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
     return warningResponse
 }
 
+/*-------------------------------------------------------------------ADD_MORE_PLANNED_HOURS_ON_ADD_TASK_PLAN_SECTION_END-------------------------------------------*/
+
+/*-------------------------------------------------------------------DELETE_MORE_PLANNED_HOURS_ON_ADD_TASK_PLAN_SECTION_START-------------------------------------------*/
+
 const deleteMorePlannedHoursOnAddTaskPlan = async (releasePlan) => {
     let warningResponse = {
         added: [],
@@ -699,6 +743,10 @@ const deleteLessPlannedHoursOnAddTaskPlan = async (releasePlan) => {
     return warningResponse
 }
 
+/*-------------------------------------------------------------------DELETE_MORE_PLANNED_HOURS_ON_ADD_TASK_PLAN_SECTION_END-------------------------------------------*/
+
+
+/*-------------------------------------------------------------------TASK_PLAN_ADDED_----------------------------------------------------------------------------------*/
 /**
  * Called when any task is planned
  */
@@ -873,6 +921,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
 /*-------------------------------------------------------------------TASK_PLAN_DELETED_SECTION_START-------------------------------------------------------------------*/
 
+/*------------------------------------------------------------------DELETE_TOO_MANY_HOURS_SECTION_START-------------------------------------------------------------------*/
 /**
  * Called when task plan is removed. Make necessary warning changes
  *
@@ -956,6 +1005,10 @@ const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC)
     return warningResponse
 }
 
+/*--------------------------------------------------------------DELETE_TOO_MANY_HOURS_SECTION_END-------------------------------------------------------------------*/
+
+
+/*---------------------------------------------------------------TASK_PLAN_DELETED_SECTION_START-------------------------------------------------------------------*/
 
 warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, plannedHourNumber) => {
     /* As task plan is removed it is possible that there is no planning left for this release plan so check that and see if unplanned warning/flag needs to
@@ -1001,7 +1054,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release, p
 }
 /*-------------------------------------------------------------------TASK_PLAN_DELETED_SECTION_END-------------------------------------------------------------------*/
 
-/*-------------------------------------------------------------------TASK_REPORTED_AS_PENDING_SECTION-------------------------------------------------------------------*/
+/*-------------------------------------------------------------------TASK_REPORTED_AS_PENDING_SECTION_START-------------------------------------------------------------------*/
 
 /**
  * Task reported as pending on end date, see what warning changes can be made
@@ -1135,7 +1188,10 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
     return warningResponse
 }
 
-/*-------------------------------------------------------------------TASK_REPORTED_AS_COMPLETE_SECTION-------------------------------------------------------------------*/
+/*-------------------------------------------------------------------TASK_REPORTED_AS_PENDING_SECTION_END-------------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------TASK_REPORTED_AS_COMPLETE_SECTION_START-------------------------------------------------------------------*/
 
 /**
  * Task reported as completed see what warning changes can be made
@@ -1280,7 +1336,10 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
     return warningResponse
 }
 
-/*-------------------------------------------------------------------MOVE_TO_FUTURE_SECTION-------------------------------------------------------------------*/
+/*--------------------------------------------------------TASK_REPORTED_AS_COMPLETE_SECTION_END-------------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------ADD_TO_MANY_HOURS_TASKS_MOVED_START-------------------------------------------------------------------*/
 
 
 const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours) => {
@@ -1482,6 +1541,13 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
     return warningResponse
 }
 
+
+/*------------------------------------------------------ADD_TO_MANY_HOURS_TASKS_MOVED_END-------------------------------------------------------------------*/
+
+
+/*------------------------------------------------------MOVE_TO_FUTURE_SECTION_START-------------------------------------------------------------------*/
+
+
 warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHoursNumber) => {
     logger.debug('WarningModel.movedToFuture() called: ', {employeeDays}, {maxPlannedHoursNumber})
 
@@ -1504,10 +1570,13 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHo
 
 }
 
-/*---------------------------------------------------LEAVE_SECTION--------------------------------------------------------------*/
+/*-------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
 
 
-/*------------------------------------------------LEAVE_ADDED_SECTION--------------------------------------------------------*/
+/*-------------------------------------------------LEAVE_SECTION_START--------------------------------------------------------------*/
+
+
+/*-------------------------------------------------LEAVE_ADDED_SECTION_START--------------------------------------------------------*/
 
 /**
  * Employee raised request for leave
@@ -1611,6 +1680,12 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
     }
     return warningResponse
 }
+
+/*------------------------------------------------LEAVE_ADDED_SECTION_END--------------------------------------------------------*/
+
+
+/*------------------------------------------------LEAVE_DELETED_SECTION_START--------------------------------------------------------*/
+
 warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, user) => {
     let startDateMoment = U.momentInUTC(startDate)
     let endDateMoment = U.momentInUTC(endDate)
@@ -1650,6 +1725,12 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, user) => 
     }
     return warningResponse
 }
+
+
+/*------------------------------------------------LEAVE_DELETED_SECTION_END--------------------------------------------------------*/
+
+
+/*------------------------------------------------LEAVE_APPROVED_SECTION_START--------------------------------------------------------*/
 
 
 warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
@@ -1751,12 +1832,12 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
         //warning already exists for that day no need to do any thing
         singleDateMoment = singleDateMoment.add(1, 'days')
     }
-
-
     return warningResponse
-
 }
 
+/*------------------------------------------------LEAVE_APPROVED_SECTION_START--------------------------------------------------------*/
+
+/*------------------------------------------------LEAVE_SECTION_END--------------------------------------------------------*/
 
 const WarningModel = mongoose.model('Warning', warningSchema)
 export default WarningModel
