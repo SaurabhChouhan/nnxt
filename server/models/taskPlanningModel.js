@@ -735,9 +735,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     // ### All validations should be performed above, it is assumed that things are valid beyond this line ###
 
     // this code should be placed before updating release plan else max planning date would be changed
-    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
-        return e._id.toString() == selectedEmployee._id.toString()
-    })
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => e._id.toString() === selectedEmployee._id.toString())
 
     let plannedAfterMaxDate = false
     if (employeePlanningIdx > -1 && releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate && momentPlanningDate.isAfter(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
