@@ -297,8 +297,8 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
 }
 
 
-const makeWarningUpdatesOnCancelLeaveRequest = async (startDateString, endDateString, user, leave) => {
-    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, user, leave)
+const makeWarningUpdatesOnCancelLeaveRequest = async (startDateString, endDateString, leave, user) => {
+    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, user)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     // According to 'gaurav' no warning going to be added so i am commenting this warning-response added section
@@ -380,7 +380,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
     await leaveRequest.save()
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
 
-    let warningResponses = await makeWarningUpdatesOnCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, user, leaveRequest)
+    let warningResponses = await makeWarningUpdatesOnCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, user)
 
     leaveRequest = leaveRequest.toObject()
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
@@ -490,7 +490,7 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
 
-    let warningResponses = await makeWarningUpdatesOnDeleteLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, user, leaveRequest)
+    let warningResponses = await makeWarningUpdatesOnDeleteLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, user)
     logger.debug("leave model:-delete warningResponses ", {warningResponses})
 
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
