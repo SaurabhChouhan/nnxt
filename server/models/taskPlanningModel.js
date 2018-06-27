@@ -1054,7 +1054,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
         removed: []
     }
     let updatedTaskPlans = []
-    let warningsTaskPlanned = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release, plannedHourNumber)
+    let warningsTaskPlanned = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release)
 
     logger.debug('addTaskPlanning(): warnings task planned ', {warningsTaskPlanned})
 
