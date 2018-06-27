@@ -130,6 +130,7 @@ warningSchema.statics.removeUnplanned = async (releasePlan) => {
 
 /*-------------------------------------------------------------------REMOVED_UNPLANNED_SECTION_END-----------------------------------------------------------------*/
 
+
 /*-------------------------------------------------------------------DELETE_WARNING_WITH_RESPONSE_SECTION_START----------------------------------------------------------*/
 
 const deleteWarningWithResponse = async (warning, warningType) => {
@@ -173,6 +174,11 @@ const deleteWarningWithResponse = async (warning, warningType) => {
 }
 
 /*-------------------------------------------------------------------DELETE_WARNING_WITH_RESPONSE_SECTION_END----------------------------------------------------------*/
+
+
+/*
+* |____________________________________________________________________TASK_PLAN_START____________________________________________________________________|
+*/
 
 
 /*-------------------------------------------------------------------TASK_PLAN_ADDED_SECTION_START-------------------------------------------------------------------*/
@@ -1395,7 +1401,7 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
     return warningResponse
 }
 
-/*-------------------------------------------------------------------MOVE_TO_FUTURE_SECTION-------------------------------------------------------------------*/
+/*-------------------------------------------------------------------MOVE_TO_FUTURE_SECTION_START-------------------------------------------------------------------*/
 
 
 const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours) => {
@@ -1597,9 +1603,6 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
     return warningResponse
 }
 
-/*------------------------------------------------------MOVE_TO_FUTURE_SECTION_START-------------------------------------------------------------------*/
-
-
 warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHoursNumber) => {
     logger.debug('WarningModel.movedToFuture() called: ', {employeeDays}, {maxPlannedHoursNumber})
 
@@ -1622,10 +1625,17 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHo
 
 }
 
-/*-------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
+/*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
 
+/*
+* |____________________________________________________________________TASK_PLAN_END____________________________________________________________________|
+*/
 
-/*------------------------------------------------LEAVE_ADDED_SECTION--------------------------------------------------------*/
+/*
+* |____________________________________________________________________LEAVE_START____________________________________________________________________|
+*/
+
+/*--------------------------------------------------------LEAVE_ADDED_SECTION----------------------------------------------------------------------*/
 
 /**
  * Employee raised request for leave
@@ -1880,6 +1890,10 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
     return warningResponse
 }
 
+
+/*
+* |____________________________________________________________________LEAVE_END____________________________________________________________________|
+*/
 
 const WarningModel = mongoose.model('Warning', warningSchema)
 export default WarningModel
