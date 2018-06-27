@@ -1756,8 +1756,14 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
         })
 
         if (employeeAskForLeaveWarning) {
-            //delete employeeAskForLeaveWarning and recive its warning to newWarningResponse
+            //delete employeeAskForLeaveWarning and receiving its warning to newWarningResponse
+            newWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarning, warningResponse, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+            if (newWarningResponse.added && newWarningResponse.added.length)
+                warningResponse.added.push(...newWarningResponse.added)
+            if (newWarningResponse.removed && newWarningResponse.removed.length)
+                warningResponse.removed.push(...newWarningResponse.removed)
         }
+
         //create new warning for employee on leave
 
         let newWarning = new WarningModel()
