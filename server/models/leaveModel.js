@@ -170,10 +170,6 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
         leaveDaysCount = 0
 
     leaveDaysCount = Number(leaveDaysCount)
-
-    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
-
-
     logger.debug('Leave Added warning response:  ', {warningResponses})
     let leaveType = await MDL.LeaveTypeModel.findById(mongoose.Types.ObjectId(leaveInput.leaveType._id))
     let newLeave = new LeaveModel()
@@ -192,6 +188,9 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.description = leaveInput.description
 
     await newLeave.save(leaveInput)
+
+    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
+
     let warningResponses = await makeWarningUpdatesOnRaiseLeaveRequest(leaveInput.startDate, leaveInput.endDate, user)
 
     newLeave = newLeave.toObject()
@@ -203,7 +202,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
 
 const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateString, user) => {
-    let generatedWarnings = await MDL.WarningModel.leaveAdded(startDateString, endDateString, user)
+    let generatedWarnings = await MDL.WarningModel.leaveApproved(startDateString, endDateString, user)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.added && generatedWarnings.added.length) {
@@ -271,8 +270,9 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     if (!leaveRequest) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    /*--------------------------------------WARNING UPDATE SECTION ----------------------------------*/
-    let warningResponses
+    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
+        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only approve those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
 
     /*--------------------------------EMPLOYEE STATISTICS UPDATE SECTION---------------------------*/
 
@@ -284,16 +284,21 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     leaveRequest.approver.reason = reason
     await leaveRequest.save()
 
+    /*--------------------------------------WARNING UPDATE SECTION ----------------------------------*/
+
+    let warningResponses = await makeWarningUpdatesOnApproveLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, user)
+
+
     leaveRequest = leaveRequest.toObject()
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
-    return leaveRequest
+    return {leave: leaveRequest, warnings: warningResponses}
 }
 
 
-const makeWarningUpdatesOnCancelLeaveRequest = async (startDateString, endDateString, user) => {
-    let generatedWarnings = await MDL.WarningModel.leaveAdded(startDateString, endDateString, user)
+const makeWarningUpdatesOnCancelLeaveRequest = async (startDateString, endDateString, user, leave) => {
+    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, user, leave)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     // According to 'gaurav' no warning going to be added so i am commenting this warning-response added section
@@ -364,8 +369,8 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
     if (!leaveRequest) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
-    let warningResponses = {}
+    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
+        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only cancel those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     /*------------------------------------LEAVE CANCELLATION SECTION----------------------------------*/
     leaveRequest.approver = user
@@ -373,6 +378,9 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
     leaveRequest.approver.reason = reason
     leaveRequest.status = SC.LEAVE_STATUS_CANCELLED
     await leaveRequest.save()
+    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
+
+    let warningResponses = await makeWarningUpdatesOnCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, user, leaveRequest)
 
     leaveRequest = leaveRequest.toObject()
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
@@ -383,8 +391,8 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
 }
 
 
-const makeWarningUpdatesOnDeleteLeave = async (startDateString, endDateString, user) => {
-    let generatedWarnings = await MDL.WarningModel.leaveAdded(startDateString, endDateString, user)
+const makeWarningUpdatesOnDeleteLeaveRequest = async (startDateString, endDateString, leave, user) => {
+    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, user)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     /*  if (generatedWarnings.added && generatedWarnings.added.length) {
@@ -477,10 +485,14 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
     if (leaveRequest.user._id.toString() !== user._id.toString()) {
         throw new AppError("This leave is not belongs to your leave ,user can delete his own leave only", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
+    if (!_.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
+        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only delete those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "," + SC.LEAVE_STATUS_APPROVED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
-    let warningResponses = await MDL.WarningModel.leaveDeleted(leaveRequest.startDateString, leaveRequest.endDateString, user, leaveRequest)
+
+    let warningResponses = await makeWarningUpdatesOnDeleteLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, user, leaveRequest)
     logger.debug("leave model:-delete warningResponses ", {warningResponses})
+
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
 
     let leave = await LeaveModel.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
