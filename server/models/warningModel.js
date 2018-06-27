@@ -429,6 +429,12 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
             newEmployeeAskForLeaveWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
             newEmployeeAskForLeaveWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
             newEmployeeAskForLeaveWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
+            newEmployeeAskForLeaveWarning.employeeDays = [Object.assign({}, employee.toObject(), {
+                source: true,
+                name: employee.firstName + ' ' + employee.lastName,
+                dateString: U.formatDateInUTC(momentPlanningDate),
+                date: momentPlanningDate.toDate()
+            })]
 
             warningResponse.added.push({
                 _id: taskPlan._id,
