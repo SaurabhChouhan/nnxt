@@ -1016,7 +1016,7 @@ const updateEmployeeAskForLeaveOnDeleteTaskPlan = async (taskPlan, releasePlan, 
 
     if (employeeAskForLeaveWarning) {
         //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
-        employeeAskForLeaveWarning.taskPlans = employeeAskForLeaveWarning.taskPlans.filter(tp => tp._id.toString() === taskPlan._id.toString())
+        employeeAskForLeaveWarning.taskPlans = employeeAskForLeaveWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
         warningResponse.removed.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -1032,7 +1032,7 @@ const updateEmployeeAskForLeaveOnDeleteTaskPlan = async (taskPlan, releasePlan, 
                 warningResponse.removed.push(...deleteWarningResponse.removed)
 
         } else {
-            if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length && employeeAskForLeaveWarning.taskPlans.findIndex(rp => tp.releasePlan._id.toString() === releasePlan._id.toString()) === -1) {
+            if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length && employeeAskForLeaveWarning.taskPlans.findIndex(rp => tp.releasePlan._id.toString() === releasePlan._id.toString()) > -1) {
                 employeeAskForLeaveWarning.releasePlans = employeeAskForLeaveWarning.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
                 warningResponse.removed.push({
                     _id: releasePlan._id,
@@ -1041,7 +1041,7 @@ const updateEmployeeAskForLeaveOnDeleteTaskPlan = async (taskPlan, releasePlan, 
                     source: true
                 })
             }
-            if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length && employeeAskForLeaveWarning.taskPlans.findIndex(rp => tp.release._id.toString() === release._id.toString()) === -1) {
+            if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length && employeeAskForLeaveWarning.taskPlans.findIndex(rp => tp.release._id.toString() === release._id.toString()) > -1) {
                 employeeAskForLeaveWarning.releases = employeeAskForLeaveWarning.releases.filter(r => r._id.toString() !== release._id.toString())
                 warningResponse.removed.push({
                     _id: release._id,
@@ -1163,9 +1163,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
 
         if (pendingOnEndDateWarning) {
             // there is already a pending on end date warning
-            if (!pendingOnEndDateWarning.taskPlans || pendingOnEndDateWarning.taskPlans.findIndex(t => {
-                    return t._id.toString() === taskPlan._id.toString()
-                }) === -1) {
+            if (!pendingOnEndDateWarning.taskPlans || pendingOnEndDateWarning.taskPlans.findIndex(t => t._id.toString() === taskPlan._id.toString()) === -1) {
 
                 // add task plan against this warning
 
@@ -1180,9 +1178,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
 
                 // since this task plan was not already part of this warning we would have to see if addition of this task plan would cause new release/releaseplan against this warning
 
-                if (!pendingOnEndDateWarning.releases || pendingOnEndDateWarning.releases.findIndex(r => {
-                        return r._id.toString() === taskPlan.release._id.toString()
-                    }) === -1) {
+                if (!pendingOnEndDateWarning.releases || pendingOnEndDateWarning.releases.findIndex(r => r._id.toString() === taskPlan.release._id.toString()) === -1) {
                     let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
                     pendingOnEndDateWarning.releases.push(Object.assign({}, release.toObject(), {source: true}))
                     warningResponse.added.push({
@@ -1194,9 +1190,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
 
                 }
 
-                if (!pendingOnEndDateWarning.releasePlans || pendingOnEndDateWarning.releasePlans.findIndex(r => {
-                        return r._id.toString() === taskPlan.releasePlan._id.toString()
-                    }) === -1) {
+                if (!pendingOnEndDateWarning.releasePlans || pendingOnEndDateWarning.releasePlans.findIndex(r => r._id.toString() === taskPlan.releasePlan._id.toString()) === -1) {
                     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
                     pendingOnEndDateWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {source: true}))
                     warningResponse.added.push({
