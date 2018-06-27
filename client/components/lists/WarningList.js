@@ -48,7 +48,7 @@ class WarningList extends Component {
                         title="Release Date Missed 4"/>
         else if (flag === SC.WARNING_PLANNED_BEYOND_RELEASE_DATE)
             return <img className="div-hover releasePlanFlagImg" key={"planned_beyond_release_date"}
-                        src="/images/pending_after_enddate.png"
+                        src="/images/planned_beyond_release_date.png"
                         title="Planned Beyond Release Date"/>
         else if (flag === SC.WARNING_LESS_PLANNED_HOURS)
             return <img className="div-hover releasePlanFlagImg" key={"less_planned_hours"}
@@ -84,7 +84,7 @@ class WarningList extends Component {
                         title="Unreported"/>
         else if (flag === SC.WARNING_PENDING_ON_END_DATE)
             return <img className="div-hover releasePlanFlagImg" key={"pending-on-enddate"}
-                        src="/images/pending_after_enddate.png"
+                        src="/images/pending-on-enddate.png"
                         title="Pending On Enddate"/>
         else if (flag === SC.WARNING_COMPLETED_BEFORE_END_DATE)
             return <img className="div-hover releasePlanFlagImg" key={"completed-before-enddate"}
