@@ -1794,7 +1794,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
 
         if (employeeAskForLeaveWarning) {
             //delete employeeAskForLeaveWarning and receiving its warning to newWarningResponse
-           let deleteWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarning, warningResponse, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+           let deleteWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarning, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
             if (deleteWarningResponse.added && deleteWarningResponse.added.length)
                 warningResponse.added.push(...deleteWarningResponse.added)
             if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
