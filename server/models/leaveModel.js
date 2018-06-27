@@ -85,6 +85,7 @@ const getLeaves = async (status, user) => {
 }
 
 const makeWarningUpdatesOnRaiseLeaveRequest = async (startDateString, endDateString, user) => {
+
     let generatedWarnings = await MDL.WarningModel.leaveAdded(startDateString, endDateString, user)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
@@ -201,12 +202,13 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 }
 
 
-const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateString, user) => {
-    let generatedWarnings = await MDL.WarningModel.leaveApproved(startDateString, endDateString, user)
+const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateString, employee) => {
+
+    let generatedWarnings = await MDL.WarningModel.leaveApproved(startDateString, endDateString, employee)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(async w => {
+        generatedWarnings.added.forEach(w => {
             if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
@@ -231,10 +233,11 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
                 }
             }
         })
-
     }
+
+    /*----------------------------------------------------WARNING_RESPONSE_REMOVED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(async w => {
+        generatedWarnings.removed.forEach(w => {
             if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
@@ -286,7 +289,7 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
 
     /*--------------------------------------WARNING UPDATE SECTION ----------------------------------*/
 
-    let warningResponses = await makeWarningUpdatesOnApproveLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, user)
+    let warningResponses = await makeWarningUpdatesOnApproveLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest.user)
 
 
     leaveRequest = leaveRequest.toObject()

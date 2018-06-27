@@ -1832,7 +1832,7 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, user) => 
 }
 
 
-warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
+warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
     let startDateMoment = U.momentInUTC(startDate)
     let endDateMoment = U.momentInUTC(endDate)
     let singleDateMoment = startDateMoment.clone()
@@ -1844,16 +1844,16 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
     /*---------------------Employee On Leave ----------------------*/
 
     while (singleDateMoment.isSameOrBefore(endDateMoment)) {
-       
+
         let employeeAskForLeaveWarning = await WarningModel.findOne({
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             'employeeDays.date': singleDateMoment.toDate(),
-            'employeeDays.employee._id': user._id
+            'employeeDays.employee._id': employee._id
         })
 
         if (employeeAskForLeaveWarning) {
             //delete employeeAskForLeaveWarning and receiving its warning to newWarningResponse
-           let deleteWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarning, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+            let deleteWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarning, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
             if (deleteWarningResponse.added && deleteWarningResponse.added.length)
                 warningResponse.added.push(...deleteWarningResponse.added)
             if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
@@ -1901,7 +1901,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
 
         let distinctReleasePlansIDs = await MDL.TaskPlanningModel.distinct('releasePlan._id', {
             'planningDate': singleDateMoment.toDate(),
-            'employee._id': mongoose.Types.ObjectId(user._id)
+            'employee._id': mongoose.Types.ObjectId(employee._id)
         })
 
         let releasePlansPromises = distinctReleasePlansIDs.map(releasePlanID => {
@@ -1919,7 +1919,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, user) => {
             })
         })
         let employeeDay = {
-            employee: Object.assign({}, user, {name: user.firstName + ' ' + user.lastName}),
+            employee: Object.assign({}, employee, {name: employee.firstName + ' ' + employee.lastName}),
             dateString: singleDateMoment.format(SC.DATE_FORMAT),
             date: singleDateMoment.toDate()
         }
