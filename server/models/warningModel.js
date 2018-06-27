@@ -1233,6 +1233,7 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
             'employeeDay.date': singleDateMoment.toDate(),
             'employeeDay.employee._id': employee._id
         })
+
         if (!warning) {
             //create warning WARNING_EMPLOYEE_ASK_FOR_LEAVE for this date
             let newWarning = new WarningModel()
