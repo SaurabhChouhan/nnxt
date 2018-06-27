@@ -100,6 +100,7 @@ const getNewProgressPercentage = (releasePlan) => {
     return progress.toFixed(2)
 }
 
+/*-------------------------------------------------ADD_TASK_PLANNING_SECTION_START---------------------------------------------------------------*/
 
 const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, momentPlanningDate) => {
 
@@ -420,6 +421,84 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                         )//promises push closing
                     }
                 }
+            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
+                /*-----------------------------------------------WARNING_TOO_MANY_HOURS_SECTION-------------------------------------------------*/
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against release plan with id [' + w._id + ']')
+                    if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1)) {
+                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
+                    } else {
+                        // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                        MDL.ReleasePlanModel.findById(w._id).then(r => {
+                            if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1) {
+                                r.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
+                                return r.save()
+                            }
+                        })
+                    }
+                }
+                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against task plan with id [' + w._id + ']')
+                    if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1)) {
+                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against task plan [' + taskPlan._id + ']')
+                        taskPlan.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
+                    } else {
+                        // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                        promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                                if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1) {
+                                    logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against task plan [' + t._id + ']')
+                                    t.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
+                                    return t.save()
+
+                                }
+                            }).then(t => {
+                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                return t
+                            }
+                            )
+                        )//promises push closing
+                    }
+                }
+            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
+                /*-----------------------------------------------WARNING_TOO_MANY_HOURS_SECTION-------------------------------------------------*/
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is added against release plan with id [' + w._id + ']')
+                    if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) === -1)) {
+                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.push(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                    } else {
+                        // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                        MDL.ReleasePlanModel.findById(w._id).then(r => {
+                            if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) === -1) {
+                                r.flags.push(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                                return r.save()
+                            }
+                        })
+                    }
+                }
+                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is added against task plan with id [' + w._id + ']')
+                    if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) === -1)) {
+                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against task plan [' + taskPlan._id + ']')
+                        taskPlan.flags.push(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                    } else {
+                        // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                        promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                                if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) === -1) {
+                                    logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against task plan [' + t._id + ']')
+                                    t.flags.push(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                                    return t.save()
+
+                                }
+                            }).then(t => {
+                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                return t
+                            }
+                            )
+                        )//promises push closing
+                    }
+                }
             } else if (w.type === SC.WARNING_LESS_PLANNED_HOURS) {
                 /*-----------------------------------------------WARNING_LESS_PLANNED_HOURS_SECTION-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
@@ -450,6 +529,21 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                     if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) === -1)) {
                         logger.debug('Pushing  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
+                    } else {
+                        // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                        promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                                if (t && t.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) === -1) {
+                                    logger.debug('Pushing  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against task plan [' + t._id + ']')
+                                    t.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
+                                    return t.save()
+
+                                }
+                            }).then(t => {
+                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                return t
+                            }
+                            )
+                        )//promises push closing
                     }
                 }
             }
@@ -502,6 +596,36 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                         logger.debug('Pulling  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_COMPLETED_BEFORE_END_DATE)
                     }
+                }
+            } else if (w.type === SC.WARNING_LESS_PLANNED_HOURS) {
+                /*-----------------------------------------------WARNING_COMPLETED_BEFORE_END_DATE_SECTION-------------------------------------------------*/
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                    if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1)) {
+                        logger.debug('Pulling  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
+                        releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
+                    }
+                } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                    if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) === -1)) {
+                        logger.debug('Pushing  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against task plan [' + taskPlan._id + ']')
+                        taskPlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
+                    } else {
+                        logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                        // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
+                        promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                                if (t && t.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1) {
+                                    logger.debug('Pulling  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against task plan [' + t._id + ']')
+                                    t.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
+                                    return t.save()
+                                }
+                            }).then(t => {
+                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                return t
+                            }
+                            )
+                        )
+                    }
+
                 }
             }
         })
@@ -662,7 +786,10 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         updatedTaskPlans: updatedTaskPlans
     }
 }
+/*-------------------------------------------------ADD_TASK_PLANNING_SECTION_END---------------------------------------------------------------*/
 
+
+/*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_START----------------------------------------------------------*/
 
 const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, employee, plannedHourNumber, user) => {
     /* when task plan is removed we have to decrease employee statistics  planned hours*/
@@ -1089,6 +1216,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     /* remove task planning */
     return {warning: warningResponse, taskPlan: taskPlanningResponse, updatedTaskPlans: updatedTaskPlans}
 }
+/*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
 
 /**
