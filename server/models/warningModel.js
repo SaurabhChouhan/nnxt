@@ -346,24 +346,27 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
             'employee._id': mongoose.Types.ObjectId(employee._id)
         })
 
-        warningResponse.added.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_TOO_MANY_HOURS,
-            source: true
-        })
 
         taskPlans.forEach(t => {
+            if (t._id.toString() === taskPlan._id.toString()) {
+                warningResponse.added.push({
+                    _id: taskPlan._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_TOO_MANY_HOURS,
+                    source: true
+                })
+            }
             warningResponse.added.push({
                 _id: t._id,
                 warningType: SC.WARNING_TYPE_TASK_PLAN,
                 type: SC.WARNING_TOO_MANY_HOURS,
                 source: false
             })
+
         })
 
         newWarning.type = SC.WARNING_TOO_MANY_HOURS
-        newWarning.taskPlans = [...taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
+        newWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
         newWarning.releasePlans = [...releasePlans]
         newWarning.releases = [...releases]
         newWarning.employeeDays = [...employeeDays]
