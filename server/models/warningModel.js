@@ -498,6 +498,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
                 type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
                 source: true
             })
+            await newEmployeeAskForLeaveWarning.save()
         }
 
     }
@@ -676,14 +677,14 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
         removed: []
     }
 
-    let MorePlannedHoursWarning = await WarningModel.findOne({
+    let morePlannedHoursWarning = await WarningModel.findOne({
         type: SC.WARNING_MORE_PLANNED_HOURS,
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
-    if (MorePlannedHoursWarning) {
+    if (morePlannedHoursWarning) {
         // For release check
-        if (MorePlannedHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
-            MorePlannedHoursWarning.releases.push(Object.assign({}, release.toObject(), {source: true}))
+        if (morePlannedHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
+            morePlannedHoursWarning.releases.push(Object.assign({}, release.toObject(), {source: true}))
             logger.debug('WARNING_MORE_PLANNED_HOURS release', {release})
             warningResponse.added.push({
                 _id: release._id,
@@ -693,8 +694,8 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             })
         }
         // For releasePlan check
-        if (MorePlannedHoursWarning.releasePlans.findIndex(rp => rp && rp._id && releasePlan.toObject()._id && rp._id.toString() === releasePlan.toObject()._id.toString()) === -1) {
-            MorePlannedHoursWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {source: true}))
+        if (morePlannedHoursWarning.releasePlans.findIndex(rp => rp && rp._id && releasePlan.toObject()._id && rp._id.toString() === releasePlan.toObject()._id.toString()) === -1) {
+            morePlannedHoursWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {source: true}))
             warningResponse.added.push({
                 _id: releasePlan._id,
                 warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -703,7 +704,7 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             })
         }
         //No need to check for task plan it will always be a new task plan
-        MorePlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
+        morePlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
         warningResponse.added.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
