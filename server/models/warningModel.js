@@ -416,14 +416,21 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
     })
 
     if (employeeAskForLeaveWarning) {
+        logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning------------------", {key4: employeeAskForLeaveWarning})
+
         //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
         employeeAskForLeaveWarning.taskPlans = [...employeeAskForLeaveWarning.taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
+        logger.debug("--------------update employee-ask-for-leave ----- employeeAskForLeaveWarning.taskPlans ------------------", {key3: employeeAskForLeaveWarning.taskPlans})
         warningResponse.added.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             source: true
         })
+
+        logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning.releasePlans.findIndex------------------", {key1: employeeAskForLeaveWarning.releasePlans.findIndex(rp => rp._id === releasePlan._id) === -1})
+        logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning.releasePlans------------------", {key2: employeeAskForLeaveWarning.releasePlans})
+
 
         if (employeeAskForLeaveWarning.releasePlans && employeeAskForLeaveWarning.releasePlans.length && employeeAskForLeaveWarning.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) === -1) {
             employeeAskForLeaveWarning.releasePlans = [...employeeAskForLeaveWarning.releasePlans, Object.assign({}, releasePlan.toObject(), {source: true})]
@@ -436,6 +443,8 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
         }
         if (employeeAskForLeaveWarning.releases && employeeAskForLeaveWarning.releases.length && employeeAskForLeaveWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
             employeeAskForLeaveWarning.releases = [...employeeAskForLeaveWarning.releases, Object.assign({}, release.toObject(), {source: true})]
+            logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning.releases------------------", employeeAskForLeaveWarning.releases)
+            logger.debug("--------------update employee-ask-for-leave ----- employeeAskForLeaveWarning.releases.findIndex-----------------", employeeAskForLeaveWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1)
             warningResponse.added.push({
                 _id: release._id,
                 warningType: SC.WARNING_TYPE_RELEASE,
@@ -453,6 +462,8 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
         })
 
         if (leaves && leaves.length) {
+            logger.debug("--------------update employee-ask-for-leave -----leaves------------------", leaves)
+
 
             let newEmployeeAskForLeaveWarning = new WarningModel()
             newEmployeeAskForLeaveWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
@@ -465,6 +476,9 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
                 dateString: U.formatDateInUTC(momentPlanningDate),
                 date: momentPlanningDate.toDate()
             })]
+            logger.debug("addTaskPlanning => employee ask for leave warning create :=> taskPlans ", {key11: newEmployeeAskForLeaveWarning.taskPlans})
+            logger.debug("addTaskPlanning => employee ask for leave warning create :=> releasePlans ", {key12: newEmployeeAskForLeaveWarning.releasePlans})
+            logger.debug("addTaskPlanning => employee ask for leave warning create :=> releases ", {key13: newEmployeeAskForLeaveWarning.releases})
 
             warningResponse.added.push({
                 _id: taskPlan._id,
@@ -487,6 +501,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
         }
 
     }
+    logger.debug("--------------update employee-ask-for-leave -----warningResponse------------------", warningResponse)
     return warningResponse
 }
 
