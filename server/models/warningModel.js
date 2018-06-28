@@ -1735,6 +1735,76 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHo
 * |____________________________________________________________________LEAVE_START____________________________________________________________________|
 */
 
+
+/*------------------------------------------------------------------------GET_DISTINCT_RELEASES_START--------------------------------------------------------------*/
+const getDistinctReleasesWithResponseWithoutRelease = async (date, employeeID, warningName) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+    let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
+        'planningDate': date,
+        'employee._id': employeeID
+    })
+
+    logger.debug('getDistinctReleasesWithResponse:=>  release IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleaseIDs})
+    let releasesPromises = distinctReleaseIDs.map(releaseID => {
+        return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
+
+            warningResponse.added.push({
+                _id: releaseDetail._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: warningName,
+                source: true
+            })
+
+            return Object.assign({}, releaseDetail.toObject(), {
+                source: true
+            })
+
+        })
+    })
+
+    let releases = await Promise.all(releasesPromises)
+    return {releases, warningResponse}
+}
+
+/*------------------------------------------------------------------------GET_DISTINCT_RELEASES_END--------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------GET_DISTINCT_RELEASE_PLANS_START--------------------------------------------------------------*/
+const getDistinctReleasePlansWithResponseWithoutReleasePlan = async (date, employeeID, warningName) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+    let distinctReleasePlanIDs = await MDL.TaskPlanningModel.distinct('releasePlan._id', {
+        'planningDate': date,
+        'employee._id': employeeID
+    })
+    logger.debug('getDistinctReleasePlansWithResponse:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
+    let releasePlansPromises = distinctReleasePlanIDs.map(releasePlanID => {
+        return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
+
+            warningResponse.added.push({
+                _id: releasePlanDetail._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: warningName,
+                source: true
+            })
+
+            return Object.assign({}, releasePlanDetail.toObject(), {
+                source: true
+            })
+        })
+    })
+
+    let releasePlans = await Promise.all(releasePlansPromises)
+    return {releasePlans, warningResponse}
+}
+
+/*------------------------------------------------------------------------GET_DISTINCT_RELEASE_PLANS_END--------------------------------------------------------------*/
+
+
 /*--------------------------------------------------------LEAVE_ADDED_SECTION----------------------------------------------------------------------*/
 
 /**
