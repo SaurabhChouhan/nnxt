@@ -1848,70 +1848,70 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
             })
             if (taskPlans && taskPlans.length && taskPlans.length > 0) {
 
-                taskPlans.forEach(tp => {
+            taskPlans.forEach(tp => {
+                warningResponse.added.push({
+                    _id: tp._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                    source: true
+                })
+            })
+
+
+            let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
+                'planningDate': singleDateMoment.toDate(),
+                'employee._id': mongoose.Types.ObjectId(employee._id)
+            })
+
+            let releasesPromises = distinctReleaseIDs.map(releaseID => {
+                return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
                     warningResponse.added.push({
-                        _id: tp._id,
-                        warningType: SC.WARNING_TYPE_TASK_PLAN,
+                        _id: releaseDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE,
                         type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
                         source: true
                     })
+                    return Object.assign({}, releaseDetail.toObject(), {
+                        source: true
+                    })
+
                 })
+            })
+
+            let releases = await Promise.all(releasesPromises)
 
 
-                let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
-                    'planningDate': singleDateMoment.toDate(),
-                    'employee._id': mongoose.Types.ObjectId(employee._id)
-                })
+            let distinctReleasePlansIDs = await MDL.TaskPlanningModel.distinct('releasePlan._id', {
+                'planningDate': singleDateMoment.toDate(),
+                'employee._id': mongoose.Types.ObjectId(employee._id)
+            })
 
-                let releasesPromises = distinctReleaseIDs.map(releaseID => {
-                    return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
-                        warningResponse.added.push({
-                            _id: releaseDetail._id,
-                            warningType: SC.WARNING_TYPE_RELEASE,
-                            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-                            source: true
-                        })
-                        return Object.assign({}, releaseDetail.toObject(), {
-                            source: true
-                        })
-
+            let releasePlansPromises = distinctReleasePlansIDs.map(releasePlanID => {
+                return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
+                    warningResponse.added.push({
+                        _id: releasePlanDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                        source: true
+                    })
+                    return Object.assign({}, releasePlanDetail.toObject(), {
+                        source: true
                     })
                 })
+            })
+            let employeeDay = {
+                employee: employee,
+                dateString: singleDateMoment.format(SC.DATE_FORMAT),
+                date: singleDateMoment.toDate()
+            }
 
-                let releases = await Promise.all(releasesPromises)
-
-
-                let distinctReleasePlansIDs = await MDL.TaskPlanningModel.distinct('releasePlan._id', {
-                    'planningDate': singleDateMoment.toDate(),
-                    'employee._id': mongoose.Types.ObjectId(employee._id)
-                })
-
-                let releasePlansPromises = distinctReleasePlansIDs.map(releasePlanID => {
-                    return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
-                        warningResponse.added.push({
-                            _id: releasePlanDetail._id,
-                            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-                            source: true
-                        })
-                        return Object.assign({}, releasePlanDetail.toObject(), {
-                            source: true
-                        })
-                    })
-                })
-                let employeeDay = {
-                    employee: employee,
-                    dateString: singleDateMoment.format(SC.DATE_FORMAT),
-                    date: singleDateMoment.toDate()
-                }
-
-                let releasePlans = await Promise.all(releasePlansPromises)
-                newWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
-                newWarning.taskPlans = [...taskPlans]
-                newWarning.releasePlans = [...releasePlans]
-                newWarning.releases = [...releases]
-                newWarning.employeeDays = [employeeDay]
-                await newWarning.save()
+            let releasePlans = await Promise.all(releasePlansPromises)
+            newWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+            newWarning.taskPlans = [...taskPlans]
+            newWarning.releasePlans = [...releasePlans]
+            newWarning.releases = [...releases]
+            newWarning.employeeDays = [employeeDay]
+            await newWarning.save()
 
             }
         } else {
@@ -1940,8 +1940,8 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee)
         })
         if (leaveWarning) {
             let count = await MDL.LeaveModel.count({
-                "_id": {$ne: leave._id},
-                'user._id': mongoose.Types.ObjectId(employee._id),
+                "_id": {$neq: leave._id},
+                'user._id': user._id,
                 'startDate': {$gte: singleDateMoment.toDate()},
                 'endDate': {$lte: singleDateMoment.toDate()},
                 'status': SC.LEAVE_STATUS_RAISED

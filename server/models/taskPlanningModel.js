@@ -2344,7 +2344,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     */
 
                     logger.debug('BEFORE FILTER REMOVE ', {tooManyHoursReleasePlanRemove})
-                    tooManyHoursReleasePlanRemove = tooManyHoursReleasePlanRemove.filter(rid=>tooManyHoursReleasePlanAdd.indexOf(rid) == -1)
+                    tooManyHoursReleasePlanRemove = tooManyHoursReleasePlanRemove.filter(rid => tooManyHoursReleasePlanAdd.indexOf(rid) == -1)
                     logger.debug('FILTERED REMOVE ', {tooManyHoursReleasePlanRemove})
                     tooManyHoursReleasePlanRemove = _.uniq(tooManyHoursReleasePlanRemove)
                     tooManyHoursReleasePlanAdd = _.uniq(tooManyHoursReleasePlanAdd)
