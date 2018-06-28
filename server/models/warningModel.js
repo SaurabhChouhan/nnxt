@@ -1817,7 +1817,7 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, user) => 
         })
         if (leaveWarning) {
             let count = await MDL.LeaveModel.count({
-                "_id": {$neq: leave._id},
+                "_id": {$ne: leave._id},
                 'user._id': user._id,
                 'startDate': {$gte: singleDateMoment.toDate()},
                 'endDate': {$lte: singleDateMoment.toDate()},
