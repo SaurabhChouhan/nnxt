@@ -27,10 +27,13 @@ class ReleaseList extends Component {
         return ''
     }
 
-    formateProjectName(project) {
-        if (project)
-            return project.name
-        return ''
+    formatProjectName(project, row, enumObject, rowIndex) {
+        let releaseName = ""
+        if (project && project.name)
+            releaseName = project.name
+        if (row && row.name)
+            releaseName = releaseName + ' (' + row.name + ')'
+        return releaseName
     }
 
     formatManager(row) {
@@ -118,8 +121,8 @@ class ReleaseList extends Component {
                                                dataFormat={this.formatCreatedDate.bind(this)}>
                                 Raised
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle={"Project Name"} dataField='project'
-                                               dataFormat={this.formateProjectName.bind(this)}>
+                            <TableHeaderColumn width="12%" dataField='project'
+                                               dataFormat={this.formatProjectName.bind(this)}>
                                 Project
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='manager'

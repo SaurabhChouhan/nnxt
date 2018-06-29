@@ -192,7 +192,7 @@ class ReleasePlanList extends Component {
                                 title={release && release.project && release.project.name ? release.project.name : ''}>Project Name</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.project && release.project.name ? release.project.name : ''}</p>
+                            <p>{release && release.project && release.project.name ? release.project.name + ' (' + release.name + ')' : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
