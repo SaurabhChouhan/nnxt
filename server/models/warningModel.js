@@ -751,7 +751,7 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
     }
     else {
 
-        let deleteWarningsLessPlannedHours = await deleteLessPlannedHours(taskPlan, releasePlan, release)
+        let deleteWarningsLessPlannedHours = await deleteLessPlannedHours(releasePlan)
 
         if (deleteWarningsLessPlannedHours.added && deleteWarningsLessPlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsLessPlannedHours.added)
@@ -1007,14 +1007,14 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             warningResponse.removed.push(...warningsMorePlannedHours.removed)
     } else {
         /*delete more planned hours warning and less planned hours warning*/
-        let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(taskPlan, releasePlan, release)
+        let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
         if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
         if (deleteWarningsMorePlannedHours.removed && deleteWarningsMorePlannedHours.removed.length)
             warningResponse.removed.push(...deleteWarningsMorePlannedHours.removed)
 
 
-        let deleteWarningsLessPlannedHours = await deleteLessPlannedHours(taskPlan, releasePlan, release)
+        let deleteWarningsLessPlannedHours = await deleteLessPlannedHours(releasePlan)
         if (deleteWarningsLessPlannedHours.added && deleteWarningsLessPlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsLessPlannedHours.added)
         if (deleteWarningsLessPlannedHours.removed && deleteWarningsLessPlannedHours.removed.length)
@@ -1523,7 +1523,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
         if (warningsLessPlannedHours.removed && warningsLessPlannedHours.removed.length)
             warningResponse.removed.push(...warningsLessPlannedHours.removed)
 
-        let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(taskPlan, releasePlan, release)
+        let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
         if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
         if (deleteWarningsMorePlannedHours.removed && deleteWarningsMorePlannedHours.removed.length)
@@ -1545,7 +1545,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
         /*Add more planned hours warning*/
         logger.debug('[task-plan-added-warning]: planned hours are more than actual estaimted hours so need to raise warning')
 
-        let deleteWarningsLessPlannedHours = await deleteLessPlannedHours(taskPlan, releasePlan, release)
+        let deleteWarningsLessPlannedHours = await deleteLessPlannedHours(releasePlan)
 
         if (deleteWarningsLessPlannedHours.added && deleteWarningsLessPlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsLessPlannedHours.added)
@@ -1567,7 +1567,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
         if (warningsLessPlannedHours.removed && warningsLessPlannedHours.removed.length)
             warningResponse.removed.push(...warningsLessPlannedHours.removed)
 
-        let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(taskPlan, releasePlan, release)
+        let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
         if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
         if (deleteWarningsMorePlannedHours.removed && deleteWarningsMorePlannedHours.removed.length)
