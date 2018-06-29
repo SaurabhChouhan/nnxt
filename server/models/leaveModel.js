@@ -206,10 +206,10 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateString, employee) => {
 
     let generatedWarnings = await MDL.WarningModel.leaveApproved(startDateString, endDateString, employee)
-    logger.debug("inside-leaveApproved leave model=> generatedWarnings",{generatedWarnings})
+    logger.debug("inside-leaveApproved leave model=> generatedWarnings", {generatedWarnings})
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.added && generatedWarnings.added.length) {
-        logger.debug("inside-leaveApproved leave model.added=> generatedWarnings.added",{generatedWarnings})
+        logger.debug("inside-leaveApproved leave model.added=> generatedWarnings.added", {generatedWarnings})
         generatedWarnings.added.forEach(w => {
             if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
@@ -239,7 +239,7 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
 
     /*----------------------------------------------------WARNING_RESPONSE_REMOVED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        logger.debug("inside-leaveApproved leave model.added=> generatedWarnings.removed",{generatedWarnings})
+        logger.debug("inside-leaveApproved leave model.added=> generatedWarnings.removed", {generatedWarnings})
         generatedWarnings.removed.forEach(w => {
             if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
@@ -269,6 +269,7 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
 
     return generatedWarnings
 }
+
 
 leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID),)
@@ -303,39 +304,19 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
 }
 
 
-
-leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
-
-    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
-
-    if (!leaveRequest) {
-        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
-        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only cancel those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
-    /*------------------------------------LEAVE CANCELLATION SECTION----------------------------------*/
-    leaveRequest.approver = user
-    leaveRequest.approver.name = user.firstName + user.lastName
-    leaveRequest.approver.reason = reason
-    leaveRequest.status = SC.LEAVE_STATUS_CANCELLED
-    await leaveRequest.save()
-    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
-
-    let warningResponses = await makeWarningUpdatesOnDeleteOrCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, user)
-
-    leaveRequest = leaveRequest.toObject()
-    leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
-    leaveRequest.canCancel = false
-    leaveRequest.canApprove = false
-
-    return {leave: leaveRequest, warnings: warningResponses}
-}
-
-
 const makeWarningUpdatesOnDeleteOrCancelLeaveRequest = async (startDateString, endDateString, leave, employee) => {
-    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, employee)
+    let generatedWarnings = {
+        added: [],
+        removed: []
+    }
+    let warningsLeaveDeleted = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, employee)
 
+    if (warningsLeaveDeleted.added && warningsLeaveDeleted.added.length)
+        generatedWarnings.added.push(...warningsLeaveDeleted.added)
+    if (warningsLeaveDeleted.removed && warningsLeaveDeleted.removed.length)
+        generatedWarnings.removed.push(...warningsLeaveDeleted.removed)
+
+    logger.debug("leave deleted => leave [" + leave._id + "] with user [" + employee._id + "][ make warning changes ] warning response ", generatedWarnings)
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     /*  if (generatedWarnings.added && generatedWarnings.added.length) {
           generatedWarnings.added.forEach(async w => {
@@ -371,6 +352,7 @@ const makeWarningUpdatesOnDeleteOrCancelLeaveRequest = async (startDateString, e
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is removed against release plan with id [' + w._id + ']')
                     MDL.ReleasePlanModel.findById(w._id).then(r => {
                         if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) > -1) {
                             r.flags.pull(SC.WARNING_EMPLOYEE_ON_LEAVE)
@@ -382,7 +364,6 @@ const makeWarningUpdatesOnDeleteOrCancelLeaveRequest = async (startDateString, e
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                     MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) > -1) {
-                            logger.debug('Pulling  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against task plan [' + t._id + ']')
                             t.flags.pull(SC.WARNING_EMPLOYEE_ON_LEAVE)
                             return t.save()
                         }
@@ -393,6 +374,7 @@ const makeWarningUpdatesOnDeleteOrCancelLeaveRequest = async (startDateString, e
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is removed against release plan with id [' + w._id + ']')
                     MDL.ReleasePlanModel.findById(w._id).then(r => {
                         if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) > -1) {
                             r.flags.pull(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
@@ -404,7 +386,6 @@ const makeWarningUpdatesOnDeleteOrCancelLeaveRequest = async (startDateString, e
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                     MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) > -1) {
-                            logger.debug('Pulling  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against task plan [' + t._id + ']')
                             t.flags.pull(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                             return t.save()
                         }
@@ -419,6 +400,35 @@ const makeWarningUpdatesOnDeleteOrCancelLeaveRequest = async (startDateString, e
 }
 
 
+leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
+
+    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
+
+    if (!leaveRequest) {
+        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
+        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only cancel those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    /*------------------------------------LEAVE CANCELLATION SECTION----------------------------------*/
+    leaveRequest.approver = user
+    leaveRequest.approver.name = user.firstName + user.lastName
+    leaveRequest.approver.reason = reason
+    leaveRequest.status = SC.LEAVE_STATUS_CANCELLED
+    await leaveRequest.save()
+    /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
+
+    let warningResponses = await makeWarningUpdatesOnDeleteOrCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
+
+    leaveRequest = leaveRequest.toObject()
+    leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
+    leaveRequest.canCancel = false
+    leaveRequest.canApprove = false
+
+    return {leave: leaveRequest, warnings: warningResponses}
+}
+
+
 leaveSchema.statics.deleteLeave = async (leaveID, user) => {
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
     if (!leaveRequest) {
@@ -430,10 +440,11 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
     if (!_.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
         throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only delete those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "," + SC.LEAVE_STATUS_APPROVED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    logger.debug("leave deleted=> leave [" + leaveRequest._id + "] with user [" + user._id + "]",)
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
 
     let warningResponses = await makeWarningUpdatesOnDeleteOrCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
-    logger.debug("leave model:-delete warningResponses ", {warningResponses})
+
 
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
 
