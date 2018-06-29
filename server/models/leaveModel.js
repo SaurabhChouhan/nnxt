@@ -206,9 +206,10 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateString, employee) => {
 
     let generatedWarnings = await MDL.WarningModel.leaveApproved(startDateString, endDateString, employee)
-
+    logger.debug("inside-leaveApproved leave model=> generatedWarnings",{generatedWarnings})
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.added && generatedWarnings.added.length) {
+        logger.debug("inside-leaveApproved leave model.added=> generatedWarnings.added",{generatedWarnings})
         generatedWarnings.added.forEach(w => {
             if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
@@ -238,6 +239,7 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
 
     /*----------------------------------------------------WARNING_RESPONSE_REMOVED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        logger.debug("inside-leaveApproved leave model.added=> generatedWarnings.removed",{generatedWarnings})
         generatedWarnings.removed.forEach(w => {
             if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/

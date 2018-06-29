@@ -430,7 +430,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
     })
 
     if (employeeAskForLeaveWarning) {
-        logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning------------------", {key4: employeeAskForLeaveWarning})
+        logger.debug("task-planning-added=> employeeAskForLeaveWarning",{key1:employeeAskForLeaveWarning})
 
         //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
         employeeAskForLeaveWarning.taskPlans = [...employeeAskForLeaveWarning.taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
@@ -474,6 +474,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
             'endDate': {$lte: momentPlanningDate.toDate()},
             'status': SC.LEAVE_STATUS_RAISED
         })
+        logger.debug("task-planning-added ask for leave => leaves",{key1:leaves})
 
         if (leaves && leaves.length) {
             logger.debug("--------------update employee-ask-for-leave -----leaves------------------", leaves)
@@ -534,6 +535,8 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
     })
 
     if (employeeOnLeaveWarning) {
+        logger.debug("task-planning-added=> employeeOnLeaveWarning",{key1:employeeOnLeaveWarning})
+
         //update warning WARNING_EMPLOYEE_ON_LEAVE
         employeeOnLeaveWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
         warningResponse.added.push({
@@ -572,6 +575,7 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
             'endDate': {$lte: momentPlanningDate.toDate()},
             'status': SC.LEAVE_STATUS_APPROVED
         })
+        logger.debug("task-planning-added on leave=> leaves",{key1:leaves})
 
         if (leaves && leaves.length) {
 
@@ -965,7 +969,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 //EMPLOYEE ASK FOR LEAVE UPDATE
 
     let warningsAskForLeave = await updateEmployeeAskForLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
-
+logger.debug("task-planning-added=> warningsAskForLeave",{key1:warningsAskForLeave})
     if (warningsAskForLeave.added && warningsAskForLeave.added.length)
         warningResponse.added.push(...warningsAskForLeave.added)
     if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
@@ -974,6 +978,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 //EMPLOYEE ON LEAVE UPDATE
 
     let warningsOnLeave = await updateEmployeeOnLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
+    logger.debug("task-planning-added=> warningsOnLeave",{key1:warningsOnLeave})
 
     if (warningsOnLeave.added && warningsOnLeave.added.length)
         warningResponse.added.push(...warningsOnLeave.added)
@@ -2184,7 +2189,7 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
             'employeeDays.date': singleDateMoment.toDate(),
             'employeeDays.employee._id': employee._id
         })
-
+logger.debug("inside-warning-model-leave-added=> warning",{warning})
         if (!warning) {
             //create warning WARNING_EMPLOYEE_ASK_FOR_LEAVE for this date
             let newWarning = new WarningModel()
@@ -2270,6 +2275,7 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee)
             'employeeDays.date': singleDateMoment.toDate(),
             'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
         })
+        logger.debug("inside-leaveDelete warning model=> leaveWarning",{leaveWarning})
         if (leaveWarning) {
             let count = await MDL.LeaveModel.count({
                 "_id": {$ne: leave._id},
@@ -2319,6 +2325,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
         })
 
         if (employeeAskForLeaveWarning) {
+            logger.debug("inside-leaveApproved=> employeeAskForLeaveWarning",{employeeAskForLeaveWarning})
             //delete employeeAskForLeaveWarning and receiving its warning to newWarningResponse
             let deleteWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarning, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
             if (deleteWarningResponse.added && deleteWarningResponse.added.length)
