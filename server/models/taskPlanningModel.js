@@ -229,28 +229,18 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
     // if total planned hours is less than estimated hours plannedHoursEstimatedTasks would change
 
     if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] releaseplan.plannedHOurs < estimated hours ')
         releasePlan.diffPlannedHoursEstimatedTasks = releasePlan.planning.plannedHours - releasePlan.planning.plannedHoursEstimatedTasks
         releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.planning.plannedHours
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] diff planned hours estimated tasks ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] new planned hours estimated tasks ', {plannedHoursEstimatedTasks: releasePlan.planning.plannedHoursEstimatedTasks})
     }
     else {
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] releaseplan.plannedHOurs >= estimated hours ')
         releasePlan.diffPlannedHoursEstimatedTasks = releasePlan.task.estimatedHours - releasePlan.planning.plannedHoursEstimatedTasks
         releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.task.estimatedHours
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] diff planned hours estimated tasks ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] new planned hours estimated tasks ', {plannedHoursEstimatedTasks: releasePlan.planning.plannedHoursEstimatedTasks})
     }
 
     let progress = getNewProgressPercentage(releasePlan)
 
-    logger.info('addTaskPlanning(): [progress] new progress percentage is ', {progress})
-
     releasePlan.diffProgress = progress - releasePlan.report.progress
     releasePlan.report.progress = progress
-
-    logger.info('addTaskPlanning(): [progress] diff progress is ', releasePlan.diffProgress)
 
     // reported hours by user + planned hours remaining would become new base hours for progress if it crosses current base hours
 
@@ -269,10 +259,8 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
         })
     }
 
-    logger.debug('updateReleasePlanOnAddTaskPlanning(): employee planning: ', {employeePlanningIdx})
 
     if (employeePlanningIdx == -1) {
-        //logger.debug('updateReleasePlanOnAddTaskPlanning(): employee [' + employee.firstName + '] has assigned first task in this release plan')
         // This employee has never been assigned any task for this release plan so add a new entry
         if (!releasePlan.planning.employees)
             releasePlan.planning.employees = []
@@ -284,15 +272,12 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
             plannedTaskCounts: 1
         })
     } else {
-        logger.debug('updateReleasePlanTaskPlanning(): employee already has planning entry in database with employee planning index as ' + employeePlanningIdx, {employeeEntry: releasePlan.planning.employees[employeePlanningIdx]})
         // This employee already has entry modify existing entry
         if (!releasePlan.planning.employees[employeePlanningIdx].minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.employees[employeePlanningIdx].minPlanningDate)) {
-            logger.debug('updateReleasePlanTaskPlanning(): employee planning entry minimum planning date would be modified for emp')
             releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = momentPlanningDate
         }
 
         if (!releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate || momentPlanningDate.isAfter(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-            logger.debug('updateReleasePlanTaskPlanning(): employee planning entry maximum planning date would be modified for emp')
             releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = momentPlanningDate
         }
         releasePlan.planning.employees[employeePlanningIdx].plannedTaskCounts += 1
@@ -304,7 +289,6 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
                 return e._id.toString() == employee._id.toString()
             })
 
-            logger.debug('addTaskPlanning(): Checking to reset employee final status to pending. employeeReportIdx found as ', employeeReportIdx)
 
             if (employeeReportIdx > -1) {
                 releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
@@ -317,6 +301,8 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
             releasePlan.report.finalStatus = SC.STATUS_PENDING
 
     }
+    logger.debug('addTaskPlanning(): [update release plan]  release planis ', {releasePlan})
+
     return releasePlan
 }
 
@@ -327,16 +313,15 @@ const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourN
 
     let iterationIndex = releasePlan.release.iterationIndex
     if (releasePlan.diffProgress) {
-        logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
         release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
     }
 
     if (releasePlan.diffPlannedHoursEstimatedTasks) {
-        logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
         release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
     }
 
+    logger.debug('addTaskPlanning(): [update release ]  release is ', {release})
     return release
 }
 
@@ -352,6 +337,9 @@ const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber,
     taskPlan.employee = Object.assign({}, employee.toObject(), {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
+
+    logger.debug('addTaskPlanning(): [create task plan ] task plan is ', {taskPlan})
+
     return taskPlan
 }
 
@@ -365,14 +353,12 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
     let warningsTaskPlanned = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
 
-    logger.debug('addTaskPlanning(): warnings task planned ', {warningsTaskPlanned})
+    logger.debug('addTaskPlanning(): [make warning updates] : task plan added warning response ', {warningsTaskPlanned})
 
     if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
         generatedWarnings.added.push(...warningsTaskPlanned.added)
     if (warningsTaskPlanned.removed && warningsTaskPlanned.removed.length)
         generatedWarnings.removed.push(...warningsTaskPlanned.removed)
-
-    logger.debug('addTaskPlanning(): Generated warnings ', {generatedWarnings})
 
 
     let promises = []
@@ -388,7 +374,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
@@ -403,13 +388,11 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
                     if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                                 if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
-                                    logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
                                     t.flags.push(SC.WARNING_TOO_MANY_HOURS)
                                     return t.save()
 
@@ -427,7 +410,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
@@ -442,13 +424,11 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against task plan with id [' + w._id + ']')
                     if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                                 if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1) {
-                                    logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against task plan [' + t._id + ']')
                                     t.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
                                     return t.save()
 
@@ -466,7 +446,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is added against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
@@ -481,13 +460,11 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is added against task plan with id [' + w._id + ']')
                     if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                                 if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) === -1) {
-                                    logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against task plan [' + t._id + ']')
                                     t.flags.push(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                                     return t.save()
 
@@ -505,14 +482,12 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is added against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
                     }
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is added against task plan with id [' + w._id + ']')
                     if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
                     }
                 }
@@ -521,20 +496,17 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is added against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
                     }
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is added against task plan with id [' + w._id + ']')
                     if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) === -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
                     } else {
                         // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                                 if (t && t.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) === -1) {
-                                    logger.debug('Pushing  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against task plan [' + t._id + ']')
                                     t.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
                                     return t.save()
 
@@ -561,7 +533,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_UNPLANNED + '] is removed against release with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_UNPLANNED + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_UNPLANNED)
                     }
                 }
@@ -570,7 +541,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
                     }
                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
@@ -578,7 +548,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                     // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                     promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                             if (t && t.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1) {
-                                logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + t._id + ']')
                                 t.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
                                 return t.save()
                             }
@@ -594,7 +563,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is removed against task plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_COMPLETED_BEFORE_END_DATE)
                     }
                 }
@@ -603,7 +571,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
                     }
                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
@@ -611,11 +578,9 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                         logger.debug('Pushing  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
                     } else {
-                        logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
                         // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                                 if (t && t.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1) {
-                                    logger.debug('Pulling  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against task plan [' + t._id + ']')
                                     t.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
                                     return t.save()
                                 }
@@ -658,7 +623,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     }
     // Get all roles user have in this release
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    logger.debug('user roles ', {userRolesInThisRelease})
 
     if (!userRolesInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -691,25 +655,22 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     */
 
     let employeeReportIdx = releasePlan.report.employees.findIndex(e => {
-        return e._id.toString() == selectedEmployee._id.toString()
+        return e._id.toString() === selectedEmployee._id.toString()
     })
 
     if (employeeReportIdx > -1) {
         // check to see if employee has reported this task as completed if 'yes', task cannot be planned against this employee
-        if (releasePlan.report.employees[employeeReportIdx].finalStatus == SC.REPORT_COMPLETED)
+        if (releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED)
             throw new AppError('Employee reported this task as [' + SC.REPORT_COMPLETED + ']. Cannot plan until reopen.', EC.CANT_PLAN, EC.HTTP_BAD_REQUEST)
     }
 
     /* Get employee roles in this project that this task is planned against*/
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
-    //logger.debug('addTaskPlanning(): employee roles in this release ', {employeeRolesInThisRelease})
-    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length == 0 || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
+    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
         /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
            or manager/leader of this release are now working on this task and hence became ad developer of this release
          */
-
-        //logger.debug('addTaskPlanning(): employee has no role in this release or not a developer. So it needs to be considered as out of project team ')
 
         // Only manager is allowed to rope in people outside of developer team assigned to this release so check if logged in user is manager
         if (!_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
@@ -718,8 +679,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
         // See if this employee is already roped in for this project if not add it as a non project user
 
-        if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length == 0 || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
-            //logger.debug('addTaskPlanning(): non-developer of this release has given task first time so need to add hime to nonProject team ')
+        if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
             // this is an extra employee note down
             if (!release.nonProjectTeam)
                 release.nonProjectTeam = []
@@ -729,7 +689,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
                 'name': selectedEmployee.firstName + ' ' + selectedEmployee.lastName,
                 'email': selectedEmployee.email,
             })
-            logger.debug('addTaskPlanning(): after adding non-developer to release release becomes ', {release})
         }
     }
     // ### All validations should be performed above, it is assumed that things are valid beyond this line ###
@@ -742,7 +701,6 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
         plannedAfterMaxDate = true
     }
 
-    logger.debug('taskPlanningModel.addTaskPlanning(): planned after max date is ', {plannedAfterMaxDate})
     /*-------------------------------- EMPLOYEE DAYS UPDATE SECTION -------------------------------------------*/
     await updateEmployeeDaysOnAddTaskPlanning(selectedEmployee, plannedHourNumber, momentPlanningDate)
 
@@ -763,19 +721,14 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     /******************************** WARNING UPDATE SECTION **************************************************/
     let warningResponseObject = await makeWarningUpdatesOnAddTaskPlanning(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, plannedAfterMaxDate)
+
     let warningResponse = warningResponseObject.generatedWarnings
     let updatedTaskPlans = warningResponseObject.updatedTaskPlans
     // all objects would now have appropriate changes we can save and return appropriate response
-    logger.debug('warning response on task added ----------', {warningResponse})
 
-    logger.debug('updatedTaskPlans on task added ----------', {updatedTaskPlans})
-    logger.debug('addTaskPlanning(): adding release ', {release})
     await release.save()
-    logger.debug('addTaskPlanning(): saving release plan ', {releasePlan})
-
 
     await releasePlan.save()
-    logger.debug('addTaskPlanning(): saving task plan ', {releasePlan})
 
     await taskPlan.save()
 
@@ -832,11 +785,8 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
     releasePlan.planning.plannedTaskCounts -= 1
 
     if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] releaseplan.plannedHOurs < estimated hours ')
         releasePlan.diffPlannedHoursEstimatedTasks = releasePlan.planning.plannedHours - releasePlan.planning.plannedHoursEstimatedTasks
         releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.planning.plannedHours
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] diff planned hours estimated tasks ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
-        logger.info('addTaskPlanning(): [plannedhoursestimatedtasks] new planned hours estimated tasks ', {plannedHoursEstimatedTasks: releasePlan.planning.plannedHoursEstimatedTasks})
     }
     else {
         releasePlan.diffPlannedHoursEstimatedTasks = 0
@@ -993,7 +943,6 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
                 '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
                 'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
             })
-            //logger.debug('empmloyee-specific planning changes minplanning date, other task count having same date as planning data is ', {otherTaskCount})
             if (otherTaskCount == 0) {
                 let results = await MDL.TaskPlanningModel.aggregate(
                     {
@@ -1022,6 +971,7 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
         releasePlan.flags.push(SC.WARNING_UNPLANNED)
     }
+    logger.info('deleteTaskPlanning(): [release plan update ] releaseplan is ',{releasePlan})
 
     return releasePlan
 }
@@ -1032,13 +982,13 @@ const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release,
     let iterationIndex = releasePlan.release.iterationIndex
     release.iterations[iterationIndex].plannedHours -= plannedHourNumber
     if (releasePlan.diffProgress) {
-        logger.debug('addTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
+        logger.debug('deleteTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
         release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
     }
 
     if (releasePlan.diffPlannedHoursEstimatedTasks) {
-        logger.debug('addTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
+        logger.debug('deleteTaskPlanning(): [diffPlannedHoursEstimatedTasks] diff progress is ', {diffPlannedHoursEstimatedTasks: releasePlan.diffPlannedHoursEstimatedTasks})
         release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
     }
 
@@ -1054,14 +1004,14 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
     }
     let warningsTaskPlanned = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release)
 
-    logger.debug('addTaskPlanning(): warnings task planned ', {warningsTaskPlanned})
+    logger.debug('deleteTaskPlanning(): warnings task planned ', {warningsTaskPlanned})
 
     if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
         generatedWarnings.added.push(...warningsTaskPlanned.added)
     if (warningsTaskPlanned.removed && warningsTaskPlanned.removed.length)
         generatedWarnings.removed.push(...warningsTaskPlanned.removed)
 
-    logger.debug('addTaskPlanning(): Generated warnings ', {generatedWarnings})
+    logger.debug('deleteTaskPlanning(): Generated warnings ', {generatedWarnings})
 
     // HANDLE ALL WARNINGS THAT COULD HAVE POSSIBLY BE ADDED BECAUSE OF THIS OPERATION
 
@@ -1076,7 +1026,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
             if (w.type === SC.WARNING_UNPLANNED) {
                 /*-----------------------------------------------WARNING_UNPLANNED_SECTION-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_UNPLANNED + '] is added against release with id [' + w._id + ']')
+                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_UNPLANNED + '] is added against release with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_UNPLANNED) === -1)) {
                         logger.debug('Pushing  [' + SC.WARNING_UNPLANNED + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_UNPLANNED)
@@ -1086,14 +1036,14 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                 /*-----------------------------------------------WARNING_LESS_PLANNED_HOURS_SECTION-------------------------------------------------*/
 
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is added against release with id [' + w._id + ']')
+                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is added against release with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) === -1)) {
                         logger.debug('Pushing  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
                     }
                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     if (w._id.toString() !== taskPlan._id.toString()) {
-                        logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is added against task plan with id [' + w._id + ']')
+                        logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is added against task plan with id [' + w._id + ']')
                         // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                                 if (t && t.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) === -1) {
@@ -1158,7 +1108,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
             } else if (w.type === SC.WARNING_MORE_PLANNED_HOURS) {
 
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) > -1)) {
                         logger.debug('Pulling  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_MORE_PLANNED_HOURS)
@@ -1168,7 +1118,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                         logger.debug('Pushing  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against task plan [' + taskPlan._id + ']')
                         taskPlan.flags.push(SC.WARNING_MORE_PLANNED_HOURS)
                     } else {
-                        logger.debug('addTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                        logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
                         // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                                 if (t && t.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) > -1) {
