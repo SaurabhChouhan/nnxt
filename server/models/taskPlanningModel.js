@@ -69,16 +69,16 @@ let taskPlanningSchema = mongoose.Schema({
 
 const getNewBaseHours = (releasePlan) => {
     let possibleBaseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
-    logger.debug('getNewBaseHours(): [basehours] ', {possibleBaseHours})
+    logger.debug('getNewBaseHours(): [baseHours] ', {possibleBaseHours})
     // see if possible base hours crossed estimated hours, only then it can become new base hours
     if (possibleBaseHours > releasePlan.task.estimatedHours) {
-        logger.debug('getNewBaseHours(): [basehours] possible base hours crossed estimated hours ', {
+        logger.debug('getNewBaseHours(): [baseHours] possible base hours crossed estimated hours ', {
             possibleBaseHours,
             estimatedHours: releasePlan.task.estimatedHours
         })
         return possibleBaseHours
     } else {
-        logger.debug('getNewBaseHours(): [basehours] possible base hours did not crossed estimated hours ', {
+        logger.debug('getNewBaseHours(): [baseHours] possible base hours did not crossed estimated hours ', {
             possibleBaseHours,
             estimatedHours: releasePlan.task.estimatedHours
         })
@@ -93,7 +93,7 @@ const getNewProgressPercentage = (releasePlan) => {
     if (baseHours < releasePlan.task.estimatedHours) {
         baseHours = releasePlan.task.estimatedHours
     }
-    logger.debug('getNewProgressPercentage(): [basehours] ', {baseHours})
+    logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
     // now that we have base hours we would calculate progress by comparing it against reported hours
     let progress = releasePlan.report.reportedHours * 100 / baseHours
     logger.debug('getNewProgressPercentage(): [progress] ', {progress})
@@ -561,7 +561,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
             } else if (w.type === SC.WARNING_COMPLETED_BEFORE_END_DATE) {
                 /*-----------------------------------------------WARNING_COMPLETED_BEFORE_END_DATE_SECTION-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is removed against task plan with id [' + w._id + ']')
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is removed against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) > -1)) {
                         releasePlan.flags.pull(SC.WARNING_COMPLETED_BEFORE_END_DATE)
                     }
@@ -569,7 +569,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
             } else if (w.type === SC.WARNING_LESS_PLANNED_HOURS) {
                 /*-----------------------------------------------WARNING_COMPLETED_BEFORE_END_DATE_SECTION-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed agains release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1)) {
                         releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
                     }
@@ -971,7 +971,7 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
         releasePlan.flags.push(SC.WARNING_UNPLANNED)
     }
-    logger.info('deleteTaskPlanning(): [release plan update ] releaseplan is ', {releasePlan})
+    logger.info('deleteTaskPlanning(): [release plan update ] releasePlan is ', {releasePlan})
 
     return releasePlan
 }
@@ -1108,7 +1108,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
             } else if (w.type === SC.WARNING_MORE_PLANNED_HOURS) {
 
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_MORE_PLANNED_HOURS + '] is removed against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_MORE_PLANNED_HOURS) > -1)) {
                         logger.debug('Pulling  [' + SC.WARNING_MORE_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_MORE_PLANNED_HOURS)
@@ -1138,7 +1138,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
             } else if (w.type === SC.WARNING_LESS_PLANNED_HOURS) {
 
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against task plan with id [' + w._id + ']')
+                    logger.debug('deleteTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1)) {
                         logger.debug('Pulling  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against release plan [' + releasePlan._id + ']')
                         releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
