@@ -653,20 +653,42 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
         await lessPlannedHoursWarning.save()
     } else {
         /*need to delete existing more planned hours warning*/
-        warningResponse = await deleteMorePlannedHoursOnAddTaskPlan(releasePlan)
+        warningResponse = await deleteMorePlannedHours(releasePlan)
 
         let newLessPlannedHoursWarning = new WarningModel()
         newLessPlannedHoursWarning.type = SC.WARNING_LESS_PLANNED_HOURS
-        newLessPlannedHoursWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
+
+
+        let taskPlans = await MDL.TaskPlanningModel.find({
+            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+        })
+
+        if (taskPlans && taskPlans.length) {
+            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlan.push(taskPlan.toObject())
+        } else {
+            taskPlans = [taskPlan.toObject()]
+        }
+        taskPlans.forEach(t => {
+            if (t._id.toString() === taskPlan._id.toString())
+                warningResponse.added.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_LESS_PLANNED_HOURS,
+                    source: true
+                })
+            else warningResponse.added.push({
+                _id: t._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_LESS_PLANNED_HOURS,
+                source: false
+            })
+        })
+
+        newLessPlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
         newLessPlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newLessPlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
 
-        warningResponse.added.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_LESS_PLANNED_HOURS,
-            source: true
-        })
+
         warningResponse.added.push({
             _id: releasePlan._id,
             warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -731,7 +753,32 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
 
         let newMorePlannedHoursWarning = new WarningModel()
         newMorePlannedHoursWarning.type = SC.WARNING_MORE_PLANNED_HOURS
-        newMorePlannedHoursWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
+
+        let taskPlans = await MDL.TaskPlanningModel.find({
+            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
+        })
+        if (taskPlans && taskPlans.length) {
+            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlan.push(taskPlan.toObject())
+        } else {
+            taskPlans = [taskPlan.toObject()]
+        }
+        taskPlans.forEach(t => {
+            if (t._id.toString() === taskPlan._id.toString())
+                warningResponse.added.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_MORE_PLANNED_HOURS,
+                    source: true
+                })
+            else warningResponse.added.push({
+                _id: t._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_MORE_PLANNED_HOURS,
+                source: false
+            })
+        })
+
+        newMorePlannedHoursWarning.tasPlans = taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : Object.assign({}, tp, {source: false}))
         newMorePlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newMorePlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
 
