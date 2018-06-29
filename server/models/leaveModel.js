@@ -204,8 +204,17 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
 
 const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateString, employee) => {
+    let generatedWarnings = {
+        added: [],
+        removed: []
+    }
+    let warningsLeaveApproved = await MDL.WarningModel.leaveApproved(startDateString, endDateString, employee)
 
-    let generatedWarnings = await MDL.WarningModel.leaveApproved(startDateString, endDateString, employee)
+    if (warningsLeaveApproved.added && warningsLeaveApproved.added.length)
+        generatedWarnings.added.push(...warningsLeaveApproved.added)
+    if (warningsLeaveApproved.removed && warningsLeaveApproved.removed.length)
+        generatedWarnings.removed.push(...warningsLeaveApproved.removed)
+
     logger.debug("inside-leaveApproved leave model=> generatedWarnings", {generatedWarnings})
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.added && generatedWarnings.added.length) {
@@ -215,6 +224,8 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against release plan with id [' + w._id + ']')
                     MDL.ReleasePlanModel.findById(w._id).then(r => {
                         if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1) {
                             r.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
@@ -222,11 +233,11 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
                         }
                     })
                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against task plan with id [' + w._id + ']')
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against task plan with id [' + w._id + ']')
                     MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1) {
-                            logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against task plan [' + t._id + ']')
                             t.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
                             return t.save()
 
@@ -245,6 +256,7 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
                 /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is removed against release plan with id [' + w._id + ']')
                     MDL.ReleasePlanModel.findById(w._id).then(r => {
                         if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) > -1) {
                             r.flags.pull(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
@@ -252,11 +264,11 @@ const makeWarningUpdatesOnApproveLeaveRequest = async (startDateString, endDateS
                         }
                     })
                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is removed against task plan with id [' + w._id + ']')
                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
+
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is removed against task plan with id [' + w._id + ']')
                     MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) > -1) {
-                            logger.debug('Pulling  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against task plan [' + t._id + ']')
                             t.flags.pull(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                             return t.save()
                         }
