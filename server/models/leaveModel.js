@@ -301,70 +301,6 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
 }
 
 
-const makeWarningUpdatesOnCancelLeaveRequest = async (startDateString, endDateString, leave, user) => {
-    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, user)
-
-    /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
-    // According to 'gaurav' no warning going to be added so i am commenting this warning-response added section
-
-    /* if (generatedWarnings.added && generatedWarnings.added.length) {
-         generatedWarnings.added.forEach(async w => {
-             if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
-                 /!*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*!/
-                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
-                     MDL.ReleasePlanModel.findById(w._id).then(r => {
-                         if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1) {
-                             r.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
-                             return r.save()
-                         }
-                     })
-                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] is added against task plan with id [' + w._id + ']')
-                     // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
-                     MDL.TaskPlanningModel.findById(w._id).then(t => {
-                         if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ON_LEAVE) === -1) {
-                             logger.debug('Pushing  [' + SC.WARNING_EMPLOYEE_ON_LEAVE + '] warning against task plan [' + t._id + ']')
-                             t.flags.push(SC.WARNING_EMPLOYEE_ON_LEAVE)
-                             return t.save()
-
-                         }
-                     })
-                 }
-             }
-         })
-     }*/
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(async w => {
-            if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
-                /*-----------------------------------------------WARNING_MORE_PLANNED_HOURS-------------------------------------------------*/
-                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
-                    MDL.ReleasePlanModel.findById(w._id).then(r => {
-                        if (r && r.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) > -1) {
-                            r.flags.pull(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
-                            return r.save()
-                        }
-                    })
-                } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] is removed against task plan with id [' + w._id + ']')
-                    // this warning has affected release plan other than associated with current release plan find that release plan and add flag there as well
-                    MDL.TaskPlanningModel.findById(w._id).then(t => {
-                        if (t && t.flags.indexOf(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) > -1) {
-                            logger.debug('Pulling  [' + SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE + '] warning against task plan [' + t._id + ']')
-                            t.flags.pull(SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
-                            return t.save()
-                        }
-                    })
-
-                }
-            }
-        })
-    }
-
-    return generatedWarnings
-}
-
 
 leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
 
@@ -384,7 +320,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
     await leaveRequest.save()
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
 
-    let warningResponses = await makeWarningUpdatesOnCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, user)
+    let warningResponses = await makeWarningUpdatesOnDeleteOrCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, user)
 
     leaveRequest = leaveRequest.toObject()
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
@@ -395,7 +331,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
 }
 
 
-const makeWarningUpdatesOnDeleteLeaveRequest = async (startDateString, endDateString, leave, employee) => {
+const makeWarningUpdatesOnDeleteOrCancelLeaveRequest = async (startDateString, endDateString, leave, employee) => {
     let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, employee)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
@@ -494,7 +430,7 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
 
-    let warningResponses = await makeWarningUpdatesOnDeleteLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
+    let warningResponses = await makeWarningUpdatesOnDeleteOrCancelLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
     logger.debug("leave model:-delete warningResponses ", {warningResponses})
 
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
