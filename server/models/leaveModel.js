@@ -87,6 +87,7 @@ const getLeaves = async (status, user) => {
 const makeWarningUpdatesOnRaiseLeaveRequest = async (startDateString, endDateString, user) => {
 
     let generatedWarnings = await MDL.WarningModel.leaveAdded(startDateString, endDateString, user)
+    logger.debug("leaveRaised:=> makeWarningUpdates => leave added warning response", {generatedWarnings})
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     if (generatedWarnings.added && generatedWarnings.added.length) {
@@ -171,7 +172,6 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
         leaveDaysCount = 0
 
     leaveDaysCount = Number(leaveDaysCount)
-    logger.debug('Leave Added warning response:  ', {warningResponses})
     let leaveType = await MDL.LeaveTypeModel.findById(mongoose.Types.ObjectId(leaveInput.leaveType._id))
     let newLeave = new LeaveModel()
 
@@ -188,12 +188,13 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.dayType = leaveInput.dayType ? leaveInput.dayType : SC.LEAVE_TYPE_FULL_DAY
     newLeave.description = leaveInput.description
 
-    await newLeave.save(leaveInput)
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
 
     let warningResponses = await makeWarningUpdatesOnRaiseLeaveRequest(leaveInput.startDate, leaveInput.endDate, user)
 
+    logger.debug('Leave Rised :=> warning response :  ', {warningResponses})
+    await newLeave.save(leaveInput)
     newLeave = newLeave.toObject()
     newLeave.canDelete = true
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
@@ -394,8 +395,8 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
 }
 
 
-const makeWarningUpdatesOnDeleteLeaveRequest = async (startDateString, endDateString, leave, user) => {
-    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, user)
+const makeWarningUpdatesOnDeleteLeaveRequest = async (startDateString, endDateString, leave, employee) => {
+    let generatedWarnings = await MDL.WarningModel.leaveDeleted(startDateString, endDateString, leave, employee)
 
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
     /*  if (generatedWarnings.added && generatedWarnings.added.length) {
@@ -493,7 +494,7 @@ leaveSchema.statics.deleteLeave = async (leaveID, user) => {
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
 
-    let warningResponses = await makeWarningUpdatesOnDeleteLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, user)
+    let warningResponses = await makeWarningUpdatesOnDeleteLeaveRequest(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
     logger.debug("leave model:-delete warningResponses ", {warningResponses})
 
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
