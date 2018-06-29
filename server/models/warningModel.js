@@ -674,12 +674,12 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
         }
         taskPlans.forEach(t => {
             if (t._id.toString() === taskPlan._id.toString())
-        warningResponse.added.push({
+                warningResponse.added.push({
                     _id: t._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_LESS_PLANNED_HOURS,
-            source: true
-        })
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_LESS_PLANNED_HOURS,
+                    source: true
+                })
             else warningResponse.added.push({
                 _id: t._id,
                 warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -863,11 +863,8 @@ const deleteLessPlannedHours = async (releasePlan) => {
 warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
     // See if this addition of planning causes too many hours warning
     // Check if planned hours crossed limit of maximum hours as per configuration, if yes generate too many hours warning
-    //logger.debug('warning.taskPlanned(): on adding planned hours for task planning check for task planning is having too many hours or not')
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
 
-    //logger.debug('warning.taskPlanned(): employeeSetting', {bk1: employeeSetting})
-    //logger.debug('warning.taskPlanned(): employeeSetting.maxPlannedHours', {bk2: employeeSetting.maxPlannedHours})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
     let employeeDay = await MDL.EmployeeDaysModel.findOne({
@@ -992,7 +989,7 @@ logger.debug("task-planning-added=> warningsAskForLeave",{key1:warningsAskForLea
 
     if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
         /*Add less planned hours warning*/
-        logger.debug('[task-plan-added-warning]: planned hours are less than actual estaimted hours so need to raise warning')
+        logger.debug('[task-plan-added-warning]: planned hours are less than actual estimated hours so need to raise warning')
 
         let warningsLessPlannedHours = await addLessPlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
 
@@ -1003,7 +1000,7 @@ logger.debug("task-planning-added=> warningsAskForLeave",{key1:warningsAskForLea
 
     } else if (releasePlan.planning.plannedHours > releasePlan.task.estimatedHours) {
         /*Add more planned hours warning*/
-        logger.debug('[task-plan-added-warning]: planned hours are more than actual estaimted hours so need to raise warning')
+        logger.debug('[task-plan-added-warning]: planned hours are more than actual estimated hours so need to raise warning')
 
         let warningsMorePlannedHours = await addMorePlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
         if (warningsMorePlannedHours.added && warningsMorePlannedHours.added.length)
@@ -1012,6 +1009,7 @@ logger.debug("task-planning-added=> warningsAskForLeave",{key1:warningsAskForLea
             warningResponse.removed.push(...warningsMorePlannedHours.removed)
     } else {
         /*delete more planned hours warning and less planned hours warning*/
+        logger.debug('[task-plan-added-warning]: planned hours are equal to estimated hours so no need to raise warning delete all less planned hours and more planned hours warning')
         let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
         if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
@@ -1283,7 +1281,7 @@ const addLessPlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
             }
             await lessPlannedHoursWarning.save()
         } else {
-           let deleteWarningResponse = await deleteWarningWithResponse(lessPlannedHoursWarning, SC.WARNING_LESS_PLANNED_HOURS)
+            let deleteWarningResponse = await deleteWarningWithResponse(lessPlannedHoursWarning, SC.WARNING_LESS_PLANNED_HOURS)
             if (deleteWarningResponse.added && deleteWarningResponse.added.length)
                 warningResponse.added.push(...deleteWarningResponse.added)
             if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
@@ -1393,7 +1391,7 @@ const addMorePlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
             }
             await morePlannedHoursWarning.save()
         } else {
-           let deleteWarningResponse = await deleteWarningWithResponse(morePlannedHoursWarning, SC.WARNING_MORE_PLANNED_HOURS)
+            let deleteWarningResponse = await deleteWarningWithResponse(morePlannedHoursWarning, SC.WARNING_MORE_PLANNED_HOURS)
             if (deleteWarningResponse.added && deleteWarningResponse.added.length)
                 warningResponse.added.push(...deleteWarningResponse.added)
             if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
@@ -2201,14 +2199,14 @@ logger.debug("inside-warning-model-leave-added=> warning",{warning})
             })
             if (taskPlans && taskPlans.length && taskPlans.length > 0) {
 
-            taskPlans.forEach(tp => {
-                warningResponse.added.push({
-                    _id: tp._id,
-                    warningType: SC.WARNING_TYPE_TASK_PLAN,
-                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-                    source: true
+                taskPlans.forEach(tp => {
+                    warningResponse.added.push({
+                        _id: tp._id,
+                        warningType: SC.WARNING_TYPE_TASK_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                        source: true
+                    })
                 })
-            })
 
                 // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
                 let releaseObject = await getDistinctReleasesWithResponseWithoutRelease(singleDateMoment.toDate(), employee._id, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
@@ -2229,18 +2227,18 @@ logger.debug("inside-warning-model-leave-added=> warning",{warning})
                     warningResponse.removed.push(...releasePlanWarningResponse.removed)
 
 
-            let employeeDay = {
-                employee: employee,
-                dateString: singleDateMoment.format(SC.DATE_FORMAT),
-                date: singleDateMoment.toDate()
-            }
+                let employeeDay = {
+                    employee: employee,
+                    dateString: singleDateMoment.format(SC.DATE_FORMAT),
+                    date: singleDateMoment.toDate()
+                }
 
-            newWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
-            newWarning.taskPlans = [...taskPlans]
-            newWarning.releasePlans = [...releasePlans]
-            newWarning.releases = [...releases]
-            newWarning.employeeDays = [employeeDay]
-            await newWarning.save()
+                newWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+                newWarning.taskPlans = [...taskPlans]
+                newWarning.releasePlans = [...releasePlans]
+                newWarning.releases = [...releases]
+                newWarning.employeeDays = [employeeDay]
+                await newWarning.save()
 
             }
         } else {
