@@ -2254,12 +2254,17 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee)
     let startDateMoment = U.momentInUTC(startDate)
     let endDateMoment = U.momentInUTC(endDate)
     let singleDateMoment = startDateMoment.clone()
-    let warningResponse = {
+    let finalWarningResponse = {
         added: [],
         removed: []
     }
 
     while (singleDateMoment.isSameOrBefore(endDateMoment)) {
+        let warningResponse = {
+            added: [],
+            removed: []
+        }
+
         let leaveWarning = await WarningModel.findOne({
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             'employeeDays.date': singleDateMoment.toDate(),
@@ -2267,13 +2272,13 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee)
         })
         if (leaveWarning) {
             let count = await MDL.LeaveModel.count({
-                "_id": {$neq: leave._id},
-                'user._id': user._id,
+                "_id": {$ne: leave._id},
+                'user._id': employee._id,
                 'startDate': {$gte: singleDateMoment.toDate()},
                 'endDate': {$lte: singleDateMoment.toDate()},
                 'status': SC.LEAVE_STATUS_RAISED
             })
-            logger.debug("leave Deleted => warning delete => check other leave exists in this date range :", {count})
+            logger.debug("leave Deleted => warning delete => check other leave exists in this date range startDate :[" + startDate + "]  endDate :[" + endDate + "] :", {count})
             if (count == 0) {
                 let deleteWarningResponse = await deleteWarningWithResponse(leaveWarning, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                 if (deleteWarningResponse.added && deleteWarningResponse.added.length)
@@ -2284,8 +2289,13 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee)
             }
         }
         singleDateMoment = singleDateMoment.add(1, 'days')
+        if (warningResponse.added && warningResponse.added.length)
+            finalWarningResponse.added.push(...warningResponse.added)
+        if (warningResponse.removed && warningResponse.removed.length)
+            finalWarningResponse.removed.push(...warningResponse.removed)
+
     }
-    return warningResponse
+    return finalWarningResponse
 }
 
 
