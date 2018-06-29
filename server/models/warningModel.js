@@ -187,8 +187,11 @@ const getDistinctReleasesWithResponse = async (release, date, employeeID, warnin
     })
 
     //This may be first task plan of a release plan in which case it would not become part of distinctReleaseIDs, in that case we are adding it to ensure that it becomes part of final warning response
-
-    distinctReleaseIDs && distinctReleaseIDs.length && distinctReleaseIDs.findIndex(r => r.toString() === release._id.toString()) === -1 && distinctReleaseIDs.push(release._id)
+    if (distinctReleaseIDs && distinctReleaseIDs.length) {
+        distinctReleaseIDs.findIndex(tp => tp._id.toString() === release._id.toString()) === -1 && distinctReleaseIDs.push(release._id)
+    } else {
+        distinctReleaseIDs = [release._id]
+    }
 
 
     logger.debug('getDistinctReleasesWithResponse:=>  release IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleaseIDs})
@@ -238,8 +241,11 @@ const getDistinctReleasePlansWithResponse = async (releasePlan, date, employeeID
         'employee._id': employeeID
     })
     //This may be first task plan of a release plan in which case it would not become part of distinctReleasePlanIDs, in that case we are adding it to ensure that it becomes part of final warning response
-
-    distinctReleasePlanIDs && distinctReleasePlanIDs.length && distinctReleasePlanIDs.findIndex(rp => rp.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
+    if (distinctReleasePlanIDs && distinctReleasePlanIDs.length) {
+        distinctReleasePlanIDs.findIndex(tp => tp._id.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
+    } else {
+        distinctReleasePlanIDs = [releasePlan._id]
+    }
 
     logger.debug('getDistinctReleasePlansWithResponse:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
     let releasePlansPromises = distinctReleasePlanIDs.map(releasePlanID => {
@@ -375,6 +381,11 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
             'planningDate': planningDateUtc,
             'employee._id': mongoose.Types.ObjectId(employee._id)
         })
+        if (taskPlans && taskPlans.length) {
+            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
+        } else {
+            taskPlans = [taskPlan.toObject()]
+        }
 
 
         taskPlans.forEach(t => {
@@ -1793,7 +1804,7 @@ const getDistinctReleasePlansWithResponseWithoutReleasePlan = async (date, emplo
         'planningDate': date,
         'employee._id': employeeID
     })
-    logger.debug('getDistinctReleasePlansWithResponse:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
+    logger.debug('getDistinctReleasePlansWithResponseWithoutReleasePlan:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
     let releasePlansPromises = distinctReleasePlanIDs.map(releasePlanID => {
         return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
 
