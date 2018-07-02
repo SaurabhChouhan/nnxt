@@ -434,7 +434,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
 
         //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
         employeeAskForLeaveWarning.taskPlans = [...employeeAskForLeaveWarning.taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
-         warningResponse.added.push({
+        warningResponse.added.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
@@ -736,6 +736,7 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             type: SC.WARNING_MORE_PLANNED_HOURS,
             source: true
         })
+        await morePlannedHoursWarning.save()
         return warningResponse
     }
     else {
@@ -797,6 +798,8 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             type: SC.WARNING_MORE_PLANNED_HOURS,
             source: true
         })
+
+        await newMorePlannedHoursWarning.save()
     }
     return warningResponse
 }
