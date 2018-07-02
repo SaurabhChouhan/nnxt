@@ -185,10 +185,11 @@ const getDistinctReleasesWithResponse = async (release, date, employeeID, warnin
         'planningDate': date,
         'employee._id': employeeID
     })
+    logger.debug('getDistinctReleasesWithResponse:=>  distinctReleaseIDs', {distinctReleaseIDs})
 
     //This may be first task plan of a release plan in which case it would not become part of distinctReleaseIDs, in that case we are adding it to ensure that it becomes part of final warning response
     if (distinctReleaseIDs && distinctReleaseIDs.length) {
-        distinctReleaseIDs.findIndex(tp => tp._id.toString() === release._id.toString()) === -1 && distinctReleaseIDs.push(release._id)
+        distinctReleaseIDs.findIndex(releaseID => releaseID.toString() === release._id.toString()) === -1 && distinctReleaseIDs.push(release._id)
     } else {
         distinctReleaseIDs = [release._id]
     }
@@ -242,7 +243,7 @@ const getDistinctReleasePlansWithResponse = async (releasePlan, date, employeeID
     })
     //This may be first task plan of a release plan in which case it would not become part of distinctReleasePlanIDs, in that case we are adding it to ensure that it becomes part of final warning response
     if (distinctReleasePlanIDs && distinctReleasePlanIDs.length) {
-        distinctReleasePlanIDs.findIndex(tp => tp._id.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
+        distinctReleasePlanIDs.findIndex(releasePlanID => releasePlanID.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
     } else {
         distinctReleasePlanIDs = [releasePlan._id]
     }
@@ -770,7 +771,7 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
         })
         if (taskPlans && taskPlans.length) {
-            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlan.push(taskPlan.toObject())
+            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
         } else {
             taskPlans = [taskPlan.toObject()]
         }
