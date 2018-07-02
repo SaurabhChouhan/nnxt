@@ -301,7 +301,7 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
             releasePlan.report.finalStatus = SC.STATUS_PENDING
 
     }
-    logger.debug('addTaskPlanning(): [update release plan]  release planis ', {releasePlan})
+    logger.debug('addTaskPlanning(): [update release plan]  release plans ', {releasePlan})
 
     return releasePlan
 }
