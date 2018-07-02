@@ -353,7 +353,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
     let warningsTaskPlanned = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
 
-    logger.debug('addTaskPlanning(): [make warning updates] : task plan added warning response ', {warningsTaskPlanned})
+    logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : task plan added warning response ', {warningsTaskPlanned})
 
     if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
         generatedWarnings.added.push(...warningsTaskPlanned.added)

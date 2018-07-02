@@ -312,7 +312,6 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
     })
 
-    //logger.debug('WarningModel.addTooManyHours(): existing warning ', {tooManyHoursWarning})
     if (tooManyHoursWarning) {
         //logger.debug('too many hours warning already exists')
         /* Update Existing warning WARNING_TOO_MANY_HOURS of same employee and planned date */
