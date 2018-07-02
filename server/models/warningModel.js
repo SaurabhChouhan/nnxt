@@ -762,6 +762,8 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
         let taskPlans = await MDL.TaskPlanningModel.find({
             'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
         })
+
+
         if (taskPlans && taskPlans.length) {
             taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
         } else {
@@ -782,11 +784,9 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
                 source: false
             })
         })
-
-        newMorePlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : Object.assign({}, tp, {source: false})) : []
+        newMorePlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
         newMorePlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newMorePlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
-
         warningResponse.added.push({
             _id: releasePlan._id,
             warningType: SC.WARNING_TYPE_RELEASE_PLAN,
