@@ -316,6 +316,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         //logger.debug('too many hours warning already exists')
         /* Update Existing warning WARNING_TOO_MANY_HOURS of same employee and planned date */
         /* Check current release is available in release list of warning if not available then push it to list*/
+        logger.debug("[taskPlanAdded]=>[addTooManyHours] => [tooManyHoursWarning]", {tooManyHoursWarning})
         if (tooManyHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
             tooManyHoursWarning.releases.push(Object.assign({}, release.toObject(), {source: true}))
 
@@ -352,7 +353,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
 
     } else {
         /* create a new warning :- WARNING_TOO_MANY_HOURS -: warning for selected developer and selected date as a planned date*/
-        let newWarning = new WarningModel()
+        let newTooManyHoursWarning = new WarningModel()
         let employeeDays = await MDL.EmployeeDaysModel.find({
             'date': planningDateUtc,
             'employee._id': mongoose.Types.ObjectId(employee._id)
@@ -381,6 +382,9 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
             'planningDate': planningDateUtc,
             'employee._id': mongoose.Types.ObjectId(employee._id)
         })
+
+        logger.debug("[taskPlanAdded]=>[addTooManyHours] => [taskPlans]", {taskPlans})
+
         if (taskPlans && taskPlans.length) {
             taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
         } else {
@@ -406,13 +410,16 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
 
         })
 
-        newWarning.type = SC.WARNING_TOO_MANY_HOURS
-        newWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
-        newWarning.releasePlans = [...releasePlans]
-        newWarning.releases = [...releases]
-        newWarning.employeeDays = [...employeeDays]
-        await newWarning.save()
+        newTooManyHoursWarning.type = SC.WARNING_TOO_MANY_HOURS
+        newTooManyHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
+        newTooManyHoursWarning.releasePlans = [...releasePlans]
+        newTooManyHoursWarning.releases = [...releases]
+        newTooManyHoursWarning.employeeDays = [...employeeDays]
+
+        logger.debug("[taskPlanAdded]=>[addTooManyHours] => [newTooManyHoursWarning]", {newTooManyHoursWarning})
+        await newTooManyHoursWarning.save()
     }
+    logger.debug("[taskPlanAdded]=>[addTooManyHours] => [warningResponse]", {warningResponse})
     return warningResponse
 }
 
@@ -705,6 +712,7 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
         type: SC.WARNING_MORE_PLANNED_HOURS,
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
+
     if (morePlannedHoursWarning) {
         // For release check
         if (morePlannedHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
@@ -775,16 +783,10 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             })
         })
 
-        newMorePlannedHoursWarning.tasPlans = taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : Object.assign({}, tp, {source: false}))
+        newMorePlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : Object.assign({}, tp, {source: false})) : []
         newMorePlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newMorePlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
 
-        warningResponse.added.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_MORE_PLANNED_HOURS,
-            source: true
-        })
         warningResponse.added.push({
             _id: releasePlan._id,
             warningType: SC.WARNING_TYPE_RELEASE_PLAN,
