@@ -431,20 +431,15 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
     })
 
     if (employeeAskForLeaveWarning) {
-        logger.debug("task-planning-added=> employeeAskForLeaveWarning", {key1: employeeAskForLeaveWarning})
 
         //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
         employeeAskForLeaveWarning.taskPlans = [...employeeAskForLeaveWarning.taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
-        logger.debug("--------------update employee-ask-for-leave ----- employeeAskForLeaveWarning.taskPlans ------------------", {key3: employeeAskForLeaveWarning.taskPlans})
-        warningResponse.added.push({
+         warningResponse.added.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             source: true
         })
-
-        logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning.releasePlans.findIndex------------------", {key1: employeeAskForLeaveWarning.releasePlans.findIndex(rp => rp._id === releasePlan._id) === -1})
-        logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning.releasePlans------------------", {key2: employeeAskForLeaveWarning.releasePlans})
 
 
         if (employeeAskForLeaveWarning.releasePlans && employeeAskForLeaveWarning.releasePlans.length && employeeAskForLeaveWarning.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) === -1) {
@@ -458,8 +453,6 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
         }
         if (employeeAskForLeaveWarning.releases && employeeAskForLeaveWarning.releases.length && employeeAskForLeaveWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
             employeeAskForLeaveWarning.releases = [...employeeAskForLeaveWarning.releases, Object.assign({}, release.toObject(), {source: true})]
-            logger.debug("--------------update employee-ask-for-leave -----employeeAskForLeaveWarning.releases------------------", employeeAskForLeaveWarning.releases)
-            logger.debug("--------------update employee-ask-for-leave ----- employeeAskForLeaveWarning.releases.findIndex-----------------", employeeAskForLeaveWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1)
             warningResponse.added.push({
                 _id: release._id,
                 warningType: SC.WARNING_TYPE_RELEASE,
@@ -475,12 +468,7 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
             'endDate': {$lte: momentPlanningDate.toDate()},
             'status': SC.LEAVE_STATUS_RAISED
         })
-        logger.debug("task-planning-added ask for leave => leaves", {key1: leaves})
-
         if (leaves && leaves.length) {
-            logger.debug("--------------update employee-ask-for-leave -----leaves------------------", leaves)
-
-
             let newEmployeeAskForLeaveWarning = new WarningModel()
             newEmployeeAskForLeaveWarning.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
             newEmployeeAskForLeaveWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
@@ -492,9 +480,6 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
                 dateString: U.formatDateInUTC(momentPlanningDate),
                 date: momentPlanningDate.toDate()
             })]
-            logger.debug("addTaskPlanning => employee ask for leave warning create :=> taskPlans ", {key11: newEmployeeAskForLeaveWarning.taskPlans})
-            logger.debug("addTaskPlanning => employee ask for leave warning create :=> releasePlans ", {key12: newEmployeeAskForLeaveWarning.releasePlans})
-            logger.debug("addTaskPlanning => employee ask for leave warning create :=> releases ", {key13: newEmployeeAskForLeaveWarning.releases})
 
             warningResponse.added.push({
                 _id: taskPlan._id,
@@ -515,10 +500,11 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
                 source: true
             })
             await newEmployeeAskForLeaveWarning.save()
+            logger.debug("[updateEmployeeAskForLeaveOnAddTaskPlan] => [newEmployeeAskForLeaveWarning]", newEmployeeAskForLeaveWarning)
         }
 
     }
-    logger.debug("--------------update employee-ask-for-leave -----warningResponse------------------", warningResponse)
+    logger.debug("[updateEmployeeAskForLeaveOnAddTaskPlan] => [warningResponse]", warningResponse)
     return warningResponse
 }
 
@@ -536,7 +522,6 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
     })
 
     if (employeeOnLeaveWarning) {
-        logger.debug("task-planning-added=> employeeOnLeaveWarning", {key1: employeeOnLeaveWarning})
 
         //update warning WARNING_EMPLOYEE_ON_LEAVE
         employeeOnLeaveWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
@@ -576,7 +561,6 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
             'endDate': {$lte: momentPlanningDate.toDate()},
             'status': SC.LEAVE_STATUS_APPROVED
         })
-        logger.debug("task-planning-added on leave=> leaves", {key1: leaves})
 
         if (leaves && leaves.length) {
 
@@ -970,7 +954,6 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 //EMPLOYEE ASK FOR LEAVE UPDATE
 
     let warningsAskForLeave = await updateEmployeeAskForLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
-    logger.debug("task-planning-added=> warningsAskForLeave", {key1: warningsAskForLeave})
     if (warningsAskForLeave.added && warningsAskForLeave.added.length)
         warningResponse.added.push(...warningsAskForLeave.added)
     if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
@@ -979,7 +962,6 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 //EMPLOYEE ON LEAVE UPDATE
 
     let warningsOnLeave = await updateEmployeeOnLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
-    logger.debug("task-planning-added=> warningsOnLeave", {key1: warningsOnLeave})
 
     if (warningsOnLeave.added && warningsOnLeave.added.length)
         warningResponse.added.push(...warningsOnLeave.added)
