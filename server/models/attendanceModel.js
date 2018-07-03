@@ -52,6 +52,48 @@ function getStatus(totalSpendMinutes) {
 }
 
 /*
+* This method is called by scheduler at the start of day (00.01 am)
+* Purpose of method is that it will create empty entry for every user with default absent status, by this we can easily
+* identify if user is not attend office.
+* */
+
+attendanceSchema.statics.createAttendanceDummyEntry = async () => {
+    let currentDate = momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT)
+    let users = await MDL.UserModel.find({});
+    if (!users) {
+        throw new AppError("No user found", EC.NOT_FOUND, 404);
+    }
+
+    users.forEach(async  (user) => {
+        //console.log("Employee Code "+user.employeeCode+" User's Name "+user.firstName);
+        let attendance = await AttendanceModel.findOne({"user.employeeCode": user.employeeCode, "date": currentDate});
+        //console.log("***Found attendance *** \n ", attendance);
+        if (!attendance) {
+            // create new entry...
+            console.log("***Attendance document not found for user so just need to create it.");
+
+            let attendanceOBJ = {
+                user: user,
+                date: currentDate,
+                totalMinutesSpent: 0,
+                lastAction: "",
+                status: SC.ABSENT
+            };
+
+            let createdAttendanceObj = await AttendanceModel.create(attendanceOBJ);
+            console.log("***Attendance document created for user ."+createdAttendanceObj.user.employeeCode);
+
+        }else
+        {
+            console.log("***Attendance document found for user so no need to create it.");
+        }
+    });
+    return {
+        "msg": "Entries Added successfully",
+    }
+}
+
+/*
 *
 *   1. Get user from user document using employeeCode
     2. Get Entry from Attendance document for the current date of above user.
@@ -177,7 +219,6 @@ attendanceSchema.statics.addUpdateAttendance = async (attendanceInfo) => {
         "totalMinutesSpent": attendance.totalMinutesSpent
     };
 }
-
 
 const AttendanceModel = mongoose.model("attendance", attendanceSchema)
 export default AttendanceModel

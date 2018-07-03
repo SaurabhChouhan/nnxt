@@ -38,6 +38,11 @@ publicRouter.post('/user_check_in_out', async (ctx, next) => {
     return MDL.AttendanceModel.addUpdateAttendance(ctx.request.body);//ctx.body = {"msg":"this is completed"}
 })
 
+publicRouter.post('/create_dummy_attendance_entry', async (ctx, next) => {
+    console.log("***Get user create_dummy_attendance_entry request*** \n ", ctx.request.body);
+    return MDL.AttendanceModel.createAttendanceDummyEntry();//ctx.body = {"msg":"this is completed"}
+})
+
 publicRouter.get('/execute', async ctx => {
     console.log("execute query")
     /*
