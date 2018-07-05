@@ -194,10 +194,10 @@ img {
 button.customBtn, button.customBtn:focus {
     background: #FF534F;
     color: #fff;
-    padding: 0.5% 7%;
+    padding: 1px 12px;
     font-size: 20px;
     border: 2px solid #FF534F;
-    margin-bottom: 10px;
+    margin:5px;
     transition: 0.8s;
     border-radius: 0;
 }
@@ -586,7 +586,7 @@ table th {
 
 .estimateheader {
     border-bottom: 1px solid #182939;
-    margin-bottom: 1%;
+    margin-bottom: 9px;
 }
 
 .estimationActions {
@@ -613,11 +613,12 @@ table th {
 }
 
 .estimationfileoption {
-    padding-top: 1%;
+    padding-top: 0px;
 }
 
 .estimationfileoption ul {
     text-align: right;
+    margin-bottom:0px;
 }
 
 .estimationfileoption li {
