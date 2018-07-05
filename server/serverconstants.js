@@ -192,6 +192,7 @@ export const DATE_AND_DAY_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
 export const DATE_TIME_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
 export const DATE_TIME_SHOW_FORMAT_WITH_AM_PM = 'dddd YYYY-MMMM-DD  hh:mm A'
 export const TIME_FORMAT = 'hh:mm A'
+export const TIME_FORMAT_24_HOURS = 'HH:mm'
 export const DATE_AND_TIME_FORMAT = 'LLL'
 export const DATE_MONTH_FORMAT = 'MMMM Do'
 export const DATE_HALF_WEAK_MONTH_FORMAT = 'ddd'
@@ -254,3 +255,11 @@ export const MONTHS_WITH_MONTH_NUMBER = [
         number: 11
     }]
 
+// Attendance
+
+export const MINIMUM_HALF_DAY_MINUTE = 4 * 60
+export const MINIMUM_FULL_DAY_MINUTE = 7 * 60
+export const HALF_DAY = 'halfDay'
+export const FULL_DAY = 'fullDay'
+export const ARRIVED = 'arrived'
+export const ABSENT = 'absent'
