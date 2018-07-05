@@ -38,7 +38,7 @@ let attendanceSchema = mongoose.Schema({
 })*/
 
 function getEntrySum(total, entry) {
-    return {minuteSpend: total.minuteSpend + entry.minuteSpend};
+    return total + entry.minuteSpend;
 }
 
 function getStatus(totalSpendMinutes) {
@@ -64,7 +64,7 @@ attendanceSchema.statics.createAttendanceDummyEntry = async () => {
         throw new AppError("No user found", EC.NOT_FOUND, 404);
     }
 
-    users.forEach(async  (user) => {
+    users.forEach(async (user) => {
         //console.log("Employee Code "+user.employeeCode+" User's Name "+user.firstName);
         let attendance = await AttendanceModel.findOne({"user.employeeCode": user.employeeCode, "date": currentDate});
         //console.log("***Found attendance *** \n ", attendance);
@@ -81,10 +81,9 @@ attendanceSchema.statics.createAttendanceDummyEntry = async () => {
             };
 
             let createdAttendanceObj = await AttendanceModel.create(attendanceOBJ);
-            console.log("***Attendance document created for user ."+createdAttendanceObj.user.employeeCode);
+            console.log("***Attendance document created for user ." + createdAttendanceObj.user.employeeCode);
 
-        }else
-        {
+        } else {
             console.log("***Attendance document found for user so no need to create it.");
         }
     });
@@ -134,8 +133,7 @@ attendanceSchema.statics.addUpdateAttendance = async (attendanceInfo) => {
             lastAction: "checkin",
             entries: [{
                 checkIn: currentTime,
-                checkOut: "",
-                minuteSpend: 0,
+                minuteSpend: 0
             }],
             status: SC.ARRIVED
         };
@@ -149,6 +147,8 @@ attendanceSchema.statics.addUpdateAttendance = async (attendanceInfo) => {
     else {
         console.log("***Attendance document found for user so just need to update it.");
         //console.log("***lastAction is ." + attendance.lastAction);
+
+
         if (attendance.lastAction == "checkin") {
             // update entry for checkout...
             attendance.entries[attendance.entries.length - 1].checkOut = currentTime;
@@ -176,29 +176,23 @@ attendanceSchema.statics.addUpdateAttendance = async (attendanceInfo) => {
 
             // console.log("Spend Minutes " + spendMinutes);
             attendance.entries[attendance.entries.length - 1].minuteSpend = spendMinutes;
-
             await  attendance.save();
 
 
-            let totalSpendMinutes = attendance.entries.reduce(getEntrySum).minuteSpend;
-            //console.log("totalSpendMinutes " + totalSpendMinutes);
+            let totalSpendMinutes = attendance.entries.reduce(getEntrySum, 0);
+            console.log("totalSpendMinutes " + totalSpendMinutes);
 
             attendance.totalMinutesSpent = totalSpendMinutes;
-
             // Need to update status according to totalMinutesSpent
-
             attendance.status = getStatus(totalSpendMinutes);
-
             await  attendance.save();
-
             console.log("*** Updated attandance entry for user " + attendanceInfo.employee_code);
         } else {
             // last action is check out so need to create new entry with check in...
             let entry = attendance.entries;
             entry.push({
                 checkIn: currentTime,
-                checkOut: "",
-                minuteSpend: 0,
+                minuteSpend: 0
             })
             attendance.entries = entry;
             attendance.status = SC.ARRIVED;
@@ -210,7 +204,6 @@ attendanceSchema.statics.addUpdateAttendance = async (attendanceInfo) => {
             console.log("*** Updated attandance entry for user " + attendanceInfo.employee_code);
         }
     }
-
 
     return {
         "msg": "Entry Added success",

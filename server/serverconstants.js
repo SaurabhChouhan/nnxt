@@ -257,6 +257,6 @@ export const MONTHS_WITH_MONTH_NUMBER = [
 export const MINIMUM_HALF_DAY_MINUTE = 4 * 60
 export const MINIMUM_FULL_DAY_MINUTE = 7 * 60
 export const HALF_DAY = 'halfDay'
-export const FULL_DAY = 'present'
+export const FULL_DAY = 'fullDay'
 export const ARRIVED = 'arrived'
 export const ABSENT = 'absent'
