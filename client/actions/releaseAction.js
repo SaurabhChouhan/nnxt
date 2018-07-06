@@ -82,6 +82,11 @@ export const setFromDate = (date) => ({
     type: AC.SET_FROM_DATE,
     date: date
 })
+export const addTaskPlannings = (taskPlannings) => ({
+    type: AC.ADD_TASK_PLANNINGS,
+    taskPlannings: taskPlannings
+})
+
 
 export const getAllReleasesFromServer = (status) => {
     return (dispatch, getState) => {
@@ -425,3 +430,25 @@ export const getReleaseDevelopersFromServer = (releasePlanID) => {
     }
 }
 
+export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/task-plans/release/'+releaseID, {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+
+                    dispatch(addTaskPlannings(json.data))
+                }
+                return json
+            })
+    }
+}
