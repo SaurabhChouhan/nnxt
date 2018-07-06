@@ -398,7 +398,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -1052,7 +1052,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                                     return t.save()
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -1098,7 +1098,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
 
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -2781,6 +2781,35 @@ const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user)
     return await Promise.all(saveEmployeePromises)
 
 }
+
+taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
+    let release = await MDL.ReleaseModel.findById(releaseID)
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    // Get all roles user have in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    console.log("TaskPlanningModel.getTaskPlanning()-----------", userRolesInThisRelease)
+    logger.debug('TaskPlanningModel.getTaskPlanning(): ', {userRolesInThisRelease})
+    if (!userRolesInThisRelease) {
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER )) {
+        if (status && status.toLowerCase() === 'all') {
+            return await TaskPlanningModel.find({}).sort({'planningDateString': -1})
+        } else {
+            return await TaskPlanningModel.find({
+                "status": status
+            }).sort({'planningDateString': -1})
+        }
+    }
+    return await TaskPlanningModel.find({'release._id': releaseID})
+
+}
+
 
 const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
