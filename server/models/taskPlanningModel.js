@@ -107,9 +107,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': employee._id.toString(),
-            'date': momentPlanningDate
-        }) > 0) {
+        'employee._id': employee._id.toString(),
+        'date': momentPlanningDate
+    }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -141,11 +141,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id),
-            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id),
+        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-        }) > 0) {
+    }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -168,9 +168,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id)
-        }) > 0) {
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -367,7 +367,61 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
     // HANDLE ALL WARNINGS THAT COULD HAVE POSSIBLY BE ADDED BECAUSE OF THIS OPERATION
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
 
+    /**
+     * To avoid concurrency problems we would first fetch all release plan/task plans first
+     * then we would update them by pushing/pulling flags
+     * As a last step we would save all of them
+     */
+
+    let releasePlanIDs = [];
+    let taskPlanIDs = [];
+
+
     if (generatedWarnings.added && generatedWarnings.added.length) {
+        let releasePlanWarnings = generatedWarnings.added.filter(w => w.warningType === SC.WARNING_TYPE_RELEASE_PLAN)
+        let taskPlanWarnings = generatedWarnings.added.filter(w => w.warningType === SC.WARNING_TYPE_TASK_PLAN)
+
+        releasePlanWarnings.map(w => w._id.toString()).reduce((rpIDs, wid) => {
+            if (rpIDs.indexOf(wid) == -1)
+                rpIDs.push(wid)
+            return rpIDs
+        }, releasePlanIDs)
+
+        taskPlanWarnings.map(w => w._id.toString()).reduce((tpIDs, wid) => {
+            if (tpIDs.indexOf(wid) == -1)
+                tpIDs.push(wid)
+            return tpIDs
+        }, taskPlanIDs)
+
+    }
+
+    logger.debug("AFTER add warnings: filtered release plan IDs ", {releasePlanIDs})
+    logger.debug("AFTER add warnings: filtered task plan IDs ", {taskPlanIDs})
+
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        let releasePlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_RELEASE_PLAN)
+        let taskPlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_TASK_PLAN)
+
+        releasePlanWarnings.map(w => w._id.toString()).reduce((rpIDs, wid) => {
+            if (rpIDs.indexOf(wid) == -1)
+                rpIDs.push(wid)
+            return rpIDs
+        }, releasePlanIDs)
+
+        taskPlanWarnings.map(w => w._id.toString()).reduce((tpIDs, wid) => {
+            if (tpIDs.indexOf(wid) == -1)
+                tpIDs.push(wid)
+            return tpIDs
+        }, taskPlanIDs)
+    }
+
+    logger.debug("AFTER remove warnings: filtered release plan IDs ", {releasePlanIDs})
+    logger.debug("AFTER remove warnings: filtered task plan IDs ", {taskPlanIDs})
+
+    if (generatedWarnings.added && generatedWarnings.added.length) {
+
+        // Now that we have got all the releasePlan/taskPlan IDs that would be affected by warning raised we will
+
         generatedWarnings.added.forEach(w => {
             if (w.type === SC.WARNING_TOO_MANY_HOURS) {
                 /*-----------------------------------------------WARNING_TOO_MANY_HOURS_SECTION-------------------------------------------------*/
@@ -384,8 +438,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                             }
                         })
                     }
-                }
-                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                     logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
                     if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1)) {
                         taskPlan.flags.push(SC.WARNING_TOO_MANY_HOURS)
@@ -1327,9 +1380,9 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     /* Add or update employee days details when task is replanned */
     /* Check the details of already added employees days is available or not */
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': taskPlan.employee._id.toString(),
-            'date': rePlanningDateUtc
-        }) > 0) {
+        'employee._id': taskPlan.employee._id.toString(),
+        'date': rePlanningDateUtc
+    }) > 0) {
 
         /* Update employee days details by increasing  planned hours and decreasing planned hours from previous date  if employees day detail is  added already*/
         let oldEmployeeDaysModelInput = {
@@ -2797,7 +2850,7 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
     if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER )) {
+    if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER)) {
         if (status && status.toLowerCase() === 'all') {
             return await TaskPlanningModel.find({}).sort({'planningDateString': -1})
         } else {
