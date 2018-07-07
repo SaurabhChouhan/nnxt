@@ -973,7 +973,7 @@ td.rejRowColor {
 }
 
 .content-section {
-    max-height: 600px;
+    max-height: calc(100vh);
     overflow-y: scroll;
 }
 
@@ -1073,6 +1073,10 @@ td.rejRowColor {
 
 .col-md-12.repositoryHeading {
     border-bottom: 1px solid #182939;
+}
+
+.estimation-container {
+    max-height:600px;
 }
 
 .estimationsection .technologytag {
