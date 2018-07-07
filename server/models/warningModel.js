@@ -176,7 +176,7 @@ const deleteWarningWithResponse = async (warning, warningType) => {
 /*-------------------------------------------------------------------DELETE_WARNING_WITH_RESPONSE_SECTION_END----------------------------------------------------------*/
 
 /*------------------------------------------------------------------------GET_DISTINCT_RELEASES_START--------------------------------------------------------------*/
-const getDistinctReleasesWithResponse = async (release, date, employeeID, warningName) => {
+const getAffectedReleasesEmployeeDay = async (release, date, employeeID, warningName) => {
     let warningResponse = {
         added: [],
         removed: []
@@ -188,18 +188,19 @@ const getDistinctReleasesWithResponse = async (release, date, employeeID, warnin
     logger.debug('getDistinctReleasesWithResponse:=>  distinctReleaseIDs', {distinctReleaseIDs})
 
     //This may be first task plan of a release plan in which case it would not become part of distinctReleaseIDs, in that case we are adding it to ensure that it becomes part of final warning response
-    if (distinctReleaseIDs && distinctReleaseIDs.length) {
-        distinctReleaseIDs.findIndex(releaseID => releaseID.toString() === release._id.toString()) === -1 && distinctReleaseIDs.push(release._id)
-    } else {
-        distinctReleaseIDs = [release._id]
-    }
 
+    if (release) {
+        if (distinctReleaseIDs && distinctReleaseIDs.length) {
+            distinctReleaseIDs.findIndex(releaseID => releaseID.toString() === release._id.toString()) === -1 && distinctReleaseIDs.push(release._id)
+        } else {
+            distinctReleaseIDs = [release._id]
+        }
+    }
 
     logger.debug('getDistinctReleasesWithResponse:=>  release IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleaseIDs})
     let releasesPromises = distinctReleaseIDs.map(releaseID => {
         return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
-
-            if (releaseDetail && releaseDetail._id.toString() === release._id.toString()) {
+            if (release && releaseDetail && releaseDetail._id.toString() === release._id.toString()) {
                 warningResponse.added.push({
                     _id: releaseDetail._id,
                     warningType: SC.WARNING_TYPE_RELEASE,
@@ -232,7 +233,7 @@ const getDistinctReleasesWithResponse = async (release, date, employeeID, warnin
 /*------------------------------------------------------------------------GET_DISTINCT_RELEASES_END--------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------GET_DISTINCT_RELEASE_PLANS_START--------------------------------------------------------------*/
-const getDistinctReleasePlansWithResponse = async (releasePlan, date, employeeID, warningName) => {
+const getAffectedReleasePlansEmployeeDay = async (releasePlan, date, employeeID, warningName) => {
     let warningResponse = {
         added: [],
         removed: []
@@ -242,17 +243,19 @@ const getDistinctReleasePlansWithResponse = async (releasePlan, date, employeeID
         'employee._id': employeeID
     })
     //This may be first task plan of a release plan in which case it would not become part of distinctReleasePlanIDs, in that case we are adding it to ensure that it becomes part of final warning response
-    if (distinctReleasePlanIDs && distinctReleasePlanIDs.length) {
-        distinctReleasePlanIDs.findIndex(releasePlanID => releasePlanID.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
-    } else {
-        distinctReleasePlanIDs = [releasePlan._id]
+
+    if (releasePlan) {
+        if (distinctReleasePlanIDs && distinctReleasePlanIDs.length) {
+            distinctReleasePlanIDs.findIndex(releasePlanID => releasePlanID.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
+        } else {
+            distinctReleasePlanIDs = [releasePlan._id]
+        }
     }
 
     logger.debug('getDistinctReleasePlansWithResponse:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
     let releasePlansPromises = distinctReleasePlanIDs.map(releasePlanID => {
         return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
-
-            if (releasePlanDetail && releasePlanDetail._id.toString() === releasePlan._id.toString()) {
+            if (releasePlan && releasePlanDetail && releasePlanDetail._id.toString() === releasePlan._id.toString()) {
                 warningResponse.added.push({
                     _id: releasePlanDetail._id,
                     warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -292,6 +295,8 @@ const getDistinctReleasePlansWithResponse = async (releasePlan, date, employeeID
 
 /*-------------------------------------------------------------------TASK_PLAN_ADDED_SECTION_START-------------------------------------------------------------------*/
 const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentPlanningDate) => {
+    logger.info("================== warningModel.addTooManyHours() =======================")
+
     //logger.info('toManyHoursWarning():  ')
     /**
      * It is possible that this warning is raised earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
@@ -360,24 +365,22 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         })
 
         // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
-        let releaseObject = await getDistinctReleasesWithResponse(release, planningDateUtc, employee._id, SC.WARNING_TOO_MANY_HOURS)
+        let releaseObject = await getAffectedReleasesEmployeeDay(release, planningDateUtc, employee._id, SC.WARNING_TOO_MANY_HOURS)
         let releases = releaseObject.releases
-        let releaseWarningResponse = releaseObject.warningResponse
-        if (releaseWarningResponse.added && releaseWarningResponse.added.length)
-            warningResponse.added.push(...releaseWarningResponse.added)
-        if (releaseWarningResponse.removed && releaseWarningResponse.removed.length)
-            warningResponse.removed.push(...releaseWarningResponse.removed)
+        if (releaseObject.warningResponse.added && releaseObject.warningResponse.added.length)
+            warningResponse.added.push(...releaseObject.warningResponse.added)
+        if (releaseObject.warningResponse.removed && releaseObject.warningResponse.removed.length)
+            warningResponse.removed.push(...releaseObject.warningResponse.removed)
 
         // find out releasePlan ids added in current task plans of same day/same employee as those would be affected by this warning
-        let releasePlanObject = await getDistinctReleasePlansWithResponse(releasePlan, planningDateUtc, employee._id, SC.WARNING_TOO_MANY_HOURS)
+        let releasePlanObject = await getAffectedReleasePlansEmployeeDay(releasePlan, planningDateUtc, employee._id, SC.WARNING_TOO_MANY_HOURS)
         let releasePlans = releasePlanObject.releasePlans
-        let releasePlanWarningResponse = releasePlanObject.warningResponse
-        if (releasePlanWarningResponse.added && releasePlanWarningResponse.added.length)
-            warningResponse.added.push(...releasePlanWarningResponse.added)
-        if (releasePlanWarningResponse.removed && releasePlanWarningResponse.removed.length)
-            warningResponse.removed.push(...releasePlanWarningResponse.removed)
-
+        if (releasePlanObject.warningResponse.added && releasePlanObject.warningResponse.added.length)
+            warningResponse.added.push(...releasePlanObject.warningResponse.added)
+        if (releasePlanObject.warningResponse.removed && releasePlanObject.warningResponse.removed.length)
+            warningResponse.removed.push(...releasePlanObject.warningResponse.removed)
         // fetch task plans as all task plans are affected by this warning and hence need to be added against this warning
+
         let taskPlans = await MDL.TaskPlanningModel.find({
             'planningDate': planningDateUtc,
             'employee._id': mongoose.Types.ObjectId(employee._id)
@@ -391,7 +394,6 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
             taskPlans = [taskPlan.toObject()]
         }
 
-
         taskPlans.forEach(t => {
             if (t._id.toString() === taskPlan._id.toString()) {
                 warningResponse.added.push({
@@ -400,14 +402,14 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
                     type: SC.WARNING_TOO_MANY_HOURS,
                     source: true
                 })
+            } else {
+                warningResponse.added.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_TOO_MANY_HOURS,
+                    source: false
+                })
             }
-            warningResponse.added.push({
-                _id: t._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_TOO_MANY_HOURS,
-                source: false
-            })
-
         })
 
         newTooManyHoursWarning.type = SC.WARNING_TOO_MANY_HOURS
@@ -420,6 +422,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         await newTooManyHoursWarning.save()
     }
     logger.debug("[taskPlanAdded]=>[addTooManyHours] => [warningResponse]", {warningResponse})
+    logger.info("################ warningModel.addTooManyHours() ##############################")
     return warningResponse
 }
 
@@ -2074,79 +2077,10 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHo
 * |____________________________________________________________________TASK_PLAN_END____________________________________________________________________|
 */
 
+
 /*
 * |____________________________________________________________________LEAVE_START____________________________________________________________________|
 */
-
-
-/*------------------------------------------------------------------------GET_DISTINCT_RELEASES_START--------------------------------------------------------------*/
-const getDistinctReleasesWithResponseWithoutRelease = async (date, employeeID, warningName) => {
-    let warningResponse = {
-        added: [],
-        removed: []
-    }
-    let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
-        'planningDate': date,
-        'employee._id': employeeID
-    })
-
-    logger.debug('getDistinctReleasesWithResponse:=>  release IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleaseIDs})
-    let releasesPromises = distinctReleaseIDs.map(releaseID => {
-        return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
-
-            warningResponse.added.push({
-                _id: releaseDetail._id,
-                warningType: SC.WARNING_TYPE_RELEASE,
-                type: warningName,
-                source: true
-            })
-
-            return Object.assign({}, releaseDetail.toObject(), {
-                source: true
-            })
-
-        })
-    })
-
-    let releases = await Promise.all(releasesPromises)
-    return {releases, warningResponse}
-}
-
-/*------------------------------------------------------------------------GET_DISTINCT_RELEASES_END--------------------------------------------------------------*/
-
-/*------------------------------------------------------------------------GET_DISTINCT_RELEASE_PLANS_START--------------------------------------------------------------*/
-const getDistinctReleasePlansWithResponseWithoutReleasePlan = async (date, employeeID, warningName) => {
-    let warningResponse = {
-        added: [],
-        removed: []
-    }
-    let distinctReleasePlanIDs = await MDL.TaskPlanningModel.distinct('releasePlan._id', {
-        'planningDate': date,
-        'employee._id': employeeID
-    })
-    logger.debug('getDistinctReleasePlansWithResponseWithoutReleasePlan:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
-    let releasePlansPromises = distinctReleasePlanIDs.map(releasePlanID => {
-        return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
-
-            warningResponse.added.push({
-                _id: releasePlanDetail._id,
-                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: warningName,
-                source: true
-            })
-
-            return Object.assign({}, releasePlanDetail.toObject(), {
-                source: true
-            })
-        })
-    })
-
-    let releasePlans = await Promise.all(releasePlansPromises)
-    return {releasePlans, warningResponse}
-}
-
-/*------------------------------------------------------------------------GET_DISTINCT_RELEASE_PLANS_END--------------------------------------------------------------*/
-
 
 /*--------------------------------------------------------LEAVE_ADDED_SECTION----------------------------------------------------------------------*/
 
@@ -2196,7 +2130,7 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
                 })
 
                 // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
-                let releaseObject = await getDistinctReleasesWithResponseWithoutRelease(singleDateMoment.toDate(), employee._id, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                let releaseObject = await getAffectedReleasesEmployeeDay(undefined, singleDateMoment.toDate(), employee._id, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                 let releases = releaseObject.releases
                 let releaseWarningResponse = releaseObject.warningResponse
                 if (releaseWarningResponse.added && releaseWarningResponse.added.length)
@@ -2205,7 +2139,7 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
                     warningResponse.removed.push(...releaseWarningResponse.removed)
 
                 // find out releasePlan ids added in current task plans of same day/same employee as those would be affected by this warning
-                let releasePlanObject = await getDistinctReleasePlansWithResponseWithoutReleasePlan(singleDateMoment.toDate(), employee._id, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                let releasePlanObject = await getAffectedReleasePlansEmployeeDay(undefined, singleDateMoment.toDate(), employee._id, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
                 let releasePlans = releasePlanObject.releasePlans
                 let releasePlanWarningResponse = releasePlanObject.warningResponse
                 if (releasePlanWarningResponse.added && releasePlanWarningResponse.added.length)
