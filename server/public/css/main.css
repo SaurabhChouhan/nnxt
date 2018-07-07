@@ -1982,9 +1982,9 @@ hr {
 }
 
 .leaveSelect {
-    margin-left: -75px !important;
+    margin-left: 502px !important;
     width: 288px;
-    margin-top: 14px;
+    margin-top: -36px;
 }
 
 .leaveBtn {
@@ -1992,7 +1992,7 @@ hr {
 }
 
 .leave {
-    margin-top: -46px;
+    margin-top: -44px;
 }
 
 .leaveSelectHighestRole {
@@ -2025,4 +2025,11 @@ hr {
     color: #2fda2f;
     font-size: 23px;
 
+}
+
+.btn-size {
+    font-size: 20px;
+}
+.container-width{
+    width:1070px;
 }

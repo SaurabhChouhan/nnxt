@@ -118,21 +118,21 @@ class LeaveList extends Component {
             <div>
                 <div key="raise_leave_key" className="clearfix">
 
-                    <div className="col-md-12">
+
                         <div className="col-md-12 pad">
 
                             <div className="col-md-12">
                                 <div className="col-md-12">
                                     <div className="col-md-6">
-                                        {
-                                            loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
-                                                <button className="btn customBtn leaveBtn"
-                                                        onClick={() => this.props.showRaiseLeaveForm()}>Raise-Leave
-                                                </button>
-                                        }
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="col-md-4  releaseSearchContent ">
+                                        <div className="col-md-6">
+                                            {
+                                                loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
+                                                    <button className="btn customBtn leaveBtn"
+                                                            onClick={() => this.props.showRaiseLeaveForm()}>Raise-Leave
+                                                    </button>
+                                            }
+                                        </div>
+                                        <div className="col-md-6  releaseSearchContent ">
                                             <div
                                                 className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? "estimation releaseSelect  releaseSearchStatus leaveSelectHighestRole" : "estimation releaseSelect  releaseSearchStatus leaveSelect"}>
                                                 <select className="form-control" title="Select Status"
@@ -231,8 +231,6 @@ class LeaveList extends Component {
                         </div>
                     </div>
                 </div>
-            </div>
-
         )
     }
 }

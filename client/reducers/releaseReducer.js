@@ -124,6 +124,11 @@ const releaseReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 from: action.date
             })
+        case AC.ADD_TASK_PLANNINGS:
+            // add all task-plannings from server
+            return Object.assign({}, state, {
+                taskPlans: action.taskPlannings
+            })
 
 
         default:

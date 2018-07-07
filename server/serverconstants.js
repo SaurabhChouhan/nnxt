@@ -213,6 +213,9 @@ export const COMMENT_FYI_ONLY = 'FYI Only'
 
 //Dialog Names
 export const DIALOG_ESTIMATION_REQUEST_REVIEW = 'dialog-request-review'
+export const WARNINGS_LIST = 'Warning List'
+export const TASK_PLANS_LIST = 'Task Plan List'
+
 
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]

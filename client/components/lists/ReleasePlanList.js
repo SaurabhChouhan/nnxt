@@ -4,6 +4,7 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 import {WarningListContainer} from '../../containers'
+import {TaskPlanListContainer} from '../../containers'
 
 class ReleasePlanList extends Component {
 
@@ -15,7 +16,7 @@ class ReleasePlanList extends Component {
         this.state = {
             status: "all",
             flag: "all",
-            showPlans: true
+            showPlans: [SC.WARNINGS_LIST, SC.TASK_PLANS_LIST]
         }
         this.onFlagChange = this.onFlagChange.bind(this)
         this.onStatusChange = this.onStatusChange.bind(this)
@@ -25,11 +26,15 @@ class ReleasePlanList extends Component {
     }
 
     showReleasePlans(flag) {
-        this.setState({showPlans: true})
+        this.setState({showPlans: ''})
     }
 
     showWarnings(flag) {
-        this.setState({showPlans: false})
+        this.setState({showPlans: SC.WARNINGS_LIST})
+    }
+
+    showTaskPlans(flag) {
+        this.setState({showPlans: SC.TASK_PLANS_LIST})
     }
 
     onFlagChange(flag) {
@@ -192,7 +197,7 @@ class ReleasePlanList extends Component {
                                 title={release && release.project && release.project.name ? release.project.name : ''}>Project Name</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.project && release.project.name ? release.project.name : ''}</p>
+                            <p>{release && release.project && release.project.name ? release.project.name + ' (' + release.name + ')' : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
@@ -273,18 +278,90 @@ class ReleasePlanList extends Component {
                         </div>
 
                     </div>
-                    <div className="col-md-12">
-                        <button className={showPlans ? "btn btnWarning" : "btn btnWarningSelected"}
-                                onClick={() => {
-                                    this.showWarnings(),
-                                        this.props.getAllWarnings(release)
-                                }}>Warnings
-                        </button>
-                        <button className={showPlans ? "btn btnReleasePlanSelected" : "btn btnReleasePlan"}
-                                onClick={() => {
-                                    this.showReleasePlans()
-                                }}>Release Plans
-                        </button>
+                    <div className="col-md-12 pad">
+
+                        <div className="container container-width">
+                            <ul className="nav nav-tabs">
+                                <li className="active">
+                                    <a
+                                        data-toggle="tab"
+                                        className={showPlans === '' ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
+                                        onClick={() => {
+                                            this.showReleasePlans()
+                                        }}>Release Plans
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        data-toggle="tab"
+                                        className={showPlans === SC.WARNINGS_LIST ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
+                                        onClick={() => {
+                                            this.showWarnings(),
+                                                this.props.getAllWarnings(release)
+                                        }}>Warnings
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        data-toggle="tab"
+                                        className={showPlans === SC.TASK_PLANS_LIST ? "btn btn-link btn-size " : "btn btn-link btn-size "}
+                                        onClick={() => {
+                                            this.showTaskPlans(),
+                                                this.props.getAllTaskPlans(release)
+                                        }}>Task Plans
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+
+                        {/*<nav className="navbar navbar-default">*/}
+                        {/*<div className="container-fluid">*/}
+                        {/*<div className="navbar-header">*/}
+
+                        {/*</div>*/}
+                        {/*<ul className="nav navbar-nav">*/}
+                        {/*<li>*/}
+                        {/*<button*/}
+                        {/*className={showPlans === '' ? "  btn btn-link btn-size " : "btn  btn-link btn-size "}*/}
+                        {/*onClick={() => {*/}
+                        {/*this.showReleasePlans()*/}
+                        {/*}}>Release Plans*/}
+                        {/*</button>*/}
+                        {/*</li>*/}
+                        {/*<li >*/}
+                        {/*<button*/}
+                        {/*className={showPlans === SC.WARNINGS_LIST ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}*/}
+                        {/*onClick={() => {*/}
+                        {/*this.showWarnings(),*/}
+                        {/*this.props.getAllWarnings(release)*/}
+                        {/*}}>Warnings*/}
+                        {/*</button>*/}
+                        {/*</li>*/}
+                        {/*<li>*/}
+                        {/*<button*/}
+                        {/*className={showPlans === SC.TASK_PLANS_LIST ? "btn btn-link btn-size " : "btn btn-link btn-size "}*/}
+                        {/*onClick={() => {*/}
+                        {/*this.showTaskPlans(),*/}
+                        {/*this.props.getAllTaskPlans(release)*/}
+                        {/*}}>Task Plans*/}
+                        {/*</button>*/}
+                        {/*</li>*/}
+
+                        {/*</ul>*/}
+                        {/*</div>*/}
+                        {/*</nav>*/}
+                        {/*<button className={showPlans ? "btn btnWarning" : "btn btnWarningSelected"}*/}
+                        {/*onClick={() => {*/}
+                        {/*this.showWarnings(),*/}
+                        {/*this.props.getAllWarnings(release)*/}
+                        {/*}}>Warnings*/}
+                        {/*</button>*/}
+                        {/*<button className={showPlans ? "btn btnReleasePlanSelected" : "btn btnReleasePlan"}*/}
+                        {/*onClick={() => {*/}
+                        {/*this.showReleasePlans()*/}
+                        {/*}}>Release Plans*/}
+                        {/*</button>*/}
                     </div>
                     <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
@@ -333,35 +410,39 @@ class ReleasePlanList extends Component {
                     </div>
 
                     <div className="estimation">
-                        {showPlans ? <BootstrapTable options={this.options} data={releasePlans}
-                                                     multiColumnSearch={true}
-                                                     search={true}
-                                                     striped={true}
-                                                     hover={true}>
-                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle width=" 8%" dataField='created'
-                                                   dataFormat={this.formatDate.bind(this)}>Raised
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width="25%" columnTitle dataField='task'
-                                                   dataFormat={this.formatTaskName.bind(this)}>Task
-                                    Name</TableHeaderColumn>
-                                <TableHeaderColumn width=" 18%" dataField='flags' dataFormat={this.formatFlags.bind(this)}>
-                                    Flag</TableHeaderColumn>
-                                <TableHeaderColumn width=" 11%" columnTitle dataField='task'
-                                                   dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
-                                    Hours</TableHeaderColumn>
-                                <TableHeaderColumn width=" 10%" columnTitle dataField='planning'
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                                    Hours</TableHeaderColumn>
-                                <TableHeaderColumn width=" 11%" columnTitle dataField='report'
-                                                   dataFormat={this.formatReportedHours.bind(this)}>Reported
-                                    Hours</TableHeaderColumn>
-                                <TableHeaderColumn width="15%" columnTitle dataField='report'
-                                                   dataFormat={this.formatReportedStatus.bind(this)}>Status
-                                </TableHeaderColumn>
+                        {showPlans === SC.TASK_PLANS_LIST ?
+                            <TaskPlanListContainer/> :
+                            showPlans === SC.WARNINGS_LIST ? <WarningListContainer/>
+                                : <BootstrapTable options={this.options} data={releasePlans}
+                                                  multiColumnSearch={true}
+                                                  search={true}
+                                                  striped={true}
+                                                  hover={true}>
+                                    <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                       hidden={true}>ID</TableHeaderColumn>
+                                    <TableHeaderColumn columnTitle width=" 8%" dataField='created'
+                                                       dataFormat={this.formatDate.bind(this)}>Raised
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn width="25%" columnTitle dataField='task'
+                                                       dataFormat={this.formatTaskName.bind(this)}>Task
+                                        Name</TableHeaderColumn>
+                                    <TableHeaderColumn width=" 18%" dataField='flags'
+                                                       dataFormat={this.formatFlags.bind(this)}>
+                                        Flag</TableHeaderColumn>
+                                    <TableHeaderColumn width=" 11%" columnTitle dataField='task'
+                                                       dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
+                                        Hours</TableHeaderColumn>
+                                    <TableHeaderColumn width=" 10%" columnTitle dataField='planning'
+                                                       dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                                        Hours</TableHeaderColumn>
+                                    <TableHeaderColumn width=" 11%" columnTitle dataField='report'
+                                                       dataFormat={this.formatReportedHours.bind(this)}>Reported
+                                        Hours</TableHeaderColumn>
+                                    <TableHeaderColumn width="15%" columnTitle dataField='report'
+                                                       dataFormat={this.formatReportedStatus.bind(this)}>Status
+                                    </TableHeaderColumn>
 
-                            </BootstrapTable> :
-                            <WarningListContainer/>
+                                </BootstrapTable>
                         }
                     </div>
                 </div>
@@ -372,3 +453,16 @@ class ReleasePlanList extends Component {
 }
 
 export default withRouter(ReleasePlanList)
+/*
+*  <li><button className={showPlans ? " btn-link btnReleasePlanSelected" : " btn-link btnReleasePlan"}
+                                                onClick={() => {
+                                                    this.showReleasePlans()
+                                                }}>Release Plans
+                                    </button></li>
+                                    <li className="active"> <button className={showPlans ? " btn-link btnWarning" : " btn-link  btnWarningSelected"}
+                                                                onClick={() => {
+                                                                    this.showWarnings(),
+                                                                        this.props.getAllWarnings(release)
+                                                                }}>Warnings
+                                    </button></li>
+* */
