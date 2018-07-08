@@ -19,11 +19,10 @@ const logger = winston.createLogger({
                     splat: undefined,
                     timestamp: undefined
                 })
-            )
+            , null, 4)
         })
     ),
     transports: [
-        new winston.transports.Console(),
         new winston.transports.File({filename: 'combined.log'})
     ]
 })

@@ -92,6 +92,7 @@ export {default as  RepositoryFeatureDetailPage} from './pages/RepositoryFeature
 export {default as  RepositoryFeatureDetailDialog} from './dialogs/RepositoryFeatureDetailDialog'
 
 //Release List
+export {default as TaskPlanList} from './lists/TaskPlanList'
 export {default as ReleaseList} from './lists/ReleaseList'
 export {default as ReleasePlanList} from './lists/ReleasePlanList'
 

@@ -194,10 +194,10 @@ img {
 button.customBtn, button.customBtn:focus {
     background: #FF534F;
     color: #fff;
-    padding: 0.5% 7%;
+    padding: 1px 12px;
     font-size: 20px;
     border: 2px solid #FF534F;
-    margin-bottom: 10px;
+    margin:5px;
     transition: 0.8s;
     border-radius: 0;
 }
@@ -586,7 +586,7 @@ table th {
 
 .estimateheader {
     border-bottom: 1px solid #182939;
-    margin-bottom: 1%;
+    margin-bottom: 9px;
 }
 
 .estimationActions {
@@ -613,11 +613,12 @@ table th {
 }
 
 .estimationfileoption {
-    padding-top: 1%;
+    padding-top: 0px;
 }
 
 .estimationfileoption ul {
     text-align: right;
+    margin-bottom:0px;
 }
 
 .estimationfileoption li {
@@ -972,7 +973,7 @@ td.rejRowColor {
 }
 
 .content-section {
-    max-height: 600px;
+    max-height: calc(100vh);
     overflow-y: scroll;
 }
 
@@ -1072,6 +1073,10 @@ td.rejRowColor {
 
 .col-md-12.repositoryHeading {
     border-bottom: 1px solid #182939;
+}
+
+.estimation-container {
+    max-height:600px;
 }
 
 .estimationsection .technologytag {
@@ -1977,9 +1982,9 @@ hr {
 }
 
 .leaveSelect {
-    margin-left: -75px !important;
+    margin-left: 502px !important;
     width: 288px;
-    margin-top: 14px;
+    margin-top: -36px;
 }
 
 .leaveBtn {
@@ -1987,7 +1992,7 @@ hr {
 }
 
 .leave {
-    margin-top: -46px;
+    margin-top: -44px;
 }
 
 .leaveSelectHighestRole {
@@ -2020,4 +2025,11 @@ hr {
     color: #2fda2f;
     font-size: 23px;
 
+}
+
+.btn-size {
+    font-size: 20px;
+}
+.container-width{
+    width:1070px;
 }

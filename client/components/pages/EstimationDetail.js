@@ -73,7 +73,7 @@ class EstimationDetail extends Component {
         }
 
         return <div>
-            <div className="col-md-8 pad">
+            <div className="col-md-8 pad estimation-container">
                 <div className="col-md-12 estimateheader">
                     {estimation.canApprove && userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && estimation.status === SC.STATUS_REVIEW_REQUESTED ?
                         <div className="col-md-5 pad">
