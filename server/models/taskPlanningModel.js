@@ -343,28 +343,24 @@ const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber,
     return taskPlan
 }
 
-
-const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, plannedAfterMaxDate) => {
-
-    let generatedWarnings = {
-        added: [],
-        removed: []
-    }
-
-    let warningsTaskPlanned = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
-
-    logger.debug('Add task plan: ALL Warnings:', {warningsTaskPlanned})
-
-    if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
-        generatedWarnings.added.push(...warningsTaskPlanned.added)
-    if (warningsTaskPlanned.removed && warningsTaskPlanned.removed.length)
-        generatedWarnings.removed.push(...warningsTaskPlanned.removed)
-
+/**
+ * Modify flags in all affected release plans/task plans due to generated warnings
+ * @param generatedWarnings - Generated warnings due to any operation
+ * @param releasePlan - Current Release plan
+ * @param taskPlan - Current task plan
+ * @returns
+ * {
+ *   affectedReleasePlans,
+ *   affectedTaskPlans
+ * }
+ */
+const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
 
     // To avoid concurrency problems we would first fetch all release plan/task plans
     // that would be affected by warnings added/removed due to addition of this task plan
     // then we would update them by pushing/pulling flags
     // As a last step we would save all of them
+
 
     let releasePlanIDs = [];
     let taskPlanIDs = [];
@@ -387,9 +383,6 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
     }
 
-    logger.debug("AFTER add warnings: filtered release plan IDs ", {releasePlanIDs})
-    logger.debug("AFTER add warnings: filtered task plan IDs ", {taskPlanIDs})
-
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         let releasePlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_RELEASE_PLAN)
         let taskPlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_TASK_PLAN)
@@ -406,12 +399,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
             return tpIDs
         }, taskPlanIDs)
     }
-
-    logger.debug("AFTER remove warnings: filtered release plan IDs ", {releasePlanIDs})
-    logger.debug("AFTER remove warnings: filtered task plan IDs ", {taskPlanIDs})
-
     // Get releases and task plans
-
 
     let rpIDPromises = releasePlanIDs.map(rpID => {
         if (rpID == releasePlan._id.toString())
@@ -474,7 +462,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
         })
     }
 
-    // Now that all release plans/task plans are updated to add/remove flags based on warning raised, it is time
+    // Now that all release plans/task plans are updated to add/remove flags based on generated warnings, it is time
     // save them and then return only once all save operation completes so that user interface is appropriately modified
 
     let rpSavePromises = affectedReleasePlans.map(rp => {
@@ -489,6 +477,31 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
     await Promise.all(rpSavePromises)
     await Promise.all(tpSavePromises)
+
+    return {
+        affectedReleasePlans,
+        affectedTaskPlans
+    }
+}
+
+
+const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, plannedAfterMaxDate) => {
+    let generatedWarnings = {
+        added: [],
+        removed: []
+    }
+
+    let warningsTaskPlanned = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
+
+    logger.debug('Add task plan: ALL Warnings:', {warningsTaskPlanned})
+
+    if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
+        generatedWarnings.added.push(...warningsTaskPlanned.added)
+    if (warningsTaskPlanned.removed && warningsTaskPlanned.removed.length)
+        generatedWarnings.removed.push(...warningsTaskPlanned.removed)
+
+    // Get release/task plans objects that are affected due to these warnings
+    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
 
     //await Promise.all(promises)
     return {generatedWarnings, affectedTaskPlans}
@@ -905,6 +918,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
 
     let promises = []
     let updatedTaskPlans = []
+
 
     // HANDLE ALL WARNINGS THAT COULD HAVE POSSIBLY BE REMOVED BECAUSE OF THIS OPERATION
     /*----------------------------------------------------WARNING_RESPONSE_ADDED_SECTION----------------------------------------------------------*/
