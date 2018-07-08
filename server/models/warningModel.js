@@ -400,13 +400,15 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
                     type: SC.WARNING_TOO_MANY_HOURS,
                     source: true
                 })
+            } else {
+                warningResponse.added.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_TOO_MANY_HOURS,
+                    source: false
+                })
             }
-            warningResponse.added.push({
-                _id: t._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_TOO_MANY_HOURS,
-                source: false
-            })
+
 
         })
 
@@ -849,6 +851,7 @@ const deleteLessPlannedHours = async (releasePlan) => {
 /**
  * Called when any task is planned
  */
+
 warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
     // See if this addition of planning causes too many hours warning
     // Check if planned hours crossed limit of maximum hours as per configuration, if yes generate too many hours warning
@@ -875,6 +878,8 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             warningResponse.added.push(...warningsTooManyHours.added)
         if (warningsTooManyHours.removed && warningsTooManyHours.removed.length)
             warningResponse.removed.push(...warningsTooManyHours.removed)
+        logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : [warningsTooManyHours] ', {warningsTooManyHours})
+
     }
 //UNPLANNED UPDATE
 
@@ -963,6 +968,8 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
     if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
         warningResponse.removed.push(...warningsAskForLeave.removed)
 
+    logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : [warningsAskForLeave] ', {warningsAskForLeave})
+
 //EMPLOYEE ON LEAVE UPDATE
 
     let warningsOnLeave = await updateEmployeeOnLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
@@ -971,6 +978,8 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
         warningResponse.added.push(...warningsOnLeave.added)
     if (warningsOnLeave.removed && warningsOnLeave.removed.length)
         warningResponse.removed.push(...warningsOnLeave.removed)
+
+    logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : [warningsOnLeave] ', {warningsOnLeave})
 
 //LESS PLANNED HOURS OR MORE PLANNED HOURS OR NO WARNING AT ALL
 
@@ -985,6 +994,8 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
         if (warningsLessPlannedHours.removed && warningsLessPlannedHours.removed.length)
             warningResponse.removed.push(...warningsLessPlannedHours.removed)
 
+        logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : [warningsLessPlannedHours] ', {warningsLessPlannedHours})
+
     } else if (releasePlan.planning.plannedHours > releasePlan.task.estimatedHours) {
         /*Add more planned hours warning*/
         logger.debug('[task-plan-added-warning]: planned hours are more than actual estimated hours so need to raise warning')
@@ -994,6 +1005,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             warningResponse.added.push(...warningsMorePlannedHours.added)
         if (warningsMorePlannedHours.removed && warningsMorePlannedHours.removed.length)
             warningResponse.removed.push(...warningsMorePlannedHours.removed)
+        logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : [warningsMorePlannedHours] ', {warningsMorePlannedHours})
     } else {
         /*delete more planned hours warning and less planned hours warning*/
         logger.debug('[task-plan-added-warning]: planned hours are equal to estimated hours so no need to raise warning delete all less planned hours and more planned hours warning')
@@ -1002,6 +1014,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
         if (deleteWarningsMorePlannedHours.removed && deleteWarningsMorePlannedHours.removed.length)
             warningResponse.removed.push(...deleteWarningsMorePlannedHours.removed)
+        logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : [deleteWarningsMorePlannedHours] ', {deleteWarningsMorePlannedHours})
 
 
         let deleteWarningsLessPlannedHours = await deleteLessPlannedHours(releasePlan)
@@ -1009,6 +1022,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             warningResponse.added.push(...deleteWarningsLessPlannedHours.added)
         if (deleteWarningsLessPlannedHours.removed && deleteWarningsLessPlannedHours.removed.length)
             warningResponse.removed.push(...deleteWarningsLessPlannedHours.removed)
+        logger.debug('addTaskPlanning(): [makeWarningUpdatesOnAddTaskPlanning] : [deleteWarningsLessPlannedHours] ', {deleteWarningsLessPlannedHours})
     }
     return warningResponse
 }
