@@ -19,7 +19,7 @@ const logger = winston.createLogger({
                     splat: undefined,
                     timestamp: undefined
                 })
-            )
+            , null, 4)
         })
     ),
     transports: [
