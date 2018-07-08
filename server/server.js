@@ -28,15 +28,15 @@ co(async () => {
         connection = await mongoose.connect(conf.mongo.url, {
             "useMongoClient": conf.mongo.useMongoClient
         })
-        logger.info("Connection to database Successful!")
+        console.log("Connection to database Successful!")
     } catch (error) {
-        logger.error("Error connecting to database, please check your configurations...")
+        console.log("Error connecting to database, please check your configurations...")
         return
     }
 
     if (conf.server.dropDatabase) {
-        logger.warn("DROP DATABASE CONFIGURATION IS ON!!! PLEASE RESET IF DON'T INTEND TO DROP DATABASE IN NEXT SERVER START")
-        logger.info("DROPPING DATABASE")
+        console.log("DROP DATABASE CONFIGURATION IS ON!!! PLEASE RESET IF DON'T INTEND TO DROP DATABASE IN NEXT SERVER START")
+        console.log("DROPPING DATABASE")
         try {
             let names = await connection.db.listCollections().toArray()
             try {
@@ -48,14 +48,14 @@ co(async () => {
             //let dropCollection = connection.db.dropCollection()
 
         } catch (error) {
-            logger.error("Error dropping collections ", error)
+            console.log("Error dropping collections ", error)
             return
         }
     }
 
 
     if (conf.server.setupData) {
-        logger.info("SETUP DATA CONFIGURATION IS ON! In case you don't want to run setup instructions please set that config to false")
+        console.log("SETUP DATA CONFIGURATION IS ON! In case you don't want to run setup instructions please set that config to false")
         await addInitialData()
         await addNNXTData()
     }
@@ -141,6 +141,6 @@ co(async () => {
     app.use(apiRouter.routes())
 
     app.listen(conf.server.port, () => {
-        logger.info('Server started on %s', conf.server.port)
+        console.log('Server started on %s', conf.server.port)
     })
 })

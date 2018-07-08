@@ -44,7 +44,7 @@ let leaveSchema = mongoose.Schema({
 
 leaveSchema.statics.getAllLeaves = async (status, user) => {
     let leaves
-    if (U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)) {
+    if (U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
         leaves = await getLeaves(status, user)
     } else {
         leaves = await getUserLeaves(status, user)
@@ -52,8 +52,8 @@ leaveSchema.statics.getAllLeaves = async (status, user) => {
 
     leaves = leaves && leaves.length ? leaves.map(leave => Object.assign({}, leave.toObject(), {
             canDelete: leave.user._id.toString() === user._id.toString(),
-            canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE),
-            canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+            canCancel: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT),
+            canApprove: _.includes([SC.LEAVE_STATUS_RAISED], leave.status) && U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
         })
     ) : []
     return leaves
@@ -197,8 +197,8 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     await newLeave.save(leaveInput)
     newLeave = newLeave.toObject()
     newLeave.canDelete = true
-    newLeave.canCancel = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
-    newLeave.canApprove = U.userHasRole(user, SC.ROLE_HIGHEST_MANAGEMENT_ROLE)
+    newLeave.canCancel = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
+    newLeave.canApprove = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
     return {leave: newLeave, warnings: warningResponses}
 }
 

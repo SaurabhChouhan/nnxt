@@ -13,7 +13,7 @@ export const ROLE_MANAGER = 'Manager'
 export const ROLE_LEADER = 'Leader'
 export const ROLE_DEVELOPER = 'Developer'
 export const ROLE_NON_PROJECT_DEVELOPER = 'Non Project Developer'
-export const ROLE_HIGHEST_MANAGEMENT_ROLE = 'Highest Management'
+export const ROLE_TOP_MANAGEMENT = 'Top Management'
 export const ALL_ROLE_ARRAY = [
     ROLE_ADMIN,
     ROLE_SUPER_ADMIN,
@@ -23,7 +23,7 @@ export const ALL_ROLE_ARRAY = [
     ROLE_MANAGER,
     ROLE_LEADER,
     ROLE_DEVELOPER,
-    ROLE_HIGHEST_MANAGEMENT_ROLE
+    ROLE_TOP_MANAGEMENT
 ]
 
 
@@ -144,6 +144,7 @@ export const DESIGNATION_SOFTWARE_TRAINEE = "Software Trainee"
 export const DESIGNATION_SENIOR_SW_ENGINEER = "Sr. Software Engineer"
 export const DESIGNATION_TEAM_LEAD = "Team Leader"
 export const DESIGNATION_MANAGER = "Manager"
+export const DESIGNATION_OWNER = "Owner"
 
 //reasons
 export const REASON_GENERAL_DELAY = "general-delay"
