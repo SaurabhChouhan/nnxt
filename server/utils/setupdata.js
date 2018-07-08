@@ -211,7 +211,7 @@ export const addNNXTData = async () => {
 }
 
 const addRolesPermissions = async () => {
-    logger.info("SETTING UP ROLES/PERMISSIONS ...")
+    console.log("SETTING UP ROLES/PERMISSIONS ...")
 
     let editProfile = await MDL.PermissionModel.findOne({name: CC.EDIT_PROFILE}).lean()
     let permissions = []
@@ -255,16 +255,16 @@ const addRolesPermissions = async () => {
             permissions: permissions
         })
     }
-    if (!await MDL.RoleModel.exists(SC.ROLE_HIGHEST_MANAGEMENT_ROLE)) {
+    if (!await MDL.RoleModel.exists(SC.ROLE_TOP_MANAGEMENT)) {
         await MDL.RoleModel.createRole({
-            name: SC.ROLE_HIGHEST_MANAGEMENT_ROLE,
+            name: SC.ROLE_TOP_MANAGEMENT,
             permissions: permissions
         })
     }
 }
 
 const addNNXTUsers = async () => {
-    logger.info("SETTING UP USERS ...")
+    console.log("SETTING UP USERS ...")
     let estimatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_ESTIMATOR}).lean()
     // create estimator user
     if (!await MDL.UserModel.exists('estimator1@test.com')) {
@@ -456,23 +456,23 @@ const addNNXTUsers = async () => {
         })
     }
 
-    let highestManagementRole = await MDL.RoleModel.findOne({name: SC.ROLE_HIGHEST_MANAGEMENT_ROLE}).lean()
-    if (!await MDL.UserModel.exists('highestManament1@test.com')) {
+    let topManagementRoles = await MDL.RoleModel.findOne({name: SC.ROLE_TOP_MANAGEMENT}).lean()
+    if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'highestManament1@test.com',
-            firstName: "highest Manament-1",
-            lastName: "One",
-            roles: [highestManagementRole],
-            password: "highestManament",
-            employeeCode: 'emp-015',
-            designation: SC.DESIGNATION_MANAGER,
-            dateJoined: '01-01-2018'
+            email: 'schouhan@aripratech.com',
+            firstName: "Saurabh",
+            lastName: "Chouhan",
+            roles: [topManagementRoles],
+            password: "an1mos1ty",
+            employeeCode: 'emp-002',
+            designation: SC.DESIGNATION_OWNER,
+            dateJoined: '01-01-2012'
         })
     }
 }
 
 const addClients = async () => {
-    logger.info("SETTING UP CLIENTS ...")
+    console.log("SETTING UP CLIENTS ...")
     if (!await MDL.ClientModel.exists('Zaib')) {
         await MDL.ClientModel.saveClient({
             name: 'Zaib'
@@ -493,7 +493,7 @@ const addClients = async () => {
 }
 
 const addProjects = async () => {
-    logger.info("SETTING UP PROJECTS ...")
+    console.log("SETTING UP PROJECTS ...")
     let zaib = await MDL.ClientModel.findOne({name: 'Zaib'})
 
     if (zaib) {
@@ -551,7 +551,7 @@ const addProjects = async () => {
 }
 
 const addLeaveTypes = async () => {
-    logger.info("SETTING UP LEAVE DATA...")
+    console.log("SETTING UP LEAVE DATA...")
     let cl = await MDL.LeaveTypeModel.findOne({name: 'Casual leave (CL)'})
     if (!cl) {
         await MDL.LeaveTypeModel.saveLeaveType({
@@ -586,7 +586,7 @@ const addLeaveTypes = async () => {
 }
 
 const addTechnologies = async () => {
-    logger.info("SETTING UP TECHNOLOGIES ...")
+    console.log("SETTING UP TECHNOLOGIES ...")
     if (!await MDL.TechnologyModel.exists('React')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'React'
@@ -626,7 +626,7 @@ const addTechnologies = async () => {
 
 // This method would add tasks and features in repository
 const addRepositoryTasksAndFeatures = async () => {
-    logger.info("SETTING UP REPOSITORY TASKS/FEATURES ...")
+    console.log("SETTING UP REPOSITORY TASKS/FEATURES ...")
     let taskIdsForFeature = []
     if (!await MDL.RepositoryModel.isTaskExists('Simple Login (AJAX) using Passport.js API (Node/Koa)')) {
         await MDL.RepositoryModel.addTask({
@@ -738,7 +738,7 @@ const addRepositoryTasksAndFeatures = async () => {
 }
 
 const addEmployeeSettings = async () => {
-    logger.info("SETTING UP EMPLOYEE SETTINGS ...")
+    console.log("SETTING UP EMPLOYEE SETTINGS ...")
     let employeeSettings = await MDL.EmployeeSettingModel.find({})
     if (!employeeSettings || !employeeSettings.length) {
         await MDL.EmployeeSettingModel.createEmployeeSettings({
@@ -754,7 +754,7 @@ const addEmployeeSettings = async () => {
 }
 
 const addLeaveSettings = async () => {
-    logger.info("SETTING UP LEAVE SETTINGS ...")
+    console.log("SETTING UP LEAVE SETTINGS ...")
     let leaveSettings = await MDL.LeaveSettingModel.find({})
     if (!leaveSettings || !leaveSettings.length) {
         await MDL.LeaveSettingModel.createLeaveSettings({

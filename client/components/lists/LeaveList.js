@@ -126,7 +126,7 @@ class LeaveList extends Component {
                                     <div className="col-md-6">
                                         <div className="col-md-6">
                                             {
-                                                loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
+                                                loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) ? null :
                                                     <button className="btn customBtn leaveBtn"
                                                             onClick={() => this.props.showRaiseLeaveForm()}>Raise-Leave
                                                     </button>
@@ -134,7 +134,7 @@ class LeaveList extends Component {
                                         </div>
                                         <div className="col-md-6  releaseSearchContent ">
                                             <div
-                                                className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? "estimation releaseSelect  releaseSearchStatus leaveSelectHighestRole" : "estimation releaseSelect  releaseSearchStatus leaveSelect"}>
+                                                className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) ? "estimation releaseSelect  releaseSearchStatus leaveSelectHighestRole" : "estimation releaseSelect  releaseSearchStatus leaveSelect"}>
                                                 <select className="form-control" title="Select Status"
                                                         onChange={(status) =>
                                                             this.props.changeLeaveStatus(status.target.value)
@@ -154,7 +154,7 @@ class LeaveList extends Component {
                                 </div>
 
                                 <div
-                                    className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? "estimation" : "estimation leave"}>
+                                    className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) ? "estimation" : "estimation leave"}>
 
                                     <BootstrapTable options={this.options} data={leaves}
                                                     multiColumnSearch={true}
@@ -169,7 +169,7 @@ class LeaveList extends Component {
                                                            dataFormat={this.viewButton.bind(this)}>View
                                         </TableHeaderColumn>
 
-                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ?
+                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) ?
                                             <TableHeaderColumn width="10%" columnTitle dataField='user'
                                                                dataFormat={this.formatLeaveRaisedUser.bind(this)}>Raised
                                                 By
@@ -198,17 +198,17 @@ class LeaveList extends Component {
                                         <TableHeaderColumn columnTitle width="12%" dataField='approver'
                                                            dataFormat={this.formatLeaveApproverUser.bind(this)}>Approver</TableHeaderColumn>
 
-                                        {loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) ? null :
+                                        {loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) ? null :
                                             <TableHeaderColumn width="7%" dataField='deleteButton'
                                                                dataFormat={this.viewDeleteButton.bind(this)}>
                                                 Delete</TableHeaderColumn>}
-                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
+                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) &&
                                         <TableHeaderColumn width="7%"
                                                            dataField='cancelButton'
                                                            dataFormat={this.viewCancelButton.bind(this)}>
                                             Cancel
                                         </TableHeaderColumn>}
-                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_HIGHEST_MANAGEMENT_ROLE) &&
+                                        {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) &&
                                         <TableHeaderColumn width="7%"
                                                            dataField='approveButton'
                                                            dataFormat={this.viewApproveButton.bind(this)}>

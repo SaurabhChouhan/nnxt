@@ -17,7 +17,7 @@ export const isSuperAdmin = (ctx) => {
 
 export const isHighestManagementRole = (ctx) => {
     if (ctx.isAuthenticated()) {
-        if (ctx.state.user && Array.isArray(ctx.state.user.roles) && ctx.state.user.roles.findIndex(r => r.name === SC.ROLE_HIGHEST_MANAGEMENT_ROLE) !== -1)
+        if (ctx.state.user && Array.isArray(ctx.state.user.roles) && ctx.state.user.roles.findIndex(r => r.name === SC.ROLE_TOP_MANAGEMENT) !== -1)
             return true
     }
     return false
