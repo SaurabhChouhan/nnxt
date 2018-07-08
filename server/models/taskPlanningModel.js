@@ -484,30 +484,6 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     }
 }
 
-
-const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, plannedAfterMaxDate) => {
-    let generatedWarnings = {
-        added: [],
-        removed: []
-    }
-
-    let warningsTaskPlanned = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
-
-    logger.debug('Add task plan: ALL Warnings:', {warningsTaskPlanned})
-
-    if (warningsTaskPlanned.added && warningsTaskPlanned.added.length)
-        generatedWarnings.added.push(...warningsTaskPlanned.added)
-    if (warningsTaskPlanned.removed && warningsTaskPlanned.removed.length)
-        generatedWarnings.removed.push(...warningsTaskPlanned.removed)
-
-    // Get release/task plans objects that are affected due to these warnings
-    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
-
-    //await Promise.all(promises)
-    return {generatedWarnings, affectedTaskPlans}
-}
-
-
 /***
  * Create new task planning  in which logged in user is involved as a manager or leader
  ***/
@@ -625,18 +601,19 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
     let taskPlan = await createTaskPlan(releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, taskPlanningInput)
 
     /******************************** WARNING UPDATE SECTION **************************************************/
-    let warningResponseObject = await makeWarningUpdatesOnAddTaskPlanning(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, plannedAfterMaxDate)
-
+    let generatedWarnings = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
+    logger.debug('Add task plan: ALL Warnings:', {generatedWarnings})
+    // Get release/task plans objects that are affected due to these warnings
+    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
     // all objects would now have appropriate changes we can save and return appropriate response
-
     await release.save()
     await releasePlan.save()
     await taskPlan.save()
 
     return {
         taskPlan,
-        warnings: warningResponseObject.generatedWarnings,
-        taskPlans: warningResponseObject.affectedTaskPlans
+        warnings: generatedWarnings,
+        taskPlans: affectedTaskPlans
     }
 }
 /*-------------------------------------------------ADD_TASK_PLANNING_SECTION_END---------------------------------------------------------------*/
