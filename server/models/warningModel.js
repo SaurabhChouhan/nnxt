@@ -177,28 +177,30 @@ const deleteWarningWithResponse = async (warning, warningType) => {
 
 /*------------------------------------------------------------------------GET_DISTINCT_RELEASES_START--------------------------------------------------------------*/
 const getAffectedReleasesEmployeeDay = async (release, date, employeeID, warningName) => {
+    logger.info("================== warningModel.getAffectedReleasesEmployeeDay() =======================")
+
     let warningResponse = {
         added: [],
         removed: []
     }
-    let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
+    let affectedReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
         'planningDate': date,
         'employee._id': employeeID
     })
-    logger.debug('getDistinctReleasesWithResponse:=>  distinctReleaseIDs', {distinctReleaseIDs})
 
-    //This may be first task plan of a release plan in which case it would not become part of distinctReleaseIDs, in that case we are adding it to ensure that it becomes part of final warning response
+    //This may be first task plan of a release plan in which case it would not become part of affectedReleaseIDs, in that case we are adding it to ensure that it becomes part of final warning response
 
     if (release) {
-        if (distinctReleaseIDs && distinctReleaseIDs.length) {
-            distinctReleaseIDs.findIndex(releaseID => releaseID.toString() === release._id.toString()) === -1 && distinctReleaseIDs.push(release._id)
+        if (affectedReleaseIDs && affectedReleaseIDs.length) {
+            affectedReleaseIDs.findIndex(releaseID => releaseID.toString() === release._id.toString()) === -1 && affectedReleaseIDs.push(release._id)
         } else {
-            distinctReleaseIDs = [release._id]
+            affectedReleaseIDs = [release._id]
         }
     }
 
-    logger.debug('getDistinctReleasesWithResponse:=>  release IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleaseIDs})
-    let releasesPromises = distinctReleaseIDs.map(releaseID => {
+    logger.debug('Affected release IDs: [' + warningName + '] of employee [' + employeeID + '] of date [' + U.formatDateInUTC(date) + ']')
+    logger.debug("", {distinctReleaseIDs: affectedReleaseIDs})
+    let releasesPromises = affectedReleaseIDs.map(releaseID => {
         return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
             if (release && releaseDetail && releaseDetail._id.toString() === release._id.toString()) {
                 warningResponse.added.push({
@@ -227,6 +229,7 @@ const getAffectedReleasesEmployeeDay = async (release, date, employeeID, warning
     })
 
     let releases = await Promise.all(releasesPromises)
+    logger.info("################ warningModel.getAffectedReleasesEmployeeDay() ##############################")
     return {releases, warningResponse}
 }
 
@@ -318,7 +321,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
     })
 
     if (tooManyHoursWarning) {
-        //logger.debug('too many hours warning already exists')
+        logger.debug('Too many hours warning already exists')
         /* Update Existing warning WARNING_TOO_MANY_HOURS of same employee and planned date */
         /* Check current release is available in release list of warning if not available then push it to list*/
         logger.debug("[taskPlanAdded]=>[addTooManyHours] => [tooManyHoursWarning]", {tooManyHoursWarning})
@@ -358,6 +361,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
 
     } else {
         /* create a new warning :- WARNING_TOO_MANY_HOURS -: warning for selected developer and selected date as a planned date*/
+        logger.debug("No [too many hours] warning exists creating new")
         let newTooManyHoursWarning = new WarningModel()
         let employeeDays = await MDL.EmployeeDaysModel.find({
             'date': planningDateUtc,
@@ -386,7 +390,7 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
             'employee._id': mongoose.Types.ObjectId(employee._id)
         })
 
-        logger.debug("[taskPlanAdded]=>[addTooManyHours] => [taskPlans]", {taskPlans})
+        //logger.debug("WarningModel.addTooManyHours():", {taskPlans})
 
         if (taskPlans && taskPlans.length) {
             taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
@@ -418,15 +422,17 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
         newTooManyHoursWarning.releases = [...releases]
         newTooManyHoursWarning.employeeDays = [...employeeDays]
 
-        logger.debug("[taskPlanAdded]=>[addTooManyHours] => [newTooManyHoursWarning]", {newTooManyHoursWarning})
+        logger.debug("WarningModel.addTooManyHours(): [New TMHours warning]", {newTooManyHoursWarning})
         await newTooManyHoursWarning.save()
     }
-    logger.debug("[taskPlanAdded]=>[addTooManyHours] => [warningResponse]", {warningResponse})
+    logger.debug("WarningModel.addTooManyHours():", {warningResponse})
     logger.info("################ warningModel.addTooManyHours() ##############################")
     return warningResponse
 }
 
-const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release, employee, momentPlanningDate) => {
+const addEmployeeAskForLeave = async (taskPlan, releasePlan, release, employee, momentPlanningDate) => {
+
+    logger.info("================== warningModel.addEmployeeAskForLeave() =======================")
 
     let warningResponse = {
         added: [],
@@ -509,11 +515,12 @@ const updateEmployeeAskForLeaveOnAddTaskPlan = async (taskPlan, releasePlan, rel
                 source: true
             })
             await newEmployeeAskForLeaveWarning.save()
-            logger.debug("[updateEmployeeAskForLeaveOnAddTaskPlan] => [newEmployeeAskForLeaveWarning]", newEmployeeAskForLeaveWarning)
+            logger.debug("[addEmployeeAskForLeave] => [newEmployeeAskForLeaveWarning]", newEmployeeAskForLeaveWarning)
         }
 
     }
-    logger.debug("[updateEmployeeAskForLeaveOnAddTaskPlan] => [warningResponse]", warningResponse)
+    logger.debug("addEmployeeAskForLeave(): ", warningResponse)
+    logger.info("################ warningModel.addEmployeeAskForLeave() ##############################")
     return warningResponse
 }
 
@@ -608,6 +615,8 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
  */
 const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) => {
 
+    logger.info("================== warningModel.addLessPlannedHoursOnAddTaskPlan() =======================")
+
     let warningResponse = {
         added: [],
         removed: []
@@ -662,7 +671,7 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
         })
 
         if (taskPlans && taskPlans.length) {
-            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlan.push(taskPlan.toObject())
+            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
         } else {
             taskPlans = [taskPlan.toObject()]
         }
@@ -701,10 +710,15 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
         })
         await newLessPlannedHoursWarning.save()
     }
+
+    logger.info("################ warningModel.addLessPlannedHoursOnAddTaskPlan() ##############################")
+
     return warningResponse
 }
 
 const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) => {
+
+    logger.info("================== warningModel.addMorePlannedHoursOnAddTaskPlan() =======================")
 
     let warningResponse = {
         added: [],
@@ -805,10 +819,15 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
 
         await newMorePlannedHoursWarning.save()
     }
+
+    logger.info("################ warningModel.addMorePlannedHoursOnAddTaskPlan() ##############################")
     return warningResponse
 }
 
 const deleteMorePlannedHours = async (releasePlan) => {
+
+    logger.info("================== warningModel.deleteMorePlannedHours() =======================")
+
     let warningResponse = {
         added: [],
         removed: []
@@ -825,11 +844,18 @@ const deleteMorePlannedHours = async (releasePlan) => {
         if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
             warningResponse.removed.push(...deleteWarningResponse.removed)
     }
+
+    logger.debug("", {warningResponse})
+    logger.info("################ warningModel.deleteMorePlannedHours() ##############################")
+
     return warningResponse
 }
 
 
 const deleteLessPlannedHours = async (releasePlan) => {
+
+    logger.info("================== warningModel.deleteLessPlannedHours() =======================")
+
     let warningResponse = {
         added: [],
         removed: []
@@ -846,6 +872,9 @@ const deleteLessPlannedHours = async (releasePlan) => {
         if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
             warningResponse.removed.push(...deleteWarningResponse.removed)
     }
+
+    logger.debug("WarningModel.deleteLessPlannedHours():", {warningResponse})
+    logger.info("################ warningModel.deleteLessPlannedHours() ##############################")
     return warningResponse
 }
 
@@ -870,7 +899,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
     }
 
 
-//TOO MANY HOURS UPDATE
+    //TOO MANY HOURS UPDATE
 
     if (plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
         let warningsTooManyHours = await addTooManyHours(taskPlan, release, releasePlan, employee, momentPlanningDate)
@@ -879,7 +908,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
         if (warningsTooManyHours.removed && warningsTooManyHours.removed.length)
             warningResponse.removed.push(...warningsTooManyHours.removed)
     }
-//UNPLANNED UPDATE
+    //UNPLANNED UPDATE
 
     // If this is first task planned against a release plan, unplanned warning would be removed from release plan
     if (firstTaskOfReleasePlan) {
@@ -896,7 +925,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     }
 
-//PENDING ON END DATE UPDATE
+    //PENDING ON END DATE UPDATE
     if (addedAfterMaxDate) {
 
         /**
@@ -960,7 +989,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
 //EMPLOYEE ASK FOR LEAVE UPDATE
 
-    let warningsAskForLeave = await updateEmployeeAskForLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
+    let warningsAskForLeave = await addEmployeeAskForLeave(taskPlan, releasePlan, release, employee, momentPlanningDate)
     if (warningsAskForLeave.added && warningsAskForLeave.added.length)
         warningResponse.added.push(...warningsAskForLeave.added)
     if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
@@ -979,7 +1008,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
         /*Add less planned hours warning*/
-        logger.debug('[task-plan-added-warning]: planned hours are less than actual estimated hours so need to raise warning')
+        logger.debug('WarningModel.taskPlanAdded(): planned hours are less than actual estimated hours so need to raise warning')
 
         let warningsLessPlannedHours = await addLessPlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
 
@@ -990,7 +1019,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     } else if (releasePlan.planning.plannedHours > releasePlan.task.estimatedHours) {
         /*Add more planned hours warning*/
-        logger.debug('[task-plan-added-warning]: planned hours are more than actual estimated hours so need to raise warning')
+        logger.debug('WarningModel.taskPlanAdded(): planned hours are more than actual estimated hours so need to raise warning')
 
         let warningsMorePlannedHours = await addMorePlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
         if (warningsMorePlannedHours.added && warningsMorePlannedHours.added.length)
@@ -999,7 +1028,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             warningResponse.removed.push(...warningsMorePlannedHours.removed)
     } else {
         /*delete more planned hours warning and less planned hours warning*/
-        logger.debug('[task-plan-added-warning]: planned hours are equal to estimated hours so no need to raise warning delete all less planned hours and more planned hours warning')
+        logger.debug('WarningModel.taskPlanAdded(): planned hours are equal to estimated hours so no need to raise warning delete all less planned hours and more planned hours warning')
         let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
         if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
