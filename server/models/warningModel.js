@@ -400,13 +400,15 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
                     type: SC.WARNING_TOO_MANY_HOURS,
                     source: true
                 })
+            } else {
+                warningResponse.added.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_TOO_MANY_HOURS,
+                    source: false
+                })
             }
-            warningResponse.added.push({
-                _id: t._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_TOO_MANY_HOURS,
-                source: false
-            })
+
 
         })
 
