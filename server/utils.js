@@ -103,6 +103,15 @@ export const getNowMoment = () => {
     return undefined
 }
 
+export const nowMomentInTimeZone = (timeZone) => {
+    let now = new Date()
+    let nowMoment = moment.tz(now, SC.DATE_FORMAT, timeZone)
+    if (nowMoment.isValid())
+        return nowMoment
+    return undefined
+}
+
+
 export const getNow = () => {
     let now = new Date()
     return now
