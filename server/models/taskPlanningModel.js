@@ -398,7 +398,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -434,7 +434,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -470,7 +470,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -512,7 +512,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
 
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -552,7 +552,7 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
                                 return t.save()
                             }
                         }).then(t => {
-                            updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                            updatedTaskPlans = [...updatedTaskPlans, t]
                             return t
                         }
                         )
@@ -569,23 +569,25 @@ const makeWarningUpdatesOnAddTaskPlanning = async (taskPlan, releasePlan, releas
             } else if (w.type === SC.WARNING_LESS_PLANNED_HOURS) {
                 /*-----------------------------------------------WARNING_COMPLETED_BEFORE_END_DATE_SECTION-------------------------------------------------*/
                 if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed agains release plan with id [' + w._id + ']')
+                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_LESS_PLANNED_HOURS + '] is removed against release plan with id [' + w._id + ']')
                     if (w._id.toString() === releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1)) {
                         releasePlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
                     }
                 } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) === -1)) {
+                    if (w._id.toString() === taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1)) {
                         logger.debug('Pushing  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning against task plan [' + taskPlan._id + ']')
-                        taskPlan.flags.push(SC.WARNING_LESS_PLANNED_HOURS)
+                        taskPlan.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
                     } else {
                         // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                         promises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                                logger.debug('add task plan error check on taskPlan update taskPlan is :', {key1: t})
                                 if (t && t.flags.indexOf(SC.WARNING_LESS_PLANNED_HOURS) > -1) {
+                                    logger.debug('Pulling  [' + SC.WARNING_LESS_PLANNED_HOURS + '] warning from task plan [' + taskPlan._id + ']')
                                     t.flags.pull(SC.WARNING_LESS_PLANNED_HOURS)
                                     return t.save()
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -1052,7 +1054,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                                     return t.save()
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -1098,7 +1100,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
 
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -1127,7 +1129,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                                     return t.save()
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
@@ -1157,7 +1159,7 @@ const makeWarningUpdatesOnDeleteTaskPlanning = async (taskPlan, releasePlan, rel
                                     return t.save()
                                 }
                             }).then(t => {
-                                updatedTaskPlans = [...updatedTaskPlans, t.toObject()]
+                                updatedTaskPlans = [...updatedTaskPlans, t]
                                 return t
                             }
                             )
