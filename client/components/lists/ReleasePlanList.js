@@ -53,13 +53,6 @@ class ReleasePlanList extends Component {
         this.props.releasePlanSelected(row, this.props.release.highestRoleInThisRelease)
     }
 
-    formatDate(row) {
-        if (row) {
-            return moment(row).format("DD-MM-YYYY")
-        }
-        return ''
-    }
-
     formatEstimatedHours(task) {
         if (task)
             return task.estimatedHours
@@ -420,9 +413,7 @@ class ReleasePlanList extends Component {
                                                   hover={true}>
                                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                                        hidden={true}>ID</TableHeaderColumn>
-                                    <TableHeaderColumn columnTitle width=" 8%" dataField='created'
-                                                       dataFormat={this.formatDate.bind(this)}>Raised
-                                    </TableHeaderColumn>
+
                                     <TableHeaderColumn width="25%" columnTitle dataField='task'
                                                        dataFormat={this.formatTaskName.bind(this)}>Task
                                         Name</TableHeaderColumn>
