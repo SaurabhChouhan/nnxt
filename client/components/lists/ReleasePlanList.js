@@ -306,55 +306,6 @@ class ReleasePlanList extends Component {
                                 </li>
                             </ul>
                         </div>
-
-
-                        {/*<nav className="navbar navbar-default">*/}
-                        {/*<div className="container-fluid">*/}
-                        {/*<div className="navbar-header">*/}
-
-                        {/*</div>*/}
-                        {/*<ul className="nav navbar-nav">*/}
-                        {/*<li>*/}
-                        {/*<button*/}
-                        {/*className={showPlans === '' ? "  btn btn-link btn-size " : "btn  btn-link btn-size "}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showReleasePlans()*/}
-                        {/*}}>Release Plans*/}
-                        {/*</button>*/}
-                        {/*</li>*/}
-                        {/*<li >*/}
-                        {/*<button*/}
-                        {/*className={showPlans === SC.WARNINGS_LIST ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showWarnings(),*/}
-                        {/*this.props.getAllWarnings(release)*/}
-                        {/*}}>Warnings*/}
-                        {/*</button>*/}
-                        {/*</li>*/}
-                        {/*<li>*/}
-                        {/*<button*/}
-                        {/*className={showPlans === SC.TASK_PLANS_LIST ? "btn btn-link btn-size " : "btn btn-link btn-size "}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showTaskPlans(),*/}
-                        {/*this.props.getAllTaskPlans(release)*/}
-                        {/*}}>Task Plans*/}
-                        {/*</button>*/}
-                        {/*</li>*/}
-
-                        {/*</ul>*/}
-                        {/*</div>*/}
-                        {/*</nav>*/}
-                        {/*<button className={showPlans ? "btn btnWarning" : "btn btnWarningSelected"}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showWarnings(),*/}
-                        {/*this.props.getAllWarnings(release)*/}
-                        {/*}}>Warnings*/}
-                        {/*</button>*/}
-                        {/*<button className={showPlans ? "btn btnReleasePlanSelected" : "btn btnReleasePlan"}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showReleasePlans()*/}
-                        {/*}}>Release Plans*/}
-                        {/*</button>*/}
                     </div>
                     <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
@@ -430,16 +381,3 @@ class ReleasePlanList extends Component {
 }
 
 export default withRouter(ReleasePlanList)
-/*
-*  <li><button className={showPlans ? " btn-link btnReleasePlanSelected" : " btn-link btnReleasePlan"}
-                                                onClick={() => {
-                                                    this.showReleasePlans()
-                                                }}>Release Plans
-                                    </button></li>
-                                    <li className="active"> <button className={showPlans ? " btn-link btnWarning" : " btn-link  btnWarningSelected"}
-                                                                onClick={() => {
-                                                                    this.showWarnings(),
-                                                                        this.props.getAllWarnings(release)
-                                                                }}>Warnings
-                                    </button></li>
-* */
