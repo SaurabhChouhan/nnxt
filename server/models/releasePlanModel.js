@@ -16,7 +16,7 @@ let releasePlanSchema = mongoose.Schema({
         _id: {type: mongoose.Schema.ObjectId, required: true},
         name: {type: String, required: [true, 'Release name is required']},
         iterationID: {type: mongoose.Schema.ObjectId, required: true},
-        iterationIndex:{type: Number}
+        iterationIndex: {type: Number}
     },
     task: {
         _id: mongoose.Schema.ObjectId,
@@ -160,11 +160,11 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
     let filter = {'release._id': release._id}
 
     if (status && status.toLowerCase() != 'all' && empflag && empflag.toLowerCase() != 'all')
-        filter = {'release._id': release._id, 'report.finalStatus': status, 'flags': {$in: [empflag]}}
+        filter = {'release._id': release._id, 'report.finalStatus': status, 'flags': empflag}
     else if (status && status.toLowerCase() != 'all')
         filter = {'release._id': release._id, 'report.finalStatus': status}
     else if (empflag && empflag.toLowerCase() != 'all')
-        filter = {'release._id': release._id, 'flags': {$in: [empflag]}}
+        filter = {'release._id': release._id, 'flags': empflag}
 
     return await ReleasePlanModel.find(filter)
 }

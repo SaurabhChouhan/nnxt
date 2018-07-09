@@ -351,8 +351,8 @@ export const shiftTasksToFutureOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    if(json.data && json.data.taskPlan)
-                    dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlanID))
+                    if (json.data && json.data.taskPlan)
+                        dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlanID))
                 }
                 return json
             })
@@ -432,7 +432,7 @@ export const getReleaseDevelopersFromServer = (releasePlanID) => {
 
 export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/task-plans/release/'+releaseID, {
+        return fetch('/api/releases/task-plans/release/' + releaseID, {
                 method: 'get',
                 credentials: "include",
                 headers: {

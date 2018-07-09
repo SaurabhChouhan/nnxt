@@ -53,13 +53,6 @@ class ReleasePlanList extends Component {
         this.props.releasePlanSelected(row, this.props.release.highestRoleInThisRelease)
     }
 
-    formatDate(row) {
-        if (row) {
-            return moment(row).format("DD-MM-YYYY")
-        }
-        return ''
-    }
-
     formatEstimatedHours(task) {
         if (task)
             return task.estimatedHours
@@ -313,55 +306,6 @@ class ReleasePlanList extends Component {
                                 </li>
                             </ul>
                         </div>
-
-
-                        {/*<nav className="navbar navbar-default">*/}
-                        {/*<div className="container-fluid">*/}
-                        {/*<div className="navbar-header">*/}
-
-                        {/*</div>*/}
-                        {/*<ul className="nav navbar-nav">*/}
-                        {/*<li>*/}
-                        {/*<button*/}
-                        {/*className={showPlans === '' ? "  btn btn-link btn-size " : "btn  btn-link btn-size "}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showReleasePlans()*/}
-                        {/*}}>Release Plans*/}
-                        {/*</button>*/}
-                        {/*</li>*/}
-                        {/*<li >*/}
-                        {/*<button*/}
-                        {/*className={showPlans === SC.WARNINGS_LIST ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showWarnings(),*/}
-                        {/*this.props.getAllWarnings(release)*/}
-                        {/*}}>Warnings*/}
-                        {/*</button>*/}
-                        {/*</li>*/}
-                        {/*<li>*/}
-                        {/*<button*/}
-                        {/*className={showPlans === SC.TASK_PLANS_LIST ? "btn btn-link btn-size " : "btn btn-link btn-size "}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showTaskPlans(),*/}
-                        {/*this.props.getAllTaskPlans(release)*/}
-                        {/*}}>Task Plans*/}
-                        {/*</button>*/}
-                        {/*</li>*/}
-
-                        {/*</ul>*/}
-                        {/*</div>*/}
-                        {/*</nav>*/}
-                        {/*<button className={showPlans ? "btn btnWarning" : "btn btnWarningSelected"}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showWarnings(),*/}
-                        {/*this.props.getAllWarnings(release)*/}
-                        {/*}}>Warnings*/}
-                        {/*</button>*/}
-                        {/*<button className={showPlans ? "btn btnReleasePlanSelected" : "btn btnReleasePlan"}*/}
-                        {/*onClick={() => {*/}
-                        {/*this.showReleasePlans()*/}
-                        {/*}}>Release Plans*/}
-                        {/*</button>*/}
                     </div>
                     <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
@@ -371,22 +315,8 @@ class ReleasePlanList extends Component {
                                     this.onFlagChange(flag.target.value)
                                 }>
                                     <option value="all">All Flags</option>
-                                    <option value={SC.WARNING_UNPLANNED}>{SC.WARNING_UNPLANNED}</option>
-                                    <option value={SC.WARNING_EMPLOYEE_ON_LEAVE}>{SC.WARNING_EMPLOYEE_ON_LEAVE}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_1}>{SC.WARNING_RELEASE_DATE_MISSED_1}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_2}>{SC.WARNING_RELEASE_DATE_MISSED_2}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_3}>{SC.WARNING_RELEASE_DATE_MISSED_3}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_4}>{SC.WARNING_RELEASE_DATE_MISSED_4}</option>
-                                    <option
-                                        value={SC.WARNING_HAS_UNREPORTED_DAYS}>{SC.WARNING_HAS_UNREPORTED_DAYS}</option>
-                                    <option
-                                        value={SC.WARNING_PENDING_ON_END_DATE}>{SC.WARNING_PENDING_ON_END_DATE}</option>
-                                    <option
-                                        value={SC.WARNING_COMPLETED_BEFORE_END_DATE}>{SC.WARNING_COMPLETED_BEFORE_END_DATE}</option>
+                                    {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
+                                        key={warning + idx} value={warning}>{warning}</option>)}
 
                                 </select>
                             </div>
@@ -420,9 +350,7 @@ class ReleasePlanList extends Component {
                                                   hover={true}>
                                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                                        hidden={true}>ID</TableHeaderColumn>
-                                    <TableHeaderColumn columnTitle width=" 8%" dataField='created'
-                                                       dataFormat={this.formatDate.bind(this)}>Raised
-                                    </TableHeaderColumn>
+
                                     <TableHeaderColumn width="25%" columnTitle dataField='task'
                                                        dataFormat={this.formatTaskName.bind(this)}>Task
                                         Name</TableHeaderColumn>
@@ -453,16 +381,3 @@ class ReleasePlanList extends Component {
 }
 
 export default withRouter(ReleasePlanList)
-/*
-*  <li><button className={showPlans ? " btn-link btnReleasePlanSelected" : " btn-link btnReleasePlan"}
-                                                onClick={() => {
-                                                    this.showReleasePlans()
-                                                }}>Release Plans
-                                    </button></li>
-                                    <li className="active"> <button className={showPlans ? " btn-link btnWarning" : " btn-link  btnWarningSelected"}
-                                                                onClick={() => {
-                                                                    this.showWarnings(),
-                                                                        this.props.getAllWarnings(release)
-                                                                }}>Warnings
-                                    </button></li>
-* */

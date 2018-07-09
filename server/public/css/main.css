@@ -197,7 +197,7 @@ button.customBtn, button.customBtn:focus {
     padding: 1px 12px;
     font-size: 20px;
     border: 2px solid #FF534F;
-    margin:5px;
+    margin: 5px;
     transition: 0.8s;
     border-radius: 0;
 }
@@ -618,7 +618,7 @@ table th {
 
 .estimationfileoption ul {
     text-align: right;
-    margin-bottom:0px;
+    margin-bottom: 0px;
 }
 
 .estimationfileoption li {
@@ -1076,7 +1076,7 @@ td.rejRowColor {
 }
 
 .estimation-container {
-    max-height:600px;
+    max-height: 600px;
 }
 
 .estimationsection .technologytag {
@@ -1626,7 +1626,7 @@ label {
 }
 
 .estimationSearchInitiateBtn {
-    margin-left: 36px;
+    margin-left: 36px !important;
 
 }
 
@@ -1984,15 +1984,15 @@ hr {
 .leaveSelect {
     margin-left: 502px !important;
     width: 288px;
-    margin-top: -36px;
+    margin-top: -31px;
 }
 
 .leaveBtn {
-    margin-left: 835px;
+    margin-left: 835px !important;
 }
 
 .leave {
-    margin-top: -44px;
+    margin-top: -37px;
 }
 
 .leaveSelectHighestRole {
@@ -2030,6 +2030,13 @@ hr {
 .btn-size {
     font-size: 20px;
 }
-.container-width{
-    width:1070px;
+
+.container-width {
+    width: 1070px;
 }
+
+.refreshBtn {
+    font-size: 23px;
+    margin-top: 2px;
+}
+

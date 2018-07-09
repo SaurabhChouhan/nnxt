@@ -5,6 +5,7 @@ import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 import * as EC from '../../../server/errorcodes'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
@@ -68,7 +69,22 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getReleasePlansFromServer(release._id, 'all', 'all'))
     },
 
-    expandDescription: (flag) => dispatch(A.expandDescription(flag))
+    expandDescription: (flag) => dispatch(A.expandDescription(flag)),
+    refreshSelectedTaskPlan: (releasePlan, role) => {
+        dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)).then(json => {
+            if (json.success) {
+                dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
+            }
+        })
+        dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
+        if (role === SC.ROLE_MANAGER) {
+            // get all developers from user list when user role in this release is manager
+            dispatch(A.getAllDeveloperFromServer())
+        } else if (role === SC.ROLE_LEADER) {
+            // get project developers from user list when user role in this release is leader
+            dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
+        }
+    },
 })
 
 
