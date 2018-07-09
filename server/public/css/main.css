@@ -1626,7 +1626,7 @@ label {
 }
 
 .estimationSearchInitiateBtn {
-    margin-left: 36px;
+    margin-left: 36px !important;
 
 }
 
@@ -1984,15 +1984,15 @@ hr {
 .leaveSelect {
     margin-left: 502px !important;
     width: 288px;
-    margin-top: -36px;
+    margin-top: -31px;
 }
 
 .leaveBtn {
-    margin-left: 835px;
+    margin-left: 835px !important;
 }
 
 .leave {
-    margin-top: -44px;
+    margin-top: -37px;
 }
 
 .leaveSelectHighestRole {
