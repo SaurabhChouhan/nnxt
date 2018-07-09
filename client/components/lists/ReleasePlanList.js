@@ -372,7 +372,7 @@ class ReleasePlanList extends Component {
                                 }>
                                     <option value="all">All Flags</option>
                                     {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
-                                        value={warning + idx}>{warning}</option>)}
+                                        key={warning + idx} value={warning}>{warning}</option>)}
 
                                 </select>
                             </div>
@@ -406,7 +406,7 @@ class ReleasePlanList extends Component {
                                                   hover={true}>
                                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                                        hidden={true}>ID</TableHeaderColumn>
-                                    <TableHeaderColumn columnTitle width=" 8%" dataField='created'
+                                    <TableHeaderColumn columnTitle width="8%" dataField='created'
                                                        dataFormat={this.formatDate.bind(this)}>Raised
                                     </TableHeaderColumn>
                                     <TableHeaderColumn width="25%" columnTitle dataField='task'
