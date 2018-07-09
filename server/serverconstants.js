@@ -109,13 +109,10 @@ export const WARNING_MORE_REPORTED_HOURS_4 = 'more_reported_hours_4'
 export const WARNING_HAS_UNREPORTED_DAYS = 'has_unreported_days'
 export const WARNING_UNREPORTED = 'unreported'
 export const WARNING_PENDING_ON_END_DATE = 'pending_on_end_date'
-export const WARNING_COMPLETED_BEFORE_END_DATE = 'completed_before_enddate'
+export const WARNING_COMPLETED_BEFORE_END_DATE = 'completed_before_end_date'
 
 
 export const ALL_WARNING_NAME_ARRAY = [
-    WARNING_TYPE_RELEASE,
-    WARNING_TYPE_RELEASE_PLAN,
-    WARNING_TYPE_TASK_PLAN,
     WARNING_UNPLANNED,
     WARNING_TOO_MANY_HOURS,
     WARNING_EMPLOYEE_ON_LEAVE,

@@ -364,22 +364,8 @@ class ReleasePlanList extends Component {
                                     this.onFlagChange(flag.target.value)
                                 }>
                                     <option value="all">All Flags</option>
-                                    <option value={SC.WARNING_UNPLANNED}>{SC.WARNING_UNPLANNED}</option>
-                                    <option value={SC.WARNING_EMPLOYEE_ON_LEAVE}>{SC.WARNING_EMPLOYEE_ON_LEAVE}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_1}>{SC.WARNING_RELEASE_DATE_MISSED_1}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_2}>{SC.WARNING_RELEASE_DATE_MISSED_2}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_3}>{SC.WARNING_RELEASE_DATE_MISSED_3}</option>
-                                    <option
-                                        value={SC.WARNING_RELEASE_DATE_MISSED_4}>{SC.WARNING_RELEASE_DATE_MISSED_4}</option>
-                                    <option
-                                        value={SC.WARNING_HAS_UNREPORTED_DAYS}>{SC.WARNING_HAS_UNREPORTED_DAYS}</option>
-                                    <option
-                                        value={SC.WARNING_PENDING_ON_END_DATE}>{SC.WARNING_PENDING_ON_END_DATE}</option>
-                                    <option
-                                        value={SC.WARNING_COMPLETED_BEFORE_END_DATE}>{SC.WARNING_COMPLETED_BEFORE_END_DATE}</option>
+                                    {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
+                                        key={warning + idx} value={warning}>{warning}</option>)}
 
                                 </select>
                             </div>
