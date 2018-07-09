@@ -11,6 +11,12 @@ class TaskPlanList extends Component {
         super(props);
     }
 
+    formatDeveloperName(employee) {
+        if (employee)
+            return employee.name
+        return ''
+    }
+
     formatTaskName(task) {
         if (task)
             return task.name
@@ -43,6 +49,9 @@ class TaskPlanList extends Component {
                             hover={true}>
                 <TableHeaderColumn columnTitle isKey dataField='_id'
                                    hidden={true}>ID
+                </TableHeaderColumn>
+                <TableHeaderColumn columnTitle dataField='employee'
+                                   dataFormat={this.formatDeveloperName.bind(this)}>Developer
                 </TableHeaderColumn>
                 <TableHeaderColumn columnTitle dataField='task'
                                    dataFormat={this.formatTaskName.bind(this)}>Tasks

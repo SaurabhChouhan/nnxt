@@ -188,7 +188,7 @@ class ReleaseTaskPlanningPage extends Component {
             <div>
                 <div className="col-md-8 pad">
                     <div className="col-md-12 estimateheader">
-                        <div className="col-md-8 pad">
+                        <div className="col-md-6 pad">
                             <div className="backarrow">
                                 <h5>
                                     <button className="btn-link" title="Go Back" onClick={() => {
@@ -198,6 +198,16 @@ class ReleaseTaskPlanningPage extends Component {
                                     <b title={releasePlan && releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
                                 </h5>
                             </div>
+                        </div>
+                        <div className="col-md-2 ">
+                            <button
+                                className=" btn refreshBtn "
+                                type="button"
+                                onClick={() => {
+                                    this.props.refreshSelectedTaskPlan(releasePlan, releasePlan.highestRoleInThisRelease)
+                                }}>
+                                <i className="fa fa-refresh "></i>
+                            </button>
                         </div>
                         <div className="col-md-2  releaseClock ">
                             <i className="fa fa-clock-o "
