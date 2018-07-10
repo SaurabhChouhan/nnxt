@@ -307,47 +307,48 @@ class ReleasePlanList extends Component {
                             </ul>
                         </div>
                     </div>
-                    <div className="col-md-8 releaseOption releaseDetailSearchContent">
+                    {showPlans === '' || showPlans === SC.TASK_PLANS_LIST ?
+                        <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
-                        <div className="col-md-6 ">
-                            <div className="releaseDetailSearchFlag">
-                                <select className="form-control" title="Select Flag" onChange={(flag) =>
-                                    this.onFlagChange(flag.target.value)
-                                }>
-                                    <option value="all">All Flags</option>
-                                    {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
-                                        key={warning + idx} value={warning}>{warning}</option>)}
+                            <div className="col-md-6 ">
+                                <div className="releaseDetailSearchFlag">
+                                    <select className="form-control" title="Select Flag" onChange={(flag) =>
+                                        this.onFlagChange(flag.target.value)
+                                    }>
+                                        <option value="all">All Flags</option>
+                                        {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
+                                            key={warning + idx} value={warning}>{warning}</option>)}
 
-                                </select>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                        <div className="col-md-6">
-                            <div className="releaseDetailSearchStatus">
-                                <select className="form-control" title="Select Status"
-                                        onChange={(status) => this.onStatusChange(status.target.value)}>
-                                    <option value="all">All Status</option>
-                                    <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-                                    <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-                                    <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                    <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                    <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                    <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                    <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+                            <div className="col-md-6">
+                                <div className="releaseDetailSearchStatus">
+                                    <select className="form-control" title="Select Status"
+                                            onChange={(status) => this.onStatusChange(status.target.value)}>
+                                        <option value="all">All Status</option>
+                                        <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+                                        <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                        <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                                        <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                                        <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                                        <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                                        <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
 
-                                </select>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="estimation">
-                        {showPlans === SC.TASK_PLANS_LIST ?
-                            <TaskPlanListContainer/> :
-                            showPlans === SC.WARNINGS_LIST ? <WarningListContainer/>
-                                : <BootstrapTable options={this.options} data={releasePlans}
-                                                  multiColumnSearch={true}
-                                                  search={true}
-                                                  striped={true}
-                                                  hover={true}>
+                        </div> : null}
+                    {showPlans === SC.TASK_PLANS_LIST ?
+                        <TaskPlanListContainer/> :
+                        showPlans === SC.WARNINGS_LIST ? <WarningListContainer/>
+                            :
+                            <div className="estimation">
+                                <BootstrapTable options={this.options} data={releasePlans}
+                                                multiColumnSearch={true}
+                                                search={true}
+                                                striped={true}
+                                                hover={true}>
                                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                                        hidden={true}>ID</TableHeaderColumn>
 
@@ -371,8 +372,8 @@ class ReleasePlanList extends Component {
                                     </TableHeaderColumn>
 
                                 </BootstrapTable>
-                        }
-                    </div>
+
+                            </div>}
                 </div>
             </div>
 

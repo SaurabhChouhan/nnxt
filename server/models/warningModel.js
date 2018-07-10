@@ -90,7 +90,41 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
 }
 
 /*-------------------------------------------------------------------GET_WARNINGS_SECTION_END------------------------------------------------------------------------*/
+warningSchema.statics.geWarningsBywarningType = async (params, user) => {
+    console.log("---------params-----------",params)
+    let warningType = params.warning.type
+    let empflag = params.empflag
+    let status = params.status
 
+    if (!warningType) {
+        throw new AppError('warning Type not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    let warning = await MDL.WarningModel.find(mongoose.Types.ObjectId(warningType))
+
+    if (!warning) {
+        throw new AppError('warning not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (!empflag) {
+        throw new AppError('Employee Flag not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    if (!status) {
+        throw new AppError('Status not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
+    }
+
+    let filter = {'warning._id': warning.type}
+
+    if (status && status.toLowerCase() != 'all' && empflag && empflag.toLowerCase() != 'all')
+        filter = {'warning.type': warning.type, 'report.finalStatus': status, 'flags': empflag}
+    else if (status && status.toLowerCase() != 'all')
+        filter = {'warning.type': warning.type, 'report.finalStatus': status}
+    else if (empflag && empflag.toLowerCase() != 'all')
+        filter = {'warning.type': warning.type, 'flags': empflag}
+
+    return await WarningModel.find(filter)
+}
 
 /*-------------------------------------------------------------------ADD_UNPLANNED_SECTION_START---------------------------------------------------------------------*/
 

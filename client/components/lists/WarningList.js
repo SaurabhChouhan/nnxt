@@ -9,8 +9,26 @@ class WarningList extends Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            status: "all",
+            flag: "all",
+        }
+        this.onFlagChange = this.onFlagChange.bind(this)
+        this.onStatusChange = this.onStatusChange.bind(this)
     }
 
+    onFlagChange(flag) {
+        console.log("this.props.warning",this.props.warnings)
+        this.setState({flag: flag})
+        this.props.changeWarningFlag(this.props.warnings, this.state.status, flag)
+    }
+
+
+    onStatusChange(status) {
+        console.log("this.props.warning",this.props.warnings)
+        this.setState({status: status})
+        this.props.changeWarningStatus(this.props.warnings, status, this.state.flag)
+    }
     formatTaskName(task) {
         if (task)
             return task.name
@@ -115,27 +133,62 @@ class WarningList extends Component {
     render() {
         const {warnings} = this.props
         return (
-            <BootstrapTable options={this.options} data={warnings}
-                            multiColumnSearch={true}
-                            search={true}
-                            striped={true}
-                            hover={true}>
-                <TableHeaderColumn columnTitle isKey dataField='_id'
-                                   hidden={true}>ID
-                </TableHeaderColumn>
-                <TableHeaderColumn width="20%" columnTitle dataField='type'>Warning
-                </TableHeaderColumn>
-                <TableHeaderColumn width="12%" columnTitle dataField='type'
-                                   dataFormat={this.formatFlags.bind(this)}>Warning Flag
-                </TableHeaderColumn>
-                <TableHeaderColumn width="15%" columnTitle dataField='releases'
-                                   dataFormat={this.formatReleases.bind(this)}>Projects
-                </TableHeaderColumn>
-                <TableHeaderColumn columnTitle dataField='releasePlans'
-                                   dataFormat={this.formatReleasePlans.bind(this)}>Tasks
-                </TableHeaderColumn>
+            <div>
+                <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
-            </BootstrapTable>
+                    <div className="col-md-6 ">
+                        <div className="releaseDetailSearchFlag">
+                            <select className="form-control" title="Select Flag" onChange={(flag) =>
+                                this.onFlagChange(flag.target.value)
+                            }>
+                                <option value="all">All Flags</option>
+                                {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
+                                    key={warning + idx} value={warning}>{warning}</option>)}
+
+                            </select>
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="releaseDetailSearchStatus">
+                            <select className="form-control" title="Select Status"
+                                    onChange={(status) => this.onStatusChange(status.target.value)}>
+                                <option value="all">All Status</option>
+                                <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
+                                <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
+                                <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                                <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                                <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                                <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                                <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div className="estimation">
+                    <BootstrapTable options={this.options} data={warnings}
+                                    multiColumnSearch={true}
+                                    search={true}
+                                    striped={true}
+                                    hover={true}>
+                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                           hidden={true}>ID
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width="20%" columnTitle dataField='type'>Warning
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width="12%" columnTitle dataField='type'
+                                           dataFormat={this.formatFlags.bind(this)}>Warning Flag
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width="15%" columnTitle dataField='releases'
+                                           dataFormat={this.formatReleases.bind(this)}>Projects
+                        </TableHeaderColumn>
+                        <TableHeaderColumn columnTitle dataField='releasePlans'
+                                           dataFormat={this.formatReleasePlans.bind(this)}>Tasks
+                        </TableHeaderColumn>
+
+                    </BootstrapTable>
+                </div>
+            </div>
         )
     }
 }
