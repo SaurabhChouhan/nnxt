@@ -1647,7 +1647,6 @@ const approveTaskByNegotiator = async (task, estimation, negotiator) => {
         }
     }
 
-
     task.negotiator.name = task.estimator.name
     task.negotiator.description = task.estimator.description
     task.negotiator.estimatedHours = task.estimator.estimatedHours
@@ -1656,12 +1655,12 @@ const approveTaskByNegotiator = async (task, estimation, negotiator) => {
     task.negotiator.changedInThisIteration = false
     task.negotiator.isMovedToFeature = false
     task.negotiator.isMovedOutOfFeature = false
-    task.estimatorchangeRequested = false
-    task.estimatorchangedKeyInformation = false
-    task.estimatorremovalRequested = false
-    task.estimatorchangedInThisIteration = false
-    task.estimatorisMovedToFeature = false
-    task.estimatorisMovedOutOfFeature = false
+    task.estimator.changeRequested = false
+    task.estimator.changedKeyInformation = false
+    task.estimator.removalRequested = false
+    task.estimator.changedInThisIteration = false
+    task.estimator.isMovedToFeature = false
+    task.estimator.isMovedOutOfFeature = false
     task.status = SC.STATUS_APPROVED
     task.canApprove = false
     task.updated = Date.now()
@@ -2044,13 +2043,13 @@ const reOpenTaskByNegotiator = async (task, estimation, negotiator) => {
 
     let estimationFeatureObj
 
-    if (estimation.status == SC.STATUS_APPROVED)
+    if (estimation.status === SC.STATUS_APPROVED)
         throw new AppError('Estimation is already approved task can not be reopen ', EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Negotiator has status as [" + estimation.status + "]. Negotiator can only ReOpen task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (estimation.negotiator._id != negotiator._id)
+    if (estimation.negotiator._id.toString() !== negotiator._id.toString())
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     if (task && task.feature && task.feature._id) {
         estimationFeatureObj = await MDL.EstimationFeatureModel.findById(task.feature._id)
