@@ -306,6 +306,7 @@ export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
                     }
                     if (json.data && json.data.taskPlans && json.data.taskPlans.length > 0) {
                         dispatch(updateTaskPlans(json.data && json.data.taskPlans))
+                        dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlan._id))
                     }
                 }
                 return json
