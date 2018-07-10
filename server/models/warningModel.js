@@ -70,7 +70,7 @@ let warningSchema = mongoose.Schema({
 
 
 /*-------------------------------------------------------------------GET_WARNINGS_SECTION_START---------------------------------------------------------------------*/
-warningSchema.statics.getWarnings = async (releaseID, user) => {
+warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
     //
 
     let release = await MDL.ReleaseModel.findById(releaseID)
@@ -86,42 +86,10 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
     if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see warnings of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await WarningModel.find({'releases._id': releaseID})
-}
-
-/*-------------------------------------------------------------------GET_WARNINGS_SECTION_END------------------------------------------------------------------------*/
-warningSchema.statics.geWarningsBywarningType = async (params, user) => {
-    console.log("---------params-----------",params)
-    let warningType = params.warning.type
-    let empflag = params.empflag
-    let status = params.status
-
-    if (!warningType) {
-        throw new AppError('warning Type not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
-    }
-
-    let warning = await MDL.WarningModel.find(mongoose.Types.ObjectId(warningType))
-
-    if (!warning) {
-        throw new AppError('warning not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    if (!empflag) {
-        throw new AppError('Employee Flag not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
-    }
-
-    if (!status) {
-        throw new AppError('Status not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
-    }
-
-    let filter = {'warning._id': warning.type}
-
-    if (status && status.toLowerCase() != 'all' && empflag && empflag.toLowerCase() != 'all')
-        filter = {'warning.type': warning.type, 'report.finalStatus': status, 'flags': empflag}
-    else if (status && status.toLowerCase() != 'all')
-        filter = {'warning.type': warning.type, 'report.finalStatus': status}
-    else if (empflag && empflag.toLowerCase() != 'all')
-        filter = {'warning.type': warning.type, 'flags': empflag}
+    let filter = []
+    filter = {'releases._id': releaseID}
+    if (warningType && warningType.toLowerCase() !== 'all')
+        filter = {'releases._id': releaseID, 'type': warningType}
 
     return await WarningModel.find(filter)
 }
