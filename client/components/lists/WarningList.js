@@ -2,41 +2,15 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
-import moment from 'moment'
-import {ReleaseTaskSearchFormContainer} from '../../containers'
 
 class WarningList extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            status: "all",
-            flag: "all",
-        }
-        this.onFlagChange = this.onFlagChange.bind(this)
-        this.onStatusChange = this.onStatusChange.bind(this)
-    }
-
-    onFlagChange(flag) {
-        console.log("this.props.warning",this.props.warnings)
-        this.setState({flag: flag})
-        this.props.changeWarningFlag(this.props.warnings, this.state.status, flag)
     }
 
 
-    onStatusChange(status) {
-        console.log("this.props.warning",this.props.warnings)
-        this.setState({status: status})
-        this.props.changeWarningStatus(this.props.warnings, status, this.state.flag)
-    }
-    formatTaskName(task) {
-        if (task)
-            return task.name
-        return ''
-    }
-
-
-    formatFlags(flag) {
+    formatFlag(flag) {
         if (flag === SC.WARNING_UNPLANNED)
             return <img className="div-hover releasePlanFlagImg" key={"unplanned"} src="/images/unplanned.png"
                         title="Unplanned"/>
@@ -131,35 +105,18 @@ class WarningList extends Component {
 
 
     render() {
-        const {warnings} = this.props
+        const {warnings,release} = this.props
         return (
             <div>
                 <div className="col-md-8 releaseOption releaseDetailSearchContent">
-
                     <div className="col-md-6 ">
                         <div className="releaseDetailSearchFlag">
                             <select className="form-control" title="Select Flag" onChange={(flag) =>
-                                this.onFlagChange(flag.target.value)
+                                this.props.fetchWarningOnFlags(flag.target.value,release)
                             }>
                                 <option value="all">All Flags</option>
                                 {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
                                     key={warning + idx} value={warning}>{warning}</option>)}
-
-                            </select>
-                        </div>
-                    </div>
-                    <div className="col-md-6">
-                        <div className="releaseDetailSearchStatus">
-                            <select className="form-control" title="Select Status"
-                                    onChange={(status) => this.onStatusChange(status.target.value)}>
-                                <option value="all">All Status</option>
-                                <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-                                <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-                                <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
 
                             </select>
                         </div>
@@ -177,7 +134,7 @@ class WarningList extends Component {
                         <TableHeaderColumn width="20%" columnTitle dataField='type'>Warning
                         </TableHeaderColumn>
                         <TableHeaderColumn width="12%" columnTitle dataField='type'
-                                           dataFormat={this.formatFlags.bind(this)}>Warning Flag
+                                           dataFormat={this.formatFlag.bind(this)}>Warning Flag
                         </TableHeaderColumn>
                         <TableHeaderColumn width="15%" columnTitle dataField='releases'
                                            dataFormat={this.formatReleases.bind(this)}>Projects

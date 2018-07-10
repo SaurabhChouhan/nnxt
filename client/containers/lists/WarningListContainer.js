@@ -6,12 +6,12 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    changeWarningFlag: (warnings, status, flag) => dispatch(A.getWarningsFromServer(warnings.type,status, flag)),
-    changeWarningStatus: (warnings, status, flag) => dispatch(A.getWarningsFromServer(warnings.type, status, flag)),
+    fetchWarningOnFlags: (warningType, release) => dispatch(A.getAllWarningsOfThisReleaseFromServer(warningType, release._id)),
 })
 
 const mapStateToProps = (state) => ({
-    warnings: state.warning.all
+    warnings: state.warning.all,
+    release: state.release.selectedRelease
 })
 
 const WarningListContainer = withRouter(connect(
