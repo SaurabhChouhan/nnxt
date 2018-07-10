@@ -307,7 +307,7 @@ class ReleasePlanList extends Component {
                             </ul>
                         </div>
                     </div>
-                    {showPlans === '' || showPlans === SC.TASK_PLANS_LIST ?
+                    {showPlans !== SC.WARNINGS_LIST ?
                         <div className="col-md-8 releaseOption releaseDetailSearchContent">
 
                             <div className="col-md-6 ">
@@ -355,6 +355,7 @@ class ReleasePlanList extends Component {
                                     <TableHeaderColumn width="25%" columnTitle dataField='task'
                                                        dataFormat={this.formatTaskName.bind(this)}>Task
                                         Name</TableHeaderColumn>
+
                                     <TableHeaderColumn width=" 18%" dataField='flags'
                                                        dataFormat={this.formatFlags.bind(this)}>
                                         Flag</TableHeaderColumn>
