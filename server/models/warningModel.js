@@ -70,7 +70,7 @@ let warningSchema = mongoose.Schema({
 
 
 /*-------------------------------------------------------------------GET_WARNINGS_SECTION_START---------------------------------------------------------------------*/
-warningSchema.statics.getWarnings = async (releaseID, user) => {
+warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
     //
     let release = await MDL.ReleaseModel.findById(releaseID)
     if (!release) {
@@ -85,11 +85,13 @@ warningSchema.statics.getWarnings = async (releaseID, user) => {
     if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see warnings of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    return await WarningModel.find({'releases._id': releaseID})
+    let filter = []
+    filter = {'releases._id': releaseID}
+    if (warningType && warningType.toLowerCase() !== 'all')
+        filter = {'releases._id': releaseID, 'type': warningType}
+
+    return await WarningModel.find(filter)
 }
-
-/*-------------------------------------------------------------------GET_WARNINGS_SECTION_END------------------------------------------------------------------------*/
-
 
 /*-------------------------------------------------------------------ADD_UNPLANNED_SECTION_START---------------------------------------------------------------------*/
 
