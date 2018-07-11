@@ -75,6 +75,10 @@ export const momentInUTC = (dateString) => {
     return undefined
 }
 
+export const momentFromDateInUTC = (date) => {
+    return moment(date).tz(SC.UTC_TIMEZONE)
+}
+
 export const formatDateInUTC = (date) => {
     return moment(date).utc().format(SC.DATE_FORMAT)
 }
