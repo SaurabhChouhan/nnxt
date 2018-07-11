@@ -156,7 +156,6 @@ class ReleasePlanList extends Component {
 
             <div className="clearfix">
                 <div className="col-md-8 releaseOption releaseDetailSearchContent">
-
                     <div className="col-md-6 ">
                         <div className="releaseDetailSearchFlag">
                             <select className="form-control" title="Select Flag" onChange={(flag) =>
@@ -218,7 +217,6 @@ class ReleasePlanList extends Component {
                     </BootstrapTable>
 
                 </div>
-                }
             </div>
         )
     }
