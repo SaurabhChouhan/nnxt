@@ -3,6 +3,7 @@ import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderField, renderTextArea, renderSelect, renderDateTimePickerString} from './fields'
 import {required, number} from "./validation";
 import {connect} from 'react-redux'
+import * as SC from '../../../server/serverconstants'
 
 class HolidayForm extends Component {
 
@@ -11,7 +12,7 @@ class HolidayForm extends Component {
     }
 
     render() {
-        const {handleSubmit, pristine, change, submitting, MONTHS_WITH_MONTH_NUMBER, HOLIDAY_TYPE_LIST, reset, _id} = this.props;
+        const {handleSubmit, pristine, submitting, reset, _id} = this.props;
         return [
             <div key="HolidayFormBackButton">
                 <button type="button"
@@ -35,7 +36,7 @@ class HolidayForm extends Component {
 
                         <Field name="holidayType" label="Holiday Type:" component={renderSelect}
                                validate={[required]}
-                               options={HOLIDAY_TYPE_LIST}/>
+                               options={SC.HOLIDAY_TYPE_LIST_WITH_NAME}/>
 
                         <Field width="80%" name="description" validate={[required]} component={renderTextArea}
                                label="Description:"/>
@@ -43,7 +44,7 @@ class HolidayForm extends Component {
                         <div>
                             <button type="submit"
                                     className="btn btn-submit">
-                                {(!this.props._id && "Add") || (this.props._id && "Update")}
+                                {(!_id && "Add") || (_id && "Update")}
                             </button>
                             <button type="button"
                                     disabled={pristine || submitting}
