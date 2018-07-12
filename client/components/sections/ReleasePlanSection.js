@@ -150,7 +150,7 @@ class ReleasePlanSection extends Component {
                                         className={showList === SC.RELEASE_PLAN_LIST ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
                                         onClick={() => {
                                             this.showReleasePlans()
-                                            this.props.getAllWarnings(release)
+                                            this.props.getAllReleasePlans(release)
                                         }}>Release Plans
                                     </a>
                                 </li>
@@ -178,7 +178,7 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div className="col-md-12">
                     {showList === SC.TASK_PLANS_LIST && <TaskPlanListContainer/>}
                     {showList === SC.WARNINGS_LIST && <WarningListContainer/>}
                     {showList === SC.RELEASE_PLAN_LIST && <ReleasePlanListContainer/>}
