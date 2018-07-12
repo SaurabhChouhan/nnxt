@@ -246,8 +246,9 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
                     if (json.data && json.data.taskPlan.releasePlan && json.data.taskPlan.releasePlan._id) {
                         dispatch(getUpdatedReleasePlanFromServer(json.data.taskPlan.releasePlan._id))
                     }
-                    if (json.data && json.data.updatedTaskPlans && json.data.updatedTaskPlans.length > 0) {
-                        dispatch(updateTaskPlans(json.data && json.data.updatedTaskPlans))
+                    if (json.data && json.data.taskPlans && json.data.taskPlans.length > 0) {
+                        dispatch(updateTaskPlans(json.data && json.data.taskPlans))
+                        dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlan._id))
                     }
 
                 }
@@ -303,8 +304,9 @@ export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
                     if (json.data && json.data.taskPlan && json.data.taskPlan.releasePlan && json.data.taskPlan.releasePlan._id) {
                         dispatch(getUpdatedReleasePlanFromServer(json.data.taskPlan.releasePlan._id))
                     }
-                    if (json.data && json.data.updatedTaskPlans && json.data.updatedTaskPlans.length > 0) {
-                        dispatch(updateTaskPlans(json.data && json.data.updatedTaskPlans))
+                    if (json.data && json.data.taskPlans && json.data.taskPlans.length > 0) {
+                        dispatch(updateTaskPlans(json.data && json.data.taskPlans))
+                        dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlan._id))
                     }
                 }
                 return json

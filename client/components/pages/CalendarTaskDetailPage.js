@@ -22,88 +22,84 @@ class CalendarTaskDetailPage extends React.Component {
                             }}>
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
-                {selectedRelease && selectedRelease.project && selectedRelease.project.name ?
-                    <TimelineEvent style={{fontSize: '20px'}}
-                                   title={"Project Name :"}
-                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                <TimelineEvent style={{fontSize: '20px'}}
+                               title={'Project Name :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
 
-                        {selectedRelease.project.name}
-                    </TimelineEvent>
-                    : null
-                }
+                    {selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}
+                </TimelineEvent>
 
-                {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.name ?
-                    <TimelineEvent title={"Task Name :"}
-                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                   style={{fontSize: '20px'}}>
-                        {selectedReleasePlan.task.name}
-                    </TimelineEvent> : null
-                }
 
-                {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ?
-                    <TimelineEvent title={"Task Description :"}
-                                   icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                   style={{fontSize: '20px'}}>
-                        {selectedReleasePlan.task.description}
-                    </TimelineEvent> : null
+                < TimelineEvent style={{fontSize: '20px'}}
+                                title={'Project Description :'}
+                                icon={<i
+                                    className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                    {selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}
+                </TimelineEvent>
 
-                }
 
-                <TimelineEvent title={"Assigned To You :"}
+                <TimelineEvent title={'Task Name :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    {selectedTaskPlan && selectedTaskPlan.task && selectedTaskPlan.task.name ? selectedTaskPlan.task.name : ''}
+                </TimelineEvent>
+
+                <TimelineEvent title={'Task Description :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}
+                </TimelineEvent>
+
+
+                <TimelineEvent title={'Assigned To You :'}
                                icon={<i className="glyphicon glyphicon-user calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
                     <Timeline>
 
-                        {selectedTaskPlan && selectedTaskPlan.planningDate ?
-                            < TimelineEvent title={" Planned Date :"}
-                                            icon={<i
-                                                className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                            style={{fontSize: '20px'}}>
-                                {moment(selectedTaskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT)}
-                            </TimelineEvent> : null
-                        }
-                        {selectedTaskPlan && selectedTaskPlan.planning && selectedTaskPlan.planning.plannedHours ?
-                            <TimelineEvent title={" Planned Hours :"}
-                                           icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                           style={{fontSize: '20px'}}>
-                                {selectedTaskPlan.planning.plannedHours}
-                            </TimelineEvent> : null
 
-                        }
+                        < TimelineEvent title={' Planned Date :'}
+                                        icon={<i
+                                            className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                        style={{fontSize: '20px'}}>
+                            {selectedTaskPlan && selectedTaskPlan.planningDate ? moment(selectedTaskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT) : ''}
+                        </TimelineEvent>
 
-                        {selectedTaskPlan && selectedTaskPlan.description ?
-                            <TimelineEvent title={"Details :"}
-                                           icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                           style={{fontSize: '20px'}}>
-                                {selectedTaskPlan.description}
-                            </TimelineEvent> : null
-                        }
 
-                        {selectedTaskPlan && selectedTaskPlan.report && selectedTaskPlan.report.status ?
-                            <TimelineEvent title={" Reported Status :"}
-                                           icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                           style={{fontSize: '20px'}}>
-                                {selectedTaskPlan.report.status}
-                            </TimelineEvent> : null
+                        <TimelineEvent title={' Planned Hours :'}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTaskPlan && selectedTaskPlan.planning && selectedTaskPlan.planning.plannedHours ? selectedTaskPlan.planning.plannedHours : ''}
+                        </TimelineEvent>
 
-                        }
+
+                        <TimelineEvent title={'Details :'}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTaskPlan && selectedTaskPlan.description ? selectedTaskPlan.description : ''}
+                        </TimelineEvent>
+
+
+                        <TimelineEvent title={' Reported Status :'}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTaskPlan && selectedTaskPlan.report && selectedTaskPlan.report.status ? selectedTaskPlan.report.status : ''}
+                        </TimelineEvent>
 
 
                     </Timeline>
                 </TimelineEvent>
 
-                <TimelineEvent title={"Comments :"}
+                <TimelineEvent title={'Comments :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
                     {
                         <div className="ReportingCommentTable">
 
-                            <BootstrapTable
-                                data={selectedReleasePlan && selectedReleasePlan.comments && Array.isArray(selectedReleasePlan.comments) ? selectedReleasePlan.comments : []}
-                                multiColumnSearch={true}
-                                search={true}
-                                striped={true}
-                                hover={true}>
+                            <BootstrapTable data={selectedReleasePlan.comments}
+                                            multiColumnSearch={true}
+                                            search={true}
+                                            striped={true}
+                                            hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'
@@ -122,7 +118,6 @@ class CalendarTaskDetailPage extends React.Component {
 
                     }
                 </TimelineEvent>
-
             </Timeline>
 
 
