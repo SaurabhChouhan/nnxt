@@ -2040,3 +2040,8 @@ hr {
     margin-top: 2px;
 }
 
+.mergeBtn {
+    margin: 0px !important;
+    padding: 1px 7px !important;
+}
+
