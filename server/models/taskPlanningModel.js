@@ -107,9 +107,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': employee._id.toString(),
-            'date': momentPlanningDate
-        }) > 0) {
+        'employee._id': employee._id.toString(),
+        'date': momentPlanningDate
+    }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -141,11 +141,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id),
-            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id),
+        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-        }) > 0) {
+    }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -168,9 +168,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id)
-        }) > 0) {
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -1074,6 +1074,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
 
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
+    console.log("taskreport "+JSON.stringify(taskReport))
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     /* Get task plan */
@@ -1092,7 +1093,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name:1,project:1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -1274,6 +1275,25 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
 
     /**
+     * Check if reported hour is more then estimated hour
+     */
+    console.log("reportedHours "+releasePlan.report.reportedHours+" releasePlan.task.estimatedHours "+releasePlan.task.estimatedHours)
+
+    /*if(releasePlan.report.reportedHours>releasePlan.task.estimatedHours)
+    {*/
+        // Need to add/update reporting warnings.
+      //  console.log("reportedHours > estimatedHour so need to add/update warning..");
+        let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan,releasePlan,release)
+
+        if (reportedWarnings.added && reportedWarnings.added.length)
+            generatedWarnings.added.push(...reportedWarnings.added)
+        if (reportedWarnings.removed && reportedWarnings.removed.length)
+            generatedWarnings.removed.push(...reportedWarnings.removed)
+
+   /* }*/
+
+
+    /**
      * Check if employee has reported task on last date of planning against this employee
      */
     if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
@@ -1360,6 +1380,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (generatedWarnings.added && generatedWarnings.added.length) {
         generatedWarnings.added.forEach(w => {
             logger.debug('addTaskReport(): iterating on warning ', {w})
+
+            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+            ||w.type == SC.WARNING_MORE_REPORTED_HOURS_2  ||w.type == SC.WARNING_MORE_REPORTED_HOURS_1 )
+            {
+                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
+                    console.log("need to add flag in release plan")
+                    releasePlan.flags.push(w.type)
+                }
+            }
+
             if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
                 logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
@@ -1393,6 +1423,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
             logger.debug('addTaskReport(): iterating on removed warning ', {w})
+
+            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+                ||w.type == SC.WARNING_MORE_REPORTED_HOURS_2  ||w.type == SC.WARNING_MORE_REPORTED_HOURS_1 )
+            {
+                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
+                    console.log("need to remove flag from release plan")
+                    releasePlan.flags.pull(w.type)
+                }
+            }
+
             if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
                 logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed')
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
