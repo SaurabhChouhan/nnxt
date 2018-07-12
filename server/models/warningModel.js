@@ -195,7 +195,7 @@ const getAffectedReleasesEmployeeDay = async (release, date, employeeID, warning
     if (release) {
         if (affectedReleaseIDs && affectedReleaseIDs.length) {
             affectedReleaseIDs.findIndex(releaseID => releaseID.toString() === release._id.toString()) === -1 && affectedReleaseIDs.push(release._id)
-        } else {
+    } else {
             affectedReleaseIDs = [release._id]
         }
     }
@@ -250,11 +250,11 @@ const getAffectedReleasePlansEmployeeDay = async (releasePlan, date, employeeID,
     //This may be first task plan of a release plan in which case it would not become part of distinctReleasePlanIDs, in that case we are adding it to ensure that it becomes part of final warning response
 
     if (releasePlan) {
-        if (distinctReleasePlanIDs && distinctReleasePlanIDs.length) {
-            distinctReleasePlanIDs.findIndex(releasePlanID => releasePlanID.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
-        } else {
-            distinctReleasePlanIDs = [releasePlan._id]
-        }
+    if (distinctReleasePlanIDs && distinctReleasePlanIDs.length) {
+        distinctReleasePlanIDs.findIndex(releasePlanID => releasePlanID.toString() === releasePlan._id.toString()) === -1 && distinctReleasePlanIDs.push(releasePlan._id)
+    } else {
+        distinctReleasePlanIDs = [releasePlan._id]
+    }
     }
 
     logger.debug('getDistinctReleasePlansWithResponse:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
@@ -409,12 +409,12 @@ const addTooManyHours = async (taskPlan, release, releasePlan, employee, momentP
                     source: true
                 })
             } else {
-                warningResponse.added.push({
-                    _id: t._id,
-                    warningType: SC.WARNING_TYPE_TASK_PLAN,
-                    type: SC.WARNING_TOO_MANY_HOURS,
-                    source: false
-                })
+            warningResponse.added.push({
+                _id: t._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_TOO_MANY_HOURS,
+                source: false
+            })
             }
         })
 
@@ -901,7 +901,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
     }
 
 
-    //TOO MANY HOURS UPDATE
+//TOO MANY HOURS UPDATE
 
     if (plannedHourNumber > maxPlannedHoursNumber || employeeDay.plannedHours > maxPlannedHoursNumber) {
         let warningsTooManyHours = await addTooManyHours(taskPlan, release, releasePlan, employee, momentPlanningDate)
@@ -910,7 +910,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
         if (warningsTooManyHours.removed && warningsTooManyHours.removed.length)
             warningResponse.removed.push(...warningsTooManyHours.removed)
     }
-    //UNPLANNED UPDATE
+//UNPLANNED UPDATE
 
     // If this is first task planned against a release plan, unplanned warning would be removed from release plan
     if (firstTaskOfReleasePlan) {
@@ -927,7 +927,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     }
 
-    //PENDING ON END DATE UPDATE
+//PENDING ON END DATE UPDATE
     if (addedAfterMaxDate) {
 
         /**
