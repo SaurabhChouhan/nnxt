@@ -140,7 +140,7 @@ class LeaveList extends Component {
                                                             this.props.changeLeaveStatus(status.target.value)
                                                         }>
                                                     {
-                                                        <option key={"all"} value="all">All Status</option>
+                                                        <option key={SC.ALL} value={SC.ALL}>All Status</option>
                                                     }
                                                     {
                                                         SC.ALL_LEAVE_STATUS_ARRAY.map(leave => <option key={leave}

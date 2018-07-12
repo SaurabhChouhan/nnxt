@@ -2,8 +2,6 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
-import moment from 'moment'
-import {ReleaseTaskSearchFormContainer} from '../../containers'
 
 class WarningList extends Component {
 
@@ -11,14 +9,8 @@ class WarningList extends Component {
         super(props);
     }
 
-    formatTaskName(task) {
-        if (task)
-            return task.name
-        return ''
-    }
 
-
-    formatFlags(flag) {
+    formatFlag(flag) {
         if (flag === SC.WARNING_UNPLANNED)
             return <img className="div-hover releasePlanFlagImg" key={"unplanned"} src="/images/unplanned.png"
                         title="Unplanned"/>
@@ -113,29 +105,47 @@ class WarningList extends Component {
 
 
     render() {
-        const {warnings} = this.props
+        const {warnings,release} = this.props
         return (
-            <BootstrapTable options={this.options} data={warnings}
-                            multiColumnSearch={true}
-                            search={true}
-                            striped={true}
-                            hover={true}>
-                <TableHeaderColumn columnTitle isKey dataField='_id'
-                                   hidden={true}>ID
-                </TableHeaderColumn>
-                <TableHeaderColumn width="20%" columnTitle dataField='type'>Warning
-                </TableHeaderColumn>
-                <TableHeaderColumn width="12%" columnTitle dataField='type'
-                                   dataFormat={this.formatFlags.bind(this)}>Warning Flag
-                </TableHeaderColumn>
-                <TableHeaderColumn width="15%" columnTitle dataField='releases'
-                                   dataFormat={this.formatReleases.bind(this)}>Projects
-                </TableHeaderColumn>
-                <TableHeaderColumn columnTitle dataField='releasePlans'
-                                   dataFormat={this.formatReleasePlans.bind(this)}>Tasks
-                </TableHeaderColumn>
+            <div>
+                <div className="col-md-8 releaseOption releaseDetailSearchContent">
+                    <div className="col-md-6 ">
+                        <div className="releaseDetailSearchFlag">
+                            <select className="form-control" title="Select Flag" onChange={(flag) =>
+                                this.props.fetchWarningOnFlags(flag.target.value,release)
+                            }>
+                                <option value={SC.ALL}>All Flags</option>
+                                {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
+                                    key={warning + idx} value={warning}>{warning}</option>)}
 
-            </BootstrapTable>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div className="estimation">
+                    <BootstrapTable options={this.options} data={warnings}
+                                    multiColumnSearch={true}
+                                    search={true}
+                                    striped={true}
+                                    hover={true}>
+                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                           hidden={true}>ID
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width="20%" columnTitle dataField='type'>Warning
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width="12%" columnTitle dataField='type'
+                                           dataFormat={this.formatFlag.bind(this)}>Warning Flag
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width="15%" columnTitle dataField='releases'
+                                           dataFormat={this.formatReleases.bind(this)}>Projects
+                        </TableHeaderColumn>
+                        <TableHeaderColumn columnTitle dataField='releasePlans'
+                                           dataFormat={this.formatReleasePlans.bind(this)}>Tasks
+                        </TableHeaderColumn>
+
+                    </BootstrapTable>
+                </div>
+            </div>
         )
     }
 }

@@ -2,6 +2,7 @@ import {connect} from 'react-redux'
 import * as A from '../../actions'
 import {ReleaseList} from "../../components"
 import * as COC from '../../components/componentConsts'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     changeReleaseStatus: (status) => dispatch(A.getAllReleasesFromServer(status)),
@@ -11,7 +12,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
             }
         }),
-            dispatch(A.getReleasePlansFromServer(release._id, "all", "all"))
+            dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
 
     }
 })

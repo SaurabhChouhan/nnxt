@@ -22,24 +22,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }
     },
 
-    ReleaseProjectGoBack: (release) => {
-        dispatch(A.getReleaseFromServer(release._id)).then(json => {
-            if (json.success) {
-                dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
-            }
-        })
-        dispatch(A.getAllReleasesFromServer("all"))
-
-    },
-
     changeReleaseFlag: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
-    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
-    getAllWarnings: (release) => dispatch(A.getAllWarningsOfThisReleaseFromServer(release._id)),
-    getAllTaskPlans: (release) => dispatch(A.getAllTaskPlansOfThisReleaseFromServer(release._id))
+    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag))
 })
 
 const mapStateToProps = (state) => ({
-    loggedInUser: state.user.loggedIn,
     release: state.release.selectedRelease,
     releasePlans: state.release.releasePlans
 })

@@ -1,7 +1,9 @@
 // Env
 export const PROD_ENV = 'production'
 export const DEV_ENV = 'development'
+//Common Names
 
+export const ALL = 'all'
 
 // User Role
 export const ROLE_ADMIN = 'Admin'
@@ -213,6 +215,7 @@ export const COMMENT_FYI_ONLY = 'FYI Only'
 export const DIALOG_ESTIMATION_REQUEST_REVIEW = 'dialog-request-review'
 export const WARNINGS_LIST = 'Warning List'
 export const TASK_PLANS_LIST = 'Task Plan List'
+export const RELEASE_PLAN_LIST = 'Release Plan List'
 
 
 

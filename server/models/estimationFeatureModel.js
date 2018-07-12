@@ -434,6 +434,7 @@ const approveFeatureByNegotiator = async (feature, estimation, negotiator) => {
         }
     }
 
+
     feature.negotiator.name = feature.estimator.name
     feature.negotiator.description = feature.estimator.description
     feature.negotiator.estimatedHours = feature.estimator.estimatedHours

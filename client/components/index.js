@@ -108,6 +108,7 @@ export {default as ReleaseMergeTaskPlanningFormDialog} from './dialogs/ReleaseMe
 //Release Pages
 export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSchedules'
 export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'
+export {default as ReleasePlanSection} from './sections/ReleasePlanSection'
 
 
 

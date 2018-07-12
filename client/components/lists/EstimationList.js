@@ -120,7 +120,7 @@ class EstimationList extends Component {
                                 className="form-control estimationSearchProject " onChange={(projectID) =>
                                 this.filterEstimationByProject(projectID.target.value)
                             }>
-                                {<option value="all">{'All Projects'}</option>}
+                                {<option value={SC.ALL}>{'All Projects'}</option>}
                                 {
                                     projects && projects.map(option => {
 
@@ -135,7 +135,7 @@ class EstimationList extends Component {
                             <select className="form-control estimationSearchStatus" onChange={(status) =>
                                 this.filterEstimationStatus(status.target.value)
                             }>
-                                <option value="all">All Status</option>
+                                <option value={SC.ALL}>All Status</option>
                                 <option value={SC.STATUS_ESTIMATION_REQUESTED}>{SC.STATUS_ESTIMATION_REQUESTED}</option>
                                 <option value={SC.STATUS_INITIATED}>{SC.STATUS_INITIATED}</option>
                                 <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
