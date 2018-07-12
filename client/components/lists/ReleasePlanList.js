@@ -11,8 +11,8 @@ class ReleasePlanList extends Component {
             onRowClick: this.onRowClick.bind(this)
         }
         this.state = {
-            status: "all",
-            flag: "all"
+            status: SC.ALL,
+            flag: SC.ALL
         }
         this.onFlagChange = this.onFlagChange.bind(this)
         this.onStatusChange = this.onStatusChange.bind(this)
@@ -162,7 +162,7 @@ class ReleasePlanList extends Component {
                             <select className="form-control" title="Select Flag" onChange={(flag) =>
                                 this.onFlagChange(flag.target.value)
                             }>
-                                <option value="all">All Flags</option>
+                                <option value={SC.ALL}>All Flags</option>
                                 {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
                                     key={warning + idx} value={warning}>{warning}</option>)}
 
@@ -173,7 +173,7 @@ class ReleasePlanList extends Component {
                         <div className="releaseDetailSearchStatus">
                             <select className="form-control" title="Select Status"
                                     onChange={(status) => this.onStatusChange(status.target.value)}>
-                                <option value="all">All Status</option>
+                                <option value={SC.ALL}>All Status</option>
                                 <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
                                 <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
                                 <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>

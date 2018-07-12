@@ -1,7 +1,9 @@
 // Env
 export const PROD_ENV = 'production'
 export const DEV_ENV = 'development'
+//Common Names
 
+export const ALL = 'all'
 
 // User Role
 export const ROLE_ADMIN = 'Admin'

@@ -114,7 +114,7 @@ class WarningList extends Component {
                             <select className="form-control" title="Select Flag" onChange={(flag) =>
                                 this.props.fetchWarningOnFlags(flag.target.value,release)
                             }>
-                                <option value="all">All Flags</option>
+                                <option value={SC.ALL}>All Flags</option>
                                 {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
                                     key={warning + idx} value={warning}>{warning}</option>)}
 

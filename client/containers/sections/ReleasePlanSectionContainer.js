@@ -12,7 +12,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
             }
         })
-        dispatch(A.getAllReleasesFromServer("all"))
+        dispatch(A.getAllReleasesFromServer(SC.ALL))
 
     },
     getAllReleasePlans: (release) => dispatch(A.getReleasePlansFromServer(release._id, 'all', 'all')),

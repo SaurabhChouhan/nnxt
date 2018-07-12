@@ -2,6 +2,7 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 import {connect} from 'react-redux'
 
+import * as SC from '../../../server/serverconstants'
 import * as A from '../../actions'
 import * as COC from '../componentConsts'
 
@@ -50,7 +51,7 @@ const SidebarSection = (props) => <section className="sidebar">
                     }}>Attendance Setting</Link></li>
 
                     <li><Link to="/app-home/release" onClick={() => {
-                        props.dispatch(A.getAllReleasesFromServer("all"))
+                        props.dispatch(A.getAllReleasesFromServer(SC.ALL))
                         props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
 
                     }}>Release</Link></li>

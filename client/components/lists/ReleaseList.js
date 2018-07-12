@@ -96,7 +96,7 @@ class ReleaseList extends Component {
                             <select className="form-control" title="Select Status" onChange={(status) =>
                                 this.props.changeReleaseStatus(status.target.value)
                             }>
-                                <option value="all">All Status</option>
+                                <option value={SC.ALL}>All Status</option>
 
                                 <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
                                 <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
