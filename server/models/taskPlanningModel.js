@@ -107,9 +107,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-        'employee._id': employee._id.toString(),
-        'date': momentPlanningDate
-    }) > 0) {
+            'employee._id': employee._id.toString(),
+            'date': momentPlanningDate
+        }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -141,11 +141,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id),
-        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id),
+            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-    }) > 0) {
+        }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -168,9 +168,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id)
-    }) > 0) {
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id)
+        }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -412,7 +412,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
         if (tpID == taskPlan._id.toString())
             return taskPlan;
         else
-            return TaskPlanningModel.findById(tpID)
+            return MDL.TaskPlanningModel.findById(tpID)
     })
 
     let affectedReleasePlans = await Promise.all(rpIDPromises)
@@ -875,7 +875,7 @@ const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release,
  * Delete task planning
  **/
 taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
-    let taskPlan = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+    let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
     if (!taskPlan) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
@@ -941,7 +941,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     logger.debug('deleteTaskPlanning(): ', {generatedWarnings})
 
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
-    let taskPlanningResponse = await TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
+    let taskPlanningResponse = await MDL.TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
 
     /*
     let count = await MDL.WarningModel.count({
@@ -991,7 +991,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let taskPlan = await TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
+    let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
     if (!taskPlan) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
@@ -1273,8 +1273,6 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     }
 
 
-
-
     /**
      * Check if employee has reported task on last date of planning against this employee
      */
@@ -1458,7 +1456,7 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
     }
 
     /* fetch all task planning from release */
-    return await TaskPlanningModel.find({'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id)}).sort({'planningDate': 1})
+    return await MDL.TaskPlanningModel.find({'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id)}).sort({'planningDate': 1})
 }
 
 
@@ -1490,7 +1488,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     }, {'_id': 1})
 
     /* All task plannings of selected employee Id */
-    let taskPlannings = await TaskPlanningModel.find({'employee._id': mongoose.Types.ObjectId(employeeId)}).sort({'planningDate': 1})
+    let taskPlannings = await MDL.TaskPlanningModel.find({'employee._id': mongoose.Types.ObjectId(employeeId)}).sort({'planningDate': 1})
 
     /* Conditions applied for filter according to required data and fromDate to toDate */
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
@@ -1758,7 +1756,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
     /* Fetch all task plannings on/after base date for this release against this employee id  */
     /* Get selected employee`s task plannings for this release, task plans of other releases would not be impacted */
-    let taskPlanningDates = await TaskPlanningModel.distinct(
+    let taskPlanningDates = await MDL.TaskPlanningModel.distinct(
         'planningDateString',
         {
             'employee._id': employee._id,
@@ -1847,7 +1845,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
         if (shiftingData.length) {
             let ShiftingPromises = shiftingData.map(data => {
                 /* task planning of selected employee will shift */
-                return TaskPlanningModel.update({
+                return MDL.TaskPlanningModel.update({
                         'release._id': release._id,
                         'planningDate': data.existingDate.toDate(),
                         'employee._id': mongoose.Types.ObjectId(employee._id),
@@ -1878,7 +1876,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 // now that we have unique dates to process we would start calculating employee days
                 logger.debug('[task-shift] dates to process ', {datesToProcess: momentsToProcess})
 
-                TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
+                MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
 
                 let employeeDaysPromises = momentsToProcess.map(moments => {
                     return MDL.TaskPlanningModel.aggregate([{
@@ -2160,7 +2158,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    let taskPlanningDates = await TaskPlanningModel.distinct(
+    let taskPlanningDates = await MDL.TaskPlanningModel.distinct(
         'planningDateString',
         {
             'employee._id': employee._id,
@@ -2283,7 +2281,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         if (shiftingData.length) {
             let ShiftingPromises = shiftingData.map(data => {
                 /* task planning of selected employee will shift */
-                return TaskPlanningModel.update({
+                return MDL.TaskPlanningModel.update({
                         'release._id': release._id,
                         'planningDate': data.existingDate.toDate(),
                         'employee._id': mongoose.Types.ObjectId(employee._id),
@@ -2313,7 +2311,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 // now that we have unique dates to process we would start calculating employee days
                 logger.debug('[task-shift] dates to process ', {datesToProcess: momentsToProcess})
 
-                TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
+                MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
 
                 let employeeDaysPromises = momentsToProcess.map(moments => {
                     return MDL.TaskPlanningModel.aggregate([{
@@ -2594,7 +2592,7 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
             }).sort({'planningDateString': -1})
         }
     }
-    return await TaskPlanningModel.find({'release._id': releaseID})
+    return await MDL.TaskPlanningModel.find({'release._id': releaseID})
 
 }
 
