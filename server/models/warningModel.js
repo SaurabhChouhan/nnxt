@@ -884,66 +884,56 @@ const deleteLessPlannedHours = async (releasePlan) => {
  */
 warningSchema.statics.taskReported = async (taskPlan, releasePlan, release) => {
 
-   // console.log("taskPlanReported called.. release "+JSON.stringify(release))
+    // console.log("taskPlanReported called.. release "+JSON.stringify(release))
     let releasePlanWarnings = await WarningModel.findOne({
-     $and:[ {$or: [{type: SC.WARNING_MORE_REPORTED_HOURS_1},
-            {type: SC.WARNING_MORE_REPORTED_HOURS_2},
-            {type: SC.WARNING_MORE_REPORTED_HOURS_3},
-            {type: SC.WARNING_MORE_REPORTED_HOURS_4}]},
-         {'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)}]
+        $and: [{
+            $or: [{type: SC.WARNING_MORE_REPORTED_HOURS_1},
+                {type: SC.WARNING_MORE_REPORTED_HOURS_2},
+                {type: SC.WARNING_MORE_REPORTED_HOURS_3},
+                {type: SC.WARNING_MORE_REPORTED_HOURS_4}]
+        },
+            {'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)}]
     })
-    console.log("releasePlanWarnings.."+releasePlanWarnings)
+    console.log("releasePlanWarnings.." + releasePlanWarnings)
     let warningResponse = {
         added: [],
         removed: []
     }
     let addedType
     let removedType
-    if(releasePlan.report.reportedHours > (releasePlan.task.estimatedHours * 4))
-    {
+    if (releasePlan.report.reportedHours > (releasePlan.task.estimatedHours * 4)) {
         // Need to add WARNING_MORE_REPORTED_HOURS_4
         if (releasePlanWarnings && releasePlanWarnings.type != SC.WARNING_MORE_REPORTED_HOURS_4) {
-
             removedType = releasePlanWarnings.type
         }
         addedType = SC.WARNING_MORE_REPORTED_HOURS_4
-
-    }else if(releasePlan.report.reportedHours > (releasePlan.task.estimatedHours * 2))
-    {
+    } else if (releasePlan.report.reportedHours > (releasePlan.task.estimatedHours * 2)) {
         // Need to add WARNING_MORE_REPORTED_HOURS_3
         if (releasePlanWarnings && releasePlanWarnings.type != SC.WARNING_MORE_REPORTED_HOURS_3) {
-
-
             removedType = releasePlanWarnings.type;
         }
         addedType = SC.WARNING_MORE_REPORTED_HOURS_3
-    }else if(releasePlan.report.reportedHours > (releasePlan.task.estimatedHours * 1.5))
-    {
+    } else if (releasePlan.report.reportedHours > (releasePlan.task.estimatedHours * 1.5)) {
         // Need to add WARNING_MORE_REPORTED_HOURS_2
         if (releasePlanWarnings && releasePlanWarnings.type != SC.WARNING_MORE_REPORTED_HOURS_2) {
-
             removedType = releasePlanWarnings.type;
         }
         addedType = SC.WARNING_MORE_REPORTED_HOURS_2
     }
-    else if(releasePlan.report.reportedHours>releasePlan.task.estimatedHours)
-    {
+    else if (releasePlan.report.reportedHours > releasePlan.task.estimatedHours) {
         // Need to add WARNING_MORE_REPORTED_HOURS_1
         if (releasePlanWarnings && releasePlanWarnings.type != SC.WARNING_MORE_REPORTED_HOURS_1) {
-
             removedType = releasePlanWarnings.type
         }
         addedType = SC.WARNING_MORE_REPORTED_HOURS_1
     }
-    else
-    {
+    else {
         // no warning found so just need to remove if old warning available
         if (releasePlanWarnings)
             removedType = releasePlanWarnings.type;
     }
 
-    if(addedType)
-    {
+    if (addedType) {
         warningResponse.added.push({
             _id: releasePlan._id,
             warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -951,8 +941,7 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release) => {
         })
     }
 
-    if(removedType)
-    {
+    if (removedType) {
         warningResponse.removed.push({
             _id: releasePlan._id,
             warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -960,19 +949,18 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release) => {
         })
     }
 
-    if(releasePlanWarnings) {
-       // warningResponse.removed.push(releasePlanWarnings)
-        if(addedType) {
+    if (releasePlanWarnings) {
+        // warningResponse.removed.push(releasePlanWarnings)
+        if (addedType) {
             console.log("Need to update  warning as it is  available in warning model");
             releasePlanWarnings.type = addedType
             await releasePlanWarnings.save()
-        }else
-        {
+        } else {
             // Need to remove warning as reported hour updated (reportedHour<estimatedHour)
             console.log("Need to remove warning as reported hour updated (reportedHour<estimatedHour)");
             await await WarningModel.findByIdAndRemove(releasePlanWarnings._id)
         }
-    }else {
+    } else {
         console.log("Need to add new warning as it is not available in warning model");
 
 
@@ -986,12 +974,12 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release) => {
         await moreHoursWarning.save()
     }
 
-    console.log("Release plan warnings "+JSON.stringify(warningResponse));
+    console.log("Release plan warnings " + JSON.stringify(warningResponse));
 
     return warningResponse
 }
 
-    /**
+/**
  * Called when any task is planned
  */
 warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {

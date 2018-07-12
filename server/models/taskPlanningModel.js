@@ -1074,7 +1074,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
 
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
-    console.log("taskreport "+JSON.stringify(taskReport))
+    console.log("taskreport " + JSON.stringify(taskReport))
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     /* Get task plan */
@@ -1093,7 +1093,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name:1,project:1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -1277,21 +1277,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     /**
      * Check if reported hour is more then estimated hour
      */
-    console.log("reportedHours "+releasePlan.report.reportedHours+" releasePlan.task.estimatedHours "+releasePlan.task.estimatedHours)
+    console.log("reportedHours " + releasePlan.report.reportedHours + " releasePlan.task.estimatedHours " + releasePlan.task.estimatedHours)
 
-    /*if(releasePlan.report.reportedHours>releasePlan.task.estimatedHours)
-    {*/
-        // Need to add/update reporting warnings.
-      //  console.log("reportedHours > estimatedHour so need to add/update warning..");
-        let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan,releasePlan,release)
+    // Need to add/update reporting warnings.
 
-        if (reportedWarnings.added && reportedWarnings.added.length)
-            generatedWarnings.added.push(...reportedWarnings.added)
-        if (reportedWarnings.removed && reportedWarnings.removed.length)
-            generatedWarnings.removed.push(...reportedWarnings.removed)
+    let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release)
 
-   /* }*/
-
+    if (reportedWarnings.added && reportedWarnings.added.length)
+        generatedWarnings.added.push(...reportedWarnings.added)
+    if (reportedWarnings.removed && reportedWarnings.removed.length)
+        generatedWarnings.removed.push(...reportedWarnings.removed)
 
     /**
      * Check if employee has reported task on last date of planning against this employee
@@ -1381,9 +1376,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         generatedWarnings.added.forEach(w => {
             logger.debug('addTaskReport(): iterating on warning ', {w})
 
-            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
-            ||w.type == SC.WARNING_MORE_REPORTED_HOURS_2  ||w.type == SC.WARNING_MORE_REPORTED_HOURS_1 )
-            {
+            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+                || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     console.log("need to add flag in release plan")
                     releasePlan.flags.push(w.type)
@@ -1424,9 +1418,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         generatedWarnings.removed.forEach(w => {
             logger.debug('addTaskReport(): iterating on removed warning ', {w})
 
-            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
-                ||w.type == SC.WARNING_MORE_REPORTED_HOURS_2  ||w.type == SC.WARNING_MORE_REPORTED_HOURS_1 )
-            {
+            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+                || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     console.log("need to remove flag from release plan")
                     releasePlan.flags.pull(w.type)
