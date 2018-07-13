@@ -40,7 +40,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        holidays: state.leaveRequest.all,
+        holidays: state.leave.all,
         MONTHS_WITH_MONTH_NUMBER: SC.MONTHS_WITH_MONTH_NUMBER,
         HOLIDAY_TYPE_LIST: SC.HOLIDAY_TYPE_LIST_WITH_NAME
     }

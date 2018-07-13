@@ -1492,13 +1492,14 @@ const addMorePlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
 
     if (morePlannedHoursWarning) {
         //No need to check for task plan it will always be a new task plan
-        morePlannedHoursWarning.taskPlans = morePlannedHoursWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
+        /*
+      morePlannedHoursWarning.taskPlans = morePlannedHoursWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
         warningResponse.removed.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_MORE_PLANNED_HOURS,
             source: true
-        })
+        })*/
         if (morePlannedHoursWarning.taskPlans && morePlannedHoursWarning.taskPlans.length) {
             // For release check
             if (morePlannedHoursWarning.taskPlans.findIndex(r => r.release._id.toString() === release._id.toString()) === -1) {
@@ -1531,41 +1532,45 @@ const addMorePlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
 
     } else {
         /*need to delete existing more planned hours warning*/
-        warningResponse = await deleteLessPlannedHours(releasePlan)
+        //warningResponse = await deleteLessPlannedHours(releasePlan)
 
         let newMorePlannedHoursWarning = new WarningModel()
         newMorePlannedHoursWarning.type = SC.WARNING_MORE_PLANNED_HOURS
 
-
-        let taskPlans = await MDL.TaskPlanningModel.find({
-            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
-        })
-
-        if (taskPlans && taskPlans.length) {
-            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlan.push(taskPlan.toObject())
-        } else {
-            taskPlans = [taskPlan.toObject()]
-        }
-        taskPlans.forEach(t => {
-            if (t._id.toString() === taskPlan._id.toString())
-                warningResponse.added.push({
-                    _id: t._id,
-                    warningType: SC.WARNING_TYPE_TASK_PLAN,
-                    type: SC.WARNING_MORE_PLANNED_HOURS,
-                    source: true
+        /*
+                let taskPlans = await MDL.TaskPlanningModel.find({
+                    'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
                 })
-            else warningResponse.added.push({
-                _id: t._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_MORE_PLANNED_HOURS,
-                source: false
-            })
-        })
 
-        newMorePlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
+
+                if (taskPlans && taskPlans.length) {
+
+                    taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlan.push(taskPlan.toObject())
+                } else {
+                    taskPlans = [taskPlan.toObject()]
+                }
+
+
+                taskPlans.forEach(t => {
+                    if (t._id.toString() === taskPlan._id.toString())
+                        warningResponse.added.push({
+                            _id: t._id,
+                            warningType: SC.WARNING_TYPE_TASK_PLAN,
+                            type: SC.WARNING_MORE_PLANNED_HOURS,
+                            source: true
+                        })
+                    else warningResponse.added.push({
+                        _id: t._id,
+                        warningType: SC.WARNING_TYPE_TASK_PLAN,
+                        type: SC.WARNING_MORE_PLANNED_HOURS,
+                        source: false
+                    })
+                })
+
+        */
+
         newMorePlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newMorePlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
-
 
         warningResponse.added.push({
             _id: releasePlan._id,
