@@ -846,7 +846,7 @@ const deleteMorePlannedHours = async (releasePlan) => {
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
     if (morePlannedHoursWarning) {
-        /*less planned hour warning available need to delete it*/
+        /*more planned hour warning available need to delete it*/
         let deleteWarningResponse = await deleteWarningWithResponse(morePlannedHoursWarning, SC.WARNING_MORE_PLANNED_HOURS)
         if (deleteWarningResponse.added && deleteWarningResponse.added.length)
             warningResponse.added.push(...deleteWarningResponse.added)
@@ -1389,7 +1389,7 @@ const addLessPlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
         if (lessPlannedHoursWarning.taskPlans && lessPlannedHoursWarning.taskPlans.length) {
             // For release check
             if (lessPlannedHoursWarning.taskPlans.findIndex(r => r.release._id.toString() === release._id.toString()) === -1) {
-         
+
                 lessPlannedHoursWarning.releases = lessPlannedHoursWarning.releases.filter(r => r._id.toString() !== release._id.toString())
                 warningResponse.added.push({
                     _id: release._id,
@@ -1662,7 +1662,6 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
 //LESS PLANNED HOURS OR MORE PLANNED HOURS OR NO WARNING AT ALL
     if (releasePlan.planning.plannedTaskCounts === 0) {
         /*Only unplanned warning will be there if task plans are not available*/
-
         logger.debug('[task-plan-deleted-warning]: planned hours are zero delete all warning')
         let warningsLessPlannedHours = await deleteLessPlannedHours(releasePlan)
         if (warningsLessPlannedHours.added && warningsLessPlannedHours.added.length)
@@ -2240,10 +2239,11 @@ warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHo
  * @returns {Promise.<void>}
  */
 warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
+    console.log("startDate", startDate)
     let startDateMoment = U.momentInUTC(startDate)
+    console.log("startDateMoment", startDateMoment)
     let endDateMoment = U.momentInUTC(endDate)
     let singleDateMoment = startDateMoment.clone()
-
     let finalWarningResponse = {
         added: [],
         removed: []
