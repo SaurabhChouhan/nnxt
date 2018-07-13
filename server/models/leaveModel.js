@@ -252,7 +252,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
-    let generatedWarnings = await MDL.WarningModel.leaveAdded(leaveInput.startDateString, leaveInput.endDateString, user)
+    let generatedWarnings = await MDL.WarningModel.leaveAdded(leaveInput.startDate, leaveInput.endDate, user)
     let affected = await updateFlags(generatedWarnings)
 
     logger.debug('Leave Rised :=> warning response :  ', {generatedWarnings})
