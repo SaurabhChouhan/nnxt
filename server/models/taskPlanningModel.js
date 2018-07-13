@@ -107,9 +107,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-        'employee._id': employee._id.toString(),
-        'date': momentPlanningDate
-    }) > 0) {
+            'employee._id': employee._id.toString(),
+            'date': momentPlanningDate
+        }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -141,11 +141,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id),
-        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id),
+            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-    }) > 0) {
+        }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -168,9 +168,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id)
-    }) > 0) {
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id)
+        }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -1074,7 +1074,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
 
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
-    console.log("taskreport "+JSON.stringify(taskReport))
+    console.log("taskreport " + JSON.stringify(taskReport))
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     /* Get task plan */
@@ -1376,7 +1376,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         generatedWarnings.added.forEach(w => {
             logger.debug('addTaskReport(): iterating on warning ', {w})
 
-            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
                 || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     console.log("need to add flag in release plan")
@@ -1418,7 +1418,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         generatedWarnings.removed.forEach(w => {
             logger.debug('addTaskReport(): iterating on removed warning ', {w})
 
-            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
                 || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     console.log("need to remove flag from release plan")
@@ -1614,8 +1614,16 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         report: 1,
         _id: 1,
     })
+
+    taskPlans.sort(function (a, b) {
+        let planningDate1 = new Date(a.planningDateString)
+        let planningDate2 = new Date(b.planningDateString)
+        return planningDate1 < planningDate2 ? -1 : planningDate1 > planningDate2 ? 1 : 0
+    })
+
     return taskPlans
 }
+
 /**
  * GetTaskAndProjectDetailForCalenderOfUser
  */
