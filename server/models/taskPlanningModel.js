@@ -1093,7 +1093,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name:1,project:1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -1277,16 +1277,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     /**
      * Check if reported hour is more then estimated hour
      */
-    console.log("reportedHours "+releasePlan.report.reportedHours+" releasePlan.task.estimatedHours "+releasePlan.task.estimatedHours)
+    console.log("reportedHours " + releasePlan.report.reportedHours + " releasePlan.task.estimatedHours " + releasePlan.task.estimatedHours)
 
-        // Need to add/update reporting warnings.
+    // Need to add/update reporting warnings.
 
-        let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan,releasePlan,release)
+    let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release)
 
-        if (reportedWarnings.added && reportedWarnings.added.length)
-            generatedWarnings.added.push(...reportedWarnings.added)
-        if (reportedWarnings.removed && reportedWarnings.removed.length)
-            generatedWarnings.removed.push(...reportedWarnings.removed)
+    if (reportedWarnings.added && reportedWarnings.added.length)
+        generatedWarnings.added.push(...reportedWarnings.added)
+    if (reportedWarnings.removed && reportedWarnings.removed.length)
+        generatedWarnings.removed.push(...reportedWarnings.removed)
 
     /**
      * Check if employee has reported task on last date of planning against this employee
@@ -2063,7 +2063,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 /*
 GetReportTasks
  */
-taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, taskStatus) => {
+taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskStatus, user) => {
     let userRoles = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
     logger.info('getReportTasks(): user roles in this release ', {userRoles})
     /* As highest role of user in release is developer only we will return only tasks that this employee is assigned */
@@ -2077,14 +2077,20 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, 
     } else if (_.includes(SC.ROLE_DEVELOPER, userRoles) || _.includes(SC.ROLE_NON_PROJECT_DEVELOPER, userRoles)) {
         let criteria = {
             'release._id': mongoose.Types.ObjectId(releaseID),
-            'planningDateString': dateString,
+            'planningDate': U.dateInUTC(dateString),
             'employee._id': mongoose.Types.ObjectId(user._id)
         }
-        if (taskStatus && taskStatus != 'all') {
-            criteria['report.status'] = taskStatus
+        if (taskStatus && taskStatus !== SC.ALL) {
+            criteria = {
+                'release._id': mongoose.Types.ObjectId(releaseID),
+                'planningDate': U.dateInUTC(dateString),
+                'employee._id': mongoose.Types.ObjectId(user._id),
+                'report.status': taskStatus
+            }
         }
         return await MDL.TaskPlanningModel.find(criteria)
     }
+    return []
 }
 
 
@@ -2156,8 +2162,8 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
     let daysToShiftNumber = Number(planning.daysToShift)
     /* employeeId must be present or its value must be all */
     let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
-        if (!employee)
-            throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    if (!employee)
+        throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* can not shift task whose planning date is before now */
 
