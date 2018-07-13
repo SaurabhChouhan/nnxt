@@ -337,6 +337,8 @@ const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber,
     taskPlan.employee = Object.assign({}, employee.toObject(), {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
+    taskPlan.report = {}
+    taskPlan.report.status = SC.REPORT_UNREPORTED
 
     logger.debug('addTaskPlanning(): [newly created task plan] task plan is ', {taskPlan})
 
