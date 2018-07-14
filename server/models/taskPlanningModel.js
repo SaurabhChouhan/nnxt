@@ -603,7 +603,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     /*--------------------------------- WARNING UPDATE SECTION ---------------------------------------------*/
     let generatedWarnings = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
-    logger.debug('Add task plan: ALL Warnings:', {generatedWarnings})
+    logger.debug('addTaskPlanning :=> Add task plan generatedWarnings: ALL Warnings:', {generatedWarnings})
     // Get release/task plans objects that are affected due to these warnings
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
 
@@ -1682,7 +1682,7 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
 
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
+                    logger.debug('[task-shift] shiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
                     // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                     warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
