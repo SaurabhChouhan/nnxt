@@ -404,17 +404,17 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     // Get releases and task plans
 
     let rpIDPromises = releasePlanIDs.map(rpID => {
-        if (rpID == releasePlan._id.toString())
+        if (rpID.toString() === releasePlan._id.toString())
             return releasePlan;
         else
-            return MDL.ReleasePlanModel.findById(rpID)
+            return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(rpID))
     })
 
     let tpIDPromises = taskPlanIDs.map(tpID => {
-        if (tpID == taskPlan._id.toString())
+        if (tpID.toString() === taskPlan._id.toString())
             return taskPlan;
         else
-            return MDL.TaskPlanningModel.findById(tpID)
+            return MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(tpID))
     })
 
     let affectedReleasePlans = await Promise.all(rpIDPromises)
