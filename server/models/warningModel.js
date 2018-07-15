@@ -740,14 +740,15 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
                 source: true
             })
         }
-        //No need to check for task plan it will always be a new task plan
-        lessPlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
-        warningResponse.added.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_LESS_PLANNED_HOURS,
-            source: true
-        })
+        /*
+        *  //No need to check for task plan it will always be a new task plan
+         lessPlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
+         warningResponse.added.push({
+             _id: taskPlan._id,
+             warningType: SC.WARNING_TYPE_TASK_PLAN,
+             type: SC.WARNING_LESS_PLANNED_HOURS,
+             source: true
+         })*/
         await lessPlannedHoursWarning.save()
     } else {
         /*need to delete existing more planned hours warning*/
@@ -761,28 +762,29 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
         })
 
-        if (taskPlans && taskPlans.length) {
-            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
-        } else {
-            taskPlans = [taskPlan.toObject()]
-        }
-        taskPlans.forEach(t => {
-            if (t._id.toString() === taskPlan._id.toString())
-                warningResponse.added.push({
-                    _id: t._id,
-                    warningType: SC.WARNING_TYPE_TASK_PLAN,
-                    type: SC.WARNING_LESS_PLANNED_HOURS,
-                    source: true
-                })
-            else warningResponse.added.push({
-                _id: t._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_LESS_PLANNED_HOURS,
-                source: false
-            })
-        })
+        /*  if (taskPlans && taskPlans.length) {
+              taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
+          } else {
+              taskPlans = [taskPlan.toObject()]
+          }
+          taskPlans.forEach(t => {
+              if (t._id.toString() === taskPlan._id.toString())
+                  warningResponse.added.push({
+                      _id: t._id,
+                      warningType: SC.WARNING_TYPE_TASK_PLAN,
+                      type: SC.WARNING_LESS_PLANNED_HOURS,
+                      source: true
+                  })
+              else warningResponse.added.push({
+                  _id: t._id,
+                  warningType: SC.WARNING_TYPE_TASK_PLAN,
+                  type: SC.WARNING_LESS_PLANNED_HOURS,
+                  source: false
+              })
+          })
 
-        newLessPlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
+          newLessPlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
+          */
         newLessPlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newLessPlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
 
@@ -841,7 +843,7 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             })
         }
 
-        */
+
 
         //No need to check for task plan it will always be a new task plan
         morePlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
@@ -851,6 +853,7 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             type: SC.WARNING_MORE_PLANNED_HOURS,
             source: true
         })
+        */
         await morePlannedHoursWarning.save()
         return warningResponse
     }
@@ -871,28 +874,29 @@ const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
             'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
         })
 
-
-        if (taskPlans && taskPlans.length) {
-            taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
-        } else {
-            taskPlans = [taskPlan.toObject()]
-        }
-        taskPlans.forEach(t => {
-            if (t._id.toString() === taskPlan._id.toString())
-                warningResponse.added.push({
-                    _id: t._id,
-                    warningType: SC.WARNING_TYPE_TASK_PLAN,
-                    type: SC.WARNING_MORE_PLANNED_HOURS,
-                    source: true
+        /*
+                if (taskPlans && taskPlans.length) {
+                    taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
+                } else {
+                    taskPlans = [taskPlan.toObject()]
+                }
+                taskPlans.forEach(t => {
+                    if (t._id.toString() === taskPlan._id.toString())
+                        warningResponse.added.push({
+                            _id: t._id,
+                            warningType: SC.WARNING_TYPE_TASK_PLAN,
+                            type: SC.WARNING_MORE_PLANNED_HOURS,
+                            source: true
+                        })
+                    else warningResponse.added.push({
+                        _id: t._id,
+                        warningType: SC.WARNING_TYPE_TASK_PLAN,
+                        type: SC.WARNING_MORE_PLANNED_HOURS,
+                        source: false
+                    })
                 })
-            else warningResponse.added.push({
-                _id: t._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_MORE_PLANNED_HOURS,
-                source: false
-            })
-        })
-        newMorePlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
+                newMorePlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
+               */
         newMorePlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newMorePlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
         warningResponse.added.push({
