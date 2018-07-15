@@ -1618,7 +1618,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
         warningResponse.added.push(...warningsAskForLeave.added)
     if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
         warningResponse.removed.push(...warningsAskForLeave.removed)
-    logger.debug('[task-plan-deleted-warning]: [Employee-Ask-For-Leave] warning response ',{warningsAskForLeave})
+    logger.debug('[task-plan-deleted-warning]: [Employee-Ask-For-Leave] warning response ', {warningsAskForLeave})
 
 //EMPLOYEE ON LEAVE UPDATE
 
@@ -1628,23 +1628,27 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
         warningResponse.added.push(...warningsOnLeave.added)
     if (warningsOnLeave.removed && warningsOnLeave.removed.length)
         warningResponse.removed.push(...warningsOnLeave.removed)
+    logger.debug('[task-plan-deleted-warning]: [Employee-On-Leave] warning response ', {warningsOnLeave})
 
 
 //LESS PLANNED HOURS OR MORE PLANNED HOURS OR NO WARNING AT ALL
-    if (releasePlan.planning.plannedTaskCounts === 0) {
+    if (releasePlan.planning.plannedHours === 0) {
         /*Only unplanned warning will be there if task plans are not available*/
         logger.debug('[task-plan-deleted-warning]: planned hours are zero delete all warning')
         let warningsLessPlannedHours = await deleteLessPlannedHours(releasePlan)
+
         if (warningsLessPlannedHours.added && warningsLessPlannedHours.added.length)
             warningResponse.added.push(...warningsLessPlannedHours.added)
         if (warningsLessPlannedHours.removed && warningsLessPlannedHours.removed.length)
             warningResponse.removed.push(...warningsLessPlannedHours.removed)
 
-        let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
-        if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
-            warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
-        if (deleteWarningsMorePlannedHours.removed && deleteWarningsMorePlannedHours.removed.length)
-            warningResponse.removed.push(...deleteWarningsMorePlannedHours.removed)
+
+        let warningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
+
+        if (warningsMorePlannedHours.added && warningsMorePlannedHours.added.length)
+            warningResponse.added.push(...warningsMorePlannedHours.added)
+        if (warningsMorePlannedHours.removed && warningsMorePlannedHours.removed.length)
+            warningResponse.removed.push(...warningsMorePlannedHours.removed)
 
 
     } else if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
@@ -1717,7 +1721,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
 warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
     //logger.debug('taskReportedAsPendingOnEndDate(): taskplan ', {taskPlan})
 
-    var warningResponse = {
+    let warningResponse = {
         added: [],
         removed: []
     }
