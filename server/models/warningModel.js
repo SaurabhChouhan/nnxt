@@ -1349,53 +1349,7 @@ const addLessPlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
 
-    if (lessPlannedHoursWarning) {
-        //No need to check for task plan it will always be a new task plan
-        //lessPlannedHoursWarning.taskPlans = lessPlannedHoursWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
-
-        /*
-        warningResponse.removed.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_LESS_PLANNED_HOURS,
-            source: true
-        })
-        */
-        if (lessPlannedHoursWarning.taskPlans && lessPlannedHoursWarning.taskPlans.length) {
-            // For release check
-            if (lessPlannedHoursWarning.taskPlans.findIndex(r => r.release._id.toString() === release._id.toString()) === -1) {
-
-                lessPlannedHoursWarning.releases = lessPlannedHoursWarning.releases.filter(r => r._id.toString() !== release._id.toString())
-                warningResponse.added.push({
-                    _id: release._id,
-                    warningType: SC.WARNING_TYPE_RELEASE,
-                    type: SC.WARNING_LESS_PLANNED_HOURS,
-                    source: true
-                })
-            }
-            // For releasePlan check
-            if (lessPlannedHoursWarning.taskPlans.findIndex(r => r.releasePlan._id.toString() === releasePlan._id.toString()) === -1) {
-
-                lessPlannedHoursWarning.releasePlans = lessPlannedHoursWarning.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
-                warningResponse.added.push({
-                    _id: releasePlan._id,
-                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                    type: SC.WARNING_LESS_PLANNED_HOURS,
-                    source: true
-                })
-            }
-            await lessPlannedHoursWarning.save()
-
-        } else {
-            console.log("bk4")
-            let deleteWarningResponse = await deleteWarningWithResponse(lessPlannedHoursWarning, SC.WARNING_LESS_PLANNED_HOURS)
-            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                warningResponse.added.push(...deleteWarningResponse.added)
-            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                warningResponse.removed.push(...deleteWarningResponse.removed)
-        }
-
-    } else {
+    if (!lessPlannedHoursWarning) {
 
         let newLessPlannedHoursWarning = new WarningModel()
         newLessPlannedHoursWarning.type = SC.WARNING_LESS_PLANNED_HOURS
@@ -1469,51 +1423,7 @@ const addMorePlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
 
-    if (morePlannedHoursWarning) {
-        //No need to check for task plan it will always be a new task plan
-        /*
-      morePlannedHoursWarning.taskPlans = morePlannedHoursWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
-        warningResponse.removed.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_MORE_PLANNED_HOURS,
-            source: true
-        })*/
-        if (morePlannedHoursWarning.taskPlans && morePlannedHoursWarning.taskPlans.length) {
-
-            // For release check
-            if (morePlannedHoursWarning.taskPlans.findIndex(r => r.release._id.toString() === release._id.toString()) === -1) {
-                morePlannedHoursWarning.releases = morePlannedHoursWarning.releases.filter(r => r._id.toString() !== release._id.toString())
-
-                warningResponse.added.push({
-                    _id: release._id,
-                    warningType: SC.WARNING_TYPE_RELEASE,
-                    type: SC.WARNING_MORE_PLANNED_HOURS,
-                    source: true
-                })
-            }
-            // For releasePlan check
-            if (morePlannedHoursWarning.taskPlans.findIndex(r => r.releasePlan._id.toString() === releasePlan._id.toString()) === -1) {
-                morePlannedHoursWarning.releasePlans = morePlannedHoursWarning.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
-
-                warningResponse.added.push({
-                    _id: releasePlan._id,
-                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                    type: SC.WARNING_MORE_PLANNED_HOURS,
-                    source: true
-                })
-            }
-            await morePlannedHoursWarning.save()
-
-        } else {
-            let deleteWarningResponse = await deleteWarningWithResponse(morePlannedHoursWarning, SC.WARNING_MORE_PLANNED_HOURS)
-            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                warningResponse.added.push(...deleteWarningResponse.added)
-            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                warningResponse.removed.push(...deleteWarningResponse.removed)
-        }
-
-    } else {
+    if (!morePlannedHoursWarning) {
         /*need to delete existing more planned hours warning*/
         //warningResponse = await deleteLessPlannedHours(releasePlan)
 
