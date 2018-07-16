@@ -191,28 +191,13 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
 
     V.validate(releaseInput, V.releaseMergeTaskPlanningStruct)
 
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseInput._id))
+    
+    release.initial.devStartDate = releaseInput.devStartDate
+    release.initial.devEndDate = releaseInput.devReleaseDate
+    release.initial.clientReleaseDate = releaseInput.clientReleaseDate
 
-    initial.estimatedHours = estimation.estimatedHours
-    initial.expectedBilledHours = projectAwardData.billedHours
-    initial.clientReleaseDate = projectAwardData.clientReleaseDate
-    initial.devStartDate = projectAwardData.devStartDate
-    initial.devEndDate = projectAwardData.devReleaseDate
-    //initial.baseHoursProgress = estimation.estimatedHours // initial estimated hours is used to calculate progress
-    releaseInput.project = project
-    releaseInput.manager = manager
-    releaseInput.leader = leader
-    releaseInput.team = projectAwardData.team
-    releaseInput.iterations = [{
-        estimatedHours: estimation.estimatedHours,
-        expectedBilledHours: projectAwardData.billedHours,
-        clientReleaseDate: projectAwardData.clientReleaseDate,
-        devStartDate: projectAwardData.devStartDate,
-        devEndDate: projectAwardData.devReleaseDate
-    }]
-    releaseInput.name = projectAwardData.releaseVersionName
-    releaseInput.status = SC.STATUS_PLAN_REQUESTED
-    releaseInput.user = user
-    return await ReleaseModel.create(releaseInput)
+    return await release.save()
 }
 
 
