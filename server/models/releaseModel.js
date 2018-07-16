@@ -3,6 +3,7 @@ import AppError from '../AppError'
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
+import * as V from '../validation'
 import momentTZ from 'moment-timezone'
 import logger from '../logger'
 
@@ -159,6 +160,37 @@ releaseSchema.statics.createRelease = async (projectAwardData, user, estimation)
     if (projectAlreadyAwarded)
         throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
         */
+
+    initial.estimatedHours = estimation.estimatedHours
+    initial.expectedBilledHours = projectAwardData.billedHours
+    initial.clientReleaseDate = projectAwardData.clientReleaseDate
+    initial.devStartDate = projectAwardData.devStartDate
+    initial.devEndDate = projectAwardData.devReleaseDate
+    //initial.baseHoursProgress = estimation.estimatedHours // initial estimated hours is used to calculate progress
+    releaseInput.project = project
+    releaseInput.manager = manager
+    releaseInput.leader = leader
+    releaseInput.team = projectAwardData.team
+    releaseInput.iterations = [{
+        estimatedHours: estimation.estimatedHours,
+        expectedBilledHours: projectAwardData.billedHours,
+        clientReleaseDate: projectAwardData.clientReleaseDate,
+        devStartDate: projectAwardData.devStartDate,
+        devEndDate: projectAwardData.devReleaseDate
+    }]
+    releaseInput.name = projectAwardData.releaseVersionName
+    releaseInput.status = SC.STATUS_PLAN_REQUESTED
+    releaseInput.user = user
+    return await ReleaseModel.create(releaseInput)
+}
+
+
+releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequested) => {
+    if (schemaRequested)
+        return V.generateSchema(V.releaseMergeTaskPlanningStruct)
+
+    V.validate(releaseInput, V.releaseMergeTaskPlanningStruct)
+
 
     initial.estimatedHours = estimation.estimatedHours
     initial.expectedBilledHours = projectAwardData.billedHours
