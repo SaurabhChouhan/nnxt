@@ -2250,13 +2250,13 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee)
             removed: []
         }
 
-        let leaveWarning = await WarningModel.findOne({
+        let warningsAskedForLeave = await WarningModel.findOne({
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             'employeeDays.date': singleDateMoment.toDate(),
             'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
         })
-        logger.debug("inside-leaveDelete warning model=> leaveWarning", {leaveWarning})
-        if (leaveWarning) {
+        logger.debug("inside-leaveDelete warning model=> warningsAskedForLeave", {warningsAskedForLeave})
+        if (warningsAskedForLeave) {
             let count = await MDL.LeaveModel.count({
                 "_id": {$ne: leave._id},
                 'user._id': employee._id,
@@ -2264,9 +2264,35 @@ warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee)
                 'endDate': {$gte: singleDateMoment.toDate()},
                 'status': SC.LEAVE_STATUS_RAISED
             })
-            logger.debug("[leave Deleted ]=>[ warning delete] => check other leave exists in this date range startDate :[" + startDate + "]  endDate :[" + endDate + "] :", {count})
+            logger.debug("[leave Deleted ]=>[ warning delete] => check other raised leave exists in this date range startDate :[" + startDate + "]  endDate :[" + endDate + "] :", {count})
             if (count == 0) {
-                let deleteWarningResponse = await deleteWarningWithResponse(leaveWarning, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                let deleteWarningResponse = await deleteWarningWithResponse(warningsAskedForLeave, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+                if (deleteWarningResponse.added && deleteWarningResponse.added.length)
+                    warningResponse.added.push(...deleteWarningResponse.added)
+                if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
+                    warningResponse.removed.push(...deleteWarningResponse.removed)
+
+            }
+        }
+
+        let warningsOnLeave = await WarningModel.findOne({
+            type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+            'employeeDays.date': singleDateMoment.toDate(),
+            'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
+        })
+
+        logger.debug("inside-leaveDelete warning model=> warningsOnLeave", {warningsOnLeave})
+        if (warningsOnLeave) {
+            let count = await MDL.LeaveModel.count({
+                "_id": {$ne: leave._id},
+                'user._id': employee._id,
+                'startDate': {$lte: singleDateMoment.toDate()},
+                'endDate': {$gte: singleDateMoment.toDate()},
+                'status': SC.LEAVE_STATUS_APPROVED
+            })
+            logger.debug("[leave Deleted ]=>[ warning delete] => check other approved leave exists in this date range startDate :[" + startDate + "]  endDate :[" + endDate + "] :", {count})
+            if (count == 0) {
+                let deleteWarningResponse = await deleteWarningWithResponse(warningsOnLeave, SC.WARNING_EMPLOYEE_ON_LEAVE)
                 if (deleteWarningResponse.added && deleteWarningResponse.added.length)
                     warningResponse.added.push(...deleteWarningResponse.added)
                 if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
