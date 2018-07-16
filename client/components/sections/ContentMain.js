@@ -38,7 +38,8 @@ import {
     RepositoryTaskDetailDialog,
     TechnologyFormDialog,
     LeaveApproveDialog,
-    LeaveRejectDialog
+    LeaveRejectDialog,
+    ReleasePlanningUpdateFormDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -240,6 +241,11 @@ class ContentMain extends Component {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
                     <ReleasePlanSectionContainer name={COC.RELEASE_PLAN_LIST}/>
+                    <ReleasePlanningUpdateFormDialog name={COC.UPDATE_RELEASE_PLANNING_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_PLANNING_DIALOG))
+                        }
+                    }/>
                 </ContentSection>
 
             }
