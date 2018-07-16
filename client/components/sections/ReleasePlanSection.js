@@ -96,8 +96,8 @@ class ReleasePlanSection extends Component {
                         <div className="col-md-2">
                             <button className=" btn btn-custom customBtn " type="button"
                                     onClick={() => {
-                                        this.props.openUpdateReleasePlanningForm(release)
-                                    }}>Update
+                                        this.props.openUpdateReleaseDatesForm(release)
+                                    }}>Update Dates
                             </button>
                         </div> : null}
 

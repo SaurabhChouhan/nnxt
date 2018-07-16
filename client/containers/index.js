@@ -95,6 +95,7 @@ export {default as ReleaseTaskPlanningShiftFormContainer} from './forms/ReleaseT
 export {default as ReleaseDeveloperFilterFormContainer} from './forms/ReleaseDeveloperFilterFormContainer'
 export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
 export {default as ReleaseMergeTaskPlanningFormContainer} from './forms/ReleaseMergeTaskPlanningFormContainer'
+export {default as UpdateReleaseDatesFormContainer} from './forms/UpdateReleaseDatesFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleasePlanListContainer} from './lists/ReleasePlanListContainer'
 export {default as ReleasePlanSectionContainer} from './sections/ReleasePlanSectionContainer'
