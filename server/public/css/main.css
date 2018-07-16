@@ -1988,7 +1988,8 @@ hr {
 }
 
 .leaveBtn {
-    margin-left: 835px !important;
+    margin-left: 830px !important;
+    margin-top: 10px !important;
 }
 
 .leave {
@@ -1996,7 +1997,7 @@ hr {
 }
 
 .leaveSelectHighestRole {
-    margin-left: 25px !important;
+    margin-left: 502px !important;
     width: 288px;
     margin-top: 22px;
 }
