@@ -1,5 +1,7 @@
 import moment from 'moment'
 import * as AC from '../actions/actionConsts'
+import * as U from '../../server/utils'
+import * as SC from '../../server/serverconstants'
 
 let now = new Date()
 
@@ -33,16 +35,28 @@ const calendarPageReducer = (state = {
             })
 
         case AC.SHOW_USERS_TASKS:
+            let storedDateMoment = undefined
+            let storedEndDateTime = undefined
+            if (action.tasks && action.tasks.length) {
+                action.tasks = action.tasks.map((tp, idx) => {
+                    if (storedDateMoment && U.momentInUTC(tp.planningDateString).isSame(storedDateMoment)) {
+                        console.log("condition true for ", tp._id)
+                        tp.start = storedEndDateTime
+                        tp.end = moment(tp.start).clone().add(tp.planning.plannedHours, "hours").toDate()
+                        storedEndDateTime = tp.end
+                    } else {
+                        console.log("condition false for ", tp._id)
+                        storedDateMoment = U.momentInUTC(tp.planningDateString)
+                        tp.start = moment(tp.planningDateString).clone().add(10, "hours").toDate()
+                        tp.end = moment(tp.start).clone().add(tp.planning.plannedHours, "hours").toDate()
+                        storedEndDateTime = tp.end
+                    }
+                    return tp
+                })
+            } else action.tasks = []
+            console.log("action.tasks---", action.tasks)
             return Object.assign({}, state, {
-                events: action.tasks && Array.isArray(action.tasks) && action.tasks.length ? action.tasks.map(task => {
-                    let plannedHours = task.planning && task.planning.plannedHours ? Number(task.planning.plannedHours) : 0
-                    task.start = moment(task.planningDateString).clone().add(10, "hours").toDate()
-                    task.end = moment(task.start).clone().add(plannedHours, "hours").toDate()
-                    task.title = task.task && task.task.name ? task.task.name : 'task'
-                    //  task.start = task.start.toDate
-                    //  task.end = task.end.toDate
-                    return task
-                }) : []
+                events: action.tasks
             })
 
         default:

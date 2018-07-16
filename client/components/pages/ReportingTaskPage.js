@@ -245,15 +245,14 @@ class ReportingTaskPage extends Component {
                                     title="Select Status"
                                     value={taskStatus}
                                     onChange={(status) => this.onTaskStatusChange(status.target.value)}>
-                                    <option key={0} value={SC.ALL}>All Task Status</option>
-                                    <option key={1} value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-                                    <option key={2} value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-                                    <option key={3}
-                                            value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                    <option key={4} value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                    <option key={5} value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                    <option key={6} value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                    <option key={7} value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
+                                    <option key={SC.ALL} value={SC.ALL}>All Task Status</option>
+                                    <option key={SC.REPORT_UNREPORTED}
+                                            value={SC.REPORT_UNREPORTED}>{SC.REPORT_UNREPORTED}</option>
+                                    <option key={SC.REPORT_PENDING}
+                                            value={SC.REPORT_PENDING}>{SC.REPORT_PENDING}</option>
+                                    <option key={SC.REPORT_COMPLETED}
+                                            value={SC.REPORT_COMPLETED}>{SC.REPORT_COMPLETED}</option>
+
 
                                 </select>
                             </div>
@@ -270,7 +269,8 @@ class ReportingTaskPage extends Component {
 
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                             </TableHeaderColumn>
-                            <TableHeaderColumn editable={false} width="10%" columnTitle={'View Detail'} dataField='detailButton'
+                            <TableHeaderColumn editable={false} width="10%" columnTitle={'View Detail'}
+                                               dataField='detailButton'
                                                dataFormat={this.viewDetailButton.bind(this)}>View Detail
                             </TableHeaderColumn>
                             <TableHeaderColumn editable={false} width="20%" columnTitle dataField="task"
@@ -307,10 +307,12 @@ class ReportingTaskPage extends Component {
                                                }}>Reason
                                 Code</TableHeaderColumn>
 
-                            <TableHeaderColumn editable={false} width="5%" columnTitle={'Edit Report'} dataField="Edit Report"
+                            <TableHeaderColumn editable={false} width="5%" columnTitle={'Edit Report'}
+                                               dataField="Edit Report"
                                                dataFormat={this.viewEditButton.bind(this)}>Edit
                             </TableHeaderColumn>
-                            <TableHeaderColumn editable={false} width="7%" columnTitle={'Submit Report'} dataField="Submit Report"
+                            <TableHeaderColumn editable={false} width="7%" columnTitle={'Submit Report'}
+                                               dataField="Submit Report"
                                                dataFormat={this.viewSubmitButton.bind(this)}>Submit
                             </TableHeaderColumn>
                         </BootstrapTable>

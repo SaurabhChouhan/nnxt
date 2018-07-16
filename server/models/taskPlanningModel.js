@@ -107,9 +107,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-        'employee._id': employee._id.toString(),
-        'date': momentPlanningDate
-    }) > 0) {
+            'employee._id': employee._id.toString(),
+            'date': momentPlanningDate
+        }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -141,11 +141,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id),
-        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id),
+            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-    }) > 0) {
+        }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -168,9 +168,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id)
-    }) > 0) {
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id)
+        }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -337,6 +337,8 @@ const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber,
     taskPlan.employee = Object.assign({}, employee.toObject(), {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
+    taskPlan.report = {}
+    taskPlan.report.status = SC.REPORT_UNREPORTED
 
     logger.debug('addTaskPlanning(): [newly created task plan] task plan is ', {taskPlan})
 
@@ -402,17 +404,17 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     // Get releases and task plans
 
     let rpIDPromises = releasePlanIDs.map(rpID => {
-        if (rpID == releasePlan._id.toString())
+        if (rpID.toString() === releasePlan._id.toString())
             return releasePlan;
         else
-            return MDL.ReleasePlanModel.findById(rpID)
+            return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(rpID))
     })
 
     let tpIDPromises = taskPlanIDs.map(tpID => {
-        if (tpID == taskPlan._id.toString())
+        if (tpID.toString() === taskPlan._id.toString())
             return taskPlan;
         else
-            return MDL.TaskPlanningModel.findById(tpID)
+            return MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(tpID))
     })
 
     let affectedReleasePlans = await Promise.all(rpIDPromises)
@@ -601,7 +603,7 @@ taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, sch
 
     /*--------------------------------- WARNING UPDATE SECTION ---------------------------------------------*/
     let generatedWarnings = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
-    logger.debug('Add task plan: ALL Warnings:', {generatedWarnings})
+    logger.debug('addTaskPlanning :=> Add task plan generatedWarnings: ALL Warnings:', {generatedWarnings})
     // Get release/task plans objects that are affected due to these warnings
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
 
@@ -938,7 +940,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
     /*------------------------------- WARNING UPDATES ---------------------------------------------------*/
     let generatedWarnings = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release)
-    logger.debug('deleteTaskPlanning(): ', {generatedWarnings})
+    logger.debug('deleteTaskPlanning(): [all-warning-responses] => generatedWarnings => ', {generatedWarnings})
 
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
     let taskPlanningResponse = await MDL.TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
@@ -1074,7 +1076,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 
 
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
-    console.log("taskreport "+JSON.stringify(taskReport))
+    console.log("taskreport " + JSON.stringify(taskReport))
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     /* Get task plan */
@@ -1093,7 +1095,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name:1,project:1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -1277,16 +1279,16 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     /**
      * Check if reported hour is more then estimated hour
      */
-    console.log("reportedHours "+releasePlan.report.reportedHours+" releasePlan.task.estimatedHours "+releasePlan.task.estimatedHours)
+    console.log("reportedHours " + releasePlan.report.reportedHours + " releasePlan.task.estimatedHours " + releasePlan.task.estimatedHours)
 
-        // Need to add/update reporting warnings.
+    // Need to add/update reporting warnings.
 
-        let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan,releasePlan,release)
+    let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release)
 
-        if (reportedWarnings.added && reportedWarnings.added.length)
-            generatedWarnings.added.push(...reportedWarnings.added)
-        if (reportedWarnings.removed && reportedWarnings.removed.length)
-            generatedWarnings.removed.push(...reportedWarnings.removed)
+    if (reportedWarnings.added && reportedWarnings.added.length)
+        generatedWarnings.added.push(...reportedWarnings.added)
+    if (reportedWarnings.removed && reportedWarnings.removed.length)
+        generatedWarnings.removed.push(...reportedWarnings.removed)
 
     /**
      * Check if employee has reported task on last date of planning against this employee
@@ -1376,7 +1378,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         generatedWarnings.added.forEach(w => {
             logger.debug('addTaskReport(): iterating on warning ', {w})
 
-            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
                 || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     console.log("need to add flag in release plan")
@@ -1418,7 +1420,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         generatedWarnings.removed.forEach(w => {
             logger.debug('addTaskReport(): iterating on removed warning ', {w})
 
-            if(w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
+            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
                 || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
                 if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
                     console.log("need to remove flag from release plan")
@@ -1614,8 +1616,16 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         report: 1,
         _id: 1,
     })
+
+    taskPlans.sort(function (a, b) {
+        let planningDate1 = new Date(a.planningDateString)
+        let planningDate2 = new Date(b.planningDateString)
+        return planningDate1 < planningDate2 ? -1 : planningDate1 > planningDate2 ? 1 : 0
+    })
+
     return taskPlans
 }
+
 /**
  * GetTaskAndProjectDetailForCalenderOfUser
  */
@@ -1672,7 +1682,7 @@ const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
 
                 }
                 if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('addTaskPlanning(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
+                    logger.debug('[task-shift] shiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
                     // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
                     warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
                         if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
@@ -2055,7 +2065,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 /*
 GetReportTasks
  */
-taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, taskStatus) => {
+taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskStatus, user) => {
     let userRoles = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
     logger.info('getReportTasks(): user roles in this release ', {userRoles})
     /* As highest role of user in release is developer only we will return only tasks that this employee is assigned */
@@ -2069,14 +2079,20 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, user, dateString, 
     } else if (_.includes(SC.ROLE_DEVELOPER, userRoles) || _.includes(SC.ROLE_NON_PROJECT_DEVELOPER, userRoles)) {
         let criteria = {
             'release._id': mongoose.Types.ObjectId(releaseID),
-            'planningDateString': dateString,
+            'planningDate': U.dateInUTC(dateString),
             'employee._id': mongoose.Types.ObjectId(user._id)
         }
-        if (taskStatus && taskStatus != 'all') {
-            criteria['report.status'] = taskStatus
+        if (taskStatus && taskStatus !== SC.ALL) {
+            criteria = {
+                'release._id': mongoose.Types.ObjectId(releaseID),
+                'planningDate': U.dateInUTC(dateString),
+                'employee._id': mongoose.Types.ObjectId(user._id),
+                'report.status': taskStatus
+            }
         }
         return await MDL.TaskPlanningModel.find(criteria)
     }
+    return []
 }
 
 
@@ -2148,8 +2164,8 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
     let daysToShiftNumber = Number(planning.daysToShift)
     /* employeeId must be present or its value must be all */
     let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(planning.employeeId))
-        if (!employee)
-            throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    if (!employee)
+        throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* can not shift task whose planning date is before now */
 
