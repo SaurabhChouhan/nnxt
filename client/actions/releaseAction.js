@@ -47,7 +47,6 @@ export const updateReleasePlan = (releasePlan) => ({
     releasePlan: releasePlan
 })
 
-
 export const removeTaskPlanning = (planID) => ({
     type: AC.DELETE_TASK_PLAN,
     planID: planID
@@ -450,6 +449,30 @@ export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
                 if (json.success) {
 
                     dispatch(addTaskPlannings(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const updateReleasePlanOnServer = (release) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/update-release-plan/', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(release)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateReleasePlan(json.data))
                 }
                 return json
             })
