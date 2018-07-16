@@ -8,7 +8,7 @@ import * as SC from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
-let ReleasePlanningUpdateForm = (props) => {
+let UpdateReleaseDatesForm = (props) => {
     const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
     console.log("initial", initial)
     const today = new Date()
@@ -71,7 +71,7 @@ let ReleasePlanningUpdateForm = (props) => {
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
-                       min={StartDate.toDate() ? StartDate.toDate() : todayMoment.toDate()}
+                       min={min}
                        max={max}
                        label={"Replanned End Date :"}
                        validate={[required]}
@@ -95,7 +95,8 @@ let ReleasePlanningUpdateForm = (props) => {
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
-                       min={devEndDate.toDate() ? devEndDate.toDate() : todayMoment.toDate()}
+                       min={min}
+                       max={max}
                        label={"Replanned Client Release Date :"}
                        validate={[required]}
                 />
@@ -120,8 +121,8 @@ let ReleasePlanningUpdateForm = (props) => {
     </form>
 }
 
-ReleasePlanningUpdateForm = reduxForm({
-    form: 'update-release-planning'
-})(ReleasePlanningUpdateForm)
+UpdateReleaseDatesForm = reduxForm({
+    form: 'update-release-dates'
+})(UpdateReleaseDatesForm)
 
-export default ReleasePlanningUpdateForm
+export default UpdateReleaseDatesForm

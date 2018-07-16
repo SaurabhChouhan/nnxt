@@ -1,6 +1,6 @@
 import {Modal, ModalBody, ModalHeader} from 'react-bootstrap'
 import React from 'react'
-import {ReleasePlanningUpdateFormContainer} from "../../containers"
+import {UpdateReleaseDatesFormContainer} from "../../containers"
 
 const ReleasePlanningUpdateFormDialog = (props) => {
     return <Modal className="estimationModal" show={props.show} onHide={props.close}>
@@ -11,7 +11,7 @@ const ReleasePlanningUpdateFormDialog = (props) => {
             </div>
         </ModalHeader>
         <ModalBody>
-            <ReleasePlanningUpdateFormContainer/>
+            <UpdateReleaseDatesFormContainer/>
         </ModalBody>
     </Modal>
 }

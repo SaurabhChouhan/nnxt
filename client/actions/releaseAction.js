@@ -85,6 +85,10 @@ export const addTaskPlannings = (taskPlannings) => ({
     type: AC.ADD_TASK_PLANNINGS,
     taskPlannings: taskPlannings
 })
+export const updateReleaseDates = (releaseDates) => ({
+    type: AC.UPDATE_RELEASE_DATES,
+    releaseDates: releaseDates
+})
 
 
 export const getAllReleasesFromServer = (status) => {
@@ -456,23 +460,23 @@ export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
 }
 
 
-export const updateReleasePlanOnServer = (release) => {
+export const updateReleaseDatesOnServer = (releaseDates) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/update-release-plan/', {
+        return fetch('/api/releases/update-release-dates/', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(release)
+                body: JSON.stringify(releaseDates)
             }
         ).then(
             response => response.json()
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(updateReleasePlan(json.data))
+                    dispatch(updateReleaseDates(json.data))
                 }
                 return json
             })

@@ -19,9 +19,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     getAllReleasePlans: (release) => dispatch(A.getReleasePlansFromServer(release._id, 'all', 'all')),
     getAllWarnings: (release) => dispatch(A.getAllWarningsOfThisReleaseFromServer('all', release._id)),
     getAllTaskPlans: (release) => dispatch(A.getAllTaskPlansOfThisReleaseFromServer(release._id)),
-    openUpdateReleasePlanningForm: (release) => {
-        dispatch(initialize("update-release-planning", release))
-        dispatch(A.showComponent(COC.UPDATE_RELEASE_PLANNING_DIALOG))
+    openUpdateReleaseDatesForm: (release) => {
+        dispatch(initialize("update-release-dates", release))
+        dispatch(A.showComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
 
     },
 })
