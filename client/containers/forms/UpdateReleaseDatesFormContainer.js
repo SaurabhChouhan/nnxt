@@ -5,9 +5,9 @@ import * as A from '../../actions'
 import {NotificationManager} from "react-notifications"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-   onSubmit: (ReleaseDates) => {
+    onSubmit: (ReleaseDates) => {
 
-    return dispatch(A.updateReleaseDatesOnServer(ReleaseDates)).then(json => {
+        return dispatch(A.updateReleaseDatesOnServer(ReleaseDates)).then(json => {
             if (json.success) {
                 NotificationManager.success("Release dates updated")
                 dispatch(A.hideComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
 
 
-     }
+    }
 })
 
 const mapStateToProps = (state, ownProps) => ({
