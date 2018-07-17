@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     getAllWarnings: (release) => dispatch(A.getAllWarningsOfThisReleaseFromServer('all', release._id)),
     getAllTaskPlans: (release) => dispatch(A.getAllTaskPlansOfThisReleaseFromServer(release._id)),
     openUpdateReleaseDatesForm: (release) => {
-        dispatch(initialize("update-release-dates", release))
+        dispatch(initialize("update-release-dates", release.iterations[0]))
         dispatch(A.showComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
 
     },

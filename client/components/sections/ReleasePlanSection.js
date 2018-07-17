@@ -92,14 +92,15 @@ class ReleasePlanSection extends Component {
                             <p>{release && release.iterations[0] && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
-                    {loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_MANAGER) ?
+                    {loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ?
                         <div className="col-md-2">
                             <button className=" btn btn-custom customBtn " type="button"
                                     onClick={() => {
                                         this.props.openUpdateReleaseDatesForm(release)
                                     }}>Update Dates
                             </button>
-                        </div> : null}
+                        </div> : null
+                    }
 
                     <div className=" col-md-2 releasefileoption">
                         <ul className="list-unstyled">
