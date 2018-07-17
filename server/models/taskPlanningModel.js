@@ -1057,11 +1057,11 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         await rePlannedDateEmployeeDays.save()
     }
 
-    logger.debug("mergeTask(): UPDATED: existing date employee days ", {existingDateEmployeeDays})
-    logger.debug("mergeTask(): UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
+    logger.debug("[ taskPlanMerged ]:()=> UPDATED: existing date employee days ", {existingDateEmployeeDays})
+    logger.debug("[ taskPlanMerged ]:()=>: UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
 
-    let generatedWarnings = await MDL.WarningModel.taskMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays)
-    logger.debug("WarningModel.taskMerged():", {generatedWarnings})
+    let generatedWarnings = await MDL.WarningModel.taskPlanMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays)
+    logger.debug("[ taskPlanMerged ]:()=>", {generatedWarnings})
 
     // update flags
     await updateFlags(generatedWarnings, releasePlan, taskPlan)

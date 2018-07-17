@@ -1163,7 +1163,7 @@ const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC)
     if (tooManyHourWarning) {
         /* Update Existing warning WARNING_TOO_MANY_HOURS*/
         if (employeeDay && employeeDay.plannedHours && Number(employeeDay.plannedHours) <= maxPlannedHoursNumber) {
-            //tooManyHourWarning reponse calculation
+            //tooManyHourWarning response calculation
             let deleteWarningResponse = await deleteWarningWithResponse(tooManyHourWarning, SC.WARNING_TOO_MANY_HOURS)
             if (deleteWarningResponse.added && deleteWarningResponse.added.length)
                 warningResponse.added.push(...deleteWarningResponse.added)
@@ -2427,7 +2427,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
  */
 
 // Generate warnings when task is merged
-warningSchema.statics.taskMerged = async (taskPlan, releasePlan, release, existingEmployeeDays, rePlannedEmployeeDays) => {
+warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, existingEmployeeDays, rePlannedEmployeeDays) => {
     let warningResponse = {
         added: [],
         removed: []
@@ -2438,17 +2438,18 @@ warningSchema.statics.taskMerged = async (taskPlan, releasePlan, release, existi
 
     // as task is moved there is possibility of removal of too many hours warning
     if (existingEmployeeDays.plannedHours <= maxPlannedHoursNumber) {
-        logger.debug("WarningModel.taskMerged(): Too many hours warning would be removed from existing date (if exists)", {existingEmployeeDays})
+        logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be removed from existing date (if exists)", {existingEmployeeDays})
         let deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, releasePlan, release, existingEmployeeDays.date)
         logger.debug("", {deleteTooManyHoursWarningResponse})
         warningResponse.added.push(...deleteTooManyHoursWarningResponse.added)
         warningResponse.removed.push(...deleteTooManyHoursWarningResponse.removed)
     }
+
     let momentReplan = U.momentFromDateInUTC(rePlannedEmployeeDays.date)
 
     // as task is moved to new date there is possibility of adding too many hours warning
     if (rePlannedEmployeeDays.plannedHours > maxPlannedHoursNumber) {
-        logger.debug("WarningModel.taskMerged(): Too many hours warning would be raised for replanning date", {rePlannedEmployeeDays})
+        logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be raised for replanning date", {rePlannedEmployeeDays})
         let addTooManyHoursWarningResponse = await addTooManyHours(taskPlan, releasePlan, release, rePlannedEmployeeDays.employee, momentReplan)
         logger.debug("", {addTooManyHoursWarningResponse})
         warningResponse.added.push(...addTooManyHoursWarningResponse.added)
