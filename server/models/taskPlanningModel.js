@@ -977,14 +977,14 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     let now = new Date()
 
     let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
-    let replanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
+    let rePlanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
 
     let rePlanningDateUtc = U.dateInUTC(taskPlanningInput.rePlanningDate)
 
     /*Checking that  new planning date is a valid date or not */
     /*Checking that new planning date  is before now or not */
 
-    if (todaysDateInIndia.isAfter(replanningDateInIndia)) {
+    if (todaysDateInIndia.isAfter(rePlanningDateInIndia)) {
         throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -1031,7 +1031,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
             'date': taskPlan.planningDate
         })
 
-    let replannedDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
+    let rePlannedDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
         'employee._id': taskPlan.employee._id.toString(),
         'date': rePlanningDateUtc
     })
@@ -1044,23 +1044,23 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('There should be an employee days entry for task that is shifted', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
-    if (replannedDateEmployeeDays) {
-        replannedDateEmployeeDays.plannedHours += plannedHourNumber
-        await replannedDateEmployeeDays.save()
+    if (rePlannedDateEmployeeDays) {
+        rePlannedDateEmployeeDays.plannedHours += plannedHourNumber
+        await rePlannedDateEmployeeDays.save()
     } else {
         // create employee days as not exists
-        replannedDateEmployeeDays = new MDL.EmployeeDaysModel()
-        replannedDateEmployeeDays.date = rePlanningDateUtc
-        replannedDateEmployeeDays.dateString = U.formatDateInUTC(rePlanningDateUtc)
-        replannedDateEmployeeDays.employee = taskPlan.employee
-        replannedDateEmployeeDays.plannedHours = plannedHourNumber
-        await replannedDateEmployeeDays.save()
+        rePlannedDateEmployeeDays = new MDL.EmployeeDaysModel()
+        rePlannedDateEmployeeDays.date = rePlanningDateUtc
+        rePlannedDateEmployeeDays.dateString = U.formatDateInUTC(rePlanningDateUtc)
+        rePlannedDateEmployeeDays.employee = taskPlan.employee
+        rePlannedDateEmployeeDays.plannedHours = plannedHourNumber
+        await rePlannedDateEmployeeDays.save()
     }
 
     logger.debug("mergeTask(): UPDATED: existing date employee days ", {existingDateEmployeeDays})
-    logger.debug("mergeTask(): UPDATED: replaning date employee days ", {replannedDateEmployeeDays})
+    logger.debug("mergeTask(): UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
 
-    let generatedWarnings = await MDL.WarningModel.taskMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, replannedDateEmployeeDays)
+    let generatedWarnings = await MDL.WarningModel.taskMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays)
     logger.debug("WarningModel.taskMerged():", {generatedWarnings})
 
     // update flags
