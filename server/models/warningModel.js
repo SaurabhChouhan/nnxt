@@ -2427,7 +2427,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
  */
 
 // Generate warnings when task is merged
-warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, existingEmployeeDays, rePlannedEmployeeDays) => {
+warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, existingEmployeeDays, rePlannedEmployeeDays, selectedEmployee) => {
     let warningResponse = {
         added: [],
         removed: []
@@ -2435,6 +2435,8 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
 
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+    let momentRePlan = U.momentFromDateInUTC(rePlannedEmployeeDays.date)
+    /*TOO_MANY_HOURS WARNING UPDATE SECTION*/
 
     // as task is moved there is possibility of removal of too many hours warning if not removed then also task plan will be removed from warning`s task plan list
     logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be removed from existing date (if exists)", {existingEmployeeDays})
@@ -2443,16 +2445,32 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
     warningResponse.added.push(...deleteTooManyHoursWarningResponse.added)
     warningResponse.removed.push(...deleteTooManyHoursWarningResponse.removed)
 
-    let momentRePlan = U.momentFromDateInUTC(rePlannedEmployeeDays.date)
 
     // as task is moved to new date there is possibility of adding too many hours warning
     if (rePlannedEmployeeDays.plannedHours > maxPlannedHoursNumber) {
-        logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be raised for replanning date", {rePlannedEmployeeDays})
+        logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be raised for rePlanning date", {rePlannedEmployeeDays})
         let addTooManyHoursWarningResponse = await addTooManyHours(taskPlan, releasePlan, release, rePlannedEmployeeDays.employee, momentRePlan)
         logger.debug("", {addTooManyHoursWarningResponse})
         warningResponse.added.push(...addTooManyHoursWarningResponse.added)
         warningResponse.removed.push(...addTooManyHoursWarningResponse.removed)
     }
+    /*EMPLOYEE_ASK_FOR_LEAVE WARNING UPDATE SECTION*/
+
+    let warningsAskForLeave = await addEmployeeAskForLeave(taskPlan, releasePlan, release, employee, momentPlanningDate)
+    if (warningsAskForLeave.added && warningsAskForLeave.added.length)
+        warningResponse.added.push(...warningsAskForLeave.added)
+    if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
+        warningResponse.removed.push(...warningsAskForLeave.removed)
+
+
+    /*EMPLOYEE_ON_LEAVE WARNING UPDATE SECTION*/
+    let warningsOnLeave = await updateEmployeeOnLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
+
+    if (warningsOnLeave.added && warningsOnLeave.added.length)
+        warningResponse.added.push(...warningsOnLeave.added)
+    if (warningsOnLeave.removed && warningsOnLeave.removed.length)
+        warningResponse.removed.push(...warningsOnLeave.removed)
+
     return warningResponse
 }
 

@@ -1003,6 +1003,17 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         throw new AppError('Cannot merge tasks having past dates', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
+    if (!releasePlan) {
+        throw new AppError('ReleasePlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+
+    let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(taskPlan.employee._id)).exec()
+    if (!selectedEmployee) {
+        throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
     if (!release) {
         throw new AppError('Release associated with release plan is not found', EC.DATA_INCONSISTENT, EC.HTTP_BAD_REQUEST)
@@ -1025,12 +1036,12 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         // Employee days of existing date and merged date would be modified
 
     let existingDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-            'employee._id': taskPlan.employee._id.toString(),
+            'employee._id': selectedEmployee.toString(),
             'date': taskPlan.planningDate
         })
 
     let rePlannedDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlan.employee._id.toString(),
+        'employee._id': selectedEmployee.toString(),
         'date': rePlanningDateUtc
     })
 
@@ -1058,7 +1069,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     logger.debug("[ taskPlanMerged ]:()=> UPDATED: existing date employee days ", {existingDateEmployeeDays})
     logger.debug("[ taskPlanMerged ]:()=>: UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
 
-    let generatedWarnings = await MDL.WarningModel.taskPlanMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays)
+    let generatedWarnings = await MDL.WarningModel.taskPlanMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
     logger.debug("[ taskPlanMerged ]:()=>", {generatedWarnings})
 
     // update flags
@@ -1083,7 +1094,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (!taskPlan)
         throw new AppError('Reported task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (taskPlan.employee._id != employee._id)
+    if (taskPlan.employee._id.toString() !== employee._id.toString())
         throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
 
