@@ -1070,17 +1070,17 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     logger.debug("[ taskPlanMerged ]:()=>: UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
 
     let generatedWarnings = await MDL.WarningModel.taskPlanMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
-    logger.debug("[ taskPlanMerged ]:()=>", {generatedWarnings})
+    logger.debug("[ taskPlanMerged ]:()=> generatedWarnings ", {generatedWarnings})
 
     // update flags
-    await updateFlags(generatedWarnings, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
     taskPlan.created = Date.now()
     taskPlan.planningDate = rePlanningDateUtc
     taskPlan.planningDateString = taskPlanningInput.rePlanningDate
     await taskPlan.save()
     taskPlan = taskPlan.toObject()
     taskPlan.canMerge = true
-    return taskPlan
+    return {warnings: generatedWarnings, taskPlan: taskPlan, taskPlans: affectedTaskPlans}
 }
 
 

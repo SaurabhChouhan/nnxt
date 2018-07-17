@@ -277,8 +277,8 @@ export const mergeTaskPlanningOnServer = (taskPlanning) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(updateTaskPlanning(json.data))
-                    dispatch(updateDeveloperFilteredData(json.data))
+                    dispatch(updateTaskPlanning(json.data.taskPlan))
+                    dispatch(updateDeveloperFilteredData(json.data.taskPlan))
                 }
                 return json
             })
