@@ -2430,6 +2430,274 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
 |_________________________________________________MERGE TASK START___________________________________________________________
  */
 
+const updateEmployeeAskForLeaveOnMergeTaskPlan = async (taskPlan, releasePlan, release, existingPlanedDate, rePlannedDate, employee) => {
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+    /* Deletion of task plan with old date from employee ask for leave warning if available */
+    let employeeAskForLeaveWarningOfExistingDate = await WarningModel.findOne({
+        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+        'employeeDays.date': existingPlanedDate,
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
+    })
+
+    if (employeeAskForLeaveWarningOfExistingDate) {
+        //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
+        employeeAskForLeaveWarningOfExistingDate.taskPlans = employeeAskForLeaveWarningOfExistingDate.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
+        warningResponse.removed.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+            source: true
+        })
+        if (employeeAskForLeaveWarningOfExistingDate.taskPlans && employeeAskForLeaveWarningOfExistingDate.taskPlans.length && employeeAskForLeaveWarningOfExistingDate.taskPlans.length === 1) {
+
+            let deleteWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarningOfExistingDate, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
+            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
+                warningResponse.added.push(...deleteWarningResponse.added)
+            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
+                warningResponse.removed.push(...deleteWarningResponse.removed)
+
+        } else {
+            if (employeeAskForLeaveWarningOfExistingDate.taskPlans && employeeAskForLeaveWarningOfExistingDate.taskPlans.length && employeeAskForLeaveWarningOfExistingDate.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) > -1) {
+                employeeAskForLeaveWarningOfExistingDate.releasePlans = employeeAskForLeaveWarningOfExistingDate.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
+                warningResponse.removed.push({
+                    _id: releasePlan._id,
+                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                    source: true
+                })
+            }
+            if (employeeAskForLeaveWarningOfExistingDate.taskPlans && employeeAskForLeaveWarningOfExistingDate.taskPlans.length && employeeAskForLeaveWarningOfExistingDate.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) > -1) {
+                employeeAskForLeaveWarningOfExistingDate.releases = employeeAskForLeaveWarningOfExistingDate.releases.filter(r => r._id.toString() !== release._id.toString())
+                warningResponse.removed.push({
+                    _id: release._id,
+                    warningType: SC.WARNING_TYPE_RELEASE,
+                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                    source: true
+                })
+            }
+            await employeeAskForLeaveWarningOfExistingDate.save()
+        }
+    }
+
+
+    let employeeAskForLeaveWarningOfNewDate = await WarningModel.findOne({
+        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+        'employeeDays.date': rePlannedDate,
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
+    })
+
+    if (employeeAskForLeaveWarningOfNewDate) {
+
+        //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
+        employeeAskForLeaveWarningOfNewDate.taskPlans = [...employeeAskForLeaveWarningOfNewDate.taskPlans, Object.assign({}, taskPlan.toObject(), {source: true})]
+        warningResponse.added.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+            source: true
+        })
+
+
+        if (employeeAskForLeaveWarningOfNewDate.releasePlans && employeeAskForLeaveWarningOfNewDate.releasePlans.length && employeeAskForLeaveWarningOfNewDate.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) === -1) {
+            employeeAskForLeaveWarningOfNewDate.releasePlans = [...employeeAskForLeaveWarningOfNewDate.releasePlans, Object.assign({}, releasePlan.toObject(), {source: true})]
+            warningResponse.added.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+        }
+        if (employeeAskForLeaveWarningOfNewDate.releases && employeeAskForLeaveWarningOfNewDate.releases.length && employeeAskForLeaveWarningOfNewDate.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
+            employeeAskForLeaveWarningOfNewDate.releases = [...employeeAskForLeaveWarningOfNewDate.releases, Object.assign({}, release.toObject(), {source: true})]
+            warningResponse.added.push({
+                _id: release._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+        }
+        await employeeAskForLeaveWarningOfNewDate.save()
+    } else {
+        let leaves = await MDL.LeaveModel.find({
+            'user._id': employee._id,
+            'startDate': {$gte: rePlannedDate},
+            'endDate': {$lte: rePlannedDate},
+            'status': SC.LEAVE_STATUS_RAISED
+        })
+        if (leaves && leaves.length) {
+            let newEmployeeAskForLeaveWarningOfNewDate = new WarningModel()
+            newEmployeeAskForLeaveWarningOfNewDate.type = SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+            newEmployeeAskForLeaveWarningOfNewDate.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
+            newEmployeeAskForLeaveWarningOfNewDate.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+            newEmployeeAskForLeaveWarningOfNewDate.releases = [Object.assign({}, release.toObject(), {source: true})]
+            newEmployeeAskForLeaveWarningOfNewDate.employeeDays = [Object.assign({}, employee.toObject(), {
+                source: true,
+                name: employee.firstName + ' ' + employee.lastName,
+                dateString: U.formatDateInUTC(momentPlanningDate),
+                date: momentPlanningDate.toDate()
+            })]
+
+            warningResponse.added.push({
+                _id: taskPlan._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+            warningResponse.added.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+            warningResponse.added.push({
+                _id: release._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                source: true
+            })
+            await newEmployeeAskForLeaveWarningOfNewDate.save()
+        }
+    }
+    return warningResponse
+}
+
+
+const updateEmployeeOnLeaveOnMergeTaskPlan = async (taskPlan, releasePlan, release, existingPlanedDate, rePlannedDate, employee) => {
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    let employeeOnLeaveWarningOfExistingDate = await WarningModel.findOne({
+        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+        'employeeDays.date': existingPlanedDate,
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
+    })
+
+    if (employeeOnLeaveWarningOfExistingDate) {
+        //update warning WARNING_EMPLOYEE_ON_LEAVE
+        employeeOnLeaveWarningOfExistingDate.taskPlans = employeeOnLeaveWarningOfExistingDate.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
+        warningResponse.removed.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+            source: true
+        })
+        if (employeeOnLeaveWarningOfExistingDate.taskPlans && employeeOnLeaveWarningOfExistingDate.taskPlans.length && employeeOnLeaveWarningOfExistingDate.taskPlans.length === 1) {
+            let deleteWarningResponse = await deleteWarningWithResponse(employeeOnLeaveWarningOfExistingDate, SC.WARNING_EMPLOYEE_ON_LEAVE)
+            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
+                warningResponse.added.push(...deleteWarningResponse.added)
+            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
+                warningResponse.removed.push(...deleteWarningResponse.removed)
+
+        } else {
+            if (employeeOnLeaveWarningOfExistingDate.taskPlans && employeeOnLeaveWarningOfExistingDate.taskPlans.length && employeeOnLeaveWarningOfExistingDate.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) > -1) {
+                employeeOnLeaveWarningOfExistingDate.releasePlans = employeeOnLeaveWarningOfExistingDate.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
+                warningResponse.removed.push({
+                    _id: releasePlan._id,
+                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                    source: true
+                })
+            }
+            if (employeeOnLeaveWarningOfExistingDate.taskPlans && employeeOnLeaveWarningOfExistingDate.taskPlans.length && employeeOnLeaveWarningOfExistingDate.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) > -1) {
+                employeeOnLeaveWarningOfExistingDate.releases = employeeOnLeaveWarningOfExistingDate.releases.filter(r => r._id.toString() !== release._id.toString())
+                warningResponse.removed.push({
+                    _id: release._id,
+                    warningType: SC.WARNING_TYPE_RELEASE,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                    source: true
+                })
+            }
+            await employeeOnLeaveWarningOfExistingDate.save()
+        }
+
+    }
+
+    let employeeOnLeaveWarningOfNewDate = await WarningModel.findOne({
+        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+        'employeeDays.date': rePlannedDate,
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
+    })
+
+    if (employeeOnLeaveWarningOfNewDate) {
+
+        //update warning WARNING_EMPLOYEE_ON_LEAVE
+        employeeOnLeaveWarningOfNewDate.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
+        warningResponse.added.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+            source: true
+        })
+
+        if (employeeOnLeaveWarningOfNewDate.releasePlans && employeeOnLeaveWarningOfNewDate.releasePlans.length && employeeOnLeaveWarningOfNewDate.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) > -1) {
+            employeeOnLeaveWarningOfNewDate.releasePlans.push(Object.assign({}, releasePlan.toObject(), {source: true}))
+            warningResponse.added.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                source: true
+            })
+        }
+        if (employeeOnLeaveWarningOfNewDate.releases && employeeOnLeaveWarningOfNewDate.releases.length && employeeOnLeaveWarningOfNewDate.releases.findIndex(r => r._id.toString() === release._id.toString()) > -1) {
+            employeeOnLeaveWarningOfNewDate.releases.push(Object.assign({}, release.toObject(), {source: true}))
+            warningResponse.added.push({
+                _id: release._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                source: true
+            })
+        }
+
+        await employeeOnLeaveWarningOfNewDate.save()
+
+
+    } else {
+        let leaves = await MDL.LeaveModel.find({
+            'user._id': employee._id,
+            'startDate': {$gte: rePlannedDate},
+            'endDate': {$lte: rePlannedDate},
+            'status': SC.LEAVE_STATUS_APPROVED
+        })
+
+        if (leaves && leaves.length) {
+
+            let newEmployeeOnLeaveWarningOfNewDate = new WarningModel()
+            newEmployeeOnLeaveWarningOfNewDate.type = SC.WARNING_EMPLOYEE_ON_LEAVE
+            newEmployeeOnLeaveWarningOfNewDate.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
+            newEmployeeOnLeaveWarningOfNewDate.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+            newEmployeeOnLeaveWarningOfNewDate.releases = [Object.assign({}, release.toObject(), {source: true})]
+
+            warningResponse.added.push({
+                _id: taskPlan._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                source: true
+            })
+            warningResponse.added.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                source: true
+            })
+            warningResponse.added.push({
+                _id: release._id,
+                warningType: SC.WARNING_TYPE_RELEASE,
+                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                source: true
+            })
+            await newEmployeeOnLeaveWarningOfNewDate.save()
+        }
+    }
+    return warningResponse
+}
+
 // Generate warnings when task is merged
 warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, existingEmployeeDays, rePlannedEmployeeDays, selectedEmployee) => {
     let warningResponse = {
@@ -2460,7 +2728,7 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
     }
     /*EMPLOYEE_ASK_FOR_LEAVE WARNING UPDATE SECTION*/
 
-    let warningsAskForLeave = await addEmployeeAskForLeave(taskPlan, releasePlan, release, employee, momentPlanningDate)
+    let warningsAskForLeave = await updateEmployeeAskForLeaveOnMergeTaskPlan(taskPlan, releasePlan, release, existingEmployeeDays.date, rePlannedEmployeeDays.date, selectedEmployee)
     if (warningsAskForLeave.added && warningsAskForLeave.added.length)
         warningResponse.added.push(...warningsAskForLeave.added)
     if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
@@ -2468,7 +2736,7 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
 
 
     /*EMPLOYEE_ON_LEAVE WARNING UPDATE SECTION*/
-    let warningsOnLeave = await updateEmployeeOnLeaveOnAddTaskPlan(taskPlan, releasePlan, release, employee, momentPlanningDate)
+    let warningsOnLeave = await updateEmployeeOnLeaveOnMergeTaskPlan(taskPlan, releasePlan, release, existingEmployeeDays.date, rePlannedEmployeeDays.date, selectedEmployee)
 
     if (warningsOnLeave.added && warningsOnLeave.added.length)
         warningResponse.added.push(...warningsOnLeave.added)
