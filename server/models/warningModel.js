@@ -698,6 +698,7 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
                 type: SC.WARNING_EMPLOYEE_ON_LEAVE,
                 source: true
             })
+            await newEmployeeOnLeaveWarning.save()
         }
 
     }
