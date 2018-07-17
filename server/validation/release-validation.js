@@ -63,6 +63,5 @@ export const releaseTaskPlanningShiftStruct = t.struct({
 
 export const releaseUpdateDatesStruct = t.struct({
     _id: ObjectId,
-    startDate: RequiredString,
-    rePlanningDate: RequiredString
+    rePlanningStartDate: RequiredString
 })
