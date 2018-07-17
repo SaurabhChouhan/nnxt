@@ -186,10 +186,11 @@ releaseSchema.statics.createRelease = async (projectAwardData, user, estimation)
 
 
 releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequested) => {
+    console.log("releaseInput", releaseInput)
     if (schemaRequested)
-        return V.generateSchema(V.releaseMergeTaskPlanningStruct)
+        return V.generateSchema(V.releaseUpdateDatesStruct)
 
-    V.validate(releaseInput, V.releaseMergeTaskPlanningStruct)
+    V.validate(releaseInput, V.releaseUpdateDatesStruct)
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseInput._id))
     
