@@ -2436,21 +2436,19 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
-    // as task is moved there is possibility of removal of too many hours warning
-    if (existingEmployeeDays.plannedHours <= maxPlannedHoursNumber) {
-        logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be removed from existing date (if exists)", {existingEmployeeDays})
-        let deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, releasePlan, release, existingEmployeeDays.date)
-        logger.debug("", {deleteTooManyHoursWarningResponse})
-        warningResponse.added.push(...deleteTooManyHoursWarningResponse.added)
-        warningResponse.removed.push(...deleteTooManyHoursWarningResponse.removed)
-    }
+    // as task is moved there is possibility of removal of too many hours warning if not removed then also task plan will be removed from warning`s task plan list
+    logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be removed from existing date (if exists)", {existingEmployeeDays})
+    let deleteTooManyHoursWarningResponse = await deleteToManyHours(taskPlan, releasePlan, release, existingEmployeeDays.date)
+    logger.debug("", {deleteTooManyHoursWarningResponse})
+    warningResponse.added.push(...deleteTooManyHoursWarningResponse.added)
+    warningResponse.removed.push(...deleteTooManyHoursWarningResponse.removed)
 
-    let momentReplan = U.momentFromDateInUTC(rePlannedEmployeeDays.date)
+    let momentRePlan = U.momentFromDateInUTC(rePlannedEmployeeDays.date)
 
     // as task is moved to new date there is possibility of adding too many hours warning
     if (rePlannedEmployeeDays.plannedHours > maxPlannedHoursNumber) {
         logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be raised for replanning date", {rePlannedEmployeeDays})
-        let addTooManyHoursWarningResponse = await addTooManyHours(taskPlan, releasePlan, release, rePlannedEmployeeDays.employee, momentReplan)
+        let addTooManyHoursWarningResponse = await addTooManyHours(taskPlan, releasePlan, release, rePlannedEmployeeDays.employee, momentRePlan)
         logger.debug("", {addTooManyHoursWarningResponse})
         warningResponse.added.push(...addTooManyHoursWarningResponse.added)
         warningResponse.removed.push(...addTooManyHoursWarningResponse.removed)
