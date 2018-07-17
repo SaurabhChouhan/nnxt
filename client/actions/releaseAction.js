@@ -462,7 +462,7 @@ export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
 
 export const updateReleaseDatesOnServer = (releaseDates) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/update-release-dates/', {
+        return fetch('/api/releases/', {
                 method: 'put',
                 credentials: "include",
                 headers: {
