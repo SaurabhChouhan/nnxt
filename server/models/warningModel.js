@@ -72,7 +72,7 @@ let warningSchema = mongoose.Schema({
 /*-------------------------------------------------------------------GET_WARNINGS_SECTION_START---------------------------------------------------------------------*/
 warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
     //
-    let release = await MDL.ReleaseModel.findById(releaseID)
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -213,7 +213,7 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release) => {
         } else {
             // Need to remove warning as reported hour updated (reportedHour<estimatedHour)
             console.log("Need to remove warning as reported hour updated (reportedHour<estimatedHour)");
-            await await WarningModel.findByIdAndRemove(releasePlanWarnings._id)
+            await await WarningModel.findByIdAndRemove(mongoose.Types.ObjectId(releasePlanWarnings._id))
         }
     } else {
         console.log("Need to add new warning as it is not available in warning model");
@@ -282,7 +282,7 @@ const deleteWarningWithResponse = async (warning, warningType) => {
             })
         }
     })
-    await WarningModel.findByIdAndRemove(warning._id)
+    await WarningModel.findByIdAndRemove(mongoose.Types.ObjectId(warning._id))
     return warningResponse
 }
 
@@ -312,7 +312,7 @@ const getAffectedReleasesEmployeeDay = async (release, date, employeeID, warning
 
     logger.debug('Affected release IDs: [' + warningName + '] of employee [' + employeeID + '] of date [' + U.formatDateInUTC(date) + ']', {affectedReleaseIDs})
     let releasesPromises = affectedReleaseIDs.map(releaseID => {
-        return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
+        return MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID)).then(releaseDetail => {
             if (release && releaseDetail && releaseDetail._id.toString() === release._id.toString()) {
                 warningResponse.added.push({
                     _id: releaseDetail._id,
@@ -367,7 +367,7 @@ const getAffectedReleasePlansEmployeeDay = async (releasePlan, date, employeeID,
 
     logger.debug('getDistinctReleasePlansWithResponse:=>  releasePlan IDs of warning [' + warningName + '] of employee [' + employeeID + '] of date [' + date + ']', {distinctReleasePlanIDs})
     let releasePlansPromises = distinctReleasePlanIDs.map(releasePlanID => {
-        return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
+        return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID)).then(releasePlanDetail => {
             if (releasePlan && releasePlanDetail && releasePlanDetail._id.toString() === releasePlan._id.toString()) {
                 warningResponse.added.push({
                     _id: releasePlanDetail._id,
@@ -575,7 +575,7 @@ const addEmployeeAskForLeave = async (taskPlan, releasePlan, release, employee, 
         await employeeAskForLeaveWarning.save()
     } else {
         let leaves = await MDL.LeaveModel.find({
-            'user._id': employee._id,
+            'user._id': mongoose.Types.ObjectId(employee._id),
             'startDate': {$gte: momentPlanningDate.toDate()},
             'endDate': {$lte: momentPlanningDate.toDate()},
             'status': SC.LEAVE_STATUS_RAISED
@@ -666,7 +666,7 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
 
     } else {
         let leaves = await MDL.LeaveModel.find({
-            'user._id': employee._id,
+            'user._id': mongoose.Types.ObjectId(employee._id),
             'startDate': {$gte: momentPlanningDate.toDate()},
             'endDate': {$lte: momentPlanningDate.toDate()},
             'status': SC.LEAVE_STATUS_APPROVED
@@ -1027,7 +1027,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
             'releasePlans': {
                 '$elemMatch': {
                     _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
-                    'employee._id': taskPlan.employee._id
+                    'employee._id': mongoose.Types.ObjectId(employee._id)
                 }
             }
         })
@@ -1061,7 +1061,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
                 'releasePlans': {
                     '$elemMatch': {
                         _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
-                        'employee._id': taskPlan.employee._id
+                        'employee._id': mongoose.Types.ObjectId(employee._id)
                     }
                 }
             })
@@ -1151,7 +1151,7 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
         removed: []
     }
     let employeeDay = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': taskPlan.employee._id,
+        'employee._id': mongoose.Types.ObjectId(taskPlan.employee._id),
         'date': plannedDateUTC
     })
     //fetch employee setting
@@ -1671,7 +1671,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
                 'releasePlans': {
                     '$elemMatch': {
                         _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
-                        'employee._id': taskPlan.employee._id
+                        'employee._id': mongoose.Types.ObjectId(taskPlan.employee._id)
                     }
                 }
             })
@@ -1696,7 +1696,10 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
                 // since this task plan was not already part of this warning we would have to see if addition of this task plan would cause new release/releaseplan against this warning
 
                 if (!pendingOnEndDateWarning.releases || pendingOnEndDateWarning.releases.findIndex(r => r._id.toString() === taskPlan.release._id.toString()) === -1) {
-                    let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
+                    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+                        name: 1,
+                        project: 1
+                    })
                     pendingOnEndDateWarning.releases.push(Object.assign({}, release.toObject(), {source: true}))
                     warningResponse.added.push({
                         _id: release._id,
@@ -1708,7 +1711,7 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
                 }
 
                 if (!pendingOnEndDateWarning.releasePlans || pendingOnEndDateWarning.releasePlans.findIndex(r => r._id.toString() === taskPlan.releasePlan._id.toString()) === -1) {
-                    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
+                    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {task: 1})
                     pendingOnEndDateWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {source: true}))
                     warningResponse.added.push({
                         _id: releasePlan._id,
@@ -1727,10 +1730,13 @@ warningSchema.statics.taskReportedAsPending = async (taskPlan, onEndDate) => {
             pendingOnEndDateWarning = {}
             pendingOnEndDateWarning.type = SC.WARNING_PENDING_ON_END_DATE
 
-            let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
+            let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+                name: 1,
+                project: 1
+            })
             //logger.debug('taskReportedAsPendingOnEndDate(): ', {release})
             pendingOnEndDateWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
-            let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
+            let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {task: 1})
             //logger.debug('taskReportedAsPendingOnEndDate(): ', {releasePlan})
             pendingOnEndDateWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
                 source: true,
@@ -1795,10 +1801,13 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
 
         let completeBeforeWarning = {}
         completeBeforeWarning.type = SC.WARNING_COMPLETED_BEFORE_END_DATE
-        let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {name: 1, project: 1})
+        let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+            name: 1,
+            project: 1
+        })
         //logger.debug('taskReportedAsCompleted(): ', {release})
         completeBeforeWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
-        let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, {task: 1})
+        let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {task: 1})
         //logger.debug('taskReportedAsCompleted(): ', {releasePlan})
         completeBeforeWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
             source: true,
@@ -1935,7 +1944,7 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
     let tooManyHoursWarning = await WarningModel.findOne({
         type: SC.WARNING_TOO_MANY_HOURS,
         'employeeDays.date': employeeDays.date,
-        'employeeDays.employee._id': employeeDays.employee._id
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
     })
 
 
@@ -1947,11 +1956,11 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
 
         let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
             'planningDate': employeeDays.date,
-            'employee._id': employeeDays.employee._id
+            'employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
         })
 
         let releasesPromises = distinctReleaseIDs.map(releaseID => {
-            return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
+            return MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID)).then(releaseDetail => {
                 //logger.debug('releaseDetail', {releaseDetail})
                 if (releaseDetail && releaseDetail._id.toString() === release._id.toString()) {
                     warningResponse.added.push({
@@ -2020,7 +2029,7 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
         // fetch task plans as all task plans are affected by this warning and hence need to be added against this warning
         let taskPlans = await MDL.TaskPlanningModel.find({
             'planningDate': employeeDays.date,
-            'employee._id': employeeDays.employee._id
+            'employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
         })
 
         taskPlans.forEach(t => {
@@ -2178,7 +2187,7 @@ warningSchema.statics.leaveAdded = async (startDate, endDate, employee) => {
         let warning = await WarningModel.findOne({
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             'employeeDays.date': singleDateMoment.toDate(),
-            'employeeDays.employee._id': employee._id
+            'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
         })
         logger.debug("inside-warning-model-leave-added=> warning", {warning})
         if (!warning) {
@@ -2338,7 +2347,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
         let employeeAskForLeaveWarning = await WarningModel.findOne({
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             'employeeDays.date': singleDateMoment.toDate(),
-            'employeeDays.employee._id': employee._id
+            'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
         })
 
         if (employeeAskForLeaveWarning) {
@@ -2373,7 +2382,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
         })
 
         let releasesPromises = distinctReleaseIDs.map(releaseID => {
-            return MDL.ReleaseModel.findById(releaseID).then(releaseDetail => {
+            return MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID)).then(releaseDetail => {
                 warningResponse.added.push({
                     _id: releaseDetail._id,
                     warningType: SC.WARNING_TYPE_RELEASE,
@@ -2396,7 +2405,7 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
         })
 
         let releasePlansPromises = distinctReleasePlansIDs.map(releasePlanID => {
-            return MDL.ReleasePlanModel.findById(releasePlanID).then(releasePlanDetail => {
+            return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID)).then(releasePlanDetail => {
                 warningResponse.added.push({
                     _id: releasePlanDetail._id,
                     warningType: SC.WARNING_TYPE_RELEASE_PLAN,
@@ -2530,7 +2539,7 @@ const updateEmployeeAskForLeaveOnMergeTaskPlan = async (taskPlan, releasePlan, r
         await employeeAskForLeaveWarningOfNewDate.save()
     } else {
         let leaves = await MDL.LeaveModel.find({
-            'user._id': employee._id,
+            'user._id': mongoose.Types.ObjectId(employee._id),
             'startDate': {$gte: rePlannedDate},
             'endDate': {$lte: rePlannedDate},
             'status': SC.LEAVE_STATUS_RAISED
@@ -2667,7 +2676,7 @@ const updateEmployeeOnLeaveOnMergeTaskPlan = async (taskPlan, releasePlan, relea
 
     } else {
         let leaves = await MDL.LeaveModel.find({
-            'user._id': employee._id,
+            'user._id': mongoose.Types.ObjectId(employee._id),
             'startDate': {$gte: rePlannedDate},
             'endDate': {$lte: rePlannedDate},
             'status': SC.LEAVE_STATUS_APPROVED
