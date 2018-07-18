@@ -1186,19 +1186,6 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
             })
 
             if (tooManyHourWarning.taskPlans && tooManyHourWarning.taskPlans.length) {
-                let otherTaskPlanReleaseExists = false
-
-                otherTaskPlanReleaseExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) !== -1
-                if (!otherTaskPlanReleaseExists) {
-                    tooManyHourWarning.releases = tooManyHourWarning.releases.filter(r => r._id.toString() !== release._id.toString())
-                    warningResponse.removed.push({
-                        _id: release._id,
-                        warningType: SC.WARNING_TYPE_RELEASE,
-                        type: SC.WARNING_TOO_MANY_HOURS,
-                        source: true
-                    })
-                }
-
                 let otherTaskPlanReleasePlanExists = false
                 otherTaskPlanReleasePlanExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) !== -1
                 if (!otherTaskPlanReleasePlanExists) {
@@ -1210,6 +1197,19 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
                         source: true
                     })
                 }
+
+                let otherTaskPlanReleaseExists = false
+                otherTaskPlanReleaseExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) !== -1
+                if (!otherTaskPlanReleaseExists) {
+                    tooManyHourWarning.releases = tooManyHourWarning.releases.filter(r => r._id.toString() !== release._id.toString())
+                    warningResponse.removed.push({
+                        _id: release._id,
+                        warningType: SC.WARNING_TYPE_RELEASE,
+                        type: SC.WARNING_TOO_MANY_HOURS,
+                        source: true
+                    })
+                }
+
                 await tooManyHourWarning.save()
             } else {
                 //warning response calculation
