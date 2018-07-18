@@ -1036,12 +1036,12 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         // Employee days of existing date and merged date would be modified
 
     let existingDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-            'employee._id': selectedEmployee,
+            'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
             'date': taskPlan.planningDate
         })
 
     let rePlannedDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': selectedEmployee,
+        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
         'date': rePlanningDateUtc
     })
     if (existingDateEmployeeDays) {
