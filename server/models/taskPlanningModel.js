@@ -2764,3 +2764,37 @@ db.taskplannings.aggregate([{
         as: 'release'
     }
 }])*/
+
+/* if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        generatedWarnings.removed.forEach(async w => {
+            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                logger.debug('addTaskPlanning(): warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
+                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
+                if (!affectedReleasePlan)
+                    return;
+                let countOtherReleasePlan = await MDL.WarningModel.count({
+                    "releasePlans._id": w._id,
+                    "type": w.type
+                })
+                console.log("---------countOtherReleasePlan-----------:", countOtherReleasePlan, "--------release Plan ID------: ", w._id, "---- warning type ----:", w.type, "-----")
+                console.log("---------compare-----------:", affectedReleasePlan.flags.indexOf(w.type) > -1 && countOtherReleasePlan == 0, "-----")
+
+                if (affectedReleasePlan.flags.indexOf(w.type) > -1)
+                    Pull(affectedReleasePlan.flags, w.type)
+                console.log("---------Updated Data-----------:", affectedReleasePlan, "-----")
+
+                affectedReleasePlans = affectedReleasePlans.map(arp => arp._id.toString() === affectedReleasePlan._id.toString() ? affectedReleasePlan : arp)
+
+            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                logger.debug('addTaskPlanning(): warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
+                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
+                if (!affectedTaskPlan)
+                    return;
+                if (affectedTaskPlan.flags.indexOf(w.type) > -1)
+                    affectedTaskPlan.flags.pull(w.type)
+            }
+
+        })
+    }
+    // because affected release plans is being updated on async functionality thats why we need to wait for its completion
+    await Promise.all(affectedReleasePlans)*/
