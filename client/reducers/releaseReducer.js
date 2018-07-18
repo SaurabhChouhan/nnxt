@@ -129,6 +129,11 @@ const releaseReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 taskPlans: action.taskPlannings
             })
+        case AC.UPDATE_RELEASE_DATES:
+            // update release dates details
+            return Object.assign({}, state, {
+                selectedRelease: action.releaseDates
+            })
 
 
         default:

@@ -47,7 +47,6 @@ export const updateReleasePlan = (releasePlan) => ({
     releasePlan: releasePlan
 })
 
-
 export const removeTaskPlanning = (planID) => ({
     type: AC.DELETE_TASK_PLAN,
     planID: planID
@@ -85,6 +84,10 @@ export const setFromDate = (date) => ({
 export const addTaskPlannings = (taskPlannings) => ({
     type: AC.ADD_TASK_PLANNINGS,
     taskPlannings: taskPlannings
+})
+export const updateReleaseDates = (releaseDates) => ({
+    type: AC.UPDATE_RELEASE_DATES,
+    releaseDates: releaseDates
 })
 
 
@@ -450,6 +453,30 @@ export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
                 if (json.success) {
 
                     dispatch(addTaskPlannings(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const updateReleaseDatesOnServer = (releaseDates) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(releaseDates)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateReleaseDates(json.data))
                 }
                 return json
             })

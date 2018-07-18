@@ -3,6 +3,7 @@ import AppError from '../AppError'
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
+import * as V from '../validation'
 import momentTZ from 'moment-timezone'
 import logger from '../logger'
 
@@ -181,6 +182,23 @@ releaseSchema.statics.createRelease = async (projectAwardData, user, estimation)
     releaseInput.status = SC.STATUS_PLAN_REQUESTED
     releaseInput.user = user
     return await ReleaseModel.create(releaseInput)
+}
+
+
+releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequested) => {
+    console.log("releaseInput", releaseInput)
+    if (schemaRequested)
+        return V.generateSchema(V.releaseUpdateDatesStruct)
+
+    V.validate(releaseInput, V.releaseUpdateDatesStruct)
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseInput._id))
+    
+    release.initial.devStartDate = releaseInput.devStartDate
+    release.initial.devEndDate = releaseInput.devReleaseDate
+    release.initial.clientReleaseDate = releaseInput.clientReleaseDate
+
+    return await release.save()
 }
 
 

@@ -59,3 +59,9 @@ export const releaseTaskPlanningShiftStruct = t.struct({
     daysToShift: t.Number,
     baseDate: RequiredString
 })
+
+
+export const releaseUpdateDatesStruct = t.struct({
+    _id: ObjectId,
+    rePlanningStartDate: RequiredString
+})

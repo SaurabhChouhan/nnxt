@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
+import * as U from '../../../server/utils'
 import moment from 'moment'
 import {TaskPlanListContainer, ReleasePlanListContainer, WarningListContainer} from '../../containers'
 
@@ -40,7 +41,7 @@ class ReleasePlanSection extends Component {
 
     render() {
         let team = 0
-        const {release, releasePlans} = this.props
+        const {release, releasePlans, loggedInUser} = this.props
         const {showList} = this.state
         return (
 
@@ -62,7 +63,8 @@ class ReleasePlanSection extends Component {
                             <p>{release && release.project && release.project.name ? release.project.name + ' (' + release.name + ')' : ''}</p>
                         </div>
                     </div>
-                    <div className="col-md-2">
+                    <div
+                        className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
                                 title={release && release.iterations[0] && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
@@ -71,7 +73,8 @@ class ReleasePlanSection extends Component {
                             <p>{release && release.iterations[0] && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
-                    <div className="col-md-2">
+                    <div
+                        className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
                                 title={release && release.iterations[0] && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
@@ -89,6 +92,16 @@ class ReleasePlanSection extends Component {
                             <p>{release && release.iterations[0] && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
+                    {loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ?
+                        <div className="col-md-2">
+                            <button className=" btn btn-custom customBtn " type="button"
+                                    onClick={() => {
+                                        this.props.openUpdateReleaseDatesForm(release)
+                                    }}>Update Dates
+                            </button>
+                        </div> : null
+                    }
+
                     <div className=" col-md-2 releasefileoption">
                         <ul className="list-unstyled">
                             <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
