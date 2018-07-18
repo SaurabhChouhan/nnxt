@@ -679,7 +679,12 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
             newEmployeeOnLeaveWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
             newEmployeeOnLeaveWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
             newEmployeeOnLeaveWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
-
+            newEmployeeOnLeaveWarning.employeeDays = [Object.assign({}, employee.toObject(), {
+                source: true,
+                name: employee.firstName + ' ' + employee.lastName,
+                dateString: U.formatDateInUTC(momentPlanningDate.toDate()),
+                date: momentPlanningDate.toDate()
+            })]
             warningResponse.added.push({
                 _id: taskPlan._id,
                 warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -2537,8 +2542,8 @@ const updateEmployeeAskForLeaveOnMergeTaskPlan = async (taskPlan, releasePlan, r
             newEmployeeAskForLeaveWarningOfNewDate.employeeDays = [Object.assign({}, employee.toObject(), {
                 source: true,
                 name: employee.firstName + ' ' + employee.lastName,
-                dateString: U.formatDateInUTC(momentPlanningDate),
-                date: momentPlanningDate.toDate()
+                dateString: U.formatDateInUTC(rePlannedDate),
+                date: rePlannedDate
             })]
 
             warningResponse.added.push({
@@ -2673,6 +2678,12 @@ const updateEmployeeOnLeaveOnMergeTaskPlan = async (taskPlan, releasePlan, relea
             newEmployeeOnLeaveWarningOfNewDate.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
             newEmployeeOnLeaveWarningOfNewDate.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
             newEmployeeOnLeaveWarningOfNewDate.releases = [Object.assign({}, release.toObject(), {source: true})]
+            newEmployeeOnLeaveWarningOfNewDate.employeeDays = [Object.assign({}, employee.toObject(), {
+                source: true,
+                name: employee.firstName + ' ' + employee.lastName,
+                dateString: U.formatDateInUTC(rePlannedDate),
+                date: rePlannedDate
+            })]
 
             warningResponse.added.push({
                 _id: taskPlan._id,
