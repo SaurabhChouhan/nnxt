@@ -538,7 +538,7 @@ const addEmployeeAskForLeave = async (taskPlan, releasePlan, release, employee, 
 
     let employeeAskForLeaveWarning = await WarningModel.findOne({
         type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-        'employeeDays.date': momentPlanningDate,
+        'employeeDays.date': momentPlanningDate.toDate(),
         'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
     })
 
@@ -589,7 +589,7 @@ const addEmployeeAskForLeave = async (taskPlan, releasePlan, release, employee, 
             newEmployeeAskForLeaveWarning.employeeDays = [Object.assign({}, employee.toObject(), {
                 source: true,
                 name: employee.firstName + ' ' + employee.lastName,
-                dateString: U.formatDateInUTC(momentPlanningDate),
+                dateString: U.formatDateInUTC(momentPlanningDate.toDate()),
                 date: momentPlanningDate.toDate()
             })]
 
@@ -627,7 +627,7 @@ const updateEmployeeOnLeaveOnAddTaskPlan = async (taskPlan, releasePlan, release
 
     let employeeOnLeaveWarning = await WarningModel.findOne({
         type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-        'employeeDays.date': momentPlanningDate,
+        'employeeDays.date': momentPlanningDate.toDate(),
         'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
     })
 
