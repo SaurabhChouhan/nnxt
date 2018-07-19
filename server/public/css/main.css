@@ -2013,6 +2013,15 @@ hr {
 .td-row-cancelled {
     background-color: #e8080859 !important;
 }
+.td-row-unreported {
+    background-color: #d3da65 !important;
+}
+.td-row-pending {
+    background-color: #fdb8b3 !important;
+}
+.td-row-completed {
+    background-color: #92e488 !important;
+}
 
 .modal-body b {
 

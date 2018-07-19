@@ -20,6 +20,10 @@ class ReportingTaskPage extends Component {
             return 'appRowColor'
     }
 
+    rowClassNameFormat(row, rowIdx) {
+        return row.status === SC.STATUS_COMPLETED ? 'td-row-completed' : row.status === SC.STATUS_PENDING ? 'td-row-pending' : 'td-row-unreported';
+    }
+
     formatManager(row) {
         if (row) {
             return row.firstName + ' ' + row.lastName
@@ -224,7 +228,9 @@ class ReportingTaskPage extends Component {
                                     value={selectedRelease._id}
                                     className="form-control"
                                     title="Select Flag"
-                                    onChange={(project) => this.onReleaseSelect(project.target.value)}>
+                                    onChange={(project) =>
+                                        this.onReleaseSelect(project.target.value)
+                                    }>
 
                                     <option key={-1} value={''}>{'Select Project'}</option>
                                     {
@@ -258,13 +264,13 @@ class ReportingTaskPage extends Component {
                             </div>
                         </div>
                     </div>
-
                     <div className="estimation">
                         <BootstrapTable options={this.options} data={tasks}
                                         multiColumnSearch={true}
                                         search={true}
                                         striped={true}
                                         hover={true}
+                                        trClassName={this.rowClassNameFormat.bind(this)}
                                         cellEdit={cellEditProp}>
 
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
