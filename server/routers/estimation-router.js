@@ -361,7 +361,20 @@ estimationRouter.put('/project-awarded', async ctx => {
     if (role === SC.ROLE_NEGOTIATOR) {
         if (ctx.schemaRequested)
             return V.generateSchema(V.estimationProjectAwardByNegotiatorStruct)
-        return await MDL.EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
+        return await MDL.EstimationModel.addEstimationToNewRelease(ctx.request.body, ctx.state.user)
+    } else {
+        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can project award of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+})
+
+
+// noinspection Annotator
+estimationRouter.put('/add-to-release', async ctx => {
+    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body.estimation._id)
+    if (role === SC.ROLE_NEGOTIATOR) {
+        if (ctx.schemaRequested)
+            return V.generateSchema(V.estimationProjectAwardByNegotiatorStruct)
+        return await MDL.EstimationModel.addEstimationToNewRelease(ctx.request.body, ctx.state.user)
     } else {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can project award of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }

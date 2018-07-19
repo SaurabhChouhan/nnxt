@@ -47,6 +47,7 @@ let releaseSchema = mongoose.Schema({
         email: {type: String, required: [true, 'Developer email name is required']}
     }],
     iterations: [{
+        type:{type:String},
         expectedBilledHours: {type: Number, default: 0}, // expected billed hours
         billingRate: {type: Number, default: 0}, // Billing rate per hours
         estimatedHours: {type: Number, default: 0}, // sum of estimated hours of all release plan
@@ -171,13 +172,27 @@ releaseSchema.statics.createRelease = async (projectAwardData, user, estimation)
     releaseInput.manager = manager
     releaseInput.leader = leader
     releaseInput.team = projectAwardData.team
+
+    /*
+       We would add three iterations below
+       an 'estimated' iteration - For all tasks that are part of estimations
+       a 'planned' iteration - For tasks that would be added from release interface
+       an 'unplanned' iteration - For unplanned work that would be reported from reporting interface
+
+     */
     releaseInput.iterations = [{
+        type:SC.ITERATION_TYPE_ESTIMATED,
         estimatedHours: estimation.estimatedHours,
         expectedBilledHours: projectAwardData.billedHours,
         clientReleaseDate: projectAwardData.clientReleaseDate,
         devStartDate: projectAwardData.devStartDate,
         devEndDate: projectAwardData.devReleaseDate
+    }, {
+        type:SC.ITERATION_TYPE_PLANNED
+    }, {
+        type:SC.ITERATION_TYPE_UNPLANNED
     }]
+
     releaseInput.name = projectAwardData.releaseVersionName
     releaseInput.status = SC.STATUS_PLAN_REQUESTED
     releaseInput.user = user
