@@ -1194,47 +1194,12 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
 
         /* Update Existing warning WARNING_TOO_MANY_HOURS*/
         if (employeeDay.plannedHours <= maxPlannedHoursNumber) {
-
-            logger.debug("WarningModel->deleteTooManyHours(): Remaining hours are less than max planned hours, warning for this date would be removed for this date")
-
-            // As planned hours reduced to max hours or below, we will delete too many hours warning for that particular date
-            // Since warning would be removed for that particular date flag should be removed from all the task plans of that date/employee combination
-
-            let taskPlans = await MDL.TaskPlanningModel.find({
-                'planningDate': plannedDateUTC,
-                'employee._id': mongoose.Types.ObjectId(employeeDay.employee._id)
-            })
-
-            taskPlans.forEach(t => {
-                warningResponse.removed.push({
-                    _id: t._id,
-                    warningType: SC.WARNING_TYPE_TASK_PLAN,
-                    type: SC.WARNING_TOO_MANY_HOURS
-                })
-            })
-
-             /*
-                Although TMH warning is removed from a particular date of release plan but it is possible
-                that warning still exists on other dates, we have to therefore check to see if TMH warning
-                is present for this release plan on any other date, if not we can safely remove flag from release plan
-            */
-
-
-            let tmhWarningCount = await WarningModel.count({
-                type: SC.WARNING_TOO_MANY_HOURS,
-                'releasePlans._id': releasePlan._id
-            })
-
-            logger.debug("tmh warning count is " + tmhWarningCount)
-
-            if (tmhWarningCount == 1) {
-                warningResponse.removed.push({
-                    _id: releasePlan._id,
-                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                    type: SC.WARNING_TOO_MANY_HOURS
-                })
-            }
-            await tooManyHourWarning.remove()
+            let deleteWarningResponse = await deleteWarningWithResponse(tooManyHourWarning, SC.WARNING_TOO_MANY_HOURS)
+            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
+                warningResponse.added.push(...deleteWarningResponse.added)
+            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
+                warningResponse.removed.push(...deleteWarningResponse.removed)
+            
         } else {
             tooManyHourWarning.taskPlans = tooManyHourWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
             warningResponse.removed.push({
