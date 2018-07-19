@@ -786,9 +786,9 @@ estimationSchema.statics.canNotApproveEstimationByNegotiator = async (estimation
     return estimation
 }
 
-
-estimationSchema.statics.addEstimationToNewRelease = async (inputData, negotiator) => {
-    let estimation = await EstimationModel.findById(inputData.estimation._id)
+estimationSchema.statics.createReleaseFromEstimation = async (releaseInput, negotiator) => {
+    V.validate(releaseInput, V.estimationCreateReleaseByNegotiatorStruct)
+    let estimation = await EstimationModel.findById(releaseInput.estimation._id)
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -798,10 +798,10 @@ estimationSchema.statics.addEstimationToNewRelease = async (inputData, negotiato
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))
         throw new AppError('Only estimations with status [' + SC.STATUS_APPROVED + '] can project award by negotiator', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    inputData.estimation = estimation
+    releaseInput.estimation = estimation
 
     // Create new release
-    const release = await MDL.ReleaseModel.createRelease(inputData, negotiator, estimation)
+    const release = await MDL.ReleaseModel.createRelease(releaseInput, negotiator, estimation)
     if (!release)
         throw new AppError('Release not created', EC.SERVER_ERROR, EC.HTTP_SERVER_ERROR)
 
@@ -842,40 +842,42 @@ estimationSchema.statics.addEstimationToNewRelease = async (inputData, negotiato
     return estimation
 }
 
-estimationSchema.statics.addEstimationToExistingRelease = async (inputData, negotiator) => {
-    let estimation = await EstimationModel.findById(inputData.estimation._id)
+estimationSchema.statics.addEstimationToExistingRelease = async (releaseInput, negotiator) => {
+    V.validate(releaseInput, V.estimationAddToReleaseByNegotiatorStruct)
+    let estimation = await EstimationModel.findById(releaseInput.estimation._id)
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
+    if (estimation.negotiator._id.toString() != negotiator._id.toString())
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))
         throw new AppError('Only estimations with status [' + SC.STATUS_APPROVED + '] can be added to release', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    inputData.estimation = estimation
-    const release = await  MDL.ReleaseModel.createRelease(inputData, negotiator, estimation)
-    if (!release)
-        throw new AppError('No such release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    releaseInput.estimation = estimation
+    const release = await  MDL.ReleaseModel.updateRelease(releaseInput, negotiator, estimation)
 
     const taskList = await MDL.EstimationTaskModel.find({
         'estimation._id': estimation._id,
         'isDeleted': false
     })
+
     if (!taskList && !taskList.length > 0)
         throw new AppError('Task list not found for default release plan', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimationTasksCopyAndReadyForReleasePlanPromises = taskList.map(estimationTask => {
-        return MDL.ReleasePlanModel.addEstimatedReleasePlan(release, 0, estimation, estimationTask)
+        // Iteration corresponding to this would be added at last position so index would be last index
+        return MDL.ReleasePlanModel.addEstimatedReleasePlan(release, release.iterations.length - 1, estimation, estimationTask)
     })
 
-    let releasePlans = await Promise.all(estimationTasksCopyAndReadyForReleasePlanPromises)
+    await Promise.all(estimationTasksCopyAndReadyForReleasePlanPromises)
 
     let newStatusHistory = {
         name: negotiator.firstName + ' ' + negotiator.lastName,
         date: Date.now(),
         status: SC.STATUS_PROJECT_AWARDED
     }
+
     let existingStatusHistory = estimation.statusHistory
     if (existingStatusHistory && _.isArray(existingStatusHistory)) {
         existingStatusHistory.push(newStatusHistory)
@@ -893,9 +895,6 @@ estimationSchema.statics.addEstimationToExistingRelease = async (inputData, nego
     estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
     return estimation
 }
-
-
-
 
 estimationSchema.statics.reOpenEstimationByNegotiator = async (estimationID, negotiator) => {
     let estimation = await EstimationModel.findById(estimationID)

@@ -66,18 +66,21 @@ export const LEAVE_STATUS_APPROVED = 'approved'
 export const LEAVE_STATUS_CANCELLED = 'cancelled'
 export const ALL_LEAVE_STATUS_ARRAY = [LEAVE_STATUS_RAISED, LEAVE_STATUS_APPROVED, LEAVE_STATUS_CANCELLED]
 
-//reporting status
-export const STATUS_PLAN_REQUESTED = 'plan-requested'
+//Statuses
+
+export const STATUS_AWARDED = 'awarded'
 export const STATUS_DEV_IN_PROGRESS = 'dev-in-progress'
 export const STATUS_DEV_COMPLETED = 'dev-completed'
-export const STATUS_RELEASED = 'released'
 export const STATUS_ISSUE_FIXING = 'issue-fixing'
-export const STATUS_OVER = 'over'
+export const STATUS_TEST_COMPLETED = 'test-completed'
+export const STATUS_STABLE = 'stable'
+export const STATUS_RELEASED = 'released'
+
+export const STATUS_PLAN_REQUESTED = 'plan-requested'
 export const STATUS_COMPLETED = 'completed'
 export const STATUS_UNPLANNED = 'unplanned'
 
 export const TYPE_DEVELOPMENT = 'development'
-
 
 // operations
 export const OPERATION_ADDITION = 'addition'
@@ -87,9 +90,7 @@ export const OPERATION_CREATE = 'create'
 export const OPERATION_UPDATE = 'update'
 export const OPERATION_DELETE = 'delete'
 
-
 //warning related
-
 export const WARNING_TYPE_RELEASE = 'release'
 export const WARNING_TYPE_RELEASE_PLAN = 'release_plan'
 export const WARNING_TYPE_TASK_PLAN = 'task_plan'

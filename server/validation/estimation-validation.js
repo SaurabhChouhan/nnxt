@@ -158,7 +158,7 @@ export const estimationNegotiatorUpdateFeatureStruct = t.struct({
 })
 
 
-export const estimationProjectAwardByNegotiatorStruct = t.struct({
+export const estimationCreateReleaseByNegotiatorStruct = t.struct({
     estimation: t.struct({
         _id: ObjectId
     }),
@@ -167,17 +167,13 @@ export const estimationProjectAwardByNegotiatorStruct = t.struct({
     clientReleaseDate: RequiredString,
     devStartDate: RequiredString,
     devReleaseDate: RequiredString,
-    managerOfRelease: t.struct({
-        _id: ObjectId,
-        name: t.String,
-        email: t.String,
+    manager: t.struct({
+        _id: ObjectId
     }),
-    leaderOfRelease: t.struct({
-        _id: ObjectId,
-        name: t.String,
-        email: t.String,
+    leader: t.struct({
+        _id: ObjectId
     }),
-    employeesOfRelease: t.list(
+    team: t.list(
         t.struct({
             _id: ObjectId,
             name: t.String,
@@ -185,4 +181,18 @@ export const estimationProjectAwardByNegotiatorStruct = t.struct({
         })
     )
 })
+
+export const estimationAddToReleaseByNegotiatorStruct = t.struct({
+    estimation: t.struct({
+        _id: ObjectId
+    }),
+    release: t.struct({
+        _id: ObjectId
+    }),
+    billedHours: t.Number,
+    clientReleaseDate: RequiredString,
+    devStartDate: RequiredString,
+    devReleaseDate: RequiredString
+})
+
 

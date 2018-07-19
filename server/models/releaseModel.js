@@ -10,15 +10,10 @@ import logger from '../logger'
 mongoose.Promise = global.Promise
 
 let releaseSchema = mongoose.Schema({
-    user: {
-        _id: mongoose.Schema.ObjectId,
-        firstName: String,
-        lastName: String
-    },
     name: {type: String, required: [true, 'Release Version name is required']},
     status: {
         type: String,
-        enum: [SC.STATUS_PLAN_REQUESTED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_ISSUE_FIXING, SC.STATUS_OVER]
+        enum: [SC.STATUS_AWARDED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_ISSUE_FIXING, SC.STATUS_TEST_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_STABLE]
     },
     project: {
         _id: {type: mongoose.Schema.ObjectId, required: true},
@@ -47,7 +42,7 @@ let releaseSchema = mongoose.Schema({
         email: {type: String, required: [true, 'Developer email name is required']}
     }],
     iterations: [{
-        type:{type:String},
+        type: {type: String},
         expectedBilledHours: {type: Number, default: 0}, // expected billed hours
         billingRate: {type: Number, default: 0}, // Billing rate per hours
         estimatedHours: {type: Number, default: 0}, // sum of estimated hours of all release plan
@@ -62,7 +57,12 @@ let releaseSchema = mongoose.Schema({
         clientReleaseDate: Date, // Client release date
         actualReleaseDate: Date, // Actual release date
         maxReportedDate: Date, // Maximum reported date
-        maxReportedDateString: String // Maximum reported date string
+        maxReportedDateString: String, // Maximum reported date string
+        negotiator: {
+            _id: mongoose.Schema.ObjectId,
+            firstName: String,
+            lastName: String
+        }
     }],
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}
@@ -134,44 +134,43 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
     return rolesInRelease
 }
 
+/**
+ * Create a release from estimation and release data provided while creating release
+ * @param releaseData - data like billing hours, release state date, manager, leader, team details etc
+ * @param user - Negotiator user
+ * @param estimation - Estimation for which release is being created
+ * @returns {Promise<void>}
+ */
 
-releaseSchema.statics.createRelease = async (projectAwardData, user, estimation) => {
+releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
     let releaseInput = {}
-    let initial = {}
-    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(projectAwardData.estimation.project._id))
+    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.estimation.project._id))
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     const manager = await MDL.UserModel.findOne({
-        '_id': mongoose.Types.ObjectId(projectAwardData.manager._id),
+        '_id': mongoose.Types.ObjectId(releaseData.manager._id),
         'roles.name': SC.ROLE_MANAGER
     })
     if (!manager)
         throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     const leader = await MDL.UserModel.findById({
-        '_id': mongoose.Types.ObjectId(projectAwardData.leader._id),
+        '_id': mongoose.Types.ObjectId(releaseData.leader._id),
         'roles.name': SC.ROLE_LEADER
     })
     if (!leader)
         throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    /*
-    const projectAlreadyAwarded = await ReleaseModel.findOne({'project._id': mongoose.Types.ObjectId(projectAwardData.estimation.project._id)})
-    if (projectAlreadyAwarded)
-        throw new AppError('Project already awarded', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-        */
 
-    initial.estimatedHours = estimation.estimatedHours
-    initial.expectedBilledHours = projectAwardData.billedHours
-    initial.clientReleaseDate = projectAwardData.clientReleaseDate
-    initial.devStartDate = projectAwardData.devStartDate
-    initial.devEndDate = projectAwardData.devReleaseDate
-    //initial.baseHoursProgress = estimation.estimatedHours // initial estimated hours is used to calculate progress
+    if (estimation.release && estimation.release._id) {
+        throw new AppError('Release already created for this estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
+
     releaseInput.project = project
     releaseInput.manager = manager
     releaseInput.leader = leader
-    releaseInput.team = projectAwardData.team
+    releaseInput.team = releaseData.team
 
     /*
        We would add three iterations below
@@ -181,24 +180,49 @@ releaseSchema.statics.createRelease = async (projectAwardData, user, estimation)
 
      */
     releaseInput.iterations = [{
-        type:SC.ITERATION_TYPE_ESTIMATED,
+        type: SC.ITERATION_TYPE_ESTIMATED,
         estimatedHours: estimation.estimatedHours,
-        expectedBilledHours: projectAwardData.billedHours,
-        clientReleaseDate: projectAwardData.clientReleaseDate,
-        devStartDate: projectAwardData.devStartDate,
-        devEndDate: projectAwardData.devReleaseDate
+        expectedBilledHours: releaseData.billedHours,
+        clientReleaseDate: releaseData.clientReleaseDate,
+        devStartDate: releaseData.devStartDate,
+        devEndDate: releaseData.devReleaseDate,
+        negotiator: user
     }, {
-        type:SC.ITERATION_TYPE_PLANNED
+        type: SC.ITERATION_TYPE_PLANNED
     }, {
-        type:SC.ITERATION_TYPE_UNPLANNED
+        type: SC.ITERATION_TYPE_UNPLANNED
     }]
 
-    releaseInput.name = projectAwardData.releaseVersionName
-    releaseInput.status = SC.STATUS_PLAN_REQUESTED
-    releaseInput.user = user
+    releaseInput.name = releaseData.releaseVersionName
+    releaseInput.status = SC.STATUS_AWARDED
+    releaseInput.negotiator = user
     return await ReleaseModel.create(releaseInput)
 }
 
+releaseSchema.statics.updateRelease = async (releaseData, user, estimation) => {
+    const release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseData.release._id))
+    if (!release)
+        throw new AppError('Release not found', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    if (release.project._id.toString() != estimation.project._id.toString())
+        throw new AppError('Project of Estimation and Release are different!', EC.DIFFERENT_PROJECT, EC.HTTP_BAD_REQUEST)
+
+    /*
+      Since estimation is added to release, a new iteration would be created with type as 'estimated' for this estimation
+     */
+
+    release.iterations.push({
+        type: SC.ITERATION_TYPE_ESTIMATED,
+        estimatedHours: estimation.estimatedHours,
+        expectedBilledHours: releaseData.billedHours,
+        clientReleaseDate: releaseData.clientReleaseDate,
+        devStartDate: releaseData.devStartDate,
+        devEndDate: releaseData.devReleaseDate,
+        negotiator: user
+    })
+
+    return await release.save()
+}
 
 releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequested) => {
     console.log("releaseInput", releaseInput)
@@ -208,7 +232,7 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
     V.validate(releaseInput, V.releaseUpdateDatesStruct)
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseInput._id))
-    
+
     release.initial.devStartDate = releaseInput.devStartDate
     release.initial.devEndDate = releaseInput.devReleaseDate
     release.initial.clientReleaseDate = releaseInput.clientReleaseDate
