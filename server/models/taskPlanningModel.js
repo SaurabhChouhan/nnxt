@@ -947,7 +947,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     logger.debug('deleteTaskPlanning(): [all-warning-responses] => generatedWarnings => ', {generatedWarnings})
 
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
-    let taskPlanningResponse = await MDL.TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
+    let taskPlanningResponse =  await taskPlan.remove()
 
     /*
     let count = await MDL.WarningModel.count({
@@ -963,7 +963,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await releasePlan.save()
     await release.save()
     /* remove task planning */
-    return {warnings: generatedWarnings, taskPlan: taskPlanningResponse, taskPlans: affectedTaskPlans}
+    return {warnings: generatedWarnings, taskPlan: taskPlan, taskPlans: affectedTaskPlans}
 }
 /*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
