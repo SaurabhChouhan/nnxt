@@ -1141,7 +1141,7 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
  * Called when task plan is removed. Make necessary warning changes
  *
  */
-const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC) => {
+const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC) => {
 
     logger.debug("WarningModel->deleteTooManyHours() called")
 
