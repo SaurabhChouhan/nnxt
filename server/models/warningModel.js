@@ -1402,6 +1402,15 @@ const addLessPlannedHoursOnDeleteTaskPlan = async (taskPlan, releasePlan, releas
 
     if (!lessPlannedHoursWarning) {
 
+        // It is possible that planned hours were more than estimated hours prior to this deletion
+        // In that case there would be a more planned hours warning (otherwise there would not be, but we need to check)
+
+        let warningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
+        if (warningsMorePlannedHours.added && warningsMorePlannedHours.added.length)
+            warningResponse.added.push(...warningsMorePlannedHours.added)
+        if (warningsMorePlannedHours.removed && warningsMorePlannedHours.removed.length)
+            warningResponse.removed.push(...warningsMorePlannedHours.removed)
+
         let newLessPlannedHoursWarning = new WarningModel()
         newLessPlannedHoursWarning.type = SC.WARNING_LESS_PLANNED_HOURS
 
@@ -1635,15 +1644,6 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
             warningResponse.added.push(...warningsLessPlannedHours.added)
         if (warningsLessPlannedHours.removed && warningsLessPlannedHours.removed.length)
             warningResponse.removed.push(...warningsLessPlannedHours.removed)
-
-        // It is possible that planned hours were more than estimated hours prior to this deletion
-        // In that case there would be a more planned hours warning (otherwise there would not be, but we need to check)
-
-        let warningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
-        if (warningsMorePlannedHours.added && warningsMorePlannedHours.added.length)
-            warningResponse.added.push(...warningsMorePlannedHours.added)
-        if (warningsMorePlannedHours.removed && warningsMorePlannedHours.removed.length)
-            warningResponse.removed.push(...warningsMorePlannedHours.removed)
 
     } else if (releasePlan.planning.plannedHours > releasePlan.task.estimatedHours) {
         /*Add more planned hours warning*/
