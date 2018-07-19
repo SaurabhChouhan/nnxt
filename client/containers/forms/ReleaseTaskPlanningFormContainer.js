@@ -34,7 +34,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
     releaseTeam: state.release && state.release.selectedRelease && state.release.selectedRelease.team && state.release.selectedRelease.team.length ? state.release.selectedRelease.team : [],
     allTeam: state.user.allDevelopers && state.user.allDevelopers ? state.user.allDevelopers : [],
-    initial: state.release.selectedRelease.iterations[state.release.selectedReleasePlan.release.iterationIndex],
+    initial: state.release.selectedRelease.iterations[state.release.selectedReleasePlan.release.iteration.idx],
     releasePlan: state.release.selectedReleasePlan
 })
 
