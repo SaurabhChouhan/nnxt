@@ -319,14 +319,10 @@ estimationRouter.put('/:estimationID/hasError', async ctx => {
 })
 
 
-
-
 // Used by negotiator to check can approve feature
 estimationRouter.put('/feature/:featureID/can-approve', async ctx => {
     return await MDL.EstimationFeatureModel.canApproveFeature(ctx.params.featureID, ctx.state.user)
 })
-
-
 
 
 // Used by negotiator to change can approve estimation
@@ -336,7 +332,6 @@ estimationRouter.put('/:estimationID/can-approve', async ctx => {
         return await MDL.EstimationModel.canApproveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
     }
 })
-
 
 
 // Used by negotiator to change can not approve estimation
@@ -356,17 +351,19 @@ estimationRouter.put('/feature/:featureID/can-not-approve/:isGranted/is-granted'
 })
 
 // noinspection Annotator
-estimationRouter.put('/project-awarded', async ctx => {
-    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.request.body.estimation._id)
-    if (role === SC.ROLE_NEGOTIATOR) {
-        if (ctx.schemaRequested)
-            return V.generateSchema(V.estimationProjectAwardByNegotiatorStruct)
-        return await MDL.EstimationModel.projectAwardByNegotiator(ctx.request.body, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can project award of this estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+estimationRouter.put('/create-release', async ctx => {
+    if (ctx.schemaRequested)
+        return V.generateSchema(V.estimationCreateReleaseByNegotiatorStruct)
+    return await MDL.EstimationModel.createReleaseFromEstimation(ctx.request.body, ctx.state.user)
 })
 
+
+// noinspection Annotator
+estimationRouter.put('/add-to-release', async ctx => {
+    if (ctx.schemaRequested)
+        return V.generateSchema(V.estimationAddToReleaseByNegotiatorStruct)
+    return await MDL.EstimationModel.addEstimationToExistingRelease(ctx.request.body, ctx.state.user)
+})
 
 //soft delete feature in estimation
 estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {

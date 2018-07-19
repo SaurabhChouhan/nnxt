@@ -454,9 +454,9 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
 const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourNumber) => {
     // As task plan is added we have to increase release planned hours
 
-    release.iterations[releasePlan.release.iterationIndex].plannedHours += plannedHourNumber
+    let iterationIndex = releasePlan.release.iteration.idx
+    release.iterations[iterationIndex].plannedHours += plannedHourNumber
 
-    let iterationIndex = releasePlan.release.iterationIndex
     if (releasePlan.diffProgress) {
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
         release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
@@ -861,7 +861,7 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
 
 const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release, plannedHourNumber) => {
 
-    let iterationIndex = releasePlan.release.iterationIndex
+    let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours -= plannedHourNumber
     if (releasePlan.diffProgress) {
         logger.debug('deleteTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
@@ -1337,7 +1337,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     /************************************** RELEASE UPDATES  ***************************************/
 
-    let iterationIndex = releasePlan.release.iterationIndex
+    let iterationIndex = releasePlan.release.iteration.idx
 
     release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
     if (!reReport) {
@@ -2643,125 +2643,3 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
 
 const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
-
-
-/*
-*
-*
-db.taskplannings.aggregate([{
-    $match: {planningDate: {$gte: new Date("2018-05-19"), $lte: new Date("2018-05-30")}}
-}, {
-    $project: {
-        release: 1,
-        planningDate: 1,
-        planningDateString: 1,
-        employee: 1,
-        planning: {
-            plannedHours: 1
-        }
-    }
-}, {
-    $group: {
-        _id: {
-            "planningDate": "$planningDate",
-            "employee": "$employee",
-            "release": "$release"
-        },
-        planningDate: {$first: "$planningDate"},
-        employee: {$first: "$employee"},
-        release: {$first: "$release"},
-        plannedHours: {$sum: "$planning.plannedHours"},
-        count: {$sum: 1}
-    }
-}])
-*/
-/*
-db.taskplannings.aggregate([{
-    $match: {
-        $expr: {
-            $and: [
-                {$eq: ["planningDate", new Date("2018-06-04")]}
-            ]
-        }
-    }
-}, {
-    $lookup: {
-        from: 'releases',
-        let: {releaseID: "$_id"},
-        pipeline: [{
-            $match: {
-                $expr: {
-                    $and: [
-                        {$eq: ["$release._id", "$$releaseID"]}
-                    ]
-                }
-            }
-        }, {
-            $group: {
-                _id: "$$releaseID",
-                project: {$first: "$project"},
-            }
-        }],
-        as: 'release'
-    }
-}])
-*/
-/*
-db.taskplannings.aggregate([{
-    $match: {$and: [
-                {"planningDate":{$eq:{new Date("2018-06-04")}}}
-            ]
-    }
-}])
-*/
-/*
-db.taskplannings.aggregate([{
-    $match: {
-        $expr: {
-            $and: [
-                {$eq: ["$planningDate", new Date("2018-06-04")]}
-            ]
-        }
-    }
-}])*/
-/**/
-/*
-* db.taskplannings.aggregate([{
-    $match: {
-        $expr: {
-            $and: [
-                {$eq: ["$planningDate", new Date("2018-06-04")]}
-            ]
-        }
-    },
-}])*/
-/*
-* db.taskplannings.aggregate([{
-    $match: {
-        $expr: {
-            $and: [
-                {$eq: ["$planningDate", new Date("2018-06-04")]}
-            ]
-        }
-    },
-},{
-    $lookup: {
-        from: 'releases',
-        let: {releaseID: "$_id"},
-        pipeline: [{
-            $match: {
-                $expr: {
-                    $and: [
-                        {$eq: ["$release._id", "$$releaseID"]}
-                    ]
-                }
-            }
-        }, {
-            $group: {
-                _id: "$$releaseID",
-                project: {$first: "$$releaseID"},
-            }
-        }],
-        as: 'release'
-    }
-}])*/

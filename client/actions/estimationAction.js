@@ -850,8 +850,9 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
 
 
 export const addProjectAwardOnServer = (formInput) => {
+    formInput.billedHours = parseInt(formInput.billedHours)
     return (dispatch, getState) => {
-        return fetch('/api/estimations/project-awarded', {
+        return fetch('/api/estimations/create-release', {
                 method: 'put',
                 credentials: "include",
                 headers: {

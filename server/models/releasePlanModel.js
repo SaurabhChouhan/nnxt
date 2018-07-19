@@ -15,8 +15,10 @@ let releasePlanSchema = mongoose.Schema({
     release: {
         _id: {type: mongoose.Schema.ObjectId, required: true},
         name: {type: String, required: [true, 'Release name is required']},
-        iterationID: {type: mongoose.Schema.ObjectId, required: true},
-        iterationIndex: {type: Number}
+        iteration: {
+            _id: {type: mongoose.Schema.ObjectId, required: true},
+            idx: Number
+        }
     },
     task: {
         _id: mongoose.Schema.ObjectId,
@@ -85,15 +87,21 @@ let releasePlanSchema = mongoose.Schema({
     usePushEach: true
 })
 
-releasePlanSchema.statics.addReleasePlan = async (release, iterationIndex, estimation, estimationTask) => {
+
+/**
+ * Adds a release plan for an estimated tasks via estimation process
+ */
+releasePlanSchema.statics.addEstimatedReleasePlan = async (release, iterationIndex, estimation, estimationTask) => {
     let releasePlanInput = {}
     releasePlanInput.estimation = {
         _id: estimation._id
     }
 
     releasePlanInput.release = Object.assign({}, release.toObject(), {
-        iterationID: release.iterations[iterationIndex]._id,
-        iterationIndex: iterationIndex
+        iteration:{
+            _id:release.iterations[iterationIndex]._id,
+            idx:iterationIndex
+        }
     })
 
     releasePlanInput.flags = [SC.WARNING_UNPLANNED]
@@ -114,12 +122,6 @@ releasePlanSchema.statics.addReleasePlan = async (release, iterationIndex, estim
         estimatedBilledHours: expectedBilledHours.toFixed(2)
     }
 
-    /*
-    releasePlanInput.report = {
-        baseHoursProgress: estimationTask.estimator.estimatedHours // initial base hours would be estimated hours
-    }
-    */
-
     if (estimationTask.feature && estimationTask.feature._id)
         releasePlanInput.feature = estimationTask.feature
 
@@ -129,7 +131,9 @@ releasePlanSchema.statics.addReleasePlan = async (release, iterationIndex, estim
      * We can create warning in the background as these unplanned warnings are not visible on project
      * award.
      */
-    MDL.WarningModel.addUnplanned(release, releasePlan)
+    MDL.WarningModel.addUnplanned(release, releasePlan).then(() => {
+        // do nothing
+    })
 
     return releasePlan
 }

@@ -66,18 +66,21 @@ export const LEAVE_STATUS_APPROVED = 'approved'
 export const LEAVE_STATUS_CANCELLED = 'cancelled'
 export const ALL_LEAVE_STATUS_ARRAY = [LEAVE_STATUS_RAISED, LEAVE_STATUS_APPROVED, LEAVE_STATUS_CANCELLED]
 
-//reporting status
-export const STATUS_PLAN_REQUESTED = 'plan-requested'
+//Statuses
+
+export const STATUS_AWARDED = 'awarded'
 export const STATUS_DEV_IN_PROGRESS = 'dev-in-progress'
 export const STATUS_DEV_COMPLETED = 'dev-completed'
-export const STATUS_RELEASED = 'released'
 export const STATUS_ISSUE_FIXING = 'issue-fixing'
-export const STATUS_OVER = 'over'
+export const STATUS_TEST_COMPLETED = 'test-completed'
+export const STATUS_STABLE = 'stable'
+export const STATUS_RELEASED = 'released'
+
+export const STATUS_PLAN_REQUESTED = 'plan-requested'
 export const STATUS_COMPLETED = 'completed'
 export const STATUS_UNPLANNED = 'unplanned'
 
 export const TYPE_DEVELOPMENT = 'development'
-
 
 // operations
 export const OPERATION_ADDITION = 'addition'
@@ -87,9 +90,7 @@ export const OPERATION_CREATE = 'create'
 export const OPERATION_UPDATE = 'update'
 export const OPERATION_DELETE = 'delete'
 
-
 //warning related
-
 export const WARNING_TYPE_RELEASE = 'release'
 export const WARNING_TYPE_RELEASE_PLAN = 'release_plan'
 export const WARNING_TYPE_TASK_PLAN = 'task_plan'
@@ -112,6 +113,41 @@ export const WARNING_HAS_UNREPORTED_DAYS = 'has_unreported_days'
 export const WARNING_UNREPORTED = 'unreported'
 export const WARNING_PENDING_ON_END_DATE = 'pending_on_end_date'
 export const WARNING_COMPLETED_BEFORE_END_DATE = 'completed_before_end_date'
+
+/*
+  'estimated' - There can be any number of iterations with this iteration type. Whenever any estimation
+  is added in new release or added to current release a new iteration of these type would be added
+  with all the tasks in estimation linked to iteration created.
+*/
+
+export const ITERATION_TYPE_ESTIMATED = 'estimated' // Iterations which are added from estimation process
+/*
+ 'planned' - At the moment there would only be one iteration with this iteration_type which would be
+ created when release is created.
+ All the tasks that were added from release interface would be added against this iteration
+ All such tasks would have estimated hours. These tasks would have all the functionality (warning generation,
+ progress calculation etc) that tasks added against iteration of type 'estimated'.
+
+ Only difference these tasks would have the way they can be added into system. These tasks would be added
+ from release interface by manager/leader. Tasks added in 'estimated' iteration however are added from
+ estimations created by negotiator/estimator.
+
+ Another difference is that these tasks would be added directly against release without the need for
+ manager/leader to consulting each other (giving ease of addition but compromising the need of getting
+ approval of other party). Can be useful in some cases.
+ */
+
+export const ITERATION_TYPE_PLANNED = 'planned'
+
+/*
+ At the moment there would only be one iteration with the iteration_type 'unplanned', this
+ iteration would be created when release is created.
+ All the unplanned work reported through reporting interface would be linked to this iteration. All tasks
+ added against this iteration would not have any part in progress calculation but they would become part
+ of billing interface.
+
+*/
+export const ITERATION_TYPE_UNPLANNED = 'unplanned'
 
 
 export const ALL_WARNING_NAME_ARRAY = [
@@ -217,7 +253,6 @@ export const DIALOG_ESTIMATION_REQUEST_REVIEW = 'dialog-request-review'
 export const WARNINGS_LIST = 'Warning List'
 export const TASK_PLANS_LIST = 'Task Plan List'
 export const RELEASE_PLAN_LIST = 'Release Plan List'
-
 
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
