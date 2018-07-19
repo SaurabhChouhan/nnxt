@@ -454,9 +454,9 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
 const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourNumber) => {
     // As task plan is added we have to increase release planned hours
 
-    release.iterations[releasePlan.release.iterationIndex].plannedHours += plannedHourNumber
+    let iterationIndex = releasePlan.release.iteration.idx
+    release.iterations[iterationIndex].plannedHours += plannedHourNumber
 
-    let iterationIndex = releasePlan.release.iterationIndex
     if (releasePlan.diffProgress) {
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
         release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
@@ -861,7 +861,7 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
 
 const releaseUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, release, plannedHourNumber) => {
 
-    let iterationIndex = releasePlan.release.iterationIndex
+    let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours -= plannedHourNumber
     if (releasePlan.diffProgress) {
         logger.debug('deleteTaskPlanning(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
@@ -1337,7 +1337,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     /************************************** RELEASE UPDATES  ***************************************/
 
-    let iterationIndex = releasePlan.release.iterationIndex
+    let iterationIndex = releasePlan.release.iteration.idx
 
     release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
     if (!reReport) {
