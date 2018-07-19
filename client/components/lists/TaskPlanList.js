@@ -42,7 +42,7 @@ class TaskPlanList extends Component {
         const {taskPlans} = this.props
         console.log("taskPlans------------------", taskPlans)
         return (
-            <div className="estimation">
+            <div className="estimation releasePlan-taskPlan">
             <BootstrapTable options={this.options} data={taskPlans}
                             multiColumnSearch={true}
                             search={true}

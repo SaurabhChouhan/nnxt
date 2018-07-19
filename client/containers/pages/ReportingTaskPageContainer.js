@@ -7,8 +7,14 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onReleaseSelect: (releaseID, date, status) => {
-        dispatch(A.getReleaseDetailsForReporting(releaseID))
-        dispatch(A.getReportingTasksForDate(releaseID, date, status))
+        if (!releaseID) {
+            return NotificationManager.error("Please select Project")
+        }
+
+        else {
+            dispatch(A.getReleaseDetailsForReporting(releaseID))
+            dispatch(A.getReportingTasksForDate(releaseID, date, status))
+        }
     },
     setStatus: (status) => dispatch(A.setStatus(status)),
     taskSelected: (task, selectedRelease) => dispatch(A.getTaskDetailsForReportFromServer(task._id, selectedRelease._id)),
