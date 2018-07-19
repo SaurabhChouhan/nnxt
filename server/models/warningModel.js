@@ -1141,7 +1141,10 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
  * Called when task plan is removed. Make necessary warning changes
  *
  */
-const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC) => {
+const deleteToManyHours = async (taskPlan, releasePlan, release, plannedDateUTC) => {
+
+    logger.debug("WarningModel->deleteTooManyHours() called")
+
     /**
      * It is possible that this warning is  earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised
@@ -1154,9 +1157,14 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
         'employee._id': mongoose.Types.ObjectId(taskPlan.employee._id),
         'date': plannedDateUTC
     })
+
+    logger.debug("WarningModel->deleteTooManyHours(): ", {employeeDay})
+
     //fetch employee setting
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+
+    logger.debug("WarningModel->deleteTooManyHours(): ", {maxPlannedHoursNumber})
 
     let employeeID = employeeDay.employee._id
 
@@ -1167,17 +1175,53 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
     })
 
     if (tooManyHourWarning) {
+        logger.debug("WarningModel->deleteTooManyHours(): too many hours warning found for date ", {plannedDateUTC})
+
         /* Update Existing warning WARNING_TOO_MANY_HOURS*/
-        if (employeeDay && employeeDay.plannedHours && Number(employeeDay.plannedHours) <= maxPlannedHoursNumber) {
-            //tooManyHourWarning response calculation
-            let deleteWarningResponse = await deleteWarningWithResponse(tooManyHourWarning, SC.WARNING_TOO_MANY_HOURS)
-            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                warningResponse.added.push(...deleteWarningResponse.added)
-            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                warningResponse.removed.push(...deleteWarningResponse.removed)
+        if (employeeDay.plannedHours <= maxPlannedHoursNumber) {
+
+            logger.debug("WarningModel->deleteTooManyHours(): Remaining hours are less than max planned hours, warning for this date would be removed for this date")
+
+            // As planned hours reduced to max hours or below, we will delete too many hours warning for that particular date
+            // Since warning would be removed for that particular date flag should be removed from all the task plans of that date/employee combination
+
+            let taskPlans = await MDL.TaskPlanningModel.find({
+                'planningDate': plannedDateUTC,
+                'employee._id': mongoose.Types.ObjectId(employeeDay.employee._id)
+            })
+
+            taskPlans.forEach(t => {
+                warningResponse.removed.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_TOO_MANY_HOURS
+                })
+            })
+
+             /*
+                Although TMH warning is removed from a particular date of release plan but it is possible
+                that warning still exists on other dates, we have to therefore check to see if TMH warning
+                is present for this release plan on any other date, if not we can safely remove flag from release plan
+            */
+
+
+            let tmhWarningCount = await WarningModel.count({
+                type: SC.WARNING_TOO_MANY_HOURS,
+                'releasePlans._id': releasePlan._id
+            })
+
+            logger.debug("tmh warning count is " + tmhWarningCount)
+
+            if (tmhWarningCount == 1) {
+                warningResponse.removed.push({
+                    _id: releasePlan._id,
+                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                    type: SC.WARNING_TOO_MANY_HOURS
+                })
+            }
+            await tooManyHourWarning.remove()
         } else {
             tooManyHourWarning.taskPlans = tooManyHourWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
-
             warningResponse.removed.push({
                 _id: taskPlan._id,
                 warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -1186,25 +1230,23 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
             })
 
             if (tooManyHourWarning.taskPlans && tooManyHourWarning.taskPlans.length) {
-                let otherTaskPlanReleasePlanExists = false
-                otherTaskPlanReleasePlanExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) !== -1
-                if (!otherTaskPlanReleasePlanExists) {
-                    tooManyHourWarning.releasePlans = tooManyHourWarning.releasePlans.filter(r => r._id.toString() !== releasePlan._id.toString())
-                    warningResponse.removed.push({
-                        _id: releasePlan._id,
-                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                        type: SC.WARNING_TOO_MANY_HOURS,
-                        source: true
-                    })
-                }
-
-                let otherTaskPlanReleaseExists = false
-                otherTaskPlanReleaseExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) !== -1
+                // Since a task plan is removed it is possible that this task plan is last task plan for a release
+                let otherTaskPlanReleaseExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) !== -1
                 if (!otherTaskPlanReleaseExists) {
                     tooManyHourWarning.releases = tooManyHourWarning.releases.filter(r => r._id.toString() !== release._id.toString())
                     warningResponse.removed.push({
                         _id: release._id,
                         warningType: SC.WARNING_TYPE_RELEASE,
+                        type: SC.WARNING_TOO_MANY_HOURS
+                    })
+                }
+
+                let otherTaskPlanReleasePlanExists = tooManyHourWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) !== -1
+                if (!otherTaskPlanReleasePlanExists) {
+                    tooManyHourWarning.releasePlans = tooManyHourWarning.releasePlans.filter(r => r._id.toString() !== releasePlan._id.toString())
+                    warningResponse.removed.push({
+                        _id: releasePlan._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
                         type: SC.WARNING_TOO_MANY_HOURS,
                         source: true
                     })
