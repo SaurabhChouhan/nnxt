@@ -282,7 +282,7 @@ const deleteWarningWithResponse = async (warning, warningType) => {
             })
         }
     })
-    await WarningModel.findByIdAndRemove(mongoose.Types.ObjectId(warning._id))
+    await warning.remove()
     return warningResponse
 }
 
