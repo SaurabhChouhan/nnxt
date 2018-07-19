@@ -1634,7 +1634,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
     } else if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
         // Since task plan is deleted and planned hours are reduced below estimated hours
         // or they might already be less than estimated hours, in both case we would have to check
-        // if a less planned hours warning needs to be rasied or updated
+        // if a less planned hours warning needs to be raised or updated
 
         logger.debug('[task-plan-deleted-warning]: planned hours are less than actual estimated hours so need to raise warning')
 
