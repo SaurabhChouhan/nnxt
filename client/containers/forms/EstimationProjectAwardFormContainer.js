@@ -9,7 +9,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formInput) => {
         formInput.billedHours = parseInt(formInput.billedHours)
         logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_SUBMIT, "formInput:", formInput)
-        return dispatch(A.addProjectAwardOnServer(formInput)).then(json => {
+        return dispatch(A.addCreateReleaseOnServer(formInput)).then(json => {
             if (json.success) {
                 NotificationManager.success("Project Awarded")
                 // hide dialog

@@ -1146,7 +1146,7 @@ export const reopenEstimationOnServer = (estimationID) => {
 }
 
 
-export const addProjectAwardOnServer = (formInput) => {
+export const addCreateReleaseOnServer = (formInput) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/create-release', {
                 method: 'put',
