@@ -177,7 +177,8 @@ export const ALL_WARNING_NAME_ARRAY = [
 export const DESIGNATION_SOFTWARE_ENGINEER = "Software Engineer"
 export const DESIGNATION_SOFTWARE_TRAINEE = "Software Trainee"
 export const DESIGNATION_SENIOR_SW_ENGINEER = "Sr. Software Engineer"
-export const DESIGNATION_TEAM_LEAD = "Team Leader"
+export const DESIGNATION_MODULE_LEAD = "Module Lead"
+export const DESIGNATION_TEAM_LEAD = "Team Lead"
 export const DESIGNATION_MANAGER = "Manager"
 export const DESIGNATION_OWNER = "Owner"
 
