@@ -318,15 +318,6 @@ releaseSchema.statics.getAllReleasesToAddEstimation = async (estimationId, negot
             name: {$concat: ["$project.name", " (", "$name", ")"]}
         }
     }])
-
-    /*
-    return await ReleaseModel.find({
-
-    }, {
-        name: 1,
-        project: 1
-    })
-    */
 }
 
 

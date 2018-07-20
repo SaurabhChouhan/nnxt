@@ -196,6 +196,8 @@ releaseRouter.post("/add-planned-task", async ctx => {
     return await MDL.ReleasePlanModel.addPlannedReleasePlan(ctx.request.body, ctx.state.user)
 })
 
-
+releaseRouter.post("/add-unplanned-task", async ctx => {
+    return await MDL.ReleasePlanModel.addUnplannedReleasePlan(ctx.request.body, ctx.state.user)
+})
 
 export default releaseRouter
