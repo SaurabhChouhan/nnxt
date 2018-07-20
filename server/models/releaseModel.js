@@ -12,6 +12,9 @@ mongoose.Promise = global.Promise
 
 let releaseSchema = mongoose.Schema({
     name: {type: String, required: [true, 'Release Version name is required']},
+    devStartDate: Date, // Expected development start date
+    devEndDate: Date, // Expected development end date
+    clientReleaseDate: Date, // Client release date
     status: {
         type: String,
         enum: [SC.STATUS_AWARDED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_ISSUE_FIXING, SC.STATUS_TEST_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_STABLE]
@@ -176,6 +179,7 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         '_id': mongoose.Types.ObjectId(releaseData.manager._id),
         'roles.name': SC.ROLE_MANAGER
     })
+
     if (!manager)
         throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -195,6 +199,10 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
     releaseInput.manager = manager
     releaseInput.leader = leader
     releaseInput.team = releaseData.team
+    releaseInput.estimations = estimation
+    releaseInput.clientReleaseDate = releaseData.clientReleaseDate
+    releaseInput.devStartDate = releaseData.devStartDate
+    releaseInput.devEndDate = releaseData.devReleaseDate
 
     /*
        We would add three iterations below
