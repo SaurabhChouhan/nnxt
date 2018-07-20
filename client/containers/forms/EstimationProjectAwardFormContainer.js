@@ -6,9 +6,10 @@ import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: (values) => {
-        logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_SUBMIT, "values:", values)
-        return dispatch(A.addProjectAwardOnServer(values)).then(json => {
+    onSubmit: (formInput) => {
+        formInput.billedHours = parseInt(formInput.billedHours)
+        logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_SUBMIT, "formInput:", formInput)
+        return dispatch(A.addCreateReleaseOnServer(formInput)).then(json => {
             if (json.success) {
                 NotificationManager.success("Project Awarded")
                 // hide dialog

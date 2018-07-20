@@ -105,14 +105,14 @@ class WarningList extends Component {
 
 
     render() {
-        const {warnings,release} = this.props
+        const {warnings, release} = this.props
         return (
             <div>
                 <div className="col-md-8 releaseOption releaseDetailSearchContent">
                     <div className="col-md-6 ">
                         <div className="releaseDetailSearchFlag">
                             <select className="form-control" title="Select Flag" onChange={(flag) =>
-                                this.props.fetchWarningOnFlags(flag.target.value,release)
+                                this.props.fetchWarningOnFlags(flag.target.value, release)
                             }>
                                 <option value={SC.ALL}>All Flags</option>
                                 {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option

@@ -6,6 +6,7 @@ import {NotificationManager} from 'react-notifications'
 import * as EC from '../../../server/errorcodes'
 import * as COC from '../../components/componentConsts'
 import {initialize} from 'redux-form'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showAddTaskForm: (estimation) => {
@@ -38,6 +39,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
+
 
     sendEstimationRequest: (estimation) => {
         return dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
@@ -95,7 +97,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     estimationGoBack: (event) => {
-        dispatch(A.getAllEstimationsFromServer('all', 'all')),
+        dispatch(A.getAllEstimationsFromServer(SC.ALL, SC.ALL)),
             dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
     },
 
@@ -128,7 +130,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error("Estimation Deletion failed")
         }
         return json
-    })
+    }),
+
+    showAddToReleaseForm: (estimation) => {
+        dispatch(A.getAllAvailableReleasesFromServer())
+        dispatch(A.showComponent(COC.ESTIMATION_ADD_TO_RELEASE_FORM_DIALOG))
+        // initialize
+        dispatch(initialize('estimation-add-to-release', {
+            estimation: {
+                _id: estimation._id
+            }
+        }))
+    },
 
 
 })

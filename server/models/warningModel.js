@@ -87,7 +87,7 @@ warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
     }
     let filter = []
     filter = {'releases._id': releaseID}
-    if (warningType && warningType.toLowerCase() !== 'all')
+    if (warningType && warningType.toLowerCase() !== SC.ALL)
         filter = {'releases._id': releaseID, 'type': warningType}
 
     return await WarningModel.find(filter)

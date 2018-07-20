@@ -14,6 +14,13 @@ let releaseRouter = new Router({
 })
 
 /***
+ * Get all available release for drop-down  also
+ ***/
+releaseRouter.get("/", async ctx => {
+    return await MDL.ReleaseModel.getAvailableReleases(ctx.state.user)
+})
+
+/***
  * Get all releases and by status filtering also
  ***/
 releaseRouter.get("/status/:status", async ctx => {

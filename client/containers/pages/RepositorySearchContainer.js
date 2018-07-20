@@ -2,6 +2,7 @@ import {connect} from 'react-redux'
 import {RepositorySearch} from '../../components'
 import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showFeatureDetailPage: (feature) => {
@@ -13,7 +14,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.selectTaskFromRepository(task))
         dispatch(A.showComponent(COC.REPOSITORY_TASK_DETAIL_DIALOG))
     },
-    getAllRepositoryData: (technologies) => dispatch(A.getRepositoryFromServer(technologies, 'all')),
+    getAllRepositoryData: (technologies) => dispatch(A.getRepositoryFromServer(technologies, SC.ALL)),
     fetchRepositoryBasedOnDiffCriteria: (tags, type, searchText) => {
         let technologies = [];
         tags.map((f, i) => {
