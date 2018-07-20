@@ -288,8 +288,7 @@ class ReportingTaskPage extends Component {
                                                        values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
                                                    }
                                                }}
-                            >Worked
-                                Hours</TableHeaderColumn>
+                            >Worked Hours</TableHeaderColumn>
                             <TableHeaderColumn width="15%" columnTitle dataField="status"
                                                editable={{
                                                    type: 'select',
@@ -298,15 +297,6 @@ class ReportingTaskPage extends Component {
                                                    }
                                                }} dataFormat={this.formatReportedStatus}>Reported
                                 Status</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle dataField="reason"
-                                               editable={{
-                                                   type: 'select',
-                                                   options: {
-                                                       values: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
-                                                   }
-                                               }}>Reason
-                                Code</TableHeaderColumn>
-
                             <TableHeaderColumn editable={false} width="5%" columnTitle={'Edit Report'}
                                                dataField="Edit Report"
                                                dataFormat={this.viewEditButton.bind(this)}>Edit
@@ -325,3 +315,16 @@ class ReportingTaskPage extends Component {
 }
 
 export default withRouter(ReportingTaskPage)
+
+
+{/*
+  <TableHeaderColumn width="12%" columnTitle dataField="reason"
+                                               editable={{
+                                                   type: 'select',
+                                                   options: {
+                                                       values: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
+                                                   }
+                                               }}>Reason
+                                Code</TableHeaderColumn>
+*/
+}
