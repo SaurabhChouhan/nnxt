@@ -1,12 +1,13 @@
 import React, {Component} from 'react'
 import {WithContext as ReactTags} from 'react-tag-input';
+import * as SC from '../../../server/serverconstants'
 
 class RepositorySearch extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            selectedValue: 'All',
-            type: ['All', 'Feature', 'Task'],
+            selectedValue: SC.ALL,
+            type: [SC.ALL, 'Feature', 'Task'],
             tags: [],
             suggestions: this.props.estimation && this.props.estimation.technologies ? this.props.estimation.technologies : [],
             searchText: ''
