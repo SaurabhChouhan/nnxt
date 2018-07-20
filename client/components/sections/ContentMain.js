@@ -40,7 +40,8 @@ import {
     LeaveApproveDialog,
     LeaveRejectDialog,
     UpdateReleaseDatesFormDialog,
-    EstimationAddToReleaseDialog
+    EstimationAddToReleaseDialog,
+    ReleasePlanAddToReleaseDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -250,6 +251,11 @@ class ContentMain extends Component {
                     <UpdateReleaseDatesFormDialog name={COC.UPDATE_RELEASE_DATES_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
+                        }
+                    }/>
+                    <ReleasePlanAddToReleaseDialog name={COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
                         }
                     }/>
                 </ContentSection>

@@ -1643,11 +1643,10 @@ label {
 }
 
 .releaseDetailSearchFlag {
-    margin-left: 67px;
-    margin-top: 28px;
+    margin-left: 98px;
+    margin-top: 29px;
     position: absolute;
-    width: 86%;
-
+    width: 79%;
 }
 
 .releaseDetailSearchContent {
@@ -1655,9 +1654,9 @@ label {
 }
 
 .releaseDetailSearchStatus {
-    margin-top: 28px;
+    margin-top: 29px;
     position: absolute;
-    width: 82%;
+    width: 79%;
     margin-left: 58px;
 }
 
@@ -2046,3 +2045,12 @@ hr {
     padding: 1px 7px !important;
 }
 
+.addToReleaseBtn {
+    margin-top: 29px !important;
+    margin-left: 46px !important;
+    position: absolute;
+}
+
+.SelectReleasePlanAddToRelease {
+    margin-top: 29px;
+}
