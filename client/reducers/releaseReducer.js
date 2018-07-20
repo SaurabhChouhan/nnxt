@@ -5,6 +5,7 @@ import moment from 'moment'
 let now = new Date()
 let nowString = moment(now).format(SC.DATE_FORMAT)
 let initialState = {
+    allAvailableReleases: [],
     all: [],
     releasePlans: [],
     selectedRelease: {},
@@ -20,6 +21,10 @@ let initialState = {
 
 const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
+        case AC.ADD_AVAILABLE_RELEASES:
+            // add all releases from server
+            return Object.assign({}, state, {allAvailableReleases: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})
+
         case AC.ADD_RELEASES:
             // add all releases from server
             return Object.assign({}, state, {all: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})

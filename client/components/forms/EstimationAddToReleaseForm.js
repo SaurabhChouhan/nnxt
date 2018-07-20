@@ -12,8 +12,8 @@ moment.locale('en')
 momentLocalizer()
 
 let EstimationAddToReleaseForm = (props) => {
-    const {pristine, submitting, reset} = props
-    const {devStartDate, devReleaseDate, clientReleaseDate, release} = props
+    const {pristine, submitting, change, reset} = props
+    const {devStartDate, devReleaseDate, clientReleaseDate, allAvailableReleases, release} = props
     let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
     let maxRelease = !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
     let now = new Date()
@@ -21,7 +21,6 @@ let EstimationAddToReleaseForm = (props) => {
         <div className="row">
 
             <Field name="estimation._id" component="input" type="hidden"/>
-            <Field name="_id" component="input" type="hidden"/>
 
             <div className="col-md-12">
                 <div className="col-md-6">
@@ -29,7 +28,8 @@ let EstimationAddToReleaseForm = (props) => {
                            validate={[required, number]}/>
                 </div>
                 <div className="col-md-6">
-                    <Field name="releaseName" component={renderSelect} validate={[required]}
+                    <Field name="release._id" component={renderSelect} options={allAvailableReleases}
+                           validate={[required]}
                            label={"Release:"}/>
                 </div>
             </div>

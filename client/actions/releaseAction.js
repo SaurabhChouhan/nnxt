@@ -6,6 +6,11 @@ export const addReleases = (releases) => ({
     releases: releases
 })
 
+export const addAvailableReleases = (releases) => ({
+    type: AC.ADD_AVAILABLE_RELEASES,
+    releases: releases
+})
+
 export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASE_PLANS,
     releasePlans: releasePlans
@@ -107,6 +112,29 @@ export const getAllReleasesFromServer = (status) => {
             json => {
                 if (json.success) {
                     dispatch(addReleases(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
+export const getAllAvailableReleasesFromServer = () => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addAvailableReleases(json.data))
                 }
                 return json
             })

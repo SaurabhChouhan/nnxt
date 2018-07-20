@@ -19,7 +19,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({})
+const mapStateToProps = (state, ownProps) => ({
+    allAvailableReleases: state.release.allAvailableReleases
+})
 
 const EstimationAddToReleaseFormContainer = connect(
     mapStateToProps,
