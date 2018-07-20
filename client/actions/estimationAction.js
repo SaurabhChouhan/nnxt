@@ -848,33 +848,6 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
     }
 }
 
-
-export const addProjectAwardOnServer = (formInput) => {
-    formInput.billedHours = parseInt(formInput.billedHours)
-    return (dispatch, getState) => {
-        return fetch('/api/estimations/create-release', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success) {
-                    dispatch(updateSelectedEstimation(json.data))
-                }
-
-                return json
-            })
-    }
-}
-
-
 export const requestForFeatureDeletePermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/request-removal', {
@@ -891,7 +864,6 @@ export const requestForFeatureDeletePermissionOnServer = (featureID) => {
             json => {
                 if (json.success) {
                     dispatch(updateEstimationFeature(json.data))
-
                 }
                 return json
             })
@@ -1144,7 +1116,6 @@ export const reOpenTaskOnServer = (TaskID) => {
                     if (json.data && json.data.estimation && json.data.isEstimationCanApprove && json.data.estimation._id) {
                         dispatch(canNotApproveEstimationOnServer(json.data.estimation._id, true))
                     }
-
                 }
                 return json
             })
@@ -1168,12 +1139,36 @@ export const reopenEstimationOnServer = (estimationID) => {
             json => {
                 if (json.success) {
                     dispatch(editEstimation(json.data))
-
                 }
                 return json
             })
     }
 }
+
+
+export const addProjectAwardOnServer = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/create-release', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateSelectedEstimation(json.data))
+                }
+                return json
+            })
+    }
+}
+
 export const addToReleaseOnServer = (formInput) => {
     formInput.billedHours = parseInt(formInput.billedHours)
     return (dispatch, getState) => {
@@ -1193,7 +1188,6 @@ export const addToReleaseOnServer = (formInput) => {
                 if (json.success) {
                     dispatch(updateSelectedEstimation(json.data))
                 }
-
                 return json
             })
     }
