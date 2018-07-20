@@ -163,11 +163,11 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
 
     let filter = {'release._id': release._id}
 
-    if (status && status.toLowerCase() != 'all' && empflag && empflag.toLowerCase() != 'all')
+    if (status && status.toLowerCase() !== SC.ALL && empflag && empflag.toLowerCase() !== SC.ALL)
         filter = {'release._id': release._id, 'report.finalStatus': status, 'flags': empflag}
-    else if (status && status.toLowerCase() != 'all')
+    else if (status && status.toLowerCase() !== SC.ALL)
         filter = {'release._id': release._id, 'report.finalStatus': status}
-    else if (empflag && empflag.toLowerCase() != 'all')
+    else if (empflag && empflag.toLowerCase() !== SC.ALL)
         filter = {'release._id': release._id, 'flags': empflag}
 
     return await ReleasePlanModel.find(filter)

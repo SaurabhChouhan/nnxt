@@ -75,7 +75,7 @@ const getUserLeaves = async (status, user) => {
 }
 
 const getLeaves = async (status, user) => {
-    if (status && status.toLowerCase() === 'all') {
+    if (status && status.toLowerCase() === SC.ALL) {
         return await LeaveModel.find({}).sort({'startDate': -1})
     } else {
         return await LeaveModel.find({
