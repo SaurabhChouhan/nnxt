@@ -5,6 +5,7 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import momentTZ from 'moment-timezone'
+import * as U from '../utils'
 import logger from '../logger'
 import EstimationModel from "./estimationModel";
 
@@ -200,9 +201,9 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
     releaseInput.leader = leader
     releaseInput.team = releaseData.team
     releaseInput.estimations = estimation
-    releaseInput.clientReleaseDate = releaseData.clientReleaseDate
-    releaseInput.devStartDate = releaseData.devStartDate
-    releaseInput.devEndDate = releaseData.devReleaseDate
+    releaseInput.clientReleaseDate = U.dateInUTC(releaseData.clientReleaseDate)
+    releaseInput.devStartDate = U.dateInUTC(releaseData.devStartDate)
+    releaseInput.devEndDate = U.dateInUTC(releaseData.devReleaseDate)
 
     /*
        We would add three iterations below
@@ -215,12 +216,15 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         type: SC.ITERATION_TYPE_ESTIMATED,
         estimatedHours: estimation.estimatedHours,
         expectedBilledHours: releaseData.billedHours,
-        clientReleaseDate: releaseData.clientReleaseDate,
-        devStartDate: releaseData.devStartDate,
-        devEndDate: releaseData.devReleaseDate,
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate),
         negotiator: user
     }, {
-        type: SC.ITERATION_TYPE_PLANNED
+        type: SC.ITERATION_TYPE_PLANNED,
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }, {
         type: SC.ITERATION_TYPE_UNPLANNED
     }]
@@ -243,15 +247,36 @@ releaseSchema.statics.updateRelease = async (releaseData, user, estimation) => {
       Since estimation is added to release, a new iteration would be created with type as 'estimated' for this estimation
      */
 
+    let clientReleaseDate = U.momentInUTC(releaseData.clientReleaseDate)
+    let devStartDate = U.momentInUTC(releaseData.devStartDate)
+    let devEndDate = U.momentInUTC(releaseData.devReleaseDate)
+
+
     release.iterations.push({
         type: SC.ITERATION_TYPE_ESTIMATED,
         estimatedHours: estimation.estimatedHours,
         expectedBilledHours: releaseData.billedHours,
-        clientReleaseDate: releaseData.clientReleaseDate,
-        devStartDate: releaseData.devStartDate,
-        devEndDate: releaseData.devReleaseDate,
+        clientReleaseDate: clientReleaseDate.toDate(),
+        devStartDate: devStartDate.toDate(),
+        devEndDate: devEndDate.toDate(),
         negotiator: user
     })
+
+    // Change release' dev start/end and client release date
+    if (clientReleaseDate.isAfter(release.clientReleaseDate)) {
+        release.clientReleaseDate = clientReleaseDate
+        release.iterations[1].clientReleaseDate = clientReleaseDate
+    }
+
+    if (devEndDate.isAfter(release.devEndDate)) {
+        release.devEndDate = devEndDate
+        release.iterations[1].devEndDate = devEndDate
+    }
+
+    if (devStartDate.isBefore(release.devStartDate)) {
+        release.devStartDate = devStartDate
+        release.iterations[1].devStartDate = devStartDate
+    }
 
     return await release.save()
 }
@@ -265,10 +290,14 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseInput._id))
 
-    release.initial.devStartDate = releaseInput.devStartDate
-    release.initial.devEndDate = releaseInput.devReleaseDate
-    release.initial.clientReleaseDate = releaseInput.clientReleaseDate
+    release.devStartDate = U.dateInUTC(releaseInput.devStartDate)
+    release.devEndDate = U.dateInUTC(releaseInput.devReleaseDate)
+    release.clientReleaseDate = U.dateInUTC(releaseInput.clientReleaseDate)
 
+    // update dates in 'planned' task iteration as well
+    release.iterations[1].devStartDate = U.dateInUTC(releaseInput.devStartDate)
+    release.iterations[1].devEndDate = U.dateInUTC(releaseInput.devReleaseDate)
+    release.iterations[1].clientReleaseDate = U.dateInUTC(releaseInput.clientReleaseDate)
     return await release.save()
 }
 
