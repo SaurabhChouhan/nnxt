@@ -30,6 +30,7 @@ export {default as MoveTaskInFeatureForm} from './forms/MoveTaskInFeatureForm'
 export {default as EstimationSuggestTaskForm} from './forms/EstimationSuggestTaskForm'
 export {default as EstimationSuggestFeatureForm} from './forms/EstimationSuggestFeatureForm'
 export {default as EstimationProjectAwardForm} from './forms/EstimationProjectAwardForm'
+export {default as EstimationAddToReleaseForm} from './forms/EstimationAddToReleaseForm'
 
 
 // Estimation Page
@@ -50,6 +51,7 @@ export {default as MoveTaskInFeatureFormDialog} from './dialogs/MoveTaskInFeatur
 export {default as EstimationSuggestTaskDialog} from './dialogs/EstimationSuggestTaskDialog'
 export {default as EstimationSuggestFeatureDialog} from './dialogs/EstimationSuggestFeatureDialog'
 export {default as EstimationProjectAwardDialog} from './dialogs/EstimationProjectAwardDialog'
+export {default as EstimationAddToReleaseDialog} from './dialogs/EstimationAddToReleaseDialog'
 export {default as AttendenceSettingForm} from './forms/AttendanceSettingForm'
 export {default as EstimationFilterDialog} from './dialogs/EstimationFilterDialog'
 export {default as EstimationFilterForm} from './forms/EstimationFilterForm'

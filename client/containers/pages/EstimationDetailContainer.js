@@ -39,6 +39,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }))
     },
 
+
     sendEstimationRequest: (estimation) => {
         return dispatch(A.requestEstimationOnServer(estimation._id)).then(json => {
             if (json.success) {
@@ -128,7 +129,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error("Estimation Deletion failed")
         }
         return json
-    })
+    }),
+
+    showAddToReleaseForm: (estimation) => {
+        dispatch(A.showComponent(COC.ESTIMATION_ADD_TO_RELEASE_FORM_DIALOG))
+        // initialize
+        dispatch(initialize('estimation-add-to-release', {
+            estimation: {
+                _id: estimation._id
+            }
+        }))
+    },
 
 
 })

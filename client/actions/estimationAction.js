@@ -1174,6 +1174,29 @@ export const reopenEstimationOnServer = (estimationID) => {
             })
     }
 }
+export const addToReleaseOnServer = (formInput) => {
+    formInput.billedHours = parseInt(formInput.billedHours)
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/add-to-release', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(updateSelectedEstimation(json.data))
+                }
 
+                return json
+            })
+    }
+}
 
 
