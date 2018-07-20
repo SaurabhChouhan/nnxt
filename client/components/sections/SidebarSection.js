@@ -6,72 +6,108 @@ import * as SC from '../../../server/serverconstants'
 import * as A from '../../actions'
 import * as COC from '../componentConsts'
 
-const SidebarSection = (props) => <section className="sidebar">
-    <div className="clearfix">
-        <div className="sidebarContent">
-            <div className="col-md-12 pad">
-                <ul className="list-unstyled">
-                    <li><Link to="/app-home/client" onClick={() => {
-                        props.dispatch(A.getAllClientsFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))
+const SidebarSection = (props) => {
+    console.log("Sidebar section props ", props)
 
-                    }}>Client</Link></li>
+    let roles = []
+    if (props && props.loggedInUser && props.loggedInUser.roleNames && props.loggedInUser.roleNames.length)
+        roles = props.loggedInUser.roleNames
 
-                    <li><Link to="/app-home/projects" onClick={() => {
-                        props.dispatch(A.getAllClientsFromServer())
-                        props.dispatch(A.getAllProjectsFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.PROJECT_LIST))
+    return <section className="sidebar">
+        <div className="clearfix">
+            <div className="sidebarContent">
+                <div className="col-md-12 pad">
+                    <ul className="list-unstyled">
+                        {
+                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1 ||
+                                roles.indexOf('Developer') > -1) &&
+                            <li><Link to="/app-home/calendar" onClick={() => {
+                                props.dispatch(A.getAllTaskPlansFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.CALENDAR_TASK_PAGE))
 
-                    }}>Projects</Link></li>
+                            }}>Calendar</Link></li>
+                        }
 
-                    <li><Link to="/app-home/technology" onClick={() => {
-                        props.dispatch(A.getAllTechnologiesFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.TECHNOLOGIES_LIST))
+                        {
+                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1) &&
+                            <li><Link to="/app-home/release" onClick={() => {
+                                props.dispatch(A.getAllReleasesFromServer(SC.ALL))
+                                props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
 
-                    }}>Technology</Link></li>
+                            }}>Release</Link></li>
+                        }
 
-                    <li><Link to="/app-home/estimation" onClick={() => {
-                        props.dispatch(A.getAllEstimationsFromServer(SC.ALL, SC.ALL))
-                        props.dispatch(A.getAllProjectsFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
+                        {
+                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1 ||
+                                roles.indexOf('Developer') > -1) &&
+                            <li><Link to="/app-home/reporting" onClick={() => {
+                                props.dispatch(A.getUserReleasesFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE))
 
-                    }}>Estimation</Link></li>
+                            }}>Reporting</Link></li>
+                        }
 
-                    <li><Link to="/app-home/leave" onClick={() => {
-                        props.dispatch(A.getAllLeavesFromServer(SC.ALL))
-                        props.dispatch(A.getAllLeaveTypesFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.LEAVE_LIST))
+                        {
+                            (roles.indexOf('Negotiator') > -1 || roles.indexOf('Estimator') > -1) &&
+                            <li><Link to="/app-home/estimation" onClick={() => {
+                                props.dispatch(A.getAllEstimationsFromServer(SC.ALL, SC.ALL))
+                                props.dispatch(A.getAllProjectsFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
 
-                    }}>Leave</Link></li>
+                            }}>Estimation</Link></li>
+                        }
 
-                    <li><Link to="/app-home/attendance" onClick={() => {
-                        props.dispatch(A.getAttendanceSettingFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.ATTENDANCE_SETTING_FORM))
+                        {
+                            roles.indexOf('Negotiator') > -1 &&
+                            <li><Link to="/app-home/client" onClick={() => {
+                                props.dispatch(A.getAllClientsFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))
 
-                    }}>Attendance Setting</Link></li>
+                            }}>Client</Link></li>
+                        }
 
-                    <li><Link to="/app-home/release" onClick={() => {
-                        props.dispatch(A.getAllReleasesFromServer(SC.ALL))
-                        props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
+                        {
+                            roles.indexOf('Negotiator') > -1 &&
+                            <li><Link to="/app-home/projects" onClick={() => {
+                                props.dispatch(A.getAllClientsFromServer())
+                                props.dispatch(A.getAllProjectsFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.PROJECT_LIST))
+                            }}>Projects</Link></li>
+                        }
 
-                    }}>Release</Link></li>
+                        {
+                            roles.indexOf('Negotiator') > -1 &&
+                            <li><Link to="/app-home/technology" onClick={() => {
+                                props.dispatch(A.getAllTechnologiesFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.TECHNOLOGIES_LIST))
 
-                    <li><Link to="/app-home/calendar" onClick={() => {
-                        props.dispatch(A.getAllTaskPlansFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.CALENDAR_TASK_PAGE))
+                            }}>Technology</Link></li>
+                        }
 
-                    }}>Calendar</Link></li>
+                        {
+                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1 ||
+                                roles.indexOf('Developer') > -1) &&
+                            <li><Link to="/app-home/leave" onClick={() => {
+                                props.dispatch(A.getAllLeavesFromServer(SC.ALL))
+                                props.dispatch(A.getAllLeaveTypesFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.LEAVE_LIST))
+                            }}>Leave</Link></li>
+                        }
 
-                    <li><Link to="/app-home/reporting" onClick={() => {
-                        props.dispatch(A.getUserReleasesFromServer())
-                        props.dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE))
+                        {
+                            roles.indexOf('Top Management') > -1 &&
+                            <li><Link to="/app-home/attendance" onClick={() => {
+                                props.dispatch(A.getAttendanceSettingFromServer())
+                                props.dispatch(A.showComponentHideOthers(COC.ATTENDANCE_SETTING_FORM))
 
-                    }}>Reporting</Link></li>
+                            }}>Attendance Setting</Link></li>
+                        }
 
-                </ul>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
 export default connect()(SidebarSection)
