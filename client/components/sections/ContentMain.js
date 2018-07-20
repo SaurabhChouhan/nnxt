@@ -39,7 +39,8 @@ import {
     TechnologyFormDialog,
     LeaveApproveDialog,
     LeaveRejectDialog,
-    UpdateReleaseDatesFormDialog
+    UpdateReleaseDatesFormDialog,
+    EstimationAddToReleaseDialog
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -168,6 +169,11 @@ class ContentMain extends Component {
                     <EstimationProjectAwardDialog name={COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
+                        }
+                    }/>
+                    <EstimationAddToReleaseDialog name={COC.ESTIMATION_ADD_TO_RELEASE_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.ESTIMATION_ADD_TO_RELEASE_FORM_DIALOG))
                         }
                     }/>
                     <EstimationFilterDialog name={COC.ESTIMATION_FILTER_DIALOG} show={true} close={

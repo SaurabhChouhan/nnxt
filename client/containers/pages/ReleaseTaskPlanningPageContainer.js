@@ -66,7 +66,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
             }
         })
-        dispatch(A.getReleasePlansFromServer(release._id, 'all', 'all'))
+        dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
     },
 
     expandDescription: (flag) => dispatch(A.expandDescription(flag)),

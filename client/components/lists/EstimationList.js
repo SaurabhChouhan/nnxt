@@ -12,8 +12,8 @@ class EstimationList extends Component {
             onRowClick: this.onRowClick.bind(this)
         }
         this.state = {
-            status: 'all',
-            projectID: 'all'
+            status: SC.ALL,
+            projectID: SC.ALL
         }
         this.filterEstimationByProject = this.filterEstimationByProject.bind(this);
     }

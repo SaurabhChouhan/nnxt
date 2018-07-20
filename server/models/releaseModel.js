@@ -73,6 +73,26 @@ let releaseSchema = mongoose.Schema({
     usePushEach: true
 })
 
+
+releaseSchema.statics.getAvailableReleases = async (status, user) => {
+    return await ReleaseModel.find({})
+}
+
+releaseSchema.statics.getReleases = async (status, user) => {
+
+    let filter = {}
+    if (status && status.toLowerCase() !== SC.ALL)
+        filter = {
+            $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}],
+            'status': status
+        }
+    else
+        filter = {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]}
+
+    return await ReleaseModel.find(filter)
+}
+
+
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
         manager: 1,
@@ -241,21 +261,6 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
     release.initial.clientReleaseDate = releaseInput.clientReleaseDate
 
     return await release.save()
-}
-
-
-releaseSchema.statics.getReleases = async (status, user) => {
-
-    let filter = {}
-    if (status && status.toLowerCase() != 'all')
-        filter = {
-            $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}],
-            'status': status
-        }
-    else
-        filter = {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]}
-
-    return await ReleaseModel.find(filter)
 }
 
 releaseSchema.statics.getReleaseById = async (releaseId, role, user) => {

@@ -31,14 +31,14 @@ const SidebarSection = (props) => <section className="sidebar">
                     }}>Technology</Link></li>
 
                     <li><Link to="/app-home/estimation" onClick={() => {
-                        props.dispatch(A.getAllEstimationsFromServer('all', 'all'))
+                        props.dispatch(A.getAllEstimationsFromServer(SC.ALL, SC.ALL))
                         props.dispatch(A.getAllProjectsFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
 
                     }}>Estimation</Link></li>
 
                     <li><Link to="/app-home/leave" onClick={() => {
-                        props.dispatch(A.getAllLeavesFromServer('all'))
+                        props.dispatch(A.getAllLeavesFromServer(SC.ALL))
                         props.dispatch(A.getAllLeaveTypesFromServer())
                         props.dispatch(A.showComponentHideOthers(COC.LEAVE_LIST))
 
