@@ -123,15 +123,15 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
-    if (status == 'all' && projectID == 'all') {
+    if (status == SC.ALL && projectID == SC.ALL) {
 
         return estimations
 
-    } else if (status == 'all') {
+    } else if (status == SC.ALL) {
 
         return estimations.filter(estimation => estimation.project._id == projectID)
 
-    } else if (projectID == 'all') {
+    } else if (projectID == SC.ALL) {
 
         return estimations.filter(estimation => estimation.status == status)
 
@@ -848,7 +848,7 @@ estimationSchema.statics.addEstimationToExistingRelease = async (releaseInput, n
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (estimation.negotiator._id.toString() != negotiator._id.toString())
+    if (estimation.negotiator._id.toString() !== negotiator._id.toString())
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))

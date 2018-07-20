@@ -1,6 +1,6 @@
 import * as AC from '../actions/actionConsts'
 import moment from 'moment'
-
+import * as SC from '../../server/serverconstants'
 let now = new Date()
 let initialState = {
     userReleases: [],
@@ -8,7 +8,7 @@ let initialState = {
     selectedReleasePlan: {},
     tasksOfSelectedDate: [],
     selectedRelease: {},
-    status: 'all',
+    status: SC.ALL,
     dateOfReport: moment(now).format('YYYY-MM-DD')
 }
 

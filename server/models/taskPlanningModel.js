@@ -2628,7 +2628,7 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER)) {
-        if (status && status.toLowerCase() === 'all') {
+        if (status && status.toLowerCase() === SC.ALL) {
             return await TaskPlanningModel.find({}).sort({'planningDateString': -1})
         } else {
             return await TaskPlanningModel.find({

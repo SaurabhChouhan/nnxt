@@ -6,6 +6,7 @@ import {NotificationManager} from 'react-notifications'
 import * as EC from '../../../server/errorcodes'
 import * as COC from '../../components/componentConsts'
 import {initialize} from 'redux-form'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     showAddTaskForm: (estimation) => {
@@ -96,7 +97,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     estimationGoBack: (event) => {
-        dispatch(A.getAllEstimationsFromServer('all', 'all')),
+        dispatch(A.getAllEstimationsFromServer(SC.ALL, SC.ALL)),
             dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
     },
 
