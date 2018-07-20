@@ -133,7 +133,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }),
 
     showAddToReleaseForm: (estimation) => {
-        dispatch(A.getAllAvailableReleasesFromServer())
+        dispatch(A.getAllReleasesToAddEstimationFromServer(estimation._id))
         dispatch(A.showComponent(COC.ESTIMATION_ADD_TO_RELEASE_FORM_DIALOG))
         // initialize
         dispatch(initialize('estimation-add-to-release', {

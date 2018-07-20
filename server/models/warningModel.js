@@ -102,11 +102,11 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
     warning.type = SC.WARNING_UNPLANNED
     warning.releases = [Object.assign({}, release.toObject(), {
         source: true
-    })],
-        warning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
-            source: true
-        })],
-        warning.taskPlans = []
+    })]
+    warning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
+        source: true
+    })]
+    warning.taskPlans = []
     /*
       I have not intentionally checked for existence of warning as duplicate warning would not cause
       much problem and any such duplicate warning would be visible on UI and duplicate calls would be

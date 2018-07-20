@@ -141,6 +141,29 @@ export const getAllAvailableReleasesFromServer = () => {
     }
 }
 
+export const getAllReleasesToAddEstimationFromServer = (estimationID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases/estimation/'+estimationID, {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addAvailableReleases(json.data))
+                }
+                return json
+            })
+    }
+}
+
+
 
 export const getReleaseFromServer = (releaseID) => {
     return (dispatch, getState) => {

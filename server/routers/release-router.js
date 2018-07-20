@@ -75,15 +75,19 @@ releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
  * Get release Plan list in which logged in user is involved as a manager or leader or developer or non project developer  by release ID and release plan status
  ***/
 releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", async ctx => {
-
     let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(ctx.params.releaseID, ctx.state.user)
     if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     return await MDL.ReleasePlanModel.getReleasePlansByReleaseID(ctx.params, ctx.state.user)
-
 })
+
+releaseRouter.get("/estimation/:estimationID", async ctx => {
+    return await MDL.ReleaseModel.getAllReleasesToAddEstimation(ctx.params.estimationID, ctx.state.user)
+})
+
+
 
 
 /***
@@ -187,5 +191,11 @@ releaseRouter.get("/task-plans/release/:releaseID", async ctx => {
     return await MDL.TaskPlanningModel.getAllTaskPlannings(ctx.params.releaseID, ctx.state.user)
 
 })
+
+releaseRouter.post("/add-planned-task", async ctx => {
+    return await MDL.ReleasePlanModel.addPlannedReleasePlan(ctx.request.body, ctx.state.user)
+})
+
+
 
 export default releaseRouter

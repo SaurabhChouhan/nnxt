@@ -6,6 +6,7 @@ import * as MDL from '../models'
 import * as V from '../validation'
 import momentTZ from 'moment-timezone'
 import logger from '../logger'
+import EstimationModel from "./estimationModel";
 
 mongoose.Promise = global.Promise
 
@@ -62,6 +63,9 @@ let releaseSchema = mongoose.Schema({
             _id: mongoose.Schema.ObjectId,
             firstName: String,
             lastName: String
+        },
+        estimation: {
+            _id: {type: mongoose.Schema.ObjectId}
         }
     }],
     created: {type: Date, default: Date.now()},
@@ -285,8 +289,47 @@ releaseSchema.statics.getReleaseDetailsForReporting = async (releaseId, user) =>
     })
 }
 
+/**
+ * This method would return all releases that an estimation could be added against by negotiator
+ * @param estimationId - Estimation that needs to be added
+ * @param user - Logged in user who is requesting fo estimation
+ * @returns {Releases}
+ */
+releaseSchema.statics.getAllReleasesToAddEstimation = async (estimationId, negotiator) => {
+    let estimation = await EstimationModel.findById(estimationId, {
+        "project._id": 1,
+        "negotiator": 1
+    })
 
-//Reporting
+    if (!estimation)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.negotiator._id.toString() !== negotiator._id.toString())
+        throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    return await ReleaseModel.aggregate([{
+        $match: {
+            $and: [{
+                "project._id": mongoose.Types.ObjectId(estimation.project._id)
+            }]
+        }
+    }, {
+        $project: {
+            name: {$concat: ["$project.name", " (", "$name", ")"]}
+        }
+    }])
+
+    /*
+    return await ReleaseModel.find({
+
+    }, {
+        name: 1,
+        project: 1
+    })
+    */
+}
+
+
 releaseSchema.statics.getAllReleasesOfUser = async (user) => {
     return await MDL.ReleaseModel.find(
         {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}, {'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]}, {
