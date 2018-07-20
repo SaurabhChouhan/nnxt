@@ -303,6 +303,7 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
 
 // Used by negotiator to approve estimation
 // noinspection Annotator
+
 estimationRouter.put('/:estimationID/approve', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
@@ -311,6 +312,7 @@ estimationRouter.put('/:estimationID/approve', async ctx => {
         throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 })
+
 estimationRouter.put('/:estimationID/hasError', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_ESTIMATOR) {
@@ -320,6 +322,7 @@ estimationRouter.put('/:estimationID/hasError', async ctx => {
 
 
 // Used by negotiator to check can approve feature
+
 estimationRouter.put('/feature/:featureID/can-approve', async ctx => {
     return await MDL.EstimationFeatureModel.canApproveFeature(ctx.params.featureID, ctx.state.user)
 })
@@ -335,6 +338,7 @@ estimationRouter.put('/:estimationID/can-approve', async ctx => {
 
 
 // Used by negotiator to change can not approve estimation
+
 estimationRouter.put('/:estimationID/can-not-approve/:isGranted/is-granted', async ctx => {
     let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
     if (role === SC.ROLE_NEGOTIATOR) {
@@ -346,11 +350,13 @@ estimationRouter.put('/:estimationID/can-not-approve/:isGranted/is-granted', asy
 
 
 // Used by negotiator to change can not approve feature
+
 estimationRouter.put('/feature/:featureID/can-not-approve/:isGranted/is-granted', async ctx => {
     return await MDL.EstimationFeatureModel.canNotApproveFeature(ctx.params.featureID, ctx.params.isGranted, ctx.state.user)
 })
 
 // noinspection Annotator
+
 estimationRouter.put('/create-release', async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.estimationCreateReleaseByNegotiatorStruct)
@@ -359,6 +365,7 @@ estimationRouter.put('/create-release', async ctx => {
 
 
 // noinspection Annotator
+
 estimationRouter.put('/add-to-release', async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.estimationAddToReleaseByNegotiatorStruct)
@@ -366,6 +373,7 @@ estimationRouter.put('/add-to-release', async ctx => {
 })
 
 //soft delete feature in estimation
+
 estimationRouter.del('/:estimationID/feature/:featureID', async ctx => {
     return await MDL.EstimationFeatureModel.deleteFeature(ctx.params.estimationID, ctx.params.featureID, ctx.state.user)
 

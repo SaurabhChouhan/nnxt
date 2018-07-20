@@ -75,7 +75,6 @@ releaseSchema.statics.getAvailableReleases = async (status, user) => {
     return await ReleaseModel.find({})
 }
 
-
 releaseSchema.statics.getReleases = async (status, user) => {
 
     let filter = {}
