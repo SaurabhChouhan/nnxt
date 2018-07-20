@@ -309,7 +309,12 @@ class EstimationDetail extends Component {
                     <button type="button" className="btn customBtn" onClick={
                         () => {
                             this.props.showProjectAwardForm(estimation)
-                        }}>Project Award
+                        }}>Create Release
+                    </button>
+                    <button type="button" className="btn customBtn" onClick={
+                        () => {
+                            this.props.showAddToReleaseForm(estimation)
+                        }}>Add to Release
                     </button>
                 </div>}
             </div>
