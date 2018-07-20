@@ -62,6 +62,9 @@ let releaseSchema = mongoose.Schema({
             _id: mongoose.Schema.ObjectId,
             firstName: String,
             lastName: String
+        },
+        estimation: {
+            _id: {type: mongoose.Schema.ObjectId}
         }
     }],
     created: {type: Date, default: Date.now()},

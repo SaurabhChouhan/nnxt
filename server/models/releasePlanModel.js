@@ -5,19 +5,21 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import _ from 'lodash'
 import logger from '../logger'
+import * as V from "../validation";
 
 mongoose.Promise = global.Promise
 
 let releasePlanSchema = mongoose.Schema({
     estimation: {
-        _id: {type: mongoose.Schema.ObjectId, required: true}
+        _id: {type: mongoose.Schema.ObjectId}
     },
     release: {
         _id: {type: mongoose.Schema.ObjectId, required: true},
         name: {type: String, required: [true, 'Release name is required']},
         iteration: {
             _id: {type: mongoose.Schema.ObjectId, required: true},
-            idx: Number
+            idx: Number,
+            iterationType: {type: String}
         }
     },
     task: {
@@ -25,7 +27,6 @@ let releasePlanSchema = mongoose.Schema({
         name: {type: String, required: [true, 'Task name is required']},
         description: String,
         estimatedHours: {type: Number, default: 0},
-        initiallyEstimated: {type: Boolean, default: false},
         estimatedBilledHours: {type: Number, default: 0},
         alreadyBilledHours: {type: Number, default: 0}
     },
@@ -98,9 +99,10 @@ releasePlanSchema.statics.addEstimatedReleasePlan = async (release, iterationInd
     }
 
     releasePlanInput.release = Object.assign({}, release.toObject(), {
-        iteration:{
-            _id:release.iterations[iterationIndex]._id,
-            idx:iterationIndex
+        iteration: {
+            _id: release.iterations[iterationIndex]._id,
+            idx: iterationIndex,
+            iterationType: SC.ITERATION_TYPE_ESTIMATED
         }
     })
 
@@ -118,7 +120,6 @@ releasePlanSchema.statics.addEstimatedReleasePlan = async (release, iterationInd
         name: estimationTask.estimator.name,
         estimatedHours: estimationTask.estimator.estimatedHours,
         description: estimationTask.estimator.description,
-        initiallyEstimated: estimationTask.initiallyEstimated,
         estimatedBilledHours: expectedBilledHours.toFixed(2)
     }
 
@@ -137,6 +138,71 @@ releasePlanSchema.statics.addEstimatedReleasePlan = async (release, iterationInd
 
     return releasePlan
 }
+
+/**
+ * Adds a planned release plan - Plan that is added from release page
+ */
+releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user) => {
+    V.validate(releasePlanInput, V.plannedReleasePlanAddStruct)
+
+    // Find index of iteration with type as 'planned'
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlanInput.release._id), {
+        "iterations._id": 1,
+        "iterations.type": 1,
+        "name": 1,
+        "project.name":1
+    })
+    if (!release) {
+        throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    if (!userRoleInThisRelease) {
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
+
+    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
+
+    if (iterationIndex <= -1)
+        throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+
+    let releasePlan = new ReleasePlanModel()
+
+    releasePlan.release = release.toObject()
+
+    releasePlan.release.iteration = {
+        _id: release.iterations[iterationIndex]._id,
+        idx: iterationIndex,
+        iterationType: SC.ITERATION_TYPE_PLANNED
+    }
+
+    releasePlan.flags = [SC.WARNING_UNPLANNED]
+    releasePlan.report = {}
+
+    releasePlan.task = {
+        name: releasePlanInput.name,
+        description: releasePlanInput.description,
+        estimatedHours: releasePlanInput.estimatedHours,
+        estimatedBilledHours: releasePlanInput.estimatedBilledHours
+    }
+
+    logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
+
+    //let releasePlan = await ReleasePlanModel.create(releasePlanInput)
+    MDL.WarningModel.addUnplanned(release, releasePlan).then(() => {
+        // do nothing
+    })
+
+    return await releasePlan.save()
+}
+
 
 releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
     let releaseID = params.releaseID

@@ -181,4 +181,10 @@ releaseRouter.get("/task-plans/release/:releaseID", async ctx => {
 
 })
 
+releaseRouter.post("/add-planned-task", async ctx => {
+    return await MDL.ReleasePlanModel.addPlannedReleasePlan(ctx.request.body, ctx.state.user)
+})
+
+
+
 export default releaseRouter
