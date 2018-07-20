@@ -493,7 +493,7 @@ const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber,
 /***
  * Create new task planning  in which logged in user is involved as a manager or leader
  ***/
-taskPlanningSchema.statics.addTaskPlanning = async (taskPlanningInput, user, schemaRequested) => {
+taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.releaseTaskPlanningStruct)
 

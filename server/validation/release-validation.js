@@ -10,9 +10,6 @@ export const releaseTaskPlanningStruct = t.struct({
     employee: t.struct({
         _id: ObjectId
     }),
-    task: t.struct({
-        _id: ObjectId
-    }),
     release: t.struct({
         _id: ObjectId
     }),

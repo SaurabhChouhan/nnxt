@@ -94,7 +94,7 @@ releaseRouter.get("/estimation/:estimationID", async ctx => {
  * Add task planning  in which logged in user is involved as a manager or leader
  ***/
 releaseRouter.put("/plan-task/", async ctx => {
-    return await MDL.TaskPlanningModel.addTaskPlanning(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.TaskPlanningModel.addTaskPlan(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 
