@@ -261,31 +261,32 @@ const deleteWarningWithResponse = async (warning, warningType) => {
             })
         }
     })
-    warning.releasePlans.forEach(async rp => {
-        let releaseWarningCount = await WarningModel.count({
+    let releasePlanRemovalPromises = warning.releasePlans.map(rp => {
+        /*
+          Although warning may be removed from a particular date of release plan but it is possible
+          that warning still exists on other dates of same release plan , we have to therefore check to see if warning
+          is present for this release plan on any other date, if not we can safely remove flag from release plan
+        */
+
+        return WarningModel.count({
             type: warningType,
             'releasePlans._id': rp._id
+        }).then(releaseWarningCount => {
+            logger.debug("releaseWarningCount warning count is " + releaseWarningCount)
+            if (rp && releaseWarningCount == 1) {
+
+                logger.debug("release plan deletion with warning type [" + warningType + "] with release plan Id [" + rp._id + "]")
+                warningResponse.removed.push({
+                    _id: rp._id,
+                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                    type: warningType,
+                    source: rp.source
+                })
+            }
         })
-
-        /*
-           Although warning may be removed from a particular date of release plan but it is possible
-           that warning still exists on other dates of same release plan , we have to therefore check to see if warning
-           is present for this release plan on any other date, if not we can safely remove flag from release plan
-       */
-
-
-        logger.debug("releaseWarningCount warning count is " + releaseWarningCount)
-        if (rp && releaseWarningCount == 1) {
-
-            logger.debug("release plan deletion with warning type [" + warningType + "] with release plan Id [" + rp._id + "]")
-            warningResponse.removed.push({
-                _id: rp._id,
-                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: warningType,
-                source: rp.source
-            })
-        }
     })
+    await Promise.all(releasePlanRemovalPromises)
+
     warning.releases.forEach(r => {
         if (r) {
             warningResponse.removed.push({
@@ -297,6 +298,7 @@ const deleteWarningWithResponse = async (warning, warningType) => {
         }
     })
     await warning.remove()
+
     return warningResponse
 }
 
