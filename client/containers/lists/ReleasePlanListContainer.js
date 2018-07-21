@@ -4,6 +4,7 @@ import {ReleasePlanList} from "../../components"
 import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
+import {initialize} from 'redux-form'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     releasePlanSelected: (releasePlan, role) => {
@@ -23,7 +24,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
 
     changeReleaseFlag: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
-    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag))
+    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
+    showAddToReleasePlanForm: (release) => {
+        dispatch(A.showComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
+        // initialize
+        dispatch(initialize('release-plan-add-to-release', {
+            release: {
+                _id: release._id
+            }
+        }))
+    },
 })
 
 const mapStateToProps = (state) => ({
