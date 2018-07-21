@@ -513,7 +513,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     if (!userRolesInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -553,13 +553,13 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     /* Get employee roles in this project that this task is planned against*/
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
-    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
+    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes(employeeRolesInThisRelease, SC.ROLE_DEVELOPER)) {
         /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
            or manager/leader of this release are now working on this task and hence became ad developer of this release
          */
 
         // Only manager is allowed to rope in people outside of developer team assigned to this release so check if logged in user is manager
-        if (!_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+        if (!_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
             throw new AppError('Only manager of release can rope in additional employee for Release', EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE, EC.HTTP_FORBIDDEN)
         }
 
@@ -947,7 +947,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     logger.debug('deleteTaskPlanning(): [all-warning-responses] => generatedWarnings => ', {generatedWarnings})
 
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
-    let taskPlanningResponse =  await taskPlan.remove()
+    let taskPlanningResponse = await taskPlan.remove()
 
     /*
     let count = await MDL.WarningModel.count({
@@ -2081,10 +2081,10 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     if (!userRoles)
         throw new AppError('Employee has no role in this release, not allowed to see reports', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-    if (_.includes(SC.ROLE_MANAGER, userRoles) || _.includes(SC.ROLE_LEADER, userRoles)) {
+    if (_.includes(userRoles, SC.ROLE_MANAGER) || _.includes(userRoles, SC.ROLE_LEADER)) {
         // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
         throw new AppError('Manager/Leader would see all the tasks of a release for date, need to implement that.', EC.UNIMPLEMENTED_SO_FAR, EC.HTTP_SERVER_ERROR)
-    } else if (_.includes(SC.ROLE_DEVELOPER, userRoles) || _.includes(SC.ROLE_NON_PROJECT_DEVELOPER, userRoles)) {
+    } else if (_.includes(userRoles, SC.ROLE_DEVELOPER) || _.includes(userRoles, SC.ROLE_NON_PROJECT_DEVELOPER)) {
         let criteria = {
             'release._id': mongoose.Types.ObjectId(releaseID),
             'planningDate': U.dateInUTC(dateString),
@@ -2623,7 +2623,7 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
     if (!userRolesInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER)) {
