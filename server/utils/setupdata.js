@@ -269,30 +269,45 @@ const addNNXTUsers = async () => {
     let negotiatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
     let managerRole = await MDL.RoleModel.findOne({name: SC.ROLE_MANAGER}).lean()
     let leaderRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
-    let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
+    let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
+    let topManagementRoles = await MDL.RoleModel.findOne({name: SC.ROLE_TOP_MANAGEMENT}).lean()
+    let adminRole = await MDL.RoleModel.findOne({name: SC.ROLE_ADMIN}).lean()
+    let superAdminRole = await MDL.RoleModel.findOne({name: SC.ROLE_SUPER_ADMIN}).lean()
 
-    // create estimator user
-    if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
+
+    // create user
+    if (!await MDL.UserModel.exists('superadmin@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'schouhan@aripratech.com',
-            firstName: "Saurabh",
-            lastName: "Chouhan",
-            roles: [negotiatorRole, managerRole, developerRole],
+            email: 'superadmin@aripratech.com',
+            firstName: "Super",
+            lastName: "Admin",
+            roles: [superAdminRole],
             password: "password",
             employeeCode: 'emp-001',
             designation: SC.DESIGNATION_OWNER,
             dateJoined: '01-01-2018'
         })
     }
-
-    if (!await MDL.UserModel.exists('saurabh@aripratech.com')) {
+    if (!await MDL.UserModel.exists('admin@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'saurabh@aripratech.com',
+            email: 'admin@aripratech.com',
+            firstName: "admin",
+            lastName: "one",
+            roles: [adminRole],
+            password: "password",
+            employeeCode: 'emp-002',
+            designation: SC.DESIGNATION_OWNER,
+            dateJoined: '01-01-2018'
+        })
+    }
+    if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
+        await MDL.UserModel.createUser({
+            email: 'schouhan@aripratech.com',
             firstName: "Saurabh",
             lastName: "Chouhan",
-            roles: [estimatorRole],
+            roles: [negotiatorRole, managerRole, developerRole, topManagementRoles],
             password: "password",
-            employeeCode: 'emp-001',
+            employeeCode: 'emp-003',
             designation: SC.DESIGNATION_OWNER,
             dateJoined: '01-01-2018'
         })
@@ -303,9 +318,9 @@ const addNNXTUsers = async () => {
             email: 'mpogra@aripratech.com',
             firstName: "Mahesh",
             lastName: "Pogra",
-            roles: [negotiatorRole, managerRole, developerRole],
+            roles: [negotiatorRole, managerRole, developerRole, topManagementRoles],
             password: "password",
-            employeeCode: 'emp-002',
+            employeeCode: 'emp-004',
             designation: SC.DESIGNATION_OWNER,
             dateJoined: '01-01-2018'
         })
@@ -316,9 +331,9 @@ const addNNXTUsers = async () => {
             email: 'ppogra@aripratech.com',
             firstName: "Prakash",
             lastName: "Pogra",
-            roles: [estimatorRole, leaderRole, developerRole],
+            roles: [estimatorRole, leaderRole, developerRole,],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-005',
             designation: SC.DESIGNATION_TEAM_LEAD,
             dateJoined: '01-01-2018'
         })
@@ -331,7 +346,7 @@ const addNNXTUsers = async () => {
             lastName: "Sharma",
             roles: [estimatorRole, leaderRole, developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-006',
             designation: SC.DESIGNATION_TEAM_LEAD,
             dateJoined: '01-01-2018'
         })
@@ -344,7 +359,7 @@ const addNNXTUsers = async () => {
             lastName: "Jain",
             roles: [estimatorRole, leaderRole, developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-007',
             designation: SC.DESIGNATION_MODULE_LEAD,
             dateJoined: '01-01-2018'
         })
@@ -357,7 +372,7 @@ const addNNXTUsers = async () => {
             lastName: "Gour",
             roles: [estimatorRole, leaderRole, developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-008',
             designation: SC.DESIGNATION_MODULE_LEAD,
             dateJoined: '01-01-2018'
         })
@@ -370,7 +385,7 @@ const addNNXTUsers = async () => {
             lastName: "Parasar",
             roles: [estimatorRole, leaderRole, developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-009',
             designation: SC.DESIGNATION_MODULE_LEAD,
             dateJoined: '01-01-2018'
         })
@@ -383,7 +398,7 @@ const addNNXTUsers = async () => {
             lastName: "Malakar",
             roles: [developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-010',
             designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
             dateJoined: '01-01-2018'
         })
@@ -396,7 +411,7 @@ const addNNXTUsers = async () => {
             lastName: "Mishra",
             roles: [developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-011',
             designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
             dateJoined: '01-01-2018'
         })
@@ -409,7 +424,7 @@ const addNNXTUsers = async () => {
             lastName: "Sahu",
             roles: [developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-012',
             designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
             dateJoined: '01-01-2018'
         })
@@ -422,7 +437,7 @@ const addNNXTUsers = async () => {
             lastName: "Agarawal",
             roles: [developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-013',
             designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
             dateJoined: '01-01-2018'
         })
@@ -435,7 +450,7 @@ const addNNXTUsers = async () => {
             lastName: "Merchant",
             roles: [developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-014',
             designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
             dateJoined: '01-01-2018'
         })
@@ -448,23 +463,9 @@ const addNNXTUsers = async () => {
             lastName: "Rampurawala",
             roles: [developerRole],
             password: "password",
-            employeeCode: 'emp-003',
+            employeeCode: 'emp-015',
             designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
             dateJoined: '01-01-2018'
-        })
-    }
-
-    let topManagementRoles = await MDL.RoleModel.findOne({name: SC.ROLE_TOP_MANAGEMENT}).lean()
-    if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
-        await MDL.UserModel.createUser({
-            email: 'contactus@aripratech.com',
-            firstName: "Saurabh",
-            lastName: "Chouhan",
-            roles: [topManagementRoles],
-            password: "password",
-            employeeCode: 'emp-002',
-            designation: SC.DESIGNATION_OWNER,
-            dateJoined: '01-01-2012'
         })
     }
 }
