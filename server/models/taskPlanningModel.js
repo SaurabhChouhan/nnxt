@@ -901,7 +901,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     if (!userRolesInThisRelease) {
         throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
