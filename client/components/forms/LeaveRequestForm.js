@@ -21,9 +21,6 @@ let LeaveRequestForm = (props) => {
     const startDateMomentDate = startDateMoment && startDateMoment.isValid() ? startDateMoment.toDate() : undefined
     const endDateMomentDate = endDateMoment && endDateMoment.isValid() ? endDateMoment.toDate() : undefined
 
-    console.log("startDateMomentDate", startDateMomentDate)
-    console.log("endDateMomentDate", endDateMomentDate)
-
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">

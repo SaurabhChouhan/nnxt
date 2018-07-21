@@ -139,7 +139,6 @@ warningSchema.statics.removeUnplanned = async (releasePlan) => {
  */
 warningSchema.statics.taskReported = async (taskPlan, releasePlan, release) => {
 
-    // console.log("taskPlanReported called.. release "+JSON.stringify(release))
     let releasePlanWarnings = await WarningModel.findOne({
         $and: [{
             $or: [{type: SC.WARNING_MORE_REPORTED_HOURS_1},
@@ -1199,7 +1198,7 @@ const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC
                 warningResponse.added.push(...deleteWarningResponse.added)
             if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
                 warningResponse.removed.push(...deleteWarningResponse.removed)
-            
+
         } else {
             tooManyHourWarning.taskPlans = tooManyHourWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
             warningResponse.removed.push({
