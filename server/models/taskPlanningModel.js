@@ -947,7 +947,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     logger.debug('deleteTaskPlanning(): [all-warning-responses] => generatedWarnings => ', {generatedWarnings})
 
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
-    let taskPlanningResponse = await MDL.TaskPlanningModel.findByIdAndRemove(mongoose.Types.ObjectId(taskPlan._id))
+    let taskPlanningResponse =  await taskPlan.remove()
 
     /*
     let count = await MDL.WarningModel.count({
@@ -963,7 +963,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     await releasePlan.save()
     await release.save()
     /* remove task planning */
-    return {warnings: generatedWarnings, taskPlan: taskPlanningResponse, taskPlans: affectedTaskPlans}
+    return {warnings: generatedWarnings, taskPlan: taskPlan, taskPlans: affectedTaskPlans}
 }
 /*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
@@ -1036,15 +1036,14 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         // Employee days of existing date and merged date would be modified
 
     let existingDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-            'employee._id': selectedEmployee.toString(),
+            'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
             'date': taskPlan.planningDate
         })
 
     let rePlannedDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': selectedEmployee.toString(),
+        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
         'date': rePlanningDateUtc
     })
-
     if (existingDateEmployeeDays) {
         // Total hours would be reduced
         existingDateEmployeeDays.plannedHours -= plannedHourNumber
@@ -1129,7 +1128,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     let employeeReportIdx = -1
     if (releasePlan.report.employees) {
         employeeReportIdx = releasePlan.report.employees.findIndex(e => {
-            return e._id.toString() == employee._id.toString()
+            return e._id.toString() === employee._id.toString()
         })
     }
 
@@ -1144,9 +1143,9 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
             // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
             maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
             // See if task was reported in future if so only possible status is pending
-            if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status != SC.REPORT_PENDING)) {
+            if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status !== SC.REPORT_PENDING)) {
                 throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
-            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus == SC.REPORT_COMPLETED)
+            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED)
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
         }
     }
@@ -1254,7 +1253,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
                     logger.debug('Employee [' + e._id + '] has not reported so far so release plan final status would be pending')
                     // this means that employee has not reported till now so we will consider release plan as pending
                     taskPlanCompleted = false
-                } else if (employeeOfReport.finalStatus == SC.STATUS_PENDING) {
+                } else if (employeeOfReport.finalStatus === SC.STATUS_PENDING) {
                     logger.debug('Employee [' + e._id + '] has reported final status as pending so release plan final status would be pending')
                     taskPlanCompleted = false
                 }
@@ -1272,7 +1271,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     // Find this employee planning index
     let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
-        return e._id.toString() == employee._id.toString()
+        return e._id.toString() === employee._id.toString()
     })
 
     if (employeePlanningIdx == -1) {
@@ -1303,7 +1302,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
      * Check if employee has reported task on last date of planning against this employee
      */
     if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-        if (taskReport.status == SC.REPORT_PENDING) {
+        if (taskReport.status === SC.REPORT_PENDING) {
             // Add appropriate warnings
             let warningsReportedAsPending = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
 
@@ -1319,7 +1318,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     }
 
     // Task is reported as completed this can make changes to existing warnings/flags like pending on end date
-    if (taskReport.status == SC.REPORT_COMPLETED) {
+    if (taskReport.status === SC.REPORT_COMPLETED) {
         let warningReportedAsCompleted = undefined
         if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
             warningReportedAsCompleted = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, false)
