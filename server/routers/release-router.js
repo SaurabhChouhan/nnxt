@@ -129,22 +129,6 @@ releaseRouter.del("/plan-task/:planID", async ctx => {
 
 
 /***
- * Get all task plannings by release plan Id
- ***/
-releaseRouter.get("/task-plans/:releasePlanID", async ctx => {
-    return await MDL.TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.releasePlanID, ctx.state.user)
-
-})
-
-/***
- * Get task planning schedule according to developer
- ***/
-releaseRouter.get("/task-plans/employee/:employeeID/fromDate/:fromDate/toDate/:toDate", async ctx => {
-    return await MDL.TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeID, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
-
-})
-
-/***
  * Add employee days detail of a employee of a particular date on task planning
  ***/
 releaseRouter.post("/employee-days", async ctx => {
@@ -178,12 +162,6 @@ releaseRouter.post("/employee-statistics/", async ctx => {
  ***/
 releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await MDL.EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
-})
-
-releaseRouter.get("/task-plans/release/:releaseID", async ctx => {
-    console.log("ctx.params.releaseID", ctx.params.releaseID)
-    return await MDL.TaskPlanningModel.getAllTaskPlannings(ctx.params.releaseID, ctx.state.user)
-
 })
 
 releaseRouter.post("/add-planned-task", async ctx => {
