@@ -269,7 +269,7 @@ const addNNXTUsers = async () => {
     let negotiatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
     let managerRole = await MDL.RoleModel.findOne({name: SC.ROLE_MANAGER}).lean()
     let leaderRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
-    let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
+    let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
 
     // create estimator user
     if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {

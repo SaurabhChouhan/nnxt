@@ -1,7 +1,6 @@
 import moment from 'moment'
 import * as AC from '../actions/actionConsts'
 import * as U from '../../server/utils'
-import * as SC from '../../server/serverconstants'
 
 let now = new Date()
 

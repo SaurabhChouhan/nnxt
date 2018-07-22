@@ -7,8 +7,6 @@ import * as A from '../../actions'
 import * as COC from '../componentConsts'
 
 const SidebarSection = (props) => {
-    console.log("Sidebar section props ", props)
-
     let roles = []
     if (props && props.loggedInUser && props.loggedInUser.roleNames && props.loggedInUser.roleNames.length)
         roles = props.loggedInUser.roleNames
@@ -51,7 +49,7 @@ const SidebarSection = (props) => {
                             (roles.indexOf('Negotiator') > -1 || roles.indexOf('Estimator') > -1) &&
                             <li><Link to="/app-home/estimation" onClick={() => {
                                 props.dispatch(A.getAllEstimationsFromServer(SC.ALL, SC.ALL))
-                                props.dispatch(A.getAllProjectsFromServer())
+                                props.dispatch(A.getAllProjectsUserEstimationsFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.ESTIMATION_LIST))
 
                             }}>Estimation</Link></li>
