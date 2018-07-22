@@ -5,6 +5,7 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import momentTZ from 'moment-timezone'
+import * as U from '../utils'
 import logger from '../logger'
 import EstimationModel from "./estimationModel";
 
@@ -12,6 +13,9 @@ mongoose.Promise = global.Promise
 
 let releaseSchema = mongoose.Schema({
     name: {type: String, required: [true, 'Release Version name is required']},
+    devStartDate: Date, // Expected development start date
+    devEndDate: Date, // Expected development end date
+    clientReleaseDate: Date, // Client release date
     status: {
         type: String,
         enum: [SC.STATUS_AWARDED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_ISSUE_FIXING, SC.STATUS_TEST_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_STABLE]
@@ -176,6 +180,7 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         '_id': mongoose.Types.ObjectId(releaseData.manager._id),
         'roles.name': SC.ROLE_MANAGER
     })
+
     if (!manager)
         throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -195,6 +200,10 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
     releaseInput.manager = manager
     releaseInput.leader = leader
     releaseInput.team = releaseData.team
+    releaseInput.estimations = estimation
+    releaseInput.clientReleaseDate = U.dateInUTC(releaseData.clientReleaseDate)
+    releaseInput.devStartDate = U.dateInUTC(releaseData.devStartDate)
+    releaseInput.devEndDate = U.dateInUTC(releaseData.devReleaseDate)
 
     /*
        We would add three iterations below
@@ -207,12 +216,15 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         type: SC.ITERATION_TYPE_ESTIMATED,
         estimatedHours: estimation.estimatedHours,
         expectedBilledHours: releaseData.billedHours,
-        clientReleaseDate: releaseData.clientReleaseDate,
-        devStartDate: releaseData.devStartDate,
-        devEndDate: releaseData.devReleaseDate,
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate),
         negotiator: user
     }, {
-        type: SC.ITERATION_TYPE_PLANNED
+        type: SC.ITERATION_TYPE_PLANNED,
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }, {
         type: SC.ITERATION_TYPE_UNPLANNED
     }]
@@ -235,15 +247,36 @@ releaseSchema.statics.updateRelease = async (releaseData, user, estimation) => {
       Since estimation is added to release, a new iteration would be created with type as 'estimated' for this estimation
      */
 
+    let clientReleaseDate = U.momentInUTC(releaseData.clientReleaseDate)
+    let devStartDate = U.momentInUTC(releaseData.devStartDate)
+    let devEndDate = U.momentInUTC(releaseData.devReleaseDate)
+
+
     release.iterations.push({
         type: SC.ITERATION_TYPE_ESTIMATED,
         estimatedHours: estimation.estimatedHours,
         expectedBilledHours: releaseData.billedHours,
-        clientReleaseDate: releaseData.clientReleaseDate,
-        devStartDate: releaseData.devStartDate,
-        devEndDate: releaseData.devReleaseDate,
+        clientReleaseDate: clientReleaseDate.toDate(),
+        devStartDate: devStartDate.toDate(),
+        devEndDate: devEndDate.toDate(),
         negotiator: user
     })
+
+    // Change release' dev start/end and client release date
+    if (clientReleaseDate.isAfter(release.clientReleaseDate)) {
+        release.clientReleaseDate = clientReleaseDate
+        release.iterations[1].clientReleaseDate = clientReleaseDate
+    }
+
+    if (devEndDate.isAfter(release.devEndDate)) {
+        release.devEndDate = devEndDate
+        release.iterations[1].devEndDate = devEndDate
+    }
+
+    if (devStartDate.isBefore(release.devStartDate)) {
+        release.devStartDate = devStartDate
+        release.iterations[1].devStartDate = devStartDate
+    }
 
     return await release.save()
 }
@@ -257,21 +290,53 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseInput._id))
 
-    release.initial.devStartDate = releaseInput.devStartDate
-    release.initial.devEndDate = releaseInput.devReleaseDate
-    release.initial.clientReleaseDate = releaseInput.clientReleaseDate
+    release.devStartDate = U.dateInUTC(releaseInput.devStartDate)
+    release.devEndDate = U.dateInUTC(releaseInput.devReleaseDate)
+    release.clientReleaseDate = U.dateInUTC(releaseInput.clientReleaseDate)
 
+    // update dates in 'planned' task iteration as well
+    release.iterations[1].devStartDate = U.dateInUTC(releaseInput.devStartDate)
+    release.iterations[1].devEndDate = U.dateInUTC(releaseInput.devReleaseDate)
+    release.iterations[1].clientReleaseDate = U.dateInUTC(releaseInput.clientReleaseDate)
     return await release.save()
 }
 
-releaseSchema.statics.getReleaseById = async (releaseId, role, user) => {
-    let release = await ReleaseModel.findOne({
-        '_id': mongoose.Types.ObjectId(releaseId),
-        $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]
-    })
-    release = release.toObject()
-    release.highestRoleInThisRelease = role
-    return release
+releaseSchema.statics.getReleaseById = async (releaseId, user) => {
+    let release = undefined
+
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseId, user)
+
+    if (U.includeAny(SC.ROLE_MANAGER, rolesInRelease)) {
+        release = await ReleaseModel.findOne({
+                '_id': mongoose.Types.ObjectId(releaseId),
+                'manager._id': mongoose.Types.ObjectId(user._id)
+            }
+        )
+    } else if (U.includeAny(SC.ROLE_LEADER, rolesInRelease)) {
+        release = await ReleaseModel.findOne({
+                '_id': mongoose.Types.ObjectId(releaseId),
+                'leader._id': mongoose.Types.ObjectId(user._id)
+            }
+        )
+    } else if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], rolesInRelease)) {
+        release = await ReleaseModel.findOne({
+                '_id': mongoose.Types.ObjectId(releaseId),
+                "$or": [
+                    {'team._id': mongoose.Types.ObjectId(user._id)},
+                    {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}
+                ]
+            }
+        )
+    }
+
+    if (release) {
+        release = release.toObject()
+        release.rolesInThisRelease = rolesInRelease
+        return release
+    }
+
+    return undefined
+
 }
 
 
@@ -318,15 +383,6 @@ releaseSchema.statics.getAllReleasesToAddEstimation = async (estimationId, negot
             name: {$concat: ["$project.name", " (", "$name", ")"]}
         }
     }])
-
-    /*
-    return await ReleaseModel.find({
-
-    }, {
-        name: 1,
-        project: 1
-    })
-    */
 }
 
 

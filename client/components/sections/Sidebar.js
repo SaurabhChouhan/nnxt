@@ -1,5 +1,6 @@
 import React from 'react'
 import {SidebarSection, SidebarSideSection} from "./"
+import SidebarSectionContainer from '../../containers/sections/SidebarSectionContainer'
 
 const Sidebar = (props) => <div className="sidebar-wrapper">
     <div className="web_logo">
@@ -9,7 +10,7 @@ const Sidebar = (props) => <div className="sidebar-wrapper">
         <img src="/images/user.png" height="30" width="30"/> {props.loggedInUser.fullName}
     </div>
     <SidebarSideSection/>
-    <SidebarSection/>
+    <SidebarSectionContainer/>
 </div>
 
 export default Sidebar

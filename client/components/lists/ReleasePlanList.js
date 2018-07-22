@@ -30,7 +30,7 @@ class ReleasePlanList extends Component {
 
     onRowClick(row) {
         this.props.history.push("/app-home/release-task-planning")
-        this.props.releasePlanSelected(row, this.props.release.highestRoleInThisRelease)
+        this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
     }
 
     formatEstimatedHours(task) {

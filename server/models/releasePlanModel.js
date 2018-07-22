@@ -6,6 +6,7 @@ import * as MDL from '../models'
 import _ from 'lodash'
 import logger from '../logger'
 import * as V from "../validation";
+import * as U from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -146,21 +147,16 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
     V.validate(releasePlanInput, V.plannedReleasePlanAddStruct)
 
     // Find index of iteration with type as 'planned'
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlanInput.release._id), {
-        "iterations._id": 1,
-        "iterations.type": 1,
-        "name": 1,
-        "project.name":1
-    })
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlanInput.release._id))
     if (!release) {
         throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+    if (U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -200,6 +196,70 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         // do nothing
     })
 
+    // update 'planned' iteration to add estimated hours and estimated billed hours of this release plan
+    release.iterations[iterationIndex].expectedBilledHours += releasePlanInput.estimatedBilledHours
+    release.iterations[iterationIndex].estimatedHours += releasePlanInput.estimatedHours
+    await release.save()
+    return await releasePlan.save()
+}
+
+/**
+ * Adds an unplanned release plan
+ * An unplanned release plan would only be reported. No task would be planned against such release
+ * plans. They would be useful in cases where there is no task to complete but there are several
+ * small things to do on regular bases (like issue fixing)
+ */
+
+releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, user) => {
+    V.validate(releasePlanInput, V.unplannedReleasePlanAddStruct)
+
+    // Find index of iteration with type as 'planned'
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlanInput.release._id), {
+        "iterations._id": 1,
+        "iterations.type": 1,
+        "name": 1,
+        "project.name": 1
+    })
+    if (!release) {
+        throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    if (!userRoleInThisRelease) {
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_UNPLANNED)
+
+    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
+
+    if (iterationIndex <= -1)
+        throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+
+    let releasePlan = new ReleasePlanModel()
+
+    releasePlan.release = release.toObject()
+
+    releasePlan.release.iteration = {
+        _id: release.iterations[iterationIndex]._id,
+        idx: iterationIndex,
+        iterationType: SC.ITERATION_TYPE_UNPLANNED
+    }
+
+    releasePlan.flags = [] // no flags for such release plans
+    releasePlan.report = {}
+
+    releasePlan.task = {
+        name: releasePlanInput.name,
+        description: releasePlanInput.description
+    }
+
+    logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
     return await releasePlan.save()
 }
 
@@ -246,12 +306,12 @@ releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
     let releasePlan = await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
     releasePlan = releasePlan.toObject()
 
-    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releasePlan.release._id.toString(), user)
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], roleInRelease)) {
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releasePlan.release._id.toString(), user)
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], rolesInRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + 'or' + SC.ROLE_DEVELOPER + 'or' + SC.ROLE_NON_PROJECT_DEVELOPER + '] can see Release Plan Details', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN
         )
     }
-    releasePlan.highestRoleInThisRelease = roleInRelease
+    releasePlan.rolesInThisRelease = rolesInRelease
     return releasePlan
 }
 

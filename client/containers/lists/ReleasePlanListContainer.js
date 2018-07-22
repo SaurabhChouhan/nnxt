@@ -6,17 +6,17 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    releasePlanSelected: (releasePlan, role) => {
+    releasePlanSelected: (releasePlan, roles) => {
         dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)).then(json => {
             if (json.success) {
                 dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
             }
         })
         dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
-        if (role === SC.ROLE_MANAGER) {
+        if (roles.indexOf(SC.ROLE_MANAGER) > -1) {
             // get all developers from user list when user role in this release is manager
             dispatch(A.getAllDeveloperFromServer())
-        } else if (role === SC.ROLE_LEADER) {
+        } else if (roles.indexOf(SC.ROLE_LEADER) > -1) {
             // get project developers from user list when user role in this release is leader
             dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
         }

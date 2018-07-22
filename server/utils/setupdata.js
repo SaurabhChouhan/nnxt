@@ -266,192 +266,190 @@ const addRolesPermissions = async () => {
 const addNNXTUsers = async () => {
     console.log("SETTING UP USERS ...")
     let estimatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_ESTIMATOR}).lean()
+    let negotiatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
+    let managerRole = await MDL.RoleModel.findOne({name: SC.ROLE_MANAGER}).lean()
+    let leaderRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
+    let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
+
     // create estimator user
-    if (!await MDL.UserModel.exists('estimator1@test.com')) {
+    if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'estimator1@test.com',
-            firstName: "Estimator-1",
-            lastName: "One",
-            roles: [estimatorRole],
-            password: "estimator",
+            email: 'schouhan@aripratech.com',
+            firstName: "Saurabh",
+            lastName: "Chouhan",
+            roles: [negotiatorRole, managerRole, developerRole],
+            password: "password",
             employeeCode: 'emp-001',
-            designation: SC.DESIGNATION_TEAM_LEAD,
+            designation: SC.DESIGNATION_OWNER,
             dateJoined: '01-01-2018'
         })
     }
 
-    if (!await MDL.UserModel.exists('estimator2@test.com')) {
+    if (!await MDL.UserModel.exists('saurabh@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'estimator2@test.com',
-            firstName: "Estimator-2",
-            lastName: "Two",
+            email: 'saurabh@aripratech.com',
+            firstName: "Saurabh",
+            lastName: "Chouhan",
             roles: [estimatorRole],
-            password: "estimator",
+            password: "password",
+            employeeCode: 'emp-001',
+            designation: SC.DESIGNATION_OWNER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await MDL.UserModel.exists('mpogra@aripratech.com')) {
+        await MDL.UserModel.createUser({
+            email: 'mpogra@aripratech.com',
+            firstName: "Mahesh",
+            lastName: "Pogra",
+            roles: [negotiatorRole, managerRole, developerRole],
+            password: "password",
             employeeCode: 'emp-002',
-            designation: SC.DESIGNATION_TEAM_LEAD,
+            designation: SC.DESIGNATION_OWNER,
             dateJoined: '01-01-2018'
         })
     }
 
-    if (!await MDL.UserModel.exists('estimator3@test.com')) {
+    if (!await MDL.UserModel.exists('ppogra@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'estimator3@test.com',
-            firstName: "Estimator-3",
-            lastName: "Three",
-            roles: [estimatorRole],
-            password: "estimator",
+            email: 'ppogra@aripratech.com',
+            firstName: "Prakash",
+            lastName: "Pogra",
+            roles: [estimatorRole, leaderRole, developerRole],
+            password: "password",
             employeeCode: 'emp-003',
             designation: SC.DESIGNATION_TEAM_LEAD,
             dateJoined: '01-01-2018'
         })
     }
 
-    let negotiatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
-    // create negotitor user
-    if (!await MDL.UserModel.exists('negotiator1@test.com')) {
+    if (!await MDL.UserModel.exists('asharma@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'negotiator1@test.com',
-            firstName: "Negotiator-1",
-            lastName: "One",
-            roles: [negotiatorRole],
-            password: "negotiator",
-            employeeCode: 'emp-004',
-            designation: SC.DESIGNATION_MANAGER,
+            email: 'asharma@aripratech.com',
+            firstName: "Anup",
+            lastName: "Sharma",
+            roles: [estimatorRole, leaderRole, developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_TEAM_LEAD,
             dateJoined: '01-01-2018'
         })
     }
 
-    if (!await MDL.UserModel.exists('negotiator2@test.com')) {
+    if (!await MDL.UserModel.exists('rjain@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'negotiator2@test.com',
-            firstName: "Negotiator-2",
-            lastName: "Two",
-            roles: [negotiatorRole],
-            password: "negotiator",
-            employeeCode: 'emp-005',
-            designation: SC.DESIGNATION_MANAGER,
-            dateJoined: '01-01-2018'
-        })
-    }
-    let managerRole = await MDL.RoleModel.findOne({name: SC.ROLE_MANAGER}).lean()
-    // create manager user
-    if (!await MDL.UserModel.exists('manger1@test.com')) {
-        await MDL.UserModel.createUser({
-            email: 'manager1@test.com',
-            firstName: "Manager-1",
-            lastName: "One",
-            roles: [managerRole],
-            password: "manager",
-            employeeCode: 'emp-006',
-            designation: SC.DESIGNATION_MANAGER,
+            email: 'rjain@aripratech.com',
+            firstName: "Ratnesh",
+            lastName: "Jain",
+            roles: [estimatorRole, leaderRole, developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_MODULE_LEAD,
             dateJoined: '01-01-2018'
         })
     }
 
-    if (!await MDL.UserModel.exists('manger2@test.com')) {
+    if (!await MDL.UserModel.exists('kgour@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'manager2@test.com',
-            firstName: "Manager-2",
-            lastName: "Two",
-            roles: [managerRole],
-            password: "manager",
-            employeeCode: 'emp-007',
-            designation: SC.DESIGNATION_MANAGER,
+            email: 'kgour@aripratech.com',
+            firstName: "Kamlesh",
+            lastName: "Gour",
+            roles: [estimatorRole, leaderRole, developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_MODULE_LEAD,
             dateJoined: '01-01-2018'
         })
     }
 
-    if (!await MDL.UserModel.exists('manger3@test.com')) {
+    if (!await MDL.UserModel.exists('bparasar@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'manager3@test.com',
-            firstName: "Manager-3",
-            lastName: "Three",
-            roles: [managerRole],
-            password: "manager",
-            employeeCode: 'emp-008',
-            designation: SC.DESIGNATION_MANAGER,
+            email: 'bparasar@aripratech.com',
+            firstName: "Bhuvan",
+            lastName: "Parasar",
+            roles: [estimatorRole, leaderRole, developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_MODULE_LEAD,
             dateJoined: '01-01-2018'
         })
     }
 
-    let leaderRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
-    // create leader user
-    if (!await MDL.UserModel.exists('leader1@test.com')) {
+    if (!await MDL.UserModel.exists('pmalakar@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'leader1@test.com',
-            firstName: "Leader-1",
-            lastName: "One",
-            roles: [leaderRole],
-            password: "leader",
-            employeeCode: 'emp-009',
+            email: 'pmalakar@aripratech.com',
+            firstName: "Praveen",
+            lastName: "Malakar",
+            roles: [developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
             designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
             dateJoined: '01-01-2018'
         })
     }
 
-    if (!await MDL.UserModel.exists('leader2@test.com')) {
+    if (!await MDL.UserModel.exists('kmishra@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'leader2@test.com',
-            firstName: "Leader-2",
-            lastName: "Two",
-            roles: [leaderRole],
-            password: "leader",
-            employeeCode: 'emp-010',
+            email: 'kmishra@aripratech.com',
+            firstName: "Khushboo",
+            lastName: "Mishra",
+            roles: [developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await MDL.UserModel.exists('vsahu@aripratech.com')) {
+        await MDL.UserModel.createUser({
+            email: 'vsahu@aripratech.com',
+            firstName: "Vikas",
+            lastName: "Sahu",
+            roles: [developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await MDL.UserModel.exists('gagrawal@aripratech.com')) {
+        await MDL.UserModel.createUser({
+            email: 'gagrawal@aripratech.com',
+            firstName: "Gaurav",
+            lastName: "Agarawal",
+            roles: [developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await MDL.UserModel.exists('mmerchant@aripratech.com')) {
+        await MDL.UserModel.createUser({
+            email: 'mmerchant@aripratech.com',
+            firstName: "Murtaza",
+            lastName: "Merchant",
+            roles: [developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
+            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
+            dateJoined: '01-01-2018'
+        })
+    }
+
+    if (!await MDL.UserModel.exists('hrampurawala@aripratech.com')) {
+        await MDL.UserModel.createUser({
+            email: 'hrampurawala@aripratech.com',
+            firstName: "Huzefa",
+            lastName: "Rampurawala",
+            roles: [developerRole],
+            password: "password",
+            employeeCode: 'emp-003',
             designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
-            dateJoined: '01-01-2018'
-        })
-    }
-
-    if (!await MDL.UserModel.exists('leader3@test.com')) {
-        await MDL.UserModel.createUser({
-            email: 'leader3@test.com',
-            firstName: "Leader-3",
-            lastName: "Three",
-            roles: [leaderRole],
-            password: "leader",
-            employeeCode: 'emp-011',
-            designation: SC.DESIGNATION_SENIOR_SW_ENGINEER,
-            dateJoined: '01-01-2018'
-        })
-    }
-
-    let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
-    // create manager user
-    if (!await MDL.UserModel.exists('developer1@test.com')) {
-        await MDL.UserModel.createUser({
-            email: 'developer1@test.com',
-            firstName: "Developer-1",
-            lastName: "One",
-            roles: [developerRole],
-            password: "developer",
-            employeeCode: 'emp-012',
-            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
-            dateJoined: '01-01-2018'
-        })
-    }
-
-    if (!await MDL.UserModel.exists('developer2@test.com')) {
-        await MDL.UserModel.createUser({
-            email: 'developer2@test.com',
-            firstName: "Developer-2",
-            lastName: "Two",
-            roles: [developerRole],
-            password: "developer",
-            employeeCode: 'emp-013',
-            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
-            dateJoined: '01-01-2018'
-        })
-    }
-
-    if (!await MDL.UserModel.exists('developer3@test.com')) {
-        await MDL.UserModel.createUser({
-            email: 'developer3@test.com',
-            firstName: "Developer-3",
-            lastName: "Three",
-            roles: [developerRole],
-            password: "developer",
-            employeeCode: 'emp-014',
-            designation: SC.DESIGNATION_SOFTWARE_ENGINEER,
             dateJoined: '01-01-2018'
         })
     }
@@ -459,11 +457,11 @@ const addNNXTUsers = async () => {
     let topManagementRoles = await MDL.RoleModel.findOne({name: SC.ROLE_TOP_MANAGEMENT}).lean()
     if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'schouhan@aripratech.com',
+            email: 'contactus@aripratech.com',
             firstName: "Saurabh",
             lastName: "Chouhan",
             roles: [topManagementRoles],
-            password: "an1mos1ty",
+            password: "password",
             employeeCode: 'emp-002',
             designation: SC.DESIGNATION_OWNER,
             dateJoined: '01-01-2012'

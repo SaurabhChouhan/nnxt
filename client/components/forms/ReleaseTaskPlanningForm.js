@@ -18,7 +18,14 @@ let ReleaseTaskPlanningForm = (props) => {
     const devEndDateMoment = moment(initial.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
     const min = devStartDateMoment.isSameOrAfter(todayMoment) ? devStartDateMoment.toDate() : todayMoment.toDate()
     const max = devEndDateMoment.toDate()
-    let employees = releasePlan && releasePlan.highestRoleInThisRelease === SC.ROLE_LEADER ? releaseTeam : releasePlan && releasePlan.highestRoleInThisRelease === SC.ROLE_MANAGER ? projectUsersOnly ? releaseTeam : allTeam : []
+
+    let employees = []
+    if(releasePlan && releasePlan.rolesInThisRelease){
+        if(releasePlan.rolesInThisRelease.indexOf(SC.ROLE_MANAGER) > -1)
+            employees = projectUsersOnly?releaseTeam:allTeam
+        else if(releasePlan.rolesInThisRelease.indexOf(SC.ROLE_LEADER) > -1)
+            employees = releaseTeam
+    }
 
     return <form onSubmit={handleSubmit}>
         <div className="row">
@@ -41,7 +48,7 @@ let ReleaseTaskPlanningForm = (props) => {
 
                 <Field name="employee.name" component="input" type="hidden"/>
                 {
-                    releasePlan && releasePlan.highestRoleInThisRelease === SC.ROLE_MANAGER ?
+                    releasePlan && releasePlan.rolesInThisRelease.indexOf(SC.ROLE_MANAGER) > -1 ?
                         <Field name="projectUsersOnly"
                                type="checkbox"
                                label="projectUsersOnly"
