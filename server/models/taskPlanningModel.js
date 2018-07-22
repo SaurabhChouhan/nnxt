@@ -180,147 +180,6 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     if (generatedWarnings.added && generatedWarnings.added.length) {
         generatedWarnings.added.forEach(w => {
             if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
-                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
-                if (!affectedReleasePlan)
-                    return;
-                if (affectedReleasePlan.flags.indexOf(w.type) === -1)
-                    affectedReleasePlan.flags.push(w.type)
-
-            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
-                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
-                if (!affectedTaskPlan)
-                    return;
-                if (affectedTaskPlan.flags.indexOf(w.type) === -1)
-                    affectedTaskPlan.flags.push(w.type)
-            }
-        })
-    }
-
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(w => {
-            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
-                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
-                if (!affectedReleasePlan)
-                    return;
-
-                if (affectedReleasePlan.flags.indexOf(w.type) > -1)
-                    affectedReleasePlan.flags.pull(w.type)
-
-            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
-                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
-                if (!affectedTaskPlan)
-                    return;
-                if (affectedTaskPlan.flags.indexOf(w.type) > -1)
-                    affectedTaskPlan.flags.pull(w.type)
-            }
-        })
-    }
-
-    // Now that all release plans/task plans are updated to add/remove flags based on generated warnings, it is time
-    // save them and then return only once all save operation completes so that user interface is appropriately modified
-
-    let rpSavePromises = affectedReleasePlans.map(rp => {
-        logger.debug("Saving release plan ", {rp})
-        return rp.save()
-    })
-
-    let tpSavePromises = affectedTaskPlans.map(tp => {
-        logger.debug("Saving task plan ", {tp})
-        return tp.save()
-    })
-
-    await Promise.all(rpSavePromises)
-    await Promise.all(tpSavePromises)
-
-    return {
-        affectedReleasePlans,
-        affectedTaskPlans
-    }
-}
-
-/**
- * Modify flags in all affected release plans/task plans due to generated warnings
- * @param generatedWarnings - Generated warnings due to any operation
- * @param releasePlan - Current Release plan
- * @param taskPlan - Current task plan
- * @returns
- * {
- *   affectedReleasePlans,
- *   affectedTaskPlans
- * }
- */
-const updateFlagsOnShift = async (generatedWarnings, releasePlan, taskPlan) => {
-
-    // To avoid concurrency problems we would first fetch all release plan/task plans
-    // that would be affected by warnings added/removed due to addition of this task plan
-    // then we would update them by pushing/pulling flags
-    // As a last step we would save all of them
-
-
-    let releasePlanIDs = [];
-    let taskPlanIDs = [];
-
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        let releasePlanWarnings = generatedWarnings.added.filter(w => w.warningType === SC.WARNING_TYPE_RELEASE_PLAN)
-        let taskPlanWarnings = generatedWarnings.added.filter(w => w.warningType === SC.WARNING_TYPE_TASK_PLAN)
-
-        releasePlanWarnings.map(w => w._id.toString()).reduce((rpIDs, wid) => {
-            if (rpIDs.indexOf(wid) == -1)
-                rpIDs.push(wid)
-            return rpIDs
-        }, releasePlanIDs)
-
-        taskPlanWarnings.map(w => w._id.toString()).reduce((tpIDs, wid) => {
-            if (tpIDs.indexOf(wid) == -1)
-                tpIDs.push(wid)
-            return tpIDs
-        }, taskPlanIDs)
-
-    }
-
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        let releasePlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_RELEASE_PLAN)
-        let taskPlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_TASK_PLAN)
-
-        releasePlanWarnings.map(w => w._id.toString()).reduce((rpIDs, wid) => {
-            if (rpIDs.indexOf(wid) == -1)
-                rpIDs.push(wid)
-            return rpIDs
-        }, releasePlanIDs)
-
-        taskPlanWarnings.map(w => w._id.toString()).reduce((tpIDs, wid) => {
-            if (tpIDs.indexOf(wid) == -1)
-                tpIDs.push(wid)
-            return tpIDs
-        }, taskPlanIDs)
-    }
-    // Get releases and task plans
-
-    let rpIDPromises = releasePlanIDs.map(rpID => {
-        if (rpID.toString() === releasePlan._id.toString())
-            return releasePlan;
-        else
-            return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(rpID))
-    })
-
-    let tpIDPromises = taskPlanIDs.map(tpID => {
-        if (tpID.toString() === taskPlan._id.toString())
-            return taskPlan;
-        else
-            return MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(tpID))
-    })
-
-    let affectedReleasePlans = await Promise.all(rpIDPromises)
-    let affectedTaskPlans = await Promise.all(tpIDPromises)
-
-    // Now that we have got all the releasePlan/taskPlan IDs that would be affected by warning raised, we will update them accordingly
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(w => {
-            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                 /*
                   During shifting it is possible that few task plans of same release had too many hours warning
                   and now they don't have that warning while other task plans didn't have those warnings and
@@ -360,6 +219,139 @@ const updateFlagsOnShift = async (generatedWarnings, releasePlan, taskPlan) => {
 
             } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                 logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
+                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
+                if (!affectedTaskPlan)
+                    return;
+                if (affectedTaskPlan.flags.indexOf(w.type) > -1)
+                    affectedTaskPlan.flags.pull(w.type)
+            }
+        })
+    }
+
+    // Now that all release plans/task plans are updated to add/remove flags based on generated warnings, it is time
+    // save them and then return only once all save operation completes so that user interface is appropriately modified
+
+    let rpSavePromises = affectedReleasePlans.map(rp => {
+        logger.debug("Saving release plan ", {rp})
+        return rp.save()
+    })
+
+    let tpSavePromises = affectedTaskPlans.map(tp => {
+        logger.debug("Saving task plan ", {tp})
+        return tp.save()
+    })
+
+    await Promise.all(rpSavePromises)
+    await Promise.all(tpSavePromises)
+
+    return {
+        affectedReleasePlans,
+        affectedTaskPlans
+    }
+}
+
+
+/**
+ * Modify flags in all affected release plans/task plans due to generated warnings
+ * @param generatedWarnings - Generated warnings due to any operation
+ * @returns
+ * {
+ *   affectedReleasePlans,
+ *   affectedTaskPlans
+ * }
+ */
+const updateFlagsOnShift = async (generatedWarnings) => {
+
+    // To avoid concurrency problems we would first fetch all release plan/task plans
+    // that would be affected by warnings added/removed due to addition of this task plan
+    // then we would update them by pushing/pulling flags
+    // As a last step we would save all of them
+
+
+    let releasePlanIDs = [];
+    let taskPlanIDs = [];
+
+    if (generatedWarnings.added && generatedWarnings.added.length) {
+        let releasePlanWarnings = generatedWarnings.added.filter(w => w.warningType === SC.WARNING_TYPE_RELEASE_PLAN)
+        let taskPlanWarnings = generatedWarnings.added.filter(w => w.warningType === SC.WARNING_TYPE_TASK_PLAN)
+
+        releasePlanWarnings.map(w => w._id.toString()).reduce((rpIDs, wid) => {
+            if (rpIDs.indexOf(wid) == -1)
+                rpIDs.push(wid)
+            return rpIDs
+        }, releasePlanIDs)
+
+        taskPlanWarnings.map(w => w._id.toString()).reduce((tpIDs, wid) => {
+            if (tpIDs.indexOf(wid) == -1)
+                tpIDs.push(wid)
+            return tpIDs
+        }, taskPlanIDs)
+    }
+
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        let releasePlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_RELEASE_PLAN)
+        let taskPlanWarnings = generatedWarnings.removed.filter(w => w.warningType === SC.WARNING_TYPE_TASK_PLAN)
+
+        releasePlanWarnings.map(w => w._id.toString()).reduce((rpIDs, wid) => {
+            if (rpIDs.indexOf(wid) == -1)
+                rpIDs.push(wid)
+            return rpIDs
+        }, releasePlanIDs)
+
+        taskPlanWarnings.map(w => w._id.toString()).reduce((tpIDs, wid) => {
+            if (tpIDs.indexOf(wid) == -1)
+                tpIDs.push(wid)
+            return tpIDs
+        }, taskPlanIDs)
+    }
+    // Get releases and task plans
+
+    let rpIDPromises = releasePlanIDs.map(rpID => {
+        return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(rpID))
+    })
+
+    let tpIDPromises = taskPlanIDs.map(tpID => {
+        return MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(tpID))
+    })
+
+    let affectedReleasePlans = await Promise.all(rpIDPromises)
+    let affectedTaskPlans = await Promise.all(tpIDPromises)
+
+    // Now that we have got all the releasePlan/taskPlan IDs that would be affected by warning raised, we will update them accordingly
+    if (generatedWarnings.added && generatedWarnings.added.length) {
+        generatedWarnings.added.forEach(w => {
+            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                logger.debug('[updateFlags]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
+                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
+                if (!affectedReleasePlan)
+                    return;
+                if (affectedReleasePlan.flags.indexOf(w.type) === -1)
+                    affectedReleasePlan.flags.push(w.type)
+
+            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                logger.debug('[updateFlags]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
+                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
+                if (!affectedTaskPlan)
+                    return;
+                if (affectedTaskPlan.flags.indexOf(w.type) === -1)
+                    affectedTaskPlan.flags.push(w.type)
+            }
+        })
+    }
+
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        generatedWarnings.removed.forEach(w => {
+            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
+                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
+                if (!affectedReleasePlan)
+                    return;
+
+                if (affectedReleasePlan.flags.indexOf(w.type) > -1)
+                    affectedReleasePlan.flags.pull(w.type)
+
+            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
                 let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
                 if (!affectedTaskPlan)
                     return;
