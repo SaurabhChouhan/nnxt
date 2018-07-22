@@ -2053,7 +2053,7 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
         })
 
         taskPlans.forEach(t => {
-            if (t.release._id.toString() == release._id.toString()) {
+            if (t.release._id.toString() === release._id.toString()) {
                 warningResponse.added.push({
                     _id: t._id,
                     warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -2147,29 +2147,44 @@ const addTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours)
     return warningResponse
 }
 
-warningSchema.statics.movedToFuture = async (release, employeeDays, maxPlannedHoursNumber) => {
+warningSchema.statics.movedToFuture = async (release, employeeDays) => {
+
+    // Max planned hours would come handy to add too many hours warning
+    let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
+    let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
+
+
     logger.debug('WarningModel.movedToFuture() called: ', {employeeDays}, {maxPlannedHoursNumber})
 
     let warningResponse = {
         added: [],
         removed: []
     }
-    /*-------------------------------------------WARNING UPDATION-------------------------------------------*/
+    /*-------------------------------------------TOO_MANY_HOUR_WARNING_UPDATE-------------------------------------------*/
     let tooManyHoursWarning = await addTooManyHoursTasksMoved(release, employeeDays, maxPlannedHoursNumber)
 
-
-    /*-------------------------------------------RESPONSE UPDATION-------------------------------------------*/
     if (tooManyHoursWarning.added && tooManyHoursWarning.added.length)
         warningResponse.added.push(...tooManyHoursWarning.added)
 
     if (tooManyHoursWarning.removed && tooManyHoursWarning.removed.length)
         warningResponse.removed.push(...tooManyHoursWarning.removed)
 
+    /*-------------------------------------------EMPLOYEE_ASK_FOR_LEAVE_WARNING_UPDATE-------------------------------------------*/
+    
+    /*-------------------------------------------EMPLOYEE_ON_LEAVE_WARNING_UPDATE-------------------------------------------*/
+
     return warningResponse
 
 }
 
 /*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
+/*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
+
+warningSchema.statics.movedToPast = async (release, employeeDays) => {
+
+}
+/*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
+
 
 /*
 * |____________________________________________________________________TASK_PLAN_END____________________________________________________________________|

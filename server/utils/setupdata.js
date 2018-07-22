@@ -469,7 +469,6 @@ const addNNXTUsers = async () => {
         })
     }
 
-    let topManagementRoles = await MDL.RoleModel.findOne({name: SC.ROLE_TOP_MANAGEMENT}).lean()
     if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
         await MDL.UserModel.createUser({
             email: 'contactus@aripratech.com',
