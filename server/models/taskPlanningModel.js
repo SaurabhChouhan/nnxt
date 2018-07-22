@@ -2217,7 +2217,7 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
         twoHoursFromReportedOnDate.add(2, 'hours')
         if (twoHoursFromReportedOnDate.isBefore(new Date())) {
-            throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_REREPORTING, EC.HTTP_BAD_REQUEST)
+            throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
         }
     }
 
