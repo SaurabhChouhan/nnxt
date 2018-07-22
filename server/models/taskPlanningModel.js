@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import momentTZ from 'moment-timezone'
-import _ from 'lodash'
 import moment from 'moment'
 import logger from '../logger'
 import * as SC from '../serverconstants'
@@ -76,23 +75,10 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
     }
     // Get all roles user have in this release
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    console.log("TaskPlanningModel.getTaskPlanning()-----------", userRolesInThisRelease)
-    logger.debug('TaskPlanningModel.getTaskPlanning(): ', {userRolesInThisRelease})
-    if (!userRolesInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER)) {
-        if (status && status.toLowerCase() === SC.ALL) {
-            return await TaskPlanningModel.find({}).sort({'planningDateString': -1})
-        } else {
-            return await TaskPlanningModel.find({
-                "status": status
-            }).sort({'planningDateString': -1})
-        }
-    }
+
     return await MDL.TaskPlanningModel.find({'release._id': releaseID})
 
 }
@@ -180,11 +166,9 @@ taskPlanningSchema.statics.getTaskPlansOfReleasePlan = async (releasePlanID, use
     }
 
     /*check user highest role in this release*/
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can fetch', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -632,9 +616,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': employee._id.toString(),
-            'date': momentPlanningDate
-        }) > 0) {
+        'employee._id': employee._id.toString(),
+        'date': momentPlanningDate
+    }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -666,11 +650,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id),
-            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id),
+        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-        }) > 0) {
+    }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -693,9 +677,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id)
-        }) > 0) {
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -930,13 +914,13 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     /* Get employee roles in this project that this task is planned against*/
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
-    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
+    if (!U.includeAny(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
         /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
            or manager/leader of this release are now working on this task and hence became ad developer of this release
          */
 
         // Only manager is allowed to rope in people outside of developer team assigned to this release so check if logged in user is manager
-        if (!_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+        if (!U.includeAny(SC.ROLE_MANAGER, userRolesInThisRelease)) {
             throw new AppError('Only manager of release can rope in additional employee for Release', EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE, EC.HTTP_FORBIDDEN)
         }
 
@@ -1874,66 +1858,6 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
 }
 
 
-/* get all task plannings according to developers and date range */
-taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
-    if (!employeeId)
-        throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let fromDateMomentTz
-    let toDateMomentTz
-
-    if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        let fromDateMoment = moment(fromDate)
-        let fromDateMomentToDate = fromDateMoment.toDate()
-        fromDateMomentTz = momentTZ.tz(fromDateMomentToDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    }
-
-    if (toDate && toDate != 'undefined' && toDate != undefined) {
-        let toDateMoment = moment(toDate)
-        let toDateMomentToDate = toDateMoment.toDate()
-        toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    }
-
-    /* list of release Id`s where user is either manager or leader */
-    let releaseListOfID = []
-    releaseListOfID = await MDL.ReleaseModel.find({
-        $or: [{'manager._id': mongoose.Types.ObjectId(user._id)},
-            {'leader._id': mongoose.Types.ObjectId(user._id)}]
-    }, {'_id': 1})
-
-    /* All task plannings of selected employee Id */
-    let taskPlannings = await MDL.TaskPlanningModel.find({'employee._id': mongoose.Types.ObjectId(employeeId)}).sort({'planningDate': 1})
-
-    /* Conditions applied for filter according to required data and fromDate to toDate */
-    if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
-    }
-    else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz))
-    }
-    else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
-    }
-
-
-    let now = new Date()
-    let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-    /* Return of filtered task plannings and checking it can be merged or not */
-    return taskPlannings.map(tp => {
-        tp = tp.toObject()
-        let check = momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
-        if (check) {
-            tp.canMerge = false
-        } else {
-            tp.canMerge = true
-        }
-        return tp
-    })
-}
-
-
 /**
  * add comments from task detail page by developer or manager or leader
  */
@@ -2377,7 +2301,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                        })
+                    })
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
                         removed: taskPlanShiftWarningRemoved
@@ -2788,17 +2712,17 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                                })
+                    })
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
                         removed: taskPlanShiftWarningRemoved
-                        })
+                    })
                     return {
                         taskPlan: planning,
                         warnings: {
                             added: taskPlanShiftWarningAdded,
                             removed: taskPlanShiftWarningRemoved
-                            }
+                        }
                     }
                 } else {
                     return {
@@ -2874,28 +2798,6 @@ const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user)
     return await Promise.all(saveEmployeePromises)
 
 }
-
-taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
-    let release = await MDL.ReleaseModel.findById(releaseID)
-    if (!release) {
-        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    // Get all roles user have in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    console.log("TaskPlanningModel.getTaskPlanning()-----------", userRolesInThisRelease)
-    logger.debug('TaskPlanningModel.getTaskPlanning(): ', {userRolesInThisRelease})
-    if (!userRolesInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
-        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-
-    return await MDL.TaskPlanningModel.find({'release._id': releaseID})
-
-}
-
-
 
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
@@ -3303,7 +3205,8 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
     if (!userRoleInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_DEVELOPER + ' or ' + SC.ROLE_NON_PROJECT_DEVELOPER, +' or ' + SC.ROLE_LEADER + '] can comment', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -3337,10 +3240,11 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     if (!userRoles)
         throw new AppError('Employee has no role in this release, not allowed to see reports', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-    if (_.includes(userRoles, SC.ROLE_MANAGER) || _.includes(userRoles, SC.ROLE_LEADER)) {
+
+    if (U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoles)) {
         // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
         throw new AppError('Manager/Leader would see all the tasks of a release for date, need to implement that.', EC.UNIMPLEMENTED_SO_FAR, EC.HTTP_SERVER_ERROR)
-    } else if (_.includes(userRoles, SC.ROLE_DEVELOPER) || _.includes(userRoles, SC.ROLE_NON_PROJECT_DEVELOPER)) {
+    } else if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], userRoles)) {
         let criteria = {
             'release._id': mongoose.Types.ObjectId(releaseID),
             'planningDate': U.dateInUTC(dateString),
@@ -3368,7 +3272,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
 
     if (!taskPlanID) {
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        }
+    }
 
     /*
     let release = await MDL.ReleaseModel.findById(releaseID)
@@ -3413,7 +3317,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
         estimationDescription: estimationDescription.description,
         taskPlan: taskPlan,
         releasePlan: releasePlan
-}
+    }
 }
 
 /*----------------------------------------------------------------------REPORTING_SECTION_END------------------------------------------------------------------------*/
