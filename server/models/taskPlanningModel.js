@@ -66,7 +66,40 @@ let taskPlanningSchema = mongoose.Schema({
     usePushEach: true
 })
 
-/*-------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_START---------------------------------------------------------------*/
+/*-----------------------------------------------------------------GET_TASK_PLANS_START---------------------------------------------------------------*/
+
+
+taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
+    let release = await MDL.ReleaseModel.findById(releaseID)
+    if (!release) {
+        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    // Get all roles user have in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    console.log("TaskPlanningModel.getTaskPlanning()-----------", userRolesInThisRelease)
+    logger.debug('TaskPlanningModel.getTaskPlanning(): ', {userRolesInThisRelease})
+    if (!userRolesInThisRelease) {
+        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER)) {
+        if (status && status.toLowerCase() === SC.ALL) {
+            return await TaskPlanningModel.find({}).sort({'planningDateString': -1})
+        } else {
+            return await TaskPlanningModel.find({
+                "status": status
+            }).sort({'planningDateString': -1})
+        }
+    }
+    return await MDL.TaskPlanningModel.find({'release._id': releaseID})
+
+}
+
+
+/*--------------------------------------------------------------GET_TASK_PLANS_END-------------------------------------------------------------------*/
+/*-------------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_START---------------------------------------------------------------*/
 
 const getNewBaseHours = (releasePlan) => {
     let possibleBaseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
@@ -252,7 +285,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
 
 
 /**
- * Modify flags in all affected release plans/task plans due to generated warnings
+ * Modify flags in all affected release plans/task plans due to generated warnings on task plan shifting
  * @param generatedWarnings - Generated warnings due to any operation
  * @returns
  * {
@@ -1108,6 +1141,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 }
 /*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
+/*-------------------------------------------------MERGE_TASK_PLANNING_SECTION_START----------------------------------------------------------*/
 
 /**
  *  merge task plan to another date
@@ -1222,6 +1256,8 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     taskPlan.canMerge = true
     return {warnings: generatedWarnings, taskPlan: taskPlan, taskPlans: affectedTaskPlans}
 }
+
+/*-------------------------------------------------MERGE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
 
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
@@ -1808,82 +1844,6 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
     return release
 }
 
-
-const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
-
-
-    logger.debug('[task-shift] taskPlanningModel.makeWarningUpdatesShiftToFuture(): Generated warnings [' + U.formatDateInUTC(employeeDays.date) + ']', {generatedWarnings})
-
-    let warningPromises = []
-    let tooManyHoursReleasePlanRemove = []
-    let tooManyHoursReleasePlanAdd = []
-
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(w => {
-            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
-                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    // add all release plan ids into this array
-                    tooManyHoursReleasePlanRemove.push(w._id.toString())
-
-                }
-                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('[task-shift] shiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
-                    // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
-                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
-                        if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
-                            logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
-                            t.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-                            return t.save()
-
-                        }
-                    }))
-                }
-            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
-                // TODO - need to handle employee on leave warnings
-
-            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
-                // TODO - need to handle employee ask for leave warnings
-            }
-        })
-    }
-
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(w => {
-            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
-
-                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('taskShiftToFuture(): [' + U.formatDateInUTC(employeeDays.date) + '] warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
-
-                    // As release plan id is part of added list, remove it from remove list if present as even one addition would mean release plan still have that warning
-                    tooManyHoursReleasePlanAdd.push(w._id.toString())
-                }
-
-                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
-                    // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
-                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
-                        if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
-                            logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
-                            t.flags.push(SC.WARNING_TOO_MANY_HOURS)
-                            return t.save()
-                        }
-                    }))
-                }
-            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
-                // TODO - need to handle employee on leave warnings
-
-            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
-                // TODO - need to handle employee ask for leave warnings
-            }
-        })
-    }
-    return await Promise.all(warningPromises).then(() => {
-        return {
-            tooManyHoursReleasePlanRemove,
-            tooManyHoursReleasePlanAdd
-        }
-    })
-}
 
 /*
  Shifting task plans to future
@@ -2739,34 +2699,84 @@ const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user)
 
 }
 
-taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
-    let release = await MDL.ReleaseModel.findById(releaseID)
-    if (!release) {
-        throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    // Get all roles user have in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    console.log("TaskPlanningModel.getTaskPlanning()-----------", userRolesInThisRelease)
-    logger.debug('TaskPlanningModel.getTaskPlanning(): ', {userRolesInThisRelease})
-    if (!userRolesInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
-        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER)) {
-        if (status && status.toLowerCase() === SC.ALL) {
-            return await TaskPlanningModel.find({}).sort({'planningDateString': -1})
-        } else {
-            return await TaskPlanningModel.find({
-                "status": status
-            }).sort({'planningDateString': -1})
-        }
-    }
-    return await MDL.TaskPlanningModel.find({'release._id': releaseID})
-
-}
-
 
 const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
+/*
+*
+const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
+
+
+    logger.debug('[task-shift] taskPlanningModel.makeWarningUpdatesShiftToFuture(): Generated warnings [' + U.formatDateInUTC(employeeDays.date) + ']', {generatedWarnings})
+
+    let warningPromises = []
+    let tooManyHoursReleasePlanRemove = []
+    let tooManyHoursReleasePlanAdd = []
+
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        generatedWarnings.removed.forEach(w => {
+            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    // add all release plan ids into this array
+                    tooManyHoursReleasePlanRemove.push(w._id.toString())
+
+                }
+                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                    logger.debug('[task-shift] shiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
+                    // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
+                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                        if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
+                            logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
+                            t.flags.pull(SC.WARNING_TOO_MANY_HOURS)
+                            return t.save()
+
+                        }
+                    }))
+                }
+            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
+                // TODO - need to handle employee on leave warnings
+
+            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
+                // TODO - need to handle employee ask for leave warnings
+            }
+        })
+    }
+
+    if (generatedWarnings.added && generatedWarnings.added.length) {
+        generatedWarnings.added.forEach(w => {
+            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
+
+                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                    logger.debug('taskShiftToFuture(): [' + U.formatDateInUTC(employeeDays.date) + '] warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
+
+                    // As release plan id is part of added list, remove it from remove list if present as even one addition would mean release plan still have that warning
+                    tooManyHoursReleasePlanAdd.push(w._id.toString())
+                }
+
+                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                    logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
+                    // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
+                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
+                        if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
+                            logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
+                            t.flags.push(SC.WARNING_TOO_MANY_HOURS)
+                            return t.save()
+                        }
+                    }))
+                }
+            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
+                // TODO - need to handle employee on leave warnings
+
+            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
+                // TODO - need to handle employee ask for leave warnings
+            }
+        })
+    }
+    return await Promise.all(warningPromises).then(() => {
+        return {
+            tooManyHoursReleasePlanRemove,
+            tooManyHoursReleasePlanAdd
+        }
+    })
+}
+*/
