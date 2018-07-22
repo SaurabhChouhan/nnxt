@@ -105,9 +105,11 @@ export {default as ReleaseDeveloperFilterForm} from './forms/ReleaseDeveloperFil
 export {default as ReleaseTaskPlanningForm} from './forms/ReleaseTaskPlanningForm'
 export {default as ReleaseMergeTaskPlanningForm} from './forms/ReleaseMergeTaskPlanningForm'
 export {default as UpdateReleaseDatesForm} from './forms/UpdateReleaseDatesForm'
+export {default as ReleasePlanAddToReleaseForm} from './forms/ReleasePlanAddToReleaseForm'
 export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPlanningFormDialog'
 export {default as ReleaseMergeTaskPlanningFormDialog} from './dialogs/ReleaseMergeTaskPlanningFormDialog'
 export {default as UpdateReleaseDatesFormDialog} from './dialogs/UpdateReleaseDatesFormDialog'
+export {default as ReleasePlanAddToReleaseDialog} from './dialogs/ReleasePlanAddToReleaseDialog'
 //Release Pages
 export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSchedules'
 export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'

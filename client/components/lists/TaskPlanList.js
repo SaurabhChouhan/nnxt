@@ -126,33 +126,33 @@ class TaskPlanList extends Component {
         const {taskPlans} = this.props
         console.log("taskPlans------------------", taskPlans)
         return (
-            <div className="estimation">
-                <BootstrapTable options={this.options} data={taskPlans}
-                                multiColumnSearch={true}
-                                search={true}
-                                striped={true}
-                                hover={true}>
-                    <TableHeaderColumn columnTitle isKey dataField='_id'
-                                       hidden={true}>ID
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='employee'
-                                       dataFormat={this.formatDeveloperName.bind(this)}>Developer
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='task'
-                                       dataFormat={this.formatTaskName.bind(this)}>Tasks
-                    </TableHeaderColumn>
+            <div className="estimation releasePlan-taskPlan">
+            <BootstrapTable options={this.options} data={taskPlans}
+                            multiColumnSearch={true}
+                            search={true}
+                            striped={true}
+                            hover={true}>
+                <TableHeaderColumn columnTitle isKey dataField='_id'
+                                   hidden={true}>ID
+                </TableHeaderColumn>
+                <TableHeaderColumn columnTitle dataField='employee'
+                                   dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                </TableHeaderColumn>
+                <TableHeaderColumn columnTitle dataField='task'
+                                   dataFormat={this.formatTaskName.bind(this)}>Tasks
+                </TableHeaderColumn>
                     <TableHeaderColumn width=" 18%" dataField='flags'
                                        dataFormat={this.formatFlags.bind(this)}>
                         Flag</TableHeaderColumn>
                     <TableHeaderColumn columnTitle dataField='planningDate'
                                        dataFormat={this.formatPlannedDate.bind(this)}>Planning
-                        Date
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='planning' dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                        Hours
-                    </TableHeaderColumn>
+                    Date
+                </TableHeaderColumn>
+                <TableHeaderColumn columnTitle dataField='planning' dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                    Hours
+                </TableHeaderColumn>
 
-                </BootstrapTable>
+            </BootstrapTable>
             </div>
         )
     }

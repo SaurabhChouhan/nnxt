@@ -12,8 +12,7 @@ class LeaveDetailPage extends Component {
 
     render() {
         const {leave} = this.props
-        console.log("leave", leave)
-        var approval = leave && leave.status && ( leave.status === SC.LEAVE_STATUS_APPROVED || leave.status === SC.LEAVE_STATUS_CANCELLED )
+        let approval = leave && leave.status && ( leave.status === SC.LEAVE_STATUS_APPROVED || leave.status === SC.LEAVE_STATUS_CANCELLED )
         return (
             <Timeline>
                 <span>

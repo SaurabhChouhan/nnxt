@@ -156,7 +156,14 @@ class ReleasePlanList extends Component {
 
             <div className="clearfix">
                 <div className="col-md-8 releaseOption releaseDetailSearchContent">
-                    <div className="col-md-6 ">
+                    <div className="col-md-2">
+                        <button type="button" className="btn customBtn addToReleaseBtn" onClick={
+                            () => {
+                                this.props.showAddToReleasePlanForm(release)
+                            }}>Add to Release
+                        </button>
+                    </div>
+                    <div className="col-md-5 ">
                         <div className="releaseDetailSearchFlag">
                             <select className="form-control" title="Select Flag" onChange={(flag) =>
                                 this.onFlagChange(flag.target.value)
@@ -168,7 +175,7 @@ class ReleasePlanList extends Component {
                             </select>
                         </div>
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-5">
                         <div className="releaseDetailSearchStatus">
                             <select className="form-control" title="Select Status"
                                     onChange={(status) => this.onStatusChange(status.target.value)}>
@@ -184,7 +191,9 @@ class ReleasePlanList extends Component {
                             </select>
                         </div>
                     </div>
+
                 </div>
+
                 <div className="estimation">
                     <BootstrapTable options={this.options} data={releasePlans}
                                     multiColumnSearch={true}

@@ -51,6 +51,7 @@ export const STATUS_REOPENED = 'reopened'
 export const STATUS_PROJECT_AWARDED = 'project-awarded'
 export const STATUS_REJECTED = 'rejected'
 export const STATUS_CANCELLED = 'cancelled'
+export const STATUS_PLANNED = 'planned'
 
 //Leave Status
 

@@ -94,7 +94,6 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
 
     let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).add(6, 'days').hour(0).minute(0).second(0).millisecond(0)
     if (employeeID && employeeID.toLowerCase() === SC.ALL) {
-        //console.log("selected employee", employeeID)
         let allDevelopers = await MDL.UserModel.find({"roles.name": SC.ROLE_DEVELOPER}).exec()
         if (!allDevelopers || !allDevelopers.length) {
             throw new AppError('No developer is available ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -139,7 +138,7 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
         if (!selectedEmployee) {
             throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         }
-        //console.log("selectedEmployee._id", selectedEmployee._id)
+
         let employeeDays = await EmployeeDaysModel.aggregate([{
             $match: {
                 $and: [

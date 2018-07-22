@@ -1643,11 +1643,10 @@ label {
 }
 
 .releaseDetailSearchFlag {
-    margin-left: 67px;
-    margin-top: 28px;
+    margin-left: 98px;
+    margin-top: 29px;
     position: absolute;
-    width: 86%;
-
+    width: 79%;
 }
 
 .releaseDetailSearchContent {
@@ -1655,9 +1654,9 @@ label {
 }
 
 .releaseDetailSearchStatus {
-    margin-top: 28px;
+    margin-top: 29px;
     position: absolute;
-    width: 82%;
+    width: 79%;
     margin-left: 58px;
 }
 
@@ -2012,6 +2011,15 @@ hr {
 
 .td-row-cancelled {
     background-color: #e8080859 !important;
+}
+.td-row-unreported {
+    background-color: #d3da65 !important;
+}
+.td-row-pending {
+    background-color: #fdb8b3 !important;
+}
+.td-row-completed {
+    background-color: #92e488 !important;
 }
 
 .modal-body b {

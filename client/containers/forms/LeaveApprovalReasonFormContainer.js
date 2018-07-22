@@ -11,7 +11,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     onSubmit: (values) => {
         if (!values.leaveID || !values.reason) {
-            console.log("Reason not provided")
+            return NotificationManager.error('Reason not provided')
         }
         if (values.isApproved) {
             return dispatch(A.approveLeaveRequestFromServer(values.leaveID, values.reason)).then(json => {

@@ -17,7 +17,7 @@ const SidebarSection = (props) => {
                 <div className="col-md-12 pad">
                     <ul className="list-unstyled">
                         {
-                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1 ||
+                            (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
                                 roles.indexOf('Developer') > -1) &&
                             <li><Link to="/app-home/calendar" onClick={() => {
                                 props.dispatch(A.getAllTaskPlansFromServer())
@@ -27,7 +27,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1) &&
+                            (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1) &&
                             <li><Link to="/app-home/release" onClick={() => {
                                 props.dispatch(A.getAllReleasesFromServer(SC.ALL))
                                 props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
@@ -36,7 +36,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1 ||
+                            (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
                                 roles.indexOf('Developer') > -1) &&
                             <li><Link to="/app-home/reporting" onClick={() => {
                                 props.dispatch(A.getUserReleasesFromServer())
@@ -46,7 +46,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            (roles.indexOf('Negotiator') > -1 || roles.indexOf('Estimator') > -1) &&
+                            (roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 || roles.indexOf(SC.ROLE_ESTIMATOR) > -1) &&
                             <li><Link to="/app-home/estimation" onClick={() => {
                                 props.dispatch(A.getAllEstimationsFromServer(SC.ALL, SC.ALL))
                                 props.dispatch(A.getAllProjectsUserEstimationsFromServer())
@@ -56,7 +56,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            roles.indexOf('Negotiator') > -1 &&
+                            roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 &&
                             <li><Link to="/app-home/client" onClick={() => {
                                 props.dispatch(A.getAllClientsFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))
@@ -65,7 +65,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            roles.indexOf('Negotiator') > -1 &&
+                            roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 &&
                             <li><Link to="/app-home/projects" onClick={() => {
                                 props.dispatch(A.getAllClientsFromServer())
                                 props.dispatch(A.getAllProjectsFromServer())
@@ -74,7 +74,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            roles.indexOf('Negotiator') > -1 &&
+                            roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 &&
                             <li><Link to="/app-home/technology" onClick={() => {
                                 props.dispatch(A.getAllTechnologiesFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.TECHNOLOGIES_LIST))
@@ -83,8 +83,8 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            (roles.indexOf('Manager') > -1 || roles.indexOf('Leader') > -1 ||
-                                roles.indexOf('Developer') > -1) &&
+                            (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
+                                roles.indexOf(SC.ROLE_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_NON_PROJECT_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_TOP_MANAGEMENT)) &&
                             <li><Link to="/app-home/leave" onClick={() => {
                                 props.dispatch(A.getAllLeavesFromServer(SC.ALL))
                                 props.dispatch(A.getAllLeaveTypesFromServer())
@@ -93,7 +93,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            roles.indexOf('Top Management') > -1 &&
+                            roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1 &&
                             <li><Link to="/app-home/attendance" onClick={() => {
                                 props.dispatch(A.getAttendanceSettingFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.ATTENDANCE_SETTING_FORM))
