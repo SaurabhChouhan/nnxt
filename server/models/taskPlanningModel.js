@@ -1721,54 +1721,25 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
                     })
-                    await updateFlagsOnShift({added: taskPlanShiftWarningAdded, removed: taskPlanShiftWarningRemoved})
-
-                    /*
-                    logger.debug('BEFORE FILTER ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanRemove})
-                    logger.debug('BEFORE FILTER ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanAdd})
-                    */
-                    /*
-                                        logger.debug('BEFORE FILTER REMOVE ', {tooManyHoursReleasePlanRemove})
-                                        tooManyHoursReleasePlanRemove = tooManyHoursReleasePlanRemove.filter(rid => tooManyHoursReleasePlanAdd.indexOf(rid) == -1)
-                                        logger.debug('FILTERED REMOVE ', {tooManyHoursReleasePlanRemove})
-                                        tooManyHoursReleasePlanRemove = _.uniq(tooManyHoursReleasePlanRemove)
-                                        tooManyHoursReleasePlanAdd = _.uniq(tooManyHoursReleasePlanAdd)
-
-                                        logger.debug('ADD/REMOVE RELEASE PLANS ', {tooManyHoursReleasePlanRemove})
-                                        logger.debug('ADD/REMOVE RELEASE PLANS ', {tooManyHoursReleasePlanAdd})
-                    */
-                    /*                   // now add/remove release plan flags
-                                       tooManyHoursReleasePlanRemove.forEach(rid => {
-                                           MDL.ReleasePlanModel.findById(rid).then(r => {
-                                               logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
-                                               if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
-                                                   r.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-                                                   return r.save().then(() => {
-                                                       logger.debug('release plan [' + r._id + '] has been saved')
-                                                   }).catch(error => {
-                                                       logger.error('caught error ', {error})
-                                                   })
-                                               }
-                                           })
-                                       })
-                                       tooManyHoursReleasePlanAdd.forEach(rid => {
-                                           MDL.ReleasePlanModel.findById(rid).then(r => {
-                                               if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
-                                                   logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
-                                                   r.flags.push(SC.WARNING_TOO_MANY_HOURS)
-                                                   return r.save()
-                                               }
-                                           })
-                                       })
-                   */
+                    let affectedObject = await updateFlagsOnShift({
+                        added: taskPlanShiftWarningAdded,
+                        removed: taskPlanShiftWarningRemoved
+                    })
 
                     return {
-                        taskPlan: planning
+                        taskPlan: planning,
+                        warnings: {
+                            added: taskPlanShiftWarningAdded,
+                            removed: taskPlanShiftWarningRemoved
+                        }
                     }
                 } else {
                     return {
                         taskPlan: planning,
-                        warnings: []
+                        warnings: {
+                            added: [],
+                            removed: []
+                        }
                     }
                 }
             })
