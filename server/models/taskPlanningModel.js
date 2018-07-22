@@ -1572,7 +1572,7 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    if(!U.includeAny([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRolesInThisRelease))
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRolesInThisRelease))
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_DEVELOPER + ' or ' + SC.ROLE_NON_PROJECT_DEVELOPER, +' or ' + SC.ROLE_LEADER + '] can comment', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(commentInput.releasePlanID))
@@ -1612,6 +1612,7 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         planning: 1,
         report: 1,
         _id: 1,
+        employee: 1
     })
 
     taskPlans.sort(function (a, b) {
