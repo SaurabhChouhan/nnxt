@@ -510,10 +510,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     }
     // Get all roles user have in this release
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    if (!userRolesInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -553,19 +550,18 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     /* Get employee roles in this project that this task is planned against*/
     let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
 
-    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes(employeeRolesInThisRelease, SC.ROLE_DEVELOPER)) {
+    if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
         /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
            or manager/leader of this release are now working on this task and hence became ad developer of this release
          */
 
         // Only manager is allowed to rope in people outside of developer team assigned to this release so check if logged in user is manager
-        if (!_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
+        if (!_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
             throw new AppError('Only manager of release can rope in additional employee for Release', EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE, EC.HTTP_FORBIDDEN)
         }
 
         // See if this employee is already roped in for this project if not add it as a non project user
-
-        if (!employeeRolesInThisRelease || employeeRolesInThisRelease.length === 0 || !_.includes([SC.ROLE_NON_PROJECT_DEVELOPER], employeeRolesInThisRelease)) {
+        if (!U.includeAny(SC.ROLE_NON_PROJECT_DEVELOPER, employeeRolesInThisRelease)) {
             // this is an extra employee note down
             if (!release.nonProjectTeam)
                 release.nonProjectTeam = []
@@ -901,7 +897,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     if (!userRolesInThisRelease) {
         throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
+    if (U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can delete plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -1020,11 +1016,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     }
 
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    if (!userRolesInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-
-    if (!_.includes(SC.ROLE_LEADER, userRolesInThisRelease) && !_.includes(SC.ROLE_MANAGER, userRolesInThisRelease)) {
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -1044,6 +1036,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
         'date': rePlanningDateUtc
     })
+
     if (existingDateEmployeeDays) {
         // Total hours would be reduced
         existingDateEmployeeDays.plannedHours -= plannedHourNumber
@@ -1489,12 +1482,8 @@ taskPlanningSchema.statics.getReleaseTaskPlanningDetails = async (releasePlanID,
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    /*check user highest role in this release*/
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can fetch', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -1577,14 +1566,14 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    /* checking user highest role in this release */
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
+    // Get all roles user have in this release
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    if (!userRolesInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER, SC.ROLE_MANAGER], userRolesInThisRelease))
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_DEVELOPER + ' or ' + SC.ROLE_NON_PROJECT_DEVELOPER, +' or ' + SC.ROLE_LEADER + '] can comment', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(commentInput.releasePlanID))
     if (!releasePlan) {
@@ -1623,6 +1612,7 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         planning: 1,
         report: 1,
         _id: 1,
+        employee: 1
     })
 
     taskPlans.sort(function (a, b) {
@@ -1793,11 +1783,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
     /* checking user role in this release */
     let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
 
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+    if (U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -2081,10 +2068,10 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     if (!userRoles)
         throw new AppError('Employee has no role in this release, not allowed to see reports', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-    if (_.includes(userRoles, SC.ROLE_MANAGER) || _.includes(userRoles, SC.ROLE_LEADER)) {
+    if (U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoles)) {
         // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
         throw new AppError('Manager/Leader would see all the tasks of a release for date, need to implement that.', EC.UNIMPLEMENTED_SO_FAR, EC.HTTP_SERVER_ERROR)
-    } else if (_.includes(userRoles, SC.ROLE_DEVELOPER) || _.includes(userRoles, SC.ROLE_NON_PROJECT_DEVELOPER)) {
+    } else if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], userRoles)) {
         let criteria = {
             'release._id': mongoose.Types.ObjectId(releaseID),
             'planningDate': U.dateInUTC(dateString),
@@ -2200,7 +2187,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoleInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -2623,18 +2610,10 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
     if (!userRolesInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes(userRolesInThisRelease, SC.ROLE_LEADER) && !_.includes(userRolesInThisRelease, SC.ROLE_MANAGER)) {
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (U.userHasRole(user, SC.ROLE_LEADER || SC.ROLE_MANAGER)) {
-        if (status && status.toLowerCase() === SC.ALL) {
-            return await TaskPlanningModel.find({}).sort({'planningDateString': -1})
-        } else {
-            return await TaskPlanningModel.find({
-                "status": status
-            }).sort({'planningDateString': -1})
-        }
-    }
+
     return await MDL.TaskPlanningModel.find({'release._id': releaseID})
 
 }

@@ -191,7 +191,7 @@ export const getReleaseFromServer = (releaseID) => {
 
 export const getAllTaskPlannedFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/task-plans/' + releasePlanID, {
+        return fetch('/api/task-plans/release-plan/' + releasePlanID, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -371,7 +371,7 @@ export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
 
 export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, EndDate) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/task-plans/employee/' + employeeId + '/fromDate/' + StartDate + '/toDate/' + EndDate, {
+        return fetch('/api/task-plans/employee/' + employeeId + '/fromDate/' + StartDate + '/toDate/' + EndDate, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -490,7 +490,7 @@ export const getReleaseDevelopersFromServer = (releasePlanID) => {
 
 export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/task-plans/release/' + releaseID, {
+        return fetch('/api/task-plans/release/' + releaseID, {
                 method: 'get',
                 credentials: "include",
                 headers: {

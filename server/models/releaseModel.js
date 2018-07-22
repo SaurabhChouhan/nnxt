@@ -301,14 +301,42 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
     return await release.save()
 }
 
-releaseSchema.statics.getReleaseById = async (releaseId, role, user) => {
-    let release = await ReleaseModel.findOne({
-        '_id': mongoose.Types.ObjectId(releaseId),
-        $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]
-    })
-    release = release.toObject()
-    release.highestRoleInThisRelease = role
-    return release
+releaseSchema.statics.getReleaseById = async (releaseId, user) => {
+    let release = undefined
+
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseId, user)
+
+    if (U.includeAny(SC.ROLE_MANAGER, rolesInRelease)) {
+        release = await ReleaseModel.findOne({
+                '_id': mongoose.Types.ObjectId(releaseId),
+                'manager._id': mongoose.Types.ObjectId(user._id)
+            }
+        )
+    } else if (U.includeAny(SC.ROLE_LEADER, rolesInRelease)) {
+        release = await ReleaseModel.findOne({
+                '_id': mongoose.Types.ObjectId(releaseId),
+                'leader._id': mongoose.Types.ObjectId(user._id)
+            }
+        )
+    } else if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], rolesInRelease)) {
+        release = await ReleaseModel.findOne({
+                '_id': mongoose.Types.ObjectId(releaseId),
+                "$or": [
+                    {'team._id': mongoose.Types.ObjectId(user._id)},
+                    {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}
+                ]
+            }
+        )
+    }
+
+    if (release) {
+        release = release.toObject()
+        release.rolesInThisRelease = rolesInRelease
+        return release
+    }
+
+    return undefined
+
 }
 
 

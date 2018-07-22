@@ -97,11 +97,14 @@ class CalendarTaskPage extends React.Component {
                 events={this.props.events && this.props.events.length ? this.props.events : []}
                 startAccessor='start'
                 endAccessor='end'
+                titleAccessor='title'
                 eventPropGetter={(this.eventStyleGetter)}
                 onNavigate={(date, view) => {
+                    console.log("onNaviagate called with date ", date)
                     this.props.changeViewAndDate(view, date);
                 }}
                 onView={(view) => {
+                    console.log("onView called with date ")
                     this.props.changeViewAndDate(view, this.props.selectedDate);
                 }}
             />

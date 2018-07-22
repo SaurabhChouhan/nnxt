@@ -43,6 +43,50 @@ export const getAllProjectsFromServer = () => {
     }
 }
 
+export const getAllProjectsUserReleasesFromServer = () => {
+    return (dispatch, getState) => {
+        return fetch('/api/projects/user-releases', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addProjects(json.data))
+                }
+            })
+    }
+}
+
+export const getAllProjectsUserEstimationsFromServer = () => {
+    return (dispatch, getState) => {
+        return fetch('/api/projects/user-estimations', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addProjects(json.data))
+                }
+            })
+    }
+}
+
+
+
 export const addProjectOnServer = (formInput) => {
     return function (dispatch, getState) {
         return fetch('/api/projects',

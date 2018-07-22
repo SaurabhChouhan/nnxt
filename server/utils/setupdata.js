@@ -468,6 +468,20 @@ const addNNXTUsers = async () => {
             dateJoined: '01-01-2018'
         })
     }
+
+    let topManagementRoles = await MDL.RoleModel.findOne({name: SC.ROLE_TOP_MANAGEMENT}).lean()
+    if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
+        await MDL.UserModel.createUser({
+            email: 'contactus@aripratech.com',
+            firstName: "Saurabh",
+            lastName: "Chouhan",
+            roles: [topManagementRoles],
+            password: "password",
+            employeeCode: 'emp-002',
+            designation: SC.DESIGNATION_OWNER,
+            dateJoined: '01-01-2012'
+        })
+    }
 }
 
 const addClients = async () => {
