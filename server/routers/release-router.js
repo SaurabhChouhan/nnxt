@@ -138,7 +138,7 @@ releaseRouter.del("/plan-task/:planID", async ctx => {
  * Get all task plannings by release plan Id
  ***/
 releaseRouter.get("/task-plans/:releasePlanID", async ctx => {
-    return await MDL.TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.releasePlanID, ctx.state.user)
+    return await MDL.TaskPlanningModel.getTaskPlansOfReleasePlan(ctx.params.releasePlanID, ctx.state.user)
 
 })
 
