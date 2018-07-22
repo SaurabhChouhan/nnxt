@@ -30,6 +30,39 @@ projectSchema.statics.getAllActive = async (loggedInUser) => {
     }
 }
 
+projectSchema.statics.getProjectsOfReleasesInvolved = async (loggedInUser) => {
+    // Get all releases that this logged in user involved in
+
+    let projectIDs = await MDL.ReleaseModel.distinct(
+        'project._id',
+        {
+            $or: [{
+                'manager._id': loggedInUser._id,
+                'leader._id': loggedInUser._id,
+                'team._id': loggedInUser._id,
+                'nonProjectTeam._id': loggedInUser._id
+            }]
+        })
+
+    return projectIDs
+}
+
+projectSchema.statics.getProjectsOfEstimationsInvolved = async (loggedInUser) => {
+    // Get all releases that this logged in user involved in
+
+    let projectIDs = await MDL.EstimationModel.distinct(
+        'project._id',
+        {
+            $or: [
+                {'estimator._id': loggedInUser._id},
+                {'negotiator._id': loggedInUser._id}
+            ]
+        })
+
+    return await MDL.ProjectModel.find({"_id": {$in: projectIDs}})
+    return projectIDs
+}
+
 projectSchema.statics.saveProject = async projectInput => {
     if (await ProjectModel.exists(projectInput.name, projectInput.client._id))
         throw new AppError("Project with name [" + projectInput.name + "] already exists under this client", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)

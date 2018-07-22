@@ -1,5 +1,7 @@
 import * as SC from './serverconstants'
 import moment from 'moment-timezone'
+import _ from 'lodash'
+//import logger from './logger'
 
 export const isAuthenticated = (ctx) => {
     if (ctx.isAuthenticated())
@@ -134,4 +136,28 @@ export const getTodayStartingMoment = () => {
 export const getCurrentYear = () => {
     let now = new Date()
     return now.getFullYear()
+}
+
+/**
+ * Returns true if if array in second argument include value/values in first argument
+ * @param values - primitive or array
+ * @param arr - Array
+ * @returns {boolean}
+ */
+export const includeAny = (values, arr) => {
+    if (!Array.isArray(arr))
+        return false
+    if (Array.isArray(values)) {
+        let result = false;
+        values.forEach(v => {
+                if (_.includes(arr, v))
+                    result = true
+            }
+        )
+        return result;
+    } else if (values) {
+        if (_.includes(arr, values))
+            return true;
+    }
+    return false
 }

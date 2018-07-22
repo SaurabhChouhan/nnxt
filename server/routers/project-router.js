@@ -17,6 +17,21 @@ projectRouter.post("/", async ctx => {
 projectRouter.get("/", async ctx => {
     return await MDL.ProjectModel.getAllActive(ctx.state.user)
 })
+
+/**
+ * Returns all the projects of releases user is involved with (He is Developer/Leader/Manager or Non project developer
+ */
+projectRouter.get("/user-releases", async ctx => {
+    return await MDL.ProjectModel.getProjectsOfReleasesInvolved(ctx.state.user)
+})
+
+/**
+ * Returns all the projects of estimations user is involved with (Negotiator or Estimator)
+ */
+projectRouter.get("/user-estimations", async ctx => {
+    return await MDL.ProjectModel.getProjectsOfEstimationsInvolved(ctx.state.user)
+})
+
 projectRouter.delete("/:id", async ctx => {
     return await MDL.ProjectModel.softDelete(ctx.params.id)
 })

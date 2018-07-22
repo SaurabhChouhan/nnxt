@@ -6,6 +6,7 @@ import * as MDL from '../models'
 import _ from 'lodash'
 import logger from '../logger'
 import * as V from "../validation";
+import * as U from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -151,11 +152,11 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+    if (U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -223,11 +224,11 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
         throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(release._id, user)
+    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     if (!userRoleInThisRelease) {
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    if (!_.includes([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -305,12 +306,12 @@ releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
     let releasePlan = await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
     releasePlan = releasePlan.toObject()
 
-    let roleInRelease = await MDL.ReleaseModel.getUserHighestRoleInThisRelease(releasePlan.release._id.toString(), user)
-    if (!_.includes([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], roleInRelease)) {
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releasePlan.release._id.toString(), user)
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], rolesInRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + 'or' + SC.ROLE_DEVELOPER + 'or' + SC.ROLE_NON_PROJECT_DEVELOPER + '] can see Release Plan Details', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN
         )
     }
-    releasePlan.highestRoleInThisRelease = roleInRelease
+    releasePlan.rolesInThisRelease = rolesInRelease
     return releasePlan
 }
 
