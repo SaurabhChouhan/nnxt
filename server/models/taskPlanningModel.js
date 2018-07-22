@@ -574,6 +574,54 @@ const updateFlagsOnShift = async (generatedWarnings) => {
     }
 }
 
+
+/**
+ * to calculate working days and holidays
+ */
+const getWorkingDaysAndHolidays = async (from, to, taskPlanningDates) => {
+    let holidayMomentList = await MDL.YearlyHolidaysModel.getAllHolidayMoments(from, to)
+    logger.debug('[task-shift] holidays is ', {holidayDateList: holidayMomentList})
+    /* Getting All Dates, AllWorkingDayList, AllTasksOnHolidayList, object ,Arrays and other Fields after calculation */
+    let fromMoment = U.momentInUTC(from)
+    let toMoment = U.momentInUTC(to)
+    let AllDateList = []
+    let AllWorkingDayList = []
+    let AllTasksOnHolidayList = []
+
+    while (fromMoment.isSameOrBefore(toMoment.clone())) {
+        AllDateList.push(fromMoment.clone())
+        /* date which is not part of holidays */
+        if (holidayMomentList && holidayMomentList.length && holidayMomentList.findIndex(holidayMoment => holidayMoment.isSame(fromMoment)) !== -1) {
+            /*Date is available in holiday list so we have to check that on that day any task is planned or not */
+            if (taskPlanningDates && taskPlanningDates.length && taskPlanningDates.findIndex(taskPlanDate => U.momentInUTC(taskPlanDate).isSame(fromMoment)) !== -1) {
+                // Some tasks are planned on holidays on this date, keeping index of how many working days have passed before this holiday date
+                AllTasksOnHolidayList.push({date: fromMoment, index: AllWorkingDayList.length})
+            }
+
+        } else {
+            /*Date is not a holiday date so it is included in working day list irrespective of there are task plannings or not*/
+            AllWorkingDayList.push(fromMoment.clone())
+        }
+        /* increment of date */
+        fromMoment = fromMoment.clone().add(1, 'days')
+    }
+
+    logger.debug('[shift-task]: [AllWorkingDayList] ', {AllWorkingDayList})
+    logger.debug('[shift-task]: [AllDateList]', {AllDateList})
+    logger.debug('[shift-task]: [AllTasksOnHolidayList]', {AllTasksOnHolidayList})
+
+    return {
+        AllTasksOnHolidayList,
+        AllWorkingDayList,
+        AllDateList,
+        from,
+        to,
+        taskPlanningDates,
+        holidayMomentList
+    }
+}
+
+
 /*-------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_END---------------------------------------------------------------*/
 
 
@@ -1382,7 +1430,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         existingDateEmployeeDays.plannedHours -= plannedHourNumber
         await existingDateEmployeeDays.save()
     } else {
-        throw new AppError('There should be an employee days entry for task that is shifted', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+        throw new AppError('There should be an employee days entry for task that is merged', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
     if (rePlannedDateEmployeeDays) {
@@ -1478,7 +1526,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
     /* Sorting task plannings according to date */
     if (taskPlanningDates && taskPlanningDates.length) {
-        logger.debug('[task-shift]: found [' + taskPlanningDates.length + '] task plannings for selected employee selection', {taskPlanningDates})
+        logger.debug('[task-shift-future]: found [' + taskPlanningDates.length + '] task plannings for selected employee selection', {taskPlanningDates})
 
         taskPlanningDates.sort(function (a, b) {
             a = new Date(a)
@@ -1488,7 +1536,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
         /* Adding 10 days to last planning date found for this employee as any tasks planned in holiday would occupy extra days so handling that as well here */
         let toTz = U.momentInUTC(taskPlanningDates[taskPlanningDates.length - 1]).add(10 + daysToShiftNumber, 'days')
-        logger.debug('[task-shift]: toTz [' + toTz.toDate() + '] ')
+        logger.debug('[task-shift-future]: toTz [' + toTz.toDate() + '] ')
 
         /* Getting data of all days, working days, and work on holidays */
         let daysDetails = await getWorkingDaysAndHolidays(baseDateMomentInUtc.format(SC.DATE_FORMAT), toTz.format(SC.DATE_FORMAT), taskPlanningDates)
@@ -1515,21 +1563,21 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(planningDateMoment)) : -1
                 if (index != -1) {
                     // Task is planned on business day
-                    logger.debug('[task-shift]: planning date [' + planningDate + '] is part of busiess day')
+                    logger.debug('[task-shift-future]: planning date [' + planningDate + '] is part of busiess day')
                     let newShiftingDate = daysDetails.AllWorkingDayList[index + taskOnHolidayCount + daysToShiftNumber]
                     shiftingData.push({
                         existingDate: planningDateMoment,
                         shiftingDate: newShiftingDate
                     })
-                    logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
+                    logger.debug('[task-shift-future]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
                 } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(planningDateMoment))) != -1) {
                     /* Task was planned on holidays */
-                    logger.debug('[task-shift]: planning date [' + planningDate + '] is part of holiday day')
+                    logger.debug('[task-shift-future]: planning date [' + planningDate + '] is part of holiday day')
                     index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(planningDateMoment))
-                    logger.debug('[task-shift]: index is [' + index + '] is index.index is [' + daysDetails.AllTasksOnHolidayList[index].index + ']')
+                    logger.debug('[task-shift-future]: index is [' + index + '] is index.index is [' + daysDetails.AllTasksOnHolidayList[index].index + ']')
                     /* new Shifting date where task has to be placed */
                     let newShiftingDateMoment = daysDetails.AllWorkingDayList[taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index + daysToShiftNumber]
-                    logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDateMoment) + ']')
+                    logger.debug('[task-shift-future]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDateMoment) + ']')
 
                     shiftingData.push({
                         existingDate: planningDateMoment,
@@ -1540,7 +1588,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
                 } else {
                     /* System inconsistency */
-                    logger.debug('[task-shift]: planning date [' + planningDate + '] is not found in working days or holidays')
+                    logger.debug('[task-shift-future]: planning date [' + planningDate + '] is not found in working days or holidays')
                     throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
                 }
             })
@@ -1585,7 +1633,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 })
 
                 // now that we have unique dates to process we would start calculating employee days
-                logger.debug('[task-shift] dates to process ', {datesToProcess: momentsToProcess})
+                logger.debug('[task-shift-future] dates to process ', {datesToProcess: momentsToProcess})
 
                 MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
 
@@ -1648,7 +1696,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                 })
 
                 let employeeDaysArray = await Promise.all(employeeDaysPromises)
-                logger.debug('[task-shift] employee days ', {employeeDaysArray})
+                logger.debug('[task-shift-future] employee days ', {employeeDaysArray})
 
                 if (employeeDaysArray && employeeDaysArray.length) {
                     let warningPromises = employeeDaysArray.map(ed => {
@@ -1726,7 +1774,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
             })
         }
     } else {
-        logger.debug('[task-shift]: no tasks found')
+        logger.debug('[task-shift-future]: no tasks found')
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 }
@@ -1857,9 +1905,9 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(planningDateMoment)) : -1
                 if (index !== -1) {
                     /* Task is planned on a business day */
-                    logger.debug('[task-shift]: planning date [' + planningDate + '] is part of business day')
+                    logger.debug('[task-shift-past]: planning date [' + planningDate + '] is part of business day')
                     let workingDayIndex = index + taskOnHolidayCount - daysToShiftNumber
-                    logger.debug('[task-shift]: Working day index [' + workingDayIndex + "]")
+                    logger.debug('[task-shift-past]: Working day index [' + workingDayIndex + "]")
 
                     if (workingDayIndex < 0)
                         throw new AppError("This takes few tasks beyond today's date", EC.BEYOND_TODAY, EC.HTTP_BAD_REQUEST)
@@ -1869,16 +1917,16 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         existingDate: planningDateMoment,
                         shiftingDate: newShiftingDate
                     })
-                    logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
+                    logger.debug('[task-shift-past]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
                 } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(planningDateMoment))) != -1) {
                     /* Task was planned on a holiday */
-                    logger.debug('[task-shift]: planning date [' + planningDate + '] is part of holiday day')
+                    logger.debug('[task-shift-past]: planning date [' + planningDate + '] is part of holiday day')
                     index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(planningDateMoment))
-                    logger.debug('[task-shift]: index is [' + index + '] is index.index is [' + daysDetails.AllTasksOnHolidayList[index].index + ']')
+                    logger.debug('[task-shift-past]: index is [' + index + '] is index.index is [' + daysDetails.AllTasksOnHolidayList[index].index + ']')
                     /* new Shifting date where task has to be placed */
-                    logger.debug('[task-shift]: All working index new shifting [' + (taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index - daysToShiftNumber) + "]")
+                    logger.debug('[task-shift-past]: All working index new shifting [' + (taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index - daysToShiftNumber) + "]")
                     let newShiftingDateMoment = daysDetails.AllWorkingDayList[taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index - daysToShiftNumber]
-                    logger.debug('[task-shift]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDateMoment) + ']')
+                    logger.debug('[task-shift-past]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDateMoment) + ']')
 
                     shiftingData.push({
                         existingDate: planningDateMoment,
@@ -1889,7 +1937,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
 
                 } else {
                     /* System inconsistency */
-                    logger.debug('[task-shift]: planning date [' + planningDate + '] is not found in working days or holidays')
+                    logger.debug('[task-shift-past]: planning date [' + planningDate + '] is not found in working days or holidays')
                     throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
                 }
             })
@@ -1928,7 +1976,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 })
 
                 // now that we have unique dates to process we would start calculating employee days
-                logger.debug('[task-shift] dates to process ', {datesToProcess: momentsToProcess})
+                logger.debug('[task-shift-past] dates to process ', {datesToProcess: momentsToProcess})
 
                 MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
 
@@ -1991,7 +2039,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                 })
 
                 let employeeDaysArray = await Promise.all(employeeDaysPromises)
-                logger.debug('[task-shift] employee days ', {employeeDaysArray})
+                logger.debug('[task-shift-past] employee days ', {employeeDaysArray})
 
                 if (employeeDaysArray && employeeDaysArray.length) {
                     let warningPromises = employeeDaysArray.map(ed => {
@@ -2076,52 +2124,6 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
     }
     return planning
 }
-/**
- * to calculate working days and holidays
- */
-const getWorkingDaysAndHolidays = async (from, to, taskPlanningDates) => {
-    let holidayMomentList = await MDL.YearlyHolidaysModel.getAllHolidayMoments(from, to)
-    logger.debug('[task-shift] holidays is ', {holidayDateList: holidayMomentList})
-    /* Getting All Dates, AllWorkingDayList, AllTasksOnHolidayList, object ,Arrays and other Fields after calculation */
-    let fromMoment = U.momentInUTC(from)
-    let toMoment = U.momentInUTC(to)
-    let AllDateList = []
-    let AllWorkingDayList = []
-    let AllTasksOnHolidayList = []
-
-    while (fromMoment.isSameOrBefore(toMoment.clone())) {
-        AllDateList.push(fromMoment.clone())
-        /* date which is not part of holidays */
-        if (holidayMomentList && holidayMomentList.length && holidayMomentList.findIndex(holidayMoment => holidayMoment.isSame(fromMoment)) != -1) {
-            /*Date is available in holiday list so we have to check that on that day any task is planned or not */
-            if (taskPlanningDates && taskPlanningDates.length && taskPlanningDates.findIndex(taskPlanDate => U.momentInUTC(taskPlanDate).isSame(fromMoment)) != -1) {
-                // Some tasks are planned on holidays on this date, keeping index of how many working days have passed before this holiday date
-                AllTasksOnHolidayList.push({date: fromMoment, index: AllWorkingDayList.length})
-            }
-
-        } else {
-            /*Date is not a holiday date so it is included in working day list irrespective of there are task plannings or not*/
-            AllWorkingDayList.push(fromMoment.clone())
-        }
-        /* increment of date */
-        fromMoment = fromMoment.clone().add(1, 'days')
-    }
-
-    logger.debug('[shift-task]: ', {AllWorkingDayList})
-    logger.debug('[shift-task]: ', {AllDateList})
-    logger.debug('[shift-task]: ', {AllTasksOnHolidayList})
-
-    return {
-        AllTasksOnHolidayList,
-        AllWorkingDayList,
-        AllDateList,
-        from,
-        to,
-        taskPlanningDates,
-        holidayMomentList
-    }
-}
-
 
 const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user) => {
 
