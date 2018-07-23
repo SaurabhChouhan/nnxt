@@ -35,7 +35,7 @@ class ReleasePlanSection extends Component {
 
     onRowClick(row) {
         this.props.history.push("/app-home/release-task-planning")
-        this.props.releasePlanSelected(row, this.props.release.highestRoleInThisRelease)
+        this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
     }
 
 
@@ -64,7 +64,7 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                     <div
-                        className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
+                        className={loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
                                 title={release && release.iterations[0] && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
@@ -74,7 +74,7 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                     <div
-                        className={loggedInUser && U.userHasOnlyRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
+                        className={loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
                                 title={release && release.iterations[0] && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
