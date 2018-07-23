@@ -88,7 +88,7 @@ ReleasePlanAddToReleaseForm = reduxForm({
     form: 'release-plan-add-to-release'
 })(ReleasePlanAddToReleaseForm)
 
-const selector = formValueSelector('user')
+const selector = formValueSelector('release-plan-add-to-release')
 
 ReleasePlanAddToReleaseForm = connect(
     state => {

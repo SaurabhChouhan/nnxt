@@ -17,7 +17,7 @@ const mapStateToProps = (state, ownProps) => ({
     releasePlans: state.release.releasePlans,
     iterations: SC.ITERATION_TYPE_LIST_WITH_NAME,
     initialValues: {
-        "iteration_type": SC.ITERATION_TYPE_PLANNED,
+        'iteration_type': SC.ITERATION_TYPE_PLANNED
     }
 })
 
