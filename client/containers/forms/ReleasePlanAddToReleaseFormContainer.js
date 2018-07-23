@@ -4,6 +4,7 @@ import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
+import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
@@ -13,7 +14,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     release: state.release.selectedRelease,
-    releasePlans: state.release.releasePlans
+    releasePlans: state.release.releasePlans,
+    iterations: SC.ITERATION_TYPE_LIST_WITH_NAME,
+    initialValues: {
+        "iteration_type": SC.ITERATION_TYPE_PLANNED,
+    }
 })
 
 const ReleasePlanAddToReleaseFormContainer = connect(
