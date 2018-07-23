@@ -143,7 +143,7 @@ export const getAllAvailableReleasesFromServer = () => {
 
 export const getAllReleasesToAddEstimationFromServer = (estimationID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/estimation/'+estimationID, {
+        return fetch('/api/releases/estimation/' + estimationID, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -162,7 +162,6 @@ export const getAllReleasesToAddEstimationFromServer = (estimationID) => {
             })
     }
 }
-
 
 
 export const getReleaseFromServer = (releaseID) => {
@@ -532,5 +531,56 @@ export const updateReleaseDatesOnServer = (releaseDates) => {
                 }
                 return json
             })
+    }
+}
+
+export const releasePlanPlannedAddToReleaseOnServer = (formInput) => {
+    return function (dispatch, getState) {
+        return fetch('/api/releases/add-planned-task ',
+            {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(updateReleasePlan(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {
+    return function (dispatch, getState) {
+        return fetch('/api/releases/add-unplanned-task ',
+            {
+                method: "post",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(updateReleasePlan(json.data))
+                }
+                return json
+            }
+        )
     }
 }
