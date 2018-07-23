@@ -9,6 +9,7 @@ import * as MDL from '../models'
 import * as V from '../validation'
 import * as U from '../utils'
 import * as EM from '../errormessages'
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -2537,35 +2538,22 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 GetReportTasks
  */
 taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskStatus, user) => {
-    let userRoles = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
-    logger.info('getReportTasks(): user roles in this release ', {userRoles})
-    /* As highest role of user in release is developer only we will return only tasks that this employee is assigned */
-
-    if (!userRoles)
-        throw new AppError('Employee has no role in this release, not allowed to see reports', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-
-    /*
-       Only developers would see tasks on reporting view, leader/manager would have separate sections
-     */
-
-    if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], userRoles)) {
-        let criteria = {
-            'release._id': mongoose.Types.ObjectId(releaseID),
-            'planningDate': U.dateInUTC(dateString),
-            'employee._id': mongoose.Types.ObjectId(user._id)
-        }
-        if (taskStatus && taskStatus !== SC.ALL) {
-            criteria = {
-                'release._id': mongoose.Types.ObjectId(releaseID),
-                'planningDate': U.dateInUTC(dateString),
-                'employee._id': mongoose.Types.ObjectId(user._id),
-                'report.status': taskStatus
-            }
-        }
-        return await MDL.TaskPlanningModel.find(criteria)
+    let criteria = {
+        'planningDate': U.dateInUTC(dateString),
+        'employee._id': mongoose.Types.ObjectId(user._id)
     }
 
-    return []
+
+    if (releaseID !== SC.ALL) {
+        // report tasks of a specific release is requestd
+        criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
+    }
+
+    if (taskStatus && taskStatus !== SC.ALL) {
+        criteria['report.status'] = taskStatus
+    }
+    let tasks = await MDL.TaskPlanningModel.find(criteria)
+    return _.groupBy(tasks, (t) => t.release._id.toString())
 }
 
 taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {
