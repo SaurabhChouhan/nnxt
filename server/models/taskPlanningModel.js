@@ -616,9 +616,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': employee._id.toString(),
-            'date': momentPlanningDate
-        }) > 0) {
+        'employee._id': employee._id.toString(),
+        'date': momentPlanningDate
+    }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -650,11 +650,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id),
-            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id),
+        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-        }) > 0) {
+    }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -677,9 +677,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id)
-        }) > 0) {
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -1694,7 +1694,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                        })
+                    })
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
                         removed: taskPlanShiftWarningRemoved
@@ -2015,17 +2015,17 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                                })
+                    })
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
                         removed: taskPlanShiftWarningRemoved
-                        })
+                    })
                     return {
                         taskPlan: planning,
                         warnings: {
                             added: taskPlanShiftWarningAdded,
                             removed: taskPlanShiftWarningRemoved
-                            }
+                        }
                     }
                 } else {
                     return {
@@ -2544,11 +2544,11 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     if (!userRoles)
         throw new AppError('Employee has no role in this release, not allowed to see reports', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
+    /*
+       Only developers would see tasks on reporting view, leader/manager would have separate sections
+     */
 
-    if (U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoles)) {
-        // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
-        throw new AppError('Manager/Leader would see all the tasks of a release for date, need to implement that.', EC.UNIMPLEMENTED_SO_FAR, EC.HTTP_SERVER_ERROR)
-    } else if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], userRoles)) {
+    if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], userRoles)) {
         let criteria = {
             'release._id': mongoose.Types.ObjectId(releaseID),
             'planningDate': U.dateInUTC(dateString),
@@ -2564,9 +2564,9 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
         }
         return await MDL.TaskPlanningModel.find(criteria)
     }
+
     return []
 }
-
 
 taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {
     /* checking release is valid or not */
@@ -2576,7 +2576,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
 
     if (!taskPlanID) {
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        }
+    }
 
     /*
     let release = await MDL.ReleaseModel.findById(releaseID)
@@ -2621,7 +2621,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
         estimationDescription: estimationDescription.description,
         taskPlan: taskPlan,
         releasePlan: releasePlan
-}
+    }
 }
 
 /*----------------------------------------------------------------------REPORTING_SECTION_END------------------------------------------------------------------------*/
