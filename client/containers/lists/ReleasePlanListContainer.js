@@ -31,7 +31,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(initialize('release-plan-add-to-release', {
             release: {
                 _id: release._id
-            }
+            },
+            iteration_type: SC.ITERATION_TYPE_PLANNED
+
         }))
     },
 })

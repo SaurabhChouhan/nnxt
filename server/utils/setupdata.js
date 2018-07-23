@@ -144,38 +144,39 @@ export const addInitialData = async () => {
             })
         }
         */
+        /*
+                if (!await MDL.UserModel.exists(SC.ADMIN_EMAIL)) {
+                    let adminRole = await MDL.RoleModel.findOne({name: SC.ROLE_ADMIN}).lean()
 
-        if (!await MDL.UserModel.exists(SC.ADMIN_EMAIL)) {
-            let adminRole = await MDL.RoleModel.findOne({name: SC.ROLE_ADMIN}).lean()
+                    // create user
+                    await MDL.UserModel.createUser({
+                        email: SC.ADMIN_EMAIL,
+                        firstName: "App",
+                        lastName: "Admin",
+                        roles: [adminRole],
+                        password: "admin",
+                        employeeCode: 'emp-100',
+                        designation: SC.DESIGNATION_MANAGER,
+                        dateJoined: '01-01-2018'
+                    })
+                }
 
-            // create user
-            await MDL.UserModel.createUser({
-                email: SC.ADMIN_EMAIL,
-                firstName: "App",
-                lastName: "Admin",
-                roles: [adminRole],
-                password: "admin",
-                employeeCode: 'emp-100',
-                designation: SC.DESIGNATION_MANAGER,
-                dateJoined: '01-01-2018'
-            })
-        }
+                if (!await MDL.UserModel.exists(SC.SUPER_ADMIN_EMAIL)) {
 
-        if (!await MDL.UserModel.exists(SC.SUPER_ADMIN_EMAIL)) {
-
-            let superAdminRole = await MDL.RoleModel.findOne({name: SC.ROLE_SUPER_ADMIN}).lean()
-            // create user
-            await MDL.UserModel.createUser({
-                email: SC.SUPER_ADMIN_EMAIL,
-                firstName: "Super",
-                lastName: "Admin",
-                roles: [superAdminRole],
-                password: "admin",
-                employeeCode: 'emp-101',
-                designation: SC.DESIGNATION_MANAGER,
-                dateJoined: '01-01-2018'
-            })
-        }
+                    let superAdminRole = await MDL.RoleModel.findOne({name: SC.ROLE_SUPER_ADMIN}).lean()
+                    // create user
+                    await MDL.UserModel.createUser({
+                        email: SC.SUPER_ADMIN_EMAIL,
+                        firstName: "Super",
+                        lastName: "Admin",
+                        roles: [superAdminRole],
+                        password: "admin",
+                        employeeCode: 'emp-101',
+                        designation: SC.DESIGNATION_MANAGER,
+                        dateJoined: '01-01-2018'
+                    })
+                }
+                */
 
         /*
         if (!await MDL.UserModel.exists(APP_USER_EMAIL)) {

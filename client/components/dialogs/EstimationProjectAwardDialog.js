@@ -7,7 +7,7 @@ const EstimationProjectAwardDialog = (props) => {
         <ModalHeader closeButton>
             <div className="clearfix ModalHeading">
                 <div className="col-md-1 ModalSideLabel"></div>
-                <h3>Project Award</h3>
+                <h3>Create Release</h3>
             </div>
         </ModalHeader>
         <ModalBody>

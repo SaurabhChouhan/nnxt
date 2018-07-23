@@ -149,6 +149,7 @@ export const ITERATION_TYPE_PLANNED = 'planned'
 
 */
 export const ITERATION_TYPE_UNPLANNED = 'unplanned'
+export const ITERATION_TYPE_LIST_WITH_NAME = [{name: ITERATION_TYPE_PLANNED}, {name: ITERATION_TYPE_UNPLANNED}]
 
 
 export const ALL_WARNING_NAME_ARRAY = [

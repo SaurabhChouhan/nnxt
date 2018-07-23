@@ -157,6 +157,7 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     if (U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
