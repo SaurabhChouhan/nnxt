@@ -9,6 +9,7 @@ import * as MDL from '../models'
 import * as V from '../validation'
 import * as U from '../utils'
 import * as EM from '../errormessages'
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -1694,7 +1695,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                    })
+                        })
 
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
@@ -2021,11 +2022,11 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                    })
+                                })
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
                         removed: taskPlanShiftWarningRemoved
-                    })
+                        })
                     return {
                         taskPlan: planning,
                         warnings: {
@@ -2549,36 +2550,40 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 GetReportTasks
  */
 taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskStatus, user) => {
-    let userRoles = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
-    logger.info('getReportTasks(): user roles in this release ', {userRoles})
-    /* As highest role of user in release is developer only we will return only tasks that this employee is assigned */
-
-    if (!userRoles)
-        throw new AppError('Employee has no role in this release, not allowed to see reports', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-
-
-    if (U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRoles)) {
-        // TODO - Need to handle cases where user has roles like manager/leader because they would be able to see tasks of developers as well
-        throw new AppError('Manager/Leader would see all the tasks of a release for date, need to implement that.', EC.UNIMPLEMENTED_SO_FAR, EC.HTTP_SERVER_ERROR)
-    } else if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], userRoles)) {
         let criteria = {
-            'release._id': mongoose.Types.ObjectId(releaseID),
             'planningDate': U.dateInUTC(dateString),
             'employee._id': mongoose.Types.ObjectId(user._id)
         }
-        if (taskStatus && taskStatus !== SC.ALL) {
-            criteria = {
-                'release._id': mongoose.Types.ObjectId(releaseID),
-                'planningDate': U.dateInUTC(dateString),
-                'employee._id': mongoose.Types.ObjectId(user._id),
-                'report.status': taskStatus
-            }
-        }
-        return await MDL.TaskPlanningModel.find(criteria)
-    }
-    return []
-}
 
+
+    if (releaseID !== SC.ALL) {
+        // report tasks of a specific release is requestd
+        criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
+    }
+
+        if (taskStatus && taskStatus !== SC.ALL) {
+        criteria['report.status'] = taskStatus
+            }
+    let tasks = await MDL.TaskPlanningModel.find(criteria)
+    // Group tasks by releases
+    let groupedTasks = _.groupBy(tasks, (t) => t.release._id.toString())
+
+    // iterate on each release id and find name of that release
+
+    let promises = []
+
+    _.forEach(groupedTasks, (value, key) => {
+        promises.push(MDL.ReleaseModel.findById(key, {name: 1, project: 1}).then(release => {
+            return {
+                _id: release._id,
+                name: release.project.name + " (" + release.name + ")",
+                tasks: value
+        }
+        }))
+    })
+
+    return await Promise.all(promises)
+    }
 
 taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {
     /* checking release is valid or not */
@@ -2588,7 +2593,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
 
     if (!taskPlanID) {
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
+        }
 
     /*
     let release = await MDL.ReleaseModel.findById(releaseID)
@@ -2633,7 +2638,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
         estimationDescription: estimationDescription.description,
         taskPlan: taskPlan,
         releasePlan: releasePlan
-    }
+}
 }
 
 /*----------------------------------------------------------------------REPORTING_SECTION_END------------------------------------------------------------------------*/
