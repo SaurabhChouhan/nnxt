@@ -5,6 +5,7 @@ import * as SC from '../serverconstants'
 import * as U from '../utils'
 import AppError from '../AppError'
 import _ from 'lodash'
+
 /***
  * Added prefix
  */
@@ -17,7 +18,7 @@ let taskPlanRouter = new Router({
  * Get all task plannings by release plan Id
  ***/
 taskPlanRouter.get("/release-plan/:releasePlanID", async ctx => {
-    return await MDL.TaskPlanningModel.getReleaseTaskPlanningDetails(ctx.params.releasePlanID, ctx.state.user)
+    return await MDL.TaskPlanningModel.getTaskPlansOfReleasePlan(ctx.params.releasePlanID, ctx.state.user)
 })
 
 taskPlanRouter.get("/release/:releaseID", async ctx => {
