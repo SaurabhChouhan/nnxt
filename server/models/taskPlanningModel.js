@@ -1676,7 +1676,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                     let warningPromises = employeeDaysArray.map(ed => {
                         return MDL.WarningModel.movedToFuture(release, ed).then((warningResponse) => {
                             logger.debug('warning update on shift to future completed successfully')
-                            return updateFlags(warningResponse)
+                            warningResponse
                         })
                     })
 
@@ -1694,7 +1694,8 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                        })
+                    })
+
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
                         removed: taskPlanShiftWarningRemoved
@@ -1705,7 +1706,9 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         warnings: {
                             added: taskPlanShiftWarningAdded,
                             removed: taskPlanShiftWarningRemoved
-                        }
+                        },
+                        releasePlans: affectedObject.affectedReleasePlans,
+                        taskPlans: affectedObject.affectedTaskPlans
                     }
                 } else {
                     return {
@@ -1713,7 +1716,10 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
                         warnings: {
                             added: [],
                             removed: []
-                        }
+                        },
+                        releasePlans: [],
+                        taskPlans: []
+
                     }
                 }
             })
@@ -2015,17 +2021,20 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         if (w.removed && w.removed.length)
                             taskPlanShiftWarningRemoved.push(...w.removed)
 
-                                })
+                    })
                     let affectedObject = await updateFlagsOnShift({
                         added: taskPlanShiftWarningAdded,
                         removed: taskPlanShiftWarningRemoved
-                        })
+                    })
                     return {
                         taskPlan: planning,
                         warnings: {
                             added: taskPlanShiftWarningAdded,
                             removed: taskPlanShiftWarningRemoved
-                            }
+                        },
+                        releasePlans: affectedObject.affectedReleasePlans,
+                        taskPlans: affectedObject.affectedTaskPlans
+
                     }
                 } else {
                     return {
@@ -2033,7 +2042,10 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
                         warnings: {
                             added: [],
                             removed: []
-                        }
+                        },
+                        releasePlans: [],
+                        taskPlans: []
+
                     }
                 }
             })
@@ -2576,7 +2588,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
 
     if (!taskPlanID) {
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        }
+    }
 
     /*
     let release = await MDL.ReleaseModel.findById(releaseID)
@@ -2621,7 +2633,7 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
         estimationDescription: estimationDescription.description,
         taskPlan: taskPlan,
         releasePlan: releasePlan
-}
+    }
 }
 
 /*----------------------------------------------------------------------REPORTING_SECTION_END------------------------------------------------------------------------*/
