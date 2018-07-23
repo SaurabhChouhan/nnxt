@@ -494,26 +494,6 @@ const updateFlagsOnShift = async (generatedWarnings) => {
     let affectedTaskPlans = await Promise.all(tpIDPromises)
 
     // Now that we have got all the releasePlan/taskPlan IDs that would be affected by warning raised, we will update them accordingly
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(w => {
-            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
-                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
-                if (!affectedReleasePlan)
-                    return;
-                if (affectedReleasePlan.flags.indexOf(w.type) === -1)
-                    affectedReleasePlan.flags.push(w.type)
-
-            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
-                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
-                if (!affectedTaskPlan)
-                    return;
-                if (affectedTaskPlan.flags.indexOf(w.type) === -1)
-                    affectedTaskPlan.flags.push(w.type)
-            }
-        })
-    }
 
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
@@ -523,16 +503,34 @@ const updateFlagsOnShift = async (generatedWarnings) => {
                 if (!affectedReleasePlan)
                     return;
 
-                if (affectedReleasePlan.flags.indexOf(w.type) > -1)
-                    affectedReleasePlan.flags.pull(w.type)
+                affectedReleasePlan.flags.pull(w.type)
 
             } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                 logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
                 let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
                 if (!affectedTaskPlan)
                     return;
-                if (affectedTaskPlan.flags.indexOf(w.type) > -1)
-                    affectedTaskPlan.flags.pull(w.type)
+                affectedTaskPlan.flags.pull(w.type)
+            }
+        })
+    }
+
+
+    if (generatedWarnings.added && generatedWarnings.added.length) {
+        generatedWarnings.added.forEach(w => {
+            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
+                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
+                if (!affectedReleasePlan)
+                    return;
+                affectedReleasePlan.flags.push(w.type)
+
+            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
+                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
+                if (!affectedTaskPlan)
+                    return;
+                affectedTaskPlan.flags.push(w.type)
             }
         })
     }
@@ -617,9 +615,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-        'employee._id': employee._id.toString(),
-        'date': momentPlanningDate
-    }) > 0) {
+            'employee._id': employee._id.toString(),
+            'date': momentPlanningDate
+        }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -651,11 +649,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id),
-        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id),
+            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-    }) > 0) {
+        }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -678,9 +676,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id)
-    }) > 0) {
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id)
+        }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
