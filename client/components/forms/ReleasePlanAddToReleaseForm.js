@@ -16,14 +16,14 @@ class ReleasePlanAddToReleaseForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            status: true
+            status: [SC.ITERATION_TYPE_PLANNED]
         }
         this.showPlanSection = this.showPlanSection.bind(this)
 
     }
 
     showPlanSection(plan) {
-        this.setState({status: false})
+        this.setState({status: SC.ITERATION_TYPE_UNPLANNED})
 
     }
 
@@ -31,18 +31,19 @@ class ReleasePlanAddToReleaseForm extends Component {
     render() {
         const {pristine, submitting, change, reset} = this.props
         const {release, releasePlans} = this.props
+        const {status} = this.state
         console.log("this.showPlans", status)
         return (<form onSubmit={this.props.handleSubmit}>
                 <div className="row">
 
                     <Field name="estimation._id" component="input" type="hidden"/>
                     <div className="col-md-12">
-                        {status ? <div className="col-md-6">
+                        {status ==SC.ITERATION_TYPE_PLANNED? <div className="col-md-6">
                             <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}
                                    validate={[required, number]}/>
                         </div> : null}
 
-                        {status ? <div className="col-md-6">
+                        {status ==SC.ITERATION_TYPE_PLANNED ? <div className="col-md-6">
                             <Field name="estimatedHours" component={renderText}
                                    validate={[required, number]}
                                    label={"Estimated Hours:"}/>
@@ -63,9 +64,9 @@ class ReleasePlanAddToReleaseForm extends Component {
                     <div className="col-md-12">
                         <div className="col-md-6">
                             <select className="form-control SelectReleasePlanAddToRelease" title="Select..."
-                                    value={SC.STATUS_PLANNED} onChange={(status) => this.showPlanSection(status)}>
-                                <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-                                <option value={SC.STATUS_PLANNED}>{SC.STATUS_PLANNED}</option>
+                                   onChange={(status) => this.showPlanSection(status.target.value)}>
+                                <option value={SC.ITERATION_TYPE_PLANNED}>{SC.ITERATION_TYPE_PLANNED}</option>
+                                <option value={SC.ITERATION_TYPE_UNPLANNED}>{SC.ITERATION_TYPE_UNPLANNED}</option>
                             </select>
                         </div>
 
