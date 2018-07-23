@@ -2553,7 +2553,24 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
         criteria['report.status'] = taskStatus
     }
     let tasks = await MDL.TaskPlanningModel.find(criteria)
-    return _.groupBy(tasks, (t) => t.release._id.toString())
+    // Group tasks by releases
+    let groupedTasks = _.groupBy(tasks, (t) => t.release._id.toString())
+
+    // iterate on each release id and find name of that release
+
+    let promises = []
+
+    _.forEach(groupedTasks, (value, key) => {
+        promises.push(MDL.ReleaseModel.findById(key, {name: 1, project: 1}).then(release => {
+            return {
+                _id: release._id,
+                name: release.project.name + " (" + release.name + ")",
+                tasks: value
+            }
+        }))
+    })
+
+    return await Promise.all(promises)
 }
 
 taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {
