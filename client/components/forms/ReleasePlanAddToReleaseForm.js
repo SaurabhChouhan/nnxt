@@ -29,7 +29,7 @@ class ReleasePlanAddToReleaseForm extends Component {
                     <Field name="estimation._id" component="input" type="hidden"/>
                     <div className="col-md-12">
                         {iteration_type === SC.ITERATION_TYPE_PLANNED && <div className="col-md-6">
-                            <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}
+                            <Field name="estimatedBilledHours" component={renderText} label={"Negotiated Billed Hours:"}
                                    validate={[required, number]}/>
                         </div>}
 
