@@ -204,7 +204,7 @@ class ReleaseTaskPlanningPage extends Component {
                                 className=" btn refreshBtn "
                                 type="button"
                                 onClick={() => {
-                                    this.props.refreshSelectedTaskPlan(releasePlan, releasePlan.highestRoleInThisRelease)
+                                    this.props.refreshSelectedTaskPlan(releasePlan, releasePlan.rolesInThisRelease)
                                 }}>
                                 <i className="fa fa-refresh "></i>
                             </button>
