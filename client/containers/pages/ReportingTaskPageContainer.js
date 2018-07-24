@@ -43,7 +43,7 @@ const mapStateToProps = (state, ownProps) => ({
     releases: state.report.availableReleases,
     dateOfReport: state.report.dateOfReport,
     releaseID: state.report.releaseID,
-    taskStatus: state.report.status
+    reportedStatus: state.report.reportedStatus
 })
 
 const ReportingTaskPageContainer = connect(
