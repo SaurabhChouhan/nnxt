@@ -137,12 +137,23 @@ const addTaskByEstimator = async (taskInput, estimator) => {
                 "hasError": false
             })
         }
-
     }
+
+
+    /*
     if (estimation && estimation._id) {
         await MDL.EstimationModel.updateOne({_id: estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
     }
+    */
 
+    // Modify estimation
+    estimation.estimatedHours += taskInput.estimatedHours
+    let idx = estimation.stats.indexOf(s => s.type == taskInput.type)
+    if (idx > -1) {
+        estimation.stats[idx].estimatedHours += taskInput.estimatedHours
+    }
+
+    await estimation.save()
     let estimationTask = new EstimationTaskModel()
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
@@ -167,6 +178,7 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     } else estimationTask.hasError = false
 
     estimationTask.repo.addedFromThisEstimation = true
+
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = estimator.fullName
@@ -205,11 +217,47 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
             $inc: {"negotiator.estimatedHours": taskInput.estimatedHours},
             'hasError': true
         })
-
     }
+
+    /*
     if (estimation && estimation._id) {
         await MDL.EstimationModel.updateOne({_id: estimation._id}, {$inc: {"suggestedHours": taskInput.estimatedHours}})
     }
+    */
+
+    let canProvideFinalEstimates = false
+
+    // Negotiator can provide final estimates for these types of tasks
+    if (_.includes([SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW], taskInput.type))
+        canProvideFinalEstimates = true
+
+    // Modify estimation
+    estimation.suggestedHours += taskInput.estimatedHours
+    if (canProvideFinalEstimates)
+        estimation.estimatedHours += taskInput.estimatedHours
+
+
+    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
+    console.log("######### IDX ", idx)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        if (canProvideFinalEstimates)
+            estimation.stats[idx].estimatedHours += taskInput.estimatedHours
+    } else {
+        // Push new element to stats for keeping details of this type of task
+        if (canProvideFinalEstimates)
+            estimation.stats.push({
+                type: taskInput.type,
+                estimatedHours: taskInput.estimatedHours
+            })
+        else
+            estimation.stats.push({
+                type: taskInput.type
+            })
+    }
+
+    await estimation.save()
 
     let estimationTask = new EstimationTaskModel()
     estimationTask.negotiator.name = taskInput.name
@@ -222,13 +270,13 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
     estimationTask.owner = SC.OWNER_NEGOTIATOR
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
-    // Add repository reference and also note that this task was added into repository from this estimation
+// Add repository reference and also note that this task was added into repository from this estimation
     estimationTask.repo = {}
-    //estimationTask.repo._id = repositoryTask._id
+//estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
-    // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
-    //estimationTask.estimator.name = taskInput.name
-    // estimationTask.estimator.description = taskInput.description
+// Add name/description into estimator section as well, estimator can review and add estimated hours against this task
+//estimationTask.estimator.name = taskInput.name
+// estimationTask.estimator.description = taskInput.description
     estimationTask.feature = taskInput.feature
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
@@ -238,7 +286,7 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
     }
 
     estimationTask.type = taskInput.type
-    if (_.includes([SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW], taskInput.type)) {
+    if (canProvideFinalEstimates) {
         // Tasks of type management are added by Negotiator to estimate management hours that manager would need for this project
         // As negotiator represents Manager, such tasks would directly be in approval stage rather than needing estimated hours
         // from estimator. for this reason, information added here would directly be added to estimator section as well as
@@ -353,12 +401,21 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
             })
         }
     }
-    if (estimation && estimation._id) {
-        await MDL.EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours}
-        })
+
+    let diffHours = estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours
+
+    // Modify estimation
+    estimation.estimatedHours += diffHours
+
+    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        estimation.stats[idx].estimatedHours += diffHours
+    } else {
+        throw new AppError('In update task we should have find index value of type ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
+    await estimation.save()
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
@@ -451,6 +508,39 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
         })
     }
 
+    let canProvideFinalEstimates = false
+    // Negotiator can provide final estimates for these types of tasks
+    if (_.includes([SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW], taskInput.type))
+        canProvideFinalEstimates = true
+
+    let diffHours = estimationTask.negotiator.estimatedHours ? taskInput.estimatedHours - estimationTask.negotiator.estimatedHours : taskInput.estimatedHours
+
+    // Modify estimation
+    estimation.suggestedHours += diffHours
+
+    if (canProvideFinalEstimates)
+        estimation.estimatedHours += diffHours
+
+    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        if (canProvideFinalEstimates)
+            estimation.stats[idx].estimatedHours += diffHours
+    } else {
+        // Push new element to stats for keeping details of this type of task
+        if (canProvideFinalEstimates)
+            estimation.stats.push({
+                type: taskInput.type,
+                estimatedHours: diffHours
+            })
+        else
+            estimation.stats.push({
+                type: taskInput.type
+            })
+    }
+
+    await estimation.save()
+
 
     estimationTask.feature = taskInput.feature ? taskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.negotiator.name = taskInput.name
@@ -482,6 +572,19 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
         mergeAllNotes = taskInput.notes
     }
     estimationTask.notes = mergeAllNotes
+
+    if (canProvideFinalEstimates) {
+        // Tasks of type management are added by Negotiator to estimate management hours that manager would need for this project
+        // As negotiator represents Manager, such tasks would directly be in approval stage rather than needing estimated hours
+        // from estimator. for this reason, information added here would directly be added to estimator section as well as
+        // finally that section is used for copying information
+        estimationTask.estimator.name = taskInput.name
+        estimationTask.estimator.description = taskInput.description
+        estimationTask.estimator.estimatedHours = taskInput.estimatedHours
+        estimationTask.hasError = false
+        estimationTask.canApprove = true
+    }
+
     await estimationTask.save()
     estimationTask = estimationTask.toObject()
     if (estimationFeatureObj && estimationFeatureObj.canApprove) {
@@ -1640,12 +1743,12 @@ const approveTaskByNegotiator = async (task, estimation, negotiator) => {
     let canApprove = true
 
     if (estimation.status == SC.STATUS_INITIATED) {
-        if(estimation.type == SC.TYPE_DEVELOPMENT)
+        if (estimation.type == SC.TYPE_DEVELOPMENT)
             canApprove = false;
-    } else if(estimation.status != SC.STATUS_REVIEW_REQUESTED)
+    } else if (estimation.status != SC.STATUS_REVIEW_REQUESTED)
         canApprove = false
 
-    if(!canApprove)
+    if (!canApprove)
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve task only when estimation status is [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_STAGE_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (!(task.canApprove))

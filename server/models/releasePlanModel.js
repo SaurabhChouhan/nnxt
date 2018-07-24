@@ -28,7 +28,11 @@ let releasePlanSchema = mongoose.Schema({
         description: String,
         estimatedHours: {type: Number, default: 0},
         estimatedBilledHours: {type: Number, default: 0},
-        alreadyBilledHours: {type: Number, default: 0}
+        alreadyBilledHours: {type: Number, default: 0},
+        type: {
+            type: String,
+            enum: [SC.TYPE_DEVELOPMENT, SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW, SC.TYPE_COMPANY]
+        }
     },
     feature: {
         _id: mongoose.Schema.ObjectId,
@@ -120,7 +124,8 @@ releasePlanSchema.statics.addEstimatedReleasePlan = async (release, iterationInd
         name: estimationTask.estimator.name,
         estimatedHours: estimationTask.estimator.estimatedHours,
         description: estimationTask.estimator.description,
-        estimatedBilledHours: expectedBilledHours.toFixed(2)
+        estimatedBilledHours: expectedBilledHours.toFixed(2),
+        type: estimationTask.type
     }
 
     if (estimationTask.feature && estimationTask.feature._id)
@@ -186,7 +191,8 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         name: releasePlanInput.name,
         description: releasePlanInput.description,
         estimatedHours: releasePlanInput.estimatedHours,
-        estimatedBilledHours: releasePlanInput.estimatedBilledHours
+        estimatedBilledHours: releasePlanInput.estimatedBilledHours,
+        type: releasePlanInput.type
     }
 
     logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
