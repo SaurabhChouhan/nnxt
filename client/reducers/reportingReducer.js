@@ -7,9 +7,9 @@ let now = new Date()
 let initialState = {
     allReleases: [],
     availableReleases: [],
-    selectedTaskPlan: {},
-    selectedReleasePlan: {},
-    selectedRelease: {},
+    taskPlan: {},
+    releasePlan: {},
+    release: {},
     releaseID: SC.ALL,
     reportedStatus: SC.ALL,
     dateStringOfReport: U.getNowString()
@@ -30,29 +30,26 @@ const reportingReducer = (state = initialState, action) => {
                 dateStringOfReport: action.date
             })
 
-        case AC.RELEASE_SELECTED_FOR_REPORTING:
-            // When no project is selected then show dummy data
-            return Object.assign({}, state, {
-                selectedRelease: action.release
-            })
-
         case AC.REPORT_TASK_SELECTED:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedTaskPlan: action.details.taskPlan,
-                selectedReleasePlan: Object.assign(action.details.releasePlan, {estimationDescription: action.details.estimationDescription})
+                taskPlan: action.taskPlan,
+                releasePlan: Object.assign({}, action.releasePlan, {
+                    estimationDescription: action.estimationDescription
+                }),
+                release: action.release
             })
 
         case AC.UPDATE_SELECTED_TASK_PLAN:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedTaskPlan: action.project.taskPlan
+                taskPlan: action.project.taskPlan
             })
 
         case AC.UPDATE_SELECTED_RELEASE_PLAN:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                selectedReleasePlan: action.releasePlan
+                releasePlan: action.releasePlan
             })
 
         case AC.SET_REPORT_DATE:

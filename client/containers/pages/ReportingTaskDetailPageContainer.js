@@ -1,4 +1,3 @@
-
 import {connect} from 'react-redux'
 import {ReportingTaskDetailPage} from '../../components/index'
 import * as A from '../../actions/index'
@@ -10,9 +9,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    selectedTaskPlan: state.report.selectedTaskPlan,
-    selectedRelease: state.report.selectedRelease,
-    selectedReleasePlan: state.report.selectedReleasePlan
+    selectedTaskPlan: state.report.taskPlan,
+    selectedRelease: state.report.release,
+    selectedReleasePlan: state.report.releasePlan
 })
 
 const ReportingTaskDetailPageContainer = connect(
