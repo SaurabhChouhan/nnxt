@@ -11,8 +11,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getReportingTasksForDate(releaseID, date, reportedStatus))
     },
 
-    setStatus: (releaseID, date, reportedStatus) => {
-        dispatch(A.setStatus(reportedStatus))
+    setReportedStatus: (releaseID, date, reportedStatus) => {
+        dispatch(A.setReportedStatus(reportedStatus))
         dispatch(A.getReportingTasksForDate(releaseID, date, reportedStatus))
     },
 

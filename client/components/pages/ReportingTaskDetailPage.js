@@ -99,11 +99,12 @@ class ReportingTaskDetailPage extends React.Component {
                     {
                         <div className="ReportingCommentTable">
 
-                            <BootstrapTable data={releasePlan.comments}
-                                            multiColumnSearch={true}
-                                            search={true}
-                                            striped={true}
-                                            hover={true}>
+                            <BootstrapTable
+                                data={releasePlan.comments && releasePlan.comments.length ? releasePlan.comments : []}
+                                multiColumnSearch={true}
+                                search={true}
+                                striped={true}
+                                hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'

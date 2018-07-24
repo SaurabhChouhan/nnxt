@@ -99,7 +99,7 @@ class ReportingTaskPage extends Component {
     }
 
     onReportedStatusChange(status) {
-        this.props.setStatus(this.props.releaseID, this.props.dateOfReport, status)
+        this.props.setReportedStatus(this.props.releaseID, this.props.dateOfReport, status)
     }
 
     onReleaseSelect(releaseID) {

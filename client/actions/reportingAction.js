@@ -11,15 +11,24 @@ export const addReleasesAndTasksOfSelectedDate = (releases, date) => ({
     date: date
 })
 
-export const releaseSelectedForReporting = (release) => ({
-    type: AC.RELEASE_SELECTED_FOR_REPORTING,
-    release: release
-})
-
-
 export const setReportDate = (reportDate) => ({
     type: AC.SET_REPORT_DATE,
     reportDate: reportDate
+})
+
+export const setReportedStatus = (status) => ({
+    type: AC.SET_STATUS,
+    status: status
+})
+
+export const setReleaseID = (releaseID) => ({
+    type: AC.SET_RELEASE_ID,
+    releaseID: releaseID
+})
+
+export const releaseSelectedForReporting = (release) => ({
+    type: AC.RELEASE_SELECTED_FOR_REPORTING,
+    release: release
 })
 
 export const setReportTaskPlanDetail = (taskPlan, releasePlan, release, estimationDescription) => ({
@@ -38,16 +47,6 @@ export const updateSelectedTaskPlan = (taskPlan) => ({
 export const updateSelectedReleasePlan = (releasePlan) => ({
     type: AC.UPDATE_SELECTED_RELEASE_PLAN,
     releasePlan: releasePlan
-})
-
-export const setStatus = (status) => ({
-    type: AC.SET_STATUS,
-    status: status
-})
-
-export const setReleaseID = (releaseID) => ({
-    type: AC.SET_RELEASE_ID,
-    releaseID: releaseID
 })
 
 
@@ -98,31 +97,6 @@ export const getReportingTasksForDate = (releaseID, date, taskStatus) => {
                 }
                 return json
 
-            })
-    }
-}
-
-/**
- *
- */
-export const getReleaseDetailsForReporting = (releaseID) => {
-    return (dispatch, getState) => {
-        return fetch('/api/releases/' + releaseID + '/details-for-reporting', {
-                method: 'get',
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success && json.data && json.data.length > 0) {
-                    dispatch(releaseSelectedForReporting(json.data[0]))
-                }
-                return json
             })
     }
 }
