@@ -8,6 +8,7 @@ import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
+        console.log("values",values)
         if (values.iteration_type === SC.ITERATION_TYPE_PLANNED) {
             values.estimatedHours = Number(values.estimatedHours)
             values.estimatedBilledHours = parseInt(values.estimatedBilledHours)
@@ -17,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     // hide dialog
                     dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
                 }
-
+                dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
             })
         }
         else {
@@ -27,6 +28,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     // hide dialog
                     dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
                 }
+                dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
             })
         }
 
