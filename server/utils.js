@@ -125,8 +125,8 @@ export const getNow = () => {
 
 export const getNowString = () => {
     let now = new Date()
-    let nowString = formatDateInTimezone(now,SC.INDIAN_TIMEZONE)
-    return now
+    let nowString = formatDateInTimezone(now, SC.INDIAN_TIMEZONE)
+    return nowString
 }
 
 export const getTodayStartingMoment = () => {
