@@ -2568,17 +2568,31 @@ warningSchema.statics.movedToFuture = async (release, employeeDays) => {
         removed: []
     }
     /*-------------------------------------------TOO_MANY_HOUR_WARNING_UPDATE-------------------------------------------*/
-    let tooManyHoursWarning = await addTooManyHoursTasksMoved(release, employeeDays, maxPlannedHoursNumber)
+    let warningsTooManyHours = await updateTooManyHoursTasksMoved(release, employeeDays, maxPlannedHoursNumber)
 
-    if (tooManyHoursWarning.added && tooManyHoursWarning.added.length)
-        warningResponse.added.push(...tooManyHoursWarning.added)
+    if (warningsTooManyHours.added && warningsTooManyHours.added.length)
+        warningResponse.added.push(...warningsTooManyHours.added)
 
-    if (tooManyHoursWarning.removed && tooManyHoursWarning.removed.length)
-        warningResponse.removed.push(...tooManyHoursWarning.removed)
+    if (warningsTooManyHours.removed && warningsTooManyHours.removed.length)
+        warningResponse.removed.push(...warningsTooManyHours.removed)
 
     /*-------------------------------------------EMPLOYEE_ASK_FOR_LEAVE_WARNING_UPDATE-------------------------------------------*/
-    
+    let warningsAskForLeave = await updateEmployeeAskedForLeaveMoved(release, employeeDays, maxPlannedHoursNumber)
+
+    if (warningsAskForLeave.added && warningsAskForLeave.added.length)
+        warningResponse.added.push(...warningsAskForLeave.added)
+
+    if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
+        warningResponse.removed.push(...warningsAskForLeave.removed)
+
     /*-------------------------------------------EMPLOYEE_ON_LEAVE_WARNING_UPDATE-------------------------------------------*/
+    let warningsOnLeave = await updateEmployeeOnLeaveMoved(release, employeeDays, maxPlannedHoursNumber)
+
+    if (warningsOnLeave.added && warningsOnLeave.added.length)
+        warningResponse.added.push(...warningsOnLeave.added)
+
+    if (warningsOnLeave.removed && warningsOnLeave.removed.length)
+        warningResponse.removed.push(...warningsOnLeave.removed)
 
     return warningResponse
 
