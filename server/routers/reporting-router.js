@@ -36,5 +36,8 @@ reportingRouter.put("/task-plans/:taskID", async ctx => {
         return V.generateSchema(V.releaseTaskReportStruct)
     return await MDL.TaskPlanningModel.addTaskReport(ctx.request.body, ctx.state.user)
 })
+reportingRouter.get("/:releaseID/details-for-reporting", async ctx => {
+    return await MDL.ReleaseModel.getReleaseDetailsForReporting(ctx.params.releaseID, ctx.state.user)
+})
 
 export default reportingRouter
