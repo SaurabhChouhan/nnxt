@@ -3,7 +3,6 @@ import AppError from '../AppError'
 import * as SC from '../serverconstants'
 import * as EC from '../errorcodes'
 import * as MDL from '../models'
-import _ from 'lodash'
 import logger from '../logger'
 import * as V from "../validation";
 import * as U from '../utils'

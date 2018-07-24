@@ -15,10 +15,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(initialize('estimation-task', {
             estimation: {
                 _id: estimation._id
-            }
+            },
+            type:SC.TYPE_DEVELOPMENT
         }))
     },
-
     showAddFeatureForm: (estimation) => {
         dispatch(A.showComponent(COC.ESTIMATION_FEATURE_DIALOG))
         // initialize

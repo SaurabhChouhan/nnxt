@@ -3,6 +3,7 @@ import React from 'react'
 import {number, required} from './validation'
 import {renderSelect, renderText, renderTextArea} from './fields'
 import * as logger from '../../clientLogger'
+import * as CC from '../../clientconstants'
 import {connect} from "react-redux";
 
 let EstimationTaskForm = (props) => {
@@ -15,7 +16,8 @@ let EstimationTaskForm = (props) => {
             <Field name="_id" component="input" type="hidden"/>
 
             <div className="col-md-6">
-                <Field name="name" readOnly={isFromRepo} component={renderText} label={"Task Name:"} validate={[required]}/>
+                <Field name="name" readOnly={isFromRepo} component={renderText} label={"Task Name:"}
+                       validate={[required]}/>
             </div>
             <div className="col-md-6">
                 <Field name="estimatedHours" component={renderText} label={"Estimated Hours:"}
@@ -24,7 +26,8 @@ let EstimationTaskForm = (props) => {
         </div>
         <div className="row">
             <div className="col-md-12">
-                <Field name="description" readOnly={isFromRepo} component={renderTextArea} label="Task Description:" validate={[required]}
+                <Field name="description" readOnly={isFromRepo} component={renderTextArea} label="Task Description:"
+                       validate={[required]}
                        rows="10"/>
             </div>
 
@@ -33,10 +36,22 @@ let EstimationTaskForm = (props) => {
         {!_id &&
         <div className="row">
             <div className="col-md-6">
-                <Field name="feature._id" readOnly={isFromRepo} component={renderSelect} label={"Feature :"} options={features}
+                <Field name="feature._id" readOnly={isFromRepo} component={renderSelect} label={"Feature:"}
+                       options={features}
                        valueField="_id"
                        displayField="estimator.name"
                        optionalDisplayField="negotiator.name"
+                />
+            </div>
+            <div className="col-md-6">
+                <Field name="type" component={renderSelect} label={"Type:"} options={[
+                    {_id: CC.TYPE_DEVELOPMENT, name: CC.TYPE_DEVELOPMENT},
+                    {_id: CC.TYPE_MANAGEMENT, name: CC.TYPE_MANAGEMENT},
+                    {_id: CC.TYPE_REVIEW, name: CC.TYPE_REVIEW},
+                    {_id: CC.TYPE_TESTING, name: CC.TYPE_TESTING}
+                ]}
+                       showNoneOption={false}
+
                 />
             </div>
         </div>
