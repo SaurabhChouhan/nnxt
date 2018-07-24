@@ -6,18 +6,18 @@ import {NotificationManager} from 'react-notifications'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onReleaseSelect: (releaseID, date, status) => {
-        if (!releaseID) {
-            return NotificationManager.error("Please select Project")
-        }
-
-        else {
-            dispatch(A.getReleaseDetailsForReporting(releaseID))
-            dispatch(A.getReportingTasksForDate(releaseID, date, status))
-        }
+    setReleaseID: (releaseID, date, reportedStatus) => {
+        dispatch(A.setReleaseID(releaseID))
+        dispatch(A.getReportingTasksForDate(releaseID, date, reportedStatus))
     },
-    setStatus: (status) => dispatch(A.setStatus(status)),
-    taskSelected: (task, selectedRelease) => dispatch(A.getTaskDetailsForReportFromServer(task._id, selectedRelease._id)),
+
+    setStatus: (releaseID, date, reportedStatus) => {
+        dispatch(A.setStatus(reportedStatus))
+        dispatch(A.getReportingTasksForDate(releaseID, date, reportedStatus))
+    },
+
+    taskPlanSelected: (taskPlan) => dispatch(A.getTaskDetailsForReportFromServer(taskPlan._id)),
+
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     },
@@ -41,7 +41,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
     allReleases: state.report.allReleases,
     releases: state.report.availableReleases,
-    dateOfReport: state.report.dateOfReport,
+    dateOfReport: state.report.dateStringOfReport,
     releaseID: state.report.releaseID,
     reportedStatus: state.report.reportedStatus
 })

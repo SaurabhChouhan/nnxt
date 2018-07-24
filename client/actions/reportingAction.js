@@ -125,9 +125,9 @@ export const getReleaseDetailsForReporting = (releaseID) => {
 }
 
 
-export const getTaskDetailsForReportFromServer = (taskID, releaseID) => {
+export const getTaskDetailsForReportFromServer = (taskPlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/task-plans/' + taskID + '/release/' + releaseID, {
+        return fetch('/api/reporting/task-plan/' + taskPlanID , {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -202,7 +202,7 @@ export const getReleasePlanByIdFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/' + releasePlanID + '/release-plan', {
                 method: 'get',
-            credentials: "include",
+                credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
