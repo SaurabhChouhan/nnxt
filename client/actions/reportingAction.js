@@ -5,9 +5,9 @@ export const addUserReleases = (releases) => ({
     releases: releases
 })
 
-export const addReportingTasksSelectedDate = (tasks, date) => ({
-    type: AC.ADD_REPORTING_TASKS_SELECTED_DATE,
-    tasks: tasks,
+export const addReleasesAndTasksOfSelectedDate = (releases, date) => ({
+    type: AC.ADD_RELEASES_AND_TASKS_OF_SELECTED_DATE,
+    releases: releases,
     date: date
 })
 
@@ -86,7 +86,7 @@ export const getReportingTasksForDate = (releaseID, date, taskStatus) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReportingTasksSelectedDate(json.data, date))
+                    dispatch(addReleasesAndTasksOfSelectedDate(json.data, date))
                 }
                 return json
 

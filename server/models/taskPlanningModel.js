@@ -2551,7 +2551,7 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     }
 
 
-    if (releaseID && releaseID.toLowerCase() !== SC.ALL ) {
+    if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
         // report tasks of a specific release is requested
         criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
     }
@@ -2568,15 +2568,16 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     let promises = []
 
     _.forEach(groupedTasks, (value, key) => {
-        promises.push(MDL.ReleaseModel.findById(key, {name: 1, project: 1}).then(release => {
-            return Object.assign({},release.toObject(),{
+
+        promises.push(MDL.ReleaseModel.findById(key).then(release => {
+            return Object.assign({}, release.toObject(), {
                 releaseName: release.project.name + " (" + release.name + ")",
-                    tasks : value
+                tasks: value
             })
         }))
     })
-
-    return await Promise.all(promises)
+    let releases = await Promise.all(promises)
+    return releases
 }
 
 taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {

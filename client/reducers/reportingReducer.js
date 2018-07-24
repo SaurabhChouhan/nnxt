@@ -3,10 +3,10 @@ import moment from 'moment'
 import * as SC from '../../server/serverconstants'
 let now = new Date()
 let initialState = {
-    userReleases: [],
+    allReleases: [],
     selectedTaskPlan: {},
     selectedReleasePlan: {},
-    tasksOfSelectedDate: [],
+    availableReleases: [],
     selectedRelease: {},
     status: SC.ALL,
     dateOfReport: moment(now).format('YYYY-MM-DD')
@@ -17,13 +17,13 @@ const reportingReducer = (state = initialState, action) => {
         case AC.ADD_USER_RELEASES:
             // All Releases where loggedIn user in involved as (manager,leader,developer) or that project
             return Object.assign({}, state, {
-                userReleases: action.releases
+                allReleases: action.releases
             })
 
-        case AC.ADD_REPORTING_TASKS_SELECTED_DATE:
+        case AC.ADD_RELEASES_AND_TASKS_OF_SELECTED_DATE:
             // Selected Project and its task plans are fetched
             return Object.assign({}, state, {
-                tasksOfSelectedDate: action.tasks,
+                availableReleases: action.releases,
                 dateOfReport: action.date
             })
 
