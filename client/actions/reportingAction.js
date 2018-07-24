@@ -42,6 +42,11 @@ export const setStatus = (status) => ({
     status: status
 })
 
+export const setReleaseID = (releaseID) => ({
+    type: AC.SET_RELEASE_ID,
+    releaseID: releaseID
+})
+
 
 /**
  * Gets all releases date
