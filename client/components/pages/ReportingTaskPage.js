@@ -98,18 +98,18 @@ class ReportingTaskPage extends Component {
         )
     }
 
-    onTaskStatusChange(status) {
-        this.props.onReleaseSelect(this.props.releases, this.props.dateOfReport, status)
+    onReportedStatusChange(status) {
+        this.props.onReleaseSelect(this.props.releaseID, this.props.dateOfReport, status)
         this.props.setStatus(status)
     }
 
     onReleaseSelect(releaseID) {
-        this.props.onReleaseSelect(releaseID, this.props.dateOfReport, this.props.taskStatus)
+        this.props.onReleaseSelect(releaseID, this.props.dateOfReport, this.props.reportedStatus)
     }
 
     render() {
 
-        const {allReleases, releases, taskStatus} = this.props
+        const {allReleases, releases, reportedStatus,releaseID} = this.props
         const cellEditProp = {
             mode: 'click',
             blurToSave: true
