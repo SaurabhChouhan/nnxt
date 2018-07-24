@@ -2171,9 +2171,14 @@ const updateEmployeeAskedForLeaveMoved = async (release, employeeDays, maxPlanne
         'employeeDays.date': employeeDays.date,
         'employeeDays.employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
     })
+    let count = await MDL.LeaveModel.count({
+        'user._id': employeeDays.employee._id,
+        'startDate': {$lte: employeeDays.date},
+        'endDate': {$gte: employeeDays.date},
+        'status': SC.LEAVE_STATUS_RAISED
+    })
 
-
-    if (employeeDays.plannedHours > maxPlannedHours) {
+    if (count > 0) {
         let taskPlanData = []
         logger.debug('[task-shift] WarningModel.updateEmployeeAskedForLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] planned hours crossed max planned hours')
         // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
@@ -2373,9 +2378,14 @@ const updateEmployeeOnLeaveMoved = async (release, employeeDays, maxPlannedHours
         'employeeDays.date': employeeDays.date,
         'employeeDays.employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
     })
+    let count = await MDL.LeaveModel.count({
+        'user._id': employeeDays.employee._id,
+        'startDate': {$lte: employeeDays.date},
+        'endDate': {$gte: employeeDays.date},
+        'status': SC.LEAVE_STATUS_APPROVED
+    })
 
-
-    if (employeeDays.plannedHours > maxPlannedHours) {
+    if (count > 0) {
         let taskPlanData = []
         logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] planned hours crossed max planned hours')
         // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
