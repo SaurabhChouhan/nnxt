@@ -20,7 +20,7 @@ reportingRouter.get("/task-plans/release/:releaseID/date/:date/task-status/:repo
 })
 
 reportingRouter.get("/task-plan/:taskPlanID", async ctx => {
-    return await MDL.TaskPlanningModel.getTaskDetails(ctx.params.taskPlanID, ctx.state.user)
+    return await MDL.TaskPlanningModel.getTaskPlanDetails(ctx.params.taskPlanID, ctx.state.user)
 })
 
 //comment

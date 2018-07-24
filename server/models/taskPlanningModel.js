@@ -2544,7 +2544,7 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 /*
 GetReportTasks
  */
-taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskStatus, user) => {
+taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, reportedStatus, user) => {
     let criteria = {
         'planningDate': U.dateInUTC(dateString),
         'employee._id': mongoose.Types.ObjectId(user._id)
@@ -2556,8 +2556,8 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
         criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
     }
 
-    if (taskStatus && taskStatus !== SC.ALL) {
-        criteria['report.status'] = taskStatus
+    if (reportedStatus && reportedStatus !== SC.ALL) {
+        criteria['report.status'] = reportedStatus
     }
     let tasks = await MDL.TaskPlanningModel.find(criteria)
     // Group tasks by releases
@@ -2580,21 +2580,12 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     return releases
 }
 
-taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {
+taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
     /* checking release is valid or not */
-    if (!releaseID) {
-        throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
 
     if (!taskPlanID) {
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-
-    /*
-    let release = await MDL.ReleaseModel.findById(releaseID)
-    if (!release)
-        throw new AppError('Not a valid release', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
-        */
 
     /* user Role in this release to see task detail */
     const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
@@ -2604,11 +2595,13 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
 
     /* checking task plan is valid or not */
 
-    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
+    let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
 
     if (!taskPlan)
         throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
 
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id))
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
         task: 1,
@@ -2632,7 +2625,8 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
     return {
         estimationDescription: estimationDescription.description,
         taskPlan: taskPlan,
-        releasePlan: releasePlan
+        releasePlan: releasePlan,
+        release: release
     }
 }
 
