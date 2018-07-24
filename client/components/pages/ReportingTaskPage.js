@@ -10,14 +10,8 @@ class ReportingTaskPage extends Component {
 
     constructor(props) {
         super(props)
-        this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
+        this.onReportedStatusChange = this.onReportedStatusChange.bind(this)
         this.onReleaseSelect = this.onReleaseSelect.bind(this)
-    }
-
-
-    columnClassStatusFormat(status) {
-        if (status == SC.STATUS_APPROVED)
-            return 'appRowColor'
     }
 
     rowClassNameFormat(row, rowIdx) {
@@ -37,52 +31,6 @@ class ReportingTaskPage extends Component {
             return row.firstName + ' ' + row.lastName
         }
         return ''
-    }
-
-    formatProjectName(project) {
-        if (project)
-            return project.name
-        return ''
-    }
-
-    formatCreatedDate(row) {
-        if (row) {
-            return moment(row).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatStartDate(row) {
-        if (row) {
-            return moment(row.devStartDate).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatEndDate(row) {
-        if (row) {
-            return moment(row.devEndDate).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatReleaseDate(row) {
-        if (row) {
-            return moment(row.clientReleaseDate).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatHours(row) {
-        if (row) {
-            return row.billedHours
-        }
-        return ''
-
     }
 
     formatTask(cell, row) {
