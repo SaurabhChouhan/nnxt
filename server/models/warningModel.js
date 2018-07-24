@@ -2350,6 +2350,210 @@ const updateEmployeeAskedForLeaveMoved = async (release, employeeDays, maxPlanne
 
     return warningResponse
 }
+
+const updateEmployeeOnLeaveMoved = async (release, employeeDays, maxPlannedHours) => {
+
+    logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() handling too many hours task moved for date [' + U.formatDateInUTC(employeeDays.date) + ']')
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    /*     Get existing , there is a possibility that this warning is due to tasks that have now shift to other days or probably because
+           there are other tasks assigned against this employee on this day in other releases. In asynchronous environment it is very difficult to ascertain
+           that warnings of moved tasks would be removed before handling tasks that are moved to this date hence we would rather start afresh
+
+           We will therefore remove this warning later on and create new. We will just see if this warning has any release/plan/task
+           added against it that are now not part of new warning if so we would add those to removed list so that flags can be removed from those RPT
+         */
+
+    let employeeOnLeaveWarning = await WarningModel.findOne({
+        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+        'employeeDays.date': employeeDays.date,
+        'employeeDays.employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
+    })
+
+
+    if (employeeDays.plannedHours > maxPlannedHours) {
+        let taskPlanData = []
+        logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] planned hours crossed max planned hours')
+        // find out release ids added in current task plans of same day/same employee as those would be affected by this warning
+
+
+        let distinctReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
+            'planningDate': employeeDays.date,
+            'employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
+        })
+
+        let releasesPromises = distinctReleaseIDs.map(releaseID => {
+            return MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID)).then(releaseDetail => {
+                //logger.debug('releaseDetail', {releaseDetail})
+                if (releaseDetail && releaseDetail._id.toString() === release._id.toString()) {
+                    warningResponse.added.push({
+                        _id: releaseDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE,
+                        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                        source: true
+                    })
+
+                    return Object.assign({}, releaseDetail.toObject(), {
+                        source: true
+                    })
+                } else {
+                    warningResponse.added.push({
+                        _id: releaseDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE,
+                        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                        source: false
+                    })
+
+                    return Object.assign({}, releaseDetail.toObject(), {
+                        source: false
+                    })
+                }
+            })
+        })
+
+        let releases = await Promise.all(releasesPromises)
+
+        let distinctReleasePlanIDs = await MDL.TaskPlanningModel.distinct('releasePlan._id', {
+            'planningDate': employeeDays.date,
+            'employee._id': employeeDays.employee._id
+        })
+
+        let releasePlanPromises = distinctReleasePlanIDs.map(releasePlanID => {
+            return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID)).then(releasePlanDetail => {
+                //logger.debug('releasePlanDetail', {releasePlanDetail})
+
+                if (releasePlanDetail && releasePlanDetail.release._id.toString() === release._id.toString()) {
+                    warningResponse.added.push({
+                        _id: releasePlanDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                        source: true
+                    })
+
+                    return Object.assign({}, releasePlanDetail.toObject(), {
+                        source: true
+                    })
+                } else {
+                    warningResponse.added.push({
+                        _id: releasePlanDetail._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                        source: false
+                    })
+
+                    return Object.assign({}, releasePlanDetail.toObject(), {
+                        source: false
+                    })
+                }
+            })
+        })
+        let releasePlans = await Promise.all(releasePlanPromises)
+
+        // fetch task plans as all task plans are affected by this warning and hence need to be added against this warning
+        let taskPlans = await MDL.TaskPlanningModel.find({
+            'planningDate': employeeDays.date,
+            'employee._id': mongoose.Types.ObjectId(employeeDays.employee._id)
+        })
+
+        taskPlans.forEach(t => {
+            if (t.release._id.toString() === release._id.toString()) {
+                warningResponse.added.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                    source: true
+                })
+
+                taskPlanData.push(Object.assign({}, t.toObject(), {
+                    source: true
+                }))
+
+            } else {
+
+                warningResponse.added.push({
+                    _id: t._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                    source: true
+                })
+
+                taskPlanData.push(Object.assign({}, t.toObject(), {
+                    source: false
+                }))
+            }
+        })
+
+        // Create warning
+        let newWarning = new WarningModel()
+        newWarning.type = SC.WARNING_EMPLOYEE_ON_LEAVE
+        newWarning.taskPlans = [...taskPlanData]
+        newWarning.releasePlans = [...releasePlans]
+        newWarning.releases = [...releases]
+        newWarning.employeeDays = [employeeDays]
+        logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] creating new warning ', {newWarning})
+
+        try {
+            await newWarning.save()
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    if (employeeOnLeaveWarning) {
+        logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] too many hours warning exists ', {employeeOnLeaveWarning})
+        // Iterate on warning response generated above and compare with date in existing warning to see what needs to keep and what needs to be removed
+
+        employeeOnLeaveWarning.releases.forEach(r => {
+            logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] iterating on release id ' + r._id)
+            // Add this release to remove list if it is not added in warning add response
+            if (warningResponse.added.findIndex(wa => wa._id.toString() === r._id.toString() && wa.warningType === SC.WARNING_TYPE_RELEASE) === -1) {
+                logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] release [' + r._id.toString() + '] not part of new warning hence removing')
+                warningResponse.removed.push({
+                    _id: r._id,
+                    warningType: SC.WARNING_TYPE_RELEASE,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                    source: r.source
+                })
+            }
+        })
+
+        employeeOnLeaveWarning.releasePlans.forEach(rp => {
+
+            if (warningResponse.added.findIndex(wa => wa._id.toString() === rp._id.toString() && wa.warningType === SC.WARNING_TYPE_RELEASE_PLAN) === -1) {
+                logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] release plan [' + rp._id.toString() + '] not part of new warning hence removing')
+                warningResponse.removed.push({
+                    _id: rp._id,
+                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                    source: rp.source
+                })
+            }
+        })
+
+        employeeOnLeaveWarning.taskPlans.forEach(tp => {
+
+            if (warningResponse.added.findIndex(wa => wa._id.toString() === tp._id.toString() && wa.warningType === SC.WARNING_TYPE_TASK_PLAN) === -1) {
+                logger.debug('[task-shift] WarningModel.updateEmployeeOnLeaveMoved() [' + U.formatDateInUTC(employeeDays.date) + '] task plan [' + tp._id.toString() + '] not part of new warning hence removing')
+                warningResponse.removed.push({
+                    _id: tp._id,
+                    warningType: SC.WARNING_TYPE_TASK_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
+                    source: tp.source
+                })
+            }
+        })
+
+        // remove existing warning as we will be creating new
+        employeeOnLeaveWarning.remove()
+    }
+
+    return warningResponse
+}
+
 warningSchema.statics.movedToFuture = async (release, employeeDays) => {
 
     // Max planned hours would come handy to add too many hours warning
