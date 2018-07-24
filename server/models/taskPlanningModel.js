@@ -2569,7 +2569,7 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
 
     _.forEach(groupedTasks, (value, key) => {
 
-        promises.push(MDL.ReleaseModel.findById(key).then(release => {
+        promises.push(MDL.ReleaseModel.findById(mongoose.Types.ObjectId(key)).then(release => {
             return Object.assign({}, release.toObject(), {
                 releaseName: release.project.name + " (" + release.name + ")",
                 tasks: value
