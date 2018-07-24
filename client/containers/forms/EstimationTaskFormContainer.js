@@ -8,6 +8,7 @@ import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
+        console.log("EstimationTaskFormContainer->onSubmit() ", values)
         if (values._id) {
             values.estimatedHours = Number(values.estimatedHours)
             logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)

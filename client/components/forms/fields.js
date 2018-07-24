@@ -100,7 +100,6 @@ export const renderSelect = ({
             {showNoneOption && <option value={noneOptionValue}>{noneOptionText}</option>}
             {
                 options && options.map(option => {
-
                         return <option value={_.get(option, valueField)}
                                        key={option[valueField]}>{_.get(option, displayField) ? _.get(option, displayField) : _.get(option, optionalDisplayField)}</option>
                     }
