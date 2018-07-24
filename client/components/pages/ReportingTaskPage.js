@@ -109,7 +109,7 @@ class ReportingTaskPage extends Component {
 
     render() {
 
-        const {allReleases, releases, reportedStatus,releaseID} = this.props
+        const {allReleases, releases, reportedStatus, releaseID} = this.props
         const cellEditProp = {
             mode: 'click',
             blurToSave: true
@@ -126,7 +126,7 @@ class ReportingTaskPage extends Component {
                         <div className="col-md-6 ">
                             <div>
                                 <select
-                                    value={}
+                                    value={releaseID}
                                     className="form-control"
                                     title="Select Flag"
                                     onChange={(project) =>
