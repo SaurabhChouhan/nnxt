@@ -45,6 +45,11 @@ let estimationSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: String
     },
+    // Contains statistics associated with each task type
+    stats: [{
+        type: {type: String, enum: [SC.TYPE_REVIEW, SC.TYPE_TESTING, SC.TYPE_MANAGEMENT, SC.TYPE_DEVELOPMENT]},
+        estimatedHours: {type: Number, default: 0}
+    }],
     notes: [{
         name: {type: String, required: true},
         note: {type: String, required: true},

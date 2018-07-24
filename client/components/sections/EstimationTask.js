@@ -503,11 +503,13 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
             task.name = values.estimator.name
             task.description = values.estimator.description
             task.estimatedHours = values.estimator.estimatedHours
+            task.type = values.type
         }
         else {
             task.name = values.negotiator.name
             task.description = values.negotiator.description
             task.estimatedHours = values.negotiator.estimatedHours
+            task.type = values.type
         }
         task.feature = values.feature
         task.technologies = values.technologies
@@ -574,6 +576,7 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
             task.name = values.negotiator.name
             task.description = values.negotiator.description
             task.estimatedHours = values.negotiator.estimatedHours
+            task.type = values.type
 
             task.readOnly.name = values.estimator.name
             task.readOnly.description = values.estimator.description
@@ -584,11 +587,10 @@ EstimationTask = connect(null, (dispatch, ownProps) => ({
             task.name = values.estimator.name
             task.description = values.estimator.description
             task.estimatedHours = values.estimator.estimatedHours
-
+            task.type = values.type
             task.readOnly.name = values.negotiator.name
             task.readOnly.description = values.negotiator.description
             task.readOnly.estimatedHours = values.negotiator.estimatedHours
-
         }
 
         dispatch(initialize("estimation-suggest-task", task))
