@@ -85,7 +85,7 @@ class ReportingTaskPage extends Component {
 
     viewDetailButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                this.props.taskSelected(row).then(json => {
+                this.props.taskPlanSelected(row).then(json => {
                     if (json.success) {
                         this.props.history.push('/app-home/reporting-task-detail')
                         this.props.showTaskDetailPage()
@@ -99,12 +99,11 @@ class ReportingTaskPage extends Component {
     }
 
     onReportedStatusChange(status) {
-        this.props.onReleaseSelect(this.props.releaseID, this.props.dateOfReport, status)
-        this.props.setStatus(status)
+        this.props.setStatus(this.props.releaseID, this.props.dateOfReport, status)
     }
 
     onReleaseSelect(releaseID) {
-        this.props.onReleaseSelect(releaseID, this.props.dateOfReport, this.props.reportedStatus)
+        this.props.setReleaseID(releaseID, this.props.dateOfReport, this.props.reportedStatus)
     }
 
     render() {
@@ -265,7 +264,7 @@ class ReportingTaskPage extends Component {
                                 </BootstrapTable>
 
                             </div>
-                        ) : null
+                        ) : <label> No tasks found for reporting </label>
                     }
                 </div>
             </div>
