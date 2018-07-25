@@ -494,26 +494,6 @@ const updateFlagsOnShift = async (generatedWarnings) => {
     let affectedTaskPlans = await Promise.all(tpIDPromises)
 
     // Now that we have got all the releasePlan/taskPlan IDs that would be affected by warning raised, we will update them accordingly
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(w => {
-            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
-                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
-                if (!affectedReleasePlan)
-                    return;
-                if (affectedReleasePlan.flags.indexOf(w.type) === -1)
-                    affectedReleasePlan.flags.push(w.type)
-
-            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
-                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
-                if (!affectedTaskPlan)
-                    return;
-                if (affectedTaskPlan.flags.indexOf(w.type) === -1)
-                    affectedTaskPlan.flags.push(w.type)
-            }
-        })
-    }
 
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
@@ -523,16 +503,34 @@ const updateFlagsOnShift = async (generatedWarnings) => {
                 if (!affectedReleasePlan)
                     return;
 
-                if (affectedReleasePlan.flags.indexOf(w.type) > -1)
-                    affectedReleasePlan.flags.pull(w.type)
+                affectedReleasePlan.flags.pull(w.type)
 
             } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
                 logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
                 let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
                 if (!affectedTaskPlan)
                     return;
-                if (affectedTaskPlan.flags.indexOf(w.type) > -1)
-                    affectedTaskPlan.flags.pull(w.type)
+                affectedTaskPlan.flags.pull(w.type)
+            }
+        })
+    }
+
+
+    if (generatedWarnings.added && generatedWarnings.added.length) {
+        generatedWarnings.added.forEach(w => {
+            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
+                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
+                if (!affectedReleasePlan)
+                    return;
+                affectedReleasePlan.flags.push(w.type)
+
+            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                logger.debug('[updateFlagsOnShift]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
+                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
+                if (!affectedTaskPlan)
+                    return;
+                affectedTaskPlan.flags.push(w.type)
             }
         })
     }
@@ -617,9 +615,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-        'employee._id': employee._id.toString(),
-        'date': momentPlanningDate
-    }) > 0) {
+            'employee._id': employee._id.toString(),
+            'date': momentPlanningDate
+        }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -651,11 +649,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id),
-        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id),
+            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-    }) > 0) {
+        }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -678,9 +676,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id)
-    }) > 0) {
+            'employee._id': mongoose.Types.ObjectId(employee._id),
+            'release._id': mongoose.Types.ObjectId(release._id)
+        }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -2546,20 +2544,20 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 /*
 GetReportTasks
  */
-taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskStatus, user) => {
+taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, reportedStatus, user) => {
     let criteria = {
         'planningDate': U.dateInUTC(dateString),
         'employee._id': mongoose.Types.ObjectId(user._id)
     }
 
 
-    if (releaseID !== SC.ALL) {
-        // report tasks of a specific release is requestd
+    if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
+        // report tasks of a specific release is requested
         criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
     }
 
-    if (taskStatus && taskStatus !== SC.ALL) {
-        criteria['report.status'] = taskStatus
+    if (reportedStatus && reportedStatus !== SC.ALL) {
+        criteria['report.status'] = reportedStatus
     }
     let tasks = await MDL.TaskPlanningModel.find(criteria)
     // Group tasks by releases
@@ -2570,47 +2568,41 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, taskSt
     let promises = []
 
     _.forEach(groupedTasks, (value, key) => {
-        promises.push(MDL.ReleaseModel.findById(key, {name: 1, project: 1}).then(release => {
-            return {
-                _id: release._id,
-                name: release.project.name + " (" + release.name + ")",
+
+        promises.push(MDL.ReleaseModel.findById(mongoose.Types.ObjectId(key)).then(release => {
+            return Object.assign({}, release.toObject(), {
+                releaseName: release.project.name + " (" + release.name + ")",
                 tasks: value
-            }
+            })
         }))
     })
-
-    return await Promise.all(promises)
+    let releases = await Promise.all(promises)
+    return releases
 }
 
-taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) => {
+taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
     /* checking release is valid or not */
-    if (!releaseID) {
-        throw new AppError('Release id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
 
     if (!taskPlanID) {
         throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    /*
-    let release = await MDL.ReleaseModel.findById(releaseID)
-    if (!release)
-        throw new AppError('Not a valid release', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
-        */
+    let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+
+    if (!taskPlan) {
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id))
+
 
     /* user Role in this release to see task detail */
-    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     /* user assumes no role in this release */
     if (userRolesInRelease.length == 0)
         throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     /* checking task plan is valid or not */
-
-    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
-
-    if (!taskPlan)
-        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
-
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
         task: 1,
@@ -2634,7 +2626,8 @@ taskPlanningSchema.statics.getTaskDetails = async (taskPlanID, releaseID, user) 
     return {
         estimationDescription: estimationDescription.description,
         taskPlan: taskPlan,
-        releasePlan: releasePlan
+        releasePlan: releasePlan,
+        release: release
     }
 }
 

@@ -5,6 +5,7 @@ import {connect} from 'react-redux'
 import * as SC from '../../../server/serverconstants'
 import * as A from '../../actions'
 import * as COC from '../componentConsts'
+import * as U from '../../../server/utils'
 
 const SidebarSection = (props) => {
     let roles = []
@@ -37,9 +38,20 @@ const SidebarSection = (props) => {
 
                         {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
-                                roles.indexOf('Developer') > -1) &&
+                                roles.indexOf(SC.ROLE_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_NON_PROJECT_DEVELOPER) > -1) &&
                             <li><Link to="/app-home/reporting" onClick={() => {
-                                props.dispatch(A.getUserReleasesFromServer())
+                                props.dispatch(A.getUserReleasesFromServer(SC.ALL))
+                                /*on reporting click by default all task plans and projects will be there with params
+                                releaseID,
+                                 * @param releaseID - releaseId by default all release will be fetched
+                                 * @param nowString - Current Date Of Indian Time-ZOne
+                                 * @param 'planned' - release-plan iteration type
+                                 * @param task status - 'all'
+                                 */
+                                props.dispatch(A.getReportingTasksForDate(SC.ALL, U.getNowString(), SC.ALL))
+                                props.dispatch(A.setReleaseID(SC.ALL))
+                                props.dispatch(A.setReportDate(U.getNowString()))
+                                props.dispatch(A.setReportedStatus(SC.ALL))
                                 props.dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE))
 
                             }}>Reporting</Link></li>

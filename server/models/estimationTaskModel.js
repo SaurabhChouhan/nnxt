@@ -6,6 +6,7 @@ import * as V from "../validation"
 import {userHasRole} from "../utils"
 import * as MDL from "../models"
 import _ from 'lodash'
+import * as U from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -15,10 +16,13 @@ let estimationTaskSchema = mongoose.Schema({
     addedInThisIteration: {type: Boolean, required: true},
     canApprove: {type: Boolean, default: false},
     hasError: {type: Boolean, default: true},
-    initiallyEstimated: {type: Boolean, required: true},
     isDeleted: {type: Boolean, default: false},
     created: Date,
     updated: Date,
+    type: {
+        type: String,
+        enum: [SC.TYPE_DEVELOPMENT, SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW, SC.TYPE_COMPANY]
+    },
     estimation: {
         _id: {type: mongoose.Schema.ObjectId, required: true}
     },
@@ -133,24 +137,34 @@ const addTaskByEstimator = async (taskInput, estimator) => {
                 "hasError": false
             })
         }
-
-
     }
+
+
+    /*
     if (estimation && estimation._id) {
         await MDL.EstimationModel.updateOne({_id: estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
     }
+    */
 
+    // Modify estimation
+    estimation.estimatedHours += taskInput.estimatedHours
+    let idx = estimation.stats.indexOf(s => s.type == taskInput.type)
+    if (idx > -1) {
+        estimation.stats[idx].estimatedHours += taskInput.estimatedHours
+    }
+
+    await estimation.save()
     let estimationTask = new EstimationTaskModel()
     estimationTask.estimator.name = taskInput.name
     estimationTask.estimator.description = taskInput.description
     estimationTask.estimator.estimatedHours = taskInput.estimatedHours
     estimationTask.negotiator.estimatedHours = 0
     estimationTask.status = SC.STATUS_PENDING
+    estimationTask.type = taskInput.type
     estimationTask.addedInThisIteration = true
     estimationTask.canApprove = false
     estimationTask.hasError = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
-    estimationTask.initiallyEstimated = true
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
     // Add repository reference and also note that this task was added into repository from this estimation
@@ -164,6 +178,7 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     } else estimationTask.hasError = false
 
     estimationTask.repo.addedFromThisEstimation = true
+
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = estimator.fullName
@@ -202,11 +217,47 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
             $inc: {"negotiator.estimatedHours": taskInput.estimatedHours},
             'hasError': true
         })
-
     }
+
+    /*
     if (estimation && estimation._id) {
         await MDL.EstimationModel.updateOne({_id: estimation._id}, {$inc: {"suggestedHours": taskInput.estimatedHours}})
     }
+    */
+
+    let canProvideFinalEstimates = false
+
+    // Negotiator can provide final estimates for these types of tasks
+    if (_.includes([SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW], taskInput.type))
+        canProvideFinalEstimates = true
+
+    // Modify estimation
+    estimation.suggestedHours += taskInput.estimatedHours
+    if (canProvideFinalEstimates)
+        estimation.estimatedHours += taskInput.estimatedHours
+
+
+    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
+    console.log("######### IDX ", idx)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        if (canProvideFinalEstimates)
+            estimation.stats[idx].estimatedHours += taskInput.estimatedHours
+    } else {
+        // Push new element to stats for keeping details of this type of task
+        if (canProvideFinalEstimates)
+            estimation.stats.push({
+                type: taskInput.type,
+                estimatedHours: taskInput.estimatedHours
+            })
+        else
+            estimation.stats.push({
+                type: taskInput.type
+            })
+    }
+
+    await estimation.save()
 
     let estimationTask = new EstimationTaskModel()
     estimationTask.negotiator.name = taskInput.name
@@ -214,25 +265,37 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
     estimationTask.negotiator.changeSuggested = true
     estimationTask.status = SC.STATUS_PENDING
+    estimationTask.canApprove = false
     estimationTask.addedInThisIteration = true
     estimationTask.owner = SC.OWNER_NEGOTIATOR
-    estimationTask.initiallyEstimated = true
-    estimationTask.canApprove = false
     estimationTask.estimation = taskInput.estimation
     estimationTask.technologies = estimation.technologies
-    // Add repository reference and also note that this task was added into repository from this estimation
+// Add repository reference and also note that this task was added into repository from this estimation
     estimationTask.repo = {}
-    //estimationTask.repo._id = repositoryTask._id
+//estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
-    // Add name/description into estimator section as well, estimator can review and add estimated hours against this task
-    //estimationTask.estimator.name = taskInput.name
-    // estimationTask.estimator.description = taskInput.description
+// Add name/description into estimator section as well, estimator can review and add estimated hours against this task
+//estimationTask.estimator.name = taskInput.name
+// estimationTask.estimator.description = taskInput.description
     estimationTask.feature = taskInput.feature
     if (!_.isEmpty(taskInput.notes)) {
         estimationTask.notes = taskInput.notes.map(n => {
             n.name = negotiator.fullName
             return n
         })
+    }
+
+    estimationTask.type = taskInput.type
+    if (canProvideFinalEstimates) {
+        // Tasks of type management are added by Negotiator to estimate management hours that manager would need for this project
+        // As negotiator represents Manager, such tasks would directly be in approval stage rather than needing estimated hours
+        // from estimator. for this reason, information added here would directly be added to estimator section as well as
+        // finally that section is used for copying information
+        estimationTask.estimator.name = taskInput.name
+        estimationTask.estimator.description = taskInput.description
+        estimationTask.estimator.estimatedHours = taskInput.estimatedHours
+        estimationTask.hasError = false
+        estimationTask.canApprove = true
     }
 
     await estimationTask.save()
@@ -314,7 +377,7 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
                 "isDeleted": false,
                 "feature._id": estimationFeatureObj._id,
                 "estimation._id": estimation._id
-            }) + (estimationTask.hasError ? -1 : 0) ) > 0
+            }) + (estimationTask.hasError ? -1 : 0)) > 0
             || !taskInput.estimatedHours
             || taskInput.estimatedHours == 0
             || _.isEmpty(taskInput.name)
@@ -338,12 +401,21 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
             })
         }
     }
-    if (estimation && estimation._id) {
-        await MDL.EstimationModel.updateOne({_id: estimation._id}, {
-            $inc: {"estimatedHours": estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours}
-        })
+
+    let diffHours = estimationTask.estimator.estimatedHours ? taskInput.estimatedHours - estimationTask.estimator.estimatedHours : taskInput.estimatedHours
+
+    // Modify estimation
+    estimation.estimatedHours += diffHours
+
+    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        estimation.stats[idx].estimatedHours += diffHours
+    } else {
+        throw new AppError('In update task we should have find index value of type ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
+    await estimation.save()
 
     if (estimationTask.repo && estimationTask.repo._id) {
         // find repo and update when task is updating
@@ -436,6 +508,39 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
         })
     }
 
+    let canProvideFinalEstimates = false
+    // Negotiator can provide final estimates for these types of tasks
+    if (_.includes([SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW], taskInput.type))
+        canProvideFinalEstimates = true
+
+    let diffHours = estimationTask.negotiator.estimatedHours ? taskInput.estimatedHours - estimationTask.negotiator.estimatedHours : taskInput.estimatedHours
+
+    // Modify estimation
+    estimation.suggestedHours += diffHours
+
+    if (canProvideFinalEstimates)
+        estimation.estimatedHours += diffHours
+
+    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        if (canProvideFinalEstimates)
+            estimation.stats[idx].estimatedHours += diffHours
+    } else {
+        // Push new element to stats for keeping details of this type of task
+        if (canProvideFinalEstimates)
+            estimation.stats.push({
+                type: taskInput.type,
+                estimatedHours: diffHours
+            })
+        else
+            estimation.stats.push({
+                type: taskInput.type
+            })
+    }
+
+    await estimation.save()
+
 
     estimationTask.feature = taskInput.feature ? taskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.negotiator.name = taskInput.name
@@ -467,6 +572,19 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
         mergeAllNotes = taskInput.notes
     }
     estimationTask.notes = mergeAllNotes
+
+    if (canProvideFinalEstimates) {
+        // Tasks of type management are added by Negotiator to estimate management hours that manager would need for this project
+        // As negotiator represents Manager, such tasks would directly be in approval stage rather than needing estimated hours
+        // from estimator. for this reason, information added here would directly be added to estimator section as well as
+        // finally that section is used for copying information
+        estimationTask.estimator.name = taskInput.name
+        estimationTask.estimator.description = taskInput.description
+        estimationTask.estimator.estimatedHours = taskInput.estimatedHours
+        estimationTask.hasError = false
+        estimationTask.canApprove = true
+    }
+
     await estimationTask.save()
     estimationTask = estimationTask.toObject()
     if (estimationFeatureObj && estimationFeatureObj.canApprove) {
@@ -563,17 +681,17 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
         //only estimated hours is there in this task
         // As task is included we have to check for has error in feature including this task
         if ((!feature.estimator.name
-                || _.isEmpty(feature.estimator.name)
-                || !feature.estimator.description
-                || _.isEmpty(feature.estimator.description)
+            || _.isEmpty(feature.estimator.name)
+            || !feature.estimator.description
+            || _.isEmpty(feature.estimator.description)
 
-                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
-                || (await EstimationTaskModel.count({
-                    "hasError": true,
-                    "isDeleted": false,
-                    "feature._id": feature._id,
-                    "estimation._id": estimation._id
-                }) + (task.hasError ? +1 : 0)) > 0)) {
+            || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
+            || (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + (task.hasError ? +1 : 0)) > 0)) {
 
             //there is still error after including this task
             await MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {
@@ -597,17 +715,17 @@ const moveTaskToFeatureByEstimator = async (task, feature, estimation, estimator
         //only suggested hours is there in this task
         // As task is included we have to check for has error in feature including this task
         if ((!feature.estimator.name
-                || _.isEmpty(feature.estimator.name)
-                || !feature.estimator.description
-                || _.isEmpty(feature.estimator.description)
+            || _.isEmpty(feature.estimator.name)
+            || !feature.estimator.description
+            || _.isEmpty(feature.estimator.description)
 
-                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
-                || (await EstimationTaskModel.count({
-                    "hasError": true,
-                    "isDeleted": false,
-                    "feature._id": feature._id,
-                    "estimation._id": estimation._id
-                }) + (task.hasError ? +1 : 0)) > 0)) {
+            || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
+            || (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + (task.hasError ? +1 : 0)) > 0)) {
 
             //there is still error after including this task
             await MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {
@@ -704,17 +822,17 @@ const moveTaskToFeatureByNegotiator = async (task, feature, estimation, negotiat
         //only estimated hours is there in this task
         // As task is included we have to check for has error in feature including this task
         if ((!feature.estimator.name
-                || _.isEmpty(feature.estimator.name)
-                || !feature.estimator.description
-                || _.isEmpty(feature.estimator.description)
+            || _.isEmpty(feature.estimator.name)
+            || !feature.estimator.description
+            || _.isEmpty(feature.estimator.description)
 
-                || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
-                || (await EstimationTaskModel.count({
-                    "hasError": true,
-                    "isDeleted": false,
-                    "feature._id": feature._id,
-                    "estimation._id": estimation._id
-                }) + (task.hasError ? +1 : 0)) > 0)) {
+            || (feature.estimator.estimatedHours + task.estimator.estimatedHours) <= 0
+            || (await EstimationTaskModel.count({
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + (task.hasError ? +1 : 0)) > 0)) {
 
             //there is still error after including this task
             await MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {
@@ -1241,7 +1359,7 @@ const deleteTaskByEstimator = async (task, estimation, estimator) => {
                     "isDeleted": false,
                     "feature._id": feature._id,
                     "estimation._id": estimation._id
-                }) + (task.hasError ? -1 : 0 )) > 0
+                }) + (task.hasError ? -1 : 0)) > 0
                 || _.isEmpty(feature.estimator.name)
                 || _.isEmpty(feature.estimator.description)
                 || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
@@ -1275,7 +1393,7 @@ const deleteTaskByEstimator = async (task, estimation, estimator) => {
                     "isDeleted": false,
                     "feature._id": feature._id,
                     "estimation._id": estimation._id
-                }) + (task.hasError ? -1 : 0 )) > 0
+                }) + (task.hasError ? -1 : 0)) > 0
                 || _.isEmpty(feature.estimator.name)
                 || _.isEmpty(feature.estimator.description)
                 || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
@@ -1304,7 +1422,7 @@ const deleteTaskByEstimator = async (task, estimation, estimator) => {
                     "isDeleted": false,
                     "feature._id": feature._id,
                     "estimation._id": estimation._id
-                }) + (task.hasError ? -1 : 0 )) > 0
+                }) + (task.hasError ? -1 : 0)) > 0
                 || _.isEmpty(feature.estimator.name)
                 || _.isEmpty(feature.estimator.description)
                 || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
@@ -1379,7 +1497,7 @@ const deleteTaskByNegotiator = async (task, estimation, negotiator) => {
                     "isDeleted": false,
                     "feature._id": feature._id,
                     "estimation._id": estimation._id
-                }) + (task.hasError ? -1 : 0 )) > 0
+                }) + (task.hasError ? -1 : 0)) > 0
                 || _.isEmpty(feature.estimator.name)
                 || _.isEmpty(feature.estimator.description)
                 || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
@@ -1438,14 +1556,14 @@ const deleteTaskByNegotiator = async (task, estimation, negotiator) => {
             //only suggested hours is there in this task
             // As task is removed we have to check for has error in feature except deleting task
             if (await EstimationTaskModel.count({
-                    "hasError": true,
-                    "isDeleted": false,
-                    "feature._id": feature._id,
-                    "estimation._id": estimation._id
-                }) + task.hasError ? -1 : 0 > 0
-                    || _.isEmpty(feature.estimator.name)
-                    || _.isEmpty(feature.estimator.description)
-                    || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
+                "hasError": true,
+                "isDeleted": false,
+                "feature._id": feature._id,
+                "estimation._id": estimation._id
+            }) + task.hasError ? -1 : 0 > 0
+                || _.isEmpty(feature.estimator.name)
+                || _.isEmpty(feature.estimator.description)
+                || (feature.estimator.estimatedHours - task.estimator.estimatedHours) <= 0) {
 
                 //there is still error after deleting this task
                 await MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {
@@ -1464,16 +1582,16 @@ const deleteTaskByNegotiator = async (task, estimation, negotiator) => {
 
         }
 
-        if ((task.estimator.removalRequested || task.estimator.changeRequested ) && (
-                await EstimationTaskModel.count({
-                    "feature._id": feature._id,
-                    "isDeleted": false,
-                    "estimator.removalRequested": true
-                }) + await EstimationTaskModel.count({
-                    "feature._id": feature._id,
-                    "isDeleted": false,
-                    "estimator.changeRequested": true
-                })) <= 1) {
+        if ((task.estimator.removalRequested || task.estimator.changeRequested) && (
+            await EstimationTaskModel.count({
+                "feature._id": feature._id,
+                "isDeleted": false,
+                "estimator.removalRequested": true
+            }) + await EstimationTaskModel.count({
+                "feature._id": feature._id,
+                "isDeleted": false,
+                "estimator.changeRequested": true
+            })) <= 1) {
             await MDL.EstimationFeatureModel.updateOne({_id: feature._id}, {
                 $set: {"estimator.requestedInThisIteration": false}
             })
@@ -1553,17 +1671,17 @@ const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotia
     let estimationFeatureObj
     if (task.feature && task.feature._id) {
         if ((
-                await EstimationTaskModel.count({
-                    "feature._id": task.feature._id,
-                    "isDeleted": false,
-                    "estimator.removalRequested": true
-                })
-                + await EstimationTaskModel.count({
-                    "feature._id": task.feature._id,
-                    "isDeleted": false,
-                    "estimator.changeRequested": true
-                })
-            ) <= 1) {
+            await EstimationTaskModel.count({
+                "feature._id": task.feature._id,
+                "isDeleted": false,
+                "estimator.removalRequested": true
+            })
+            + await EstimationTaskModel.count({
+                "feature._id": task.feature._id,
+                "isDeleted": false,
+                "estimator.changeRequested": true
+            })
+        ) <= 1) {
             await MDL.EstimationFeatureModel.updateOne({_id: task.feature._id}, {
                 $set: {"estimator.requestedInThisIteration": false}
             })
@@ -1622,15 +1740,21 @@ estimationTaskSchema.statics.approveTask = async (taskID, user) => {
 
 
 const approveTaskByNegotiator = async (task, estimation, negotiator) => {
+    let canApprove = true
 
-    if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve task into those estimations where status is in [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if (estimation.status == SC.STATUS_INITIATED) {
+        if (estimation.type == SC.TYPE_DEVELOPMENT)
+            canApprove = false;
+    } else if (estimation.status != SC.STATUS_REVIEW_REQUESTED)
+        canApprove = false
+
+    if (!canApprove)
+        throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only approve task only when estimation status is [" + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_STAGE_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (!(task.canApprove))
         throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
     if (task.negotiator.estimatedHours != task.estimator.estimatedHours) {
-
         if (estimation && estimation._id) {
             await MDL.EstimationModel.updateOne({"_id": estimation._id}, {
                 $inc: {
@@ -1733,7 +1857,6 @@ const addTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, 
     estimationTask.addedInThisIteration = true
     estimationTask.canApprove = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
-    estimationTask.initiallyEstimated = true
     estimationTask.estimation = estimation
     estimationTask.technologies = estimation.technologies
     estimationTask.repo = {}
@@ -1815,7 +1938,6 @@ const addTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID,
     taskFromRepositoryObj.addedInThisIteration = true
     taskFromRepositoryObj.canApprove = false
     taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
-    taskFromRepositoryObj.initiallyEstimated = true
 
     //conditions for has error
     if (!repositoryTask.name
@@ -1905,7 +2027,6 @@ const copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID,
     estimationTask.addedInThisIteration = true
     estimationTask.canApprove = false
     estimationTask.owner = SC.OWNER_ESTIMATOR
-    estimationTask.initiallyEstimated = true
     estimationTask.estimation = estimation
     estimationTask.technologies = estimation.technologies
     estimationTask.repo = {}
@@ -1985,7 +2106,6 @@ const copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID
     taskFromRepositoryObj.status = SC.STATUS_PENDING
     taskFromRepositoryObj.addedInThisIteration = true
     taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
-    taskFromRepositoryObj.initiallyEstimated = true
     taskFromRepositoryObj.canApprove = false
 
     taskFromRepositoryObj.estimation = estimation

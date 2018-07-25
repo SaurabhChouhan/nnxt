@@ -16,7 +16,7 @@ class ReportingDateNavBar extends React.Component {
     }
 
     render() {
-        const {taskStatus, releaseID, dateOfReport} = this.props
+        const {reportedStatus, releaseID, dateOfReport} = this.props
         const {change} = this.props
         return (
             <form>
@@ -27,7 +27,7 @@ class ReportingDateNavBar extends React.Component {
                                 onClick={() => {
                                     let prevDate = moment(dateOfReport).clone().subtract(1, 'days').format(SC.DATE_FORMAT)
                                     this.props.setReportDate(prevDate)
-                                    this.props.onReleaseSelected(releaseID, prevDate, taskStatus)
+                                    this.props.onReleaseSelected(releaseID, prevDate, reportedStatus)
                                     change("dateOfReport", moment(prevDate).clone().toDate())
 
                                 }}
@@ -39,7 +39,7 @@ class ReportingDateNavBar extends React.Component {
                         <Field name='dateOfReport'
                                onChange={(event, newValue, oldValue) => {
                                    this.props.setReportDate(newValue)
-                                   this.props.onReleaseSelected(releaseID, newValue, taskStatus)
+                                   this.props.onReleaseSelected(releaseID, newValue, reportedStatus)
                                }}
                                label=''
                                component={renderDateTimePickerString}
@@ -53,7 +53,7 @@ class ReportingDateNavBar extends React.Component {
                                     let nextDate = moment(dateOfReport).clone().add(1, 'days').format('YYYY-MM-DD')
 
                                     this.props.setReportDate(nextDate)
-                                    this.props.onReleaseSelected(releaseID, nextDate, taskStatus)
+                                    this.props.onReleaseSelected(releaseID, nextDate, reportedStatus)
                                     change("dateOfReport", moment(nextDate).clone().toDate())
                                 }}
                                 type="button">

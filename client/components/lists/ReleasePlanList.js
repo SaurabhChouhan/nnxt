@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
+import {NotificationManager} from 'react-notifications'
 
 class ReleasePlanList extends Component {
 
@@ -29,8 +30,15 @@ class ReleasePlanList extends Component {
     }
 
     onRowClick(row) {
-        this.props.history.push("/app-home/release-task-planning")
-        this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
+        console.log("row", row)
+        if (row.release.iteration.iterationType === SC.ITERATION_TYPE_UNPLANNED) {
+            NotificationManager.error("Cannot add tasks to 'unplanned' release plans")
+        }
+        else {
+            this.props.history.push("/app-home/release-task-planning")
+            this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
+        }
+
     }
 
     formatEstimatedHours(task) {

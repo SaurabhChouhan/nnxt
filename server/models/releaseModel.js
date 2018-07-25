@@ -70,7 +70,13 @@ let releaseSchema = mongoose.Schema({
         },
         estimation: {
             _id: {type: mongoose.Schema.ObjectId}
-        }
+        },
+        stats: [{
+            type: {type: String, enum: [SC.TYPE_REVIEW, SC.TYPE_TESTING, SC.TYPE_MANAGEMENT, SC.TYPE_DEVELOPMENT]},
+            estimatedHours: {type: Number, default: 0},
+            plannedHours: {type: Number, default: 0},
+            reportedHours: {type: Number, default: 0}
+        }]
     }],
     created: {type: Date, default: Date.now()},
     updated: {type: Date, default: Date.now()}

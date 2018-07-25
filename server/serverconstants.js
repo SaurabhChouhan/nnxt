@@ -82,6 +82,10 @@ export const STATUS_COMPLETED = 'completed'
 export const STATUS_UNPLANNED = 'unplanned'
 
 export const TYPE_DEVELOPMENT = 'development'
+export const TYPE_TESTING = 'testing'
+export const TYPE_REVIEW = 'review'
+export const TYPE_MANAGEMENT = 'management'
+export const TYPE_COMPANY = 'company'
 
 // operations
 export const OPERATION_ADDITION = 'addition'

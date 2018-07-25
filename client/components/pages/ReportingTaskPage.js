@@ -10,14 +10,8 @@ class ReportingTaskPage extends Component {
 
     constructor(props) {
         super(props)
-        this.onTaskStatusChange = this.onTaskStatusChange.bind(this)
+        this.onReportedStatusChange = this.onReportedStatusChange.bind(this)
         this.onReleaseSelect = this.onReleaseSelect.bind(this)
-    }
-
-
-    columnClassStatusFormat(status) {
-        if (status == SC.STATUS_APPROVED)
-            return 'appRowColor'
     }
 
     rowClassNameFormat(row, rowIdx) {
@@ -37,52 +31,6 @@ class ReportingTaskPage extends Component {
             return row.firstName + ' ' + row.lastName
         }
         return ''
-    }
-
-    formatProjectName(project) {
-        if (project)
-            return project.name
-        return ''
-    }
-
-    formatCreatedDate(row) {
-        if (row) {
-            return moment(row).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatStartDate(row) {
-        if (row) {
-            return moment(row.devStartDate).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatEndDate(row) {
-        if (row) {
-            return moment(row.devEndDate).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatReleaseDate(row) {
-        if (row) {
-            return moment(row.clientReleaseDate).format(SC.DEFAULT_DATE_FORMAT)
-        }
-        return ''
-
-    }
-
-    formatHours(row) {
-        if (row) {
-            return row.billedHours
-        }
-        return ''
-
     }
 
     formatTask(cell, row) {
@@ -137,7 +85,7 @@ class ReportingTaskPage extends Component {
 
     viewDetailButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                this.props.taskSelected(row, this.props.selectedRelease).then(json => {
+                this.props.taskPlanSelected(row).then(json => {
                     if (json.success) {
                         this.props.history.push('/app-home/reporting-task-detail')
                         this.props.showTaskDetailPage()
@@ -150,91 +98,43 @@ class ReportingTaskPage extends Component {
         )
     }
 
-    onTaskStatusChange(status) {
-        this.props.onReleaseSelect(this.props.selectedRelease._id, this.props.dateOfReport, status)
-        this.props.setStatus(status)
+    onReportedStatusChange(status) {
+        this.props.setReportedStatus(this.props.releaseID, this.props.dateOfReport, status)
     }
 
     onReleaseSelect(releaseID) {
-        this.props.onReleaseSelect(releaseID, this.props.dateOfReport, this.props.taskStatus)
+        this.props.setReleaseID(releaseID, this.props.dateOfReport, this.props.reportedStatus)
     }
 
     render() {
 
-        const {selectedRelease, tasks, releases, taskStatus} = this.props
+        const {allReleases, releases, reportedStatus, releaseID} = this.props
         const cellEditProp = {
             mode: 'click',
             blurToSave: true
         }
-
+        console.log("releases", releases)
         return (
             <div key="estimation_list" className="clearfix">
-                {
-                    selectedRelease && selectedRelease._id && <div className="col-md-12 releaseHeader">
-                        <div className="col-md-3">
-                            <div className="releaseTitle">
-                            <span
-                                title={selectedRelease.project ? selectedRelease.project.name : ''}>Project Name</span>
-                            </div>
-                            <div className="releasecontent">
-                                <p>{selectedRelease.project ? selectedRelease.project.name + ' (' + selectedRelease.name + ')' : ''}</p>
-                            </div>
-                        </div>
 
-                        <div className="col-md-2">
-                            <div className="releaseTitle">
-                                <span>Start Date</span>
-                            </div>
-                            <div className="releasecontent">
-                                <p>{selectedRelease.iterations && selectedRelease.iterations[0].devStartDate ? moment(selectedRelease.iterations[0].devStartDate).format('DD-MM-YYYY') : ''}</p>
-                            </div>
-                        </div>
-                        <div className="col-md-2">
-                            <div className="releaseTitle">
-                                <span>End Date</span>
-                            </div>
-                            <div className="releasecontent">
-                                <p>{selectedRelease.iterations && selectedRelease.iterations[0].devEndDate ? moment(selectedRelease.iterations[0].devEndDate).format('DD-MM-YYYY') : ''}</p>
-                            </div>
-                        </div>
-                        <div className="col-md-2">
-                            <div className="releaseTitle">
-                                <span>Release Date</span>
-                            </div>
-                            <div className="releasecontent">
-                                <p>{selectedRelease.iterations && selectedRelease.iterations[0].clientReleaseDate ? moment(selectedRelease.iterations[0].clientReleaseDate).format('DD-MM-YYYY') : ''}</p>
-                            </div>
-                        </div>
-                        <div className=" col-md-2 releasefileoption">
-                            <ul className="list-unstyled">
-                                <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
-                                <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
-                                <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
-                            </ul>
-                        </div>
-
-                    </div>
-                }
                 <div className="col-md-12">
-                    <ReportingDateNavBarContainer taskStatus={taskStatus} releaseID={selectedRelease._id}/>
+                    <ReportingDateNavBarContainer reportedStatus={reportedStatus} releaseID={releases}/>
                 </div>
                 <div className="col-md-12">
-
                     <div className="col-md-8 releaseOption releaseDetailSearchContent">
-
                         <div className="col-md-6 ">
-                            <div className="releaseDetailSearchFlag">
+                            <div>
                                 <select
-                                    value={selectedRelease._id}
+                                    value={releaseID}
                                     className="form-control"
                                     title="Select Flag"
                                     onChange={(project) =>
                                         this.onReleaseSelect(project.target.value)
                                     }>
 
-                                    <option key={-1} value={''}>{'Select Project'}</option>
+                                    <option key={SC.ALL} value={SC.ALL}>All Project</option>
                                     {
-                                        releases && releases.length ? releases.map((release, idx) =>
+                                        allReleases && allReleases.length ? allReleases.map((release, idx) =>
                                             <option
                                                 key={idx}
                                                 value={release._id}>
@@ -245,12 +145,12 @@ class ReportingTaskPage extends Component {
                             </div>
                         </div>
                         <div className="col-md-6">
-                            <div className="releaseDetailSearchStatus">
+                            <div>
                                 <select
                                     className="form-control"
                                     title="Select Status"
-                                    value={taskStatus}
-                                    onChange={(status) => this.onTaskStatusChange(status.target.value)}>
+                                    value={reportedStatus}
+                                    onChange={(status) => this.onReportedStatusChange(status.target.value)}>
                                     <option key={SC.ALL} value={SC.ALL}>All Task Status</option>
                                     <option key={SC.REPORT_UNREPORTED}
                                             value={SC.REPORT_UNREPORTED}>{SC.REPORT_UNREPORTED}</option>
@@ -264,55 +164,108 @@ class ReportingTaskPage extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className="estimation">
-                        <BootstrapTable options={this.options} data={tasks}
-                                        multiColumnSearch={true}
-                                        search={true}
-                                        striped={true}
-                                        hover={true}
-                                        trClassName={this.rowClassNameFormat.bind(this)}
-                                        cellEdit={cellEditProp}>
 
-                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
-                            </TableHeaderColumn>
-                            <TableHeaderColumn editable={false} width="10%" columnTitle={'View Detail'}
-                                               dataField='detailButton'
-                                               dataFormat={this.viewDetailButton.bind(this)}>View Detail
-                            </TableHeaderColumn>
-                            <TableHeaderColumn editable={false} width="20%" columnTitle dataField="task"
-                                               dataFormat={this.formatTask}
-                                               dataSort={true}>
-                                Task Name</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle dataField="planning"
-                                               dataFormat={this.formatPlannedHours} editable={false}
-                            > planned hours</TableHeaderColumn>
-                            <TableHeaderColumn width="15%" columnTitle dataField="reportedHours"
-                                               dataFormat={this.formatReportedHours}
-                                               editable={{
-                                                   type: 'select',
-                                                   options: {
-                                                       values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-                                                   }
-                                               }}
-                            >Worked Hours</TableHeaderColumn>
-                            <TableHeaderColumn width="15%" columnTitle dataField="status"
-                                               editable={{
-                                                   type: 'select',
-                                                   options: {
-                                                       values: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]
-                                                   }
-                                               }} dataFormat={this.formatReportedStatus}>Reported
-                                Status</TableHeaderColumn>
-                            <TableHeaderColumn editable={false} width="5%" columnTitle={'Edit Report'}
-                                               dataField="Edit Report"
-                                               dataFormat={this.viewEditButton.bind(this)}>Edit
-                            </TableHeaderColumn>
-                            <TableHeaderColumn editable={false} width="7%" columnTitle={'Submit Report'}
-                                               dataField="Submit Report"
-                                               dataFormat={this.viewSubmitButton.bind(this)}>Submit
-                            </TableHeaderColumn>
-                        </BootstrapTable>
-                    </div>
+                </div>
+                <div className="estimation">
+                    {
+                        releases && releases.length ? releases.map((release, idx) =>
+                            <div>
+                                {
+                                    release && release._id && <div className="col-md-12 releaseHeader">
+                                        <div className="col-md-3">
+                                            <div className="releaseTitle">
+                            <span
+                                title={release.project ? release.project.name : ''}>Project Name</span>
+                                            </div>
+                                            <div className="releasecontent">
+                                                <p>{release.project ? release.project.name + ' (' + release.name + ')' : ''}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-2">
+                                            <div className="releaseTitle">
+                                                <span>Start Date</span>
+                                            </div>
+                                            <div className="releasecontent">
+                                                <p>{release.iterations && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format('DD-MM-YYYY') : ''}</p>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-2">
+                                            <div className="releaseTitle">
+                                                <span>End Date</span>
+                                            </div>
+                                            <div className="releasecontent">
+                                                <p>{release.iterations && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format('DD-MM-YYYY') : ''}</p>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-2">
+                                            <div className="releaseTitle">
+                                                <span>Release Date</span>
+                                            </div>
+                                            <div className="releasecontent">
+                                                <p>{release.iterations && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format('DD-MM-YYYY') : ''}</p>
+                                            </div>
+                                        </div>
+                                        <div className=" col-md-2 releasefileoption">
+                                            <ul className="list-unstyled">
+                                                <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
+                                                <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
+                                                <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                }
+                                <BootstrapTable options={this.options}
+                                                data={release.tasks && release.tasks.length > 0 ? release.tasks : []}
+                                                striped={true}
+                                                hover={true}
+                                                trClassName={this.rowClassNameFormat.bind(this)}
+                                                cellEdit={cellEditProp}>
+
+                                    <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn editable={false} width="10%" columnTitle={'View Detail'}
+                                                       dataField='detailButton'
+                                                       dataFormat={this.viewDetailButton.bind(this)}>View Detail
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn editable={false} width="20%" columnTitle dataField="task"
+                                                       dataFormat={this.formatTask}
+                                                       dataSort={true}>
+                                        Task Name</TableHeaderColumn>
+                                    <TableHeaderColumn width="12%" columnTitle dataField="planning"
+                                                       dataFormat={this.formatPlannedHours} editable={false}
+                                    > planned hours</TableHeaderColumn>
+                                    <TableHeaderColumn width="15%" columnTitle dataField="reportedHours"
+                                                       dataFormat={this.formatReportedHours}
+                                                       editable={{
+                                                           type: 'select',
+                                                           options: {
+                                                               values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+                                                           }
+                                                       }}
+                                    >Worked Hours</TableHeaderColumn>
+                                    <TableHeaderColumn width="15%" columnTitle dataField="status"
+                                                       editable={{
+                                                           type: 'select',
+                                                           options: {
+                                                               values: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]
+                                                           }
+                                                       }} dataFormat={this.formatReportedStatus}>Reported
+                                        Status</TableHeaderColumn>
+                                    <TableHeaderColumn editable={false} width="5%" columnTitle={'Edit Report'}
+                                                       dataField="Edit Report"
+                                                       dataFormat={this.viewEditButton.bind(this)}>Edit
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn editable={false} width="7%" columnTitle={'Submit Report'}
+                                                       dataField="Submit Report"
+                                                       dataFormat={this.viewSubmitButton.bind(this)}>Submit
+                                    </TableHeaderColumn>
+                                </BootstrapTable>
+
+                            </div>
+                        ) : <label> No tasks found for reporting </label>
+                    }
                 </div>
             </div>
 

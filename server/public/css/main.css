@@ -1233,6 +1233,7 @@ p.task-description {
     font-size: 17px;
     height: 3em;
     overflow: hidden;
+    white-space: pre-line;
 }
 
 .expanded-release-content p {
@@ -2063,3 +2064,4 @@ hr {
     position: absolute;
 
 }
+

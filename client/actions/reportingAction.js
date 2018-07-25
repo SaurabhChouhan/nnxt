@@ -5,10 +5,25 @@ export const addUserReleases = (releases) => ({
     releases: releases
 })
 
-export const addReportingTasksSelectedDate = (tasks, date) => ({
-    type: AC.ADD_REPORTING_TASKS_SELECTED_DATE,
-    tasks: tasks,
+export const addReleasesAndTasksOfSelectedDate = (releases, date) => ({
+    type: AC.ADD_RELEASES_AND_TASKS_OF_SELECTED_DATE,
+    releases: releases,
     date: date
+})
+
+export const setReportDate = (reportDate) => ({
+    type: AC.SET_REPORT_DATE,
+    reportDate: reportDate
+})
+
+export const setReportedStatus = (status) => ({
+    type: AC.SET_STATUS,
+    status: status
+})
+
+export const setReleaseID = (releaseID) => ({
+    type: AC.SET_RELEASE_ID,
+    releaseID: releaseID
 })
 
 export const releaseSelectedForReporting = (release) => ({
@@ -16,15 +31,12 @@ export const releaseSelectedForReporting = (release) => ({
     release: release
 })
 
-
-export const setReportDate = (reportDate) => ({
-    type: AC.SET_REPORT_DATE,
-    reportDate: reportDate
-})
-
-export const reportTaskSelected = (details) => ({
+export const setReportTaskPlanDetail = (taskPlan, releasePlan, release, estimationDescription) => ({
     type: AC.REPORT_TASK_SELECTED,
-    details: details
+    taskPlan: taskPlan,
+    releasePlan: releasePlan,
+    release: release,
+    estimationDescription: estimationDescription,
 })
 
 export const updateSelectedTaskPlan = (taskPlan) => ({
@@ -35,11 +47,6 @@ export const updateSelectedTaskPlan = (taskPlan) => ({
 export const updateSelectedReleasePlan = (releasePlan) => ({
     type: AC.UPDATE_SELECTED_RELEASE_PLAN,
     releasePlan: releasePlan
-})
-
-export const setStatus = (status) => ({
-    type: AC.SET_STATUS,
-    status: status
 })
 
 
@@ -86,7 +93,7 @@ export const getReportingTasksForDate = (releaseID, date, taskStatus) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(addReportingTasksSelectedDate(json.data, date))
+                    dispatch(addReleasesAndTasksOfSelectedDate(json.data, date))
                 }
                 return json
 
@@ -94,35 +101,10 @@ export const getReportingTasksForDate = (releaseID, date, taskStatus) => {
     }
 }
 
-/**
- *
- */
-export const getReleaseDetailsForReporting = (releaseID) => {
-    return (dispatch, getState) => {
-        return fetch('/api/releases/' + releaseID + '/details-for-reporting', {
-                method: 'get',
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            }
-        ).then(
-            response => response.json()
-        ).then(
-            json => {
-                if (json.success && json.data && json.data.length > 0) {
-                    dispatch(releaseSelectedForReporting(json.data[0]))
-                }
-                return json
-            })
-    }
-}
 
-
-export const getTaskDetailsForReportFromServer = (taskID, releaseID) => {
+export const getTaskDetailsForReportFromServer = (taskPlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/task-plans/' + taskID + '/release/' + releaseID, {
+        return fetch('/api/reporting/task-plan/' + taskPlanID, {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -135,7 +117,7 @@ export const getTaskDetailsForReportFromServer = (taskID, releaseID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(reportTaskSelected(json.data))
+                    dispatch(setReportTaskPlanDetail(json.data.taskPlan, json.data.releasePlan, json.data.release, json.data.estimationDescription))
                 }
                 return json
             })
@@ -197,7 +179,7 @@ export const getReleasePlanByIdFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/' + releasePlanID + '/release-plan', {
                 method: 'get',
-            credentials: "include",
+                credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'

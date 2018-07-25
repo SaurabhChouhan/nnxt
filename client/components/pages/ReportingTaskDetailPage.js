@@ -12,7 +12,7 @@ class ReportingTaskDetailPage extends React.Component {
     }
 
     render() {
-        const {selectedTaskPlan, selectedRelease, selectedReleasePlan} = this.props
+        const {taskPlan, release, releasePlan} = this.props
 
 
         return (
@@ -30,7 +30,7 @@ class ReportingTaskDetailPage extends React.Component {
                                title={'Project Name :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
 
-                    {selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}
+                    {release && release.project && release.project.name ? release.project.name : ''}
                 </TimelineEvent>
 
 
@@ -38,20 +38,20 @@ class ReportingTaskDetailPage extends React.Component {
                                 title={'Project Description :'}
                                 icon={<i
                                     className="glyphicon glyphicon-tasks calendar_icon"></i>}>
-                    {selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}
+                    {releasePlan && releasePlan.estimationDescription ? releasePlan.estimationDescription : ''}
                 </TimelineEvent>
 
 
                 <TimelineEvent title={'Task Name :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                    {selectedTaskPlan && selectedTaskPlan.task && selectedTaskPlan.task.name ? selectedTaskPlan.task.name : ''}
+                    {taskPlan && taskPlan.task && taskPlan.task.name ? taskPlan.task.name : ''}
                 </TimelineEvent>
 
                 <TimelineEvent title={'Task Description :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                    {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}
+                    {releasePlan && releasePlan.task && releasePlan.task.description ? releasePlan.task.description : ''}
                 </TimelineEvent>
 
 
@@ -65,28 +65,28 @@ class ReportingTaskDetailPage extends React.Component {
                                         icon={<i
                                             className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                         style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.planningDate ? moment(selectedTaskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT) : ''}
+                            {taskPlan && taskPlan.planningDate ? moment(taskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT) : ''}
                         </TimelineEvent>
 
 
                         <TimelineEvent title={' Planned Hours :'}
                                        icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                        style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.planning && selectedTaskPlan.planning.plannedHours ? selectedTaskPlan.planning.plannedHours : ''}
+                            {taskPlan && taskPlan.planning && taskPlan.planning.plannedHours ? taskPlan.planning.plannedHours : ''}
                         </TimelineEvent>
 
 
                         <TimelineEvent title={'Details :'}
                                        icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                        style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.description ? selectedTaskPlan.description : ''}
+                            {taskPlan && taskPlan.description ? taskPlan.description : ''}
                         </TimelineEvent>
 
 
                         <TimelineEvent title={' Reported Status :'}
                                        icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                        style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.report && selectedTaskPlan.report.status ? selectedTaskPlan.report.status : ''}
+                            {taskPlan && taskPlan.report && taskPlan.report.status ? taskPlan.report.status : ''}
                         </TimelineEvent>
 
 
@@ -99,11 +99,12 @@ class ReportingTaskDetailPage extends React.Component {
                     {
                         <div className="ReportingCommentTable">
 
-                            <BootstrapTable data={selectedReleasePlan.comments}
-                                            multiColumnSearch={true}
-                                            search={true}
-                                            striped={true}
-                                            hover={true}>
+                            <BootstrapTable
+                                data={releasePlan.comments && releasePlan.comments.length ? releasePlan.comments : []}
+                                multiColumnSearch={true}
+                                search={true}
+                                striped={true}
+                                hover={true}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'
