@@ -800,7 +800,7 @@ estimationSchema.statics.createReleaseFromEstimation = async (releaseInput, nego
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
+    if (estimation.negotiator._id.toString() !== negotiator._id.toString())
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))

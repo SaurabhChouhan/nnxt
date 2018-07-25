@@ -22,16 +22,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 const mapStateToProps = (state) => {
 
-    let Managers = []
-    let Leaders = []
-    let Team = []
+    let managers = []
+    let leaders = []
+    let team = []
 
 
     if (state.user.userWithRoleCategory) {
         // Users who has role as a manager or leader or both
-        Managers = state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : []
-        Leaders = state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : []
-        Team = state.user.userWithRoleCategory && state.user.userWithRoleCategory.team ?
+        managers = state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : []
+        leaders = state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : []
+        team = state.user.userWithRoleCategory && state.user.userWithRoleCategory.team ?
             state.user.userWithRoleCategory.team.map((dev, idx) => {
                 dev.name = dev.firstName + ' ' + dev.lastName
                 return dev
@@ -41,9 +41,9 @@ const mapStateToProps = (state) => {
     }
 
     return {
-        Team,
-        Managers,
-        Leaders
+        team,
+        managers,
+        leaders
     }
 }
 
