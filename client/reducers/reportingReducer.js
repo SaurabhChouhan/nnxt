@@ -12,7 +12,7 @@ let initialState = {
     release: {},
     releaseID: SC.ALL,
     reportedStatus: SC.ALL,
-    dateStringOfReport: U.getNowString()
+    dateStringOfReport: U.getNowStringInIndia()
 }
 
 const reportingReducer = (state = initialState, action) => {

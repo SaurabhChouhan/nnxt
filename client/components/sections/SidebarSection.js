@@ -48,9 +48,9 @@ const SidebarSection = (props) => {
                                  * @param 'planned' - release-plan iteration type
                                  * @param task status - 'all'
                                  */
-                                props.dispatch(A.getReportingTasksForDate(SC.ALL, U.getNowString(), SC.ALL))
+                                props.dispatch(A.getReportingTasksForDate(SC.ALL, U.getNowStringInIndia(), SC.ALL))
                                 props.dispatch(A.setReleaseID(SC.ALL))
-                                props.dispatch(A.setReportDate(U.getNowString()))
+                                props.dispatch(A.setReportDate(U.getNowStringInIndia()))
                                 props.dispatch(A.setReportedStatus(SC.ALL))
                                 props.dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_PAGE))
 
