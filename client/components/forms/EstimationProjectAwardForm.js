@@ -22,6 +22,7 @@ let EstimationProjectAwardForm = (props) => {
         While creating/adding release to an estimation, an user which is chosen as a Manager cannot be chosen as Leader and vice versa.
         A manager/leader can be chose as Developer if they have that role as well.
     */
+
     let updatedManagerList = leader && leader._id ? managers.filter(m => m._id.toString() !== leader._id.toString()) : managers
     let updatedLeaderList = manager && manager._id ? leaders.filter(l => l._id.toString() !== manager._id.toString()) : leaders
     let now = new Date()
