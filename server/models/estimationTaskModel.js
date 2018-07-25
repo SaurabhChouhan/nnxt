@@ -6,7 +6,8 @@ import * as V from "../validation"
 import {userHasRole} from "../utils"
 import * as MDL from "../models"
 import _ from 'lodash'
-import * as U from '../utils'
+import logger from '../logger'
+
 
 mongoose.Promise = global.Promise
 
@@ -148,7 +149,7 @@ const addTaskByEstimator = async (taskInput, estimator) => {
 
     // Modify estimation
     estimation.estimatedHours += taskInput.estimatedHours
-    let idx = estimation.stats.indexOf(s => s.type == taskInput.type)
+    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
     if (idx > -1) {
         estimation.stats[idx].estimatedHours += taskInput.estimatedHours
     }
@@ -573,11 +574,11 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
     }
     estimationTask.notes = mergeAllNotes
 
-    if (canProvideFinalEstimates) {
-        // Tasks of type management are added by Negotiator to estimate management hours that manager would need for this project
-        // As negotiator represents Manager, such tasks would directly be in approval stage rather than needing estimated hours
-        // from estimator. for this reason, information added here would directly be added to estimator section as well as
-        // finally that section is used for copying information
+    /*
+    Task of type other than 'development' can be approved directly by Negotiator is he has created those tasks so in that
+    creation
+    */
+    if (canProvideFinalEstimates && estimationTask.owner == SC.OWNER_NEGOTIATOR) {
         estimationTask.estimator.name = taskInput.name
         estimationTask.estimator.description = taskInput.description
         estimationTask.estimator.estimatedHours = taskInput.estimatedHours
@@ -1719,7 +1720,6 @@ estimationTaskSchema.statics.approveTask = async (taskID, user) => {
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-
     if (!task.estimation || !task.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -1754,26 +1754,32 @@ const approveTaskByNegotiator = async (task, estimation, negotiator) => {
     if (!(task.canApprove))
         throw new AppError('Cannot approve task as either name/description is not not there or there are pending requests from Estimator', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
-    if (task.negotiator.estimatedHours != task.estimator.estimatedHours) {
+
+    if (task.negotiator.estimatedHours == 0) {
         if (estimation && estimation._id) {
             await MDL.EstimationModel.updateOne({"_id": estimation._id}, {
                 $inc: {
-                    "suggestedHours": task.negotiator.estimatedHours ? task.estimator.estimatedHours - task.negotiator.estimatedHours : task.estimator.estimatedHours,
-                },
+                    "suggestedHours": task.estimator.estimatedHours
+                }
             })
         }
+
         if (task.feature && task.feature._id) {
             await MDL.EstimationFeatureModel.updateOne({"_id": task.feature._id}, {
                 $inc: {
-                    "negotiator.estimatedHours": task.negotiator.estimatedHours ? task.estimator.estimatedHours - task.negotiator.estimatedHours : task.estimator.estimatedHours,
+                    "negotiator.estimatedHours": task.estimator.estimatedHours
                 },
             })
         }
     }
 
+
     task.negotiator.name = task.estimator.name
     task.negotiator.description = task.estimator.description
-    task.negotiator.estimatedHours = task.estimator.estimatedHours
+
+    if (task.negotiator.estimatedHours == 0)
+        task.negotiator.estimatedHours = task.estimator.estimatedHours
+
     task.negotiator.changeSuggested = false
     task.negotiator.changeGranted = false
     task.negotiator.changedInThisIteration = false
