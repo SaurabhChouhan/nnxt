@@ -1662,7 +1662,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
                 if (employeeDaysArray && employeeDaysArray.length) {
                     let warningPromises = employeeDaysArray.map(ed => {
-                        return MDL.WarningModel.movedToFuture(release, ed).then((warningResponse) => {
+                        return MDL.WarningModel.taskPlanMoved(release, ed).then((warningResponse) => {
                             logger.debug('warning update on shift to future completed successfully : [warningResponse]', {warningResponse})
                             return warningResponse
                         })
@@ -1980,7 +1980,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
 
                 if (employeeDaysArray && employeeDaysArray.length) {
                     let generatedWarningsPromises = employeeDaysArray.map(ed => {
-                        return MDL.WarningModel.movedToPast(release, ed).then((generatedWarning) => {
+                        return MDL.WarningModel.taskPlanMoved(release, ed).then((generatedWarning) => {
                             logger.debug('warning update on shift to past completed successfully')
                             return generatedWarning
                         }).catch((error) => {

@@ -2564,7 +2564,7 @@ const updateEmployeeOnLeaveMoved = async (release, employeeDays, maxPlannedHours
     return warningResponse
 }
 
-warningSchema.statics.movedToFuture = async (release, employeeDays) => {
+warningSchema.statics.taskPlanMoved = async (release, employeeDays) => {
 
     // Max planned hours would come handy to add too many hours warning
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
@@ -2609,15 +2609,9 @@ warningSchema.statics.movedToFuture = async (release, employeeDays) => {
 }
 
 /*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
-/*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
-
-warningSchema.statics.movedToPast = async (release, employeeDays) => {
-
-}
-/*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
 
 /*
-|_________________________________________________MERGE TASK START___________________________________________________________
+_________________________________________________MERGE TASK START___________________________________________________________
  */
 
 const updateEmployeeAskForLeaveOnMergeTaskPlan = async (taskPlan, releasePlan, release, existingPlanedDate, rePlannedDate, employee) => {
