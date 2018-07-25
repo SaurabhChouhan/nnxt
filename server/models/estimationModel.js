@@ -218,11 +218,15 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimator = await MDL.UserModel.findById(estimationInput.estimator._id)
-    if (!userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!estimator)
         throw new AppError('Estimator not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (negotiator._id.toString() === estimator._id.toString())
+        throw new AppError('Estimator and negotiator can not be same ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     estimationInput.status = SC.STATUS_INITIATED
     estimationInput.estimatedHours = 0
