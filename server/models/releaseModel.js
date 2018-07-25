@@ -225,7 +225,13 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate),
-        negotiator: user
+        negotiator: user,
+        stats: estimation.stats.map(s => {
+            return {
+                type: s.type,
+                estimatedHours: s.estimatedHours
+            }
+        })
     }, {
         type: SC.ITERATION_TYPE_PLANNED,
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
@@ -265,7 +271,13 @@ releaseSchema.statics.updateRelease = async (releaseData, user, estimation) => {
         clientReleaseDate: clientReleaseDate.toDate(),
         devStartDate: devStartDate.toDate(),
         devEndDate: devEndDate.toDate(),
-        negotiator: user
+        negotiator: user,
+        stats: estimation.stats.map(s => {
+            return {
+                type: s.type,
+                estimatedHours: s.estimatedHours
+            }
+        })
     })
 
     // Change release' dev start/end and client release date
