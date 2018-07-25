@@ -222,7 +222,7 @@ class ReleaseTaskPlanningPage extends Component {
                     </div>
                     <div className="col-md-12 ">
                         <div className={expanded ? "expanded-release-content" : 'release-content'}>
-                            <p className="task-description">{releasePlan && releasePlan.task ? releasePlan.task.description : ''}</p>
+                            <p className="task-description ">{releasePlan && releasePlan.task ? releasePlan.task.description : ''}</p>
                             {expanded ? <label className="div-hover releaseReadLessLabel releaseReadLessLabelClick"
                                                onClick={() => this.props.expandDescription(false)}>...Read
                                 Less</label> : <label className="div-hover releaseReadMoreLabel"
