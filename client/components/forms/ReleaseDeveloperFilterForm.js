@@ -4,50 +4,53 @@ import {renderDateTimePickerString, renderSelect,} from './fields'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
+import _ from 'lodash'
+import * as U from '../../../server/utils'
 
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
-    const {change, days, team, handleSubmit, employeeId, startDate, endDate, releasePlan} = props
-    const startDateMomentDate = !startDate && !_.isEmpty(startDate) ? moment(startDate).toDate() : undefined
-    const endDateMomentDate = !endDate && !_.isEmpty(endDate) ? moment(endDate).toDate() : undefined
-
+    const {team, handleSubmit, employeeId, startDate, endDate} = props
+    let min = startDate && U.nowMomentInIndia().isSameOrBefore(U.momentInUTC(startDate)) ? U.momentInUTC(startDate) : U.nowMomentInIndia()
+    let max = U.momentInUTC(endDate)
+    console.log("min", min)
+    console.log("max", max)
     return <form onSubmit={handleSubmit}>
-<div className="col-md-12 planFilterDivider">
-        <div className="col-md-4 ">
-            <Field name="employeeId" placeholder={"Name of Developer"}
-                   onChange={(event, newValue, oldValue) => {
-                       props.getDeveloperDetails(newValue, startDate, endDate)
-                   }}
-                   component={renderSelect} options={team}
-                   label={"Developer Name:"}/>
-
-        </div>
-        <div className="col-md-8">
-            <div className="col-md-6">
-                <Field name="startDate"
-                       placeholder={"Start Date"}
-                       component={renderDateTimePickerString}
+        <div className="col-md-12 planFilterDivider">
+            <div className="col-md-4 ">
+                <Field name="employeeId" placeholder={"Name of Developer"}
                        onChange={(event, newValue, oldValue) => {
-                           props.getDeveloperDetails(employeeId, newValue, endDate)
+                           props.getDeveloperDetails(newValue, startDate, endDate)
                        }}
-                       showTime={false}
-                       min={new Date()}
-                       max={endDateMomentDate}
-                       label={" From :"}/>
-            </div>
-            <div className="col-md-6">
-                <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
-                       onChange={(event, newValue, oldValue) => {
-                           props.getDeveloperDetails(employeeId, startDate, newValue)
-                       }}
-                       showTime={false}
-                       min={startDateMomentDate}
-                       label={" To :"}/>
-            </div>
+                       component={renderSelect} options={team}
+                       label={"Developer Name:"}/>
 
+            </div>
+            <div className="col-md-8">
+                <div className="col-md-6">
+                    <Field name="startDate"
+                           placeholder={"Start Date"}
+                           component={renderDateTimePickerString}
+                           onChange={(event, newValue, oldValue) => {
+                               props.getDeveloperDetails(employeeId, newValue, endDate)
+                           }}
+                           showTime={false}
+                           min={min ? min.toDate() : min}
+                           max={max ? max.toDate() : max}
+                           label={" From :"}/>
+                </div>
+                <div className="col-md-6">
+                    <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
+                           onChange={(event, newValue, oldValue) => {
+                               props.getDeveloperDetails(employeeId, startDate, newValue)
+                           }}
+                           showTime={false}
+                           min={min ? min.toDate() : min}
+                           label={" To :"}/>
+                </div>
+
+            </div>
         </div>
-</div>
     </form>
 }
 
@@ -59,13 +62,11 @@ const selector = formValueSelector('developer-filter')
 
 ReleaseDeveloperFilterForm = connect(
     state => {
-        const {employeeId, startDate, endDate, baseDate, daysToShift} = selector(state, 'employeeId', 'startDate', 'endDate', 'baseDate', 'daysToShift')
+        const {employeeId, startDate, endDate} = selector(state, 'employeeId', 'startDate', 'endDate')
         return {
             employeeId,
             startDate,
-            endDate,
-            baseDate,
-            daysToShift
+            endDate
         }
     }
 )(ReleaseDeveloperFilterForm)
