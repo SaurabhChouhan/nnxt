@@ -1941,7 +1941,7 @@ warningSchema.statics.taskReportedAsCompleted = async (taskPlan, releasePlan, be
     return warningResponse
 }
 
-/*-------------------------------------------------------------------MOVE_TO_FUTURE_SECTION_START-------------------------------------------------------------------*/
+/*-------------------------------------------------------------------TASK_PLAN_MOVED_SECTION_START-------------------------------------------------------------------*/
 
 
 const updateTooManyHoursTasksMoved = async (release, employeeDays, maxPlannedHours) => {
@@ -2571,7 +2571,7 @@ warningSchema.statics.taskPlanMoved = async (release, employeeDays) => {
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
 
 
-    logger.debug('WarningModel.movedToFuture() called: ', {employeeDays}, {maxPlannedHoursNumber})
+    logger.debug('WarningModel.taskPlanMoved() called: ', {employeeDays}, {maxPlannedHoursNumber})
 
     let warningResponse = {
         added: [],
@@ -2608,7 +2608,7 @@ warningSchema.statics.taskPlanMoved = async (release, employeeDays) => {
 
 }
 
-/*----------------------------------------------------MOVE_TO_FUTURE_SECTION_END-------------------------------------------------------------------*/
+/*----------------------------------------------------TASK_PLAN_MOVED_SECTION_END-------------------------------------------------------------------*/
 
 /*
 _________________________________________________MERGE TASK START___________________________________________________________
