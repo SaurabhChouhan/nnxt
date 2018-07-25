@@ -222,7 +222,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     if (!endDateMoment.isSameOrAfter(startDateMoment))
         throw new AppError("End date is not valid", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!startDateMoment.isSameOrAfter(U.getTodayStartingMoment()))
+    if (!startDateMoment.isSameOrAfter(U.getNowMomentInUtc()))
         throw new AppError("Leave start date should be greater than or equal to today date", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
 
