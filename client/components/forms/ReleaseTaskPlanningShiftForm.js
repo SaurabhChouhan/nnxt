@@ -16,7 +16,7 @@ let ReleaseTaskPlanningShiftForm = (props) => {
     let nowMoment = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     return <form onSubmit={handleSubmit}>
         <div className="col-md-12 planDivider">
-            <div className="col-md-3 devMargin">
+            <div className="col-md-3 planDividerDate devMargin">
                 <Field name="employeeId" placeholder={"Name of Developer"}
                        component={renderSelect} options={team}
                        label={"Developer Name:"}/>

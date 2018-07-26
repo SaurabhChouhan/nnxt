@@ -200,6 +200,7 @@ button.customBtn, button.customBtn:focus {
     margin: 5px;
     transition: 0.8s;
     border-radius: 0;
+
 }
 
 button.customBtn:hover {
@@ -1398,6 +1399,11 @@ p.task-description {
 }
 
 .planDividerDate span {
+    color: white;
+    font-weight: 700;
+}
+
+.planDividerDate label {
     color: white;
 }
 
