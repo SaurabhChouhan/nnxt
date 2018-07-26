@@ -13,8 +13,8 @@ let employeeStatisticsSchema = mongoose.Schema({
     },
     leaves: [
         {
-            startDate: {type: Date, default: Date.now()},
-            endDate: {type: Date, default: Date.now()},
+            date: {type: Date, default: Date.now()},
+            dateString: String,
             reason: [{
                 type: String,
                 enum: [SC.REASON_MEDICAL, SC.REASON_PERSONAL, SC.REASON_OCCASION, SC.REASON_FESTIVAL]
