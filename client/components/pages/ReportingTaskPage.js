@@ -166,11 +166,11 @@ class ReportingTaskPage extends Component {
                     </div>
 
                 </div>
-                <div className="estimation">
+                <div className="estimation reporting">
                     {
                         releases && releases.length ? releases.map((release, idx) =>
                             <div>
-                                
+
                                 <BootstrapTable options={this.options}
                                                 data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
                                                 striped={true}
@@ -180,7 +180,7 @@ class ReportingTaskPage extends Component {
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn row='0' colSpan='7' >{release.project.name}</TableHeaderColumn>
+                                    <TableHeaderColumn row='0' colSpan='7'>{release.project.name}</TableHeaderColumn>
 
                                     <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'View Detail'}
                                                        dataField='detailButton'
@@ -293,4 +293,5 @@ export default withRouter(ReportingTaskPage)
                                     </div>
                                 }
 
-*/}
+*/
+}
