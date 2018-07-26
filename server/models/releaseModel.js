@@ -196,7 +196,9 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
     })
     if (!leader)
         throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
+    if (leader._id.toString() === manager._id.toString()) {
+        throw new AppError('Manager and leader can not be the  same user please choose different one ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
 
     if (estimation.release && estimation.release._id) {
         throw new AppError('Release already created for this estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
@@ -225,7 +227,13 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate),
-        negotiator: user
+        negotiator: user,
+        stats: estimation.stats.map(s => {
+            return {
+                type: s.type,
+                estimatedHours: s.estimatedHours
+            }
+        })
     }, {
         type: SC.ITERATION_TYPE_PLANNED,
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
@@ -265,7 +273,13 @@ releaseSchema.statics.updateRelease = async (releaseData, user, estimation) => {
         clientReleaseDate: clientReleaseDate.toDate(),
         devStartDate: devStartDate.toDate(),
         devEndDate: devEndDate.toDate(),
-        negotiator: user
+        negotiator: user,
+        stats: estimation.stats.map(s => {
+            return {
+                type: s.type,
+                estimatedHours: s.estimatedHours
+            }
+        })
     })
 
     // Change release' dev start/end and client release date

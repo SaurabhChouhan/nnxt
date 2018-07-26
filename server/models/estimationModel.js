@@ -6,6 +6,7 @@ import * as EC from '../errorcodes'
 import {userHasRole} from '../utils'
 import * as V from '../validation'
 import _ from 'lodash'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -69,13 +70,13 @@ let estimationSchema = mongoose.Schema({
 
 
 estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) => {
-    let estimation = await EstimationModel.findById(estimationID)
+    let estimation = await EstimationModel.findById(estimationID, {estimator: 1, negotiator: 1})
 
     if (estimation) {
         // check to see role of logged in user in this estimation
-        if (estimation.estimator._id == user._id)
+        if (estimation.estimator._id.toString() == user._id.toString())
             return SC.ROLE_ESTIMATOR
-        else if (estimation.negotiator._id == user._id)
+        else if (estimation.negotiator._id.toString() == user._id.toString())
             return SC.ROLE_NEGOTIATOR
     }
     return undefined
@@ -217,11 +218,15 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     let estimator = await MDL.UserModel.findById(estimationInput.estimator._id)
-    if (!userHasRole(estimator, SC.ROLE_ESTIMATOR))
-        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!estimator)
         throw new AppError('Estimator not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (!userHasRole(estimator, SC.ROLE_ESTIMATOR))
+        throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if (negotiator._id.toString() === estimator._id.toString())
+        throw new AppError('Estimator and negotiator can not be same ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     estimationInput.status = SC.STATUS_INITIATED
     estimationInput.estimatedHours = 0
@@ -654,24 +659,23 @@ estimationSchema.statics.requestChange = async (estimationID, negotiator) => {
         })
     estimation.loggedInUserRole = SC.ROLE_NEGOTIATOR
     return estimation
-
-
 }
 
 
-estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, negotiator) => {
+estimationSchema.statics.approveEstimation = async (estimationID, user) => {
     let estimation = await EstimationModel.findById(estimationID)
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    let userRoleInEstimation = await EstimationModel.getUserRoleInEstimation(estimationID, user)
 
-    if (estimation.negotiator._id != negotiator._id)
+    logger.debug("EstimationModel(): user role in this estimation ", {userRoleInEstimation})
+
+    if (userRoleInEstimation !== SC.ROLE_NEGOTIATOR)
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_REVIEW_REQUESTED], estimation.status))
-        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + '] can approve by negotiator', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Only estimations with status [' + SC.STATUS_REVIEW_REQUESTED + '] can be approved by the Negotiator', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let pendingTasksCount = await MDL.EstimationTaskModel.count({
         'estimation._id': estimation._id,
@@ -700,7 +704,7 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
 
 
     let statusHistory = {}
-    statusHistory.name = negotiator.firstName + ' ' + negotiator.lastName
+    statusHistory.name = user.firstName + ' ' + user.lastName
     statusHistory.status = SC.STATUS_APPROVED
     statusHistory.date = Date.now()
 
@@ -711,7 +715,6 @@ estimationSchema.statics.approveEstimationByNegotiator = async (estimationID, ne
         existingEstimationStatusHistory = [statusHistory]
 
     estimation.statusHistory = existingEstimationStatusHistory
-    estimation.suggestedHours = estimation.estimatedHours
     estimation.status = SC.STATUS_APPROVED
     estimation.canApprove = false
     estimation.updated = Date.now()
@@ -797,7 +800,7 @@ estimationSchema.statics.createReleaseFromEstimation = async (releaseInput, nego
     if (!estimation)
         throw new AppError('No such estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
+    if (estimation.negotiator._id.toString() !== negotiator._id.toString())
         throw new AppError('Not a negotiator of this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_APPROVED], estimation.status))

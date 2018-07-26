@@ -305,12 +305,7 @@ estimationRouter.put('/features/:featureID/approve', async ctx => {
 // noinspection Annotator
 
 estimationRouter.put('/:estimationID/approve', async ctx => {
-    let role = await getLoggedInUsersRoleInEstimation(ctx, ctx.params.estimationID)
-    if (role === SC.ROLE_NEGOTIATOR) {
-        return await MDL.EstimationModel.approveEstimationByNegotiator(ctx.params.estimationID, ctx.state.user)
-    } else {
-        throw new AppError("Only user with role [" + SC.ROLE_NEGOTIATOR + "] can approve estimation", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await MDL.EstimationModel.approveEstimation(ctx.params.estimationID, ctx.state.user)
 })
 
 estimationRouter.put('/:estimationID/hasError', async ctx => {

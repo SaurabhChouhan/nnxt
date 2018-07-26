@@ -90,20 +90,8 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let fromDateMomentTz
-    let toDateMomentTz
-
-    if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        let fromDateMoment = moment(fromDate)
-        let fromDateMomentToDate = fromDateMoment.toDate()
-        fromDateMomentTz = momentTZ.tz(fromDateMomentToDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    }
-
-    if (toDate && toDate != 'undefined' && toDate != undefined) {
-        let toDateMoment = moment(toDate)
-        let toDateMomentToDate = toDateMoment.toDate()
-        toDateMomentTz = momentTZ.tz(toDateMomentToDate, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    }
+    let fromDateMomentTz = U.momentInUTC(fromDate)
+    let toDateMomentTz = U.momentInUTC(toDate)
 
     /* list of release Id`s where user is either manager or leader */
     let releaseListOfID = []
@@ -117,13 +105,13 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
 
     /* Conditions applied for filter according to required data and fromDate to toDate */
     if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz) && momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
+        taskPlannings = taskPlannings.filter(tp => U.momentInUTC(tp.planningDateString).isSameOrAfter(fromDateMomentTz) && U.momentInUTC(tp.planningDateString).isSameOrBefore(toDateMomentTz))
     }
     else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrAfter(fromDateMomentTz))
+        taskPlannings = taskPlannings.filter(tp => U.momentInUTC(tp.planningDateString).isSameOrAfter(fromDateMomentTz))
     }
     else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0).isSameOrBefore(toDateMomentTz))
+        taskPlannings = taskPlannings.filter(tp => U.momentInUTC(tp.planningDateString).isSameOrBefore(toDateMomentTz))
     }
 
 
@@ -134,7 +122,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     /* Return of filtered task plannings and checking it can be merged or not */
     return taskPlannings.map(tp => {
         tp = tp.toObject()
-        let check = momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
+        let check = U.momentInUTC(tp.planningDateString).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
         if (check) {
             tp.canMerge = false
         } else {
@@ -1674,7 +1662,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (planning, user, schema
 
                 if (employeeDaysArray && employeeDaysArray.length) {
                     let warningPromises = employeeDaysArray.map(ed => {
-                        return MDL.WarningModel.movedToFuture(release, ed).then((warningResponse) => {
+                        return MDL.WarningModel.taskPlanMoved(release, ed).then((warningResponse) => {
                             logger.debug('warning update on shift to future completed successfully : [warningResponse]', {warningResponse})
                             return warningResponse
                         })
@@ -1747,7 +1735,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
 
     /* can not shift task whose planning date is before now */
 
-    let nowMomentInUtc = U.getTodayStartingMoment()
+    let nowMomentInUtc = U.getNowMomentInUtc()
     /* Base Date in UTC */
     let baseDateMomentInUtc = U.momentInUTC(planning.baseDate)
     if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
@@ -1992,7 +1980,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (planning, user, schemaRe
 
                 if (employeeDaysArray && employeeDaysArray.length) {
                     let generatedWarningsPromises = employeeDaysArray.map(ed => {
-                        return MDL.WarningModel.movedToPast(release, ed).then((generatedWarning) => {
+                        return MDL.WarningModel.taskPlanMoved(release, ed).then((generatedWarning) => {
                             logger.debug('warning update on shift to past completed successfully')
                             return generatedWarning
                         }).catch((error) => {

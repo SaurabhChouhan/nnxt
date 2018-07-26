@@ -101,42 +101,44 @@ export const momentInTimeZone = (dateString, timeZone) => {
     return undefined
 }
 
-export const getNowMoment = () => {
-    let now = new Date()
-    let nowMoment = moment.tz(now, SC.DATE_FORMAT, SC.UTC_TIMEZONE)
-    if (nowMoment.isValid())
-        return nowMoment
-    return undefined
-}
-
 export const nowMomentInTimeZone = (timeZone) => {
     let now = new Date()
-    let nowMoment = moment.tz(now, SC.DATE_FORMAT, timeZone)
+    let nowString = formatDateInTimezone(now, timeZone)
+    let nowMoment = moment.tz(nowString, SC.DATE_FORMAT, timeZone)
     if (nowMoment.isValid())
         return nowMoment
     return undefined
 }
 
-
-export const getNow = () => {
+export const nowMomentInIndia = () => {
     let now = new Date()
-    return now
+    let nowString = formatDateInTimezone(now, SC.INDIAN_TIMEZONE)
+    let nowMoment = moment.tz(nowString, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE)
+    if (nowMoment.isValid())
+        return nowMoment
+    return undefined
 }
 
-export const getNowString = () => {
+export const getNowMomentInUtc = () => {
+    let now = new Date()
+    let nowString = formatDateInTimezone(now, SC.UTC_TIMEZONE)
+    let nowMoment = momentInUTC(nowString)
+
+    if (nowMoment.isValid())
+        return nowMoment
+    return undefined
+}
+
+export const getNowStringInIndia = () => {
     let now = new Date()
     let nowString = formatDateInTimezone(now, SC.INDIAN_TIMEZONE)
     return nowString
 }
 
-export const getTodayStartingMoment = () => {
+export const getNowStringInUtc = () => {
     let now = new Date()
-    let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMoment = moment.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-    if (nowMoment.isValid())
-        return nowMoment
-    return undefined
+    let nowString = formatDateInTimezone(now, SC.UTC_TIMEZONE)
+    return nowString
 }
 
 export const getCurrentYear = () => {

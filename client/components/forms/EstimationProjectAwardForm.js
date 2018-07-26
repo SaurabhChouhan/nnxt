@@ -12,12 +12,19 @@ moment.locale('en')
 momentLocalizer()
 
 let EstimationProjectAwardForm = (props) => {
-    logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
+    //logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
-    const {Team, Managers, Leaders, devStartDate, devReleaseDate, clientReleaseDate} = props
+    const {team, managers, leaders, devStartDate, devReleaseDate, clientReleaseDate, manager, leader} = props
     let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
     let maxRelease = !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
-    //console.log("max", max)
+
+    /*
+        While creating/adding release to an estimation, an user which is chosen as a Manager cannot be chosen as Leader and vice versa.
+        A manager/leader can be chose as Developer if they have that role as well.
+    */
+
+    let updatedManagerList = leader && leader._id ? managers.filter(m => m._id.toString() !== leader._id.toString()) : managers
+    let updatedLeaderList = manager && manager._id ? leaders.filter(l => l._id.toString() !== manager._id.toString()) : leaders
     let now = new Date()
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
@@ -63,7 +70,7 @@ let EstimationProjectAwardForm = (props) => {
                     <Field name="manager._id"
                            component={renderSelect}
                            label={"Manager Of Release:"}
-                           options={Managers}
+                           options={updatedManagerList}
                            validate={required}
                            valueField="_id"
                            displayField="Name"
@@ -74,7 +81,7 @@ let EstimationProjectAwardForm = (props) => {
                     <Field name="leader._id"
                            component={renderSelect}
                            label={"Leader Of Release:"}
-                           options={Leaders}
+                           options={updatedLeaderList}
                            validate={required}
                            valueField="_id"
                            displayField="Name"
@@ -86,7 +93,7 @@ let EstimationProjectAwardForm = (props) => {
                 <Field name="team"
                        component={renderMultiSelect}
                        label={"Planned Employees For Release:"}
-                       data={Team}
+                       data={team}
                        validate={required}
                        textField="name"
                        valueField="_id"
@@ -116,10 +123,14 @@ const selector = formValueSelector('estimation-project-award')
 EstimationProjectAwardForm = connect(
     state => {
         const {devStartDate, devReleaseDate, clientReleaseDate} = selector(state, 'devStartDate', 'devReleaseDate', 'clientReleaseDate')
+        const manager = selector(state, 'manager')
+        const leader = selector(state, 'leader')
         return {
             devStartDate,
             devReleaseDate,
-            clientReleaseDate
+            clientReleaseDate,
+            manager,
+            leader
         }
     }
 )(EstimationProjectAwardForm)
