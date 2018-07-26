@@ -2071,3 +2071,11 @@ hr {
 
 }
 
+.react-bs-table .table-bordered > thead > tr:first-child > th {
+    text-align: center !important;
+}
+
+.react-bs-table-bordered {
+    margin-bottom: 15px;
+}
+
