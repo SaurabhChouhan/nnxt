@@ -7,10 +7,6 @@ import AppError from '../AppError'
 mongoose.Promise = global.Promise
 
 let employeeStatisticsSchema = mongoose.Schema({
-    release: {
-        _id: mongoose.Schema.ObjectId,
-        version: String
-    },
     employee: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Employee name is required']},
@@ -42,8 +38,7 @@ employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeS
     //console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeAddEmployeeStatisticsStruct)
     let countStatistics = await EmployeeStatisticsModel.count({
-        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
-        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id)
+        "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id)
     })
     if (countStatistics > 0) {
         throw new AppError('Employee statistics is already available release ' + EmployeeStatisticsInput.release.version + 'with employee ' + EmployeeStatisticsInput.employee.name + 'can not create another', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
@@ -53,11 +48,10 @@ employeeStatisticsSchema.statics.addEmployeeStatisticsDetails = async (EmployeeS
 
 
 employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (EmployeeStatisticsInput) => {
-   // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeAddTaskEmployeeStatisticsStruct)
     let countTaskStatistics = await EmployeeStatisticsModel.count({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
-        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
         "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
     })
     if (countTaskStatistics > 0) {
@@ -65,7 +59,6 @@ employeeStatisticsSchema.statics.addTaskDetailsToEmployeeStatistics = async (Emp
     }
     return await  await EmployeeStatisticsModel.update({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
-        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
     }, {$push: {"tasks": EmployeeStatisticsInput.task}}).exec()
 }
 
@@ -75,7 +68,6 @@ employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = 
     V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
     let employeeStatistics = await EmployeeStatisticsModel.find({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
-        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
         "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
     })
     if (!employeeStatistics || !employeeStatistics.length) {
@@ -84,7 +76,6 @@ employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = 
 
     return await EmployeeStatisticsModel.updateOne({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
-        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
         "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
     }, {
         $inc: {
@@ -97,11 +88,10 @@ employeeStatisticsSchema.statics.increaseTaskDetailsHoursToEmployeeStatistics = 
 
 
 employeeStatisticsSchema.statics.decreaseTaskDetailsHoursToEmployeeStatistics = async (EmployeeStatisticsInput, user) => {
-   // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
+    // console.log("EmployeeStatisticsInput", EmployeeStatisticsInput)
     V.validate(EmployeeStatisticsInput, V.employeeUpdateTaskEmployeeStatisticsStruct)
     let employeeStatistics = await EmployeeStatisticsModel.find({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
-        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
         "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
     })
     if (!employeeStatistics || !employeeStatistics.length) {
@@ -110,7 +100,6 @@ employeeStatisticsSchema.statics.decreaseTaskDetailsHoursToEmployeeStatistics = 
 
     return await EmployeeStatisticsModel.updateOne({
         "employee._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.employee._id),
-        "release._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.release._id),
         "tasks._id": mongoose.Types.ObjectId(EmployeeStatisticsInput.task._id)
     }, {
         $inc: {

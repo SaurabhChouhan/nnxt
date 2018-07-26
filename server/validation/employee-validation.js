@@ -44,10 +44,6 @@ export const employeeUpdateSettingStruct = t.struct({
 
 export const employeeAddEmployeeStatisticsStruct = t.struct({
     _id: t.Nil,
-    release: t.struct({
-        _id: ObjectId,
-        version: t.String
-    }),
     employee: t.struct({
         _id: ObjectId,
         name: t.String
