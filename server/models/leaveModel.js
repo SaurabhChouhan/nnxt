@@ -270,6 +270,10 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     }
 }
 
+const updateEmployeeStatisticsOnLeaveApprove = async (leave, requester, approver) => {
+
+
+}
 
 
 leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, approver) => {
@@ -288,8 +292,9 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, approver) => {
 
     }
 
-    /*--------------------------------EMPLOYEE STATISTICS UPDATE SECTION---------------------------*/
 
+    /*--------------------------------EMPLOYEE STATISTICS UPDATE SECTION---------------------------*/
+    await updateEmployeeStatisticsOnLeaveApprove(leaveRequest, requester, approver)
     /*------------------------------------LEAVE APPROVAL SECTION----------------------------------*/
 
     leaveRequest.status = SC.LEAVE_STATUS_APPROVED
