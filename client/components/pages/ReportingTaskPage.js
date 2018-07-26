@@ -166,11 +166,87 @@ class ReportingTaskPage extends Component {
                     </div>
 
                 </div>
-                <div className="estimation">
+                <div className="estimation reporting">
                     {
                         releases && releases.length ? releases.map((release, idx) =>
                             <div>
-                                {
+
+                                <BootstrapTable options={this.options}
+                                                data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
+                                                striped={true}
+                                                hover={true}
+                                                trClassName={this.rowClassNameFormat.bind(this)}
+                                                cellEdit={cellEditProp}>
+
+                                    <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='0' colSpan='7'>{release.project.name}</TableHeaderColumn>
+
+                                    <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'View Detail'}
+                                                       dataField='detailButton'
+                                                       dataFormat={this.viewDetailButton.bind(this)}>View Detail
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="20%" columnTitle dataField="task"
+                                                       dataFormat={this.formatTask}
+                                                       dataSort={true}>
+                                        Task Name</TableHeaderColumn>
+                                    <TableHeaderColumn row='1' width="12%" columnTitle dataField="planning"
+                                                       dataFormat={this.formatPlannedHours} editable={false}
+                                    > planned hours</TableHeaderColumn>
+                                    <TableHeaderColumn row='1' width="15%" columnTitle dataField="reportedHours"
+                                                       dataFormat={this.formatReportedHours}
+                                                       editable={{
+                                                           type: 'select',
+                                                           options: {
+                                                               values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+                                                           }
+                                                       }}
+                                    >Worked Hours</TableHeaderColumn>
+                                    <TableHeaderColumn row='1' width="15%" columnTitle dataField="status"
+                                                       editable={{
+                                                           type: 'select',
+                                                           options: {
+                                                               values: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]
+                                                           }
+                                                       }} dataFormat={this.formatReportedStatus}>Reported
+                                        Status</TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="5%" columnTitle={'Edit Report'}
+                                                       dataField="Edit Report"
+                                                       dataFormat={this.viewEditButton.bind(this)}>Edit
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Submit Report'}
+                                                       dataField="Submit Report"
+                                                       dataFormat={this.viewSubmitButton.bind(this)}>Submit
+                                    </TableHeaderColumn>
+                                </BootstrapTable>
+
+                            </div>
+                        ) : <label> No tasks found for reporting </label>
+                    }
+                </div>
+            </div>
+
+        )
+    }
+}
+
+export default withRouter(ReportingTaskPage)
+
+
+{/*
+  <TableHeaderColumn width="12%" columnTitle dataField="reason"
+                                               editable={{
+                                                   type: 'select',
+                                                   options: {
+                                                       values: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
+                                                   }
+                                               }}>Reason
+                                Code</TableHeaderColumn>
+*/
+}
+{/*
+
+{
                                     release && release._id && <div className="col-md-12 releaseHeader">
                                         <div className="col-md-3">
                                             <div className="releaseTitle">
@@ -216,74 +292,6 @@ class ReportingTaskPage extends Component {
 
                                     </div>
                                 }
-                                <BootstrapTable options={this.options}
-                                                data={release.tasks && release.tasks.length > 0 ? release.tasks : []}
-                                                striped={true}
-                                                hover={true}
-                                                trClassName={this.rowClassNameFormat.bind(this)}
-                                                cellEdit={cellEditProp}>
 
-                                    <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
-                                    </TableHeaderColumn>
-                                    <TableHeaderColumn editable={false} width="10%" columnTitle={'View Detail'}
-                                                       dataField='detailButton'
-                                                       dataFormat={this.viewDetailButton.bind(this)}>View Detail
-                                    </TableHeaderColumn>
-                                    <TableHeaderColumn editable={false} width="20%" columnTitle dataField="task"
-                                                       dataFormat={this.formatTask}
-                                                       dataSort={true}>
-                                        Task Name</TableHeaderColumn>
-                                    <TableHeaderColumn width="12%" columnTitle dataField="planning"
-                                                       dataFormat={this.formatPlannedHours} editable={false}
-                                    > planned hours</TableHeaderColumn>
-                                    <TableHeaderColumn width="15%" columnTitle dataField="reportedHours"
-                                                       dataFormat={this.formatReportedHours}
-                                                       editable={{
-                                                           type: 'select',
-                                                           options: {
-                                                               values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-                                                           }
-                                                       }}
-                                    >Worked Hours</TableHeaderColumn>
-                                    <TableHeaderColumn width="15%" columnTitle dataField="status"
-                                                       editable={{
-                                                           type: 'select',
-                                                           options: {
-                                                               values: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]
-                                                           }
-                                                       }} dataFormat={this.formatReportedStatus}>Reported
-                                        Status</TableHeaderColumn>
-                                    <TableHeaderColumn editable={false} width="5%" columnTitle={'Edit Report'}
-                                                       dataField="Edit Report"
-                                                       dataFormat={this.viewEditButton.bind(this)}>Edit
-                                    </TableHeaderColumn>
-                                    <TableHeaderColumn editable={false} width="7%" columnTitle={'Submit Report'}
-                                                       dataField="Submit Report"
-                                                       dataFormat={this.viewSubmitButton.bind(this)}>Submit
-                                    </TableHeaderColumn>
-                                </BootstrapTable>
-
-                            </div>
-                        ) : <label> No tasks found for reporting </label>
-                    }
-                </div>
-            </div>
-
-        )
-    }
-}
-
-export default withRouter(ReportingTaskPage)
-
-
-{/*
-  <TableHeaderColumn width="12%" columnTitle dataField="reason"
-                                               editable={{
-                                                   type: 'select',
-                                                   options: {
-                                                       values: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
-                                                   }
-                                               }}>Reason
-                                Code</TableHeaderColumn>
 */
 }

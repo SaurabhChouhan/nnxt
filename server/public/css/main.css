@@ -200,6 +200,7 @@ button.customBtn, button.customBtn:focus {
     margin: 5px;
     transition: 0.8s;
     border-radius: 0;
+
 }
 
 button.customBtn:hover {
@@ -1399,6 +1400,11 @@ p.task-description {
 
 .planDividerDate span {
     color: white;
+    font-weight: 700;
+}
+
+.planDividerDate label {
+    color: white;
 }
 
 .planDateSlct {
@@ -2063,5 +2069,19 @@ hr {
     margin-left: 46px !important;
     position: absolute;
 
+}
+
+.react-bs-table .table-bordered > thead > tr:first-child > th {
+    text-align: center !important;
+}
+
+.react-bs-table-bordered {
+    margin-bottom: 15px;
+}
+
+.reporting label {
+    color: #F66E65;
+    font-size: 30px;
+    padding: 70px 370px;
 }
 
