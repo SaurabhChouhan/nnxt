@@ -271,23 +271,30 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 }
 
 
-leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
+
+leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, approver) => {
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID),)
 
     if (!leaveRequest) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
+    let requester = await MDL.UserModel.findById(mongoose.Types.ObjectId(leaveRequest.user._id))
+    if (!requester) {
+        throw new AppError("Requester of leave is not found ", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status)) {
         throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only approve those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    }
 
     /*--------------------------------EMPLOYEE STATISTICS UPDATE SECTION---------------------------*/
 
     /*------------------------------------LEAVE APPROVAL SECTION----------------------------------*/
 
     leaveRequest.status = SC.LEAVE_STATUS_APPROVED
-    leaveRequest.approver = user
-    leaveRequest.approver.name = user.firstName + user.lastName
+    leaveRequest.approver = approver
+    leaveRequest.approver.name = approver.firstName + approver.lastName
     leaveRequest.approver.reason = reason
     await leaveRequest.save()
 
@@ -296,7 +303,7 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
         added: [],
         removed: []
     }
-    let warningsLeaveApproved = await MDL.WarningModel.leaveApproved(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest.user)
+    let warningsLeaveApproved = await MDL.WarningModel.leaveApproved(leaveRequest.startDateString, leaveRequest.endDateString, requester, approver)
 
     if (warningsLeaveApproved.added && warningsLeaveApproved.added.length)
         generatedWarnings.added.push(...warningsLeaveApproved.added)
@@ -307,7 +314,7 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, user) => {
 
 
     leaveRequest = leaveRequest.toObject()
-    leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
+    leaveRequest.canDelete = approver._id.toString() === requester._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
 
