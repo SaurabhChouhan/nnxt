@@ -32,8 +32,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             release: {
                 _id: release._id
             },
-            iteration_type: SC.ITERATION_TYPE_PLANNED
-
+            iteration_type: SC.ITERATION_TYPE_PLANNED,
+            type: SC.TYPE_DEVELOPMENT
         }))
     },
 })

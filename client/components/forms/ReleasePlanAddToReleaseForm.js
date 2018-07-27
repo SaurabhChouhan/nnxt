@@ -8,6 +8,7 @@ import {connect} from 'react-redux'
 import momentLocalizer from 'react-widgets-moment'
 import _ from 'lodash'
 import * as SC from '../../../server/serverconstants'
+import * as CC from "../../clientconstants";
 
 moment.locale('en')
 momentLocalizer()
@@ -24,22 +25,34 @@ class ReleasePlanAddToReleaseForm extends Component {
         const {release, releasePlans, iterations, iteration_type} = this.props
         console.log("iteration_type", iteration_type)
         return (<form onSubmit={this.props.handleSubmit}>
-            <div className="row">
+                <div className="row">
 
-                <Field name="estimation._id" component="input" type="hidden"/>
-                <div className="col-md-12">
-                    <div className="col-md-6">
-                        <Field name="iteration_type"
-                               component={renderSelect}
-                               className={"form-control SelectReleasePlanAddToRelease"}
-                               label="Select Iteration type:"
-                               options={iterations}
-                               displayField={"name"}
-                               valueField={"name"}
-                        />
+                    <Field name="estimation._id" component="input" type="hidden"/>
+                    <div className="col-md-12">
+                        <div className="col-md-6">
+                            <Field name="iteration_type"
+                                   component={renderSelect}
+                                   className={"form-control SelectReleasePlanAddToRelease"}
+                                   label="Select Iteration type:"
+                                   options={iterations}
+                                   displayField={"name"}
+                                   valueField={"name"}
+
+                            />
+                        </div>
+                        <div className="col-md-6">
+                            <Field name="type" component={renderSelect} label={"Type:"} options={[
+                                {_id: CC.TYPE_DEVELOPMENT, name: CC.TYPE_DEVELOPMENT},
+                                {_id: CC.TYPE_MANAGEMENT, name: CC.TYPE_MANAGEMENT},
+                                {_id: CC.TYPE_REVIEW, name: CC.TYPE_REVIEW},
+                                {_id: CC.TYPE_TESTING, name: CC.TYPE_TESTING}
+                            ]}
+                                   showNoneOption={false}
+
+                            />
+                        </div>
                     </div>
-                </div>
-                <hr />
+                    <hr/>
                     <div className="col-md-12">
                         {iteration_type === SC.ITERATION_TYPE_PLANNED && <div className="col-md-6">
                             <Field name="estimatedBilledHours" component={renderText} label={"Negotiated Billed Hours:"}
@@ -65,39 +78,39 @@ class ReleasePlanAddToReleaseForm extends Component {
                                    validate={[required]}/>
                         </div>
                     </div>
-            </div>
-            <div className="row initiatEstimation">
-                <div className="col-md-6 text-center">
-                    <button type="submit" disabled={pristine || submitting} className="btn customBtn">Submit
-                    </button>
                 </div>
-                <div className="col-md-6 text-center">
-                    <button type="button" disabled={pristine || submitting} onClick={reset}
-                            className="btn customBtn">
-                        Reset
-                    </button>
+                <div className="row initiatEstimation">
+                    <div className="col-md-6 text-center">
+                        <button type="submit" disabled={pristine || submitting} className="btn customBtn">Submit
+                        </button>
+                    </div>
+                    <div className="col-md-6 text-center">
+                        <button type="button" disabled={pristine || submitting} onClick={reset}
+                                className="btn customBtn">
+                            Reset
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
 
 
-    )
+        )
     }
-    }
+}
 
-    ReleasePlanAddToReleaseForm = reduxForm({
-        form: 'release-plan-add-to-release'
-    })(ReleasePlanAddToReleaseForm)
+ReleasePlanAddToReleaseForm = reduxForm({
+    form: 'release-plan-add-to-release'
+})(ReleasePlanAddToReleaseForm)
 
-    const selector = formValueSelector('release-plan-add-to-release')
+const selector = formValueSelector('release-plan-add-to-release')
 
-    ReleasePlanAddToReleaseForm = connect(
+ReleasePlanAddToReleaseForm = connect(
     state => {
         const iteration_type = selector(state, 'iteration_type')
         return {
-        iteration_type
+            iteration_type
+        }
     }
-    }
-    )(ReleasePlanAddToReleaseForm)
+)(ReleasePlanAddToReleaseForm)
 
-    export default withRouter(ReleasePlanAddToReleaseForm)
+export default withRouter(ReleasePlanAddToReleaseForm)
