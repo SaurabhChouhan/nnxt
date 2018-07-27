@@ -232,25 +232,6 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 /*--------------------------------------------------------------GET_TASK_PLANS_END-------------------------------------------------------------------*/
 /*-------------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_START---------------------------------------------------------------*/
 
-const getNewBaseHours = (releasePlan) => {
-    let possibleBaseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
-    logger.debug('getNewBaseHours(): [baseHours] ', {possibleBaseHours})
-    // see if possible base hours crossed estimated hours, only then it can become new base hours
-    if (possibleBaseHours > releasePlan.task.estimatedHours) {
-        logger.debug('getNewBaseHours(): [baseHours] possible base hours crossed estimated hours ', {
-            possibleBaseHours,
-            estimatedHours: releasePlan.task.estimatedHours
-        })
-        return possibleBaseHours
-    } else {
-        logger.debug('getNewBaseHours(): [baseHours] possible base hours did not crossed estimated hours ', {
-            possibleBaseHours,
-            estimatedHours: releasePlan.task.estimatedHours
-        })
-        return releasePlan.task.estimatedHours
-    }
-}
-
 const getNewProgressPercentage = (releasePlan) => {
     let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
 
@@ -603,9 +584,9 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': employee._id.toString(),
-            'date': momentPlanningDate
-        }) > 0) {
+        'employee._id': employee._id.toString(),
+        'date': momentPlanningDate
+    }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -637,11 +618,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id),
-            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id),
+        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-        }) > 0) {
+    }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -664,9 +645,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id)
-        }) > 0) {
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -2103,96 +2084,15 @@ const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user)
 
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
-taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
-    console.log("taskreport " + JSON.stringify(taskReport))
-    V.validate(taskReport, V.releaseTaskReportStruct)
 
-    /* Get task plan */
-    let taskPlan = await MDL.TaskPlanningModel.findById(taskReport._id)
+const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
 
-    if (!taskPlan)
-        throw new AppError('Reported task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    const {reportInput, reportedHoursToIncrement, reportedMoment, reReport, employeeReportIdx, maxReportedMoment, employee} = extra
 
-    if (taskPlan.employee._id.toString() !== employee._id.toString())
-        throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-
-
-    /* find release plan associated with this task plan */
-
-    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
-    if (!releasePlan)
-        throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
-
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
-
-    if (!release)
-        throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
-
-    /* See if this is a re-report if yes then check if time for re-reporting is gone */
-    let reReport = false
-    if (taskPlan.report && taskPlan.report.reportedOnDate) {
-        reReport = true
-        // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
-        let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
-        twoHoursFromReportedOnDate.add(2, 'hours')
-        if (twoHoursFromReportedOnDate.isBefore(new Date())) {
-            throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
-        }
-    }
-
-    let reportedMoment = U.momentInUTC(taskReport.reportedDate)
-    let maxReportedMoment
-
-    // Find out existing employee report data for this release plan
-
-    let employeeReportIdx = -1
-    if (releasePlan.report.employees) {
-        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
-            return e._id.toString() === employee._id.toString()
-        })
-    }
-
-    if (employeeReportIdx != -1) {
-        /**
-         * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
-         * 'pending' or 'completed' , if task was already reported as 'completed' in past
-         * 'completed' if task was already reported as 'pending' or 'completed' in future
-         */
-
-        if (releasePlan.report.employees[employeeReportIdx].maxReportedDate) {
-            // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
-            maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
-            // See if task was reported in future if so only possible status is pending
-            if (reportedMoment.isBefore(maxReportedMoment) && (taskReport.status !== SC.REPORT_PENDING)) {
-                throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
-            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED)
-                throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
-        }
-    }
-
-    /* In case this is re-reporting this diff reported hours would help in adjusting statistics */
-    let reportedHoursToIncrement = 0
-
-    if (reReport) {
-        //logger.debug('This is re-reporting')
-        reportedHoursToIncrement = taskReport.reportedHours - taskPlan.report.reportedHours
-        //logger.debug('Reported hours to increment ', {reportedHoursToIncrement: reportedHoursToIncrement})
-    } else {
-        //logger.debug('This is first reporting')
-        reportedHoursToIncrement = taskReport.reportedHours
-        //logger.debug('Reported hours to increment ', {reportedHoursToIncrement: reportedHoursToIncrement})
-    }
-
-
-    /******************************** RELEASE PLAN UPDATES **************************************************/
-
-
-        // COMMON SUMMARY DATA UPDATES
+    // COMMON SUMMARY DATA UPDATES
 
     let finalStatusChanged = false
     releasePlan.report.reportedHours += reportedHoursToIncrement
-
-    let diffBaseHours = undefined
 
     if (!reReport) {
         // Increment task counts that are reported
@@ -2220,23 +2120,23 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         // Employee has never reported task for this release plan so add entries
         releasePlan.report.employees.push({
             _id: employee._id,
-            reportedHours: taskReport.reportedHours,
+            reportedHours: reportInput.reportedHours,
             minReportedDate: reportedMoment.toDate(),
             maxReportedDate: reportedMoment.toDate(),
             reportedTaskCounts: 1,
-            finalStatus: taskReport.status,
+            finalStatus: reportInput.status,
             plannedHoursReportedTasks: taskPlan.planning.plannedHours
         })
         finalStatusChanged = true
     } else {
         // The reported status would become final status of employee reporting, if reported date is same or greater than max reported date
         if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
-            releasePlan.report.employees[employeeReportIdx].finalStatus = taskReport.status
+            releasePlan.report.employees[employeeReportIdx].finalStatus = reportInput.status
             finalStatusChanged = true
         }
 
         if (!reReport) {
-            releasePlan.report.employees[employeeReportIdx].reportedHours += taskReport.reportedHours
+            releasePlan.report.employees[employeeReportIdx].reportedHours += reportInput.reportedHours
             releasePlan.report.employees[employeeReportIdx].reportedTaskCounts += 1
             releasePlan.report.employees[employeeReportIdx].plannedHoursReportedTasks += taskPlan.planning.plannedHours
 
@@ -2252,12 +2152,12 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     // FINAL STATUS OF RELEASE PLAN HANDLING
     if (finalStatusChanged) {
-        if (taskReport.status === SC.REPORT_PENDING) {
+        if (reportInput.status === SC.REPORT_PENDING) {
             // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
 
             logger.debug('As employeed reported task as pending final status of release plan would be pending as well ')
             releasePlan.report.finalStatus = SC.REPORT_PENDING
-        } else if (taskReport.status === SC.REPORT_COMPLETED) {
+        } else if (reportInput.status === SC.REPORT_COMPLETED) {
             logger.debug('Employee has reported task as completed, we would now check if this makes release plan as completed')
 
             /* this means that employee has reported its part as completed we would have to check final statuses of all other employee involved in this
@@ -2289,72 +2189,12 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         }
     }
 
-    // Find this employee planning index
-    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
-        return e._id.toString() === employee._id.toString()
-    })
+    return releasePlan
+}
 
-    if (employeePlanningIdx == -1) {
-        throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
-    }
+const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release, extra) => {
 
-    let generatedWarnings = {
-        added: [],
-        removed: []
-    }
-
-
-    /**
-     * Check if reported hour is more then estimated hour
-     */
-    console.log("reportedHours " + releasePlan.report.reportedHours + " releasePlan.task.estimatedHours " + releasePlan.task.estimatedHours)
-
-    // Need to add/update reporting warnings.
-
-    let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release)
-
-    if (reportedWarnings.added && reportedWarnings.added.length)
-        generatedWarnings.added.push(...reportedWarnings.added)
-    if (reportedWarnings.removed && reportedWarnings.removed.length)
-        generatedWarnings.removed.push(...reportedWarnings.removed)
-
-    /**
-     * Check if employee has reported task on last date of planning against this employee
-     */
-    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-        if (taskReport.status === SC.REPORT_PENDING) {
-            // Add appropriate warnings
-            let warningsReportedAsPending = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
-
-            logger.debug('addTaskReport(): Generated warnings ', {generatedWarnings})
-
-            // Iterate through warnings and see what flags needs to be added to which task plans/release plans/releases
-
-            if (warningsReportedAsPending.added && warningsReportedAsPending.added.length)
-                generatedWarnings.added.push(...warningsReportedAsPending.added)
-            if (warningsReportedAsPending.removed && warningsReportedAsPending.removed.length)
-                generatedWarnings.removed.push(...warningsReportedAsPending.removed)
-        }
-    }
-
-    // Task is reported as completed this can make changes to existing warnings/flags like pending on end date
-    if (taskReport.status === SC.REPORT_COMPLETED) {
-        let warningReportedAsCompleted = undefined
-        if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-            warningReportedAsCompleted = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, false)
-        }
-        else {
-            warningReportedAsCompleted = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, true)
-        }
-
-        if (warningReportedAsCompleted.added && warningReportedAsCompleted.added.length)
-            generatedWarnings.added.push(...warningReportedAsCompleted.added)
-        if (warningReportedAsCompleted.removed && warningReportedAsCompleted.removed.length)
-            generatedWarnings.removed.push(...warningReportedAsCompleted.removed)
-    }
-
-
-    /************************************** RELEASE UPDATES  ***************************************/
+    const {reportInput, reportedHoursToIncrement, reReport, reportedMoment} = extra
 
     let iterationIndex = releasePlan.release.iteration.idx
 
@@ -2372,107 +2212,165 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         release.iterations[iterationIndex].maxReportedDate = reportedMoment.toDate()
     }
 
-    if (taskReport.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
+    if (reportInput.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
         /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
         release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
-    } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && taskReport.status == SC.REPORT_PENDING) {
+    } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && reportInput.status == SC.REPORT_PENDING) {
         /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
         release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
     }
 
+    return release
+}
 
-    /*************************** TASK PLAN UPDATES ***********************************/
+
+const addTaskReportPlannedUpdateTaskPlan = async (taskPlan, releasePlan, release, extra) => {
+
+    const {reportInput, reReport} = extra
 
     if (!taskPlan.report)
         taskPlan.report = {}
-
-
-    let todaysDateString = momentTZ.tz(SC.UTC_TIMEZONE).format(SC.DATE_FORMAT)
-    taskPlan.report.status = taskReport.status
+    //let todaysDateString = momentTZ.tz(SC.UTC_TIMEZONE).format(SC.DATE_FORMAT)
+    taskPlan.report.status = reportInput.status
 
     if (!reReport)
     /* only change reported on date if it is first report*/
         taskPlan.report.reportedOnDate = new Date()
 
-    if (taskReport.reason)
-        taskPlan.report.reasons = [taskReport.reason]
+    if (reportInput.reason)
+        taskPlan.report.reasons = [reportInput.reason]
 
-    taskPlan.report.reportedHours = taskReport.reportedHours
+    taskPlan.report.reportedHours = reportInput.reportedHours
+    return taskPlan
+}
 
-    // Iterate over all generated warnings and add appropriate flags to taskplans and release plans
+const addTaskReportPlanned = async (reportInput, employee) => {
+    /* Get task plan */
+    let taskPlan = await MDL.TaskPlanningModel.findById(reportInput._id)
 
-    logger.debug('addTaskReport(): All generated warnings of this operation is ', {generatedWarnings})
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(w => {
-            logger.debug('addTaskReport(): iterating on warning ', {w})
+    if (!taskPlan)
+        throw new AppError('Reported task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
-                || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    console.log("need to add flag in release plan")
-                    releasePlan.flags.push(w.type)
-                }
-            }
+    if (taskPlan.employee._id.toString() !== employee._id.toString())
+        throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-            if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
-                        releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
-                    if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
-                        taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                }
-            } else if (w.type == SC.WARNING_COMPLETED_BEFORE_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is raised')
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
-                        releasePlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
-                    }
-                } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
-                    if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
-                        taskPlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
-                    }
-                }
-            }
+
+    /* find release plan associated with this task plan */
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+    if (!releasePlan)
+        throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
+
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
+
+    if (!release)
+        throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    /* See if this is a re-report if yes then check if time for re-reporting is gone */
+    let reReport = false
+    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+        reReport = true
+        // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
+        let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
+        twoHoursFromReportedOnDate.add(2, 'hours')
+        if (twoHoursFromReportedOnDate.isBefore(new Date())) {
+            throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
+        }
+    }
+
+    let reportedMoment = U.momentInUTC(reportInput.reportedDate)
+    let maxReportedMoment
+
+    // Find out existing employee report data for this release plan
+
+    let employeeReportIdx = -1
+    if (releasePlan.report.employees) {
+        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+            return e._id.toString() === employee._id.toString()
         })
     }
 
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(w => {
-            logger.debug('addTaskReport(): iterating on removed warning ', {w})
+    // Find this employee planning index
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() === employee._id.toString()
+    })
 
-            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
-                || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    console.log("need to remove flag from release plan")
-                    releasePlan.flags.pull(w.type)
-                }
-            }
-
-            if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed')
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
-                        releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
-                    if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
-                        taskPlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                }
-            }
-        })
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
+
+    if (employeeReportIdx != -1) {
+        /**
+         * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
+         * 'pending' or 'completed' , if task was already reported as 'completed' in past
+         * 'completed' if task was already reported as 'pending' or 'completed' in future
+         */
+
+        if (releasePlan.report.employees[employeeReportIdx].maxReportedDate) {
+            // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
+            maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
+            // See if task was reported in future if so only possible status is pending
+            if (reportedMoment.isBefore(maxReportedMoment) && (reportInput.status !== SC.REPORT_PENDING)) {
+                throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
+            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED)
+                throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
+        }
+    }
+
+    /* In case this is re-reporting this diff reported hours would help in adjusting statistics */
+    let reportedHoursToIncrement = 0
+
+    if (reReport) {
+        reportedHoursToIncrement = reportInput.reportedHours - taskPlan.report.reportedHours
+    } else {
+        reportedHoursToIncrement = reportInput.reportedHours
+    }
+
+    /******************************** RELEASE PLAN UPDATES **************************************************/
+
+
+
+    releasePlan = await addTaskReportPlannedUpdateReleasePlan(taskPlan, releasePlan, {
+        reportInput,
+        reportedHoursToIncrement,
+        reportedMoment,
+        reReport,
+        employeeReportIdx,
+        maxReportedMoment,
+        employee
+    })
+
+
+    /************************************** RELEASE UPDATES  ***************************************/
+    release = await addTaskReportPlannedUpdateRelease(taskPlan, releasePlan, release, {
+        reportInput,
+        reportedHoursToIncrement,
+        reReport,
+        reportedMoment
+    })
+
+    /*************************** TASK PLAN UPDATES ***********************************/
+    taskPlan = await addTaskReportPlannedUpdateTaskPlan(taskPlan, releasePlan, release, {
+        reportInput,
+        reReport
+    })
+
+
+    /**
+     * Check if reported hour is more then estimated hour
+     */
+    console.log("reportedHours " + releasePlan.report.reportedHours + " releasePlan.task.estimatedHours " + releasePlan.task.estimatedHours)
+
+    // Need to add/update reporting warnings.
+
+    let warningsTaskReported = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
+        reportedMoment,
+        employeePlanningIdx,
+        reportInput
+    })
+
+    let {affectedTaskPlans} = await updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
     logger.debug('release before save ', {release})
     await release.save()
@@ -2483,8 +2381,22 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
 
     return {
         taskPlan,
-        warnings: generatedWarnings
+        affectedTaskPlans,
+        warnings: warningsTaskReported
     }
+}
+
+taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
+    console.log("taskreport " + JSON.stringify(taskReport))
+    V.validate(taskReport, V.releaseTaskReportStruct)
+
+    if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED) {
+        return await addTaskReportPlanned(taskReport, employee)
+    } else if (taskReport.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
+
+    }
+
+
 }
 
 
@@ -2532,40 +2444,84 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 /*
 GetReportTasks
  */
-taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, reportedStatus, user) => {
-    let criteria = {
-        'planningDate': U.dateInUTC(dateString),
-        'employee._id': mongoose.Types.ObjectId(user._id)
+taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterationType, reportedStatus, user) => {
+
+    console.log("iteration type is ", iterationType)
+
+    if (iterationType == SC.ITERATION_TYPE_PLANNED) {
+        // In this iteration type, user would be able to report tasks that have tasks plans planned on chosen date
+        let criteria = {
+            'planningDate': U.dateInUTC(dateString),
+            'employee._id': mongoose.Types.ObjectId(user._id)
+        }
+
+        if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
+            // report tasks of a specific release is requested
+            criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
+        }
+
+        if (reportedStatus && reportedStatus !== SC.ALL) {
+            criteria['report.status'] = reportedStatus
+        }
+        let tasks = await MDL.TaskPlanningModel.find(criteria)
+        // Group tasks by releases
+        let groupedTasks = _.groupBy(tasks, (t) => t.release._id.toString())
+
+        // iterate on each release id and find name of that release
+
+        let promises = []
+
+        _.forEach(groupedTasks, (value, key) => {
+            promises.push(MDL.ReleaseModel.findById(mongoose.Types.ObjectId(key), {
+                project: 1,
+                name: 1
+            }).then(release => {
+                return Object.assign({}, release.toObject(), {
+                    releaseName: release.project.name + " (" + release.name + ")",
+                    tasks: value
+                })
+            }))
+        })
+        let releases = await Promise.all(promises)
+        return releases
+    } else if (iterationType == SC.ITERATION_TYPE_UNPLANNED) {
+        // In this iteration type employee would be able to report all the unplanned release plan added against a release
+        let criteria = {
+            'release.iteration.iterationType': SC.ITERATION_TYPE_UNPLANNED
+        }
+
+        if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
+            // report tasks of a specific release is requested
+            criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
+        }
+
+        let releasePlans = await MDL.ReleasePlanModel.find(criteria)
+
+
+        // Group plans by releases
+        let groupedPlans = _.groupBy(releasePlans, (t) => t.release._id.toString())
+
+        // iterate on each release id and find name of that release
+
+        let promises = []
+
+        _.forEach(groupedPlans, (value, key) => {
+            promises.push(MDL.ReleaseModel.findById(mongoose.Types.ObjectId(key), {
+                project: 1,
+                name: 1
+            }).then(release => {
+                return Object.assign({}, release.toObject(), {
+                    releaseName: release.project.name + " (" + release.name + ")",
+                    tasks: value
+                })
+            }))
+        })
+        let releases = await Promise.all(promises)
+        return releases
+    } else {
+        console.log("returning empty array")
+        return {}
     }
-
-
-    if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
-        // report tasks of a specific release is requested
-        criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
-    }
-
-    if (reportedStatus && reportedStatus !== SC.ALL) {
-        criteria['report.status'] = reportedStatus
-    }
-    let tasks = await MDL.TaskPlanningModel.find(criteria)
-    // Group tasks by releases
-    let groupedTasks = _.groupBy(tasks, (t) => t.release._id.toString())
-
-    // iterate on each release id and find name of that release
-
-    let promises = []
-
-    _.forEach(groupedTasks, (value, key) => {
-
-        promises.push(MDL.ReleaseModel.findById(mongoose.Types.ObjectId(key)).then(release => {
-            return Object.assign({}, release.toObject(), {
-                releaseName: release.project.name + " (" + release.name + ")",
-                tasks: value
-            })
-        }))
-    })
-    let releases = await Promise.all(promises)
-    return releases
 }
 
 taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {

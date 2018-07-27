@@ -59,7 +59,6 @@ let releasePlanSchema = mongoose.Schema({
     },
     report: {
         reportedHours: {type: Number, default: 0},
-        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
         minReportedDate: Date,
         maxReportedDate: Date,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
@@ -156,13 +155,9 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-
-    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
-        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a "planned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
@@ -205,6 +200,21 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
     // update 'planned' iteration to add estimated hours and estimated billed hours of this release plan
     release.iterations[iterationIndex].expectedBilledHours += releasePlanInput.estimatedBilledHours
     release.iterations[iterationIndex].estimatedHours += releasePlanInput.estimatedHours
+
+    let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlanInput.type)
+    console.log("######### STATS IDX ", idx)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        release.iterations[iterationIndex].stats[idx].estimatedHours += releasePlanInput.estimatedHours
+    } else {
+        // Push new element to stats for keeping details of this type of task
+        release.iterations[iterationIndex].stats.push({
+            type: releasePlanInput.type,
+            estimatedHours: releasePlanInput.estimatedHours
+        })
+    }
+
     await release.save()
     return await releasePlan.save()
 }
@@ -230,11 +240,8 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
         throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRoleInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
-    if (!userRoleInThisRelease) {
-        throw new AppError('User is not having any role in this release so don`t have any access', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
-    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRoleInThisRelease)) {
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
@@ -266,6 +273,27 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
     }
 
     logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
+
+    if (!release.iterations[iterationIndex].stats) {
+        release.iterations[iterationIndex].stats = []
+    }
+
+    let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlanInput.type)
+    console.log("######### STATS IDX ", idx)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        release.iterations[iterationIndex].stats[idx].estimatedHours += releasePlanInput.estimatedHours
+    } else {
+        // Push new element to stats for keeping details of this type of task
+        release.iterations[iterationIndex].stats.push({
+            type: releasePlanInput.type,
+            estimatedHours: releasePlanInput.estimatedHours
+        })
+    }
+
+    await release.save()
+
     return await releasePlan.save()
 }
 

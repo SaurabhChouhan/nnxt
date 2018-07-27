@@ -15,8 +15,9 @@ reportingRouter.get("/user-releases", async ctx => {
     return await MDL.ReleaseModel.getAllReleasesOfUser(ctx.state.user)
 })
 
-reportingRouter.get("/task-plans/release/:releaseID/date/:date/task-status/:reportedStatus", async ctx => {
-    return await MDL.TaskPlanningModel.getReportTasks(ctx.params.releaseID, ctx.params.date, ctx.params.reportedStatus, ctx.state.user,)
+reportingRouter.get("/task-plans/release/:releaseID/date/:date/iteration-type/:iterationType/task-status/:reportedStatus", async ctx => {
+    console.log("Inside get report tasks")
+    return await MDL.TaskPlanningModel.getReportTasks(ctx.params.releaseID, ctx.params.date, ctx.params.iterationType, ctx.params.reportedStatus, ctx.state.user,)
 })
 
 reportingRouter.get("/task-plan/:taskPlanID", async ctx => {

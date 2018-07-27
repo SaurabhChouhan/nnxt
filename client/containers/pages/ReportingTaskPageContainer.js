@@ -6,28 +6,30 @@ import {NotificationManager} from 'react-notifications'
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    setReleaseID: (releaseID, date, reportedStatus) => {
+    setReleaseID: (releaseID, date, iterationType, reportedStatus) => {
         dispatch(A.setReleaseID(releaseID))
-        dispatch(A.getReportingTasksForDate(releaseID, date, reportedStatus))
+        dispatch(A.getReportingTasksForDate(releaseID, date, iterationType, reportedStatus))
     },
-
-    setReportedStatus: (releaseID, date, reportedStatus) => {
+    setReportedStatus: (releaseID, date, iterationType, reportedStatus) => {
         dispatch(A.setReportedStatus(reportedStatus))
-        dispatch(A.getReportingTasksForDate(releaseID, date, reportedStatus))
+        dispatch(A.getReportingTasksForDate(releaseID, date, iterationType, reportedStatus))
     },
-
+    setIterationType: (releaseID, date, iterationType, reportedStatus) => {
+        dispatch(A.setIterationType(iterationType))
+        dispatch(A.getReportingTasksForDate(releaseID, date, iterationType, reportedStatus))
+    },
     taskPlanSelected: (taskPlan) => dispatch(A.getTaskDetailsForReportFromServer(taskPlan._id)),
-
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     },
-    reportTask: (task, date) => {
+    reportTask: (task, date, iterationType) => {
         let inputTask = {
             _id: task._id,
             reason: task.reason,
             reportedHours: parseInt(task.reportedHours),
             status: task.status,
-            reportedDate: date
+            reportedDate: date,
+            iterationType:iterationType
         }
         dispatch(A.reportTaskToServer(inputTask)).then((json) => {
             if (json.success)
@@ -43,7 +45,8 @@ const mapStateToProps = (state, ownProps) => ({
     releases: state.report.availableReleases,
     dateOfReport: state.report.dateStringOfReport,
     releaseID: state.report.releaseID,
-    reportedStatus: state.report.reportedStatus
+    reportedStatus: state.report.reportedStatus,
+    iterationType: state.report.iterationType
 })
 
 const ReportingTaskPageContainer = connect(

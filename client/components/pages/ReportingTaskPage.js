@@ -76,7 +76,7 @@ class ReportingTaskPage extends Component {
 
     viewSubmitButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                this.props.reportTask(row, this.props.dateOfReport)
+                this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)
             }}>
                 <i className="fa fa-check"></i>
             </button>
@@ -99,16 +99,20 @@ class ReportingTaskPage extends Component {
     }
 
     onReportedStatusChange(status) {
-        this.props.setReportedStatus(this.props.releaseID, this.props.dateOfReport, status)
+        this.props.setReportedStatus(this.props.releaseID, this.props.dateOfReport, this.props.iterationType, status)
     }
 
     onReleaseSelect(releaseID) {
-        this.props.setReleaseID(releaseID, this.props.dateOfReport, this.props.reportedStatus)
+        this.props.setReleaseID(releaseID, this.props.dateOfReport, this.props.iterationType, this.props.reportedStatus)
+    }
+
+    onIterationTypeChange(type) {
+        this.props.setIterationType(this.props.releaseID, this.props.dateOfReport, type, this.props.reportedStatus)
     }
 
     render() {
 
-        const {allReleases, releases, reportedStatus, releaseID} = this.props
+        const {allReleases, releases, reportedStatus, releaseID, iterationType} = this.props
         const cellEditProp = {
             mode: 'click',
             blurToSave: true
@@ -121,8 +125,22 @@ class ReportingTaskPage extends Component {
                     <ReportingDateNavBarContainer reportedStatus={reportedStatus} releaseID={releases}/>
                 </div>
                 <div className="col-md-12">
-                    <div className="col-md-8 releaseOption releaseDetailSearchContent">
-                        <div className="col-md-6 ">
+                    <div className="col-md-12 releaseOption releaseDetailSearchContent">
+                        <div className="col-md-4 ">
+                            <div>
+                                <select
+                                    className="form-control"
+                                    title="Select Type"
+                                    value={iterationType}
+                                    onChange={(type) => this.onIterationTypeChange(type.target.value)}>
+                                    <option key={SC.ITERATION_TYPE_PLANNED}
+                                            value={SC.ITERATION_TYPE_PLANNED}>{SC.ITERATION_TYPE_PLANNED}</option>
+                                    <option key={SC.ITERATION_TYPE_UNPLANNED}
+                                            value={SC.ITERATION_TYPE_UNPLANNED}>{SC.ITERATION_TYPE_UNPLANNED}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="col-md-4 ">
                             <div>
                                 <select
                                     value={releaseID}
@@ -144,7 +162,7 @@ class ReportingTaskPage extends Component {
                                 </select>
                             </div>
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                             <div>
                                 <select
                                     className="form-control"
@@ -169,8 +187,7 @@ class ReportingTaskPage extends Component {
                 <div className="estimation reporting">
                     {
                         releases && releases.length ? releases.map((release, idx) =>
-                            <div>
-
+                            <div key={release._id}>
                                 <BootstrapTable options={this.options}
                                                 data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
                                                 striped={true}
@@ -180,7 +197,7 @@ class ReportingTaskPage extends Component {
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn row='0' colSpan='7'>{release.project.name}</TableHeaderColumn>
+                                    <TableHeaderColumn row='0' colSpan='7'>{release.releaseName}</TableHeaderColumn>
 
                                     <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'View Detail'}
                                                        dataField='detailButton'
