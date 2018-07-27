@@ -2342,6 +2342,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     })
 
 
+    /************************************** RELEASE UPDATES  ***************************************/
     release = await addTaskReportPlannedUpdateRelease(taskPlan, releasePlan, release, {
         reportInput,
         reportedHoursToIncrement,
@@ -2349,15 +2350,11 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         reportedMoment
     })
 
+    /*************************** TASK PLAN UPDATES ***********************************/
     taskPlan = await addTaskReportPlannedUpdateTaskPlan(taskPlan, releasePlan, release, {
         reportInput,
         reReport
     })
-
-    let generatedWarnings = {
-        added: [],
-        removed: []
-    }
 
 
     /**
@@ -2367,128 +2364,13 @@ const addTaskReportPlanned = async (reportInput, employee) => {
 
     // Need to add/update reporting warnings.
 
-    let reportedWarnings = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release)
+    let warningsTaskReported = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
+        reportedMoment,
+        employeePlanningIdx,
+        reportInput
+    })
 
-    if (reportedWarnings.added && reportedWarnings.added.length)
-        generatedWarnings.added.push(...reportedWarnings.added)
-    if (reportedWarnings.removed && reportedWarnings.removed.length)
-        generatedWarnings.removed.push(...reportedWarnings.removed)
-
-    /**
-     * Check if employee has reported task on last date of planning against this employee
-     */
-    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-        if (reportInput.status === SC.REPORT_PENDING) {
-            // Add appropriate warnings
-            let warningsReportedAsPending = await MDL.WarningModel.taskReportedAsPending(taskPlan, true)
-
-            logger.debug('addTaskReport(): Generated warnings ', {generatedWarnings})
-
-            // Iterate through warnings and see what flags needs to be added to which task plans/release plans/releases
-
-            if (warningsReportedAsPending.added && warningsReportedAsPending.added.length)
-                generatedWarnings.added.push(...warningsReportedAsPending.added)
-            if (warningsReportedAsPending.removed && warningsReportedAsPending.removed.length)
-                generatedWarnings.removed.push(...warningsReportedAsPending.removed)
-        }
-    }
-
-    // Task is reported as completed this can make changes to existing warnings/flags like pending on end date
-    if (reportInput.status === SC.REPORT_COMPLETED) {
-        let warningReportedAsCompleted = undefined
-        if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-            warningReportedAsCompleted = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, false)
-        }
-        else {
-            warningReportedAsCompleted = await MDL.WarningModel.taskReportedAsCompleted(taskPlan, releasePlan, true)
-        }
-
-        if (warningReportedAsCompleted.added && warningReportedAsCompleted.added.length)
-            generatedWarnings.added.push(...warningReportedAsCompleted.added)
-        if (warningReportedAsCompleted.removed && warningReportedAsCompleted.removed.length)
-            generatedWarnings.removed.push(...warningReportedAsCompleted.removed)
-    }
-
-
-    /************************************** RELEASE UPDATES  ***************************************/
-
-
-    /*************************** TASK PLAN UPDATES ***********************************/
-
-
-    // Iterate over all generated warnings and add appropriate flags to taskplans and release plans
-
-    logger.debug('addTaskReport(): All generated warnings of this operation is ', {generatedWarnings})
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(w => {
-            logger.debug('addTaskReport(): iterating on warning ', {w})
-
-            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
-                || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    console.log("need to add flag in release plan")
-                    releasePlan.flags.push(w.type)
-                }
-            }
-
-            if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is raised')
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
-                        releasePlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
-                    if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
-                        taskPlan.flags.push(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                }
-            } else if (w.type == SC.WARNING_COMPLETED_BEFORE_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] is raised')
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
-                        releasePlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
-                    }
-                } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
-                    if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_COMPLETED_BEFORE_END_DATE) == -1)) {
-                        logger.debug('Pushing  [' + SC.WARNING_COMPLETED_BEFORE_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
-                        taskPlan.flags.push(SC.WARNING_COMPLETED_BEFORE_END_DATE)
-                    }
-                }
-            }
-        })
-    }
-
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(w => {
-            logger.debug('addTaskReport(): iterating on removed warning ', {w})
-
-            if (w.type == SC.WARNING_MORE_REPORTED_HOURS_4 || w.type == SC.WARNING_MORE_REPORTED_HOURS_3
-                || w.type == SC.WARNING_MORE_REPORTED_HOURS_2 || w.type == SC.WARNING_MORE_REPORTED_HOURS_1) {
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    console.log("need to remove flag from release plan")
-                    releasePlan.flags.pull(w.type)
-                }
-            }
-
-            if (w.type == SC.WARNING_PENDING_ON_END_DATE) {
-                logger.debug('Warning  [' + SC.WARNING_PENDING_ON_END_DATE + '] is removed')
-                if (w.warningType == SC.WARNING_TYPE_RELEASE_PLAN) {
-                    if (w._id.toString() == releasePlan._id.toString() && (releasePlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against release plan [' + releasePlan._id + ']')
-                        releasePlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                } else if (w.warningType == SC.WARNING_TYPE_TASK_PLAN) {
-                    if (w._id.toString() == taskPlan._id.toString() && (taskPlan.flags.indexOf(SC.WARNING_PENDING_ON_END_DATE) > -1)) {
-                        logger.debug('Pulling  [' + SC.WARNING_PENDING_ON_END_DATE + '] warning against task plan [' + taskPlan._id + ']')
-                        taskPlan.flags.pull(SC.WARNING_PENDING_ON_END_DATE)
-                    }
-                }
-            }
-        })
-    }
+    let {affectedTaskPlans} = await updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
     logger.debug('release before save ', {release})
     await release.save()
@@ -2499,7 +2381,8 @@ const addTaskReportPlanned = async (reportInput, employee) => {
 
     return {
         taskPlan,
-        warnings: generatedWarnings
+        affectedTaskPlans,
+        warnings: warningsTaskReported
     }
 }
 

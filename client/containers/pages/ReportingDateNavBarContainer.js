@@ -18,6 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
     reportedStatus: state.report.reportedStatus,
     releaseID: state.report.releaseID,
+    iterationType: state.report.iterationType,
     initialValues: {
         "dateOfReport": moment(state.report.dateStringOfReport).toDate()
     }
