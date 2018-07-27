@@ -259,15 +259,20 @@ class ReportingTaskPage extends Component {
                                                        dataFormat={this.formatTask}
                                                        dataSort={true}>
                                         Task Name</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' width="20%" columnTitle dataField="status"
+                                    <TableHeaderColumn row='1' width="20%" columnTitle dataField="reportedHours"
+                                                       dataFormat={this.formatReportedHours}
                                                        editable={{
                                                            type: 'select',
                                                            options: {
-                                                               values: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]
+                                                               values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
                                                            }
-                                                       }} dataFormat={this.formatReportedStatus}>Reported
-                                        Status</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="20%" columnTitle={'Submit Report'}
+                                                       }}
+                                    >Worked Hours</TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'Edit Report'}
+                                                       dataField="Edit Report"
+                                                       dataFormat={this.viewEditButton.bind(this)}>Edit
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'Submit Report'}
                                                        dataField="Submit Report"
                                                        dataFormat={this.viewSubmitButton.bind(this)}>Submit
                                     </TableHeaderColumn>
