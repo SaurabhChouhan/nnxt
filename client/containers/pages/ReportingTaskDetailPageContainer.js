@@ -7,7 +7,7 @@ import * as U from '../../../server/utils'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     ReportingGoBack: (event) => {
-        dispatch(A.getReportingTasksForDate(SC.ALL, U.getNowStringInIndia(), SC.ALL))
+        dispatch(A.getReportingTasksForDate(SC.ALL, U.getNowStringInIndia(), SC.ITERATION_TYPE_PLANNED, SC.ALL))
         dispatch(A.setReleaseID(SC.ALL))
         dispatch(A.setReportDate(U.getNowStringInIndia()))
         dispatch(A.setReportedStatus(SC.ALL))

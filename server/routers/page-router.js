@@ -9,6 +9,8 @@ import {Provider} from 'react-redux'
 import AppRouterContainer from '../../client/containers/AppRouterContainer'
 import * as MDL from '../models'
 import * as A from "../../client/actions";
+import appHomePageRouter from './apphome-page-router'
+import * as RR from "./index";
 
 const pageRouter = new Router()
 
@@ -87,35 +89,6 @@ pageRouter.use(function (ctx, next) {
     }
 })
 
-pageRouter.get('/app-home', async ctx => {
-
-    if (!isAuthenticated(ctx))
-        return ctx.redirect('/')
-
-    //let permissions = await  MDL.PermissionModel.getAll()
-
-    let store = createStore(reducers)
-    store.dispatch(A.addLoginUser(ctx.state.user))
-    store.dispatch(A.addSSRFlag())
-    //store.dispatch(addAllPermissions(permissions))
-    const initialState = store.getState()
-    const context = {}
-
-    const html = ReactDomServer.renderToString(
-        <Provider store={store}>
-            <StaticRouter location={ctx.url} context={context}>
-                <AppRouterContainer/>
-            </StaticRouter>
-        </Provider>
-    )
-
-
-    return ctx.render("home", {
-        html: '',
-        preloadedState: JSON.stringify(initialState).replace(/</g, '\\u003c')
-    })
-
-})
-
+pageRouter.use(appHomePageRouter.routes())
 
 export default pageRouter

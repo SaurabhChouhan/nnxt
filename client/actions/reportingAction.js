@@ -26,6 +26,11 @@ export const setReleaseID = (releaseID) => ({
     releaseID: releaseID
 })
 
+export const setIterationType = (iterationType) => ({
+    type: AC.SET_ITERATION_TYPE,
+    iterationType: iterationType
+})
+
 export const releaseSelectedForReporting = (release) => ({
     type: AC.RELEASE_SELECTED_FOR_REPORTING,
     release: release
@@ -78,9 +83,9 @@ export const getUserReleasesFromServer = () => {
 /**
  * Gets tasks that user can see/report for selected date
  */
-export const getReportingTasksForDate = (releaseID, date, taskStatus) => {
+export const getReportingTasksForDate = (releaseID, date, iterationType, taskStatus) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/task-plans/release/' + releaseID + '/date/' + date + '/task-status/' + taskStatus, {
+        return fetch('/api/reporting/task-plans/release/' + releaseID + '/date/' + date + '/iteration-type/' + iterationType + '/task-status/' + taskStatus, {
                 method: 'get',
                 credentials: 'include',
                 headers: {

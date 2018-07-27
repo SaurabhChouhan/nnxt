@@ -59,7 +59,6 @@ let releasePlanSchema = mongoose.Schema({
     },
     report: {
         reportedHours: {type: Number, default: 0},
-        baseHoursProgress: {type: Number, default: 0}, // hours that would be considered as base for calculating progress
         minReportedDate: Date,
         maxReportedDate: Date,
         reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now

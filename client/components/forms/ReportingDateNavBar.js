@@ -16,7 +16,7 @@ class ReportingDateNavBar extends React.Component {
     }
 
     render() {
-        const {reportedStatus, releaseID, dateOfReport} = this.props
+        const {reportedStatus, releaseID, dateOfReport, iterationType} = this.props
         const {change} = this.props
         return (
             <form>
@@ -27,7 +27,7 @@ class ReportingDateNavBar extends React.Component {
                                 onClick={() => {
                                     let prevDate = moment(dateOfReport).clone().subtract(1, 'days').format(SC.DATE_FORMAT)
                                     this.props.setReportDate(prevDate)
-                                    this.props.onReleaseSelected(releaseID, prevDate, reportedStatus)
+                                    this.props.onReleaseSelected(releaseID, prevDate, iterationType, reportedStatus)
                                     change("dateOfReport", moment(prevDate).clone().toDate())
 
                                 }}

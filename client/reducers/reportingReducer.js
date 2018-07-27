@@ -12,6 +12,7 @@ let initialState = {
     release: {},
     releaseID: SC.ALL,
     reportedStatus: SC.ALL,
+    iterationType: SC.ITERATION_TYPE_PLANNED,
     dateStringOfReport: U.getNowStringInIndia()
 }
 
@@ -63,14 +64,16 @@ const reportingReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 status: action.status
             })
-
         case AC.SET_RELEASE_ID:
             // while selection of reporting status it is set to state also
             return Object.assign({}, state, {
                 releaseID: action.releaseID
             })
-
-
+        case AC.SET_ITERATION_TYPE:
+            // while selection of reporting status it is set to state also
+            return Object.assign({}, state, {
+                iterationType: action.iterationType
+            })
         default:
             return state
     }
