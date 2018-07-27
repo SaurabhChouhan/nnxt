@@ -186,7 +186,7 @@ class ReportingTaskPage extends Component {
                 </div>
                 <div className="estimation reporting">
                     {
-                        releases && releases.length ? releases.map((release, idx) =>
+                        iterationType == SC.ITERATION_TYPE_PLANNED && (releases && releases.length ? releases.map((release, idx) =>
                             <div key={release._id}>
                                 <BootstrapTable options={this.options}
                                                 data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
@@ -227,10 +227,6 @@ class ReportingTaskPage extends Component {
                                                            }
                                                        }} dataFormat={this.formatReportedStatus}>Reported
                                         Status</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="5%" columnTitle={'Edit Report'}
-                                                       dataField="Edit Report"
-                                                       dataFormat={this.viewEditButton.bind(this)}>Edit
-                                    </TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Submit Report'}
                                                        dataField="Submit Report"
                                                        dataFormat={this.viewSubmitButton.bind(this)}>Submit
@@ -238,7 +234,48 @@ class ReportingTaskPage extends Component {
                                 </BootstrapTable>
 
                             </div>
-                        ) : <label> No tasks found for reporting </label>
+                        ) : <label> No tasks found for reporting </label>)
+                    }
+                    {
+                        iterationType == SC.ITERATION_TYPE_UNPLANNED && (releases && releases.length ? releases.map((release, idx) =>
+                            <div key={release._id}>
+                                <BootstrapTable options={this.options}
+                                                data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
+                                                striped={true}
+                                                hover={true}
+                                                trClassName={this.rowClassNameFormat.bind(this)}
+                                                cellEdit={cellEditProp}>
+
+                                    <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='0' colSpan='5'>{release.releaseName}</TableHeaderColumn>
+
+                                    <TableHeaderColumn row='1' editable={false} width="20%" columnTitle={'View Detail'}
+                                                       dataField='detailButton'
+                                                       dataFormat={this.viewDetailButton.bind(this)}>View Detail
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="40%" columnTitle dataField="task"
+                                                       dataFormat={this.formatTask}
+                                                       dataSort={true}>
+                                        Task Name</TableHeaderColumn>
+
+                                    <TableHeaderColumn row='1' width="20%" columnTitle dataField="reportedHours"
+                                                       dataFormat={this.formatReportedHours}
+                                                       editable={{
+                                                           type: 'select',
+                                                           options: {
+                                                               values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+                                                           }
+                                                       }}
+                                    >Worked Hours</TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="20%" columnTitle={'Submit Report'}
+                                                       dataField="Submit Report"
+                                                       dataFormat={this.viewSubmitButton.bind(this)}>Submit
+                                    </TableHeaderColumn>
+                                </BootstrapTable>
+
+                            </div>
+                        ) : <label> No tasks found for reporting </label>)
                     }
                 </div>
             </div>

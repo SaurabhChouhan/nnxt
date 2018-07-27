@@ -24,13 +24,14 @@ let taskPlanningSchema = mongoose.Schema({
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
     description: {type: String},
+    iterationType: {type: String},
     task: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
         description: {type: String},
     },
     release: {
-        _id: mongoose.Schema.ObjectId,
+        _id: mongoose.Schema.ObjectId
     },
     releasePlan: {
         _id: mongoose.Schema.ObjectId,
@@ -814,6 +815,7 @@ const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber,
     taskPlan.employee = Object.assign({}, employee.toObject(), {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
+    taskPlan.iterationType = releasePlan.release.iteration.iterationType
     taskPlan.report = {}
     taskPlan.report.status = SC.REPORT_UNREPORTED
 
@@ -2230,7 +2232,7 @@ const addTaskReportPlannedUpdateTaskPlan = async (taskPlan, releasePlan, release
 
     if (!taskPlan.report)
         taskPlan.report = {}
-    //let todaysDateString = momentTZ.tz(SC.UTC_TIMEZONE).format(SC.DATE_FORMAT)
+
     taskPlan.report.status = reportInput.status
 
     if (!reReport)
@@ -2356,12 +2358,6 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         reReport
     })
 
-
-    /**
-     * Check if reported hour is more then estimated hour
-     */
-    console.log("reportedHours " + releasePlan.report.reportedHours + " releasePlan.task.estimatedHours " + releasePlan.task.estimatedHours)
-
     // Need to add/update reporting warnings.
 
     let warningsTaskReported = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
@@ -2386,6 +2382,193 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     }
 }
 
+const addTaskReportUnplannedUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
+
+    const {reportInput, reportedHoursToIncrement, reportedMoment, reReport, employeeReportIdx, employee} = extra
+
+    // COMMON SUMMARY DATA UPDATES
+
+    logger.debug("addTaskReportUnplannedUpdateReleasePlan(): Reported Hours to increment is ", {reportedHoursToIncrement})
+
+    releasePlan.report.reportedHours += reportedHoursToIncrement
+
+    if (!reReport) {
+        // Increment task counts that are reported
+        releasePlan.report.reportedTaskCounts += 1
+
+        if (!releasePlan.report || !releasePlan.report.minReportedDate || reportedMoment.isBefore(releasePlan.report.minReportedDate)) {
+            releasePlan.report.minReportedDate = reportedMoment.toDate()
+        }
+
+        if (!releasePlan.report || !releasePlan.report.maxReportedDate || reportedMoment.isAfter(releasePlan.report.maxReportedDate)) {
+            releasePlan.report.maxReportedDate = reportedMoment.toDate()
+        }
+    }
+
+    // EMPLOYEE SPECIFIC SUMMARY DATA UPDATES
+    if (employeeReportIdx == -1) {
+        // Employee has never reported task for this release plan so add entries
+        releasePlan.report.employees.push({
+            _id: employee._id,
+            reportedHours: reportInput.reportedHours,
+            minReportedDate: reportedMoment.toDate(),
+            maxReportedDate: reportedMoment.toDate(),
+            reportedTaskCounts: 1,
+            finalStatus: reportInput.status
+        })
+    } else {
+        if (!reReport) {
+            releasePlan.report.employees[employeeReportIdx].reportedHours += reportInput.reportedHours
+            releasePlan.report.employees[employeeReportIdx].reportedTaskCounts += 1
+            if (reportedMoment.isBefore(releasePlan.report.employees[employeeReportIdx].minReportedDate)) {
+                releasePlan.report.employees[employeeReportIdx].minReportedDate = reportedMoment.toDate()
+            }
+
+            if (reportedMoment.isAfter(releasePlan.report.employees[employeeReportIdx].maxReportedDate)) {
+                releasePlan.report.employees[employeeReportIdx].maxReportedDate = reportedMoment.toDate()
+            }
+        } else {
+            releasePlan.report.employees[employeeReportIdx].reportedHours += reportedHoursToIncrement
+        }
+    }
+
+    // 'unplanned'
+    releasePlan.report.finalStatus = SC.REPORT_PENDING
+    return releasePlan
+}
+
+const addTaskReportUnplannedUpdateRelease = async (taskPlan, releasePlan, release, extra) => {
+
+    const {reportedHoursToIncrement, reportedMoment} = extra
+    let iterationIndex = releasePlan.release.iteration.idx
+    release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
+
+    if (!release.iterations[iterationIndex].maxReportedDate || (release.iterations[iterationIndex].maxReportedDate && reportedMoment.isAfter(release.iterations[iterationIndex].maxReportedDate))) {
+        /* if reported date is greater than earlier max reported date change that */
+        release.iterations[iterationIndex].maxReportedDate = reportedMoment.toDate()
+    }
+
+    return release
+}
+
+const addTaskReportUnplanned = async (reportInput, employee) => {
+    /**
+     * In 'unplanned' task reporting there would not be any corresponding task plan as case with 'planned' tasks,
+     * rather it would have only release plan.
+     *
+     * Few difference from planned task reporting
+     * - Status would not be handled as it is always
+     *
+     */
+
+    let reportedMoment = U.momentInUTC(reportInput.reportedDate)
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(reportInput._id)
+    if (!releasePlan)
+        throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
+
+    // Try to find out task plan for today's date for this release plan
+
+    let taskPlan = await MDL.TaskPlanningModel.findOne({
+        'releasePlan._id': releasePlan._id,
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'planningDate': reportedMoment.toDate()
+    })
+
+    logger.debug("addTaskReportUnplanned(): taskPlan found as ", {taskPlan})
+
+    if (!taskPlan) {
+        // No task plan found against this release plan so will be creating new one
+        taskPlan = new MDL.TaskPlanningModel()
+        taskPlan.created = Date.now()
+        taskPlan.planningDate = reportedMoment.toDate()
+        taskPlan.planningDateString = reportedMoment.format(SC.DATE_FORMAT)
+        taskPlan.release = releasePlan.release
+        taskPlan.releasePlan = releasePlan
+        taskPlan.employee = Object.assign({}, employee, {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
+        taskPlan.description = reportInput.description ? reportInput.description : ''
+        taskPlan.task = releasePlan.task
+        taskPlan.iterationType = SC.ITERATION_TYPE_UNPLANNED
+        taskPlan.report = {
+            status: SC.REPORT_PENDING
+        }
+    }
+
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
+
+    if (!release)
+        throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    /* See if this is a re-report if yes then check if time for re-reporting is gone */
+    let reReport = false
+    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+        reReport = true
+        // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
+        let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
+        twoHoursFromReportedOnDate.add(2, 'hours')
+        if (twoHoursFromReportedOnDate.isBefore(new Date())) {
+            throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
+        }
+    }
+
+    if (!reReport)
+    /* only change reported on date if it is first report*/
+        taskPlan.report.reportedOnDate = new Date()
+
+
+    // Find out existing employee report data for this release plan
+
+    let employeeReportIdx = -1
+    if (releasePlan.report.employees) {
+        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+            return e._id.toString() === employee._id.toString()
+        })
+    }
+
+    /* In case this is re-reporting this diff reported hours would help in adjusting statistics */
+    let reportedHoursToIncrement = 0
+
+    if (reReport) {
+        reportedHoursToIncrement = reportInput.reportedHours - taskPlan.report.reportedHours
+    } else {
+        reportedHoursToIncrement = reportInput.reportedHours
+    }
+    // as we have calculated reported hours to increment we can set new reported hours in task plan
+    taskPlan.report.reportedHours = reportInput.reportedHours
+
+    logger.debug("rereport is calculated as ", {reReport})
+
+    /******************************** RELEASE PLAN UPDATES **************************************************/
+    releasePlan = await addTaskReportUnplannedUpdateReleasePlan(taskPlan, releasePlan, {
+        reportInput,
+        reportedHoursToIncrement,
+        reportedMoment,
+        reReport,
+        employeeReportIdx,
+        employee
+    })
+
+    /************************************** RELEASE UPDATES  ***************************************/
+    release = await addTaskReportUnplannedUpdateRelease(taskPlan, releasePlan, release, {
+        reportInput,
+        reportedHoursToIncrement,
+        reReport,
+        reportedMoment
+    })
+
+    // No warning handling would be done for unplanned release plans
+    logger.debug('release before save ', {release})
+    await release.save()
+    logger.debug('release plan before save ', {releasePlan})
+    await releasePlan.save()
+    logger.debug('task plan before save ', {taskPlan})
+    taskPlan = await taskPlan.save()
+    return {
+        taskPlan
+    }
+}
+
+
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     console.log("taskreport " + JSON.stringify(taskReport))
     V.validate(taskReport, V.releaseTaskReportStruct)
@@ -2393,10 +2576,8 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED) {
         return await addTaskReportPlanned(taskReport, employee)
     } else if (taskReport.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
-
+        return await addTaskReportUnplanned(taskReport, employee)
     }
-
-
 }
 
 
@@ -2452,7 +2633,10 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
         // In this iteration type, user would be able to report tasks that have tasks plans planned on chosen date
         let criteria = {
             'planningDate': U.dateInUTC(dateString),
-            'employee._id': mongoose.Types.ObjectId(user._id)
+            'employee._id': mongoose.Types.ObjectId(user._id),
+            'iterationType': {
+                $ne: SC.ITERATION_TYPE_UNPLANNED
+            }
         }
 
         if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
@@ -2497,9 +2681,38 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
 
         let releasePlans = await MDL.ReleasePlanModel.find(criteria)
 
+        let releasePlanPromises = _.map(releasePlans, (rp) => {
+
+            return MDL.TaskPlanningModel.findOne({
+                'releasePlan._id': rp._id,
+                'employee._id': mongoose.Types.ObjectId(user._id),
+                'planningDate': U.dateInUTC(dateString)
+            }).then(tp => {
+
+                let taskPlan = {}
+                taskPlan._id = rp._id
+                taskPlan.release = rp.release
+                taskPlan.releasePlan = {
+                    _id: rp._id
+                }
+                taskPlan.task = rp.task
+                if(tp){
+                    taskPlan.report = {
+                        reportedHours:tp.report.reportedHours
+                    }
+                } else {
+                    taskPlan.report = {
+                        reportedHours: 0
+                    }
+                }
+                return taskPlan
+            })
+        })
+
+        let taskPlans = await Promise.all(releasePlanPromises)
 
         // Group plans by releases
-        let groupedPlans = _.groupBy(releasePlans, (t) => t.release._id.toString())
+        let groupedPlans = _.groupBy(taskPlans, (t) => t.release._id.toString())
 
         // iterate on each release id and find name of that release
 
