@@ -2122,9 +2122,21 @@ const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user)
 
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
-const addTaskReportPlannedUpdateEmployeeRelease = async (taskPlan, releasePlan, release, extra) => {
+const addTaskReportPlannedUpdateEmployeeRelease = async (release, employee, extra) => {
 
+    const {reportedHoursToIncrement} = extra
 
+    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    })
+
+    if (!employeeRelease)
+        throw new AppError("We should have found employee release ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    employeeRelease.reportedHours += reportedHoursToIncrement
+
+    return employeeRelease
 }
 
 const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
@@ -2398,6 +2410,10 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         reReport
     })
 
+    let employeeRelease = await addTaskReportPlannedUpdateEmployeeRelease(release, employee, {
+        reportedHoursToIncrement
+    })
+
     // Need to add/update reporting warnings.
 
     let warningsTaskReported = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
@@ -2408,6 +2424,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
 
     let {affectedTaskPlans} = await updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
+    await employeeRelease.save()
     logger.debug('release before save ', {release})
     await release.save()
     logger.debug('release plan before save ', {releasePlan})
