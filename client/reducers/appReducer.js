@@ -41,16 +41,6 @@ const appReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 ssrFlag: false
             })
-        case AC.SET_RELEASE_ID:
-            // while selection of reporting status it is set to state also
-            return Object.assign({}, state, {
-                selectedReleaseID: action.releaseID
-            })
-        case AC.ADD_USER_RELEASES:
-            // All Releases where loggedIn user in involved as (manager, leader, developer)
-            return Object.assign({}, state, {
-                allReleases: action.releases
-            })
         default:
             return state
     }

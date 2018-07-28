@@ -2382,9 +2382,6 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     }
 
     /******************************** RELEASE PLAN UPDATES **************************************************/
-
-
-
     releasePlan = await addTaskReportPlannedUpdateReleasePlan(taskPlan, releasePlan, {
         reportInput,
         reportedHoursToIncrement,

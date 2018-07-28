@@ -24,11 +24,10 @@ class DashboardSection extends Component {
                             value={selectedReleaseID}
                             className="form-control"
                             title="Select Flag"
+
                             onChange={(release) =>
                                 this.onReleaseSelect(release.target.value)
                             }>
-                            <option value=''>Select ...</option>
-
                             {
                                 allReleases && allReleases.length ? allReleases.map((release, idx) =>
                                     <option
