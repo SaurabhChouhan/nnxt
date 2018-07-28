@@ -580,70 +580,6 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlanningDates) => {
 
 /*-------------------------------------------------ADD_TASK_PLANNING_SECTION_START---------------------------------------------------------------*/
 
-const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, momentPlanningDate) => {
-
-    // Add or update employee days details when task is planned
-    // Check already added employees day detail or not
-    if (await MDL.EmployeeDaysModel.count({
-        'employee._id': employee._id.toString(),
-        'date': momentPlanningDate
-    }) > 0) {
-
-        /* Update already added employee days details with increment of planned hours   */
-        let EmployeeDaysModelInput = {
-            plannedHours: plannedHourNumber,
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
-        }
-        return await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput)
-    } else {
-
-        /*  Add employee days details with planned hour  if not added */
-        let EmployeeDaysModelInput = {
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            plannedHours: plannedHourNumber,
-            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
-        }
-
-        return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput)
-    }
-}
-
-
-const updateEmployeeReleaseOnAddTaskPlanning = async (releasePlan, release, employee, extra) => {
-
-    const {plannedHours} = extra
-
-    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id)
-    })
-
-    if (!employeeRelease) {
-        // employee release not exists create one
-        employeeRelease = new MDL.EmployeeReleasesModel()
-        employeeRelease.employee = {
-            _id: mongoose.Types.ObjectId(employee._id),
-            name: employee.firstName + ' ' + employee.lastName
-        }
-        employeeRelease.release = {
-            _id: mongoose.Types.ObjectId(release._id),
-            name: release.name
-        }
-        employeeRelease.plannedHours = plannedHours
-    } else {
-        employeeRelease.plannedHours += plannedHours
-    }
-    return employeeRelease
-}
-
-
 const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, employee, plannedHourNumber) => {
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
@@ -726,7 +662,70 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     }
 }
 
-const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, plannedHourNumber, momentPlanningDate) => {
+const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, momentPlanningDate) => {
+
+    // Add or update employee days details when task is planned
+    // Check already added employees day detail or not
+    if (await MDL.EmployeeDaysModel.count({
+        'employee._id': employee._id.toString(),
+        'date': momentPlanningDate
+    }) > 0) {
+
+        /* Update already added employee days details with increment of planned hours   */
+        let EmployeeDaysModelInput = {
+            plannedHours: plannedHourNumber,
+            employee: {
+                _id: employee._id.toString(),
+                name: employee.firstName + ' ' + employee.lastName
+            },
+            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
+        }
+        return await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput)
+    } else {
+
+        /*  Add employee days details with planned hour  if not added */
+        let EmployeeDaysModelInput = {
+            employee: {
+                _id: employee._id.toString(),
+                name: employee.firstName + ' ' + employee.lastName
+            },
+            plannedHours: plannedHourNumber,
+            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
+        }
+
+        return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput)
+    }
+}
+
+const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, extra) => {
+
+    const {plannedHours} = extra
+
+    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    })
+
+    if (!employeeRelease) {
+        // employee release not exists create one
+        employeeRelease = new MDL.EmployeeReleasesModel()
+        employeeRelease.employee = {
+            _id: mongoose.Types.ObjectId(employee._id),
+            name: employee.firstName + ' ' + employee.lastName
+        }
+        employeeRelease.release = {
+            _id: mongoose.Types.ObjectId(release._id),
+            name: release.name
+        }
+        employeeRelease.plannedHours = plannedHours
+    } else {
+        employeeRelease.plannedHours += plannedHours
+    }
+    return employeeRelease
+}
+
+
+const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNumber, momentPlanningDate) => {
 
     /* As task plan is added we have to increase releasePlan planned hours, add one more task to overall count as well */
 
@@ -813,7 +812,7 @@ const updateReleasePlanOnAddTaskPlanning = async (releasePlan, employee, planned
     return releasePlan
 }
 
-const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourNumber) => {
+const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber) => {
     // As task plan is added we have to increase release planned hours
 
     let iterationIndex = releasePlan.release.iteration.idx
@@ -833,7 +832,7 @@ const updateReleaseOnAddTaskPlanning = async (release, releasePlan, plannedHourN
 }
 
 
-const createTaskPlan = async (releasePlan, release, employee, plannedHourNumber, momentPlanningDate, taskPlanningInput) => {
+const addTaskPlanCreateTaskPlan = async (releasePlan, release, employee, plannedHourNumber, momentPlanningDate, taskPlanningInput) => {
     let taskPlan = new TaskPlanningModel()
     taskPlan.created = Date.now()
     taskPlan.planningDate = momentPlanningDate
@@ -947,23 +946,23 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     }
 
     /*-------------------------------- EMPLOYEE DAYS UPDATE SECTION -------------------------------------------*/
-    await updateEmployeeDaysOnAddTaskPlanning(selectedEmployee, plannedHourNumber, momentPlanningDate)
+    await addTaskPlanUpdateEmployeeDays(selectedEmployee, plannedHourNumber, momentPlanningDate)
 
     /*-------------------------------- EMPLOYEE RELEASE UPDATE SECTION -------------------------------------------*/
-    let employeeRelease = await updateEmployeeReleaseOnAddTaskPlanning(releasePlan, release, selectedEmployee, {
+    let employeeRelease = await addTaskPlanUpdateEmployeeRelease(releasePlan, release, selectedEmployee, {
         plannedHours: plannedHourNumber
     })
 
     // Get updated release/release plan objects
     /*-------------------------------- RELEASE PLAN UPDATE SECTION --------
     -----------------------------------*/
-    releasePlan = await updateReleasePlanOnAddTaskPlanning(releasePlan, selectedEmployee, plannedHourNumber, momentPlanningDate)
+    releasePlan = await addTaskPlanUpdateReleasePlan(releasePlan, selectedEmployee, plannedHourNumber, momentPlanningDate)
 
     /*-------------------------------- RELEASE UPDATE SECTION -------------------------------------------*/
-    release = await updateReleaseOnAddTaskPlanning(release, releasePlan, plannedHourNumber)
+    release = await addTaskPlanUpdateRelease(release, releasePlan, plannedHourNumber)
 
     /*-------------------------------- TASK PLAN CREATE SECTION -------------------------------------------*/
-    let taskPlan = await createTaskPlan(releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, taskPlanningInput)
+    let taskPlan = await addTaskPlanCreateTaskPlan(releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, taskPlanningInput)
 
     /*--------------------------------- WARNING UPDATE SECTION ---------------------------------------------*/
     let generatedWarnings = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
@@ -2123,6 +2122,10 @@ const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user)
 
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
+const addTaskReportPlannedUpdateEmployeeRelease = async (taskPlan, releasePlan, release, extra) => {
+
+
+}
 
 const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
 
