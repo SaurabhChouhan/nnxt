@@ -3,6 +3,11 @@ import {withRouter} from "react-router-dom";
 import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, ResponsiveContainer} from 'recharts'
 
 
+const addPercentage = (value) => {
+    console.log("formatter called with value ", value)
+    return value + '%'
+}
+
 class DashboardSection extends Component {
     constructor(props) {
         super(props);
@@ -12,10 +17,12 @@ class DashboardSection extends Component {
         this.props.setReleaseID(releaseID)
     }
 
+
     render() {
 
-        const {selectedReleaseID, allReleases} = this.props
+        console.log("DashboardSection->render() called")
 
+        const {selectedReleaseID, allReleases} = this.props
         return <div>
             <div className="col-md-12">
                 <div className="col-md-4 ">
@@ -48,11 +55,13 @@ class DashboardSection extends Component {
                     <XAxis type="number" hide={true}/>
                     <YAxis type="category" dataKey={"name"} hide={true}/>
                     <Tooltip/>
-                    <Legend />
+                    <Legend/>
                     <Bar dataKey="planned" stackId="a" fill="#8884d8">
-                        <LabelList dataKey="planned" position="insideRight"/>
+                        <LabelList dataKey="planned" position="inside" formatter={addPercentage}/>
                     </Bar>
-                    <Bar dataKey="unplanned" stackId="a" fill="#82ca9d"/>
+                    <Bar dataKey="unplanned" stackId="a" fill="#82ca9d">
+                        <LabelList dataKey="unplanned" position="inside" formatter={addPercentage}/>
+                    </Bar>
                 </BarChart>
             </div>
         </div>

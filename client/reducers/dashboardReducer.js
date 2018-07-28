@@ -32,6 +32,7 @@ const dashboardReducer = (state = initialState, action) => {
                 let planned = Math.round((sumPlannedHours * 100) / sumEstimatedHours)
 
                 plannedWork.push({
+                    ran: Math.random(), // added random as animation and label were not working simultaneously, need to remove this as soon as bug with rechart is fixed
                     total: 100,
                     planned: planned,
                     unplanned: 100 - planned
