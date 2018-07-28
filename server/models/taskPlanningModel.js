@@ -615,6 +615,35 @@ const updateEmployeeDaysOnAddTaskPlanning = async (employee, plannedHourNumber, 
     }
 }
 
+
+const updateEmployeeReleaseOnAddTaskPlanning = async (releasePlan, release, employee, extra) => {
+
+    const {plannedHours} = extra
+
+    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    })
+
+    if (!employeeRelease) {
+        // employee release not exists create one
+        employeeRelease = new MDL.EmployeeReleasesModel()
+        employeeRelease.employee = {
+            _id: mongoose.Types.ObjectId(employee._id),
+            name: employee.firstName + ' ' + employee.lastName
+        }
+        employeeRelease.release = {
+            _id: mongoose.Types.ObjectId(release._id),
+            name: release.name
+        }
+        employeeRelease.plannedHours = plannedHours
+    } else {
+        employeeRelease.plannedHours += plannedHours
+    }
+    return employeeRelease
+}
+
+
 const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, employee, plannedHourNumber) => {
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
@@ -920,9 +949,10 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     /*-------------------------------- EMPLOYEE DAYS UPDATE SECTION -------------------------------------------*/
     await updateEmployeeDaysOnAddTaskPlanning(selectedEmployee, plannedHourNumber, momentPlanningDate)
 
-    /*-------------------------------- EMPLOYEE STATISTICS UPDATE SECTION -------------------------------------------*/
-    await updateEmployeeStaticsOnAddTaskPlanning(releasePlan, release, selectedEmployee, plannedHourNumber)
-
+    /*-------------------------------- EMPLOYEE RELEASE UPDATE SECTION -------------------------------------------*/
+    let employeeRelease = await updateEmployeeReleaseOnAddTaskPlanning(releasePlan, release, selectedEmployee, {
+        plannedHours: plannedHourNumber
+    })
 
     // Get updated release/release plan objects
     /*-------------------------------- RELEASE PLAN UPDATE SECTION --------
@@ -942,6 +972,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
 
     // Make final saves and return response
+    await employeeRelease.save()
     await release.save()
     await releasePlan.save()
     await taskPlan.save()
@@ -1262,7 +1293,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
 
     /*------------------------------ EMPLOYEE STATISTICS UPDATES ----------------------------------------------*/
-    await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, employee, plannedHourNumber, user)
+    //await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, employee, plannedHourNumber, user)
 
     /*------------------------------ EMPLOYEE DAYS UPDATES --------------------------------------------*/
     await employeeDaysUpdateOnDeleteTaskPlanning(taskPlan, employee, plannedHourNumber, user)
@@ -2696,9 +2727,9 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
                     _id: rp._id
                 }
                 taskPlan.task = rp.task
-                if(tp){
+                if (tp) {
                     taskPlan.report = {
-                        reportedHours:tp.report.reportedHours
+                        reportedHours: tp.report.reportedHours
                     }
                 } else {
                     taskPlan.report = {
