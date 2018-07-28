@@ -14,7 +14,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
     allReleases: state.dashboard.allReleases,
     selectedReleaseID: state.dashboard.selectedReleaseID,
-    plannedWork: state.dashboard.plannedWork
+    plannedWork: state.dashboard.plannedWork,
+    actualProgress: state.dashboard.actualProgress
 })
 
 

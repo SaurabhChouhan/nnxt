@@ -2252,14 +2252,20 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
 
     let iterationIndex = releasePlan.release.iteration.idx
 
+
+    logger.debug("addTaskReportPlannedUpdateRelease(): releaseplan.diffProgress " + releasePlan.diffProgress)
     release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
     if (!reReport) {
+        logger.debug("addTaskReportPlannedUpdateRelease(): this is a rereport ")
         // Add planned hours of reported task to release if it is first time reporting
         release.iterations[iterationIndex].plannedHoursReportedTasks += taskPlan.planning.plannedHours
-        if (releasePlan.diffProgress)
-            release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
-        release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
     }
+
+    let partInRelease = releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours
+    logger.debug("addTaskReportPlannedUpdateRelease(): part in release " + partInRelease)
+    if (releasePlan.diffProgress)
+        release.iterations[iterationIndex].progress += releasePlan.diffProgress * partInRelease
+    release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
 
     if (!release.iterations[iterationIndex].maxReportedDate || (release.iterations[iterationIndex].maxReportedDate && reportedMoment.isAfter(release.iterations[iterationIndex].maxReportedDate))) {
         /* if reported date is greater than earlier max reported date change that */

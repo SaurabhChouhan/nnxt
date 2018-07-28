@@ -20,7 +20,14 @@ class DashboardSection extends Component {
 
     render() {
 
-        console.log("DashboardSection->render() called")
+        console.log("DashboardSection->render() called", window.innerWidth, window.innerHeight)
+
+        let dashboardWidth = window.innerWidth * 0.8 // as content section has 80% width
+
+        console.log("dashboard width is ", dashboardWidth)
+        let barMargin = {top: 20, right: 20, left: 30, bottom: 30}
+        let barWidth = (dashboardWidth - barMargin.left * 2 - barMargin.right * 2) / 2
+        console.log("bar width calculated as ", barWidth)
 
         const {selectedReleaseID, allReleases} = this.props
         return <div>
@@ -47,25 +54,38 @@ class DashboardSection extends Component {
                     </div>
                 </div>
             </div>
-
-
-            <div className={"col-md-12"}>
-                <BarChart width={500} height={100} data={this.props.plannedWork}
-                          margin={{top: 20, right: 30, left: 20, bottom: 5}} layout={"vertical"}>
+            <div className={"col-md-6"}>
+                <BarChart data={this.props.actualProgress}
+                          height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
                     <XAxis type="number" hide={true}/>
                     <YAxis type="category" dataKey={"name"} hide={true}/>
                     <Tooltip/>
                     <Legend/>
-                    <Bar dataKey="planned" stackId="a" fill="#8884d8">
+                    <Bar dataKey="progress" stackId="a" fill="#6CE190">
+                        <LabelList dataKey="progress" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                    <Bar dataKey="remaining" stackId="a" fill="#E25858">
+                        <LabelList dataKey="remaining" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                </BarChart>
+            </div>
+            <div className={"col-md-6"}>
+                <BarChart data={this.props.plannedWork}
+                          height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
+                    <XAxis type="number" hide={true}/>
+                    <YAxis type="category" dataKey={"name"} hide={true}/>
+                    <Tooltip/>
+                    <Legend/>
+                    <Bar dataKey="planned" stackId="a" fill="#6CE190">
                         <LabelList dataKey="planned" position="inside" formatter={addPercentage}/>
                     </Bar>
-                    <Bar dataKey="unplanned" stackId="a" fill="#82ca9d">
+                    <Bar dataKey="unplanned" stackId="a" fill="#E25858">
                         <LabelList dataKey="unplanned" position="inside" formatter={addPercentage}/>
                     </Bar>
                 </BarChart>
             </div>
-        </div>
 
+        </div>
     }
 }
 

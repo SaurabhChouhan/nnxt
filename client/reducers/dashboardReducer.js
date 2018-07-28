@@ -2,7 +2,8 @@ import * as AC from '../actions/actionConsts'
 import * as SC from '../../server/serverconstants'
 
 let initialState = {
-    plannedWork: []
+    plannedWork: [],
+    actualProgress: []
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -10,6 +11,7 @@ const dashboardReducer = (state = initialState, action) => {
         case AC.CALCULATE_RELEASE_STATS:
 
             let plannedWork = []
+            let actualProgress = []
 
             let release = Object.assign({}, action.release)
 
@@ -29,18 +31,35 @@ const dashboardReducer = (state = initialState, action) => {
 
                 console.log("sum planned hours ", sumPlannedHours)
                 console.log("sum estimated hours ", sumEstimatedHours)
-                let planned = Math.round((sumPlannedHours * 100) / sumEstimatedHours)
+                let planned = parseFloat(((sumPlannedHours * 100) / sumEstimatedHours).toFixed(2))
 
                 plannedWork.push({
                     ran: Math.random(), // added random as animation and label were not working simultaneously, need to remove this as soon as bug with rechart is fixed
                     total: 100,
                     planned: planned,
-                    unplanned: 100 - planned
+                    unplanned: parseFloat((100 - planned).toFixed(2))
+                })
+
+                // Start progress bar graph calculation
+
+                let sumProgressEstimatedHours = plannedIterations.reduce((sum, p) => {
+                    return sum + p.estimatedHours * p.progress
+                }, 0)
+
+                let progress = sumProgressEstimatedHours / sumEstimatedHours
+                progress = parseFloat(progress.toFixed(2))
+
+                actualProgress.push({
+                    ran: Math.random(),
+                    total: 100,
+                    progress: progress,
+                    remaining: parseFloat((100 - progress).toFixed(2))
                 })
             }
 
             return Object.assign({}, state, {
-                plannedWork
+                plannedWork,
+                actualProgress
             })
         case AC.SET_RELEASE_ID:
             // while selection of reporting status it is set to state also
