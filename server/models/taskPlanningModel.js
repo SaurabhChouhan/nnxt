@@ -987,6 +987,22 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
 
 /*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_START----------------------------------------------------------*/
 
+const updateEmployeeReleaseOnDeleteTaskPlanning = async (taskPlan, releasePlan, release, employee) => {
+
+    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    })
+
+    if (!employeeRelease)
+        throw new AppError('Employee release should have found on delete task plan. ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    // Reduce planned hours
+    employeeRelease.plannedHours -= taskPlan.planning.plannedHours
+    return employeeRelease
+}
+
+
 const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, employee, plannedHourNumber, user) => {
     /* when task plan is removed we have to decrease employee statistics  planned hours*/
     let EmployeeStatisticsModelInput = {
@@ -1293,7 +1309,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 
 
     /*------------------------------ EMPLOYEE STATISTICS UPDATES ----------------------------------------------*/
-    //await EmployeeStatisticsUpdateOnDeleteTaskPlanning(taskPlan, releasePlan, employee, plannedHourNumber, user)
+    let employeeRelease = await updateEmployeeReleaseOnDeleteTaskPlanning(taskPlan, releasePlan, release, employee)
 
     /*------------------------------ EMPLOYEE DAYS UPDATES --------------------------------------------*/
     await employeeDaysUpdateOnDeleteTaskPlanning(taskPlan, employee, plannedHourNumber, user)
@@ -1309,19 +1325,9 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     logger.debug('deleteTaskPlanning(): [all-warning-responses] => generatedWarnings => ', {generatedWarnings})
 
     let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
-    let taskPlanningResponse = await taskPlan.remove()
+    await taskPlan.remove()
 
-    /*
-    let count = await MDL.WarningModel.count({
-        'type': SC.WARNING_TOO_MANY_HOURS,
-        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
-    })
-
-    if (count == 0) {
-        releasePlan.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-    }
-    */
-
+    await employeeRelease.save()
     await releasePlan.save()
     await release.save()
     /* remove task planning */
