@@ -53,9 +53,14 @@ let releaseSchema = mongoose.Schema({
         estimatedHours: {type: Number, default: 0}, // sum of estimated hours of all release plan
         plannedHours: {type: Number, default: 0}, // sum of planned hours of all task plans across this release
         reportedHours: {type: Number, default: 0},// sum of reported hours of all task plans across this release
-        plannedHoursEstimatedTasks: {type: Number, default: 0}, // sum of planned hours of all release plans but maximum planned hours added per release plan would be estimated hours
-        estimatedHoursCompletedTasks: {type: Number, default: 0}, // sum of estimated hours of release plans that are completed
-        plannedHoursReportedTasks: {type: Number, default: 0}, // Sum of planned hours of all the reported task plans
+        // sum of planned hours of all release plans but maximum planned hours added per release plan would be estimated hours
+        // Helps in finding out percentage of planned work
+        plannedHoursEstimatedTasks: {type: Number, default: 0},
+        // sum of estimated hours of release plans that are completed
+        estimatedHoursCompletedTasks: {type: Number, default: 0},
+        // Sum of planned hours of all the reported task plans
+        // Helps in calculating progress
+        plannedHoursReportedTasks: {type: Number, default: 0},
         progress: {type: Number, default: 0.0}, // overall progress of this release in percentage
         devStartDate: Date, // Expected development start date
         devEndDate: Date, // Expected development end date
