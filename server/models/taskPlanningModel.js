@@ -184,6 +184,7 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
         planning: 1,
         report: 1,
         _id: 1,
+        employee: 1
     })
 
     taskPlans.sort(function (a, b) {
