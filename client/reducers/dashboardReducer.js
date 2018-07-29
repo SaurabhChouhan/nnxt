@@ -5,9 +5,9 @@ let initialState = {
     plannedWork: [],
     actualProgress: [],
     completedProgress: [],
-    plannedVsReported: [],
+    plannedVsReported: {},
     rangePlannedVsReported: [],
-    hoursData:{}
+    hoursData: {}
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -17,7 +17,7 @@ const dashboardReducer = (state = initialState, action) => {
             let plannedWork = []
             let actualProgress = []
             let completedProgress = []
-            let plannedVsReported = []
+            let plannedVsReported = {}
             let rangePlannedVsReported = []
             let hoursData = {}
 
@@ -89,22 +89,13 @@ const dashboardReducer = (state = initialState, action) => {
                     return sum + p.plannedHoursReportedTasks
                 }, 0)
 
-                let maxPlannedVsReported = sumPlannedHoursReportedTasks
 
-
-                if (maxPlannedVsReported < sumReportedHours)
-                    maxPlannedVsReported = sumReportedHours
-                if (maxPlannedVsReported < sumEstimatedHours)
-                    maxPlannedVsReported = sumEstimatedHours
-
-
-                plannedVsReported.push({
+                plannedVsReported = {
                     ran: Math.random(),
-                    planned: sumPlannedHoursReportedTasks,
-                    reported: sumReportedHours
-                })
-
-                rangePlannedVsReported = [0, maxPlannedVsReported]
+                    base: sumPlannedHoursReportedTasks >= sumReportedHours ? sumReportedHours : sumPlannedHoursReportedTasks,
+                    baseHour: sumPlannedHoursReportedTasks >= sumReportedHours ? 'planned' : 'reported',
+                    extra: sumPlannedHoursReportedTasks >= sumReportedHours ? sumPlannedHoursReportedTasks - sumReportedHours : sumReportedHours - sumPlannedHoursReportedTasks
+                }
 
                 hoursData.plannedHours = sumPlannedHours
                 hoursData.reportedHours = sumReportedHours

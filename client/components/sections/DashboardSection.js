@@ -75,6 +75,8 @@ class DashboardSection extends Component {
         const {estimatedStartAngle, estimatedEndAngle, plannedStartAngle, plannedEndAngle, reportedStartAngle, reportedEndAngle} = getHoursAngles(this.props.hoursData.estimatedHours, this.props.hoursData.plannedHours, this.props.hoursData.reportedHours)
         console.log(estimatedEndAngle, plannedEndAngle, reportedEndAngle)
 
+        let baseHour = this.props.plannedVsReported.baseHour
+
         const {selectedReleaseID, allReleases} = this.props
         return <div>
             <div className="col-md-12">
@@ -131,31 +133,25 @@ class DashboardSection extends Component {
                         <LabelList dataKey="remaining" position="inside" formatter={addPercentage}/>
                     </Bar>
                 </BarChart>
-                <PieChart width={barWidth} height={200}>
-
+                <PieChart width={barWidth} height={240} margin = {{top: 20, right: 20, left: 30, bottom: 30}}>
                     <Pie isAnimationActive={false}
                          data={[{name: 'Estimated Hours', value: this.props.hoursData.estimatedHours}]}
                          cx={barWidth / 2}
                          cy={80} outerRadius={60} innerRadius={40} startAngle={estimatedStartAngle}
                          endAngle={estimatedEndAngle} fill="#d35ba1"
                          label={renderCustomizedLabel}
-                         labelLine={false}
-                    />
-
+                         labelLine={false}/>
                     <Pie isAnimationActive={false}
                          data={[{name: 'Planned Hours', value: this.props.hoursData.plannedHours}]} cx={barWidth / 2}
                          cy={80} outerRadius={70} innerRadius={62} startAngle={plannedStartAngle}
                          endAngle={plannedEndAngle} fill="#f2e974"
                          label/>
-
                     <Pie isAnimationActive={false}
                          data={[{name: 'Reported Hours', value: this.props.hoursData.reportedHours}]} cx={barWidth / 2}
                          cy={80} outerRadius={80} innerRadius={72} startAngle={reportedStartAngle}
                          endAngle={reportedEndAngle} fill="#5cd1d1"
                          label/>
-
                     <Legend/>
-
                     <Tooltip/>
                 </PieChart>
             </div>
@@ -171,6 +167,22 @@ class DashboardSection extends Component {
                     </Bar>
                     <Bar dataKey="unplanned" stackId="a" fill="#E25858" name={"Unplanned Work"}>
                         <LabelList dataKey="unplanned" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                </BarChart>
+                <BarChart data={[this.props.plannedVsReported]}
+                          height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
+                    <XAxis type="number" hide={true}
+                           domain={[0, this.props.plannedVsReported.base + this.props.plannedVsReported.extra]}/>
+                    <YAxis type="category" dataKey={"name"} hide={true}/>
+                    <Tooltip/>
+                    <Legend/>
+                    <Bar dataKey="base" stackId="a" fill={baseHour === 'planned' ? '#f2e974' : '#5cd1d1'}
+                         name={baseHour === 'planned' ? 'Planned Hours' : 'Reported Hours'}>
+                        <LabelList dataKey="base" position="inside"/>
+                    </Bar>
+                    <Bar dataKey="extra" stackId="a" fill="#E25858"
+                         name={baseHour === 'planned' ? 'Extra Reported Hours' : 'Extra Planned Hours'}>
+                        <LabelList dataKey="extra" position="inside"/>
                     </Bar>
                 </BarChart>
 
