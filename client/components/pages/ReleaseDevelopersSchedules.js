@@ -50,12 +50,14 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                 let color = scheduleDay.plannedHours >= employeeSetting.superBusy ?
                                                     '#dd6c6c'
                                                     : scheduleDay.plannedHours >= employeeSetting.busy ?
-                                                        '#bc8a40'
+                                                        '#91d861'
                                                         : scheduleDay.plannedHours >= employeeSetting.someWhatBusy ?
-                                                            '#76c0e2'
+                                                            '#d645f7'
                                                             : scheduleDay.plannedHours >= employeeSetting.relativelyFree ?
-                                                                '#91d861'
-                                                                : '#ffe08c'
+                                                                '#76c0e2'
+
+                                                                : '#e8c392'
+
                                                 return <div key={'day' + index} className="releaseDayCell">
                                                     <h5> {moment(scheduleDay.dateString).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
                                                     <div className="releaseEmployee" style={{backgroundColor: color}}>
@@ -68,7 +70,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                 </div>
                                             } else return <div key={'day' + index} className="releaseDayCell">
                                                 <h5> {moment(weekDate).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
-                                                <div className="releaseEmployee" style={{backgroundColor: '#ffe08c'}}>
+                                                <div className="releaseEmployee" style={{backgroundColor: '#e8c392'}}>
                                                     <span style={{
                                                         display: 'inline-block',
                                                         width: '100%',
