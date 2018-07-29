@@ -47,42 +47,38 @@ class ReleaseDevelopersSchedules extends React.Component {
                                         weekArray && weekArray.length ? weekArray.map((weekDate, index) => {
                                             let scheduleDay = schedule.days && schedule.days.length ? schedule.days.find(day => momentTZ.tz(day.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).isSame(weekDate)) : undefined
                                             if (scheduleDay && scheduleDay != undefined) {
+                                                let color = scheduleDay.plannedHours >= employeeSetting.superBusy ?
+                                                    '#dd6c6c'
+                                                    : scheduleDay.plannedHours >= employeeSetting.busy ?
+                                                        '#bc8a40'
+                                                        : scheduleDay.plannedHours >= employeeSetting.someWhatBusy ?
+                                                            '#76c0e2'
+                                                            : scheduleDay.plannedHours >= employeeSetting.relativelyFree ?
+                                                                '#91d861'
+                                                                : '#ffe08c'
                                                 return <div key={'day' + index} className="releaseDayCell">
                                                     <h5> {moment(scheduleDay.dateString).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
-                                                    <div className="releaseEmployee">
-                                                        <span>{scheduleDay.plannedHours <= employeeSetting.free ?
-                                                            <img className="div-hover" key="free" src="/images/free.png"
-                                                                 title="Free"
-                                                            />
-                                                            : scheduleDay.plannedHours <= employeeSetting.relativelyFree ?
-                                                                <img className="div-hover" key="relatively-free"
-                                                                     src="/images/relative_free.png"
-                                                                     title="Relative Free"
-                                                                />
-                                                                : scheduleDay.plannedHours <= employeeSetting.busy ?
-                                                                    <img className="div-hover" key="busy"
-                                                                         src="/images/busy.png"
-                                                                         title="Busy"
-                                                                    />
-                                                                    : <img className="div-hover" key="super_busy"
-                                                                           src="/images/super_busy.png"
-                                                                           title="Super Busy"
-                                                                    />}</span>
+                                                    <div className="releaseEmployee" style={{backgroundColor: color}}>
+                                                        <span style={{
+                                                            display: 'inline-block',
+                                                            width: '100%',
+                                                            textAlign: 'center'
+                                                        }}> {scheduleDay.plannedHours}</span>
                                                     </div>
                                                 </div>
                                             } else return <div key={'day' + index} className="releaseDayCell">
                                                 <h5> {moment(weekDate).format(SC.DATE_HALF_WEAK_MONTH_FORMAT)}</h5>
-                                                <div className="releaseEmployee">
-                                                    <span> <img className="div-hover" key="free" src="/images/free.png"
-                                                                title="Free"
-                                                    /></span>
+                                                <div className="releaseEmployee" style={{backgroundColor: '#ffe08c'}}>
+                                                    <span style={{
+                                                        display: 'inline-block',
+                                                        width: '100%',
+                                                        textAlign: 'center'
+                                                    }}> 0</span>
                                                 </div>
                                             </div>
-
                                         }) : null
                                     }
                                 </div>
-
                             </div>
                         </div>
                     }) :

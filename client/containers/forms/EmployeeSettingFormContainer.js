@@ -13,6 +13,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             values.relativelyFree = Number(values.relativelyFree)
             values.busy = Number(values.busy)
             values.superBusy = Number(values.superBusy)
+            values.someWhatBusy = Number(values.someWhatBusy)
             // Employee Setting is created
             return dispatch(addEmployeeSettingOnServer(values)).then(response => {
                 if (response.success) {
@@ -29,6 +30,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             values.free = Number(values.free)
             values.relativelyFree = Number(values.relativelyFree)
             values.busy = Number(values.busy)
+            values.someWhatBusy = Number(values.someWhatBusy)
             values.superBusy = Number(values.superBusy)
             return dispatch(updateEmployeeSettingOnServer(values)).then(response => {
                 if (response.success) {
@@ -42,8 +44,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 })
 
-const mapStateToProps = (state, ownProps) => ({
-})
+const mapStateToProps = (state, ownProps) => ({})
 
 const EmployeeSettingFormContainer = connect(
     mapStateToProps,

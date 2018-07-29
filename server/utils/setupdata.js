@@ -757,10 +757,11 @@ const addEmployeeSettings = async () => {
         await MDL.EmployeeSettingModel.createEmployeeSettings({
             minPlannedHours: 4,
             maxPlannedHours: 8,
-            free: 3,
-            relativelyFree: 5,
-            busy: 6,
-            superBusy: 9
+            free: 1,
+            relativelyFree: 3,
+            someWhatBusy: 5,
+            busy: 7,
+            superBusy: 10
         })
     }
 
