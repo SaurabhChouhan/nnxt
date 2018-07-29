@@ -9,6 +9,11 @@ import * as MDL from '../models'
 
 mongoose.Promise = global.Promise
 
+/**
+ * Keeps information about total work planned against an employee on a particular date irrespective of which release he
+ * is working on
+ */
+
 let employeeDaysSchema = mongoose.Schema({
     employee: {
         _id: mongoose.Schema.ObjectId,
@@ -175,19 +180,3 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
 
 const EmployeeDaysModel = mongoose.model("EmployeeDay", employeeDaysSchema)
 export default EmployeeDaysModel
-
-
-/*
-{
-    "project": {
-        "_id": "5a8fc14733118914b0a548e4",
-        "name": "project-management"
-    },
-    "employee": {
-        "_id": "5a93bf9b2af17a16e808b340",
-        "name": "gauravagrawal"
-    },
-    "dateString": "10/10/10",
-    "plannedHours": 5
-}
-*/

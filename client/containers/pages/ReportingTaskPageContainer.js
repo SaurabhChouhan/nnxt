@@ -1,6 +1,7 @@
 import {connect} from 'react-redux'
 import {ReportingTaskPage} from '../../components/index'
 import * as A from '../../actions/index'
+import * as SC from '../../../server/serverconstants'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 
@@ -27,9 +28,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             _id: task._id,
             reason: task.reason,
             reportedHours: parseInt(task.reportedHours),
-            status: task.status,
+            status: iterationType == SC.ITERATION_TYPE_PLANNED ? task.status : SC.STATUS_PENDING,
             reportedDate: date,
-            iterationType:iterationType
+            iterationType: iterationType
         }
         dispatch(A.reportTaskToServer(inputTask)).then((json) => {
             if (json.success)

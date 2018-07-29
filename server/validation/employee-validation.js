@@ -44,10 +44,6 @@ export const employeeUpdateSettingStruct = t.struct({
 
 export const employeeAddEmployeeStatisticsStruct = t.struct({
     _id: t.Nil,
-    release: t.struct({
-        _id: ObjectId,
-        version: t.String
-    }),
     employee: t.struct({
         _id: ObjectId,
         name: t.String
@@ -72,9 +68,6 @@ export const employeeAddEmployeeStatisticsStruct = t.struct({
 });
 
 export const employeeAddTaskEmployeeStatisticsStruct = t.struct({
-    release: t.struct({
-        _id: ObjectId
-    }),
     employee: t.struct({
         _id: ObjectId
     }),
@@ -89,9 +82,6 @@ export const employeeAddTaskEmployeeStatisticsStruct = t.struct({
 });
 
 export const employeeUpdateTaskEmployeeStatisticsStruct = t.struct({
-    release: t.struct({
-        _id: ObjectId
-    }),
     employee: t.struct({
         _id: ObjectId
     }),

@@ -75,6 +75,7 @@ export const getUserReleasesFromServer = () => {
                 if (json.success) {
                     dispatch(addUserReleases(json.data))
                 }
+                return json.data
             })
     }
 }

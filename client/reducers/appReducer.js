@@ -3,7 +3,9 @@ import * as AC from '../actions/actionConsts'
 let initialState = {
     showLoader: false, // used to show/hide loader gif
     ssrFlag: false, // used for server side rendering
-    visibleComponents: [] // which components should be visible in a particular tab
+    visibleComponents: [], // which components should be visible in a particular tab,
+    allReleases: [],
+    selectedReleaseID: undefined
 }
 
 const appReducer = (state = initialState, action) => {
@@ -39,7 +41,6 @@ const appReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 ssrFlag: false
             })
-
         default:
             return state
     }

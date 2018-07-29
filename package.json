@@ -60,6 +60,7 @@
     "react-widgets": "^4.2.6",
     "react-widgets-moment": "^4.0.7",
     "react-widgets-moment-localizer": "^1.0.2",
+    "recharts": "^1.1.0",
     "redux": "^3.7.2",
     "redux-form": "^7.1.2",
     "redux-logger": "^3.0.6",

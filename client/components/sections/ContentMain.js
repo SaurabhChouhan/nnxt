@@ -16,7 +16,8 @@ import {
     ReportingTaskPageContainer,
     TechnologyListContainer,
     UserProfileFormContainer,
-    LeaveDetailPageContainer
+    LeaveDetailPageContainer,
+    DashboardSectionContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -41,7 +42,8 @@ import {
     LeaveRejectDialog,
     UpdateReleaseDatesFormDialog,
     EstimationAddToReleaseDialog,
-    ReleasePlanAddToReleaseDialog
+    ReleasePlanAddToReleaseDialog,
+
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
@@ -52,6 +54,19 @@ class ContentMain extends Component {
         logger.debug(logger.CONTENT_MAIN_LIFECYCLE, 'constructor() called: ', props)
         // All the routes that should be configured based on permissions this user has
         let routes = []
+
+        routes.push({
+            url: "/dashboard",
+            render: (props) => {
+                return <ContentSection>
+                    <DashboardSectionContainer name={COC.DASHBOARD_SECTION} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.DASHBOARD_SECTION))
+                        }
+                    }/>
+                </ContentSection>
+            }
+        })
 
         routes.push({
             url: "/client",
@@ -253,11 +268,12 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
                         }
                     }/>
-                    <ReleasePlanAddToReleaseDialog name={COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG} show={true} close={
-                        () => {
-                            this.props.dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
-                        }
-                    }/>
+                    <ReleasePlanAddToReleaseDialog name={COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG} show={true}
+                                                   close={
+                                                       () => {
+                                                           this.props.dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
+                                                       }
+                                                   }/>
                 </ContentSection>
 
             }

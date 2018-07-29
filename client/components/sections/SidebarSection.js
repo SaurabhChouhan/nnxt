@@ -18,6 +18,19 @@ const SidebarSection = (props) => {
                 <div className="col-md-12 pad">
                     <ul className="list-unstyled">
                         {
+                            (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1) &&
+                            <li><Link to="/app-home/dashboard" onClick={() => {
+                                props.dispatch(A.showComponentHideOthers(COC.DASHBOARD_SECTION))
+                                props.dispatch(A.getUserReleasesFromServer(SC.ALL)).then(releases => {
+                                    console.log("inside then of get release from server ", releases)
+                                    if (releases && releases.length) {
+                                        props.dispatch(A.setReleaseID(releases[0]._id))
+                                        props.dispatch(A.getReleaseForDashboard(releases[0]._id))
+                                    }
+                                })
+                            }}>Dashboard</Link></li>
+                        }
+                        {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
                                 roles.indexOf('Developer') > -1) &&
                             <li><Link to="/app-home/calendar" onClick={() => {

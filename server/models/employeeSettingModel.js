@@ -11,11 +11,11 @@ let employeeSettingSchema = mongoose.Schema({
 
     minPlannedHours: {type: Number, default: 4},
     maxPlannedHours: {type: Number, default: 8},
-    free: {type: Number, default: 3},
-    relativelyFree: {type: Number, default: 5},
-    busy: {type: Number, default: 6},
-    superBusy: {type: Number, default: 9}
-
+    free: {type: Number, default: 1},
+    relativelyFree: {type: Number, default: 3},
+    someWhatBusy: {type: Number, default: 5},
+    busy: {type: Number, default: 7},
+    superBusy: {type: Number, default: 10}
 })
 
 /**
@@ -59,6 +59,7 @@ employeeSettingSchema.statics.updateEmployeeSettings = async (employeeSettingInp
     employeeSetting.minPlannedHours = employeeSettingInput.minPlannedHours
     employeeSetting.free = employeeSettingInput.free
     employeeSetting.relativelyFree = employeeSettingInput.relativelyFree
+    employeeSetting.someWhatBusy = employeeSettingInput.someWhatBusy
     employeeSetting.busy = employeeSettingInput.busy
     employeeSetting.superBusy = employeeSettingInput.superBusy
     return await employeeSetting.save()

@@ -25,6 +25,8 @@ class EmployeeSettingForm extends Component {
                         <Field name="free" label="Free:" component={renderField} validate={[required]}/>
                         <Field name="relativelyFree" label="Relatively Free:" component={renderField}
                                validate={[required, number]}/>
+                        <Field name="someWhatBusy" label="Somewhat Busy:" component={renderField}
+                               validate={[required, number]}/>
                         <Field name="busy" label="Busy:" component={renderField} validate={[required, number]}/>
                         <Field name="superBusy" label="Super Busy:" component={renderField}
                                validate={[required, number]}/>
