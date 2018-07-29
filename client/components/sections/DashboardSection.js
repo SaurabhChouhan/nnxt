@@ -139,7 +139,7 @@ class DashboardSection extends Component {
                          cy={80} outerRadius={60} innerRadius={40} startAngle={estimatedStartAngle}
                          endAngle={estimatedEndAngle} fill="#d35ba1"
                          label={renderCustomizedLabel}
-                         labelLines={false}
+                         labelLine={false}
                     />
 
                     <Pie isAnimationActive={false}
