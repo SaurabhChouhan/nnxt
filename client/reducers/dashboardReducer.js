@@ -4,7 +4,10 @@ import * as SC from '../../server/serverconstants'
 let initialState = {
     plannedWork: [],
     actualProgress: [],
-    completedProgress: []
+    completedProgress: [],
+    plannedVsReported: [],
+    rangePlannedVsReported: [],
+    hoursData:{}
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -14,6 +17,9 @@ const dashboardReducer = (state = initialState, action) => {
             let plannedWork = []
             let actualProgress = []
             let completedProgress = []
+            let plannedVsReported = []
+            let rangePlannedVsReported = []
+            let hoursData = {}
 
             let release = Object.assign({}, action.release)
 
@@ -73,12 +79,46 @@ const dashboardReducer = (state = initialState, action) => {
                     pending: progressPendingTasks,
                     remaining: parseFloat((100 - progress).toFixed(2))
                 })
+
+                let sumReportedHours = plannedIterations.reduce((sum, p) => {
+                    return sum + p.reportedHours
+                }, 0)
+
+                let sumPlannedHoursReportedTasks = plannedIterations.reduce((sum, p) => {
+                    console.log("planned hours reported tasks is ", p.plannedHoursReportedTasks)
+                    return sum + p.plannedHoursReportedTasks
+                }, 0)
+
+                let maxPlannedVsReported = sumPlannedHoursReportedTasks
+
+
+                if (maxPlannedVsReported < sumReportedHours)
+                    maxPlannedVsReported = sumReportedHours
+                if (maxPlannedVsReported < sumEstimatedHours)
+                    maxPlannedVsReported = sumEstimatedHours
+
+
+                plannedVsReported.push({
+                    ran: Math.random(),
+                    planned: sumPlannedHoursReportedTasks,
+                    reported: sumReportedHours
+                })
+
+                rangePlannedVsReported = [0, maxPlannedVsReported]
+
+                hoursData.plannedHours = sumPlannedHours
+                hoursData.reportedHours = sumReportedHours
+                hoursData.estimatedHours = sumEstimatedHours
+
             }
 
             return Object.assign({}, state, {
                 plannedWork,
                 actualProgress,
-                completedProgress
+                completedProgress,
+                plannedVsReported,
+                rangePlannedVsReported,
+                hoursData
             })
         case AC.SET_RELEASE_ID:
             // while selection of reporting status it is set to state also

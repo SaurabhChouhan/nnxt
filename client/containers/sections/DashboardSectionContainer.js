@@ -16,7 +16,10 @@ const mapStateToProps = (state, ownProps) => ({
     selectedReleaseID: state.dashboard.selectedReleaseID,
     plannedWork: state.dashboard.plannedWork,
     actualProgress: state.dashboard.actualProgress,
-    completedProgress: state.dashboard.completedProgress
+    completedProgress: state.dashboard.completedProgress,
+    plannedVsReported: state.dashboard.plannedVsReported,
+    rangePlannedVsReported: state.dashboard.rangePlannedVsReported,
+    hoursData: state.dashboard.hoursData
 })
 
 
