@@ -3,7 +3,8 @@ import * as SC from '../../server/serverconstants'
 
 let initialState = {
     plannedWork: [],
-    actualProgress: []
+    actualProgress: [],
+    completedProgress: []
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -12,6 +13,7 @@ const dashboardReducer = (state = initialState, action) => {
 
             let plannedWork = []
             let actualProgress = []
+            let completedProgress = []
 
             let release = Object.assign({}, action.release)
 
@@ -40,7 +42,7 @@ const dashboardReducer = (state = initialState, action) => {
                     unplanned: parseFloat((100 - planned).toFixed(2))
                 })
 
-                // Start progress bar graph calculation
+                // Actual Progress bar graph calculation (Pending + Completed)
 
                 let sumProgressEstimatedHours = plannedIterations.reduce((sum, p) => {
                     return sum + p.estimatedHours * p.progress
@@ -55,11 +57,28 @@ const dashboardReducer = (state = initialState, action) => {
                     progress: progress,
                     remaining: parseFloat((100 - progress).toFixed(2))
                 })
+
+                let sumEstimatedHoursCompletedTasks = plannedIterations.reduce((sum, p) => {
+                    return sum + p.estimatedHoursCompletedTasks
+                }, 0)
+
+                let progressCompletedTasks = (sumEstimatedHoursCompletedTasks * 100) / sumEstimatedHours
+                progressCompletedTasks = parseFloat(progressCompletedTasks.toFixed(2))
+                let progressPendingTasks = parseFloat((progress - progressCompletedTasks).toFixed(2))
+
+                completedProgress.push({
+                    ran: Math.random(),
+                    total: 100,
+                    completed: progressCompletedTasks,
+                    pending: progressPendingTasks,
+                    remaining: parseFloat((100 - progress).toFixed(2))
+                })
             }
 
             return Object.assign({}, state, {
                 plannedWork,
-                actualProgress
+                actualProgress,
+                completedProgress
             })
         case AC.SET_RELEASE_ID:
             // while selection of reporting status it is set to state also

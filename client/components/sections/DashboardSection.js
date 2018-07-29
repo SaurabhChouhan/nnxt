@@ -5,6 +5,8 @@ import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, ResponsiveConta
 
 const addPercentage = (value) => {
     console.log("formatter called with value ", value)
+    if(value == 0)
+        return ''
     return value + '%'
 }
 
@@ -63,6 +65,23 @@ class DashboardSection extends Component {
                     <Legend/>
                     <Bar dataKey="progress" stackId="a" fill="#6CE190">
                         <LabelList dataKey="progress" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                    <Bar dataKey="remaining" stackId="a" fill="#E25858">
+                        <LabelList dataKey="remaining" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                </BarChart>
+
+                <BarChart data={this.props.completedProgress}
+                          height={130} width={barWidth} margin={{top: 20, right: 20, left: 30, bottom: 60}} layout={"vertical"}>
+                    <XAxis type="number" hide={true}/>
+                    <YAxis type="category" dataKey={"name"} hide={true}/>
+                    <Tooltip/>
+                    <Legend/>
+                    <Bar dataKey="completed" stackId="a" fill="#6CE190">
+                        <LabelList dataKey="completed" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                    <Bar dataKey="pending" stackId="a" fill="#f5f968">
+                        <LabelList dataKey="pending" position="inside" formatter={addPercentage}/>
                     </Bar>
                     <Bar dataKey="remaining" stackId="a" fill="#E25858">
                         <LabelList dataKey="remaining" position="inside" formatter={addPercentage}/>
