@@ -32,14 +32,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             iterationType: iterationType
         }
 
-        task.rowDataChanged = false
-
-        dispatch(A.reportTaskToServer(inputTask)).then((json) => {
-            if (json.success)
+        return dispatch(A.reportTaskToServer(inputTask)).then((json) => {
+            if (json.success) {
                 NotificationManager.success('Task report submitted.')
-            else
-                NotificationManager.error('Task report failed!!!')
-
+            } else
+                NotificationManager.error(json.message)
             return json
         })
     }

@@ -854,8 +854,9 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, employee, planned
     taskPlan.planning = {plannedHours: plannedHourNumber}
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
     taskPlan.iterationType = releasePlan.release.iteration.iterationType
-    taskPlan.report = {}
-    taskPlan.report.status = SC.REPORT_UNREPORTED
+    taskPlan.report = {
+        status: SC.REPORT_UNREPORTED
+    }
 
     logger.debug('addTaskPlanning(): [newly created task plan] task plan is ', {taskPlan})
 
@@ -2324,7 +2325,6 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     if (taskPlan.employee._id.toString() !== employee._id.toString())
         throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-
     /* find release plan associated with this task plan */
 
     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
@@ -2348,11 +2348,27 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         }
     }
 
+
     let reportedMoment = U.momentInUTC(reportInput.reportedDate)
     let maxReportedMoment
 
-    // Find out existing employee report data for this release plan
+    /**
+     * Task can only be reported once all other task of this release plan added against this employee is reported
+     */
 
+    let pastTaskCount = await MDL.TaskPlanningModel.count({
+        'releasePlan._id': releasePlan._id,
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'planningDate': {$lt: reportedMoment.toDate()},
+        'report.status': SC.REPORT_UNREPORTED
+    })
+
+    logger.debug("addTaskReportPlanned(): Past task count is ", {pastTaskCount})
+
+    if (pastTaskCount > 0)
+        throw new AppError('Cannot report as this there are unreported entries of this Task in past dates', EC.HAS_UNREPORTED_TASKS, EC.HTTP_BAD_REQUEST)
+
+    // Find out existing employee report data for this release plan
     let employeeReportIdx = -1
     if (releasePlan.report.employees) {
         employeeReportIdx = releasePlan.report.employees.findIndex(e => {

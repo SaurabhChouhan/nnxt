@@ -16,6 +16,7 @@ class ReportingTaskPage extends Component {
     }
 
     rowClassNameFormat(row, rowIdx) {
+        console.log("rowClassNameFormat called "+row.rowDataChanged)
         return row.rowDataChanged ? 'td-row-changed' : row.status === SC.STATUS_COMPLETED ? 'td-row-completed' : row.status === SC.STATUS_PENDING ? 'td-row-pending' : 'td-row-unreported';
     }
 
@@ -82,9 +83,15 @@ class ReportingTaskPage extends Component {
                 } else if (row.reportedHours == null) {
                     NotificationManager.error('Please select worked hours!')
                 } else {
+                    row.rowDataChanged = false
                     this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json=>{
-                        if(json.success)
-                            row.rowDataChanged = false
+                        console.log("reportTask response is ", json)
+                        if(!json.success){
+                            console.log("json.success is false ")
+                            console.log("row is ", row)
+                            row.rowDataChanged = true
+                            this.forceUpdate()
+                        }
                     })
                 }
             }}>
