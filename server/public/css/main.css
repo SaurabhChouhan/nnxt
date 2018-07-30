@@ -2021,15 +2021,19 @@ hr {
 }
 
 .td-row-unreported {
-    background-color: #eef3ae !important;
+    background-color: #ffffff !important;
 }
 
 .td-row-pending {
-    background-color: #fdb8b3 !important;
+    background-color: #fffee0 !important;
 }
 
 .td-row-completed {
-    background-color: #92e488 !important;
+    background-color: #c0f9cf !important;
+}
+
+.td-row-changed {
+    background-color: #d6898c !important;
 }
 
 .modal-body b {
