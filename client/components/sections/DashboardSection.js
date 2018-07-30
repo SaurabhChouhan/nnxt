@@ -103,7 +103,7 @@ class DashboardSection extends Component {
                 </div>
             </div>
             <div className={"col-md-6"}>
-                <BarChart data={this.props.actualProgress}
+                <BarChart data={[this.props.overallProgress]}
                           height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
                     <XAxis type="number" hide={true}/>
                     <YAxis type="category" dataKey={"name"} hide={true}/>
@@ -117,7 +117,7 @@ class DashboardSection extends Component {
                     </Bar>
                 </BarChart>
 
-                <BarChart data={this.props.completedProgress}
+                <BarChart data={[this.props.completedPendingProgress]}
                           height={100} width={barWidth} margin={{top: 20, right: 20, left: 30, bottom: 30}}
                           layout={"vertical"}>
                     <XAxis type="number" hide={true}/>
@@ -156,7 +156,7 @@ class DashboardSection extends Component {
                 </PieChart>
             </div>
             <div className={"col-md-6"}>
-                <BarChart data={this.props.plannedWork}
+                <BarChart data={[this.props.plannedVsUnplannedWork]}
                           height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
                     <XAxis type="number" hide={true}/>
                     <YAxis type="category" dataKey={"name"} hide={true}/>

@@ -234,17 +234,26 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 /*--------------------------------------------------------------GET_TASK_PLANS_END-------------------------------------------------------------------*/
 /*-------------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_START---------------------------------------------------------------*/
 
-const getNewProgressPercentage = (releasePlan) => {
-    let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+const getNewProgressPercentage = (releasePlan, reportedStatus) => {
 
-    // see if base hours crossed estimated hours, only then it is a new base hours to calculate progress
-    if (baseHours < releasePlan.task.estimatedHours) {
-        baseHours = releasePlan.task.estimatedHours
+
+    let progress = 0
+
+    if (reportedStatus && reportedStatus == SC.STATUS_COMPLETED) {
+        // As status of this release plan is completed progress would be 1
+        progress = 100
+        logger.debug('getNewProgressPercentage(): reported status is completed progress would be 100 percent')
+    } else {
+        let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+        // see if base hours crossed estimated hours, only then it would be considered as new base hours to calculate progress
+        if (baseHours < releasePlan.task.estimatedHours) {
+            baseHours = releasePlan.task.estimatedHours
+        }
+        logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
+        // now that we have base hours we would calculate progress by comparing it against reported hours
+        progress = releasePlan.report.reportedHours * 100 / baseHours
+        logger.debug('getNewProgressPercentage(): [progress] ', {progress})
     }
-    logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
-    // now that we have base hours we would calculate progress by comparing it against reported hours
-    let progress = releasePlan.report.reportedHours * 100 / baseHours
-    logger.debug('getNewProgressPercentage(): [progress] ', {progress})
     return progress.toFixed(2)
 }
 
@@ -2163,7 +2172,7 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
-    let progress = getNewProgressPercentage(releasePlan)
+    let progress = getNewProgressPercentage(releasePlan, reportInput.status)
     releasePlan.diffProgress = progress - releasePlan.report.progress
     releasePlan.report.progress = progress
 

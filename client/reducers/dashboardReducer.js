@@ -2,24 +2,24 @@ import * as AC from '../actions/actionConsts'
 import * as SC from '../../server/serverconstants'
 
 let initialState = {
-    plannedWork: [],
-    actualProgress: [],
-    completedProgress: [],
+    plannedVsUnplannedWork: {},
+    overallProgress: {},
+    completedPendingProgress: {},
     plannedVsReported: {},
-    rangePlannedVsReported: [],
-    hoursData: {}
+    hoursData: {},
+    estimatedProgress: []
 }
 
 const dashboardReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.CALCULATE_RELEASE_STATS:
 
-            let plannedWork = []
-            let actualProgress = []
-            let completedProgress = []
+            let plannedVsUnplannedWork = {}
+            let overallProgress = {}
+            let completedPendingProgress = {}
             let plannedVsReported = {}
-            let rangePlannedVsReported = []
             let hoursData = {}
+            let estimatedProgress = []
 
             let release = Object.assign({}, action.release)
 
@@ -41,12 +41,14 @@ const dashboardReducer = (state = initialState, action) => {
                 console.log("sum estimated hours ", sumEstimatedHours)
                 let planned = parseFloat(((sumPlannedHours * 100) / sumEstimatedHours).toFixed(2))
 
-                plannedWork.push({
+                plannedVsUnplannedWork = {
                     ran: Math.random(), // added random as animation and label were not working simultaneously, need to remove this as soon as bug with rechart is fixed
                     total: 100,
                     planned: planned,
                     unplanned: parseFloat((100 - planned).toFixed(2))
-                })
+                }
+
+                //plannedWork.push()
 
                 // Actual Progress bar graph calculation (Pending + Completed)
 
@@ -56,13 +58,14 @@ const dashboardReducer = (state = initialState, action) => {
 
                 let progress = sumProgressEstimatedHours / sumEstimatedHours
                 progress = parseFloat(progress.toFixed(2))
-
-                actualProgress.push({
+                overallProgress = {
                     ran: Math.random(),
                     total: 100,
                     progress: progress,
                     remaining: parseFloat((100 - progress).toFixed(2))
-                })
+                }
+
+                //actualProgress.push()
 
                 let sumEstimatedHoursCompletedTasks = plannedIterations.reduce((sum, p) => {
                     return sum + p.estimatedHoursCompletedTasks
@@ -72,13 +75,15 @@ const dashboardReducer = (state = initialState, action) => {
                 progressCompletedTasks = parseFloat(progressCompletedTasks.toFixed(2))
                 let progressPendingTasks = parseFloat((progress - progressCompletedTasks).toFixed(2))
 
-                completedProgress.push({
+                completedPendingProgress = {
                     ran: Math.random(),
                     total: 100,
                     completed: progressCompletedTasks,
                     pending: progressPendingTasks,
                     remaining: parseFloat((100 - progress).toFixed(2))
-                })
+                }
+
+                //completedProgress.push()
 
                 let sumReportedHours = plannedIterations.reduce((sum, p) => {
                     return sum + p.reportedHours
@@ -93,7 +98,7 @@ const dashboardReducer = (state = initialState, action) => {
                 plannedVsReported = {
                     ran: Math.random(),
                     base: sumPlannedHoursReportedTasks >= sumReportedHours ? sumReportedHours : sumPlannedHoursReportedTasks,
-                    baseHour: sumPlannedHoursReportedTasks >= sumReportedHours ? 'planned' : 'reported',
+                    baseHour: sumPlannedHoursReportedTasks >= sumReportedHours ? 'reported' : 'planned',
                     extra: sumPlannedHoursReportedTasks >= sumReportedHours ? sumPlannedHoursReportedTasks - sumReportedHours : sumReportedHours - sumPlannedHoursReportedTasks
                 }
 
@@ -104,13 +109,13 @@ const dashboardReducer = (state = initialState, action) => {
             }
 
             return Object.assign({}, state, {
-                plannedWork,
-                actualProgress,
-                completedProgress,
+                plannedVsUnplannedWork,
+                overallProgress,
+                completedPendingProgress,
                 plannedVsReported,
-                rangePlannedVsReported,
                 hoursData
             })
+
         case AC.SET_RELEASE_ID:
             // while selection of reporting status it is set to state also
             return Object.assign({}, state, {
