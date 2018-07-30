@@ -109,10 +109,10 @@ class DashboardSection extends Component {
                     <YAxis type="category" dataKey={"name"} hide={true}/>
                     <Tooltip/>
                     <Legend/>
-                    <Bar dataKey="progress" stackId="a" fill="#6CE190" name={"Overall Progress"}>
+                    <Bar barSize={30} dataKey="progress" stackId="a" fill="#6CE190" name={"Overall Progress"}>
                         <LabelList dataKey="progress" position="inside" formatter={addPercentage}/>
                     </Bar>
-                    <Bar dataKey="remaining" stackId="a" fill="#E25858" name={"Unfinished"}>
+                    <Bar barSize={30} dataKey="remaining" stackId="a" fill="#E25858" name={"Unfinished"}>
                         <LabelList dataKey="remaining" position="inside" formatter={addPercentage}/>
                     </Bar>
                 </BarChart>
@@ -123,17 +123,70 @@ class DashboardSection extends Component {
                     <XAxis type="number" hide={true}/>
                     <YAxis type="category" dataKey={"name"} hide={true}/>
                     <Legend/>
-                    <Bar dataKey="completed" stackId="a" fill="#6CE190" name={"Progress (Completed Tasks)"}>
+                    <Bar barSize={30} dataKey="completed" stackId="a" fill="#6CE190" name={"Progress (Completed Tasks)"}>
                         <LabelList dataKey="completed" position="inside" formatter={addPercentage}/>
                     </Bar>
-                    <Bar dataKey="pending" stackId="a" fill="#f5f968" name={"Progress (Pending Tasks)"}>
+                    <Bar barSize={30} dataKey="pending" stackId="a" fill="#f5f968" name={"Progress (Pending Tasks)"}>
                         <LabelList dataKey="pending" position="inside" formatter={addPercentage}/>
                     </Bar>
-                    <Bar dataKey="remaining" stackId="a" fill="#E25858" name={"Unfinished"}>
+                    <Bar barSize={30} dataKey="remaining" stackId="a" fill="#E25858" name={"Unfinished"}>
                         <LabelList dataKey="remaining" position="inside" formatter={addPercentage}/>
                     </Bar>
                 </BarChart>
-                <PieChart width={barWidth} height={240} margin = {{top: 20, right: 20, left: 30, bottom: 30}}>
+
+                <BarChart data={[this.props.estimatedProgress]}
+                          height={240} width={barWidth} margin={{top: 20, right: 20, left: 30, bottom: 30}}
+                          layout={"vertical"} barGap={30}>
+                    <XAxis type="number" hide={true}/>
+                    <YAxis type="category" dataKey={"name"} hide={true}/>
+                    <Legend/>
+                    <Bar barSize={30} dataKey="reported" fill="#5cd1d1" stackId="reported" name={"Estimated Progress (Per Reporting)"}>
+                        <LabelList dataKey="reported"  position="inside" formatter={addPercentage}/>
+                    </Bar>
+                    <Bar barSize={30} dataKey="remainingReported" stackId="reported" fill="#E25858" name={"Remaining (Report)"}>
+                        <LabelList dataKey="remainingReported" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                    <Bar barSize={30} dataKey="planned" fill="#f2e974" stackId="planned" name={"Estimated Progress (Per Planned)"}>
+                        <LabelList dataKey="planned" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                    <Bar barSize={30} dataKey="remainingPlanned" stackId="planned" fill="#E25858" name={"Remaining (Planned)"}>
+                        <LabelList dataKey="remainingPlanned" position="inside" formatter={addPercentage}/>
+                    </Bar>
+
+                </BarChart>
+
+            </div>
+            <div className={"col-md-6"}>
+                <BarChart data={[this.props.plannedVsUnplannedWork]}
+                          height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
+                    <XAxis type="number" hide={true}/>
+                    <YAxis type="category" dataKey={"name"} hide={true}/>
+                    <Tooltip/>
+                    <Legend/>
+                    <Bar barSize={30} dataKey="planned" stackId="a" fill="#6CE190" name={"Planned Work"}>
+                        <LabelList dataKey="planned" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                    <Bar barSize={30} dataKey="unplanned" stackId="a" fill="#E25858" name={"Unplanned Work"}>
+                        <LabelList dataKey="unplanned" position="inside" formatter={addPercentage}/>
+                    </Bar>
+                </BarChart>
+                <BarChart data={[this.props.plannedVsReported]}
+                          height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
+                    <XAxis type="number" hide={true}
+                           domain={[0, this.props.plannedVsReported.base + this.props.plannedVsReported.extra]}/>
+                    <YAxis type="category" dataKey={"name"} hide={true}/>
+                    <Tooltip/>
+                    <Legend/>
+                    <Bar barSize={30} dataKey="base" stackId="a" fill={baseHour === 'planned' ? '#f2e974' : '#5cd1d1'}
+                         name={baseHour === 'planned' ? 'Planned Hours' : 'Reported Hours'}>
+                        <LabelList dataKey="base" position="inside"/>
+                    </Bar>
+                    <Bar barSize={30} dataKey="extra" stackId="a" fill="#E25858"
+                         name={baseHour === 'planned' ? 'Extra Reported Hours' : 'Extra Planned Hours'}>
+                        <LabelList dataKey="extra" position="inside"/>
+                    </Bar>
+                </BarChart>
+                <PieChart width={barWidth} height={240} margin={{top: 20, right: 20, left: 30, bottom: 30}}>
                     <Pie isAnimationActive={false}
                          data={[{name: 'Estimated Hours', value: this.props.hoursData.estimatedHours}]}
                          cx={barWidth / 2}
@@ -154,37 +207,6 @@ class DashboardSection extends Component {
                     <Legend/>
                     <Tooltip/>
                 </PieChart>
-            </div>
-            <div className={"col-md-6"}>
-                <BarChart data={[this.props.plannedVsUnplannedWork]}
-                          height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
-                    <XAxis type="number" hide={true}/>
-                    <YAxis type="category" dataKey={"name"} hide={true}/>
-                    <Tooltip/>
-                    <Legend/>
-                    <Bar dataKey="planned" stackId="a" fill="#6CE190" name={"Planned Work"}>
-                        <LabelList dataKey="planned" position="inside" formatter={addPercentage}/>
-                    </Bar>
-                    <Bar dataKey="unplanned" stackId="a" fill="#E25858" name={"Unplanned Work"}>
-                        <LabelList dataKey="unplanned" position="inside" formatter={addPercentage}/>
-                    </Bar>
-                </BarChart>
-                <BarChart data={[this.props.plannedVsReported]}
-                          height={100} width={barWidth} margin={barMargin} layout={"vertical"}>
-                    <XAxis type="number" hide={true}
-                           domain={[0, this.props.plannedVsReported.base + this.props.plannedVsReported.extra]}/>
-                    <YAxis type="category" dataKey={"name"} hide={true}/>
-                    <Tooltip/>
-                    <Legend/>
-                    <Bar dataKey="base" stackId="a" fill={baseHour === 'planned' ? '#f2e974' : '#5cd1d1'}
-                         name={baseHour === 'planned' ? 'Planned Hours' : 'Reported Hours'}>
-                        <LabelList dataKey="base" position="inside"/>
-                    </Bar>
-                    <Bar dataKey="extra" stackId="a" fill="#E25858"
-                         name={baseHour === 'planned' ? 'Extra Reported Hours' : 'Extra Planned Hours'}>
-                        <LabelList dataKey="extra" position="inside"/>
-                    </Bar>
-                </BarChart>
 
             </div>
         </div>

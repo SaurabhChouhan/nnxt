@@ -7,7 +7,7 @@ let initialState = {
     completedPendingProgress: {},
     plannedVsReported: {},
     hoursData: {},
-    estimatedProgress: []
+    estimatedProgress: {}
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -19,7 +19,7 @@ const dashboardReducer = (state = initialState, action) => {
             let completedPendingProgress = {}
             let plannedVsReported = {}
             let hoursData = {}
-            let estimatedProgress = []
+            let estimatedProgress = {}
 
             let release = Object.assign({}, action.release)
 
@@ -29,34 +29,32 @@ const dashboardReducer = (state = initialState, action) => {
             console.log("planned iterations ", plannedIterations)
 
             if (plannedIterations && plannedIterations.length) {
-                let sumPlannedHours = plannedIterations.reduce((sum, p) => {
-                    return sum + p.plannedHoursEstimatedTasks
-                }, 0)
 
-                let sumEstimatedHours = plannedIterations.reduce((sum, p) => {
-                    return sum + p.estimatedHours
-                }, 0)
-
-                console.log("sum planned hours ", sumPlannedHours)
-                console.log("sum estimated hours ", sumEstimatedHours)
-                let planned = parseFloat(((sumPlannedHours * 100) / sumEstimatedHours).toFixed(2))
-
-                plannedVsUnplannedWork = {
-                    ran: Math.random(), // added random as animation and label were not working simultaneously, need to remove this as soon as bug with rechart is fixed
-                    total: 100,
-                    planned: planned,
-                    unplanned: parseFloat((100 - planned).toFixed(2))
+                let s = {
+                    sumPlannedHours: 0,
+                    sumEstimatedHours: 0,
+                    sumReportedHours: 0,
+                    sumEstimatedHoursCompletedTasks: 0,
+                    sumPlannedHoursReportedTasks: 0,
+                    sumProgressEstimatedHours: 0,
+                    sumPlannedHoursEstimatedTasks: 0
                 }
 
-                //plannedWork.push()
+                plannedIterations.forEach(p => {
+                    s.sumPlannedHours += p.plannedHours
+                    s.sumEstimatedHours += p.estimatedHours
+                    s.sumReportedHours += p.reportedHours
+                    s.sumEstimatedHoursCompletedTasks += p.estimatedHoursCompletedTasks
+                    s.sumPlannedHoursReportedTasks += p.plannedHoursReportedTasks
+                    s.sumProgressEstimatedHours += p.estimatedHours * p.progress
+                    s.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
+                })
 
-                // Actual Progress bar graph calculation (Pending + Completed)
+                /**
+                 * Overall progress
+                 */
 
-                let sumProgressEstimatedHours = plannedIterations.reduce((sum, p) => {
-                    return sum + p.estimatedHours * p.progress
-                }, 0)
-
-                let progress = sumProgressEstimatedHours / sumEstimatedHours
+                let progress = s.sumProgressEstimatedHours / s.sumEstimatedHours
                 progress = parseFloat(progress.toFixed(2))
                 overallProgress = {
                     ran: Math.random(),
@@ -65,13 +63,11 @@ const dashboardReducer = (state = initialState, action) => {
                     remaining: parseFloat((100 - progress).toFixed(2))
                 }
 
-                //actualProgress.push()
+                /**
+                 * Progress Completed/Pending tasks
+                 */
 
-                let sumEstimatedHoursCompletedTasks = plannedIterations.reduce((sum, p) => {
-                    return sum + p.estimatedHoursCompletedTasks
-                }, 0)
-
-                let progressCompletedTasks = (sumEstimatedHoursCompletedTasks * 100) / sumEstimatedHours
+                let progressCompletedTasks = (s.sumEstimatedHoursCompletedTasks * 100) / s.sumEstimatedHours
                 progressCompletedTasks = parseFloat(progressCompletedTasks.toFixed(2))
                 let progressPendingTasks = parseFloat((progress - progressCompletedTasks).toFixed(2))
 
@@ -83,29 +79,52 @@ const dashboardReducer = (state = initialState, action) => {
                     remaining: parseFloat((100 - progress).toFixed(2))
                 }
 
-                //completedProgress.push()
+                /**
+                 * Estimated progress as per reporting
+                 */
 
-                let sumReportedHours = plannedIterations.reduce((sum, p) => {
-                    return sum + p.reportedHours
-                }, 0)
+                let estimatedProgressReporting = parseFloat(((s.sumReportedHours * 100) / s.sumEstimatedHours).toFixed(2))
+                let estimatedProgressPlanning = parseFloat(((s.sumPlannedHoursReportedTasks * 100) / s.sumEstimatedHours).toFixed(2))
 
-                let sumPlannedHoursReportedTasks = plannedIterations.reduce((sum, p) => {
-                    console.log("planned hours reported tasks is ", p.plannedHoursReportedTasks)
-                    return sum + p.plannedHoursReportedTasks
-                }, 0)
+                estimatedProgress = {
+                    ran: Math.random(),
+                    reported: estimatedProgressReporting,
+                    planned: estimatedProgressPlanning,
+                    remainingReported: parseFloat((100 - estimatedProgressReporting).toFixed(2)),
+                    remainingPlanned: parseFloat((100 - estimatedProgressPlanning).toFixed(2))
+                }
 
+                /**
+                 * Planned Vs Unplanned work calculation
+                 */
+
+                let planned = parseFloat(((s.sumPlannedHoursEstimatedTasks * 100) / s.sumEstimatedHours).toFixed(2))
+                plannedVsUnplannedWork = {
+                    ran: Math.random(), // added random as animation and label were not working simultaneously, need to remove this as soon as bug with rechart is fixed
+                    total: 100,
+                    planned: planned,
+                    unplanned: parseFloat((100 - planned).toFixed(2))
+                }
+
+
+                /**
+                 * Planned v/s Reported Bar graph calculations
+                 */
 
                 plannedVsReported = {
                     ran: Math.random(),
-                    base: sumPlannedHoursReportedTasks >= sumReportedHours ? sumReportedHours : sumPlannedHoursReportedTasks,
-                    baseHour: sumPlannedHoursReportedTasks >= sumReportedHours ? 'reported' : 'planned',
-                    extra: sumPlannedHoursReportedTasks >= sumReportedHours ? sumPlannedHoursReportedTasks - sumReportedHours : sumReportedHours - sumPlannedHoursReportedTasks
+                    base: s.sumPlannedHoursReportedTasks >= s.sumReportedHours ? s.sumReportedHours : s.sumPlannedHoursReportedTasks,
+                    baseHour: s.sumPlannedHoursReportedTasks >= s.sumReportedHours ? 'reported' : 'planned',
+                    extra: s.sumPlannedHoursReportedTasks >= s.sumReportedHours ? s.sumPlannedHoursReportedTasks - s.sumReportedHours : s.sumReportedHours - s.sumPlannedHoursReportedTasks
                 }
 
-                hoursData.plannedHours = sumPlannedHours
-                hoursData.reportedHours = sumReportedHours
-                hoursData.estimatedHours = sumEstimatedHours
+                /**
+                 * Hours comparison pie chart data
+                 */
 
+                hoursData.plannedHours = s.sumPlannedHours
+                hoursData.reportedHours = s.sumReportedHours
+                hoursData.estimatedHours = s.sumEstimatedHours
             }
 
             return Object.assign({}, state, {
@@ -113,7 +132,8 @@ const dashboardReducer = (state = initialState, action) => {
                 overallProgress,
                 completedPendingProgress,
                 plannedVsReported,
-                hoursData
+                hoursData,
+                estimatedProgress
             })
 
         case AC.SET_RELEASE_ID:
