@@ -42,7 +42,7 @@ class ReleaseDevelopersSchedules extends React.Component {
         return <div>
             <div key={'schedule_1'}
                  className="col-md-12 releaseSchedule">
-                <div className="repository releaseDevInfo">
+                <div className="schCalendar releaseDevInfo">
                     <div className="releaseDevHeading">
                         <h5>{employee.name}</h5>
                         <i className="glyphicon glyphicon-resize-full pull-right"></i>
@@ -50,7 +50,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                             className="pull-right">{workCalendar.heading}</span>
                     </div>
 
-                    <div className={"schCalendar"}>
+                    <div className={"schCalendarDates"}>
                         <div className="schCalendarDayRow">
                             <div key={'monday'} className="schCalendarCell">
                                 <h5>Mon</h5>
