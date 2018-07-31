@@ -4,6 +4,7 @@ import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 import {ReportingDateNavBarContainer} from '../../containers'
 import {withRouter} from 'react-router-dom'
+import {NotificationManager} from 'react-notifications'
 
 
 class ReportingTaskPage extends Component {
@@ -15,7 +16,8 @@ class ReportingTaskPage extends Component {
     }
 
     rowClassNameFormat(row, rowIdx) {
-        return row.status === SC.STATUS_COMPLETED ? 'td-row-completed' : row.status === SC.STATUS_PENDING ? 'td-row-pending' : 'td-row-unreported';
+        console.log("rowClassNameFormat called "+row.rowDataChanged)
+        return row.rowDataChanged ? 'td-row-changed' : row.status === SC.STATUS_COMPLETED ? 'td-row-completed' : row.status === SC.STATUS_PENDING ? 'td-row-pending' : 'td-row-unreported';
     }
 
     formatManager(row) {
@@ -76,7 +78,22 @@ class ReportingTaskPage extends Component {
 
     viewSubmitButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)
+                if (row.status == 'un-reported') {
+                    NotificationManager.error('Please select status!')
+                } else if (row.reportedHours == null) {
+                    NotificationManager.error('Please select worked hours!')
+                } else {
+                    row.rowDataChanged = false
+                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json=>{
+                        console.log("reportTask response is ", json)
+                        if(!json.success){
+                            console.log("json.success is false ")
+                            console.log("row is ", row)
+                            row.rowDataChanged = true
+                            this.forceUpdate()
+                        }
+                    })
+                }
             }}>
                 <i className="fa fa-check"></i>
             </button>
@@ -110,12 +127,24 @@ class ReportingTaskPage extends Component {
         this.props.setIterationType(this.props.releaseID, this.props.dateOfReport, type, this.props.reportedStatus)
     }
 
+    onBeforeSaveCell(row, cellName, cellValue) {
+        console.log("onBeforeSaveCell called ", cellName, cellValue)
+    }
+
+    onAfterSaveCell(row, cellName, cellValue) {
+        console.log("onAfterSaveCell called ", cellName, cellValue, row.rowDataChanged)
+        row.rowDataChanged = true
+    }
+
+
     render() {
 
         const {allReleases, releases, reportedStatus, releaseID, iterationType} = this.props
         const cellEditProp = {
             mode: 'click',
-            blurToSave: true
+            blurToSave: true,
+            beforeSaveCell: this.onBeforeSaveCell,
+            afterSaveCell: this.onAfterSaveCell
         }
         console.log("releases", releases)
         return (
@@ -197,7 +226,7 @@ class ReportingTaskPage extends Component {
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn row='0' colSpan='7'>{release.releaseName}</TableHeaderColumn>
+                                    <TableHeaderColumn row='0' colSpan='6'>{release.releaseName}</TableHeaderColumn>
 
                                     <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'View Detail'}
                                                        dataField='detailButton'
@@ -227,10 +256,6 @@ class ReportingTaskPage extends Component {
                                                            }
                                                        }} dataFormat={this.formatReportedStatus}>Reported
                                         Status</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="5%" columnTitle={'Edit Report'}
-                                                       dataField="Edit Report"
-                                                       dataFormat={this.viewEditButton.bind(this)}>Edit
-                                    </TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Submit Report'}
                                                        dataField="Submit Report"
                                                        dataFormat={this.viewSubmitButton.bind(this)}>Submit
@@ -268,11 +293,8 @@ class ReportingTaskPage extends Component {
                                                            }
                                                        }}
                                     >Worked Hours</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'Edit Report'}
-                                                       dataField="Edit Report"
-                                                       dataFormat={this.viewEditButton.bind(this)}>Edit
-                                    </TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'Submit Report'}
+                                    <TableHeaderColumn row='1' editable={false} width="10%"
+                                                       columnTitle={'Submit Report'}
                                                        dataField="Submit Report"
                                                        dataFormat={this.viewSubmitButton.bind(this)}>Submit
                                     </TableHeaderColumn>
@@ -289,67 +311,3 @@ class ReportingTaskPage extends Component {
 }
 
 export default withRouter(ReportingTaskPage)
-
-
-{/*
-  <TableHeaderColumn width="12%" columnTitle dataField="reason"
-                                               editable={{
-                                                   type: 'select',
-                                                   options: {
-                                                       values: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
-                                                   }
-                                               }}>Reason
-                                Code</TableHeaderColumn>
-*/
-}
-{/*
-
-{
-                                    release && release._id && <div className="col-md-12 releaseHeader">
-                                        <div className="col-md-3">
-                                            <div className="releaseTitle">
-                            <span
-                                title={release.project ? release.project.name : ''}>Project Name</span>
-                                            </div>
-                                            <div className="releasecontent">
-                                                <p>{release.project ? release.project.name + ' (' + release.name + ')' : ''}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-2">
-                                            <div className="releaseTitle">
-                                                <span>Start Date</span>
-                                            </div>
-                                            <div className="releasecontent">
-                                                <p>{release.iterations && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format('DD-MM-YYYY') : ''}</p>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-2">
-                                            <div className="releaseTitle">
-                                                <span>End Date</span>
-                                            </div>
-                                            <div className="releasecontent">
-                                                <p>{release.iterations && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format('DD-MM-YYYY') : ''}</p>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-2">
-                                            <div className="releaseTitle">
-                                                <span>Release Date</span>
-                                            </div>
-                                            <div className="releasecontent">
-                                                <p>{release.iterations && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format('DD-MM-YYYY') : ''}</p>
-                                            </div>
-                                        </div>
-                                        <div className=" col-md-2 releasefileoption">
-                                            <ul className="list-unstyled">
-                                                <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
-                                                <li><a href="#"> <i className="fa fa-file-word-o"></i></a></li>
-                                                <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
-                                            </ul>
-                                        </div>
-
-                                    </div>
-                                }
-
-*/
-}
