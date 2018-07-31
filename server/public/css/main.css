@@ -1505,6 +1505,46 @@ p.task-description {
     font-size: 20px;
 }
 
+.schCalendar {
+    background-color: #ECECEC;
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.schCalendarHour {
+    display: inline-block;
+    width: 50%;
+    textAlign: center;
+}
+
+.schCalendarHeadingRow {
+    display:table-row;
+}
+
+.schCalendarHeadingRow h5 {
+    font-size: 18px;
+}
+
+.schCalendarHeadingCell {
+    display: table-cell;
+    column-span: all;
+}
+
+
+.schCalendarDayRow {
+    display: table-row;
+}
+
+.schCalendarDateRow {
+    display: table-row;
+}
+
+.schCalendarCell {
+    display: table-cell;
+    text-align:center;
+}
+
 .releaseDayRow {
     display: table-row;
 }
@@ -1833,14 +1873,6 @@ hr {
 
 .releasePlanChkBtn {
     margin-top: -32px;
-}
-
-.releaseDevScheduleHeading {
-    margin-top: -11px;
-}
-
-.releaseDevScheduleHeading h5 {
-    font-size: 18px;
 }
 
 .releasePlannedHrs i {
