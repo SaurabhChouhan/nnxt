@@ -9,79 +9,75 @@ import * as SC from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
-let ReleaseDeveloperScheduleForm = (props) => {
-    const {handleSubmit, change, fromSchedule, employeeID, team} = props
-    let now = new Date()
-    let nowMoment = moment(now)
-    let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentTz = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let fromScheduleString = moment(fromSchedule).format(SC.DATE_FORMAT)
-    let fromScheduleTz = momentTZ.tz(fromScheduleString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let canGoPrevious = fromScheduleTz.clone().subtract(7, 'days').isSameOrAfter(nowMomentTz)
 
-    return <div>
-        <form onSubmit={handleSubmit}>
-            <div className="col-md-12 repositoryHeading RepositorySideHeight releaseDevScheduleHeading">
-                <div className="col-md-6 pad">
-                    <h5><b>Developers Schedules</b></h5>
+
+class ReleaseDeveloperScheduleForm extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            monthMoment: moment()
+        }
+    }
+
+    render() {
+        let props = this.props
+        const {handleSubmit, employeeID, team} = props
+        return <div>
+            <form onSubmit={handleSubmit}>
+                <div className="col-md-12 repositoryHeading RepositorySideHeight releaseDevScheduleHeading">
+                    <div className="col-md-6 pad">
+                        <h5><b>Developers Schedules</b></h5>
+                    </div>
+                    <div className="col-md-6 pad text-right">
+                        <Field name="employeeID"
+                               placeholder={"Name of Developer"}
+                               onChange={(event, newValue, oldValue) => {
+                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month())
+                               }}
+                               component={renderSelect}
+                               options={team}
+                        />
+
+                    </div>
                 </div>
-                <div className="col-md-6 pad text-right">
-                    <Field name="employeeID"
-                           placeholder={"Name of Developer"}
-                           onChange={(event, newValue, oldValue) => {
-                               props.getDeveloperSchedules(newValue, fromSchedule)
-                           }}
-                           component={renderSelect}
-                           options={team}
-                    />
-
+                <div className="col-md-12">
+                    <div className="col-md-3">
+                        <button className={"btn reportingArrow"}
+                                style={{marginLeft: '-16px'}}
+                                onClick={() => {
+                                    let newMonthMoment = this.state.monthMoment.clone().subtract(1, 'month')
+                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month())
+                                    this.setState({
+                                        monthMoment: newMonthMoment
+                                    })
+                                }}
+                                type="button">
+                            <i className="glyphicon glyphicon-arrow-left"></i>
+                        </button>
+                    </div>
+                    <div className="col-md-6" style={{margin: "10px 0px", fontSize: "20", textAlign: 'center'}}>
+                        {this.state.monthMoment.format('MMMM, YY')}
+                    </div>
+                    <div className="col-md-3">
+                        <button className="btn reportingArrow"
+                                style={{marginLeft: '27px'}}
+                                onClick={() => {
+                                    let newMonthMoment = this.state.monthMoment.clone().add(1, 'month')
+                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month())
+                                    this.setState({
+                                        monthMoment: newMonthMoment
+                                    })
+                                }}
+                                type="button">
+                            <i className="glyphicon glyphicon-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div className="col-md-12">
-                <div className="col-md-3">
-                    <button className={canGoPrevious ? "btn reportingArrow" : "btn releaseDevArrowDisable"}
-                            style={{marginLeft: '-16px'}}
-                            onClick={() => {
-                                if (canGoPrevious) {
-                                    let prevDate = moment(fromSchedule).clone().subtract(7, 'days').format(SC.DATE_FORMAT)
-                                    props.getDeveloperSchedules(employeeID, prevDate)
-                                    change("fromSchedule", moment(prevDate).clone().toDate())
-                                }
-                            }}
-                            type="button">
-                        <i className="glyphicon glyphicon-arrow-left"></i>
-                    </button>
-                </div>
-                <div className="col-md-6">
 
-                    <Field name='fromSchedule'
-                           onChange={(event, newValue, oldValue) => {
-                               props.getDeveloperSchedules(employeeID, newValue)
-                           }}
-                           label=''
-                           min={nowMoment.toDate()}
-                           component={renderDateTimePickerString}
-                           showTime={false}
-                    />
-
-                </div>
-                <div className="col-md-3">
-                    <button className="btn reportingArrow"
-                            style={{marginLeft: '27px'}}
-                            onClick={() => {
-                                let nextDate = moment(fromSchedule).clone().add(7, 'days').format('YYYY-MM-DD')
-                                props.getDeveloperSchedules(employeeID, nextDate)
-                                change("fromSchedule", moment(nextDate).clone().toDate())
-                            }}
-                            type="button">
-                        <i className="glyphicon glyphicon-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-
-        </form>
-    </div>
-
+            </form>
+        </div>
+    }
 }
 
 ReleaseDeveloperScheduleForm = reduxForm({

@@ -5,12 +5,13 @@ import * as A from '../../actions'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperSchedules: (employeeID, from) => {
-        if (from && employeeID) {
-            return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), 7))
+    getDeveloperSchedules: (employeeID, month) => {
+        if (month && employeeID) {
+            return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), month))
         } else if (!employeeID || employeeID == undefined) {
             return NotificationManager.error('Employee is not selected!')
-        } else return NotificationManager.error('Date is not picked up properly!')
+        } else
+            return NotificationManager.error('Date is not picked up properly!')
 
 
     }
@@ -20,8 +21,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? state.user.allDevelopers : [],
     initialValues: {
-        'employeeId': undefined,
-        'fromSchedule': moment(state.release.fromSchedule).toDate()
+        'employeeId': undefined
     }
 })
 
