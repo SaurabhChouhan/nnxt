@@ -18,7 +18,7 @@ class ReleaseDevelopersSchedules extends React.Component {
 
     render() {
 
-        const {schedules, employeeSetting, from} = this.props
+        const {workCalendar, employeeSetting, from} = this.props
         let fromString = moment(from).format(SC.DATE_FORMAT)
         let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
         let startMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
@@ -28,185 +28,81 @@ class ReleaseDevelopersSchedules extends React.Component {
             weekArray.push(startMoment.clone())
             startMoment = startMoment.clone().add(1, 'days')
         }
+
+
+        let employee;
+
+        if (workCalendar.employees && workCalendar.employees.length)
+            employee = workCalendar.employees[0]
+
+        if (!employee || !employee.schedule || !employee.schedule.length)
+            return <div></div>
+
+
         return <div>
             <div key={'schedule_1'}
                  className="col-md-12 releaseSchedule">
                 <div className="repository releaseDevInfo">
                     <div className="releaseDevHeading">
-                        <h5>Saurabh Chouhan</h5>
+                        <h5>{employee.name}</h5>
                         <i className="glyphicon glyphicon-resize-full pull-right"></i>
                         <span
-                            className="pull-right">July</span>
+                            className="pull-right">{workCalendar.heading}</span>
                     </div>
+
                     <div className={"schCalendar"}>
                         <div className="schCalendarDayRow">
-                            <div key={'day_1'} className="schCalendarCell">
+                            <div key={'monday'} className="schCalendarCell">
                                 <h5>Mon</h5>
                             </div>
-                            <div key={'day_1'} className="schCalendarCell">
+                            <div key={'tuesday'} className="schCalendarCell">
                                 <h5>Tue</h5>
                             </div>
-                            <div key={'day_1'} className="schCalendarCell">
+                            <div key={'wednesday'} className="schCalendarCell">
                                 <h5>Wed</h5>
                             </div>
-                            <div key={'day_1'} className="schCalendarCell">
+                            <div key={'thursday'} className="schCalendarCell">
                                 <h5>Thu</h5>
                             </div>
-                            <div key={'day_1'} className="schCalendarCell">
+                            <div key={'friday'} className="schCalendarCell">
                                 <h5>Fri</h5>
                             </div>
-                            <div key={'day_1'} className="schCalendarCell">
+                            <div key={'saturday'} className="schCalendarCell">
                                 <h5>Sat</h5>
                             </div>
-                            <div key={'day_1'} className="schCalendarCell">
+                            <div key={'sunday'} className="schCalendarCell">
                                 <h5>Sun</h5>
                             </div>
-
                         </div>
-                        <div className="schCalendarDayRow">
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>30</h5>
-                                <div className="releaseEmployee">
+
+                        {
+                            employee.schedule.map((week, idx) => {
+                                    return <div key={'week_' + idx} className="schCalendarDayRow">
+                                        {
+                                            week.map((day, dayIdx) => {
+                                                let color = day.hours >= employeeSetting.superBusy ?
+                                                    '#dd6c6c'
+                                                    : day.hours >= employeeSetting.busy ?
+                                                        '#91d861'
+                                                        : day.hours >= employeeSetting.someWhatBusy ?
+                                                            '#d645f7'
+                                                            : day.hours >= employeeSetting.relativelyFree ?
+                                                                '#76c0e2'
+                                                                : '#e8c392'
+                                                return <div key={'day_' + dayIdx} className="schCalendarCell">
+                                                    <h5>{day.date > 0 ? day.date : ''}</h5>
+                                                    <div className="releaseEmployee">
                                                         <span className={"schCalendarHour"} style={{
-                                                            backgroundColor: '#76c0e2'
-                                                        }}>12</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>2</h5>
-                                <div className="releaseEmployee" >
-                                                        <span className={"schCalendarHour"} style={{
-                                                            backgroundColor: 'green'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>3</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>4</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>5</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>6</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>7</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div className="schCalendarDayRow">
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>1</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>2</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>3</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>4</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>5</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>6</h5>
-                                <div className="releaseEmployee" >
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-                            <div key={'day_1'} className="schCalendarCell">
-                                <h5>7</h5>
-                                <div className="releaseEmployee">
-                                                        <span style={{
-                                                            display: 'inline-block',
-                                                            width: '100%',
-                                                            textAlign: 'center',
-                                                            backgroundColor: '#76c0e2'
-                                                        }}>8</span>
-                                </div>
-                            </div>
-
-                        </div>
-
+                                                            backgroundColor: color
+                                                        }}>{day.hours >= 0 ? day.hours : ''}</span>
+                                                    </div>
+                                                </div>
+                                            })
+                                        }
+                                    </div>
+                                }
+                            )
+                        }
                     </div>
                 </div>
             </div>

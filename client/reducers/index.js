@@ -17,6 +17,7 @@ import reportingReducer from './reportingReducer'
 import warningReducer from './warningReducer'
 import holidayReducer from './holidayReducer'
 import dashboardReducer from './dashboardReducer'
+import employeeReducer from './employeeReducer'
 
 
 const reducers = combineReducers({
@@ -37,6 +38,7 @@ const reducers = combineReducers({
     report: reportingReducer,
     warning: warningReducer,
     holiday: holidayReducer,
-    dashboard: dashboardReducer
+    dashboard: dashboardReducer,
+    employee: employeeReducer
 })
 export default reducers
