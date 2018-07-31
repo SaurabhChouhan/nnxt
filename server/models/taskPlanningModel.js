@@ -2366,7 +2366,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     logger.debug("addTaskReportPlanned(): Past task count is ", {pastTaskCount})
 
     if (pastTaskCount > 0)
-        throw new AppError('Cannot report as this there are unreported entries of this Task in past dates', EC.HAS_UNREPORTED_TASKS, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Task has unreported entries in Past!', EC.HAS_UNREPORTED_TASKS, EC.HTTP_BAD_REQUEST)
 
     // Find out existing employee report data for this release plan
     let employeeReportIdx = -1
