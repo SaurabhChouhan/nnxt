@@ -2120,4 +2120,7 @@ hr {
     font-size: 30px;
     padding: 70px 370px;
 }
+.description{
+    white-space: pre-line;
+}
 

@@ -38,7 +38,7 @@ class ReportingTaskDetailPage extends React.Component {
                                 title={'Project Description :'}
                                 icon={<i
                                     className="glyphicon glyphicon-tasks calendar_icon"></i>}>
-                    {releasePlan && releasePlan.estimationDescription ? releasePlan.estimationDescription : ''}
+                    <p className="description">{releasePlan && releasePlan.estimationDescription ? releasePlan.estimationDescription : ''}</p>
                 </TimelineEvent>
 
 
@@ -51,7 +51,7 @@ class ReportingTaskDetailPage extends React.Component {
                 <TimelineEvent title={'Task Description :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                    {releasePlan && releasePlan.task && releasePlan.task.description ? releasePlan.task.description : ''}
+                    <p className="description">  {releasePlan && releasePlan.task && releasePlan.task.description ? releasePlan.task.description : ''}</p>
                 </TimelineEvent>
 
 
@@ -79,7 +79,7 @@ class ReportingTaskDetailPage extends React.Component {
                         <TimelineEvent title={'Details :'}
                                        icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                        style={{fontSize: '20px'}}>
-                            {taskPlan && taskPlan.description ? taskPlan.description : ''}
+                            <p className="description"> {taskPlan && taskPlan.description ? taskPlan.description : ''}</p>
                         </TimelineEvent>
 
 
