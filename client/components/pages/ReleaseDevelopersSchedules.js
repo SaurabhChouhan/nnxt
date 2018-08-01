@@ -95,7 +95,9 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                             '#d645f7'
                                                             : day.hours >= employeeSetting.relativelyFree ?
                                                                 '#76c0e2'
-                                                                : '#e8c392'
+                                                                : day.hours == 0 && (dayIdx == 5 || dayIdx == 6) ?
+                                                                    'white'
+                                                                    : '#e8c392'
                                                 return <div key={'day_' + dayIdx} className="schCalendarCell">
                                                     <h5>{day.date > 0 ? day.date : ''}</h5>
                                                     <div className="releaseEmployee">
