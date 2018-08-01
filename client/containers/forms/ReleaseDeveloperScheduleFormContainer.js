@@ -5,9 +5,9 @@ import * as A from '../../actions'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperSchedules: (employeeID, month) => {
+    getDeveloperSchedules: (employeeID, month, year) => {
         if (month && employeeID) {
-            return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), month))
+            return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), month, year))
         } else if (!employeeID || employeeID == undefined) {
             return NotificationManager.error('Employee is not selected!')
         } else

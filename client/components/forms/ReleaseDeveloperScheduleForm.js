@@ -33,7 +33,7 @@ class ReleaseDeveloperScheduleForm extends Component {
                         <Field name="employeeID"
                                placeholder={"Name of Developer"}
                                onChange={(event, newValue, oldValue) => {
-                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month())
+                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month(), this.state.monthMoment.year())
                                }}
                                component={renderSelect}
                                options={team}
@@ -47,7 +47,7 @@ class ReleaseDeveloperScheduleForm extends Component {
                                 style={{marginLeft: '-16px'}}
                                 onClick={() => {
                                     let newMonthMoment = this.state.monthMoment.clone().subtract(1, 'month')
-                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month())
+                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month(), newMonthMoment.year())
                                     this.setState({
                                         monthMoment: newMonthMoment
                                     })
@@ -64,7 +64,7 @@ class ReleaseDeveloperScheduleForm extends Component {
                                 style={{marginLeft: '27px'}}
                                 onClick={() => {
                                     let newMonthMoment = this.state.monthMoment.clone().add(1, 'month')
-                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month())
+                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month(), newMonthMoment.year())
                                     this.setState({
                                         monthMoment: newMonthMoment
                                     })

@@ -393,6 +393,7 @@ export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, End
 
 export const shiftTasksToFutureOnServer = (shift) => {
     return (dispatch, getState) => {
+        let state = getState()
         return fetch('/api/releases/shift-future/', {
                 method: 'put',
                 credentials: "include",
@@ -408,7 +409,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
             json => {
                 if (json.success) {
                     if (json.data && json.data.taskPlan)
-                        dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlanID))
+                        dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
                 }
                 return json
             })
@@ -418,6 +419,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
 
 export const shiftTasksToPastOnServer = (shift) => {
     return (dispatch, getState) => {
+        let state = getState()
         return fetch('/api/releases/shift-past/', {
                 method: 'put',
                 credentials: "include",
@@ -433,7 +435,7 @@ export const shiftTasksToPastOnServer = (shift) => {
             json => {
                 if (json.success) {
                     if (json.data && json.data.taskPlan)
-                        dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlanID))
+                        dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
                 }
                 return json
             })

@@ -10,11 +10,24 @@ import * as SC from '../../../server/serverconstants'
 moment.locale('en')
 momentLocalizer()
 let ReleaseTaskPlanningShiftForm = (props) => {
-    const {days, team, handleSubmit, employeeId, startDate, endDate, baseDate, daysToShift, releasePlan} = props
-    let now = new Date()
-    let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMoment = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    const {day, month, handleSubmit, employee, daysToShift, year, days, release} = props
+
+    //let m =
+
+    let m = moment()
+    m.date(day)
+    m.month(month)
+    m.year(year)
+
     return <form onSubmit={handleSubmit}>
+        <div className={"row"}>
+            <div className={"col-md-4"}>
+                <span>From Date: <span className={"highlightText"}>{m.format('Do, MMM, YY')}</span></span>
+            </div>
+            <div className={"col-md-offset-4 col-md-4"}>
+                <span>Employee: <span className={"highlightText"}>{employee.name}</span></span>
+            </div>
+        </div>
         <div className={"row"}>
             <div className="col-md-12 planDivider">
                 <div className="col-md-offset-8 col-md-4"><span>Days to Shift</span>
@@ -28,12 +41,12 @@ let ReleaseTaskPlanningShiftForm = (props) => {
         </div>
         <div className={"row"}>
             <div className="col-md-offset-4 col-md-8">
-                <div style={{float:"right"}}>
+                <div style={{float: "right"}}>
                     <button
                         type="button"
                         className="btn customBtn Past "
                         onClick={() => {
-                            props.shiftTasksToPast(employeeId, baseDate, daysToShift, releasePlan._id)
+                            props.shiftTasksToPast(release._id, employee._id, day, month, year, daysToShift)
                         }}><span className="glyphicon glyphicon-chevron-left"></span>
                         Shift in Past
                     </button>
@@ -41,7 +54,7 @@ let ReleaseTaskPlanningShiftForm = (props) => {
                         type="button"
                         className="btn customBtn Future"
                         onClick={() => {
-                            props.shiftTasksToFuture(employeeId, baseDate, daysToShift, releasePlan._id)
+                            props.shiftTasksToFuture(release._id, employee._id, day, month, year, daysToShift)
                         }}>
                         Shift in Future
                         <span className="glyphicon glyphicon-chevron-right"></span>
@@ -60,10 +73,12 @@ const selector = formValueSelector('task-plan-shift')
 
 ReleaseTaskPlanningShiftForm = connect(
     state => {
-        const {employeeId, baseDate, daysToShift} = selector(state, 'employeeId', 'baseDate', 'daysToShift')
+        const {employee, month, day, year, daysToShift} = selector(state, 'employee', 'month', 'day', 'year', 'daysToShift', 'release')
         return {
-            employeeId,
-            baseDate,
+            employee,
+            month,
+            day,
+            year,
             daysToShift
         }
     }

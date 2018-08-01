@@ -79,7 +79,7 @@ employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
     return await EmployeeDaysModel.find({})
 }
 
-employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, user) => {
+employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, year, user) => {
     if (!employeeID) {
         throw new AppError('Employee is not selected, please select any employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
@@ -87,7 +87,10 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, us
         throw new AppError('Please select month', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
     let monthMoment = moment().month(month)
+    monthMoment.year(year)
 
+    if (!monthMoment.isValid())
+        throw new AppError('Invalid month or year sent', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
     let cal = {}
 
@@ -175,6 +178,8 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, us
     return {
         startDay: startDay,
         heading: startMonth.format('MMMM, YY'),
+        month: startMonth.month(),
+        year: startMonth.year(),
         employees: [{
             _id: selectedEmployee._id,
             name: ((selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '') + (selectedEmployee.lastName ? selectedEmployee.lastName : '')),

@@ -1,11 +1,24 @@
 import {connect} from 'react-redux'
 import {ReleaseDevelopersSchedules} from '../../components'
-import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
+import {initialize} from 'redux-form'
+import {TASK_SHIFT_DIALOG} from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getEmployeeSettings: () => dispatch(A.getEmployeeSettingFromServer()),
-    dispatch
+    dispatch,
+    showTaskShiftDialog:(day, month, year, employee) => {
+
+        dispatch(initialize('task-plan-shift', {
+            day,
+            month,
+            year,
+            employee
+        }))
+
+        dispatch(A.showComponent(TASK_SHIFT_DIALOG))
+
+    }
 })
 
 

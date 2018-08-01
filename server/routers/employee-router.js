@@ -40,8 +40,8 @@ employeeRouter.get("/:employeeID/from/:from/employee-schedule", async ctx => {
     return await MDL.EmployeeDaysModel.getEmployeeSchedule(ctx.params.employeeID, ctx.params.from, ctx.state.user)
 })
 
-employeeRouter.get("/:employeeID/employee-schedule/:month", async ctx => {
-    return await MDL.EmployeeDaysModel.getMonthlyWorkCalendar(ctx.params.employeeID, ctx.params.month, ctx.state.user)
+employeeRouter.get("/:employeeID/employee-schedule/:month/year/:year", async ctx => {
+    return await MDL.EmployeeDaysModel.getMonthlyWorkCalendar(ctx.params.employeeID, ctx.params.month, ctx.params.year, ctx.state.user)
 })
 
 export default employeeRouter

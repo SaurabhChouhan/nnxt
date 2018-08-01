@@ -278,9 +278,6 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                     </div>
                     <div>
-                        <ReleaseTaskPlanningShiftFormContainer/>
-                    </div>
-                    <div>
                         <ReleaseDeveloperFilterFormContainer/>
                     </div>
                     <div className="col-md-12">

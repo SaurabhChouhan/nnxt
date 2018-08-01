@@ -20,8 +20,8 @@ class ReleaseDevelopersSchedules extends React.Component {
         this.props.getEmployeeSettings()
     }
 
-    calendarDateClicked(day) {
-        this.props.dispatch(showComponent(TASK_SHIFT_DIALOG))
+    calendarDateClicked(day, employee) {
+        this.props.showTaskShiftDialog(day.date, this.props.workCalendar.month, this.props.workCalendar.year, employee)
     }
 
     render() {
@@ -103,10 +103,10 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                 return <div key={'day_' + dayIdx} className="schCalendarCell">
                                                     <h5>{day.date > 0 ? day.date : ''}</h5>
                                                     <div className="releaseEmployee">
-                                                        <span value={day} className={"schCalendarHour"} style={{
+                                                        <span className={"schCalendarHour"} style={{
                                                             backgroundColor: color
                                                         }}
-                                                              onClick={that.calendarDateClicked.bind(that, day)}>{day.hours >= 0 ? day.hours : ''}</span>
+                                                              onClick={that.calendarDateClicked.bind(that, day, employee)}>{day.hours >= 0 ? day.hours : ''}</span>
                                                     </div>
                                                 </div>
                                             })
