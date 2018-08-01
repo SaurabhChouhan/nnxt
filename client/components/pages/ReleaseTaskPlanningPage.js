@@ -11,7 +11,7 @@ import {
     ReleaseDevelopersSchedulesContainer,
     ReleaseTaskPlanningShiftFormContainer,
 } from '../../containers'
-import {ConfirmationDialog} from "../";
+import {ConfirmationDialog, TaskShiftDialog} from "../";
 
 moment.locale('en')
 momentLocalizer()
@@ -276,9 +276,6 @@ class ReleaseTaskPlanningPage extends Component {
                                                     body="Are you sure you want to delete this task plan. Please confirm!"/>
                             }
                         </div>
-                    </div>
-                    <div>
-                        <ReleaseTaskPlanningShiftFormContainer/>
                     </div>
                     <div>
                         <ReleaseDeveloperFilterFormContainer/>

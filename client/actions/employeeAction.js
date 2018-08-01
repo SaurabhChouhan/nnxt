@@ -87,9 +87,9 @@ export const addWorkCalendar = (calendar) => ({
     calendar: calendar
 })
 
-export const getEmployeeWorkCalendarFromServer = (employeeID, month) => {
+export const getEmployeeWorkCalendarFromServer = (employeeID, month, year) => {
     return function (dispatch, getState) {
-        return fetch('/api/employees/' + employeeID + "/employee-schedule/" + month,
+        return fetch('/api/employees/' + employeeID + "/employee-schedule/" + month + "/year/" + year,
             {
                 method: "get",
                 credentials: "include",

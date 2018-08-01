@@ -1,16 +1,21 @@
 import {connect} from 'react-redux'
 import {ReleaseDeveloperScheduleForm} from '../../components'
-import moment from 'moment'
 import * as A from '../../actions'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperSchedules: (employeeID, from) => {
-        if (from && employeeID) {
-            return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), 7))
-        } else if (!employeeID || employeeID == undefined) {
-            return NotificationManager.error('Employee is not selected!')
-        } else return NotificationManager.error('Date is not picked up properly!')
+    getDeveloperSchedules: (employeeID, month, year) => {
+        console.log("employee id is ", employeeID)
+        if (month && employeeID !== undefined) {
+            if (employeeID === '')
+                // clearing work calendar
+                return dispatch(A.addWorkCalendar({}))
+            else
+                return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), month, year))
+        } else if (employeeID == undefined) {
+            return NotificationManager.error('Please select employee!')
+        } else
+            return NotificationManager.error('Date is not picked up properly!')
 
 
     }
@@ -20,8 +25,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? state.user.allDevelopers : [],
     initialValues: {
-        'employeeId': undefined,
-        'fromSchedule': moment(state.release.fromSchedule).toDate()
+        'employeeId': undefined
     }
 })
 

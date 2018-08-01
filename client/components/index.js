@@ -111,6 +111,7 @@ export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPla
 export {default as ReleaseMergeTaskPlanningFormDialog} from './dialogs/ReleaseMergeTaskPlanningFormDialog'
 export {default as UpdateReleaseDatesFormDialog} from './dialogs/UpdateReleaseDatesFormDialog'
 export {default as ReleasePlanAddToReleaseDialog} from './dialogs/ReleasePlanAddToReleaseDialog'
+export {default as TaskShiftDialog} from './dialogs/TaskShiftDialog'
 //Release Pages
 export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSchedules'
 export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'

@@ -16,7 +16,14 @@ class ReleaseDevelopersSchedules extends React.Component {
         this.props.getEmployeeSettings()
     }
 
+    calendarDateClicked(day, employee) {
+        this.props.showTaskShiftDialog(day.date, this.props.workCalendar.month, this.props.workCalendar.year, employee)
+    }
+
     render() {
+        console.log("ReleaseDevelopers Schedule ", this.props)
+
+        let that = this;
 
         const {workCalendar, employeeSetting, from} = this.props
         let fromString = moment(from).format(SC.DATE_FORMAT)
@@ -42,7 +49,7 @@ class ReleaseDevelopersSchedules extends React.Component {
         return <div>
             <div key={'schedule_1'}
                  className="col-md-12 releaseSchedule">
-                <div className="repository releaseDevInfo">
+                <div className="schCalendar releaseDevInfo">
                     <div className="releaseDevHeading">
                         <h5>{employee.name}</h5>
                         <i className="glyphicon glyphicon-resize-full pull-right"></i>
@@ -50,7 +57,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                             className="pull-right">{workCalendar.heading}</span>
                     </div>
 
-                    <div className={"schCalendar"}>
+                    <div className={"schCalendarDates"}>
                         <div className="schCalendarDayRow">
                             <div key={'monday'} className="schCalendarCell">
                                 <h5>Mon</h5>
@@ -94,7 +101,8 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                     <div className="releaseEmployee">
                                                         <span className={"schCalendarHour"} style={{
                                                             backgroundColor: color
-                                                        }}>{day.hours >= 0 ? day.hours : ''}</span>
+                                                        }}
+                                                              onClick={that.calendarDateClicked.bind(that, day, employee)}>{day.hours >= 0 ? day.hours : ''}</span>
                                                     </div>
                                                 </div>
                                             })
