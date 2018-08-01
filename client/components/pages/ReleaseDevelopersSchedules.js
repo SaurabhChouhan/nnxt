@@ -3,10 +3,6 @@ import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import momentTZ from 'moment-timezone'
 import * as SC from '../../../server/serverconstants'
-import {showComponent} from "../../actions";
-import {TASK_SHIFT_DIALOG} from "../componentConsts";
-
-'../../actions'
 
 moment.locale('en')
 momentLocalizer()

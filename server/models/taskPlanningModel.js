@@ -1477,23 +1477,6 @@ taskPlanningSchema.statics.planningShiftToFuture = async (shiftInput, user, sche
     if (!employee)
         throw new AppError('Not a valid user', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
-    /* Base Date in UTC */
-    let baseDateMomentInUtc = momentTZ.tz(SC.UTC_TIMEZONE)
-    baseDateMomentInUtc.date(shiftInput.day)
-    baseDateMomentInUtc.month(shiftInput.month)
-    baseDateMomentInUtc.year(shiftInput.year)
-    baseDateMomentInUtc.startOf('day')
-
-    logger.debug('[task-shift-future]: baseDateMomentInUtc',{baseDate:baseDateMomentInUtc.toDate()})
-
-    // Get toDays date in indian time zone and then convert it into UTC for comparison
-    let toDaysMoment = U.momentInUTC(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE))
-
-    /* can not shift task whose planning date is before now */
-    if (baseDateMomentInUtc.isBefore(toDaysMoment)) {
-        throw new AppError('Can not shift previous tasks', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    }
-
     /* checking that Release is valid or not */
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(shiftInput.releaseId))
     if (!release)
@@ -1505,6 +1488,32 @@ taskPlanningSchema.statics.planningShiftToFuture = async (shiftInput, user, sche
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
+
+    /* Base Date in UTC */
+    let baseDateMomentInUtc = momentTZ.tz(SC.UTC_TIMEZONE)
+    baseDateMomentInUtc.date(shiftInput.day)
+    baseDateMomentInUtc.month(shiftInput.month)
+    baseDateMomentInUtc.year(shiftInput.year)
+    baseDateMomentInUtc.startOf('day')
+
+    // Get toDays date in indian time zone and then convert it into UTC for comparison
+    let toDaysMoment = U.momentInUTC(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE))
+
+    /* can not shift task whose planning date is before now */
+    if (baseDateMomentInUtc.isBefore(toDaysMoment)) {
+        throw new AppError('Cannot start shifting from past date!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
+
+    // See if there are tasks added on this date
+
+    let count = await MDL.TaskPlanningModel.count({
+        'employee._id': employee._id,
+        'planningDate': baseDateMomentInUtc,
+        'release._id': release._id
+    })
+
+    if(count == 0)
+        throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* Fetch all task plannings on/after base date for this release against this employee id  */
     /* Get selected employee`s task plannings for this release, task plans of other releases would not be impacted */
@@ -1775,8 +1784,17 @@ taskPlanningSchema.statics.planningShiftToPast = async (shiftInput, user, schema
     baseDateMomentInUtc.startOf('day')
 
     if (baseDateMomentInUtc.isBefore(nowMomentInUtc)) {
-        throw new AppError('Can not shift from past dates', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Cannot start shifting from past date', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
+
+    let count = await MDL.TaskPlanningModel.count({
+        'employee._id': employee._id,
+        'planningDate': baseDateMomentInUtc,
+        'release._id': release._id
+    })
+
+    if(count == 0)
+        throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* checking Release is valid or not */
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(shiftInput.releaseId))
