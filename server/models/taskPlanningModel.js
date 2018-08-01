@@ -234,17 +234,26 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 /*--------------------------------------------------------------GET_TASK_PLANS_END-------------------------------------------------------------------*/
 /*-------------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_START---------------------------------------------------------------*/
 
-const getNewProgressPercentage = (releasePlan) => {
-    let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+const getNewProgressPercentage = (releasePlan, reportedStatus) => {
 
-    // see if base hours crossed estimated hours, only then it is a new base hours to calculate progress
-    if (baseHours < releasePlan.task.estimatedHours) {
-        baseHours = releasePlan.task.estimatedHours
+
+    let progress = 0
+
+    if (reportedStatus && reportedStatus == SC.STATUS_COMPLETED) {
+        // As status of this release plan is completed progress would be 1
+        progress = 100
+        logger.debug('getNewProgressPercentage(): reported status is completed progress would be 100 percent')
+    } else {
+        let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+        // see if base hours crossed estimated hours, only then it would be considered as new base hours to calculate progress
+        if (baseHours < releasePlan.task.estimatedHours) {
+            baseHours = releasePlan.task.estimatedHours
+        }
+        logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
+        // now that we have base hours we would calculate progress by comparing it against reported hours
+        progress = releasePlan.report.reportedHours * 100 / baseHours
+        logger.debug('getNewProgressPercentage(): [progress] ', {progress})
     }
-    logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
-    // now that we have base hours we would calculate progress by comparing it against reported hours
-    let progress = releasePlan.report.reportedHours * 100 / baseHours
-    logger.debug('getNewProgressPercentage(): [progress] ', {progress})
     return progress.toFixed(2)
 }
 
@@ -845,8 +854,9 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, employee, planned
     taskPlan.planning = {plannedHours: plannedHourNumber}
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
     taskPlan.iterationType = releasePlan.release.iteration.iterationType
-    taskPlan.report = {}
-    taskPlan.report.status = SC.REPORT_UNREPORTED
+    taskPlan.report = {
+        status: SC.REPORT_UNREPORTED
+    }
 
     logger.debug('addTaskPlanning(): [newly created task plan] task plan is ', {taskPlan})
 
@@ -2163,7 +2173,7 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
-    let progress = getNewProgressPercentage(releasePlan)
+    let progress = getNewProgressPercentage(releasePlan, reportInput.status)
     releasePlan.diffProgress = progress - releasePlan.report.progress
     releasePlan.report.progress = progress
 
@@ -2315,7 +2325,6 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     if (taskPlan.employee._id.toString() !== employee._id.toString())
         throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
-
     /* find release plan associated with this task plan */
 
     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
@@ -2339,11 +2348,27 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         }
     }
 
+
     let reportedMoment = U.momentInUTC(reportInput.reportedDate)
     let maxReportedMoment
 
-    // Find out existing employee report data for this release plan
+    /**
+     * Task can only be reported once all other task of this release plan added against this employee is reported
+     */
 
+    let pastTaskCount = await MDL.TaskPlanningModel.count({
+        'releasePlan._id': releasePlan._id,
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'planningDate': {$lt: reportedMoment.toDate()},
+        'report.status': SC.REPORT_UNREPORTED
+    })
+
+    logger.debug("addTaskReportPlanned(): Past task count is ", {pastTaskCount})
+
+    if (pastTaskCount > 0)
+        throw new AppError('Task has unreported entries in Past!', EC.HAS_UNREPORTED_TASKS, EC.HTTP_BAD_REQUEST)
+
+    // Find out existing employee report data for this release plan
     let employeeReportIdx = -1
     if (releasePlan.report.employees) {
         employeeReportIdx = releasePlan.report.employees.findIndex(e => {

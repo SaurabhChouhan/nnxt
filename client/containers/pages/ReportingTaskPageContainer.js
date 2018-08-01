@@ -26,17 +26,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     reportTask: (task, date, iterationType) => {
         let inputTask = {
             _id: task._id,
-            reason: task.reason,
             reportedHours: parseInt(task.reportedHours),
             status: iterationType == SC.ITERATION_TYPE_PLANNED ? task.status : SC.STATUS_PENDING,
             reportedDate: date,
             iterationType: iterationType
         }
-        dispatch(A.reportTaskToServer(inputTask)).then((json) => {
-            if (json.success)
+
+        return dispatch(A.reportTaskToServer(inputTask)).then((json) => {
+            if (json.success) {
                 NotificationManager.success('Task report submitted.')
-            else
-                NotificationManager.error('Task report failed!!!')
+            } else
+                NotificationManager.error(json.message)
+            return json
         })
     }
 })

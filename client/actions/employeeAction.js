@@ -1,5 +1,7 @@
 import {initialize} from 'redux-form'
 import * as A from '../actions'
+import * as AC from "./actionConsts"
+
 
 export const addEmployeeSettingOnServer = (employeeSetting) => {
     return function (dispatch, getState) {
@@ -26,7 +28,6 @@ export const addEmployeeSettingOnServer = (employeeSetting) => {
         )
     }
 }
-
 
 export const getEmployeeSettingFromServer = () => {
     return function (dispatch, getState) {
@@ -80,3 +81,34 @@ export const updateEmployeeSettingOnServer = (employeeSetting) => {
         )
     }
 }
+
+export const addWorkCalendar = (calendar) => ({
+    type: AC.ADD_WORK_CALENDAR,
+    calendar: calendar
+})
+
+export const getEmployeeWorkCalendarFromServer = (employeeID, month) => {
+    return function (dispatch, getState) {
+        return fetch('/api/employees/' + employeeID + "/employee-schedule/" + month,
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addWorkCalendar(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+

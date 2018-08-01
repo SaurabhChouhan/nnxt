@@ -6,6 +6,8 @@ import momentTZ from 'moment-timezone'
 import moment from 'moment'
 import AppError from '../AppError'
 import * as MDL from '../models'
+import logger from '../logger'
+import * as U from '../utils'
 
 mongoose.Promise = global.Promise
 
@@ -77,6 +79,109 @@ employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
     return await EmployeeDaysModel.find({})
 }
 
+employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, user) => {
+    if (!employeeID) {
+        throw new AppError('Employee is not selected, please select any employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    if (!month) {
+        throw new AppError('Please select month', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+    let monthMoment = moment().month(month)
+
+
+    let cal = {}
+
+    let startMonth = monthMoment.startOf('month')
+    let endMonth = monthMoment.clone().endOf('month')
+
+    let startDay = startMonth.day()
+
+
+    if (startDay == 0)
+    // this is sunday so make it as 7 as it would come last and it would be easier for logic to run
+        startDay = 7
+
+
+    logger.debug("getMonthlyWorkCalendar(): ", {startMonth})
+    logger.debug("getMonthlyWorkCalendar(): ", {endMonth})
+
+    let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
+    if (!selectedEmployee) {
+        throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let employeeDays = await EmployeeDaysModel.aggregate([{
+        $match: {
+            $and: [
+                {date: {$gte: startMonth.toDate(), $lte: endMonth.toDate()}},
+                {"employee._id": selectedEmployee._id}
+            ]
+        }
+    }, {
+        $sort: {date: 1}
+    }]).exec()
+
+
+    /*
+       We will now iterate over employee days in order to fill proper planned hours against each date
+     */
+
+    let schedule = []
+
+    for (let i = 1; i <= endMonth.date(); i++) {
+        schedule.push({
+            date: i,
+            hours: 0
+        })
+    }
+
+
+    if (employeeDays && employeeDays.length) {
+        employeeDays.forEach(e => {
+            let date = U.momentInUTC(e.dateString).date()
+            // place planned hours against this date
+            schedule[date - 1].hours = e.plannedHours
+        })
+    }
+
+    // Now we will divide schedule into week rows
+    let weeklySchedule = []
+    weeklySchedule.push([])
+
+    for (let j = 1; j < startDay; j++) {
+        // Fill those days with -1 for first week that do not have any date as first date comes on later day
+        weeklySchedule[0].push({
+            date: -1,
+            hours: -1
+        })
+    }
+
+    let k = 0;
+
+    schedule.forEach(s => {
+        if (startDay < 8) {
+            weeklySchedule[k].push(s)
+            startDay++
+        } else {
+            // sunday is passed start a new week
+            weeklySchedule.push([])
+            startDay = 2
+            k++
+            weeklySchedule[k].push(s)
+        }
+    })
+
+
+    return {
+        startDay: startDay,
+        heading: startMonth.format('MMMM, YY'),
+        employees: [{
+            _id: selectedEmployee._id,
+            name: ((selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '') + (selectedEmployee.lastName ? selectedEmployee.lastName : '')),
+            schedule: weeklySchedule
+        }]
+    }
+}
 
 employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) => {
     if (!employeeID) {

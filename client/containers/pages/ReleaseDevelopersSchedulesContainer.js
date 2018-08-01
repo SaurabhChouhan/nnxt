@@ -10,6 +10,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state) => ({
     schedules: state.release.schedules,
+    workCalendar:state.employee.workCalendar,
     from: state.release.from,
     employeeSetting: state.release.employeeSetting
 })
