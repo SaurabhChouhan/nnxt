@@ -4,13 +4,14 @@ import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getEmployeeSettings: () => dispatch(A.getEmployeeSettingFromServer())
+    getEmployeeSettings: () => dispatch(A.getEmployeeSettingFromServer()),
+    dispatch
 })
 
 
 const mapStateToProps = (state) => ({
     schedules: state.release.schedules,
-    workCalendar:state.employee.workCalendar,
+    workCalendar: state.employee.workCalendar,
     from: state.release.from,
     employeeSetting: state.release.employeeSetting
 })

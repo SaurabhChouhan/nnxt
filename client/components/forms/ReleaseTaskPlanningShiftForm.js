@@ -15,28 +15,20 @@ let ReleaseTaskPlanningShiftForm = (props) => {
     let nowString = moment(now).format(SC.DATE_FORMAT)
     let nowMoment = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
     return <form onSubmit={handleSubmit}>
-        <div className="col-md-12 planDivider">
-            <div className="col-md-3 planDividerDate devMargin">
-                <Field name="employeeId" placeholder={"Name of Developer"}
-                       component={renderSelect} options={team}
-                       label={"Developer Name:"}/>
-
+        <div className={"row"}>
+            <div className="col-md-12 planDivider">
+                <div className="col-md-offset-8 col-md-4"><span>Days to Shift</span>
+                    <Field name="daysToShift" placeholder={"select days"}
+                           displayField={"day"}
+                           valueField={"day"}
+                           component={renderSelect} options={days}
+                    />
+                </div>
             </div>
-            <div className="col-md-3 planDividerDate devMargin"><span>Base Date</span>
-                <Field name="baseDate" placeholder={"select base date"} component={renderDateTimePickerString}
-                       showTime={false}
-                       min={nowMoment.toDate()}
-                />
-            </div>
-            <div className="col-md-2 planDividerDate devMargin"><span>Days to Shift</span>
-                <Field name="daysToShift" placeholder={"select days"}
-                       displayField={"day"}
-                       valueField={"day"}
-                       component={renderSelect} options={days}
-                />
-            </div>
-            <div className="col-md-4 planDividerBtn">
-                <div className="col-md-6">
+        </div>
+        <div className={"row"}>
+            <div className="col-md-offset-4 col-md-8">
+                <div style={{float:"right"}}>
                     <button
                         type="button"
                         className="btn customBtn Past "
@@ -45,8 +37,6 @@ let ReleaseTaskPlanningShiftForm = (props) => {
                         }}><span className="glyphicon glyphicon-chevron-left"></span>
                         Shift in Past
                     </button>
-                </div>
-                <div className="col-md-6">
                     <button
                         type="button"
                         className="btn customBtn Future"
@@ -59,8 +49,6 @@ let ReleaseTaskPlanningShiftForm = (props) => {
                 </div>
             </div>
         </div>
-
-
     </form>
 }
 

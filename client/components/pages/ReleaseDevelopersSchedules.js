@@ -3,6 +3,10 @@ import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import momentTZ from 'moment-timezone'
 import * as SC from '../../../server/serverconstants'
+import {showComponent} from "../../actions";
+import {TASK_SHIFT_DIALOG} from "../componentConsts";
+
+'../../actions'
 
 moment.locale('en')
 momentLocalizer()
@@ -16,7 +20,14 @@ class ReleaseDevelopersSchedules extends React.Component {
         this.props.getEmployeeSettings()
     }
 
+    calendarDateClicked(day) {
+        this.props.dispatch(showComponent(TASK_SHIFT_DIALOG))
+    }
+
     render() {
+        console.log("ReleaseDevelopers Schedule ", this.props)
+
+        let that = this;
 
         const {workCalendar, employeeSetting, from} = this.props
         let fromString = moment(from).format(SC.DATE_FORMAT)
@@ -92,9 +103,10 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                 return <div key={'day_' + dayIdx} className="schCalendarCell">
                                                     <h5>{day.date > 0 ? day.date : ''}</h5>
                                                     <div className="releaseEmployee">
-                                                        <span className={"schCalendarHour"} style={{
+                                                        <span value={day} className={"schCalendarHour"} style={{
                                                             backgroundColor: color
-                                                        }}>{day.hours >= 0 ? day.hours : ''}</span>
+                                                        }}
+                                                              onClick={that.calendarDateClicked.bind(that, day)}>{day.hours >= 0 ? day.hours : ''}</span>
                                                     </div>
                                                 </div>
                                             })

@@ -43,6 +43,7 @@ import {
     UpdateReleaseDatesFormDialog,
     EstimationAddToReleaseDialog,
     ReleasePlanAddToReleaseDialog,
+    TaskShiftDialog
 
 } from "../index"
 import {Route} from 'react-router-dom'
@@ -285,6 +286,11 @@ class ContentMain extends Component {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
                     <ReleaseTaskPlanningPageContainer name={COC.RELEASE_TASK_PLANNING_PAGE}/>
+                    <TaskShiftDialog name={COC.TASK_SHIFT_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.TASK_SHIFT_DIALOG))
+                        }
+                    }/>
                     <ReleaseTaskPlanningFormDialog name={COC.RELEASE_TASK_PLANNING_FORM_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))

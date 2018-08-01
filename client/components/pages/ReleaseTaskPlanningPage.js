@@ -11,7 +11,7 @@ import {
     ReleaseDevelopersSchedulesContainer,
     ReleaseTaskPlanningShiftFormContainer,
 } from '../../containers'
-import {ConfirmationDialog} from "../";
+import {ConfirmationDialog, TaskShiftDialog} from "../";
 
 moment.locale('en')
 momentLocalizer()
