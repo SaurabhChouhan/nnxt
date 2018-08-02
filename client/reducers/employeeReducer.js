@@ -1,7 +1,7 @@
 import * as AC from "../actions/actionConsts";
 
 let initialState = {
-    workCalendar:{}
+    workCalendar: {}
 }
 
 let employeeReducer = (state = initialState, action) => {

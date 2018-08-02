@@ -1,11 +1,10 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
-import {renderDateTimePickerString, renderSelect} from './fields'
-import momentTZ from 'moment-timezone'
+import {renderSelect} from './fields'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
-import * as SC from '../../../server/serverconstants'
+import {NotificationManager} from 'react-notifications'
 
 moment.locale('en')
 momentLocalizer()
@@ -25,17 +24,18 @@ class ReleaseDeveloperScheduleForm extends Component {
         const {handleSubmit, employeeID, team} = props
         return <div>
             <form onSubmit={handleSubmit}>
-                <div className="col-md-12 repositoryHeading RepositorySideHeight releaseDevScheduleHeading">
-                    <div className="col-md-6 pad">
-                        <h5><b>Developers Schedules</b></h5>
-                    </div>
-                    <div className="col-md-6 pad text-right">
+                <div className="col-md-offset-3 col-md-6 repositoryHeading releaseDevScheduleHeading">
+                    <span className={"highlightText"}>Employee Work Calendar</span>
+                </div>
+                <div className="col-md-12">
+                    <div className="col-md-offset-3 col-md-6 pad">
                         <Field name="employeeID"
-                               placeholder={"Name of Developer"}
                                onChange={(event, newValue, oldValue) => {
-                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month())
+                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month(), this.state.monthMoment.year())
                                }}
                                component={renderSelect}
+                               noneOptionText={"Select Employee..."}
+
                                options={team}
                         />
 
@@ -46,8 +46,11 @@ class ReleaseDeveloperScheduleForm extends Component {
                         <button className={"btn reportingArrow"}
                                 style={{marginLeft: '-16px'}}
                                 onClick={() => {
+                                    if(!employeeID) {
+                                        return NotificationManager.error('Please select employee!')
+                                    }
                                     let newMonthMoment = this.state.monthMoment.clone().subtract(1, 'month')
-                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month())
+                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month(), newMonthMoment.year())
                                     this.setState({
                                         monthMoment: newMonthMoment
                                     })
@@ -63,8 +66,11 @@ class ReleaseDeveloperScheduleForm extends Component {
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '27px'}}
                                 onClick={() => {
+                                    if(!employeeID) {
+                                        return NotificationManager.error('Please select employee!')
+                                    }
                                     let newMonthMoment = this.state.monthMoment.clone().add(1, 'month')
-                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month())
+                                    props.getDeveloperSchedules(employeeID, newMonthMoment.month(), newMonthMoment.year())
                                     this.setState({
                                         monthMoment: newMonthMoment
                                     })

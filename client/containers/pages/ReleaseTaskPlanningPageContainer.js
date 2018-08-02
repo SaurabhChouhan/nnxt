@@ -9,14 +9,15 @@ import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
-    showTaskPlanningCreationForm: (releasePlan) => {
+    showTaskPlanningCreationForm: (releasePlan, workCalendarEmployeeID) => {
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
             task: releasePlan.task,
             releasePlan: {
                 _id: releasePlan._id,
             },
-            projectUsersOnly: true
+            projectUsersOnly: true,
+            workCalendarEmployeeID
 
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
@@ -25,6 +26,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     planTask: (taskPlanning) => dispatch(A.addTaskPlanningOnServer(taskPlanning)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Added")
+
         }
         else NotificationManager.error("Task Planning Failed")
     }),
@@ -93,7 +95,8 @@ const mapStateToProps = (state) => ({
     releasePlan: state.release.selectedReleasePlan,
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,
-    expanded: state.release.expanded
+    expanded: state.release.expanded,
+    workCalendarEmployeeID: state.employee.workCalendar.employees && state.employee.workCalendar.employees.length ? state.employee.workCalendar.employees[0]._id : undefined
 })
 
 const ReleaseTaskPlanningPageContainer = connect(

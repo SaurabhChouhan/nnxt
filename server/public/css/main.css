@@ -1524,11 +1524,15 @@ p.task-description {
 .schCalendarHour {
     display: inline-block;
     width: 50%;
-    textAlign: center;
+    text-align: center;
+}
+
+.schCalendarHour:hover {
+    cursor: pointer;
 }
 
 .schCalendarHeadingRow {
-    display:table-row;
+    display: table-row;
 }
 
 .schCalendarHeadingRow h5 {
@@ -1540,7 +1544,6 @@ p.task-description {
     column-span: all;
 }
 
-
 .schCalendarDayRow {
     display: table-row;
 }
@@ -1551,7 +1554,7 @@ p.task-description {
 
 .schCalendarCell {
     display: table-cell;
-    text-align:center;
+    text-align: center;
 }
 
 .releaseDayRow {
@@ -2131,5 +2134,9 @@ hr {
 }
 .description{
     white-space: pre-line;
+}
+
+.highlightText {
+    color: #F66E65
 }
 

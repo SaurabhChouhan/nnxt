@@ -11,7 +11,7 @@ import {
     ReleaseDevelopersSchedulesContainer,
     ReleaseTaskPlanningShiftFormContainer,
 } from '../../containers'
-import {ConfirmationDialog} from "../";
+import {ConfirmationDialog, TaskShiftDialog} from "../";
 
 moment.locale('en')
 momentLocalizer()
@@ -184,7 +184,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
 
-        const {releasePlan, taskPlans, developerPlans, expanded, release} = this.props
+        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeID} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -236,7 +236,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn releasePlanTaskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan)}>
+                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeID)}>
                                 <i className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>
@@ -276,9 +276,6 @@ class ReleaseTaskPlanningPage extends Component {
                                                     body="Are you sure you want to delete this task plan. Please confirm!"/>
                             }
                         </div>
-                    </div>
-                    <div>
-                        <ReleaseTaskPlanningShiftFormContainer/>
                     </div>
                     <div>
                         <ReleaseDeveloperFilterFormContainer/>
