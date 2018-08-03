@@ -62,9 +62,9 @@ const addEvent = async (eventInput, eventType) => {
     event.method = eventInput.method
     event.data = eventInput.data
     event.status = SC.EVENT_SCHEDULED
-    let execution = U.momentFromDateInUTC(eventInput.date)
-    let min = eventInput.minDate ? U.momentFromDateInUTC(eventInput.minDate) : undefined
-    let max = eventInput.maxDate ? U.momentFromDateInUTC(eventInput.maxDate) : undefined
+    let execution = U.sameMomentInUTC(eventInput.date)
+    let min = eventInput.minDate ? U.sameMomentInUTC(eventInput.minDate) : undefined
+    let max = eventInput.maxDate ? U.sameMomentInUTC(eventInput.maxDate) : undefined
 
     event.execution = {
         dateString: execution.format(eventInput.format),

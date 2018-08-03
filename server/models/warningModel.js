@@ -26,6 +26,10 @@ let warningSchema = mongoose.Schema({
         enum: SC.ALL_WARNING_NAME_ARRAY
     },
     isUnresolvable: {type: Boolean, default: false},
+    employee: {
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String}
+    },
     releases: [{
         _id: mongoose.Schema.ObjectId,
         name: {type: String},
@@ -2959,7 +2963,7 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
 
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
-    let momentRePlan = U.momentFromDateInUTC(rePlannedEmployeeDays.date)
+    let momentRePlan = U.sameMomentInUTC(rePlannedEmployeeDays.date)
     /*TOO_MANY_HOURS WARNING UPDATE SECTION*/
 
     // as task is moved there is possibility of removal of too many hours warning if not removed then also task plan will be removed from warning`s task plan list
@@ -3291,6 +3295,76 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
 /*
 * |____________________________________________________________________LEAVE_END____________________________________________________________________|
 */
+
+warningSchema.statics.addUnreported = async (taskPlan) => {
+    // Find if unreported warning already exists against task plan
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    let unreportedWarning = await MDL.WarningModel.findOne({
+        type: SC.WARNING_UNREPORTED,
+        'employee._id': taskPlan.employee._id,
+        'releasePlans._id': taskPlan.releasePlan._id
+    })
+
+
+    if (!unreportedWarning) {
+        // Add warning
+        unreportedWarning = new WarningModel()
+        unreportedWarning.type = SC.WARNING_UNREPORTED
+        unreportedWarning.employee = taskPlan.employee
+        unreportedWarning.taskPlans = [taskPlan]
+        let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+        unreportedWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+        let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+            name: 1,
+            project: 1
+        })
+        //logger.debug('taskReportedAsCompleted(): ', {release})
+        unreportedWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
+
+        warningResponse.added.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_UNREPORTED,
+            source: true
+        })
+        warningResponse.added.push({
+            _id: releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_UNREPORTED,
+            source: true
+        })
+
+        warningResponse.added.push({
+            _id: release._id,
+            warningType: SC.WARNING_TYPE_RELEASE,
+            type: SC.WARNING_UNREPORTED,
+            source: true
+        })
+
+    } else {
+        logger.debug("found unreported warning ", {unreportedWarning})
+        // since warning already exists we just need to add task plan info if not already there
+        if (unreportedWarning.taskPlans.length && unreportedWarning.taskPlans.findIndex(t => t._id.toString() == taskPlan._id.toString()) == -1) {
+            unreportedWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
+            warningResponse.added.push({
+                _id: taskPlan._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_UNREPORTED,
+                source: true
+            })
+        }
+    }
+
+    await unreportedWarning.save()
+
+    return warningResponse
+}
+
 
 const WarningModel = mongoose.model('Warning', warningSchema)
 export default WarningModel

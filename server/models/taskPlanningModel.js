@@ -268,7 +268,7 @@ const getNewProgressPercentage = (releasePlan, reportedStatus) => {
  *   affectedTaskPlans
  * }
  */
-const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
+taskPlanningSchema.statics.updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
 
     // To avoid concurrency problems we would first fetch all release plan/task plans
     // that would be affected by warnings added/removed due to addition of this task plan
@@ -316,14 +316,14 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     // Get releases and task plans
 
     let rpIDPromises = releasePlanIDs.map(rpID => {
-        if (rpID.toString() === releasePlan._id.toString())
+        if (releasePlan && rpID.toString() === releasePlan._id.toString())
             return releasePlan;
         else
             return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(rpID))
     })
 
     let tpIDPromises = taskPlanIDs.map(tpID => {
-        if (tpID.toString() === taskPlan._id.toString())
+        if (taskPlan && tpID.toString() === taskPlan._id.toString())
             return taskPlan;
         else
             return MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(tpID))
@@ -344,7 +344,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
                   that a release plan should have too many hours flag if one of its task plan has that flag
                 */
 
-                logger.debug('[updateFlags]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
                 let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
                 if (!affectedReleasePlan)
                     return;
@@ -352,7 +352,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
                     affectedReleasePlan.flags.push(w.type)
 
             } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
                 let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
                 if (!affectedTaskPlan)
                     return;
@@ -365,7 +365,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
             if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
                 let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
                 if (!affectedReleasePlan)
                     return;
@@ -374,7 +374,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
                     affectedReleasePlan.flags.pull(w.type)
 
             } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
                 let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
                 if (!affectedTaskPlan)
                     return;
@@ -388,12 +388,12 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     // save them and then return only once all save operation completes so that user interface is appropriately modified
 
     let rpSavePromises = affectedReleasePlans.map(rp => {
-        logger.debug("Saving release plan ", {rp})
+        //logger.debug("Saving release plan ", {rp})
         return rp.save()
     })
 
     let tpSavePromises = affectedTaskPlans.map(tp => {
-        logger.debug("Saving task plan ", {tp})
+        //logger.debug("Saving task plan ", {tp})
         return tp.save()
     })
 
@@ -979,7 +979,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     let generatedWarnings = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
     logger.debug('addTaskPlanning :=> Add task plan generatedWarnings: ALL Warnings:', {generatedWarnings})
     // Get release/task plans objects that are affected due to these warnings
-    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
 
     // Make final saves and return response
     await employeeRelease.save()
@@ -1334,7 +1334,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     let generatedWarnings = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release)
     logger.debug('deleteTaskPlanning(): [all-warning-responses] => generatedWarnings => ', {generatedWarnings})
 
-    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
     await taskPlan.remove()
 
     await employeeRelease.save()
@@ -1448,7 +1448,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     logger.debug("[ taskPlanMerged ]:()=> generatedWarnings ", {generatedWarnings})
 
     // update flags
-    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
     taskPlan.created = Date.now()
     taskPlan.planningDate = rePlanningDateUtc
     taskPlan.planningDateString = taskPlanningInput.rePlanningDate
@@ -1512,7 +1512,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (shiftInput, user, sche
         'release._id': release._id
     })
 
-    if(count == 0)
+    if (count == 0)
         throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* Fetch all task plannings on/after base date for this release against this employee id  */
@@ -1793,7 +1793,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (shiftInput, user, schema
         'release._id': release._id
     })
 
-    if(count == 0)
+    if (count == 0)
         throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* checking Release is valid or not */

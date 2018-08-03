@@ -1,29 +1,51 @@
 import * as SC from "../serverconstants";
-import {EventModel} from "../models";
+import * as MDL from "../models";
 import momentTZ from "moment-timezone";
 import * as H from './handlers'
+import * as U from '../utils'
+import logger from '../logger'
+
+
+const processTasks = async (tasks) => {
+    for (const task of tasks) {
+        logger.debug("Adding unreported warning against task plan [" + task.task.name + "]")
+        let warningResponse = await MDL.WarningModel.addUnreported(task)
+        logger.debug("generateUnreportedWarnings(): ", {warningResponse})
+        await MDL.TaskPlanningModel.updateFlags(warningResponse)
+    }
+}
+
 
 export const generateUnreportedWarnings = async (event, data) => {
-    console.log("generateUnreportedWarnings(): called with data ", data)
+    logger.debug("generateUnreportedWarnings(): called", {data}, {date: new Date()})
     //console.log("generateUnreportedWarnings(): called with event ", event)
 
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve(true)
-        }, 1000 * 20)
+    // Find date in India as this event runs at 1am Indian time
+    let moment = momentTZ.tz(SC.INDIAN_TIMEZONE).startOf('day')
+
+    moment = U.sameMomentInUTC(moment.toDate())
+    // Since task plannings are placed in UTC we need to convert it to UTC
+
+    // Find out all the task plans which are left unreported in past dates
+    let tasks = await MDL.TaskPlanningModel.find({
+        planningDate: {$lt: moment.toDate()},
+        'report.reportedOnDate': null
     })
+
+    logger.debug("generateUnreportedWarnings(): found [" + tasks.length + "] that are un reported")
+
+    if (tasks && tasks.length) {
+        await processTasks(tasks)
+    }
+
+    return true
 }
 
-export const monthlyWorkSummaryEvent = async (event, data) => {
-    console.log("generateEmployeeMonthlyReport(): called with data ", data)
-    //console.log("generateEmployeeMonthlyReport(): called with event ", event)
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            resolve(true)
-        }, 1000 * 20)
-    })
-}
-
+/**
+ * Processes events one by one
+ * @param events
+ * @returns {Promise<void>}
+ */
 export const processEvents = async events => {
     let now = new Date()
     for (const e of events) {
@@ -49,7 +71,7 @@ export const processEvents = async events => {
 export const executeEvents = async () => {
     console.log("Executing events ", new Date())
     let now = momentTZ.utc().add(5, 'h').add(31, 'm')
-    let events = await EventModel.find({
+    let events = await MDL.EventModel.find({
         "execution.dateInUTC": {$lt: now.toDate()},
         status: SC.EVENT_SCHEDULED
     })

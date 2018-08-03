@@ -797,13 +797,6 @@ const addUnreportedWarningEvent = async () => {
 
     await MDL.EventModel.addRecurEvent({
         method: 'generateUnreportedWarnings',
-        data: [{
-            key: "a",
-            value: "Apple"
-        }, {
-            key: "b",
-            value: "Ball"
-        }],
         date: date,
         minDate: undefined,
         maxDate: undefined,
