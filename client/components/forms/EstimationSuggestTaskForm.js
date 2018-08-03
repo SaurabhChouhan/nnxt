@@ -15,18 +15,18 @@ let EstimationSuggestTaskForm = (props) => {
         <div className="col-md-12">
             <div className="col-md-5">
                 <div className="col-md-1">
-                    {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                    {estimation.loggedInUserRole === SC.ROLE_NEGOTIATOR ?
                         <img key="estimator" className="suggestionUser div-hover" src="/images/estimator.png"
                              title="Estimator End"/> :
-                        estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                        estimation.loggedInUserRole === SC.ROLE_ESTIMATOR ?
                             <img key="negotiator" className="suggestionUser div-hover" src="/images/negotiator.png"
                                  title="Negotiator End"/> : null
                     }
                 </div>
                 <div className="col-md-11">
-                    {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                    {estimation.loggedInUserRole === SC.ROLE_NEGOTIATOR ?
                         <h4 className="estimatorClr">Estimator</h4> :
-                        estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                        estimation.loggedInUserRole === SC.ROLE_ESTIMATOR ?
                             <h4 className="negotiatorClr">Negotiator</h4> : null
                     }
                     <div className="row">
@@ -76,18 +76,18 @@ let EstimationSuggestTaskForm = (props) => {
             </div>
             <div className="col-md-5">
                 <div className="col-md-1">
-                    {estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                    {estimation.loggedInUserRole === SC.ROLE_ESTIMATOR ?
                         <img key="estimator" className="suggestionUser div-hover" src="/images/estimator.png"
                              title="Estimator End"/> :
-                        estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                        estimation.loggedInUserRole === SC.ROLE_NEGOTIATOR ?
                             <img key="negotiator" className="suggestionUser div-hover" src="/images/negotiator.png"
                                  title="Negotiator End"/> : null
                     }
                 </div>
                 <div className="col-md-11">
-                    {estimation.loggedInUserRole == SC.ROLE_NEGOTIATOR ?
+                    {estimation.loggedInUserRole === SC.ROLE_NEGOTIATOR ?
                         <h4 className="negotiatorClr">{estimation.loggedInUserRole}</h4> :
-                        estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ?
+                        estimation.loggedInUserRole === SC.ROLE_ESTIMATOR ?
                             <h4 className="estimatorClr">{estimation.loggedInUserRole}</h4> : null
                     }
                     <div className="row">
