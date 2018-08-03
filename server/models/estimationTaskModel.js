@@ -359,8 +359,7 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
     let estimation = await MDL.EstimationModel.findById(estimationTask.estimation._id)
     if (!estimation)
         throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    if (estimator._id.toString() != estimation.estimator._id.toString())
+    if (estimator._id.toString() !== estimation.estimator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
@@ -441,7 +440,7 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
         estimationTask.hasError = true
     } else estimationTask.hasError = false
 
-    if (!estimationTask.addedInThisIteration || estimationTask.owner != SC.OWNER_ESTIMATOR) {
+    if (!estimationTask.addedInThisIteration || estimationTask.owner !== SC.OWNER_ESTIMATOR) {
         estimationTask.estimator.changedInThisIteration = true
         estimationTask.estimator.changedKeyInformation = true
     }
@@ -1668,10 +1667,10 @@ const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotia
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only given grant edit permission to task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!estimation.negotiator._id == negotiator._id)
+    if (estimation.negotiator._id.toString() !== negotiator._id.toString())
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (!task.addedInThisIteration || task.owner != SC.OWNER_NEGOTIATOR)
+    if (!task.addedInThisIteration || task.owner !== SC.OWNER_NEGOTIATOR)
         task.negotiator.changedInThisIteration = true
 
     let estimationFeatureObj
@@ -1696,7 +1695,7 @@ const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotia
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-        if (estimation._id.toString() != estimationFeatureObj.estimation._id.toString())
+        if (estimation._id.toString() !== estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
         await MDL.EstimationFeatureModel.updateOne({"_id": task.feature._id}, {
@@ -1747,10 +1746,10 @@ estimationTaskSchema.statics.approveTask = async (taskID, user) => {
 const approveTaskByNegotiator = async (task, estimation, negotiator) => {
     let canApprove = true
 
-    if (estimation.status == SC.STATUS_INITIATED) {
-        if (estimation.type == SC.TYPE_DEVELOPMENT)
+    if (estimation.status === SC.STATUS_INITIATED) {
+        if (estimation.type === SC.TYPE_DEVELOPMENT)
             canApprove = false;
-    } else if (estimation.status != SC.STATUS_REVIEW_REQUESTED)
+    } else if (estimation.status !== SC.STATUS_REVIEW_REQUESTED)
         canApprove = false
 
     if (!canApprove)
