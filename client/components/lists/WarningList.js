@@ -106,6 +106,17 @@ class WarningList extends Component {
 
     render() {
         const {warnings, release} = this.props
+        const options = {
+            sizePerPageList: [{
+                text: '5', value: 5
+            }, {
+                text: '10', value: 10
+            }, {
+                text: 'All', value: warnings.length
+            }], // you can change the dropdown list for size per page
+            sizePerPage: 5,  // which size per page you want to locate as default
+
+        };
         return (
             <div>
                 <div className="col-md-8 releaseOption releaseDetailSearchContent">
@@ -123,10 +134,11 @@ class WarningList extends Component {
                     </div>
                 </div>
                 <div className="estimation">
-                    <BootstrapTable options={this.options} data={warnings}
+                    <BootstrapTable options={options} data={warnings}
                                     multiColumnSearch={true}
                                     search={true}
                                     striped={true}
+                                    pagination
                                     hover={true}>
                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                            hidden={true}>ID
