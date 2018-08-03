@@ -77,8 +77,26 @@ export const momentInUTC = (dateString) => {
     return undefined
 }
 
-export const momentFromDateInUTC = (date) => {
-    return moment(date).tz(SC.UTC_TIMEZONE)
+export const momentInUTCFormat = (dateString, format) => {
+    let momentDate = moment.tz(dateString, format, SC.UTC_TIMEZONE).startOf('day')
+    if (momentDate.isValid())
+        return momentDate
+    return undefined
+}
+
+export const momentInTimeZoneFormat = (dateString, format, timeZone) => {
+    let momentDate = moment.tz(dateString, format, timeZone).startOf('day')
+    if (momentDate.isValid())
+        return momentDate
+    return undefined
+}
+
+export const momentFromDateInUTC = (d) => {
+    return moment.utc().startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
+}
+
+export const momentFromDateInTimeZone = (d, timeZone) => {
+    return moment.tz(timeZone).startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }
 
 export const formatDateInUTC = (date) => {

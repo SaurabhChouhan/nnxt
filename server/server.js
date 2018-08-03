@@ -15,12 +15,14 @@ import {PROD_ENV} from "./serverconstants"
 import path from 'path'
 import logger from './logger'
 import {HTTP_SERVER_ERROR} from "./errorcodes"
-
+import * as H from './eventhandlers/handlers'
+import {EventModel} from "./models";
+import momentTZ from 'moment-timezone'
+import * as SC from './serverconstants'
 
 // Initializing configuration first and then starting application
 co(async () => {
     let conf = await noConfig({config: confFile})
-
     mongoose.Promise = global.Promise
     let connection;
     try {
@@ -52,6 +54,42 @@ co(async () => {
             return
         }
     }
+
+
+    /*
+        let date = new Date(2018, 7, 3, 17, 0)
+        let minDate = new Date(2018, 7, 1)
+        let maxDate = new Date(2018, 8, 1)
+
+        await EventModel.addRecurEvent({
+            method: 'generateUnreportedWarnings',
+            data: [],
+            date: date,
+            minDate: minDate,
+            maxDate: maxDate,
+            timeZone: SC.UTC_TIMEZONE,
+            format: SC.DATE_TIME_24HOUR_FORMAT,
+            increment: 1,
+            incrementUnit: SC.MOMENT_DAYS
+        })
+
+
+        date = new Date(2018, 7, 3, 17, 20)
+        minDate = new Date(2018, 7, 1)
+        maxDate = new Date(2018, 8, 1)
+
+        await EventModel.addRecurEvent({
+            method: 'generateUnreportedWarnings',
+            data: [],
+            date: date,
+            minDate: minDate,
+            maxDate: maxDate,
+            timeZone: SC.UTC_TIMEZONE,
+            format: SC.DATE_TIME_24HOUR_FORMAT,
+            increment: 1,
+            incrementUnit: SC.MOMENT_DAYS
+        })
+        */
 
 
     if (conf.server.setupData) {
@@ -139,6 +177,18 @@ co(async () => {
     app.use(pageRouter.routes())
     // All APIs starts with /api
     app.use(apiRouter.routes())
+
+
+    let t;
+
+    const startEventExecutor = async () => {
+        console.log("executing events...")
+        await H.executeEvents()
+        clearTimeout(t)
+        t = setTimeout(startEventExecutor, 1000 * 5)
+    }
+
+    t = setTimeout(startEventExecutor, 1000 * 5)
 
     app.listen(conf.server.port, () => {
         console.log('Server started on %s', conf.server.port)
