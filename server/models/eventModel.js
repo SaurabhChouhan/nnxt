@@ -63,16 +63,16 @@ const addEvent = async (eventInput, eventType) => {
     event.data = eventInput.data
     event.status = SC.EVENT_SCHEDULED
     let execution = U.momentFromDateInUTC(eventInput.date)
-    let min = U.momentFromDateInUTC(eventInput.minDate)
-    let max = U.momentFromDateInUTC(eventInput.maxDate)
+    let min = eventInput.minDate ? U.momentFromDateInUTC(eventInput.minDate) : undefined
+    let max = eventInput.maxDate ? U.momentFromDateInUTC(eventInput.maxDate) : undefined
 
     event.execution = {
         dateString: execution.format(eventInput.format),
         dateInUTC: execution.toDate(),
-        minDateString: min.format(eventInput.format),
-        minDateInUTC: min.toDate(),
-        maxDateString: max.format(eventInput.format),
-        maxDateInUTC: max.toDate(),
+        minDateString: min ? min.format(eventInput.format) : undefined,
+        minDateInUTC: min ? min.toDate() : undefined,
+        maxDateString: max ? max.format(eventInput.format) : undefined,
+        maxDateInUTC: max ? max.toDate() : undefined,
         format: eventInput.format,
         timeZone: eventInput.timeZone,
         increment: eventInput.increment,
@@ -81,6 +81,7 @@ const addEvent = async (eventInput, eventType) => {
     event.eventType = eventType
     return await event.save()
 }
+
 
 const EventModel = mongoose.model("events", eventSchema)
 export default EventModel

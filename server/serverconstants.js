@@ -329,3 +329,5 @@ export const EVENT_SCHEDULED = 'scheduled'
 export const EVENT_RUNNING = 'running'
 export const EVENT_COMPLETED = 'completed'
 export const EVENT_FAILED = 'failed'
+
+export const EVENT_INTERVAL = 1000 * 5
