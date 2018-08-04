@@ -1,10 +1,6 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
-import * as EC from '../errorcodes'
-import * as SC from '../serverconstants'
-import * as U from '../utils'
-import AppError from '../AppError'
-import _ from 'lodash'
+import releaseRouter from "./release-router";
 
 /***
  * Added prefix
@@ -13,6 +9,27 @@ import _ from 'lodash'
 let taskPlanRouter = new Router({
     prefix: "task-plans"
 })
+
+/***
+ * Add task planning  in which logged in user is involved as a manager or leader
+ ***/
+taskPlanRouter.post("/", async ctx => {
+    return await MDL.TaskPlanningModel.addTaskPlan(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+})
+
+/***
+ * Deletion of task plan by leader or manager of that release
+ ***/
+taskPlanRouter.del("/:planID", async ctx => {
+    return await MDL.TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
+})
+
+taskPlanRouter.put("/:planID/reopen", async ctx => {
+    return {
+        message: "reopened"
+    }
+})
+
 
 /***
  * Get all task plannings by release plan Id

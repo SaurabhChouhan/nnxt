@@ -31,7 +31,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         else NotificationManager.error("Task Planning Failed")
     }),
 
-    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id, plan.releasePlan && plan.releasePlan._id ? plan.releasePlan._id : undefined)).then(json => {
+    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
         }
@@ -47,7 +47,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             } else NotificationManager.error("Task Planning Deletion Failed")
         }
     }),
+    reopenTask: (task) => {
+        dispatch(A.reopenTaskPlanOnServer(task._id))
 
+    },
     openMergeTaskPlanningForm: (releasePlan) => {
         dispatch(initialize("merge-task-planning", releasePlan))
         dispatch(A.showComponent(COC.MERGE_TASK_PLANNING_DIALOG))
