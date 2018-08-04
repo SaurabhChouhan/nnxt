@@ -322,29 +322,26 @@ estimationTaskSchema.statics.updateTask = async (taskInput, user, schemaRequeste
     if (role === SC.ROLE_ESTIMATOR) {
         if (schemaRequested)
             return V.generateSchema(V.estimationEstimatorUpdateTaskStruct)
-        return await updateTaskByEstimator(taskInput, user)
+        return await updateTaskByEstimator(newTaskInput, task, estimation, user)
     } else if (role === SC.ROLE_NEGOTIATOR) {
         if (schemaRequested)
             return V.generateSchema(V.estimationNegotiatorUpdateTaskStruct)
-        return await updateTaskByNegotiator(taskInput, user)
+        return await updateTaskByNegotiator(newTaskInput, task, estimation, user)
     }
     throw new AppError('You play no role in this estimation', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 }
 
 // updating task by Estimator
-const updateTaskByEstimator = async (taskInput, estimator) => {
+const updateTaskByEstimator = async (taskInput, estimationTask, estimation, estimator) => {
 
     V.validate(taskInput, V.estimationEstimatorUpdateTaskStruct)
     if (!estimator || !userHasRole(estimator, SC.ROLE_ESTIMATOR))
         throw new AppError('Not an estimator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    let estimationTask = await EstimationTaskModel.findById(taskInput._id)
-    if (!estimationTask)
-        throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    if (estimationTask.status != SC.STATUS_PENDING) {
-        if (estimationTask.owner == SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
+    if (estimationTask.status !== SC.STATUS_PENDING) {
+        if (estimationTask.owner === SC.OWNER_ESTIMATOR && !estimationTask.addedInThisIteration && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
             throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-        } else if (estimationTask.owner == SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
+        } else if (estimationTask.owner === SC.OWNER_NEGOTIATOR && !estimationTask.negotiator.changeSuggested && !estimationTask.negotiator.changeGranted) {
             throw new AppError('Not allowed to update task as Negotiator has not granted permission', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
         }
     }
@@ -356,9 +353,6 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
         estimationTask.estimator.estimatedHours = 0
     }
 
-    let estimation = await MDL.EstimationModel.findById(estimationTask.estimation._id)
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     if (estimator._id.toString() !== estimation.estimator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -411,7 +405,7 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
     // Modify estimation
     estimation.estimatedHours += diffHours
 
-    let idx = estimation.stats.findIndex(s => s.type === taskInput.type)
+    let idx = estimation.stats.findIndex(s => s.type === estimationTask.type)
     if (idx > -1) {
         // In case of following task type, negotiators hours are considered as estimated hours of final estimation
         estimation.stats[idx].estimatedHours += diffHours
@@ -469,19 +463,11 @@ const updateTaskByEstimator = async (taskInput, estimator) => {
 }
 
 // updating task by Negotiator
-const updateTaskByNegotiator = async (taskInput, negotiator) => {
+const updateTaskByNegotiator = async (taskInput, estimationTask, estimation, negotiator) => {
     V.validate(taskInput, V.estimationNegotiatorUpdateTaskStruct)
     let estimationFeatureObj
     if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
-    let estimationTask = await EstimationTaskModel.findById(taskInput._id)
-    if (!estimationTask)
-        throw new AppError('Estimation task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-
-    let estimation = await MDL.EstimationModel.findById(estimationTask.estimation._id)
-    if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (negotiator._id.toString() !== estimation.negotiator._id.toString())
         throw new AppError('Invalid task for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -493,7 +479,7 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     if (estimationTask.feature && estimationTask.feature._id) {
-        estimationFeatureObj = await MDL.EstimationFeatureModel.findById(estimationTask.feature._id)
+        estimationFeatureObj = await MDL.EstimationFeatureModel.findById(mongoose.Types.ObjectId(estimationTask.feature._id))
         if (!estimationFeatureObj)
             throw new AppError('Feature not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -525,7 +511,7 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
     if (canProvideFinalEstimates)
         estimation.estimatedHours += diffHours
 
-    let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
+    let idx = estimation.stats.findIndex(s => s.type === taskInput.type)
     if (idx > -1) {
         // In case of following task type, negotiators hours are considered as estimated hours of final estimation
         if (canProvideFinalEstimates)
@@ -551,6 +537,7 @@ const updateTaskByNegotiator = async (taskInput, negotiator) => {
     estimationTask.canApprove = false
     estimationTask.negotiator.description = taskInput.description
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
+
     if (!estimationTask.addedInThisIteration || estimationTask.owner !== SC.OWNER_NEGOTIATOR)
         estimationTask.negotiator.changedInThisIteration = true
     estimationTask.negotiator.changeSuggested = true
