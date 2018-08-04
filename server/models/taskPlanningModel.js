@@ -2469,7 +2469,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         reportInput
     })
 
-    let {affectedTaskPlans} = await updateFlags(warningsTaskReported, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
     await employeeRelease.save()
     logger.debug('release before save ', {release})

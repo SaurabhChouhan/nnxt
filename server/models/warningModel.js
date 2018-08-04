@@ -122,7 +122,6 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
 /*-------------------------------------------------------------------REMOVED_UNPLANNED_SECTION_START-----------------------------------------------------------------*/
 
 warningSchema.statics.removeUnplanned = async (releasePlan) => {
-    // TODO: Add appropriate validation
     // remove unplanned warning from release plan
     return await WarningModel.remove({
         type: SC.WARNING_UNPLANNED,
@@ -531,6 +530,15 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release, extr
     }
 
     const {reportedMoment, employeePlanningIdx, reportInput} = extra
+
+    // Removed unreported flag
+
+    let unreportedWarning = await removeUnreported(taskPlan)
+
+    if (unreportedWarning.added && unreportedWarning.added.length)
+        warningResponse.added.push(...unreportedWarning.added)
+    if (unreportedWarning.removed && unreportedWarning.removed.length)
+        warningResponse.removed.push(...unreportedWarning.removed)
 
     let generatedWarningsMoreReportedHours = await updateMoreReportedHours(releasePlan, release)
 
@@ -3363,6 +3371,89 @@ warningSchema.statics.addUnreported = async (taskPlan) => {
     await unreportedWarning.save()
 
     return warningResponse
+}
+
+const removeUnreported = async (taskPlan) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    logger.debug("removeUnreported(): ", {taskPlan})
+
+    let warning = await WarningModel.findOne({
+        type: SC.WARNING_UNREPORTED,
+        'employee._id': taskPlan.employee._id,
+        'releasePlans._id': taskPlan.releasePlan._id
+    })
+
+    logger.debug("removeUnreported(): ", {warning})
+
+    let updatedUnreportedWarning = await WarningModel.findOneAndUpdate({
+        type: SC.WARNING_UNREPORTED,
+        'employee._id': taskPlan.employee._id,
+        'releasePlans._id': taskPlan.releasePlan._id
+    }, {
+        $pull: {
+            taskPlans: {
+                _id: taskPlan._id
+            }
+        }
+    }, {
+        new: true
+    })
+
+    logger.debug("removeUnreported(): ", {updatedUnreportedWarning})
+
+    warningResponse.removed.push({
+        _id: taskPlan._id,
+        warningType: SC.WARNING_TYPE_TASK_PLAN,
+        type: SC.WARNING_UNREPORTED
+    })
+
+    if(!updatedUnreportedWarning.taskPlans.length){
+        // remove warning
+        await updatedUnreportedWarning.remove()
+        updatedUnreportedWarning.releasePlans.forEach(rp => {
+            warningResponse.removed.push({
+                _id: rp._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_UNREPORTED
+            })
+        })
+    }
+
+    return warningResponse
+
+    /*
+    let unreportedWarning = await WarningModel.findOne()
+
+
+
+    if (unreportedWarning) {
+        // Remove this task plan id from warning
+
+        // pull this task plan id
+
+
+        // remove warning
+        await unreportedWarning.remove()
+        warningResponse.removed.push({
+            _id: taskPlan.releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_PENDING_ON_END_DATE
+        })
+
+        // iterate on each task plan that was added against this warning and return removal of those task plans
+        pendingOnEndDateWarning.taskPlans.forEach(t => {
+            warningResponse.removed.push({
+                _id: t._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_PENDING_ON_END_DATE
+            })
+        })
+    }
+    */
 }
 
 
