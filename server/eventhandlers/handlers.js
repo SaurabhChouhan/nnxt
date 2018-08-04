@@ -15,7 +15,6 @@ const processTasks = async (tasks) => {
     }
 }
 
-
 export const generateUnreportedWarnings = async (event, data) => {
     logger.debug("generateUnreportedWarnings(): called", {data}, {date: new Date()})
     //console.log("generateUnreportedWarnings(): called with event ", event)
@@ -32,12 +31,13 @@ export const generateUnreportedWarnings = async (event, data) => {
         'report.reportedOnDate': null
     })
 
-    logger.debug("generateUnreportedWarnings(): found [" + tasks.length + "] that are un reported")
-
     if (tasks && tasks.length) {
         await processTasks(tasks)
     }
 
+    logger.debug("generate unreported warnings executed ", {event})
+
+    await event.eventExecutionSuccessful()
     return true
 }
 
@@ -52,7 +52,7 @@ export const processEvents = async events => {
         // Need to see if this event is indeed need to be execute by by comparing current date/time with time parsed using timezone
         let eventMoment = momentTZ.tz(e.execution.dateString, e.execution.format, e.execution.timeZone)
         if (eventMoment.isBefore(now)) {
-            console.log("Event with method [" + e.method + "] is eligible to be executed now")
+            logger.debug("[======= " + e.method + " =========] is eligible to be executed now")
             // iterate on date array and create object from that
             let data = {}
             if (e.data && e.data.length) {
@@ -60,23 +60,39 @@ export const processEvents = async events => {
                     data[d.key] = d.value
                 })
             }
-            await H[e.method](e, data)
-
+            try {
+                await H[e.method](e, data)
+                // event execution successful
+                logger.debug("[======= " + e.method + " =========] execution completed")
+                //await e.eventExecutionSuccessful()
+            } catch (e) {
+                console.log(e)
+                logger.debug("[======= " + e.method + " =========] execution failed!")
+            }
         } else {
-            console.log("Event with method [" + e.method + "] is not eligible to be executed now")
+            logger.debug("Event with method [" + e.method + "] is not eligible to be executed now")
+            await e.eventNotEligible()
         }
     }
 }
 
 export const executeEvents = async () => {
-    console.log("Executing events ", new Date())
     let now = momentTZ.utc().add(5, 'h').add(31, 'm')
     let events = await MDL.EventModel.find({
         "execution.dateInUTC": {$lt: now.toDate()},
         status: SC.EVENT_SCHEDULED
     })
 
-    console.log("found [" + events.length + "] events to run ")
+    // Mark all this events as running to prevent them from picked by other process
+    MDL.EventModel.update({
+        "execution.dateInUTC": {$lt: now.toDate()},
+        status: SC.EVENT_SCHEDULED
+    }, {
+        $set: {
+            status: SC.EVENT_RUNNING
+        }
+    })
+
     if (events && events.length) {
         await processEvents(events)
     }

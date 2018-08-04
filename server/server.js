@@ -141,7 +141,7 @@ co(async () => {
 
     let t;
     const startEventExecutor = async () => {
-        console.log("executing events...")
+        console.log("["+new Date()+"]: Executing events...")
         await H.executeEvents()
         clearTimeout(t)
         t = setTimeout(startEventExecutor, SC.EVENT_INTERVAL)

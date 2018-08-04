@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import * as SC from "../serverconstants";
 import * as U from "../utils"
 import momentTZ from 'moment-timezone'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -35,7 +36,7 @@ let eventSchema = mongoose.Schema({
         dateInUTC: Date, // Date recorded in UTC
         format: {type: String, default: SC.DATE_TIME_24HOUR_FORMAT},
         timeZone: {type: String, default: SC.INDIAN_TIMEZONE},
-        increment: {type: Number}, // Date incremented by this number (used in recurring event to get next execution date
+        increment: {type: Number, default: 0}, // Date incremented by this number (used in recurring event to get next execution date
         // unit to increment (used in recurring event to get next date
         incrementUnit: {
             type: String,
@@ -48,6 +49,29 @@ let eventSchema = mongoose.Schema({
         default: SC.EVENT_ONETIME
     }
 })
+
+eventSchema.methods.eventExecutionSuccessful = async function () {
+    logger.debug("eventExecutionSuccessful() called for ", {event: this})
+    if (this.eventType == SC.EVENT_RECURRING && this.execution.dateInUTC && this.execution.increment > 0 && this.execution.incrementUnit) {
+        // This is a recurring event update its execution time
+        let m = new momentTZ(this.execution.dateInUTC).add(this.execution.increment, this.execution.incrementUnit)
+        this.execution.dateInUTC = m.toDate()
+        this.execution.dateString = m.format(this.execution.format)
+        this.status = SC.EVENT_SCHEDULED
+    } else if (this.eventType == SC.EVENT_ONETIME) {
+        // this is a one time event mark status as completed
+        this.status = SC.EVENT_COMPLETED
+    }
+    await this.save()
+}
+
+eventSchema.methods.eventNotEligible = async function () {
+    // as event is not eligible to run at the moment change its status to scheduled again
+    logger.debug("eventNotEligible() called for ", {event: this})
+    this.status == SC.EVENT_SCHEDULED
+    await this.save()
+}
+
 
 eventSchema.statics.addRecurEvent = async (eventInput) => {
     return await addEvent(eventInput, SC.EVENT_RECURRING)
