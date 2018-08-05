@@ -37,6 +37,7 @@ export const SERVER_ERROR = 'SERVER_ERROR'
 export const CANT_PLAN = 'CANT_PLAN'
 export const BEYOND_TODAY = 'BEYOND_TODAY'
 export const DIFFERENT_PROJECT = 'DIFFERENT_PROJECT'
+export const CANT_REOPEN = 'CANT_REOPEN'
 
 
 // HTML CODES

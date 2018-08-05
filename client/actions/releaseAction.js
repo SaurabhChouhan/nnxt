@@ -383,7 +383,7 @@ export const reopenTaskPlanOnServer = (taskPlanningID) => {
         ).then(
             json => {
                 if (json.success) {
-
+                    dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlan._id))
                 }
                 return json
             })

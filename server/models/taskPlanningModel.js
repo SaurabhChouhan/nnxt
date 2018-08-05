@@ -2684,6 +2684,96 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
     }
 }
 
+taskPlanningSchema.statics.reopenTask = async (taskPlanID, user) => {
+    /* Get task plan */
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
+
+    if (!taskPlan)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (taskPlan.report.status !== SC.STATUS_COMPLETED)
+        throw new AppError('Only task with status [' + SC.STATUS_COMPLETED + '] can be reopened', EC.CANT_REOPEN, EC.ACCESS_DENIED)
+
+    /* find release plan associated with this task plan */
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+    if (!releasePlan)
+        throw new AppError('No release plan associated with this task , data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
+
+    let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {iterations: 1, name: 1, project: 1})
+
+    if (!release)
+        throw new AppError('No release associated with this task , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can re-open task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    // Find out existing employee report data for this release plan
+    let employeeReportIdx = -1
+    if (releasePlan.report.employees) {
+        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+            return e._id.toString() === taskPlan.employee._id.toString()
+        })
+    }
+
+    // Find this employee planning index
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() === taskPlan.employee._id.toString()
+    })
+
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    let onEndDate = false, beforeEndDate = false
+
+    let reportedMoment = U.momentInUTC(taskPlan.planningDateString)
+
+    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate))
+        onEndDate = true
+    else
+        beforeEndDate = true
+
+    /************************************** RELEASE PLAN UPDATES  ***************************************/
+    // As task is re-opened final status of this release plan as well as employee section would become pending
+    releasePlan.report.finalStatus = SC.REPORT_PENDING
+    releasePlan.report.employees[employeeReportIdx].finalStatus = SC.REPORT_PENDING
+
+    /************************************** RELEASE UPDATES  ***************************************/
+    let iterationIndex = releasePlan.release.iteration.idx
+    release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
+
+    /*************************** TASK PLAN UPDATES ***********************************/
+    taskPlan.report.status = SC.STATUS_PENDING
+
+    logger.debug("taskReopened(): before task reopened warnings")
+
+    let warningsReopenTask = await MDL.WarningModel.taskReopened(taskPlan, {
+        onEndDate,
+        beforeEndDate
+    })
+
+    logger.debug("taskReopened(): ", {warningsReopenTask})
+
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsReopenTask, releasePlan, taskPlan)
+    logger.debug("taskReopened(): flags updated ")
+
+    logger.debug('taskReopened():release before save ', {release})
+    await release.save()
+    logger.debug('taskReopened():release plan before save ', {releasePlan})
+    await releasePlan.save()
+    logger.debug('taskReopened(): task plan before save ', {taskPlan})
+    taskPlan = await taskPlan.save()
+
+    return {
+        taskPlan,
+        affectedTaskPlans,
+        warnings: warningsReopenTask
+    }
+}
+
 
 /**
  * add comments from task detail page by developer or manager or leader

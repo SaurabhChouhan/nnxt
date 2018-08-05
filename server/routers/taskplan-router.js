@@ -24,10 +24,11 @@ taskPlanRouter.del("/:planID", async ctx => {
     return await MDL.TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
 })
 
-taskPlanRouter.put("/:planID/reopen", async ctx => {
-    return {
-        message: "reopened"
-    }
+/**
+ * Completed tasks can be re-opened by Manager/Leader if they think task is not completed as per their review
+ */
+taskPlanRouter.put("/:taskID/reopen", async ctx => {
+    return await MDL.TaskPlanningModel.reopenTask(ctx.params.taskID, ctx.state.user)
 })
 
 
