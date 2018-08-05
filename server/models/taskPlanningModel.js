@@ -1312,11 +1312,13 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     //logger.debug('moment planning date india ', {momentPlanningDateIndia})
 
     if (momentPlanningDateIndia.isBefore(new Date())) {
-        throw new AppError('Planning date is already over, cannot delete planning now', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Planning date is already over, cannot delete!', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
-    let plannedHourNumber = Number(taskPlan.planning.plannedHours)
+    if(taskPlan.report.reportedOnDate)
+        throw new AppError('Task is already reported, cannot delete!', EC.ALREADY_REPORTED, EC.HTTP_BAD_REQUEST)
 
+    let plannedHourNumber = Number(taskPlan.planning.plannedHours)
 
     /*------------------------------ EMPLOYEE STATISTICS UPDATES ----------------------------------------------*/
     let employeeRelease = await updateEmployeeReleaseOnDeleteTaskPlanning(taskPlan, releasePlan, release, employee)

@@ -26,9 +26,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     planTask: (taskPlanning) => dispatch(A.addTaskPlanningOnServer(taskPlanning)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Added")
-
         }
-        else NotificationManager.error("Task Planning Failed")
+        else
+            NotificationManager.error(json.message)
     }),
 
     deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
@@ -36,15 +36,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.success("Task Planning Deleted")
         }
         else {
-            if (json.errorCode === EC.NOT_FOUND) {
-                return NotificationManager.error(json.message)
-            } else if (json.errorCode === EC.ACCESS_DENIED) {
-                return NotificationManager.error(json.message)
-            } else if (json.errorCode === EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE) {
-                return NotificationManager.error(json.message)
-            } else if (json.errorCode === EC.TIME_OVER) {
-                return NotificationManager.error(json.message)
-            } else NotificationManager.error("Task Planning Deletion Failed")
+            NotificationManager.error(json.message)
         }
     }),
     reopenTask: (task) => {
