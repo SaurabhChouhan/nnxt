@@ -10,21 +10,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         task.planning.plannedHours = Number(task.planning.plannedHours)
         return dispatch(A.addTaskPlanningOnServer(task)).then(json => {
             if (json.success) {
+                console.log("==== Task Planning added ==== ", task.employee._id, task.workCalendarEmployeeID)
                 NotificationManager.success("Task Planning Added")
                 dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
+                // If workCalendar employee id matches with task planning employee id fetch work calendar
+                if (task.employee._id.toString() == task.workCalendarEmployeeID.toString())
+                    dispatch(A.getEmployeeWorkCalendarFromServer(task.workCalendarEmployeeID))
+                return json
             }
             else {
-                if (json.errorCode === EC.NOT_FOUND) {
-                    return NotificationManager.error(json.message)
-                } else if (json.errorCode === EC.ACCESS_DENIED) {
-                    return NotificationManager.error(json.message)
-                } else if (json.errorCode === EC.NOT_ALLOWED_TO_ADD_EXTRA_EMPLOYEE) {
-                    return NotificationManager.error(json.message)
-                } else if (json.errorCode === EC.TIME_OVER) {
-                    return NotificationManager.error(json.message)
-                } else if (json.errorCode === EC.CANT_PLAN) {
-                    return NotificationManager.error(json.message)
-                } else NotificationManager.error("Task Planning Failed!")
+                return NotificationManager.error(json.message)
             }
         })
 
