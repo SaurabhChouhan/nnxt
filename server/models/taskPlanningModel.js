@@ -840,7 +840,7 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
     // As task was added which would make release plan status as pending so adjust completed tasks
     // If final status was completed before addition of this task
-    if(releasePlan.oldStatus == SC.STATUS_COMPLETED){
+    if (releasePlan.oldStatus == SC.STATUS_COMPLETED) {
         release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
     }
 
@@ -2756,15 +2756,18 @@ taskPlanningSchema.statics.reopenTask = async (taskPlanID, user) => {
     else
         beforeEndDate = true
 
+    let iterationIndex = releasePlan.release.iteration.idx
+
+    /************************************** RELEASE UPDATES  ***************************************/
+    // As task is reopend check to see if final status of task was completed, if so reduce completed tasks statistics
+    if (releasePlan.report.finalStatus == SC.STATUS_COMPLETED)
+        release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
+
     /************************************** RELEASE PLAN UPDATES  ***************************************/
     // As task is re-opened final status of this release plan as well as employee section would become pending
     releasePlan.report.finalStatus = SC.REPORT_PENDING
     releasePlan.report.employees[employeeReportIdx].finalStatus = SC.REPORT_PENDING
 
-    /************************************** RELEASE UPDATES  ***************************************/
-    let iterationIndex = releasePlan.release.iteration.idx
-    // As task is marked as pending again reduce estimated hours of this task from overall completed tasks
-    release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
 
     /*************************** TASK PLAN UPDATES ***********************************/
     taskPlan.report.status = SC.STATUS_PENDING
