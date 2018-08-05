@@ -807,16 +807,19 @@ const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNu
         }
     }
 
+    let oldStatus = releasePlan.report.finalStatus
+
     // As task was added against thie release plan, final status would rest to pending
-    if (releasePlan.report.finalStatus)
+    if (releasePlan.report.finalStatus) {
         releasePlan.report.finalStatus = SC.STATUS_PENDING
+    }
 
     logger.debug('addTaskPlanning(): updated release plan', {releasePlan})
 
     let progress = getNewProgressPercentage(releasePlan)
     releasePlan.diffProgress = progress - releasePlan.report.progress
     releasePlan.report.progress = progress
-
+    releasePlan.oldStatus = oldStatus
     return releasePlan
 }
 
@@ -833,6 +836,12 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
     if (releasePlan.diffPlannedHoursEstimatedTasks) {
         release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
+    }
+
+    // As task was added which would make release plan status as pending so adjust completed tasks
+    // If final status was completed before addition of this task
+    if(releasePlan.oldStatus == SC.STATUS_COMPLETED){
+        release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
     }
 
     logger.debug('addTaskPlanning(): [updated release]: ', {release})
