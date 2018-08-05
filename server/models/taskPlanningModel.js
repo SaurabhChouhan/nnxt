@@ -234,12 +234,12 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 /*--------------------------------------------------------------GET_TASK_PLANS_END-------------------------------------------------------------------*/
 /*-------------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_START---------------------------------------------------------------*/
 
-const getNewProgressPercentage = (releasePlan, reportedStatus) => {
+const getNewProgressPercentage = (releasePlan) => {
 
+    let finalStatus = releasePlan.report.finalStatus
 
     let progress = 0
-
-    if (reportedStatus && reportedStatus == SC.STATUS_COMPLETED) {
+    if (finalStatus && finalStatus == SC.STATUS_COMPLETED) {
         // As status of this release plan is completed progress would be 1
         progress = 100
         logger.debug('getNewProgressPercentage(): reported status is completed progress would be 100 percent')
@@ -753,11 +753,6 @@ const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNu
         releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.task.estimatedHours
     }
 
-    let progress = getNewProgressPercentage(releasePlan)
-
-    releasePlan.diffProgress = progress - releasePlan.report.progress
-    releasePlan.report.progress = progress
-
     // reported hours by user + planned hours remaining would become new base hours for progress if it crosses current base hours
 
     if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
@@ -810,14 +805,17 @@ const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNu
                 releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
             }
         }
-
-        // if final status has value it would be reset to pending
-
-        if (releasePlan.report.finalStatus)
-            releasePlan.report.finalStatus = SC.STATUS_PENDING
-
     }
+
+    // As task was added against thie release plan, final status would rest to pending
+    if (releasePlan.report.finalStatus)
+        releasePlan.report.finalStatus = SC.STATUS_PENDING
+
     logger.debug('addTaskPlanning(): updated release plan', {releasePlan})
+
+    let progress = getNewProgressPercentage(releasePlan)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
 
     return releasePlan
 }
@@ -1063,11 +1061,6 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
         releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.task.estimatedHours
     }
 
-    let progress = getNewProgressPercentage(releasePlan)
-    releasePlan.diffProgress = progress - releasePlan.report.progress
-    releasePlan.report.progress = progress
-
-
     /* SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN */
 
     let momentPlanningDate = new moment(taskPlan.planningDate)
@@ -1237,12 +1230,17 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
             }
         }
     }
+
     if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
         releasePlan.flags.push(SC.WARNING_UNPLANNED)
     }
     logger.info('deleteTaskPlanning(): [release plan update ] releasePlan is ', {releasePlan})
 
+
+    let progress = getNewProgressPercentage(releasePlan)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
     return releasePlan
 }
 
@@ -1315,7 +1313,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
         throw new AppError('Planning date is already over, cannot delete!', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
-    if(taskPlan.report.reportedOnDate)
+    if (taskPlan.report.reportedOnDate)
         throw new AppError('Task is already reported, cannot delete!', EC.ALREADY_REPORTED, EC.HTTP_BAD_REQUEST)
 
     let plannedHourNumber = Number(taskPlan.planning.plannedHours)
@@ -2176,7 +2174,8 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
 
     // COMMON SUMMARY DATA UPDATES
 
-    let finalStatusChanged = false
+    // Would be set to tru if this reporting has resulted change in final status of employee tasks (from 'pending' to 'completed' for example)
+    let employeeFinalStatusChanged = false
     releasePlan.report.reportedHours += reportedHoursToIncrement
 
     if (!reReport) {
@@ -2193,12 +2192,7 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
-    let progress = getNewProgressPercentage(releasePlan, reportInput.status)
-    releasePlan.diffProgress = progress - releasePlan.report.progress
-    releasePlan.report.progress = progress
-
-    logger.info('addTaskReport(): [progress] new progress is ', {progress})
-    logger.info('addTaskReport(): [progress] new diff progress is ', {progress: releasePlan.diffProgress})
+    logger.debug("addTaskReportPlannedUpdateReleasePlan(): ", {employeeReportIdx})
 
     // EMPLOYEE SPECIFIC SUMMARY DATA UPDATES
     if (employeeReportIdx == -1) {
@@ -2212,12 +2206,14 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
             finalStatus: reportInput.status,
             plannedHoursReportedTasks: taskPlan.planning.plannedHours
         })
-        finalStatusChanged = true
+        employeeFinalStatusChanged = true
     } else {
         // The reported status would become final status of employee reporting, if reported date is same or greater than max reported date
         if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
-            releasePlan.report.employees[employeeReportIdx].finalStatus = reportInput.status
-            finalStatusChanged = true
+            if (releasePlan.report.employees[employeeReportIdx].finalStatus !== reportInput.status) {
+                releasePlan.report.employees[employeeReportIdx].finalStatus = reportInput.status
+                employeeFinalStatusChanged = true
+            }
         }
 
         if (!reReport) {
@@ -2235,13 +2231,16 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
+    let oldStatus = releasePlan.report.finalStatus
+
     // FINAL STATUS OF RELEASE PLAN HANDLING
-    if (finalStatusChanged) {
+    if (employeeFinalStatusChanged) {
         if (reportInput.status === SC.REPORT_PENDING) {
             // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
 
             logger.debug('As employeed reported task as pending final status of release plan would be pending as well ')
             releasePlan.report.finalStatus = SC.REPORT_PENDING
+
         } else if (reportInput.status === SC.REPORT_COMPLETED) {
             logger.debug('Employee has reported task as completed, we would now check if this makes release plan as completed')
 
@@ -2274,12 +2273,19 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
+    let progress = getNewProgressPercentage(releasePlan, releasePlan.report.finalStatus)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
+    releasePlan.oldStatus = oldStatus
+
+    logger.info('addTaskReport(): [progress] new progress is ', {progress})
+    logger.info('addTaskReport(): [progress] new diff progress is ', {progress: releasePlan.diffProgress})
     return releasePlan
 }
 
 const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release, extra) => {
 
-    const {reportInput, reportedHoursToIncrement, reReport, reportedMoment} = extra
+    const {reportedHoursToIncrement, reReport, reportedMoment} = extra
 
     let iterationIndex = releasePlan.release.iteration.idx
 
@@ -2303,14 +2309,17 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
         release.iterations[iterationIndex].maxReportedDate = reportedMoment.toDate()
     }
 
-    if (reportInput.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
-        /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
+    logger.debug("addTaskReportPlannedUpdateRelease(): ", {oldStatus: releasePlan.oldStatus})
+    logger.debug("addTaskReportPlannedUpdateRelease(): ", {finalStatus: releasePlan.report.finalStatus})
+
+
+    if (releasePlan.oldStatus === SC.STATUS_PENDING && releasePlan.report.finalStatus === SC.STATUS_COMPLETED) {
+        // if previous final status was pending, which is now changed to completed we can consider estimated hours to be completed
         release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
-    } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && reportInput.status == SC.REPORT_PENDING) {
+    } else if (releasePlan.oldStatus === SC.STATUS_COMPLETED && releasePlan.report.finalStatus === SC.STATUS_PENDING) {
         /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
         release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
     }
-
     return release
 }
 
@@ -2474,11 +2483,11 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
     await employeeRelease.save()
-    logger.debug('release before save ', {release})
+    //logger.debug('release before save ', {release})
     await release.save()
-    logger.debug('release plan before save ', {releasePlan})
+    //logger.debug('release plan before save ', {releasePlan})
     await releasePlan.save()
-    logger.debug('task plan before save ', {taskPlan})
+    //logger.debug('task plan before save ', {taskPlan})
     taskPlan = await taskPlan.save()
 
     return {
