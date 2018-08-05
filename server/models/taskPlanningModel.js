@@ -2743,7 +2743,8 @@ taskPlanningSchema.statics.reopenTask = async (taskPlanID, user) => {
 
     /************************************** RELEASE UPDATES  ***************************************/
     let iterationIndex = releasePlan.release.iteration.idx
-    release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
+    // As task is marked as pending again reduce estimated hours of this task from overall completed tasks
+    release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
 
     /*************************** TASK PLAN UPDATES ***********************************/
     taskPlan.report.status = SC.STATUS_PENDING
