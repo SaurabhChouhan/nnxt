@@ -2132,11 +2132,32 @@ hr {
     font-size: 30px;
     padding: 70px 370px;
 }
-.description{
+
+.description {
     white-space: pre-line;
 }
 
 .highlightText {
     color: #F66E65
+}
+
+.pagination > .active > a, .pagination > .active > a:focus, .pagination > .active > a:hover {
+    z-index: 3;
+    color: #ddd;
+    cursor: default;
+    background-color: #303440;
+    border-color: #303440;
+}
+
+.pagination > li > a, .pagination > li > span {
+    position: relative;
+    float: left;
+    padding: 6px 12px;
+    margin-left: -1px;
+    line-height: 1.42857143;
+    color: #ddd;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
 }
 

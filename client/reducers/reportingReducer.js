@@ -13,7 +13,8 @@ let initialState = {
     releaseID: SC.ALL,
     reportedStatus: SC.ALL,
     iterationType: SC.ITERATION_TYPE_PLANNED,
-    dateStringOfReport: U.getNowStringInIndia()
+    dateStringOfReport: U.getNowStringInIndia(),
+    reportedTasks:[]
 }
 
 const reportingReducer = (state = initialState, action) => {
