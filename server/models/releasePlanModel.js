@@ -364,5 +364,15 @@ releasePlanSchema.statics.getReleaseDevelopersByReleasePlanID = async (releasePl
     return releaseTeamObject.team
 }
 
+releasePlanSchema.statics.getReleasePlansByIDs = async (releasePlanIDs) => {
+    let releasePlans = []
+
+    for(const releasePlanID of releasePlanIDs){
+        let releasePlan = await ReleasePlanModel.findById(releasePlanID)
+        releasePlans.push(releasePlan)
+    }
+    return releasePlans
+}
+
 const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)
 export default ReleasePlanModel
