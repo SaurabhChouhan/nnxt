@@ -315,10 +315,18 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
 }
 
 // updating task to task model
-estimationTaskSchema.statics.updateTask = async (taskInput, user, schemaRequested) => {
-    if (!taskInput || !taskInput.estimation || !taskInput.estimation._id)
-        throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    let role = await MDL.EstimationModel.getUserRoleInEstimation(taskInput.estimation._id, user)
+estimationTaskSchema.statics.updateTask = async (newTaskInput, user, schemaRequested) => {
+    let task = await EstimationTaskModel.findById(mongoose.Types.ObjectId(taskInput._id))
+
+    if (!task)
+        throw new AppError('task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let estimation = await MDL.EstimationModel.findById(mongoose.Types.ObjectId(task.estimation._id))
+
+    if (!estimation)
+        throw new AppError('estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let role = await MDL.EstimationModel.getUserRoleInEstimation(estimation._id, user)
     if (role === SC.ROLE_ESTIMATOR) {
         if (schemaRequested)
             return V.generateSchema(V.estimationEstimatorUpdateTaskStruct)
