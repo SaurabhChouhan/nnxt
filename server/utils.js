@@ -122,6 +122,16 @@ export const nowMomentInIndia = () => {
     return undefined
 }
 
+export const todaysMomentOfTimezoneInUTC = (timeZone) => {
+    let now = new Date()
+    let nowString = formatDateInTimezone(now, SC.DATE_FORMAT, timeZone)
+    let nowMoment = momentInUTC(nowString)
+    if (nowMoment.isValid())
+        return nowMoment
+    return undefined
+}
+
+
 export const getNowMomentInUtc = () => {
     let now = new Date()
     let nowString = formatDateInTimezone(now, SC.UTC_TIMEZONE)

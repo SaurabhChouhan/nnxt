@@ -1473,7 +1473,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 /*
  Shifting task plans to future
   */
-taskPlanningSchema.statics.planningShiftToFuture = async (shiftInput, user, schemaRequested) => {
+taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.releaseTaskPlanningShiftStruct)
 
@@ -1771,7 +1771,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (shiftInput, user, sche
 /**
  * Shifting task plans to past
  */
-taskPlanningSchema.statics.planningShiftToPast = async (shiftInput, user, schemaRequested) => {
+taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.releaseTaskPlanningShiftStruct)
     V.validate(shiftInput, V.releaseTaskPlanningShiftStruct)
