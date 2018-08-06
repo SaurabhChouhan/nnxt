@@ -231,6 +231,7 @@ export const REPORT_PENDING = "pending"
 export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY'
 export const DATE_FORMAT = 'YYYY-MM-DD'
 export const DATE_TIME_FORMAT = 'YYYY-MM-DD hh:mm A'
+export const DATE_TIME_24HOUR_FORMAT = 'YYYY-MM-DD HH:mm'
 export const DATE_AND_DAY_SHOW_FORMAT = 'dddd YYYY-MMMM-DD '
 export const DATE_DAY_AND_TIME_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
 export const DATE_TIME_SHOW_FORMAT = 'dddd YYYY-MMMM-DD  hh:mm '
@@ -311,3 +312,23 @@ export const HALF_DAY = 'halfDay'
 export const FULL_DAY = 'fullDay'
 export const ARRIVED = 'arrived'
 export const ABSENT = 'absent'
+
+
+// Events
+export const MOMENT_MINUTES = 'm'
+export const MOMENT_HOURS = 'H'
+export const MOMENT_DAYS = 'd'
+export const MOMENT_WEEKS = 'w'
+export const MOMENT_MONTHS = 'M'
+export const MOMENT_QUARTERS = 'Q'
+export const MOMENT_YEARS = 'y'
+
+export const EVENT_ONETIME = 'onetime'
+export const EVENT_RECURRING = 'recurring'
+
+export const EVENT_SCHEDULED = 'scheduled'
+export const EVENT_RUNNING = 'running'
+export const EVENT_COMPLETED = 'completed'
+export const EVENT_FAILED = 'failed'
+
+export const EVENT_INTERVAL = 1000 * 15

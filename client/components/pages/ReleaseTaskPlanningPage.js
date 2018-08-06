@@ -8,10 +8,9 @@ import _ from 'lodash'
 import {
     ReleaseDeveloperFilterFormContainer,
     ReleaseDeveloperScheduleFormContainer,
-    ReleaseDevelopersSchedulesContainer,
-    ReleaseTaskPlanningShiftFormContainer,
+    ReleaseDevelopersSchedulesContainer
 } from '../../containers'
-import {ConfirmationDialog, TaskShiftDialog} from "../";
+import {ConfirmationDialog} from "../";
 
 moment.locale('en')
 momentLocalizer()
@@ -21,7 +20,8 @@ class ReleaseTaskPlanningPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            showLeaveDeleteRequestDialog: false,
+            showTaskDeleteConfirmationDialog: false,
+            showTaskReopenConfirmationDialog: false,
             row: {}
         };
     }
@@ -29,7 +29,13 @@ class ReleaseTaskPlanningPage extends Component {
 
     onClose() {
         this.setState({
-            showLeaveDeleteRequestDialog: false,
+            showTaskDeleteConfirmationDialog: false
+        })
+    }
+
+    closeReopenTaskDialog() {
+        this.setState({
+            showTaskReopenConfirmationDialog: false
         })
     }
 
@@ -39,13 +45,50 @@ class ReleaseTaskPlanningPage extends Component {
         let nowMoment = moment(nowMomentString)
         let planningMoment = moment(row.planningDateString)
         if (planningMoment.isBefore(nowMoment))
-            return ''
+            return '' // planning date is over cannot delete now
+        else if (row.report.reportedOnDate)
+            return '' // task is already report cannot delete now
         else return (<button className=" pull-left btn btn-custom" type="button"
                              onClick={() => {
-                                 this.setState({showLeaveDeleteRequestDialog: true, row: row})
+                                 this.setState({showTaskDeleteConfirmationDialog: true, row: row})
+                             }}>
+                <i className="fa fa-trash"></i>
+            </button>)
+    }
+
+    editCellButton(cell, row, enumObject, rowIndex) {
+        let now = new Date()
+        let nowMomentString = moment(now).format(SC.DATE_FORMAT)
+        let nowMoment = moment(nowMomentString)
+        let planningMoment = moment(row.planningDateString)
+
+        return ''
+        /*
+        if (planningMoment.isBefore(nowMoment))
+            return ''
+        else
+            return (<button className=" pull-left btn btn-custom" type="button"
+                             onClick={() => {
+                                 this.setState({showTaskDeleteConfirmationDialog: true, row: row})
                              }}>
             <i className="fa fa-trash"></i>
         </button>)
+        */
+    }
+
+    reopenCellButton(cell, row, enumObject, rowIndex) {
+
+        // Manager/leader can reopen task having status as completed if they think work is still pending
+        if (row.report.status == SC.STATUS_COMPLETED) {
+            return (<button className=" pull-left btn btn-custom" type="button"
+                            onClick={() => {
+                                this.setState({showTaskReopenConfirmationDialog: true, row: row})
+                            }}>
+                <i className="fa fa-unlock"></i>
+            </button>)
+        } else
+            return ''
+
     }
 
 
@@ -60,7 +103,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     formatPlanningDate(row) {
         if (row && !_.isEmpty(row)) {
-            return moment(row, 'YYYY-MM-DD').format('DD MMM, YY (ddd)')
+            return moment(row, 'YYYY-MM-DD').format('Do MMM, YY')
             //return row
         }
         return ''
@@ -94,8 +137,13 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     onConfirmDeleteRequest() {
-        this.setState({showLeaveDeleteRequestDialog: false})
+        this.setState({showTaskDeleteConfirmationDialog: false})
         this.props.deleteTaskPlanningRow(this.state.row)
+    }
+
+    reopenTask() {
+        this.setState({showTaskReopenConfirmationDialog: false})
+        this.props.reopenTask(this.state.row)
     }
 
     formatFlags(flags) {
@@ -184,7 +232,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
 
-        const {releasePlan, taskPlans, developerPlans, expanded, release} = this.props
+        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeID} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -236,7 +284,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn releasePlanTaskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan)}>
+                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeID)}>
                                 <i className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>
@@ -251,29 +299,46 @@ class ReleaseTaskPlanningPage extends Component {
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
                                                    hidden={true}>ID</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planningDateString'
+                                                   width={"15%"}
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                                    Hours</TableHeaderColumn>
+                                                   width={"10%"}
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
-                                                   dataFormat={this.formatDeveloper.bind(this)}>Developer</TableHeaderColumn>
+                                                   dataFormat={this.formatDeveloper.bind(this)}
+                                                   width={"20%"}>Developer</TableHeaderColumn>
                                 <TableHeaderColumn dataField='flags'
-                                                   dataFormat={this.formatFlags.bind(this)}>Flags
+                                                   dataFormat={this.formatFlags.bind(this)} width={"18%"}>Flags
                                 </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReport.bind(this)}>Reported Status
+                                                   dataFormat={this.formatReport.bind(this)} width={"13%"}>Status
                                 </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle width="8%" dataField='button'
+                                <TableHeaderColumn columnTitle={"Delete Task"} width="8%" dataField='button'
                                                    dataFormat={this.deleteCellButton.bind(this)}><i
                                     className="fa fa-trash"></i>
                                 </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle={"Edit Task"} width="8%" dataField='button'
+                                                   dataFormat={this.editCellButton.bind(this)}><i
+                                    className="fa fa-pencil"></i>
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle={"Reopen Task"} width="8%" dataField='button'
+                                                   dataFormat={this.reopenCellButton.bind(this)}><i
+                                    className="fa fa-unlock"></i>
+                                </TableHeaderColumn>
                             </BootstrapTable>
                             {
-                                this.state && this.state.showLeaveDeleteRequestDialog &&
+                                this.state && this.state.showTaskDeleteConfirmationDialog &&
                                 <ConfirmationDialog show={true}
                                                     onConfirm={this.onConfirmDeleteRequest.bind(this)}
-                                                    title="Leave Delete" onClose={this.onClose.bind(this)}
+                                                    title="Task Delete" onClose={this.onClose.bind(this)}
                                                     body="Are you sure you want to delete this task plan. Please confirm!"/>
+                            }
+                            {
+                                this.state && this.state.showTaskReopenConfirmationDialog &&
+                                <ConfirmationDialog show={true}
+                                                    onConfirm={this.reopenTask.bind(this)}
+                                                    title="Task Reopen" onClose={this.closeReopenTaskDialog.bind(this)}
+                                                    body="This will mark task as 'pending' again. Please confirm."/>
                             }
                         </div>
                     </div>

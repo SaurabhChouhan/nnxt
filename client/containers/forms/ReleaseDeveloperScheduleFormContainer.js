@@ -6,7 +6,8 @@ import {NotificationManager} from 'react-notifications'
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, month, year) => {
         console.log("employee id is ", employeeID)
-        if (month && employeeID !== undefined) {
+        console.log("month is ", month)
+        if (employeeID !== undefined) {
             if (employeeID === '')
                 // clearing work calendar
                 return dispatch(A.addWorkCalendar({}))
