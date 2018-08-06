@@ -1867,6 +1867,7 @@ const addTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID, 
     estimationTask.repo = {}
     estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = false
+    estimationTask.type = SC.TYPE_DEVELOPMENT
 
     //conditions for has error
     if (!repositoryTask.name
@@ -1943,6 +1944,7 @@ const addTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID,
     taskFromRepositoryObj.addedInThisIteration = true
     taskFromRepositoryObj.canApprove = false
     taskFromRepositoryObj.owner = SC.OWNER_NEGOTIATOR
+    taskFromRepositoryObj.type = SC.TYPE_DEVELOPMENT
 
     //conditions for has error
     if (!repositoryTask.name
@@ -2034,6 +2036,7 @@ const copyTaskFromRepositoryByEstimator = async (estimationID, repositoryTaskID,
     estimationTask.owner = SC.OWNER_ESTIMATOR
     estimationTask.estimation = estimation
     estimationTask.technologies = estimation.technologies
+    estimationTask.type = SC.TYPE_DEVELOPMENT
     estimationTask.repo = {}
     //estimationTask.repo._id = repositoryTask._id
     estimationTask.repo.addedFromThisEstimation = true
@@ -2115,6 +2118,8 @@ const copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID
 
     taskFromRepositoryObj.estimation = estimation
     taskFromRepositoryObj.technologies = estimation.technologies
+    taskFromRepositoryObj.type = SC.TYPE_DEVELOPMENT
+
     taskFromRepositoryObj.repo = {}
     //taskFromRepositoryObj.repo._id = repositoryTask._id
     taskFromRepositoryObj.repo.addedFromThisEstimation = true
@@ -2139,7 +2144,7 @@ const copyTaskFromRepositoryByNegotiator = async (estimationID, repositoryTaskID
 
 // reOpen task
 estimationTaskSchema.statics.reOpenTask = async (taskID, user) => {
-    let task = await EstimationTaskModel.findById(taskID)
+    let task = await EstimationTaskModel.findById(mongoose.Types.ObjectId(taskID))
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
