@@ -26,6 +26,10 @@ let warningSchema = mongoose.Schema({
         enum: SC.ALL_WARNING_NAME_ARRAY
     },
     isUnresolvable: {type: Boolean, default: false},
+    employee: {
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String}
+    },
     releases: [{
         _id: mongoose.Schema.ObjectId,
         name: {type: String},
@@ -118,7 +122,6 @@ warningSchema.statics.addUnplanned = async (release, releasePlan) => {
 /*-------------------------------------------------------------------REMOVED_UNPLANNED_SECTION_START-----------------------------------------------------------------*/
 
 warningSchema.statics.removeUnplanned = async (releasePlan) => {
-    // TODO: Add appropriate validation
     // remove unplanned warning from release plan
     return await WarningModel.remove({
         type: SC.WARNING_UNPLANNED,
@@ -261,7 +264,7 @@ const taskReportedAsCompleted = async (taskPlan, releasePlan, beforeEndDate) => 
         // since an employee can mark only mark maximum of one task as complete we can safely assume that there will be no existing warning
         // We are trusting existing code here that shouldn't allow completion of multiple task plans and also remove this warning whenever necessary
 
-        let completeBeforeWarning = {}
+        let completeBeforeWarning = new WarningModel()
         completeBeforeWarning.type = SC.WARNING_COMPLETED_BEFORE_END_DATE
         let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
             name: 1,
@@ -278,7 +281,9 @@ const taskReportedAsCompleted = async (taskPlan, releasePlan, beforeEndDate) => 
             }
         })]
         completeBeforeWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
-        //logger.debug('taskReportedAsCompleted():  creating warning ', {warning: completeBeforeWarning})
+
+        // save
+        await completeBeforeWarning.save()
 
         warningResponse.added.push({
             _id: release._id,
@@ -321,10 +326,6 @@ const taskReportedAsCompleted = async (taskPlan, releasePlan, beforeEndDate) => 
         let warningPendingEndDatePromises = warningsPendingEndDate.map(w => w.remove())
 
         let removedWarnings = await Promise.all(warningPendingEndDatePromises)
-
-        //logger.debug('taskReportedAsCompleted(): ', {removedWarnings})
-
-        let promiseArray = []
 
         removedWarnings.forEach(w => {
             if (w.taskPlans && w.taskPlans.length) {
@@ -527,6 +528,15 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release, extr
     }
 
     const {reportedMoment, employeePlanningIdx, reportInput} = extra
+
+    // Removed unreported flag
+
+    let unreportedWarning = await removeUnreported(taskPlan)
+
+    if (unreportedWarning.added && unreportedWarning.added.length)
+        warningResponse.added.push(...unreportedWarning.added)
+    if (unreportedWarning.removed && unreportedWarning.removed.length)
+        warningResponse.removed.push(...unreportedWarning.removed)
 
     let generatedWarningsMoreReportedHours = await updateMoreReportedHours(releasePlan, release)
 
@@ -2959,7 +2969,7 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
 
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
-    let momentRePlan = U.momentFromDateInUTC(rePlannedEmployeeDays.date)
+    let momentRePlan = U.sameMomentInUTC(rePlannedEmployeeDays.date)
     /*TOO_MANY_HOURS WARNING UPDATE SECTION*/
 
     // as task is moved there is possibility of removal of too many hours warning if not removed then also task plan will be removed from warning`s task plan list
@@ -3291,6 +3301,285 @@ warningSchema.statics.leaveApproved = async (startDate, endDate, employee) => {
 /*
 * |____________________________________________________________________LEAVE_END____________________________________________________________________|
 */
+
+warningSchema.statics.addUnreported = async (taskPlan) => {
+    // Find if unreported warning already exists against task plan
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    let unreportedWarning = await MDL.WarningModel.findOne({
+        type: SC.WARNING_UNREPORTED,
+        'employee._id': taskPlan.employee._id,
+        'releasePlans._id': taskPlan.releasePlan._id
+    })
+
+
+    if (!unreportedWarning) {
+        // Add warning
+        unreportedWarning = new WarningModel()
+        unreportedWarning.type = SC.WARNING_UNREPORTED
+        unreportedWarning.employee = taskPlan.employee
+        unreportedWarning.taskPlans = [taskPlan]
+        let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+        unreportedWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+        let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+            name: 1,
+            project: 1
+        })
+        //logger.debug('taskReportedAsCompleted(): ', {release})
+        unreportedWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
+
+        warningResponse.added.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_UNREPORTED,
+            source: true
+        })
+        warningResponse.added.push({
+            _id: releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_UNREPORTED,
+            source: true
+        })
+
+        warningResponse.added.push({
+            _id: release._id,
+            warningType: SC.WARNING_TYPE_RELEASE,
+            type: SC.WARNING_UNREPORTED,
+            source: true
+        })
+
+    } else {
+        logger.debug("found unreported warning ", {unreportedWarning})
+        // since warning already exists we just need to add task plan info if not already there
+        if (unreportedWarning.taskPlans.length && unreportedWarning.taskPlans.findIndex(t => t._id.toString() == taskPlan._id.toString()) == -1) {
+            unreportedWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
+            warningResponse.added.push({
+                _id: taskPlan._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_UNREPORTED,
+                source: true
+            })
+        }
+    }
+
+    await unreportedWarning.save()
+
+    return warningResponse
+}
+
+const removeUnreported = async (taskPlan) => {
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    logger.debug("removeUnreported(): ", {taskPlan})
+
+    let updatedUnreportedWarning = await WarningModel.findOneAndUpdate({
+        type: SC.WARNING_UNREPORTED,
+        'employee._id': taskPlan.employee._id,
+        'releasePlans._id': taskPlan.releasePlan._id
+    }, {
+        $pull: {
+            taskPlans: {
+                _id: taskPlan._id
+            }
+        }
+    }, {
+        new: true
+    })
+
+
+    if (updatedUnreportedWarning && !updatedUnreportedWarning.taskPlans.length) {
+
+        logger.debug("removeUnreported(): ", {updatedUnreportedWarning})
+
+        warningResponse.removed.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_UNREPORTED
+        })
+
+        // remove warning
+        await updatedUnreportedWarning.remove()
+        updatedUnreportedWarning.releasePlans.forEach(rp => {
+            warningResponse.removed.push({
+                _id: rp._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_UNREPORTED
+            })
+        })
+    }
+
+    return warningResponse
+}
+
+const taskReopenedCompletedBeforeEndDate = async (taskPlan) => {
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    /**
+     * In case task was completed before end date there would be a completed before end date warning associated with this release plan
+     */
+
+    let completedBeforeEndDateWarning = await WarningModel.findOne({
+        type: SC.WARNING_COMPLETED_BEFORE_END_DATE,
+        'releasePlans': {
+            '$elemMatch': {
+                _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                'employee._id': mongoose.Types.ObjectId(taskPlan.employee._id)
+            }
+        }
+    })
+
+    if (completedBeforeEndDateWarning) {
+        // remove warning
+        completedBeforeEndDateWarning.releasePlans.forEach(rp => {
+            warningResponse.removed.push({
+                _id: rp._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_COMPLETED_BEFORE_END_DATE
+            })
+        })
+
+        completedBeforeEndDateWarning.taskPlans.forEach(rp => {
+            warningResponse.removed.push({
+                _id: rp._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: SC.WARNING_COMPLETED_BEFORE_END_DATE
+            })
+        })
+        // remove warning
+        await completedBeforeEndDateWarning.remove()
+    }
+
+    return warningResponse
+}
+
+
+const taskReopenedPendingOnEndDate = async (taskPlan) => {
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    // Task is reopened on end date need to add pending on end date
+    /**
+     * As task is reopened there should not be any existing pending on end date warning
+     *
+     * Please note that for a release plan with tasks planned against multiple employee this warning may be raised multiple times one for each
+     * employee that has reported task as pending on end date
+     */
+
+        // Check to see if pending on end date warning exists for this employee
+    let pendingOnEndDateWarning = await WarningModel.findOne({
+            type: SC.WARNING_PENDING_ON_END_DATE,
+            'releasePlans': {
+                '$elemMatch': {
+                    _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                    'employee._id': mongoose.Types.ObjectId(taskPlan.employee._id)
+                }
+            }
+        })
+
+    //logger.debug('taskReportedAsPendingOnEndDate(): existing warning ', {pendingOnEndDateWarning})
+
+    if (pendingOnEndDateWarning)
+        throw new AppError('No pending on end date warning should be present ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    // Add pending on end date warning
+    pendingOnEndDateWarning = {}
+    pendingOnEndDateWarning.type = SC.WARNING_PENDING_ON_END_DATE
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+        name: 1,
+        project: 1
+    })
+    //logger.debug('taskReportedAsPendingOnEndDate(): ', {release})
+    pendingOnEndDateWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {task: 1})
+    //logger.debug('taskReportedAsPendingOnEndDate(): ', {releasePlan})
+    pendingOnEndDateWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {
+        source: true,
+        employee: {
+            _id: taskPlan.employee._id
+        }
+    })]
+    pendingOnEndDateWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {
+        source: true
+    })]
+    //logger.debug('taskReportedAsPendingOnEndDate():  creating warning ', {warning: pendingOnEndDateWarning})
+    await WarningModel.create(pendingOnEndDateWarning)
+
+    warningResponse.added.push({
+        _id: release._id,
+        warningType: SC.WARNING_TYPE_RELEASE,
+        source: true,
+        type: SC.WARNING_PENDING_ON_END_DATE
+    })
+    warningResponse.added.push({
+        _id: releasePlan._id,
+        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+        source: true,
+        type: SC.WARNING_PENDING_ON_END_DATE
+    })
+    warningResponse.added.push({
+        _id: taskPlan._id,
+        warningType: SC.WARNING_TYPE_TASK_PLAN,
+        source: true,
+        type: SC.WARNING_PENDING_ON_END_DATE
+    })
+
+    return warningResponse
+
+}
+
+/**
+ * Warnings handling when task is reopened would be handled in this method
+ * @param taskPlan
+ * @returns {Promise.<*>}
+ */
+
+warningSchema.statics.taskReopened = async (taskPlan, extra) => {
+    //logger.debug('taskReportedAsPendingOnEndDate(): taskplan ', {taskPlan})
+
+    let {onEndDate, beforeEndDate} = extra
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    if (onEndDate) {
+        let pendingOnEndDateWarning = await taskReopenedPendingOnEndDate(taskPlan)
+        if (pendingOnEndDateWarning.added && pendingOnEndDateWarning.added.length)
+            warningResponse.added.push(...pendingOnEndDateWarning.added)
+        if (pendingOnEndDateWarning.removed && pendingOnEndDateWarning.removed.length)
+            warningResponse.removed.push(...pendingOnEndDateWarning.removed)
+    }
+
+    if (beforeEndDate) {
+        let completedBeforeEndDateWarning = await taskReopenedCompletedBeforeEndDate(taskPlan)
+
+        console.log("WarningModel.taskReopened(): ", {completedBeforeEndDateWarning})
+        if (completedBeforeEndDateWarning.added && completedBeforeEndDateWarning.added.length)
+            warningResponse.added.push(...completedBeforeEndDateWarning.added)
+        if (completedBeforeEndDateWarning.removed && completedBeforeEndDateWarning.removed.length)
+            warningResponse.removed.push(...completedBeforeEndDateWarning.removed)
+    }
+
+    return warningResponse
+}
+
 
 const WarningModel = mongoose.model('Warning', warningSchema)
 export default WarningModel

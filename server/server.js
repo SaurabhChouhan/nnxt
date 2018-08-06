@@ -15,12 +15,12 @@ import {PROD_ENV} from "./serverconstants"
 import path from 'path'
 import logger from './logger'
 import {HTTP_SERVER_ERROR} from "./errorcodes"
-
+import * as H from './eventhandlers/handlers'
+import * as SC from './serverconstants'
 
 // Initializing configuration first and then starting application
 co(async () => {
     let conf = await noConfig({config: confFile})
-
     mongoose.Promise = global.Promise
     let connection;
     try {
@@ -52,7 +52,6 @@ co(async () => {
             return
         }
     }
-
 
     if (conf.server.setupData) {
         console.log("SETUP DATA CONFIGURATION IS ON! In case you don't want to run setup instructions please set that config to false")
@@ -139,6 +138,16 @@ co(async () => {
     app.use(pageRouter.routes())
     // All APIs starts with /api
     app.use(apiRouter.routes())
+
+    let t;
+    const startEventExecutor = async () => {
+        console.log("["+new Date()+"]: Executing events...")
+        await H.executeEvents()
+        clearTimeout(t)
+        t = setTimeout(startEventExecutor, SC.EVENT_INTERVAL)
+    }
+
+    t = setTimeout(startEventExecutor, SC.EVENT_INTERVAL)
 
     app.listen(conf.server.port, () => {
         console.log('Server started on %s', conf.server.port)

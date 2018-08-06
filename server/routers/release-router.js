@@ -81,17 +81,6 @@ releaseRouter.get("/estimation/:estimationID", async ctx => {
     return await MDL.ReleaseModel.getAllReleasesToAddEstimation(ctx.params.estimationID, ctx.state.user)
 })
 
-
-
-
-/***
- * Add task planning  in which logged in user is involved as a manager or leader
- ***/
-releaseRouter.put("/plan-task/", async ctx => {
-    return await MDL.TaskPlanningModel.addTaskPlan(ctx.request.body, ctx.state.user, ctx.schemaRequested)
-})
-
-
 /***
  * Merge already planned task to another date for re-schedule
  ***/
@@ -119,14 +108,6 @@ releaseRouter.put("/shift-future/", async ctx => {
 releaseRouter.put("/shift-past/", async ctx => {
     return await MDL.TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
-
-/***
- * Deletion of task plan by leader or manager of that release
- ***/
-releaseRouter.del("/plan-task/:planID", async ctx => {
-    return await MDL.TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
-})
-
 
 /***
  * Add employee days detail of a employee of a particular date on task planning

@@ -234,12 +234,12 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 /*--------------------------------------------------------------GET_TASK_PLANS_END-------------------------------------------------------------------*/
 /*-------------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_START---------------------------------------------------------------*/
 
-const getNewProgressPercentage = (releasePlan, reportedStatus) => {
+const getNewProgressPercentage = (releasePlan) => {
 
+    let finalStatus = releasePlan.report.finalStatus
 
     let progress = 0
-
-    if (reportedStatus && reportedStatus == SC.STATUS_COMPLETED) {
+    if (finalStatus && finalStatus == SC.STATUS_COMPLETED) {
         // As status of this release plan is completed progress would be 1
         progress = 100
         logger.debug('getNewProgressPercentage(): reported status is completed progress would be 100 percent')
@@ -268,7 +268,7 @@ const getNewProgressPercentage = (releasePlan, reportedStatus) => {
  *   affectedTaskPlans
  * }
  */
-const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
+taskPlanningSchema.statics.updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
 
     // To avoid concurrency problems we would first fetch all release plan/task plans
     // that would be affected by warnings added/removed due to addition of this task plan
@@ -316,14 +316,14 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     // Get releases and task plans
 
     let rpIDPromises = releasePlanIDs.map(rpID => {
-        if (rpID.toString() === releasePlan._id.toString())
+        if (releasePlan && rpID.toString() === releasePlan._id.toString())
             return releasePlan;
         else
             return MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(rpID))
     })
 
     let tpIDPromises = taskPlanIDs.map(tpID => {
-        if (tpID.toString() === taskPlan._id.toString())
+        if (taskPlan && tpID.toString() === taskPlan._id.toString())
             return taskPlan;
         else
             return MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(tpID))
@@ -344,7 +344,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
                   that a release plan should have too many hours flag if one of its task plan has that flag
                 */
 
-                logger.debug('[updateFlags]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
                 let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
                 if (!affectedReleasePlan)
                     return;
@@ -352,7 +352,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
                     affectedReleasePlan.flags.push(w.type)
 
             } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is added against task plan with id [' + w._id + ']')
                 let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
                 if (!affectedTaskPlan)
                     return;
@@ -365,7 +365,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
             if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
                 let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
                 if (!affectedReleasePlan)
                     return;
@@ -374,7 +374,7 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
                     affectedReleasePlan.flags.pull(w.type)
 
             } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
                 let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
                 if (!affectedTaskPlan)
                     return;
@@ -388,12 +388,12 @@ const updateFlags = async (generatedWarnings, releasePlan, taskPlan) => {
     // save them and then return only once all save operation completes so that user interface is appropriately modified
 
     let rpSavePromises = affectedReleasePlans.map(rp => {
-        logger.debug("Saving release plan ", {rp})
+        //logger.debug("Saving release plan ", {rp})
         return rp.save()
     })
 
     let tpSavePromises = affectedTaskPlans.map(tp => {
-        logger.debug("Saving task plan ", {tp})
+        //logger.debug("Saving task plan ", {tp})
         return tp.save()
     })
 
@@ -753,11 +753,6 @@ const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNu
         releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.task.estimatedHours
     }
 
-    let progress = getNewProgressPercentage(releasePlan)
-
-    releasePlan.diffProgress = progress - releasePlan.report.progress
-    releasePlan.report.progress = progress
-
     // reported hours by user + planned hours remaining would become new base hours for progress if it crosses current base hours
 
     if (!releasePlan.planning.minPlanningDate || momentPlanningDate.isBefore(releasePlan.planning.minPlanningDate)) {
@@ -810,15 +805,21 @@ const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNu
                 releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
             }
         }
-
-        // if final status has value it would be reset to pending
-
-        if (releasePlan.report.finalStatus)
-            releasePlan.report.finalStatus = SC.STATUS_PENDING
-
     }
+
+    let oldStatus = releasePlan.report.finalStatus
+
+    // As task was added against thie release plan, final status would rest to pending
+    if (releasePlan.report.finalStatus) {
+        releasePlan.report.finalStatus = SC.STATUS_PENDING
+    }
+
     logger.debug('addTaskPlanning(): updated release plan', {releasePlan})
 
+    let progress = getNewProgressPercentage(releasePlan)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
+    releasePlan.oldStatus = oldStatus
     return releasePlan
 }
 
@@ -835,6 +836,12 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
     if (releasePlan.diffPlannedHoursEstimatedTasks) {
         release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
+    }
+
+    // As task was added which would make release plan status as pending so adjust completed tasks
+    // If final status was completed before addition of this task
+    if(releasePlan.oldStatus == SC.STATUS_COMPLETED){
+        release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
     }
 
     logger.debug('addTaskPlanning(): [updated release]: ', {release})
@@ -979,7 +986,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     let generatedWarnings = await MDL.WarningModel.taskPlanAdded(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
     logger.debug('addTaskPlanning :=> Add task plan generatedWarnings: ALL Warnings:', {generatedWarnings})
     // Get release/task plans objects that are affected due to these warnings
-    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
 
     // Make final saves and return response
     await employeeRelease.save()
@@ -1062,11 +1069,6 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
         releasePlan.diffPlannedHoursEstimatedTasks = 0
         releasePlan.planning.plannedHoursEstimatedTasks = releasePlan.task.estimatedHours
     }
-
-    let progress = getNewProgressPercentage(releasePlan)
-    releasePlan.diffProgress = progress - releasePlan.report.progress
-    releasePlan.report.progress = progress
-
 
     /* SEE IF THIS DELETION CAUSES ANY CHANGE IN MIN/MAX PLANNING DATE IN RELEASE PLAN */
 
@@ -1237,12 +1239,17 @@ const releasePlanUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, empl
             }
         }
     }
+
     if (releasePlan.planning.plannedTaskCounts === 0) {
         // this means that this was the last task plan against release plan, so we would have to add unplanned warning again
         releasePlan.flags.push(SC.WARNING_UNPLANNED)
     }
     logger.info('deleteTaskPlanning(): [release plan update ] releasePlan is ', {releasePlan})
 
+
+    let progress = getNewProgressPercentage(releasePlan)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
     return releasePlan
 }
 
@@ -1312,11 +1319,13 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     //logger.debug('moment planning date india ', {momentPlanningDateIndia})
 
     if (momentPlanningDateIndia.isBefore(new Date())) {
-        throw new AppError('Planning date is already over, cannot delete planning now', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Planning date is already over, cannot delete!', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
-    let plannedHourNumber = Number(taskPlan.planning.plannedHours)
+    if (taskPlan.report.reportedOnDate)
+        throw new AppError('Task is already reported, cannot delete!', EC.ALREADY_REPORTED, EC.HTTP_BAD_REQUEST)
 
+    let plannedHourNumber = Number(taskPlan.planning.plannedHours)
 
     /*------------------------------ EMPLOYEE STATISTICS UPDATES ----------------------------------------------*/
     let employeeRelease = await updateEmployeeReleaseOnDeleteTaskPlanning(taskPlan, releasePlan, release, employee)
@@ -1334,7 +1343,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     let generatedWarnings = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release)
     logger.debug('deleteTaskPlanning(): [all-warning-responses] => generatedWarnings => ', {generatedWarnings})
 
-    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
     await taskPlan.remove()
 
     await employeeRelease.save()
@@ -1448,7 +1457,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
     logger.debug("[ taskPlanMerged ]:()=> generatedWarnings ", {generatedWarnings})
 
     // update flags
-    let {affectedTaskPlans} = await updateFlags(generatedWarnings, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
     taskPlan.created = Date.now()
     taskPlan.planningDate = rePlanningDateUtc
     taskPlan.planningDateString = taskPlanningInput.rePlanningDate
@@ -1512,7 +1521,7 @@ taskPlanningSchema.statics.planningShiftToFuture = async (shiftInput, user, sche
         'release._id': release._id
     })
 
-    if(count == 0)
+    if (count == 0)
         throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* Fetch all task plannings on/after base date for this release against this employee id  */
@@ -1793,7 +1802,7 @@ taskPlanningSchema.statics.planningShiftToPast = async (shiftInput, user, schema
         'release._id': release._id
     })
 
-    if(count == 0)
+    if (count == 0)
         throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* checking Release is valid or not */
@@ -2174,7 +2183,8 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
 
     // COMMON SUMMARY DATA UPDATES
 
-    let finalStatusChanged = false
+    // Would be set to tru if this reporting has resulted change in final status of employee tasks (from 'pending' to 'completed' for example)
+    let employeeFinalStatusChanged = false
     releasePlan.report.reportedHours += reportedHoursToIncrement
 
     if (!reReport) {
@@ -2191,12 +2201,7 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
-    let progress = getNewProgressPercentage(releasePlan, reportInput.status)
-    releasePlan.diffProgress = progress - releasePlan.report.progress
-    releasePlan.report.progress = progress
-
-    logger.info('addTaskReport(): [progress] new progress is ', {progress})
-    logger.info('addTaskReport(): [progress] new diff progress is ', {progress: releasePlan.diffProgress})
+    logger.debug("addTaskReportPlannedUpdateReleasePlan(): ", {employeeReportIdx})
 
     // EMPLOYEE SPECIFIC SUMMARY DATA UPDATES
     if (employeeReportIdx == -1) {
@@ -2210,12 +2215,14 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
             finalStatus: reportInput.status,
             plannedHoursReportedTasks: taskPlan.planning.plannedHours
         })
-        finalStatusChanged = true
+        employeeFinalStatusChanged = true
     } else {
         // The reported status would become final status of employee reporting, if reported date is same or greater than max reported date
         if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
-            releasePlan.report.employees[employeeReportIdx].finalStatus = reportInput.status
-            finalStatusChanged = true
+            if (releasePlan.report.employees[employeeReportIdx].finalStatus !== reportInput.status) {
+                releasePlan.report.employees[employeeReportIdx].finalStatus = reportInput.status
+                employeeFinalStatusChanged = true
+            }
         }
 
         if (!reReport) {
@@ -2233,13 +2240,16 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
+    let oldStatus = releasePlan.report.finalStatus
+
     // FINAL STATUS OF RELEASE PLAN HANDLING
-    if (finalStatusChanged) {
+    if (employeeFinalStatusChanged) {
         if (reportInput.status === SC.REPORT_PENDING) {
             // since final reported status is 'pending' by this employee this would make final status of whole release plan as pending
 
             logger.debug('As employeed reported task as pending final status of release plan would be pending as well ')
             releasePlan.report.finalStatus = SC.REPORT_PENDING
+
         } else if (reportInput.status === SC.REPORT_COMPLETED) {
             logger.debug('Employee has reported task as completed, we would now check if this makes release plan as completed')
 
@@ -2272,12 +2282,19 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         }
     }
 
+    let progress = getNewProgressPercentage(releasePlan, releasePlan.report.finalStatus)
+    releasePlan.diffProgress = progress - releasePlan.report.progress
+    releasePlan.report.progress = progress
+    releasePlan.oldStatus = oldStatus
+
+    logger.info('addTaskReport(): [progress] new progress is ', {progress})
+    logger.info('addTaskReport(): [progress] new diff progress is ', {progress: releasePlan.diffProgress})
     return releasePlan
 }
 
 const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release, extra) => {
 
-    const {reportInput, reportedHoursToIncrement, reReport, reportedMoment} = extra
+    const {reportedHoursToIncrement, reReport, reportedMoment} = extra
 
     let iterationIndex = releasePlan.release.iteration.idx
 
@@ -2301,14 +2318,17 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
         release.iterations[iterationIndex].maxReportedDate = reportedMoment.toDate()
     }
 
-    if (reportInput.status == SC.REPORT_COMPLETED && (!taskPlan.report || taskPlan.report.status != SC.REPORT_COMPLETED)) {
-        /* Task was reported as complete and it was not reported as complete earlier then we can add to estimatedHoursCompletedTasks */
+    logger.debug("addTaskReportPlannedUpdateRelease(): ", {oldStatus: releasePlan.oldStatus})
+    logger.debug("addTaskReportPlannedUpdateRelease(): ", {finalStatus: releasePlan.report.finalStatus})
+
+
+    if (releasePlan.oldStatus === SC.STATUS_PENDING && releasePlan.report.finalStatus === SC.STATUS_COMPLETED) {
+        // if previous final status was pending, which is now changed to completed we can consider estimated hours to be completed
         release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
-    } else if (taskPlan.report && taskPlan.report.status == SC.REPORT_COMPLETED && reportInput.status == SC.REPORT_PENDING) {
+    } else if (releasePlan.oldStatus === SC.STATUS_COMPLETED && releasePlan.report.finalStatus === SC.STATUS_PENDING) {
         /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
         release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
     }
-
     return release
 }
 
@@ -2469,14 +2489,14 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         reportInput
     })
 
-    let {affectedTaskPlans} = await updateFlags(warningsTaskReported, releasePlan, taskPlan)
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
     await employeeRelease.save()
-    logger.debug('release before save ', {release})
+    //logger.debug('release before save ', {release})
     await release.save()
-    logger.debug('release plan before save ', {releasePlan})
+    //logger.debug('release plan before save ', {releasePlan})
     await releasePlan.save()
-    logger.debug('task plan before save ', {taskPlan})
+    //logger.debug('task plan before save ', {taskPlan})
     taskPlan = await taskPlan.save()
 
     return {
@@ -2681,6 +2701,97 @@ taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
         return await addTaskReportPlanned(taskReport, employee)
     } else if (taskReport.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
         return await addTaskReportUnplanned(taskReport, employee)
+    }
+}
+
+taskPlanningSchema.statics.reopenTask = async (taskPlanID, user) => {
+    /* Get task plan */
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
+
+    if (!taskPlan)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (taskPlan.report.status !== SC.STATUS_COMPLETED)
+        throw new AppError('Only task with status [' + SC.STATUS_COMPLETED + '] can be reopened', EC.CANT_REOPEN, EC.ACCESS_DENIED)
+
+    /* find release plan associated with this task plan */
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+    if (!releasePlan)
+        throw new AppError('No release plan associated with this task , data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
+
+    let release = await MDL.ReleaseModel.findById(taskPlan.release._id, {iterations: 1, name: 1, project: 1})
+
+    if (!release)
+        throw new AppError('No release associated with this task , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can re-open task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    // Find out existing employee report data for this release plan
+    let employeeReportIdx = -1
+    if (releasePlan.report.employees) {
+        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+            return e._id.toString() === taskPlan.employee._id.toString()
+        })
+    }
+
+    // Find this employee planning index
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() === taskPlan.employee._id.toString()
+    })
+
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    let onEndDate = false, beforeEndDate = false
+
+    let reportedMoment = U.momentInUTC(taskPlan.planningDateString)
+
+    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate))
+        onEndDate = true
+    else
+        beforeEndDate = true
+
+    /************************************** RELEASE PLAN UPDATES  ***************************************/
+    // As task is re-opened final status of this release plan as well as employee section would become pending
+    releasePlan.report.finalStatus = SC.REPORT_PENDING
+    releasePlan.report.employees[employeeReportIdx].finalStatus = SC.REPORT_PENDING
+
+    /************************************** RELEASE UPDATES  ***************************************/
+    let iterationIndex = releasePlan.release.iteration.idx
+    // As task is marked as pending again reduce estimated hours of this task from overall completed tasks
+    release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
+
+    /*************************** TASK PLAN UPDATES ***********************************/
+    taskPlan.report.status = SC.STATUS_PENDING
+
+    logger.debug("taskReopened(): before task reopened warnings")
+
+    let warningsReopenTask = await MDL.WarningModel.taskReopened(taskPlan, {
+        onEndDate,
+        beforeEndDate
+    })
+
+    logger.debug("taskReopened(): ", {warningsReopenTask})
+
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsReopenTask, releasePlan, taskPlan)
+    logger.debug("taskReopened(): flags updated ")
+
+    logger.debug('taskReopened():release before save ', {release})
+    await release.save()
+    logger.debug('taskReopened():release plan before save ', {releasePlan})
+    await releasePlan.save()
+    logger.debug('taskReopened(): task plan before save ', {taskPlan})
+    taskPlan = await taskPlan.save()
+
+    return {
+        taskPlan,
+        affectedTaskPlans,
+        warnings: warningsReopenTask
     }
 }
 

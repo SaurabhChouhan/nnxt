@@ -63,22 +63,25 @@ export const userHasOnlyRole = (user, roleName) => {
 }
 
 export const dateInUTC = (dateString) => {
-    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).startOf('day')
     if (momentDate.isValid())
         return momentDate.toDate()
     return undefined
 }
 
-
 export const momentInUTC = (dateString) => {
-    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
+    let momentDate = moment.tz(dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).startOf('day')
     if (momentDate.isValid())
         return momentDate
     return undefined
 }
 
-export const momentFromDateInUTC = (date) => {
-    return moment(date).tz(SC.UTC_TIMEZONE)
+export const sameMomentInUTC = (d) => {
+    return moment.utc().startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
+}
+
+export const momentFromDateInTimeZone = (d, timeZone) => {
+    return moment.tz(timeZone).startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }
 
 export const formatDateInUTC = (date) => {

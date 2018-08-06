@@ -281,8 +281,8 @@ export const getUpdatedReleasePlanFromServer = (releasePlanID) => {
 
 export const addTaskPlanningOnServer = (taskPlanning) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/plan-task/', {
-                method: 'put',
+        return fetch('/api/task-plans', {
+                method: 'post',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
@@ -337,9 +337,9 @@ export const mergeTaskPlanningOnServer = (taskPlanning) => {
 }
 
 
-export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
+export const deleteTaskPlanningFromServer = (taskPlanningID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/plan-task/' + taskPlanningID, {
+        return fetch('/api/task-plans/' + taskPlanningID, {
                 method: 'delete',
                 credentials: "include",
                 headers: {
@@ -367,6 +367,29 @@ export const deleteTaskPlanningFromServer = (taskPlanningID, releasePlanID) => {
             })
     }
 }
+
+export const reopenTaskPlanOnServer = (taskPlanningID) => {
+    return (dispatch) => {
+        return fetch('/api/task-plans/' + taskPlanningID + '/reopen', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(getAllTaskPlannedFromServer(json.data.taskPlan.releasePlan._id))
+                }
+                return json
+            })
+    }
+}
+
 
 export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, EndDate) => {
     return (dispatch, getState) => {

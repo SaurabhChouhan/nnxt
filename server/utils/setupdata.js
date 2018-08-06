@@ -1,6 +1,7 @@
 import * as MDL from "../models"
 import * as CC from '../../client/clientconstants'
 import * as SC from '../serverconstants'
+import momentTZ from 'moment-timezone'
 import logger from '../logger'
 
 export const addInitialData = async () => {
@@ -208,6 +209,7 @@ export const addNNXTData = async () => {
     await addRepositoryTasksAndFeatures()
     await addEmployeeSettings()
     await addLeaveSettings()
+    await addEvents()
 
 }
 
@@ -780,4 +782,27 @@ const addLeaveSettings = async () => {
         })
     }
 
+}
+
+const addEvents = async () => {
+    console.log("SETTING UP EVENTS ...")
+    await addUnreportedWarningEvent()
+}
+
+
+const addUnreportedWarningEvent = async () => {
+    // Setting up to run every night 1:00 am in india from today
+    let m = momentTZ()
+    let date = new Date(m.year(), m.month(), m.date(), 1, 0)
+
+    await MDL.EventModel.addRecurEvent({
+        method: 'generateUnreportedWarnings',
+        date: date,
+        minDate: undefined,
+        maxDate: undefined,
+        timeZone: SC.INDIAN_TIMEZONE,
+        format: SC.DATE_TIME_24HOUR_FORMAT,
+        increment: 1,
+        incrementUnit: SC.MOMENT_DAYS
+    })
 }
