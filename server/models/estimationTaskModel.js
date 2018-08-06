@@ -156,6 +156,11 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     let idx = estimation.stats.findIndex(s => s.type == taskInput.type)
     if (idx > -1) {
         estimation.stats[idx].estimatedHours += taskInput.estimatedHours
+    } else {
+        estimation.stats.push({
+            estimatedHours: taskInput.estimatedHours,
+            type: taskInput.type
+        })
     }
 
     await estimation.save()
