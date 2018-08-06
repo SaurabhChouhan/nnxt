@@ -182,3 +182,7 @@ export const includeAny = (values, arr) => {
     }
     return false
 }
+
+export const getFullName = (user) => {
+    return user ? user.firstName && user.lastName ? user.firstName + ' ' + user.lastName : user.firstName ? user.firstName : user.lastName ? user.lastName : '' : ''
+}
