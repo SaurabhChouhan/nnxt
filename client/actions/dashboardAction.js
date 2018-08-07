@@ -1,7 +1,15 @@
 import * as A from '../actions'
 import * as AC from "./actionConsts";
 
+
+export const calculateReleaseStats = (release) => ({
+    type: AC.CALCULATE_RELEASE_STATS,
+    release: release
+})
+
+
 export const getReleaseForDashboard = (releaseID) => {
+    console.log("releaseID", releaseID)
     return function (dispatch) {
         return fetch('/api/releases/release/' + releaseID,
             {
@@ -26,8 +34,3 @@ export const getReleaseForDashboard = (releaseID) => {
     }
 }
 
-
-export const calculateReleaseStats = (release) => ({
-    type: AC.CALCULATE_RELEASE_STATS,
-    release: release
-})
