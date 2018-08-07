@@ -10,7 +10,7 @@ import * as U from '../../../server/utils'
 moment.locale('en')
 momentLocalizer()
 let ReleaseDeveloperFilterForm = (props) => {
-    const {team, handleSubmit, employeeId, startDate, endDate} = props
+    const {team, handleSubmit, employeeId, startDate, endDate, selectedReleaseID} = props
     let min = startDate && U.nowMomentInIndia().isSameOrBefore(U.momentInUTC(startDate)) ? U.momentInUTC(startDate) : U.nowMomentInIndia()
     let max = U.momentInUTC(endDate)
     console.log("min", min)
@@ -20,7 +20,7 @@ let ReleaseDeveloperFilterForm = (props) => {
             <div className="col-md-4 ">
                 <Field name="employeeId" placeholder={"Name of Developer"}
                        onChange={(event, newValue, oldValue) => {
-                           props.getDeveloperDetails(newValue, startDate, endDate)
+                           props.getEmployeePlanDetails(newValue, startDate, endDate, selectedReleaseID)
                        }}
                        component={renderSelect} options={team}
                        label={"Developer Name:"}/>
@@ -32,7 +32,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                            placeholder={"Start Date"}
                            component={renderDateTimePickerString}
                            onChange={(event, newValue, oldValue) => {
-                               props.getDeveloperDetails(employeeId, newValue, endDate)
+                               props.getEmployeePlanDetails(employeeId, newValue, endDate)
                            }}
                            showTime={false}
                            min={min ? min.toDate() : min}
@@ -42,7 +42,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                 <div className="col-md-6">
                     <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
                            onChange={(event, newValue, oldValue) => {
-                               props.getDeveloperDetails(employeeId, startDate, newValue)
+                               props.getEmployeePlanDetails(employeeId, startDate, newValue)
                            }}
                            showTime={false}
                            min={min ? min.toDate() : min}

@@ -215,7 +215,6 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
     V.validate(leaveInput, V.leaveRequestAdditionStruct)
 
-
     let startDateMoment = U.momentInUTC(leaveInput.startDate)
     let endDateMoment = U.momentInUTC(leaveInput.endDate)
 
@@ -236,9 +235,9 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     let leaveType = await MDL.LeaveTypeModel.findById(mongoose.Types.ObjectId(leaveInput.leaveType._id))
     let newLeave = new LeaveModel()
 
-    newLeave.startDate = startDateMoment
+    newLeave.startDate = startDateMoment.toDate()
     newLeave.startDateString = leaveInput.startDate
-    newLeave.endDate = endDateMoment
+    newLeave.endDate = endDateMoment.toDate()
     newLeave.endDateString = leaveInput.endDate
 
     //note:- this case for current date raise leave
@@ -251,10 +250,10 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
-    let generatedWarnings = await MDL.WarningModel.leaveRaised(newLeave, leaveInput.startDate, leaveInput.endDate, user)
+    let generatedWarnings = await MDL.WarningModel.leaveRaised(newLeave, startDateMoment.toDate(), endDateMoment.toDate(), user)
     let affected = await updateFlags(generatedWarnings)
 
-    logger.debug('Leave Rised :=> warning response :  ', {generatedWarnings})
+    logger.debug('LeaveModel.leaveRaised():  ', {generatedWarnings})
     await newLeave.save(leaveInput)
     newLeave = newLeave.toObject()
     newLeave.canDelete = true
