@@ -2330,17 +2330,19 @@ const updateEmployeeAskedForLeaveTasksMoved = async (sortedAffectedMoments, empl
            only thing needs to be considered is creating a valid add/remove list of tp/rp/r
      */
 
-    // find out leaves in this date range
-
     let minDate = sortedAffectedMoments[0]
     let maxDate = sortedAffectedMoments[sortedAffectedMoments.length - 1]
     logger.debug("updateEmployeeAskedForLeaveTasksMoved(): ", {minDate})
     logger.debug("updateEmployeeAskedForLeaveTasksMoved(): ", {maxDate})
 
+    // All those leaves would be affected due to this shifting that have some date that overlap with this date range so find all those leaves
+
     let leaves = await MDL.LeaveModel.find({
-        startDate: {$gte: minDate},
-        endDate: {$lte: maxDate},
-        "user._id": employee._id
+        $and: [
+            {"user._id": employee._id},
+            {startDate: {$lte: maxDate}},
+            {endDate: {$gte: minDate}}
+        ]
     })
 
     logger.debug("updateEmployeeAskedForLeaveTasksMoved(): found [" + leaves.length + "] leaves")
