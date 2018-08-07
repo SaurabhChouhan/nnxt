@@ -364,11 +364,17 @@ releasePlanSchema.statics.getReleaseDevelopersByReleasePlanID = async (releasePl
     return releaseTeamObject.team
 }
 
-releasePlanSchema.statics.getReleasePlansByIDs = async (releasePlanIDs) => {
+releasePlanSchema.statics.getReleasePlansByIDs = async (releasePlanIDs, select) => {
     let releasePlans = []
 
-    for(const releasePlanID of releasePlanIDs){
-        let releasePlan = await ReleasePlanModel.findById(releasePlanID)
+    for (const releasePlanID of releasePlanIDs) {
+        let releasePlan
+
+        if (select)
+            releasePlan = await ReleasePlanModel.findById(releasePlanID, select)
+        else
+            releasePlan = await ReleasePlanModel.findById(releasePlanID)
+
         releasePlans.push(releasePlan)
     }
     return releasePlans

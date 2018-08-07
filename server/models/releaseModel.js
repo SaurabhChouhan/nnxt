@@ -6,9 +6,7 @@ import * as MDL from '../models'
 import * as V from '../validation'
 import momentTZ from 'moment-timezone'
 import * as U from '../utils'
-import logger from '../logger'
 import EstimationModel from "./estimationModel";
-import ReleasePlanModel from "./releasePlanModel";
 
 mongoose.Promise = global.Promise
 
@@ -495,11 +493,17 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
     return release
 }
 
-releaseSchema.statics.getReleasesByIDs = async (releaseIDs) => {
+releaseSchema.statics.getReleasesByIDs = async (releaseIDs, select) => {
     let releases = []
 
-    for(const releaseID of releaseIDs){
-        let release = await ReleaseModel.findById(releaseID)
+    for (const releaseID of releaseIDs) {
+        let release
+
+        if (select)
+            release = await ReleaseModel.findById(releaseID, select)
+        else
+            release = await ReleaseModel.findById(releaseID)
+
         releases.push(release)
     }
     return releases

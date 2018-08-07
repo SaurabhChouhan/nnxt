@@ -275,6 +275,7 @@ taskPlanningSchema.statics.updateFlags = async (generatedWarnings, releasePlan, 
     // then we would update them by pushing/pulling flags
     // As a last step we would save all of them
 
+    logger.debug("TaskPlanningModel.updateFlags ", {generatedWarnings})
 
     let releasePlanIDs = [];
     let taskPlanIDs = [];
@@ -337,11 +338,11 @@ taskPlanningSchema.statics.updateFlags = async (generatedWarnings, releasePlan, 
         generatedWarnings.added.forEach(w => {
             if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
                 /*
-                  During shifting it is possible that few task plans of same release had too many hours warning
+                  During shifting it is possible that few task plans of same release had some warning
                   and now they don't have that warning while other task plans didn't have those warnings and
-                  now it has been added, in this case same release plan would be present in removed list as well
-                  as added list and hence final flag would depend upon who wins the race while the correct behavior is
-                  that a release plan should have too many hours flag if one of its task plan has that flag
+                  now it has been added, in this case same release plan would be present in removed list of that warning as well
+                  as added list of same warning. The correct behavior in this case is
+                  that a release plan should have that warning flag if one of its task plan has that flag
                 */
 
                 //logger.debug('[updateFlags]: warning [' + w.type + '] is added against release plan with id [' + w._id + ']')
@@ -475,6 +476,9 @@ const updateFlagsOnShift = async (generatedWarnings) => {
 
     // Now that we have got all the releasePlan/taskPlan IDs that would be affected by warning raised, we will update them accordingly
 
+    // We have intentionally handled removed warnings first so that if any release plan is present in both add and remove list
+    // release plan in add would cause warning to be added again even if it was removed due to removed list
+
     if (generatedWarnings.removed && generatedWarnings.removed.length) {
         generatedWarnings.removed.forEach(w => {
             if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
@@ -494,7 +498,6 @@ const updateFlagsOnShift = async (generatedWarnings) => {
             }
         })
     }
-
 
     if (generatedWarnings.added && generatedWarnings.added.length) {
         generatedWarnings.added.forEach(w => {
@@ -814,7 +817,7 @@ const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNu
         releasePlan.report.finalStatus = SC.STATUS_PENDING
     }
 
-    logger.debug('addTaskPlanning(): updated release plan', {releasePlan})
+    //logger.debug('addTaskPlanning(): updated release plan', {releasePlan})
 
     let progress = getNewProgressPercentage(releasePlan)
     releasePlan.diffProgress = progress - releasePlan.report.progress
@@ -1470,18 +1473,23 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 /*-------------------------------------------------MERGE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
 
-const shiftTasksToFutureUpdateWarnings = async (employeeDaysArray, release) => {
+const shiftTasksToFutureUpdateWarnings = async (employeeDaysArray, affectedMoments, release, employee) => {
 
     let taskPlanShiftWarningRemoved = []
     let taskPlanShiftWarningAdded = []
 
+    let warningResponse = await MDL.WarningModel.taskPlanMoved(employeeDaysArray, affectedMoments, release, employee)
+
+    if (warningResponse.added && warningResponse.added.length)
+        taskPlanShiftWarningAdded.push(...warningResponse.added)
+    if (warningResponse.removed && warningResponse.removed.length)
+        taskPlanShiftWarningRemoved.push(...warningResponse.removed)
+
+    /*
     for (const employeeDay of employeeDaysArray) {
-        let warningResponse = await MDL.WarningModel.taskPlanMoved(release, employeeDay)
-        if (warningResponse.added && warningResponse.added.length)
-            taskPlanShiftWarningAdded.push(...warningResponse.added)
-        if (warningResponse.removed && warningResponse.removed.length)
-            taskPlanShiftWarningRemoved.push(...warningResponse.removed)
+        logger.debug("WarningModel.taskPlanMoved ", {warningResponse})
     }
+    */
 
     let affectedObject = await updateFlagsOnShift({
         added: taskPlanShiftWarningAdded,
@@ -1635,7 +1643,7 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
 
     /* Sorting task plannings according to date */
     if (taskPlanningDates && taskPlanningDates.length) {
-        logger.debug('[task-shift-future]: found [' + taskPlanningDates.length + '] task plannings for selected employee selection', {taskPlanningDates})
+        logger.debug('shiftTasksToFuture(): found [' + taskPlanningDates.length + '] task plannings for selected employee selection', {taskPlanningDates})
 
         taskPlanningDates.sort(function (a, b) {
             a = new Date(a)
@@ -1645,7 +1653,7 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
 
         /* Adding 10 days to last planning date found for this employee as any tasks planned in holiday would occupy extra days so handling that as well here */
         let toTz = U.momentInUTC(taskPlanningDates[taskPlanningDates.length - 1]).add(10 + daysToShiftNumber, 'days')
-        logger.debug('[task-shift-future]: toTz [' + toTz.toDate() + '] ')
+        logger.debug('shiftTasksToFuture(): toTz [' + toTz.toDate() + '] ')
 
         /* Getting data of all days, working days, and work on holidays */
         let daysDetails = await getWorkingDaysAndHolidays(baseDateMomentInUtc.format(SC.DATE_FORMAT), toTz.format(SC.DATE_FORMAT), taskPlanningDates)
@@ -1672,21 +1680,21 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
                 let index = daysDetails.AllWorkingDayList && daysDetails.AllWorkingDayList.length ? daysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(planningDateMoment)) : -1
                 if (index != -1) {
                     // Task is planned on business day
-                    logger.debug('[task-shift-future]: planning date [' + planningDate + '] is part of busiess day')
+                    //logger.debug('shiftTasksToFuture(): planning date [' + planningDate + '] is part of busiess day')
                     let newShiftingDate = daysDetails.AllWorkingDayList[index + taskOnHolidayCount + daysToShiftNumber]
                     shiftingData.push({
                         existingDate: planningDateMoment,
                         shiftingDate: newShiftingDate
                     })
-                    logger.debug('[task-shift-future]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
+                    //logger.debug('shiftTasksToFuture(): new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDate) + ']')
                 } else if (daysDetails.AllTasksOnHolidayList && daysDetails.AllTasksOnHolidayList.length && daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(moment(planningDateMoment))) != -1) {
                     /* Task was planned on holidays */
-                    logger.debug('[task-shift-future]: planning date [' + planningDate + '] is part of holiday day')
+                    //logger.debug('shiftTasksToFuture(): planning date [' + planningDate + '] is part of holiday day')
                     index = daysDetails.AllTasksOnHolidayList.findIndex(wd => wd.date.isSame(planningDateMoment))
-                    logger.debug('[task-shift-future]: index is [' + index + '] is index.index is [' + daysDetails.AllTasksOnHolidayList[index].index + ']')
+                    //logger.debug('shiftTasksToFuture(): index is [' + index + '] is index.index is [' + daysDetails.AllTasksOnHolidayList[index].index + ']')
                     /* new Shifting date where task has to be placed */
                     let newShiftingDateMoment = daysDetails.AllWorkingDayList[taskOnHolidayCount + daysDetails.AllTasksOnHolidayList[index].index + daysToShiftNumber]
-                    logger.debug('[task-shift-future]: new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDateMoment) + ']')
+                    //logger.debug('shiftTasksToFuture(): new shifting date for planning date [' + planningDate + '] is [' + U.formatDateInUTC(newShiftingDateMoment) + ']')
 
                     shiftingData.push({
                         existingDate: planningDateMoment,
@@ -1697,13 +1705,13 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
 
                 } else {
                     /* System inconsistency */
-                    logger.debug('[task-shift-future]: planning date [' + planningDate + '] is not found in working days or holidays')
+                    //logger.debug('shiftTasksToFuture(): planning date [' + planningDate + '] is not found in working days or holidays')
                     throw new AppError('System inconsistency planning is neither on working days nor holidays ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
                 }
             })
         }
 
-        logger.debug('shifting data is ', {shiftingData})
+        //logger.debug('shifting data is ', {shiftingData})
 
         /**
          * We now have existing/shifting date, we would now iterate through every date and then execute updates for one date at a time,
@@ -1745,85 +1753,31 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
                     momentsToProcess.push(data.shiftingDate)
             })
 
+            // Sort moments to process asc order
+            momentsToProcess = momentsToProcess.sort((a, b) => {
+                if (a.isBefore(b))
+                    return -1;
+                else if (a.isAfter(b))
+                    return 1;
+                else
+                    return 0;
+            })
+
+            logger.debug("shiftTasksToFuture(): sorted moments to process", {sortedDatesToProcess: momentsToProcess})
+
+
             // now that we have unique dates to process we would start calculating employee days
-            logger.debug('[task-shift-future] dates to process ', {datesToProcess: momentsToProcess})
+
             // Marking isShifted flag that would be useful in differentiating between tasks that have already updated
             MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
 
             let employeeDaysArray = await shiftTasksToFutureUpdateEmployeeDays(momentsToProcess, employee)
             // Employee days have been updated and modified array of employee days would now be used to update warnings (
-
-            logger.debug('[task-shift-future] employee days ', {employeeDaysArray})
-
-            return await shiftTasksToFutureUpdateWarnings(employeeDaysArray, release)
-
-            return await Promise.all(ShiftingPromises).then(async promise => {
-
-                    /*
-                    let employeeDaysPromises = momentsToProcess.map(moments => {
-                        return MDL.TaskPlanningModel.aggregate([{
-                            $match: {planningDate: moments.toDate(), 'employee._id': employee._id}
-                        }, {
-                            $project: {
-                                planningDate: 1,
-                                planningDateString: 1,
-                                employee: 1,
-                                planning: {
-                                    plannedHours: 1
-                                }
-                            }
-                        }, {
-                            $group: {
-                                _id: null, // Grouping all records
-                                plannedHours: {$sum: '$planning.plannedHours'}
-                            }
-                        }]).exec().then(result => {
-                            logger.info('grouping of planned hours result for date  [' + U.formatDateInUTC(moments) + '] is ', {result})
-                            if (result.length) {
-                                let updates = result[0]
-                                return MDL.EmployeeDaysModel.findOne({
-                                    date: moments.toDate(),
-                                    'employee._id': employee._id
-                                }).exec().then(ed => {
-                                    if (!ed) {
-                                        //no employee days found for this date create one
-                                        let employeeDays = new MDL.EmployeeDaysModel()
-                                        employeeDays.date = moments.toDate()
-                                        employeeDays.dateString = U.formatDateInUTC(moments)
-                                        employeeDays.employee = employee
-                                        employeeDays.employee.name = employee.firstName
-                                        employeeDays.plannedHours = updates.plannedHours
-                                        return employeeDays.save()
-
-                                    } else {
-                                        logger.debug('Employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], updating... employee days ', {ed})
-                                        ed.plannedHours = updates.plannedHours
-                                        return ed.save()
-                                    }
-                                })
-                            } else {
-                                // no planned hours remaining for this date so remove that entry
-                                logger.debug('No planning day left for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], removing... employee days')
-                                return MDL.EmployeeDaysModel.remove({
-                                    date: moments.toDate(),
-                                    'employee._id': employee._id
-                                }).then(() => {
-                                    return {
-                                        employee: employee,
-                                        date: moments.toDate(),
-                                        plannedHours: 0 // adding planned hours as 0 would ensure deletion of too many hours warning
-                                    }
-                                })
-                            }
-                        })
-                    })
-
-                    */
-                }
-            )
+            logger.debug('shiftTasksToFuture() employee days ', {employeeDaysArray})
+            return await shiftTasksToFutureUpdateWarnings(employeeDaysArray, momentsToProcess, release, employee)
         }
     } else {
-        logger.debug('[task-shift-future]: no tasks found')
+        logger.debug('shiftTasksToFuture(): no tasks found')
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 }
