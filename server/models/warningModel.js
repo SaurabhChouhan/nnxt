@@ -1518,12 +1518,12 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
  * Called when task plan is removed. Make necessary warning changes
  *
  */
-const deleteTooManyHours = async (taskPlan, releasePlan, release, plannedDateUTC) => {
+const updateTooManyHoursOnTaskPlanDeleted = async (taskPlan, releasePlan, release, plannedDateUTC) => {
 
     logger.debug("WarningModel->deleteTooManyHours() called")
 
     /**
-     * It is possible that this warning is  earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
+     * It is possible that this warning is added earlier as well like when task plan is added with more than maximum planning hour to same developer at same date
      * Check to see if employee days of this taskPlan already has this warning raised
      */
     let warningResponse = {
@@ -1619,24 +1619,34 @@ const updateEmployeeAskForLeaveOnDeleteTaskPlan = async (taskPlan, releasePlan, 
         removed: []
     }
 
+    // Find out ask for leave warning associated with task plan (if any), task plan should only be associated with one leave warning
+    // as task plan is specific to one employee/one date and only one leave is possible for one employee one date
+
     let employeeAskForLeaveWarning = await WarningModel.findOne({
         type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-        'employeeDays.date': taskPlan.planningDate,
-        'employeeDays.employee._id': mongoose.Types.ObjectId(taskPlan.employee._id)
+        'taskPlans._id': taskPlan._id
     })
 
+    logger.debug("updateEmployeeAskForLeaveOnDeleteTaskPlan(): ", {employeeAskForLeaveWarning})
+
     if (employeeAskForLeaveWarning) {
-        //update warning WARNING_EMPLOYEE_ASK_FOR_LEAVE
+        // Warning found, we need to remove this task plan from this warning and see what other changes would be made
+
         employeeAskForLeaveWarning.taskPlans = employeeAskForLeaveWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
+
         warningResponse.removed.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
             type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
             source: true
         })
-        if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length > 0) {
 
-            if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length && employeeAskForLeaveWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) > -1) {
+        if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length > 0) {
+            // There are still task plans remaining in warning, so warning would not be removed
+            // Since a task plan is removed we need to see if this is last task plan of this release plan in this release
+
+            if (employeeAskForLeaveWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) === -1) {
+                // No task plan remains for this release so remove release plan from warning as well
                 employeeAskForLeaveWarning.releasePlans = employeeAskForLeaveWarning.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
                 warningResponse.removed.push({
                     _id: releasePlan._id,
@@ -1645,7 +1655,9 @@ const updateEmployeeAskForLeaveOnDeleteTaskPlan = async (taskPlan, releasePlan, 
                     source: true
                 })
             }
-            if (employeeAskForLeaveWarning.taskPlans && employeeAskForLeaveWarning.taskPlans.length && employeeAskForLeaveWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) > -1) {
+
+            // Check to see if release would also be removed from warning due to task plan removal
+            if (employeeAskForLeaveWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) === -1) {
                 employeeAskForLeaveWarning.releases = employeeAskForLeaveWarning.releases.filter(r => r._id.toString() !== release._id.toString())
                 warningResponse.removed.push({
                     _id: release._id,
@@ -1657,13 +1669,30 @@ const updateEmployeeAskForLeaveOnDeleteTaskPlan = async (taskPlan, releasePlan, 
             await employeeAskForLeaveWarning.save()
 
         } else {
+            // No task plan remaining after removal of this task plan so remove warning
+            employeeAskForLeaveWarning.taskPlans.forEach(tp => {
+                if (tp) {
+                    warningResponse.removed.push({
+                        _id: tp._id,
+                        warningType: SC.WARNING_TYPE_TASK_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                        source: tp.source
+                    })
+                }
+            })
 
-            let deleteWarningResponse = await deleteWarningWithResponse(employeeAskForLeaveWarning, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
-            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                warningResponse.added.push(...deleteWarningResponse.added)
-            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                warningResponse.removed.push(...deleteWarningResponse.removed)
+            employeeAskForLeaveWarning.releasePlans.forEach(rp => {
+                if (rp) {
+                    warningResponse.removed.push({
+                        _id: rp._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
+                        source: rp.source
+                    })
+                }
+            })
 
+            await employeeAskForLeaveWarning.remove()
         }
     }
     return warningResponse
@@ -1924,7 +1953,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
         })
     }
 //TOO MANY HOURS UPDATE
-    let warningsTooManyHours = await deleteTooManyHours(taskPlan, releasePlan, release, plannedDateUTC)
+    let warningsTooManyHours = await updateTooManyHoursOnTaskPlanDeleted(taskPlan, releasePlan, release, plannedDateUTC)
 
     if (warningsTooManyHours.added && warningsTooManyHours.added.length)
         warningResponse.added.push(...warningsTooManyHours.added)
@@ -1933,7 +1962,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
 
     logger.debug('[task-plan-deleted-warning]: [warningsTooManyHours] =>', {warningsTooManyHours})
 
-//EMPLOYEE ASK FOR LEAVE UPDATE
+    //EMPLOYEE ASK FOR LEAVE UPDATE
     let warningsAskForLeave = await updateEmployeeAskForLeaveOnDeleteTaskPlan(taskPlan, releasePlan, release)
 
     if (warningsAskForLeave.added && warningsAskForLeave.added.length)
@@ -1942,7 +1971,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
         warningResponse.removed.push(...warningsAskForLeave.removed)
     logger.debug('[task-plan-deleted-warning]: [Employee-Ask-For-Leave] warning response ', {warningsAskForLeave})
 
-//EMPLOYEE ON LEAVE UPDATE
+    //EMPLOYEE ON LEAVE UPDATE
 
     let warningsOnLeave = await updateEmployeeOnLeaveOnDeleteTaskPlan(taskPlan, releasePlan, release)
 
@@ -1953,7 +1982,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
     logger.debug('[task-plan-deleted-warning]: [Employee-On-Leave] warning response ', {warningsOnLeave})
 
 
-//LESS PLANNED HOURS OR MORE PLANNED HOURS OR NO WARNING AT ALL
+    //LESS PLANNED HOURS OR MORE PLANNED HOURS OR NO WARNING AT ALL
     if (releasePlan.planning.plannedHours === 0) {
         /*Only unplanned warning will be there if task plans are not available*/
         logger.debug('[task-plan-deleted-warning]: planned hours are zero delete all warning')
@@ -3121,7 +3150,7 @@ warningSchema.statics.taskPlanMerged = async (taskPlan, releasePlan, release, ex
     // as task is moved there is possibility of removal of too many hours warning if not removed then also task plan will be removed from warning`s task plan list
     logger.debug("[ taskPlanMerged ]:()=> Too many hours warning would be removed from existing date (if exists)", {existingEmployeeDays})
 
-    let deleteTooManyHoursWarningResponse = await deleteTooManyHours(taskPlan, releasePlan, release, existingEmployeeDays.date)
+    let deleteTooManyHoursWarningResponse = await updateTooManyHoursOnTaskPlanDeleted(taskPlan, releasePlan, release, existingEmployeeDays.date)
     logger.debug("", {deleteTooManyHoursWarningResponse})
 
     warningResponse.added.push(...deleteTooManyHoursWarningResponse.added)
