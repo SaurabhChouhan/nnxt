@@ -4,16 +4,17 @@ import * as A from "../../actions"
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperDetails: (employeeId, StartDate, EndDate) => {
+    getEmployeePlanDetails: (employeeId, StartDate, EndDate, releaseID) => {
         if (!employeeId) {
-         return    NotificationManager.error("Please select employee")
+            return NotificationManager.error("Please select employee")
         }
-        else return dispatch(A.getDeveloperDetailsWithFilterOnServer(employeeId, StartDate, EndDate))
+        else return dispatch(A.getEmployeePlanDetailsForRelease(employeeId, StartDate, EndDate, releaseID))
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? state.user.allDevelopers : []
+    team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? state.user.allDevelopers : [],
+    selectedReleaseID: state.release.selectedRelease._id
 })
 
 

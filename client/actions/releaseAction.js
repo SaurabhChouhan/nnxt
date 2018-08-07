@@ -390,10 +390,16 @@ export const reopenTaskPlanOnServer = (taskPlanningID) => {
     }
 }
 
+export const getEmployeePlanDetailsForRelease = (employeeId, startDate, endDate, releaseID) => {
 
-export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, EndDate) => {
+    if (!startDate)
+        startDate = 'none'
+
+    if (!endDate)
+        endDate = 'none'
+
     return (dispatch, getState) => {
-        return fetch('/api/task-plans/employee/' + employeeId + '/fromDate/' + StartDate + '/toDate/' + EndDate, {
+        return fetch('/api/task-plans/employee/' + employeeId + '/release/' + releaseID + '/fromDate/' + startDate + '/toDate/' + endDate, {
                 method: 'get',
                 credentials: "include",
                 headers: {

@@ -87,50 +87,76 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
 
 
 /* get all task plannings according to developers and date range */
-taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, fromDate, toDate, user) => {
+taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, releaseID, fromDate, toDate, user) => {
     if (!employeeId)
         throw new AppError('Employee not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let fromDateMomentTz = U.momentInUTC(fromDate)
-    let toDateMomentTz = U.momentInUTC(toDate)
+
+    let isExists = MDL.ReleaseModel.count({
+        _id: mongoose.Types.ObjectId(releaseID)
+    })
+
+    if (!isExists)
+        throw new AppError("Release not found ", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, {
+        _id: employeeId
+    })
+
+    if (!rolesInRelease)
+        return []
+
+    let fromDateMomentTz;
+    let toDateMomentTz;
+
+    let criteria = {
+        '$and': [
+            {'release._id': mongoose.Types.ObjectId(releaseID)},
+            {'employee._id': mongoose.Types.ObjectId(employeeId)}
+        ]
+    }
+
+    if (fromDate != 'none') {
+        fromDateMomentTz = U.momentInUTC(fromDate)
+        if (fromDateMomentTz.isValid()) {
+            criteria['$and'].push({
+                    planningDate: {$gte: fromDateMomentTz.toDate()}
+                }
+            )
+        }
+    }
+
+    if (toDate != 'none') {
+        toDateMomentTz = U.momentInUTC(toDate)
+        if (toDateMomentTz.isValid()) {
+            criteria['$and'].push({
+                    planningDate: {$lte: toDateMomentTz.toDate()}
+                }
+            )
+        }
+    }
+
+    logger.debug("getTaskPlanningDetailsByEmpIdAndFromDateToDate():  ", {criteria})
 
     /* list of release Id`s where user is either manager or leader */
-    let releaseListOfID = []
-    releaseListOfID = await MDL.ReleaseModel.find({
-        $or: [{'manager._id': mongoose.Types.ObjectId(user._id)},
-            {'leader._id': mongoose.Types.ObjectId(user._id)}]
-    }, {'_id': 1})
 
     /* All task plannings of selected employee Id */
-    let taskPlannings = await MDL.TaskPlanningModel.find({'employee._id': mongoose.Types.ObjectId(employeeId)}).sort({'planningDate': 1})
+    let taskPlans = await MDL.TaskPlanningModel.find(criteria)
 
-    /* Conditions applied for filter according to required data and fromDate to toDate */
-    if (fromDate && fromDate != 'undefined' && fromDate != undefined && toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => U.momentInUTC(tp.planningDateString).isSameOrAfter(fromDateMomentTz) && U.momentInUTC(tp.planningDateString).isSameOrBefore(toDateMomentTz))
-    }
-    else if (fromDate && fromDate != 'undefined' && fromDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => U.momentInUTC(tp.planningDateString).isSameOrAfter(fromDateMomentTz))
-    }
-    else if (toDate && toDate != 'undefined' && toDate != undefined) {
-        taskPlannings = taskPlannings.filter(tp => U.momentInUTC(tp.planningDateString).isSameOrBefore(toDateMomentTz))
-    }
+    // Parse date in indian time zone as we are looking for using it for company purpose only
 
+    let startOfToday = momentTZ.tz(SC.INDIAN_TIMEZONE).startOf('day') // end of today
 
-    let now = new Date()
-    let nowString = moment(now).format(SC.DATE_FORMAT)
-    let nowMomentInUtc = momentTZ.tz(nowString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-    /* Return of filtered task plannings and checking it can be merged or not */
-    return taskPlannings.map(tp => {
+    return taskPlans.map(tp => {
         tp = tp.toObject()
-        let check = U.momentInUTC(tp.planningDateString).isBefore(nowMomentInUtc) || !(releaseListOfID && releaseListOfID.findIndex(release => release._id.toString() === tp.release._id.toString()) != -1)
-        if (check) {
-            tp.canMerge = false
-        } else {
-            tp.canMerge = true
-        }
+        if (momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE).isBefore(startOfToday))
+                tp.canMove = false
+            else
+                tp.canMove = true
         return tp
     })
+
+
 }
 
 
