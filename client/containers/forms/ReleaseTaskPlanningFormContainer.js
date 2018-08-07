@@ -6,16 +6,16 @@ import {NotificationManager} from 'react-notifications'
 import * as EC from '../../../server/errorcodes'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: (task) => {
-        task.planning.plannedHours = Number(task.planning.plannedHours)
-        return dispatch(A.addTaskPlanningOnServer(task)).then(json => {
+    onSubmit: (taskPlan) => {
+        taskPlan.planning.plannedHours = Number(taskPlan.planning.plannedHours)
+        return dispatch(A.addTaskPlanningOnServer(taskPlan)).then(json => {
             if (json.success) {
-                console.log("==== Task Planning added ==== ", task.employee._id, task.workCalendarEmployeeID)
-                NotificationManager.success("Task Planning Added")
+                console.log("==== taskPlan Planning added ==== ", taskPlan.employee._id, taskPlan.workCalendarEmployeeID)
+                NotificationManager.success("taskPlan Planning Added")
                 dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
                 // If workCalendar employee id matches with task planning employee id fetch work calendar
-                if (task.employee._id.toString() == task.workCalendarEmployeeID.toString())
-                    dispatch(A.getEmployeeWorkCalendarFromServer(task.workCalendarEmployeeID))
+                if (taskPlan.employee._id.toString() == taskPlan.workCalendarEmployeeID.toString())
+                    dispatch(A.getEmployeeWorkCalendarFromServer(taskPlan.workCalendarEmployeeID))
                 return json
             }
             else {
