@@ -1473,7 +1473,7 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
 /*-------------------------------------------------MERGE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
 
-const shiftTasksToFutureUpdateWarnings = async (employeeDaysArray, affectedMoments, release, employee) => {
+const shiftTasksUpdateWarnings = async (employeeDaysArray, affectedMoments, release, employee) => {
 
     let taskPlanShiftWarningRemoved = []
     let taskPlanShiftWarningAdded = []
@@ -1484,12 +1484,6 @@ const shiftTasksToFutureUpdateWarnings = async (employeeDaysArray, affectedMomen
         taskPlanShiftWarningAdded.push(...warningResponse.added)
     if (warningResponse.removed && warningResponse.removed.length)
         taskPlanShiftWarningRemoved.push(...warningResponse.removed)
-
-    /*
-    for (const employeeDay of employeeDaysArray) {
-        logger.debug("WarningModel.taskPlanMoved ", {warningResponse})
-    }
-    */
 
     let affectedObject = await updateFlagsOnShift({
         added: taskPlanShiftWarningAdded,
@@ -1504,7 +1498,13 @@ const shiftTasksToFutureUpdateWarnings = async (employeeDaysArray, affectedMomen
     }
 }
 
-const shiftTasksToFutureUpdateEmployeeDays = async (affectedMoments, employee) => {
+/**
+ * This method would update employee day documents for this employee based on affected moments (date) due to shifting
+ * @param affectedMoments
+ * @param employee
+ * @returns {Promise<Array>}
+ */
+const shiftTasksUpdateEmployeeDays = async (affectedMoments, employee) => {
 
     let result = []
 
@@ -1740,9 +1740,7 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
 
             let updatedDates = await Promise.all(ShiftingPromises)
             // Tasks are now updated with new dates
-
             // We will now calculate new employee days that happened due to this shifting
-
             // As dates can overlap between existing/shifting we will create a list of unique dates that are affected by removing duplicates
 
             let momentsToProcess = []
@@ -1771,17 +1769,16 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
             // Marking isShifted flag that would be useful in differentiating between tasks that have already updated
             MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
 
-            let employeeDaysArray = await shiftTasksToFutureUpdateEmployeeDays(momentsToProcess, employee)
+            let employeeDaysArray = await shiftTasksUpdateEmployeeDays(momentsToProcess, employee)
             // Employee days have been updated and modified array of employee days would now be used to update warnings (
             logger.debug('shiftTasksToFuture() employee days ', {employeeDaysArray})
-            return await shiftTasksToFutureUpdateWarnings(employeeDaysArray, momentsToProcess, release, employee)
+            return await shiftTasksUpdateWarnings(employeeDaysArray, momentsToProcess, release, employee)
         }
     } else {
         logger.debug('shiftTasksToFuture(): no tasks found')
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 }
-
 
 /**
  * Shifting task plans to past
@@ -1811,6 +1808,11 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
         throw new AppError('Cannot start shifting from past date', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
 
+    /* checking Release is valid or not */
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(shiftInput.releaseId))
+    if (!release)
+        throw new AppError('Not a valid release', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
     let count = await MDL.TaskPlanningModel.count({
         'employee._id': employee._id,
         'planningDate': baseDateMomentInUtc,
@@ -1819,11 +1821,6 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
 
     if (count == 0)
         throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-
-    /* checking Release is valid or not */
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(shiftInput.releaseId))
-    if (!release)
-        throw new AppError('Not a valid release', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* checking user role in this release */
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
@@ -1857,28 +1854,6 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
         if (startShiftingMoment.isBefore(nowMomentInUtc)) {
             throw new AppError("This takes few tasks beyond today's date ", EC.BEYOND_TODAY, EC.HTTP_BAD_REQUEST)
         }
-
-        // Since tasks planned on holidays would shift to working days and those holidays would not be considered during shifting
-        // to ensure that we shift picked task to correct date it is important to check if enough days are available
-
-
-        /*
-        let previousDaysDetails = await getWorkingDaysAndHolidays(moment(taskPlanningDates[taskPlanningDates.length - 1]).subtract(10 * daysToShiftNumber, 'days'), momentTZ.tz(taskPlanningDates[0], SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0))
-        let idx = previousDaysDetails.AllWorkingDayList.findIndex(wd => wd.isSame(baseDateMomentInUtc))
-        let idx2 = previousDaysDetails.AllTasksOnHolidayList.findIndex(wd => wd.isSame(baseDateMomentInUtc))
-        if (idx != -1 && idx > daysToShiftNumber && previousDaysDetails.AllWorkingDayList[Number(idx - daysToShiftNumber)].isBefore(nowMomentInUtc)) {
-            throw new AppError('Can not shift because less working days available for task shifting ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        } else if (idx2 != -1 && previousDaysDetails.AllWorkingDayList[Number(Number(previousDaysDetails.AllTasksOnHolidayList[idx2].index) - daysToShiftNumber)].isBefore(nowMomentInUtc)) {
-            throw new AppError('Can not shift because less working days available for task shifting and In holiday also tasks are planned', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-        } else {
-
-            if (idx != -1) {
-                startShiftingMoment = previousDaysDetails.AllWorkingDayList[Number(idx - daysToShiftNumber)]
-            } else if (idx2 != -1) {
-                startShiftingMoment = previousDaysDetails.AllWorkingDayList[Number(Number(previousDaysDetails.AllTasksOnHolidayList[idx2].index) - daysToShiftNumber)]
-            }
-        }
-        */
 
         // Since tasks planned on holidays would shift to working days and those holidays would not be considered during shifting
         // it is possible that even though we are shifting in past some of the last tasks may even shift to future
@@ -1973,140 +1948,35 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
                 ).exec()
             })
 
-            return await Promise.all(ShiftingPromises).then(async promise => {
-                // Tasks are now updated with new dates, what we will do now is calculate new employee days hours for each
-                // shifted date/existing date. As dates can overlap between existing/shifting we have to remove duplicate
-                let momentsToProcess = []
-                shiftingData.forEach(data => {
-                    if (momentsToProcess.findIndex(moments => data.existingDate.isSame(moments)) === -1)
-                        momentsToProcess.push(data.existingDate)
-                    if (momentsToProcess.findIndex(moments => data.shiftingDate.isSame(moments)) === -1)
-                        momentsToProcess.push(data.shiftingDate)
-                })
+            let updatedDates = await Promise.all(ShiftingPromises)
 
-                // now that we have unique dates to process we would start calculating employee days
-                logger.debug('[task-shift-past] dates to process ', {datesToProcess: momentsToProcess})
+            // Tasks are now updated with new dates
+            // We will now calculate new employee days that happened due to this shifting
+            // As dates can overlap between existing/shifting we will create a list of unique dates that are affected by removing duplicates
 
-                MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
-
-                let employeeDaysPromises = momentsToProcess.map(moments => {
-                    return MDL.TaskPlanningModel.aggregate([{
-                        $match: {planningDate: moments.toDate(), 'employee._id': employee._id}
-                    }, {
-                        $project: {
-                            planningDate: 1,
-                            planningDateString: 1,
-                            employee: 1,
-                            planning: {
-                                plannedHours: 1
-                            }
-                        }
-                    }, {
-                        $group: {
-                            _id: null, // Grouping all records
-                            plannedHours: {$sum: '$planning.plannedHours'}
-                        }
-                    }]).exec().then(result => {
-                        logger.info('grouping of planned hours result for date  [' + U.formatDateInUTC(moments) + '] is ', {result})
-                        if (result.length) {
-                            let updates = result[0]
-                            return MDL.EmployeeDaysModel.findOne({
-                                date: moments.toDate(),
-                                'employee._id': employee._id
-                            }).exec().then(ed => {
-                                if (!ed) {
-                                    //no employee days found for this date create one
-                                    let employeeDays = new MDL.EmployeeDaysModel()
-                                    employeeDays.date = moments.toDate()
-                                    employeeDays.dateString = U.formatDateInUTC(moments)
-                                    employeeDays.employee = employee
-                                    employeeDays.employee.name = employee.firstName
-                                    employeeDays.plannedHours = updates.plannedHours
-                                    return employeeDays.save()
-
-                                } else {
-                                    logger.debug('Employee days found for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], updating... employee days ', {ed})
-                                    ed.plannedHours = updates.plannedHours
-                                    return ed.save()
-                                }
-                            })
-                        } else {
-                            // no planned hours remaining for this date so remove that entry
-                            logger.debug('No planning day left for [' + U.formatDateInUTC(moments) + ',' + employee._id + '], removing... employee days')
-                            return MDL.EmployeeDaysModel.remove({
-                                date: moments.toDate(),
-                                'employee._id': employee._id
-                            }).then(() => {
-                                return {
-                                    employee: employee,
-                                    date: moments.toDate(),
-                                    plannedHours: 0 // adding planned hours as 0 would ensure deletion of too many hours warning
-                                }
-                            })
-                        }
-                    })
-                })
-
-                let employeeDaysArray = await Promise.all(employeeDaysPromises)
-                logger.debug('[task-shift-past] employee days ', {employeeDaysArray})
-
-                if (employeeDaysArray && employeeDaysArray.length) {
-                    let generatedWarningsPromises = employeeDaysArray.map(ed => {
-                        return MDL.WarningModel.taskPlanMoved(release, ed).then((generatedWarning) => {
-                            logger.debug('warning update on shift to past completed successfully')
-                            return generatedWarning
-                        }).catch((error) => {
-                            console.log(error) // for appropriate line numbers
-                            logger.error('warning update on shift to past failed ')
-                            return {
-                                added: [],
-                                removed: []
-                            }
-                        })
-                    })
-
-                    let allGeneratedWarningsPromises = await Promise.all(generatedWarningsPromises)
-
-                    logger.debug('all warning task shift allGeneratedWarningsPromises', {allGeneratedWarningsPromises})
-
-                    let taskPlanShiftWarningAdded = []
-                    let taskPlanShiftWarningRemoved = []
-
-                    allGeneratedWarningsPromises.forEach(w => {
-                        if (w.added && w.added.length)
-                            taskPlanShiftWarningAdded.push(...w.added)
-
-                        if (w.removed && w.removed.length)
-                            taskPlanShiftWarningRemoved.push(...w.removed)
-
-                    })
-                    let affectedObject = await updateFlagsOnShift({
-                        added: taskPlanShiftWarningAdded,
-                        removed: taskPlanShiftWarningRemoved
-                    })
-                    return {
-                        taskPlan: shiftInput,
-                        warnings: {
-                            added: taskPlanShiftWarningAdded,
-                            removed: taskPlanShiftWarningRemoved
-                        },
-                        releasePlans: affectedObject.affectedReleasePlans,
-                        taskPlans: affectedObject.affectedTaskPlans
-
-                    }
-                } else {
-                    return {
-                        taskPlan: shiftInput,
-                        warnings: {
-                            added: [],
-                            removed: []
-                        },
-                        releasePlans: [],
-                        taskPlans: []
-
-                    }
-                }
+            let momentsToProcess = []
+            shiftingData.forEach(data => {
+                if (momentsToProcess.findIndex(moments => data.existingDate.isSame(moments)) === -1)
+                    momentsToProcess.push(data.existingDate)
+                if (momentsToProcess.findIndex(moments => data.shiftingDate.isSame(moments)) === -1)
+                    momentsToProcess.push(data.shiftingDate)
             })
+
+            // Sort moments to process asc order
+            momentsToProcess = momentsToProcess.sort((a, b) => {
+                if (a.isBefore(b))
+                    return -1;
+                else if (a.isAfter(b))
+                    return 1;
+                else
+                    return 0;
+            })
+
+            // Marking isShifted flag that would be useful in differentiating between tasks that have already updated
+            MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
+            let employeeDaysArray = await shiftTasksUpdateEmployeeDays(momentsToProcess, employee)
+            logger.debug('shiftTasksToFuture() employee days ', {employeeDaysArray})
+            return await shiftTasksUpdateWarnings(employeeDaysArray, momentsToProcess, release, employee)
         }
     } else {
         throw new AppError('No task available to shift', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -2114,69 +1984,9 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
     return shiftInput
 }
 
-const updateEmployeeDaysTaskShift = async (startDateString, endDateString, user) => {
-
-    logger.debug('[task-shift] updateEmployeeDaysTaskShift() startDateString [' + startDateString + '] endDateString [' + endDateString + ']')
-
-    let startDateToString = moment(startDateString).format(SC.DATE_FORMAT)
-    let endDateToString = moment(endDateString).format(SC.DATE_FORMAT)
-    let startDateMomentTz = momentTZ.tz(startDateToString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-    let endDateMomentTz = momentTZ.tz(endDateToString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
-
-    /*
-    * task planning model group by (employee && planningDate)*/
-
-    let taskPlannings = await MDL.TaskPlanningModel.aggregate([{
-        $match: {planningDate: {$gte: startDateMomentTz.toDate(), $lte: endDateMomentTz.toDate()}}
-    }, {
-        $project: {
-            planningDate: 1,
-            planningDateString: 1,
-            employee: 1,
-            planning: {
-                plannedHours: 1
-            }
-        }
-    }, {
-        $group: {
-            _id: {
-                'planningDate': '$planningDate',
-                'employeeID': '$employee._id'
-            },
-            planningDate: {$first: '$planningDate'},
-            employee: {$first: '$employee'},
-            plannedHours: {$sum: '$planning.plannedHours'},
-            count: {$sum: 1}
-        }
-    }]).exec()
-
-    /* Employee task planning details will be deleted */
-    let deleteEmployeeDetails = await MDL.EmployeeDaysModel.remove({
-        'date': {$gte: startDateMomentTz.clone().toDate(), $lte: startDateMomentTz.clone().toDate()}
-    })
-    let saveEmployeePromises = taskPlannings && taskPlannings.length ? taskPlannings.map(async tp => {
-
-        let employeeDaysInput = {
-            employee: {
-                _id: tp.employee._id.toString(),
-                name: tp.employee.name
-            },
-            dateString: moment(tp.planningDate).format(SC.DATE_FORMAT),
-            plannedHours: Number(tp.plannedHours)
-        }
-        return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(employeeDaysInput, user)
-    }) : new Promise((resolve, reject) => {
-        return resolve(false)
-    })
-    return await Promise.all(saveEmployeePromises)
-
-}
-
-
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
 const addTaskReportPlannedUpdateEmployeeRelease = async (release, employee, extra) => {
-
     const {reportedHoursToIncrement} = extra
 
     let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
