@@ -95,7 +95,6 @@ releaseSchema.statics.getAvailableReleases = async (status, user) => {
 }
 
 releaseSchema.statics.getReleases = async (status, user) => {
-
     let filter = {}
     if (status && status.toLowerCase() !== SC.ALL)
         filter = {
