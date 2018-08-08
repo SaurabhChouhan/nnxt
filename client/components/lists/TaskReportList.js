@@ -39,9 +39,10 @@ class TaskReportList extends Component {
 
     formatReportedStatus(report) {
         if (report)
-            return report.finalStatus
+            return report.status
         return ''
     }
+
     formatReportedHours(report) {
         if (report)
             return report.reportedHours
@@ -77,8 +78,7 @@ class TaskReportList extends Component {
                     <TableHeaderColumn columnTitle dataField='task'
                                        dataFormat={this.formatTaskName.bind(this)}>Task Name
                     </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='planningDate'
-                                       dataFormat={this.formatPlannedDate.bind(this)}>Planning
+                    <TableHeaderColumn columnTitle dataField='planningDateString'>Planning
                         Date
                     </TableHeaderColumn>
                     <TableHeaderColumn columnTitle dataField='planning' dataFormat={this.formatPlannedHours.bind(this)}>Planned
