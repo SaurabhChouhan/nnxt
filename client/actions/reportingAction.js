@@ -55,6 +55,12 @@ export const updateSelectedReleasePlan = (releasePlan) => ({
 })
 
 
+export const setReportsOfRelease = (reports) => ({
+    type: AC.SET_REPORTS_OF_RELEASE,
+    reports: reports
+})
+
+
 /**
  * Gets all releases date
  */
