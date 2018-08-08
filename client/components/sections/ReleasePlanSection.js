@@ -4,7 +4,7 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import * as U from '../../../server/utils'
 import moment from 'moment'
-import {TaskPlanListContainer, ReleasePlanListContainer, WarningListContainer} from '../../containers'
+import {TaskPlanListContainer, ReleasePlanListContainer, WarningListContainer ,TaskReportListContainer} from '../../containers'
 
 class ReleasePlanSection extends Component {
 
@@ -18,6 +18,7 @@ class ReleasePlanSection extends Component {
         }
         this.showReleasePlans = this.showReleasePlans.bind(this)
         this.showWarnings = this.showWarnings.bind(this)
+        this.showTaskPlans = this.showTaskPlans.bind(this)
 
     }
 
@@ -31,6 +32,10 @@ class ReleasePlanSection extends Component {
 
     showTaskPlans(flag) {
         this.setState({showList: SC.TASK_PLANS_LIST})
+    }
+
+    showTaskReport(flag) {
+        this.setState({showList: SC.TASK_REPORT_LIST})
     }
 
     onRowClick(row) {
@@ -187,11 +192,22 @@ class ReleasePlanSection extends Component {
                                         }}>Task Plans
                                     </a>
                                 </li>
+                                <li>
+                                    <a
+                                        data-toggle="tab"
+                                        className={showList === SC.TASK_REPORT_LIST ? "btn btn-link btn-size " : "btn btn-link btn-size "}
+                                        onClick={() => {
+                                            this.showTaskReport(),
+                                                this.props.getAllTaskReports(release)
+                                        }}>Task Report
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 <div className="col-md-12">
+                    {showList === SC.TASK_REPORT_LIST && <TaskReportListContainer/>}
                     {showList === SC.TASK_PLANS_LIST && <TaskPlanListContainer/>}
                     {showList === SC.WARNINGS_LIST && <WarningListContainer/>}
                     {showList === SC.RELEASE_PLAN_LIST && <ReleasePlanListContainer/>}

@@ -47,9 +47,18 @@ taskPlanRouter.get("/release/:releaseID", async ctx => {
 /***
  * Get task planning schedule according to developer
  ***/
-taskPlanRouter.get("/employee/:employeeID/fromDate/:fromDate/toDate/:toDate", async ctx => {
-    return await MDL.TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeID, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
+taskPlanRouter.get("/employee/:employeeID/fromDate/:fromDate/toDate/:toDate/release/:releaseID", async ctx => {
+    return await MDL.TaskPlanningModel.getTaskPlanningDetailsByEmpIdAndFromDateToDate(ctx.params.employeeID, ctx.params.releaseID, ctx.params.fromDate, ctx.params.toDate, ctx.state.user)
 
 })
+
+/***
+ * Move task to another date
+ ***/
+taskPlanRouter.put("/:taskID/move", async ctx => {
+    console.log("inside move")
+    return await MDL.TaskPlanningModel.moveTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+})
+
 
 export default taskPlanRouter

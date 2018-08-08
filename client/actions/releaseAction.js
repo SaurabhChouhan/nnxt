@@ -311,9 +311,9 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
 }
 
 
-export const mergeTaskPlanningOnServer = (taskPlanning) => {
-    return (dispatch, getState) => {
-        return fetch('/api/releases/merge-task-plan/', {
+export const moveTaskPlanOnServer = (taskPlanning) => {
+    return (dispatch) => {
+        return fetch('/api/task-plans/' + taskPlanning._id + '/move', {
                 method: 'put',
                 credentials: "include",
                 headers: {
@@ -390,10 +390,9 @@ export const reopenTaskPlanOnServer = (taskPlanningID) => {
     }
 }
 
-
-export const getDeveloperDetailsWithFilterOnServer = (employeeId, StartDate, EndDate) => {
+export const getEmployeePlanDetailsForRelease = (employeeId, startDate, endDate, releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/task-plans/employee/' + employeeId + '/fromDate/' + StartDate + '/toDate/' + EndDate, {
+        return fetch('/api/task-plans/employee/' + employeeId + '/fromDate/' + startDate + '/toDate/' + endDate + '/release/' + releaseID, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -431,8 +430,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    if (json.data && json.data.taskPlan)
-                        dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
+                    dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
                 }
                 return json
             })
@@ -457,8 +455,7 @@ export const shiftTasksToPastOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    if (json.data && json.data.taskPlan)
-                        dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
+                    dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
                 }
                 return json
             })

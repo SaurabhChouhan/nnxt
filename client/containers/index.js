@@ -90,13 +90,14 @@ export {default as AttendanceSettingFormContainer} from './forms/AttendanceSetti
 
 
 //Release setting
+export {default as TaskReportListContainer} from './lists/TaskReportListContainer'
 export {default as TaskPlanListContainer} from './lists/TaskPlanListContainer'
 export {default as ReleaseDeveloperScheduleFormContainer} from './forms/ReleaseDeveloperScheduleFormContainer'
 export {default as ReleaseDevelopersSchedulesContainer} from './pages/ReleaseDevelopersSchedulesContainer'
 export {default as ReleaseTaskPlanningShiftFormContainer} from './forms/ReleaseTaskPlanningShiftFormContainer'
 export {default as ReleaseDeveloperFilterFormContainer} from './forms/ReleaseDeveloperFilterFormContainer'
 export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
-export {default as ReleaseMergeTaskPlanningFormContainer} from './forms/ReleaseMergeTaskPlanningFormContainer'
+export {default as ReleaseMoveTaskPlanFormContainer} from './forms/ReleaseMoveTaskPlanFormContainer'
 export {default as UpdateReleaseDatesFormContainer} from './forms/UpdateReleaseDatesFormContainer'
 export {default as ReleasePlanAddToReleaseFormContainer} from './forms/ReleasePlanAddToReleaseFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'

@@ -81,12 +81,6 @@ releaseRouter.get("/estimation/:estimationID", async ctx => {
     return await MDL.ReleaseModel.getAllReleasesToAddEstimation(ctx.params.estimationID, ctx.state.user)
 })
 
-/***
- * Merge already planned task to another date for re-schedule
- ***/
-releaseRouter.put("/merge-task-plan/", async ctx => {
-    return await MDL.TaskPlanningModel.mergeTaskPlanning(ctx.request.body, ctx.state.user, ctx.schemaRequested)
-})
 
 /***
  * Shifting all task plans to future with base date and number of days to shift
@@ -95,7 +89,7 @@ releaseRouter.put("/merge-task-plan/", async ctx => {
  * - Can-not shift task plan to a future days leave from base date
  ***/
 releaseRouter.put("/shift-future/", async ctx => {
-    return await MDL.TaskPlanningModel.planningShiftToFuture(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.TaskPlanningModel.shiftTasksToFuture(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
 })
 
@@ -106,7 +100,7 @@ releaseRouter.put("/shift-future/", async ctx => {
  * - Can-not shift task plan to a past days leave from base date
  ***/
 releaseRouter.put("/shift-past/", async ctx => {
-    return await MDL.TaskPlanningModel.planningShiftToPast(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.TaskPlanningModel.shiftTasksToPast(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 
 /***

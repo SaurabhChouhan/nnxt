@@ -34,7 +34,7 @@ class CalendarTaskDetailPage extends React.Component {
                                 title={'Project Description :'}
                                 icon={<i
                                     className="glyphicon glyphicon-tasks calendar_icon"></i>}>
-                    {selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}
+                    <p className="description">{selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}</p>
                 </TimelineEvent>
 
 
@@ -47,7 +47,7 @@ class CalendarTaskDetailPage extends React.Component {
                 <TimelineEvent title={'Task Description :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                    {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}
+                    <p className="description"> {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}</p>
                 </TimelineEvent>
 
 
@@ -75,7 +75,7 @@ class CalendarTaskDetailPage extends React.Component {
                         <TimelineEvent title={'Details :'}
                                        icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                        style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.description ? selectedTaskPlan.description : ''}
+                            <p className="description">    {selectedTaskPlan && selectedTaskPlan.description ? selectedTaskPlan.description : ''}</p>
                         </TimelineEvent>
 
 

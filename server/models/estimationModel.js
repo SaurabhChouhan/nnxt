@@ -74,9 +74,9 @@ estimationSchema.statics.getUserRoleInEstimation = async (estimationID, user) =>
 
     if (estimation) {
         // check to see role of logged in user in this estimation
-        if (estimation.estimator._id.toString() == user._id.toString())
+        if (estimation.estimator._id.toString() === user._id.toString())
             return SC.ROLE_ESTIMATOR
-        else if (estimation.negotiator._id.toString() == user._id.toString())
+        else if (estimation.negotiator._id.toString() === user._id.toString())
             return SC.ROLE_NEGOTIATOR
     }
     return undefined
@@ -129,19 +129,19 @@ estimationSchema.statics.getAllActive = async (projectID, status, user) => {
         })
         estimations = [...estimations, ...negotiatorEstimations]
     }
-    if (status == SC.ALL && projectID == SC.ALL) {
+    if (status === SC.ALL && projectID === SC.ALL) {
 
         return estimations
 
-    } else if (status == SC.ALL) {
+    } else if (status === SC.ALL) {
 
-        return estimations.filter(estimation => estimation.project._id == projectID)
+        return estimations.filter(estimation => estimation.project._id === projectID)
 
-    } else if (projectID == SC.ALL) {
+    } else if (projectID === SC.ALL) {
 
-        return estimations.filter(estimation => estimation.status == status)
+        return estimations.filter(estimation => estimation.status === status)
 
-    } else return estimations.filter(estimation => estimation.status == status && estimation.project._id == projectID)
+    } else return estimations.filter(estimation => estimation.status === status && estimation.project._id === projectID)
 
 }
 

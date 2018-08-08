@@ -55,6 +55,12 @@ export const updateSelectedReleasePlan = (releasePlan) => ({
 })
 
 
+export const setReportsOfRelease = (reports) => ({
+    type: AC.SET_REPORTS_OF_RELEASE,
+    reports: reports
+})
+
+
 /**
  * Gets all releases date
  */
@@ -102,7 +108,6 @@ export const getReportingTasksForDate = (releaseID, date, iterationType, taskSta
                     dispatch(addReleasesAndTasksOfSelectedDate(json.data, date))
                 }
                 return json
-
             })
     }
 }
@@ -124,6 +129,29 @@ export const getTaskDetailsForReportFromServer = (taskPlanID) => {
             json => {
                 if (json.success) {
                     dispatch(setReportTaskPlanDetail(json.data.taskPlan, json.data.releasePlan, json.data.release, json.data.estimationDescription))
+                }
+                return json
+            })
+    }
+}
+
+export const getAllTaskReportsOfThisReleaseFromServer = (releaseID) => {
+    return (dispatch, getState) => {
+        return fetch('/api/reporting/' + releaseID + '/release', {
+                method: 'get',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    console.log("json-data", json.data)
+                    dispatch(setReportsOfRelease(json.data))
                 }
                 return json
             })
