@@ -96,7 +96,7 @@ class ReleaseTaskPlanningPage extends Component {
         if (row && row.canMove)
             return (<button className=" btn btn-custom customBtn mergeBtn" type="button"
                             onClick={() => {
-                                this.props.openMergeTaskPlanningForm(row)
+                                this.props.openMoveTaskPlanForm(row)
                             }}>Move</button>)
         else return ''
     }

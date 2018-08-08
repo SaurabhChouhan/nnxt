@@ -33,7 +33,7 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
-    ReleaseMergeTaskPlanningFormDialog,
+    ReleaseMoveTaskPlanFormDialog,
     ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
     RepositoryTaskDetailDialog,
@@ -296,9 +296,9 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
                         }
                     }/>
-                    <ReleaseMergeTaskPlanningFormDialog name={COC.MERGE_TASK_PLANNING_DIALOG} show={true} close={
+                    <ReleaseMoveTaskPlanFormDialog name={COC.MOVE_TASK_PLAN_DIALOG} show={true} close={
                         () => {
-                            this.props.dispatch(A.hideComponent(COC.MERGE_TASK_PLANNING_DIALOG))
+                            this.props.dispatch(A.hideComponent(COC.MOVE_TASK_PLAN_DIALOG))
                         }
                     }/>
                 </ContentSection>
