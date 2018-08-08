@@ -311,9 +311,9 @@ export const addTaskPlanningOnServer = (taskPlanning) => {
 }
 
 
-export const mergeTaskPlanningOnServer = (taskPlanning) => {
-    return (dispatch, getState) => {
-        return fetch('/api/releases/merge-task-plan/', {
+export const moveTaskPlanOnServer = (taskPlanning) => {
+    return (dispatch) => {
+        return fetch('/api/task-plans/' + taskPlanning._id + '/move', {
                 method: 'put',
                 credentials: "include",
                 headers: {

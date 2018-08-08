@@ -43,13 +43,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.reopenTaskPlanOnServer(task._id))
 
     },
-    openMergeTaskPlanningForm: (releasePlan) => {
-        dispatch(initialize("merge-task-planning", releasePlan))
-        dispatch(A.showComponent(COC.MERGE_TASK_PLANNING_DIALOG))
+    openMoveTaskPlanForm: (releasePlan) => {
+        dispatch(initialize("move-task-planning", releasePlan))
+        dispatch(A.showComponent(COC.MOVE_TASK_PLAN_DIALOG))
 
     },
-
-
     planTaskFilter: (taskPlanFilter) => dispatch(A.addTaskPlanningFiltersOnServer(taskPlanFilter)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Added")
@@ -65,7 +63,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
         dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
     },
-
     expandDescription: (flag) => dispatch(A.expandDescription(flag)),
     refreshSelectedTaskPlan: (releasePlan, role) => {
         dispatch(A.getReleasePlanDetailsFromServer(releasePlan._id)).then(json => {

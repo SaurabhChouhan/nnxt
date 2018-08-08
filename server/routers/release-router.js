@@ -81,12 +81,6 @@ releaseRouter.get("/estimation/:estimationID", async ctx => {
     return await MDL.ReleaseModel.getAllReleasesToAddEstimation(ctx.params.estimationID, ctx.state.user)
 })
 
-/***
- * Merge already planned task to another date for re-schedule
- ***/
-releaseRouter.put("/merge-task-plan/", async ctx => {
-    return await MDL.TaskPlanningModel.mergeTaskPlanning(ctx.request.body, ctx.state.user, ctx.schemaRequested)
-})
 
 /***
  * Shifting all task plans to future with base date and number of days to shift

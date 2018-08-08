@@ -97,7 +97,7 @@ export {default as ReleaseDevelopersSchedulesContainer} from './pages/ReleaseDev
 export {default as ReleaseTaskPlanningShiftFormContainer} from './forms/ReleaseTaskPlanningShiftFormContainer'
 export {default as ReleaseDeveloperFilterFormContainer} from './forms/ReleaseDeveloperFilterFormContainer'
 export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPlanningFormContainer'
-export {default as ReleaseMergeTaskPlanningFormContainer} from './forms/ReleaseMergeTaskPlanningFormContainer'
+export {default as ReleaseMoveTaskPlanFormContainer} from './forms/ReleaseMoveTaskPlanFormContainer'
 export {default as UpdateReleaseDatesFormContainer} from './forms/UpdateReleaseDatesFormContainer'
 export {default as ReleasePlanAddToReleaseFormContainer} from './forms/ReleasePlanAddToReleaseFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'

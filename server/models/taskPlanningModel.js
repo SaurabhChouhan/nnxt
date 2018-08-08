@@ -360,6 +360,32 @@ taskPlanningSchema.statics.updateFlags = async (generatedWarnings, releasePlan, 
     let affectedTaskPlans = await Promise.all(tpIDPromises)
 
     // Now that we have got all the releasePlan/taskPlan IDs that would be affected by warning raised, we will update them accordingly
+
+    // We have intentionally handled removed warnings first so that if any release plan/task plan is present in both add and remove list
+    // release plan in add would cause warning to be added again even if it was removed due to removed list
+
+    if (generatedWarnings.removed && generatedWarnings.removed.length) {
+        generatedWarnings.removed.forEach(w => {
+            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
+                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
+                if (!affectedReleasePlan)
+                    return;
+
+                if (affectedReleasePlan.flags.indexOf(w.type) > -1)
+                    affectedReleasePlan.flags.pull(w.type)
+
+            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
+                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
+                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
+                if (!affectedTaskPlan)
+                    return;
+                if (affectedTaskPlan.flags.indexOf(w.type) > -1)
+                    affectedTaskPlan.flags.pull(w.type)
+            }
+        })
+    }
+
     if (generatedWarnings.added && generatedWarnings.added.length) {
         generatedWarnings.added.forEach(w => {
             if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
@@ -389,27 +415,7 @@ taskPlanningSchema.statics.updateFlags = async (generatedWarnings, releasePlan, 
         })
     }
 
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(w => {
-            if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against release plan with id [' + w._id + ']')
-                let affectedReleasePlan = affectedReleasePlans.find(arp => arp._id.toString() === w._id.toString())
-                if (!affectedReleasePlan)
-                    return;
 
-                if (affectedReleasePlan.flags.indexOf(w.type) > -1)
-                    affectedReleasePlan.flags.pull(w.type)
-
-            } else if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                //logger.debug('[updateFlags]: warning [' + w.type + '] is removed against task plan with id [' + w._id + ']')
-                let affectedTaskPlan = affectedTaskPlans.find(atp => atp._id.toString() === w._id.toString())
-                if (!affectedTaskPlan)
-                    return;
-                if (affectedTaskPlan.flags.indexOf(w.type) > -1)
-                    affectedTaskPlan.flags.pull(w.type)
-            }
-        })
-    }
 
     // Now that all release plans/task plans are updated to add/remove flags based on generated warnings, it is time
     // save them and then return only once all save operation completes so that user interface is appropriately modified
@@ -1386,9 +1392,9 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
 /*-------------------------------------------------MERGE_TASK_PLANNING_SECTION_START----------------------------------------------------------*/
 
 /**
- *  merge task plan to another date
+ *  Move task plan to another date
  **/
-taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, schemaRequested) => {
+taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.releaseMergeTaskPlanningStruct)
 
@@ -1479,11 +1485,11 @@ taskPlanningSchema.statics.mergeTaskPlanning = async (taskPlanningInput, user, s
         await rePlannedDateEmployeeDays.save()
     }
 
-    logger.debug("[ taskPlanMerged ]:()=> UPDATED: existing date employee days ", {existingDateEmployeeDays})
-    logger.debug("[ taskPlanMerged ]:()=>: UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
+    logger.debug("[ taskMoved ]:()=> UPDATED: existing date employee days ", {existingDateEmployeeDays})
+    logger.debug("[ taskMoved ]:()=>: UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
 
-    let generatedWarnings = await MDL.WarningModel.taskPlanMerged(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
-    logger.debug("[ taskPlanMerged ]:()=> generatedWarnings ", {generatedWarnings})
+    let generatedWarnings = await MDL.WarningModel.taskMoved(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
+    logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
 
     // update flags
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
@@ -1504,7 +1510,7 @@ const shiftTasksUpdateWarnings = async (employeeDaysArray, affectedMoments, rele
     let taskPlanShiftWarningRemoved = []
     let taskPlanShiftWarningAdded = []
 
-    let warningResponse = await MDL.WarningModel.taskPlanMoved(employeeDaysArray, affectedMoments, release, employee)
+    let warningResponse = await MDL.WarningModel.tasksShifted(employeeDaysArray, affectedMoments, release, employee)
 
     if (warningResponse.added && warningResponse.added.length)
         taskPlanShiftWarningAdded.push(...warningResponse.added)

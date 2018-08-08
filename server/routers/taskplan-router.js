@@ -52,4 +52,13 @@ taskPlanRouter.get("/employee/:employeeID/release/:releaseID/fromDate/:fromDate/
 
 })
 
+/***
+ * Move task to another date
+ ***/
+taskPlanRouter.put("/:taskID/move", async ctx => {
+    console.log("inside move")
+    return await MDL.TaskPlanningModel.moveTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+})
+
+
 export default taskPlanRouter
