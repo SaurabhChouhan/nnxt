@@ -116,7 +116,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         ]
     }
 
-    if (fromDate != 'none') {
+    if (fromDate !== SC.NONE) {
         fromDateMomentTz = U.momentInUTC(fromDate)
         if (fromDateMomentTz.isValid()) {
             criteria['$and'].push({
@@ -126,7 +126,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
         }
     }
 
-    if (toDate != 'none') {
+    if (toDate !== SC.NONE) {
         toDateMomentTz = U.momentInUTC(toDate)
         if (toDateMomentTz.isValid()) {
             criteria['$and'].push({
@@ -149,7 +149,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
 
     return taskPlans.map(tp => {
         tp = tp.toObject()
-        if (momentTZ.tz(tp.planningDateString, SC.DATE_FORMAT, SC.INDIAN_TIMEZONE).isBefore(startOfToday))
+        if (U.momentInTimeZone(tp.planningDateString, SC.INDIAN_TIMEZONE).isBefore(startOfToday))
             tp.canMove = false
         else
             tp.canMove = true
@@ -414,7 +414,6 @@ taskPlanningSchema.statics.updateFlags = async (generatedWarnings, releasePlan, 
             }
         })
     }
-
 
 
     // Now that all release plans/task plans are updated to add/remove flags based on generated warnings, it is time

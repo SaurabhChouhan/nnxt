@@ -32,7 +32,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                            placeholder={"Start Date"}
                            component={renderDateTimePickerString}
                            onChange={(event, newValue, oldValue) => {
-                               props.getEmployeePlanDetails(employeeId, newValue, endDate)
+                               props.getEmployeePlanDetails(employeeId, newValue, endDate, selectedReleaseID)
                            }}
                            showTime={false}
                            min={min ? min.toDate() : min}
@@ -42,7 +42,7 @@ let ReleaseDeveloperFilterForm = (props) => {
                 <div className="col-md-6">
                     <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
                            onChange={(event, newValue, oldValue) => {
-                               props.getEmployeePlanDetails(employeeId, startDate, newValue)
+                               props.getEmployeePlanDetails(employeeId, startDate, newValue, selectedReleaseID)
                            }}
                            showTime={false}
                            min={min ? min.toDate() : min}

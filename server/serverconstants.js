@@ -4,6 +4,7 @@ export const DEV_ENV = 'development'
 //Common Names
 
 export const ALL = 'all'
+export const NONE = 'none'
 
 // User Role
 export const ROLE_ADMIN = 'Admin'
@@ -241,6 +242,7 @@ export const TIME_FORMAT_24_HOURS = 'HH:mm'
 export const DATE_AND_TIME_FORMAT = 'LLL'
 export const DATE_MONTH_FORMAT = 'MMMM Do'
 export const DATE_HALF_WEAK_MONTH_FORMAT = 'ddd'
+export const DATE_SHOW = 'Do MMM, YY'
 
 // Time Zones
 // !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!
