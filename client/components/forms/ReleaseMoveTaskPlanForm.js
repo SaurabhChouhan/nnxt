@@ -8,7 +8,7 @@ import * as SC from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
-let ReleaseMergeTaskPlanningForm = (props) => {
+let ReleaseMoveTaskPlanForm = (props) => {
     const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
     const today = new Date()
     const todayMoment = moment(today).hour(0).minute(0).second(0).milliseconds(0)
@@ -49,7 +49,7 @@ let ReleaseMergeTaskPlanningForm = (props) => {
                            showTime={false}
                            min={min}
                            max={max}
-                           label={"Merge to Date :"}
+                           label={"Move to Date :"}
                            validate={[required]}
                     />
                 </div>
@@ -62,7 +62,7 @@ let ReleaseMergeTaskPlanningForm = (props) => {
             <div className="col-md-12">
                 <div className="col-md-4">
                     <button type="submit" className="btn customBtn" disabled={submitting || pristine}>
-                        Merge Task
+                        Move
                     </button>
                 </div>
                 <div className="col-md-4">
@@ -77,8 +77,8 @@ let ReleaseMergeTaskPlanningForm = (props) => {
     </form>
 }
 
-ReleaseMergeTaskPlanningForm = reduxForm({
-    form: 'merge-task-planning'
-})(ReleaseMergeTaskPlanningForm)
+ReleaseMoveTaskPlanForm = reduxForm({
+    form: 'move-task-planning'
+})(ReleaseMoveTaskPlanForm)
 
-export default ReleaseMergeTaskPlanningForm
+export default ReleaseMoveTaskPlanForm

@@ -1,19 +1,19 @@
 import {Modal, ModalBody, ModalHeader} from 'react-bootstrap'
 import React from 'react'
-import {ReleaseMergeTaskPlanningFormContainer} from "../../containers"
+import {ReleaseMoveTaskPlanFormContainer} from "../../containers"
 
-const ReleaseMergeTaskPlanningFormDialog = (props) => {
+const ReleaseMoveTaskPlanFormDialog = (props) => {
     return <Modal className="estimationModal" show={props.show} onHide={props.close}>
         <ModalHeader closeButton>
             <div className="clearfix ModalHeading">
                 <div className="col-md-1 ModalSideLabel"></div>
-                <h3>Merge Planning To Date</h3>
+                <h3>Move Task</h3>
             </div>
         </ModalHeader>
         <ModalBody>
-            <ReleaseMergeTaskPlanningFormContainer/>
+            <ReleaseMoveTaskPlanFormContainer/>
         </ModalBody>
     </Modal>
 }
 
-export default ReleaseMergeTaskPlanningFormDialog
+export default ReleaseMoveTaskPlanFormDialog

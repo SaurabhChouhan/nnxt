@@ -92,12 +92,12 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
 
-    actionCellButton(cell, row, enumObject, rowIndex) {
-        if (row && row.canMerge)
+    actionCellButton(cell, row) {
+        if (row && row.canMove)
             return (<button className=" btn btn-custom customBtn mergeBtn" type="button"
                             onClick={() => {
-                                this.props.openMergeTaskPlanningForm(row)
-                            }}>Merge</button>)
+                                this.props.openMoveTaskPlanForm(row)
+                            }}>Move</button>)
         else return ''
     }
 

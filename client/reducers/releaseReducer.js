@@ -10,6 +10,7 @@ let initialState = {
     releasePlans: [],
     selectedRelease: {},
     selectedReleasePlan: {},
+    teamOfRelease: [],
     taskPlans: [],
     developerPlans: [],
     expanded: false,
@@ -31,8 +32,10 @@ const releaseReducer = (state = initialState, action) => {
 
         case AC.RELEASE_SELECTED:
             // add selected release details from server
+            // Select team
             return Object.assign({}, state, {
-                selectedRelease: action.release
+                selectedRelease: action.release,
+                teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam]
             })
 
         case AC.ADD_RELEASE_PLANS:
