@@ -8,8 +8,7 @@ import * as SC from '../../../server/serverconstants'
 const mapDispatchToProps = (dispatch, ownProps) => ({})
 
 const mapStateToProps = (state) => ({
-    reportedTasks: state.report.reportedTasks,
-    release: state.release.selectedRelease
+    reports: state.report.releasesReports
 })
 
 const TaskReportListContainer = withRouter(connect(

@@ -68,23 +68,23 @@ const reportingReducer = (state = initialState, action) => {
             })
 
         case AC.SET_RELEASE_ID:
-            // while selection of reporting status it is set to state also
+            // while selection of reporting releaseID it is set to state also
             return Object.assign({}, state, {
                 releaseID: action.releaseID
             })
 
         case AC.SET_ITERATION_TYPE:
-            // while selection of reporting status it is set to state also
+            // while selection of reporting iteration type it is set to state also
             return Object.assign({}, state, {
                 iterationType: action.iterationType
             })
 
         case AC.SET_REPORTS_OF_RELEASE:
-            // while selection of reporting status it is set to state also
+            // while task plan need to see report list by manager and leader
             return Object.assign({}, state, {
                 releasesReports: action.reports
             })
-        
+
         default:
             return state
     }

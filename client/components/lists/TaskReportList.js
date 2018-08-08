@@ -49,8 +49,8 @@ class TaskReportList extends Component {
     }
 
     render() {
-        const {reportedTasks} = this.props
-        console.log("reportedTasks------------------", reportedTasks)
+        const {reports} = this.props
+        console.log("reports------------------", reports)
         const options = {
             sizePerPageList: [{
                 text: '5', value: 5
@@ -62,7 +62,7 @@ class TaskReportList extends Component {
         };
         return (
             <div className="estimation releasePlan-taskPlan">
-                <BootstrapTable options={options} data={reportedTasks}
+                <BootstrapTable options={options} data={reports}
                                 multiColumnSearch={true}
                                 search={true}
                                 striped={true}
