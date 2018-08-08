@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             daysToShift: Number(daysToShift)
         })).then(json => {
             if (json.success) {
-                NotificationManager.success('Plan shifted to future')
+                NotificationManager.success('Shifting to future date completed...')
                 dispatch(A.hideComponent(TASK_SHIFT_DIALOG))
                 dispatch(A.getEmployeeWorkCalendarFromServer(employeeId, month, year))
             }
@@ -39,7 +39,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             daysToShift: Number(daysToShift)
         })).then(json => {
             if (json.success) {
-                NotificationManager.success('Plan shifted to future')
+                NotificationManager.success('Shifting to past date completed...')
                 dispatch(A.hideComponent(TASK_SHIFT_DIALOG))
                 dispatch(A.getEmployeeWorkCalendarFromServer(employeeId, month, year))
             }

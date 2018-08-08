@@ -430,8 +430,7 @@ export const shiftTasksToFutureOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    if (json.data && json.data.taskPlan)
-                        dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
+                    dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
                 }
                 return json
             })
@@ -456,8 +455,7 @@ export const shiftTasksToPastOnServer = (shift) => {
         ).then(
             json => {
                 if (json.success) {
-                    if (json.data && json.data.taskPlan)
-                        dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
+                    dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
                 }
                 return json
             })
