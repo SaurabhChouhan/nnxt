@@ -4,7 +4,12 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import * as U from '../../../server/utils'
 import moment from 'moment'
-import {TaskPlanListContainer, ReleasePlanListContainer, WarningListContainer ,TaskReportListContainer} from '../../containers'
+import {
+    TaskPlanListContainer,
+    ReleasePlanListContainer,
+    WarningListContainer,
+    TaskReportListContainer
+} from '../../containers'
 
 class ReleasePlanSection extends Component {
 

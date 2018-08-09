@@ -628,11 +628,11 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
     /* Add or update Employee Statistics Details when task is planned */
     /* Checking release plan  details  with  release and employee */
     if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id),
-            'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id),
+        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
 
-        }) > 0) {
+    }) > 0) {
 
         /* Increased planned hours of release plan for  Already added employees statics details */
         let EmployeeStatisticsModelInput = {
@@ -655,9 +655,9 @@ const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, empl
         return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
 
     } else if (await MDL.EmployeeStatisticsModel.count({
-            'employee._id': mongoose.Types.ObjectId(employee._id),
-            'release._id': mongoose.Types.ObjectId(release._id)
-        }) > 0) {
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    }) > 0) {
 
         /* Add  release plan with planned hours for Already added employees statics details without release plan   */
         let EmployeeStatisticsModelInput = {
@@ -711,9 +711,9 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
     if (await MDL.EmployeeDaysModel.count({
-            'employee._id': employee._id.toString(),
-            'date': momentPlanningDate
-        }) > 0) {
+        'employee._id': employee._id.toString(),
+        'date': momentPlanningDate
+    }) > 0) {
 
         /* Update already added employee days details with increment of planned hours   */
         let EmployeeDaysModelInput = {
@@ -2339,7 +2339,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
 
     // Need to add/update reporting warnings.
 
-    let warningsTaskReported = await  MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
+    let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
         reportedMoment,
         employeePlanningIdx,
         reportInput
@@ -2821,8 +2821,9 @@ taskPlanningSchema.statics.getReportsOfRelease = async (releaseID, user) => {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
     return MDL.TaskPlanningModel.find({
-        'release._id': mongoose.Types.ObjectId(release._id)
-    })
+        'release._id': mongoose.Types.ObjectId(release._id),
+
+    }).sort({'planningDate': -1})
 }
 
 taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
