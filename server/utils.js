@@ -80,6 +80,13 @@ export const sameMomentInUTC = (d) => {
     return moment.utc().startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }
 
+export const sameMomentInTimezone = (d, timeZone) => {
+    console.log("d.getMinutes() ", d.getMinutes())
+    console.log("d.getHours() ", d.getHours())
+    return moment.tz(timeZone).startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
+}
+
+
 export const momentFromDBDate = (d) => {
     return moment.tz(d, SC.UTC_TIMEZONE)
 }
@@ -127,19 +134,17 @@ export const nowMomentInIndia = () => {
     return undefined
 }
 
-export const todaysMomentOfTimezoneInUTC = (timeZone) => {
-    let now = new Date()
-    let nowString = formatDateInTimezone(now, SC.DATE_FORMAT, timeZone)
-    let nowMoment = momentInUTC(nowString)
-    if (nowMoment.isValid())
-        return nowMoment
-    return undefined
+export const getPastMidNight = (timeZone) => {
+    return moment().tz(timeZone).startOf('day')
 }
 
+export const getNextMidNight = (timeZone) => {
+    return moment().tz(timeZone).startOf('day').add(1, 'day')
+}
 
 export const getNowMomentInUtc = () => {
     let now = new Date()
-    let nowString = formatDateInTimezone(now, SC.UTC_TIMEZONE)
+    let nowString = formatDateInTimezone(now, SC.DATE_FORMAT, SC.UTC_TIMEZONE)
     let nowMoment = momentInUTC(nowString)
 
     if (nowMoment.isValid())

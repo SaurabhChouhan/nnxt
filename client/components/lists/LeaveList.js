@@ -108,7 +108,7 @@ class LeaveList extends Component {
 
     onConfirmDeleteRequest() {
         this.setState({showLeaveDeleteRequestDialog: false})
-        this.props.deleteLeave(this.state.row)
+        this.props.revokeLeave(this.state.row)
     }
 
 

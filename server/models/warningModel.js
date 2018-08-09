@@ -2925,79 +2925,51 @@ warningSchema.statics.leaveRaised = async (leave, startDate, endDate, employee) 
 }
 
 
-warningSchema.statics.leaveDeleted = async (startDate, endDate, leave, employee) => {
-    let startDateMoment = U.momentInUTC(startDate)
-    let endDateMoment = U.momentInUTC(endDate)
-    let singleDateMoment = startDateMoment.clone()
-    let finalWarningResponse = {
+/**
+ * Handle warnings when leave is revoked by requester. A user can revoke leave even when it is approved.
+  */
+
+warningSchema.statics.leaveRevoked = async (leave) => {
+
+    /**
+     * Leave can be in raised or approved status based on which there can be employee ask for leave or employee on leave warning
+     * Need to remove all those warnings if task is deleted
+     *
+     */
+
+    let warningResponse = {
         added: [],
         removed: []
     }
 
-    while (singleDateMoment.isSameOrBefore(endDateMoment)) {
-        let warningResponse = {
-            added: [],
-            removed: []
-        }
+    let leaveWarning = await WarningModel.findOne({
+        'leave._id': leave._id
+    })
 
-        let warningsAskedForLeave = await WarningModel.findOne({
-            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-            'employeeDays.date': singleDateMoment.toDate(),
-            'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
-        })
-        logger.debug("inside-leaveDelete warning model=> warningsAskedForLeave", {warningsAskedForLeave})
-        if (warningsAskedForLeave) {
-            let count = await MDL.LeaveModel.count({
-                "_id": {$ne: leave._id},
-                'user._id': employee._id,
-                'startDate': {$lte: singleDateMoment.toDate()},
-                'endDate': {$gte: singleDateMoment.toDate()},
-                'status': SC.LEAVE_STATUS_RAISED
+    if(leaveWarning){
+        // a leave warning is found check to see its type (can be employee ask for leave or employee on leave. Do removal appropriately
+        // this warning would be removed a
+
+        leaveWarning.taskPlans.forEach(tp => {
+            warningResponse.removed.push({
+                _id: tp._id,
+                warningType: SC.WARNING_TYPE_TASK_PLAN,
+                type: leaveWarning.type
             })
-            logger.debug("[leave Deleted ]=>[ warning delete] => check other raised leave exists in this date range startDate :[" + startDate + "]  endDate :[" + endDate + "] :", {count})
-            if (count == 0) {
-                let deleteWarningResponse = await deleteWarningWithResponse(warningsAskedForLeave, SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE)
-                if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                    warningResponse.added.push(...deleteWarningResponse.added)
-                if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                    warningResponse.removed.push(...deleteWarningResponse.removed)
-
-            }
-        }
-
-        let warningsOnLeave = await WarningModel.findOne({
-            type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-            'employeeDays.date': singleDateMoment.toDate(),
-            'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
         })
 
-        logger.debug("inside-leaveDelete warning model=> warningsOnLeave", {warningsOnLeave})
-        if (warningsOnLeave) {
-            let count = await MDL.LeaveModel.count({
-                "_id": {$ne: leave._id},
-                'user._id': employee._id,
-                'startDate': {$lte: singleDateMoment.toDate()},
-                'endDate': {$gte: singleDateMoment.toDate()},
-                'status': SC.LEAVE_STATUS_APPROVED
+        leaveWarning.releasePlans.forEach(tp => {
+            warningResponse.removed.push({
+                _id: tp._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: leaveWarning.type
+
             })
-            logger.debug("[leave Deleted ]=>[ warning delete] => check other approved leave exists in this date range startDate :[" + startDate + "]  endDate :[" + endDate + "] :", {count})
-            if (count == 0) {
-                let deleteWarningResponse = await deleteWarningWithResponse(warningsOnLeave, SC.WARNING_EMPLOYEE_ON_LEAVE)
-                if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                    warningResponse.added.push(...deleteWarningResponse.added)
-                if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                    warningResponse.removed.push(...deleteWarningResponse.removed)
-
-            }
-        }
-        singleDateMoment = singleDateMoment.add(1, 'days')
-        if (warningResponse.added && warningResponse.added.length)
-            finalWarningResponse.added.push(...warningResponse.added)
-        if (warningResponse.removed && warningResponse.removed.length)
-            finalWarningResponse.removed.push(...warningResponse.removed)
-
+        })
+        await leaveWarning.remove()
     }
-    return finalWarningResponse
+
+    return warningResponse
 }
 
 
