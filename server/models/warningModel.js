@@ -1096,7 +1096,7 @@ const updateEmployeeOnLeaveOnTaskAdd = async (taskPlan, releasePlan, release, em
 /**
  * Handles code related to add less planned hours warning
  */
-const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) => {
+const addLessPlannedHoursOnTaskAdd = async (taskPlan, releasePlan, release) => {
 
     let warningResponse = {
         added: [],
@@ -1195,7 +1195,7 @@ const addLessPlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) 
     return warningResponse
 }
 
-const addMorePlannedHoursOnAddTaskPlan = async (taskPlan, releasePlan, release) => {
+const addMorePlannedHoursOnTaskAdd = async (taskPlan, releasePlan, release) => {
 
     let warningResponse = {
         added: [],
@@ -1354,7 +1354,7 @@ const deleteLessPlannedHours = async (releasePlan) => {
 /**
  * Called when any task is planned
  */
-warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
+warningSchema.statics.taskAdded = async (taskPlan, releasePlan, release, employee, plannedHourNumber, momentPlanningDate, firstTaskOfReleasePlan, addedAfterMaxDate) => {
     let warningResponse = {
         added: [],
         removed: []
@@ -1480,9 +1480,9 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     if (releasePlan.planning.plannedHours < releasePlan.task.estimatedHours) {
         /*Add less planned hours warning*/
-        logger.debug('WarningModel.taskPlanAdded(): planned hours are less than actual estimated hours so need to raise warning')
+        logger.debug('WarningModel.taskAdded(): planned hours are less than actual estimated hours so need to raise warning')
 
-        let warningsLessPlannedHours = await addLessPlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
+        let warningsLessPlannedHours = await addLessPlannedHoursOnTaskAdd(taskPlan, releasePlan, release)
 
         if (warningsLessPlannedHours.added && warningsLessPlannedHours.added.length)
             warningResponse.added.push(...warningsLessPlannedHours.added)
@@ -1491,16 +1491,16 @@ warningSchema.statics.taskPlanAdded = async (taskPlan, releasePlan, release, emp
 
     } else if (releasePlan.planning.plannedHours > releasePlan.task.estimatedHours) {
         /*Add more planned hours warning*/
-        logger.debug('WarningModel.taskPlanAdded(): planned hours are more than actual estimated hours so need to raise warning')
+        logger.debug('WarningModel.taskAdded(): planned hours are more than actual estimated hours so need to raise warning')
 
-        let warningsMorePlannedHours = await addMorePlannedHoursOnAddTaskPlan(taskPlan, releasePlan, release)
+        let warningsMorePlannedHours = await addMorePlannedHoursOnTaskAdd(taskPlan, releasePlan, release)
         if (warningsMorePlannedHours.added && warningsMorePlannedHours.added.length)
             warningResponse.added.push(...warningsMorePlannedHours.added)
         if (warningsMorePlannedHours.removed && warningsMorePlannedHours.removed.length)
             warningResponse.removed.push(...warningsMorePlannedHours.removed)
     } else {
         /*delete more planned hours warning and less planned hours warning*/
-        logger.debug('WarningModel.taskPlanAdded(): planned hours are equal to estimated hours so no need to raise warning delete all less planned hours and more planned hours warning')
+        logger.debug('WarningModel.taskAdded(): planned hours are equal to estimated hours so no need to raise warning delete all less planned hours and more planned hours warning')
         let deleteWarningsMorePlannedHours = await deleteMorePlannedHours(releasePlan)
         if (deleteWarningsMorePlannedHours.added && deleteWarningsMorePlannedHours.added.length)
             warningResponse.added.push(...deleteWarningsMorePlannedHours.added)
@@ -1620,7 +1620,7 @@ const updateTooManyHoursOnTaskPlanDeleted = async (taskPlan, releasePlan, releas
     return warningResponse
 }
 
-const updateEmployeeAskForLeaveOnTaskDeletion = async (taskPlan, releasePlan, release) => {
+const updateEmployeeAskForLeaveOnTaskDelete = async (taskPlan, releasePlan, release) => {
 
     let warningResponse = {
         added: [],
@@ -1721,7 +1721,7 @@ const updateEmployeeAskForLeaveOnTaskDeletion = async (taskPlan, releasePlan, re
 }
 
 
-const updateEmployeeOnLeaveOnTaskDeletion = async (taskPlan, releasePlan, release) => {
+const updateEmployeeOnLeaveOnTaskDelete = async (taskPlan, releasePlan, release) => {
 
     let warningResponse = {
         added: [],
@@ -2026,7 +2026,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
     logger.debug('[task-plan-deleted-warning]: [warningsTooManyHours] =>', {warningsTooManyHours})
 
     //EMPLOYEE ASK FOR LEAVE UPDATE
-    let warningsAskForLeave = await updateEmployeeAskForLeaveOnTaskDeletion(taskPlan, releasePlan, release)
+    let warningsAskForLeave = await updateEmployeeAskForLeaveOnTaskDelete(taskPlan, releasePlan, release)
     logger.debug('[task-plan-deleted-warning]: ', {warningsAskForLeave})
 
     if (warningsAskForLeave.added && warningsAskForLeave.added.length)
@@ -2037,7 +2037,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
 
     //EMPLOYEE ON LEAVE UPDATE
 
-    let warningsOnLeave = await updateEmployeeOnLeaveOnTaskDeletion(taskPlan, releasePlan, release)
+    let warningsOnLeave = await updateEmployeeOnLeaveOnTaskDelete(taskPlan, releasePlan, release)
 
     if (warningsOnLeave.added && warningsOnLeave.added.length)
         warningResponse.added.push(...warningsOnLeave.added)
@@ -2958,7 +2958,7 @@ const updateEmployeeAskForLeaveOnTaskMove = async (taskPlan, releasePlan, releas
 
     /** DELETE TASK PLAN EXISTING DATE CHANGES **/
 
-    let warningExistingDateDelete = await updateEmployeeAskForLeaveOnTaskDeletion(taskPlan, releasePlan, release)
+    let warningExistingDateDelete = await updateEmployeeAskForLeaveOnTaskDelete(taskPlan, releasePlan, release)
     logger.debug("updateEmployeeAskForLeaveOnTaskMove(): ", {warningExistingDateDelete})
 
     if (warningExistingDateDelete.added && warningExistingDateDelete.added.length)
@@ -2988,134 +2988,29 @@ const updateEmployeeOnLeaveOnTaskMove = async (taskPlan, releasePlan, release, e
         removed: []
     }
 
-    let employeeOnLeaveWarningOfExistingDate = await WarningModel.findOne({
-        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-        'employeeDays.date': existingPlanedDate,
-        'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
-    })
+    // Move is similar to deleting a task from existing date and add to new date
 
-    if (employeeOnLeaveWarningOfExistingDate) {
-        //update warning WARNING_EMPLOYEE_ON_LEAVE
-        employeeOnLeaveWarningOfExistingDate.taskPlans = employeeOnLeaveWarningOfExistingDate.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
-        warningResponse.removed.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-            source: true
-        })
-        if (employeeOnLeaveWarningOfExistingDate.taskPlans && employeeOnLeaveWarningOfExistingDate.taskPlans.length > 1) {
-            if (employeeOnLeaveWarningOfExistingDate.taskPlans && employeeOnLeaveWarningOfExistingDate.taskPlans.length && employeeOnLeaveWarningOfExistingDate.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) > -1) {
-                employeeOnLeaveWarningOfExistingDate.releasePlans = employeeOnLeaveWarningOfExistingDate.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
-                warningResponse.removed.push({
-                    _id: releasePlan._id,
-                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                    source: true
-                })
-            }
-            if (employeeOnLeaveWarningOfExistingDate.taskPlans && employeeOnLeaveWarningOfExistingDate.taskPlans.length && employeeOnLeaveWarningOfExistingDate.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) > -1) {
-                employeeOnLeaveWarningOfExistingDate.releases = employeeOnLeaveWarningOfExistingDate.releases.filter(r => r._id.toString() !== release._id.toString())
-                warningResponse.removed.push({
-                    _id: release._id,
-                    warningType: SC.WARNING_TYPE_RELEASE,
-                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                    source: true
-                })
-            }
-            await employeeOnLeaveWarningOfExistingDate.save()
-        } else {
-            let deleteWarningResponse = await deleteWarningWithResponse(employeeOnLeaveWarningOfExistingDate, SC.WARNING_EMPLOYEE_ON_LEAVE)
-            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                warningResponse.added.push(...deleteWarningResponse.added)
-            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                warningResponse.removed.push(...deleteWarningResponse.removed)
+    /** DELETE TASK PLAN EXISTING DATE CHANGES **/
 
-        }
+    let warningExistingDateDelete = await updateEmployeeOnLeaveOnTaskDelete(taskPlan, releasePlan, release)
+    logger.debug("updateEmployeeOnLeaveOnTaskDelete(): ", {warningExistingDateDelete})
 
-    }
-
-    let employeeOnLeaveWarningOfNewDate = await WarningModel.findOne({
-        type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-        'employeeDays.date': rePlannedDate,
-        'employeeDays.employee._id': mongoose.Types.ObjectId(employee._id)
-    })
-
-    if (employeeOnLeaveWarningOfNewDate) {
-
-        //update warning WARNING_EMPLOYEE_ON_LEAVE
-        employeeOnLeaveWarningOfNewDate.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
-        warningResponse.added.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-            source: true
-        })
-
-        if (employeeOnLeaveWarningOfNewDate.releasePlans && employeeOnLeaveWarningOfNewDate.releasePlans.length && employeeOnLeaveWarningOfNewDate.releasePlans.findIndex(rp => rp._id.toString() === releasePlan._id.toString()) > -1) {
-            employeeOnLeaveWarningOfNewDate.releasePlans.push(Object.assign({}, releasePlan.toObject(), {source: true}))
-            warningResponse.added.push({
-                _id: releasePlan._id,
-                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                source: true
-            })
-        }
-        if (employeeOnLeaveWarningOfNewDate.releases && employeeOnLeaveWarningOfNewDate.releases.length && employeeOnLeaveWarningOfNewDate.releases.findIndex(r => r._id.toString() === release._id.toString()) > -1) {
-            employeeOnLeaveWarningOfNewDate.releases.push(Object.assign({}, release.toObject(), {source: true}))
-            warningResponse.added.push({
-                _id: release._id,
-                warningType: SC.WARNING_TYPE_RELEASE,
-                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                source: true
-            })
-        }
-
-        await employeeOnLeaveWarningOfNewDate.save()
+    if (warningExistingDateDelete.added && warningExistingDateDelete.added.length)
+        warningResponse.added.push(...warningExistingDateDelete.added)
+    if (warningExistingDateDelete.removed && warningExistingDateDelete.removed.length)
+        warningResponse.removed.push(...warningExistingDateDelete.removed)
 
 
-    } else {
-        let leaves = await MDL.LeaveModel.find({
-            'user._id': mongoose.Types.ObjectId(employee._id),
-            'startDate': {$gte: rePlannedDate},
-            'endDate': {$lte: rePlannedDate},
-            'status': SC.LEAVE_STATUS_APPROVED
-        })
+    // Now add warnings due to task addition on new date
 
-        if (leaves && leaves.length) {
+    let warningsReplanDateDelete = await updateEmployeeOnLeaveOnTaskAdd(taskPlan, releasePlan, release, employee, moment(rePlannedDate))
+    logger.debug("updateEmployeeOnLeaveOnTaskAdd(): ", {warningsReplanDateDelete})
 
-            let newEmployeeOnLeaveWarningOfNewDate = new WarningModel()
-            newEmployeeOnLeaveWarningOfNewDate.type = SC.WARNING_EMPLOYEE_ON_LEAVE
-            newEmployeeOnLeaveWarningOfNewDate.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
-            newEmployeeOnLeaveWarningOfNewDate.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
-            newEmployeeOnLeaveWarningOfNewDate.releases = [Object.assign({}, release.toObject(), {source: true})]
-            newEmployeeOnLeaveWarningOfNewDate.employeeDays = [Object.assign({}, employee.toObject(), {
-                source: true,
-                name: employee.firstName + ' ' + employee.lastName,
-                dateString: U.formatDateInUTC(rePlannedDate),
-                date: rePlannedDate
-            })]
+    if (warningsReplanDateDelete.added && warningsReplanDateDelete.added.length)
+        warningResponse.added.push(...warningsReplanDateDelete.added)
+    if (warningsReplanDateDelete.removed && warningsReplanDateDelete.removed.length)
+        warningResponse.removed.push(...warningsReplanDateDelete.removed)
 
-            warningResponse.added.push({
-                _id: taskPlan._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                source: true
-            })
-            warningResponse.added.push({
-                _id: releasePlan._id,
-                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                source: true
-            })
-            warningResponse.added.push({
-                _id: release._id,
-                warningType: SC.WARNING_TYPE_RELEASE,
-                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                source: true
-            })
-            await newEmployeeOnLeaveWarningOfNewDate.save()
-        }
-    }
     return warningResponse
 }
 
