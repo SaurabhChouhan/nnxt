@@ -123,6 +123,7 @@ export {default as CalendarTaskDetailPage} from './pages/CalendarTaskDetailPage'
 export {default as CalendarTaskPage} from './pages/CalendarTaskPage'
 
 //Reporting
+export {default as TaskReportDetailPage} from './pages/TaskReportDetailPage'
 export {default as TaskReportList} from './lists/TaskReportList'
 export {default as ReportingCommentForm} from './forms/ReportingCommentForm'
 export {default as ReportingDateNavBar} from './forms/ReportingDateNavBar'

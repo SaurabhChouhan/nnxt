@@ -90,6 +90,7 @@ export {default as AttendanceSettingFormContainer} from './forms/AttendanceSetti
 
 
 //Release setting
+export {default as TaskReportDetailPageContainer} from './pages/TaskReportDetailPageContainer'
 export {default as TaskReportListContainer} from './lists/TaskReportListContainer'
 export {default as TaskPlanListContainer} from './lists/TaskPlanListContainer'
 export {default as ReleaseDeveloperScheduleFormContainer} from './forms/ReleaseDeveloperScheduleFormContainer'
