@@ -21,8 +21,8 @@ export const updateLeave = (leave) => ({
     leave: leave
 })
 
-export const deleteLeave = (leave) => ({
-    type: AC.DELETE_LEAVE,
+export const revokeLeave = (leave) => ({
+    type: AC.REVOKE_LEAVE,
     leave: leave
 })
 
@@ -210,7 +210,7 @@ export const deleteLeaveFromServer = (leaveID) => {
         ).then(json => {
                 if (json.success) {
                     if (json.data.leave) {
-                        dispatch(deleteLeave(json.data.leave))
+                        dispatch(revokeLeave(json.data.leave))
                     }
                 }
                 return json

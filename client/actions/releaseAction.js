@@ -95,7 +95,6 @@ export const updateReleaseDates = (releaseDates) => ({
     releaseDates: releaseDates
 })
 
-
 export const getAllReleasesFromServer = (status) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/status/' + status, {

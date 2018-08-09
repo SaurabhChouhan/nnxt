@@ -65,7 +65,7 @@ leaveRouter.post("/", async ctx => {
  *Delete Leave request
  */
 leaveRouter.del("/:leaveID", async ctx => {
-    return await MDL.LeaveModel.deleteLeave(ctx.params.leaveID, ctx.state.user)
+    return await MDL.LeaveModel.revokeLeave(ctx.params.leaveID, ctx.state.user)
 })
 
 /**
