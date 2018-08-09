@@ -220,10 +220,9 @@ export const deleteLeaveFromServer = (leaveID) => {
 }
 
 
-export const cancelLeaveRequestFromServer = (leaveID, reason) => {
-    console.log("leaveID", leaveID)
-    return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/cancel',
+export const rejectLeaveRequestFromServer = (leaveID, reason) => {
+    return function (dispatch) {
+        return fetch('/api/leave/' + leaveID + '/reject',
             {
                 method: "put",
                 credentials: "include",

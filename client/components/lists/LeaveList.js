@@ -208,7 +208,7 @@ class LeaveList extends Component {
                                     <TableHeaderColumn width="7%"
                                                        dataField='cancelButton'
                                                        dataFormat={this.viewCancelButton.bind(this)}>
-                                        Cancel
+                                        Reject
                                     </TableHeaderColumn>}
                                     {loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT) &&
                                     <TableHeaderColumn width="7%"
