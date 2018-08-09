@@ -2822,8 +2822,8 @@ taskPlanningSchema.statics.getReportsOfRelease = async (releaseID, user) => {
     }
     return MDL.TaskPlanningModel.find({
         'release._id': mongoose.Types.ObjectId(release._id),
-
-    }).sort({'planningDate': -1})
+        'report.status': {$in: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
+    }).sort({'report.reportedOnDate': -1})
 }
 
 taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
