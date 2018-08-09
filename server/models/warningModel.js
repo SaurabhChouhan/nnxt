@@ -1656,23 +1656,30 @@ const updateEmployeeAskForLeaveOnTaskDeletion = async (taskPlan, releasePlan, re
             if (employeeAskForLeaveWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) === -1) {
                 // No task plan remains for this release so remove release plan from warning as well
                 employeeAskForLeaveWarning.releasePlans = employeeAskForLeaveWarning.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
-                warningResponse.removed.push({
-                    _id: releasePlan._id,
-                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-                    source: true
+
+                // This flag would only be removed from release plan when there are not other employee on leave warning associated with this release plan
+                let count = await WarningModel.count({
+                    'releasePlans._id': releasePlan._id,
+                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
                 })
+
+                logger.debug("updateEmployeeAskForLeaveOnDeleteTaskPlan(): ", {count})
+
+                if(count == 1){
+                    // only one employee on leave warning found for this release plan which is the warning we are process
+                    // since all task plans of this release plan is now removed from leave warning we can mark this release plan as removed
+                    warningResponse.removed.push({
+                        _id: releasePlan._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+                    })
+                }
+
             }
 
             // Check to see if release would also be removed from warning due to task plan removal
             if (employeeAskForLeaveWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) === -1) {
                 employeeAskForLeaveWarning.releases = employeeAskForLeaveWarning.releases.filter(r => r._id.toString() !== release._id.toString())
-                warningResponse.removed.push({
-                    _id: release._id,
-                    warningType: SC.WARNING_TYPE_RELEASE,
-                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-                    source: true
-                })
             }
             await employeeAskForLeaveWarning.save()
 
@@ -1689,16 +1696,23 @@ const updateEmployeeAskForLeaveOnTaskDeletion = async (taskPlan, releasePlan, re
                 }
             })
 
-            employeeAskForLeaveWarning.releasePlans.forEach(rp => {
-                if (rp) {
-                    warningResponse.removed.push({
-                        _id: rp._id,
-                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                        type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-                        source: rp.source
-                    })
-                }
+            // This flag would only be removed from release plan when there are not other employee on leave warning associated with this release plan
+            let count = await WarningModel.count({
+                'releasePlans._id': releasePlan._id,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
             })
+
+            logger.debug("updateEmployeeAskForLeaveOnDeleteTaskPlan(): ", {count})
+
+            if(count == 1){
+                // only one employee on leave warning found for this release plan which is the warning we are process
+                // since all task plans of this release plan is now removed from leave warning we can mark this release plan as removed
+                warningResponse.removed.push({
+                    _id: releasePlan._id,
+                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+                })
+            }
 
             await employeeAskForLeaveWarning.remove()
         }
@@ -1707,57 +1721,98 @@ const updateEmployeeAskForLeaveOnTaskDeletion = async (taskPlan, releasePlan, re
 }
 
 
-const updateEmployeeOnLeaveOnDeleteTaskPlan = async (taskPlan, releasePlan, release) => {
+const updateEmployeeOnLeaveOnTaskDeletion = async (taskPlan, releasePlan, release) => {
 
     let warningResponse = {
         added: [],
         removed: []
     }
 
+    // Find out ask for leave warning associated with task plan (if any), task plan should only be associated with one leave warning
+    // as task plan is specific to one employee/one date and only one leave is possible for one employee one date
+
     let employeeOnLeaveWarning = await WarningModel.findOne({
         type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-        'employeeDays.date': taskPlan.planningDate,
-        'employeeDays.employee._id': mongoose.Types.ObjectId(taskPlan.employee._id)
+        'taskPlans._id': taskPlan._id
     })
 
+    logger.debug("updateEmployeeAskForLeaveOnDeleteTaskPlan(): ", {employeeAskForLeaveWarning: employeeOnLeaveWarning})
+
     if (employeeOnLeaveWarning) {
-        //update warning WARNING_EMPLOYEE_ON_LEAVE
+        // Warning found, we need to remove this task plan from this warning and see what other changes would be made
+
         employeeOnLeaveWarning.taskPlans = employeeOnLeaveWarning.taskPlans.filter(tp => tp._id.toString() !== taskPlan._id.toString())
+
         warningResponse.removed.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-            source: true
+            type: SC.WARNING_EMPLOYEE_ON_LEAVE
         })
-        if (employeeOnLeaveWarning.taskPlans && employeeOnLeaveWarning.taskPlans.length > 0) {
 
-            if (employeeOnLeaveWarning.taskPlans && employeeOnLeaveWarning.taskPlans.length && employeeOnLeaveWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) > -1) {
+        if (employeeOnLeaveWarning.taskPlans && employeeOnLeaveWarning.taskPlans.length > 0) {
+            // There are still task plans remaining in warning, so warning would not be removed
+            // Since a task plan is removed we need to see if this is last task plan of this release plan in this release
+
+            if (employeeOnLeaveWarning.taskPlans.findIndex(tp => tp.releasePlan._id.toString() === releasePlan._id.toString()) === -1) {
+                // No task plan remains for this release so it is possible that this release plan is removed from warning as well
                 employeeOnLeaveWarning.releasePlans = employeeOnLeaveWarning.releasePlans.filter(rp => rp._id.toString() !== releasePlan._id.toString())
-                warningResponse.removed.push({
-                    _id: releasePlan._id,
-                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                    source: true
+
+
+                // This flag would only be removed from release plan when there are not other employee on leave warning associated with this release plan
+                let count = await WarningModel.count({
+                    'releasePlans._id': releasePlan._id,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE
                 })
+
+                if(count == 1){
+                    // only one employee on leave warning found for this release plan which is the warning we are process
+                    // since all task plans of this release plan is now removed from leave warning we can mark this release plan as removed
+                    warningResponse.removed.push({
+                        _id: releasePlan._id,
+                        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ON_LEAVE
+                    })
+                }
             }
-            if (employeeOnLeaveWarning.taskPlans && employeeOnLeaveWarning.taskPlans.length && employeeOnLeaveWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) > -1) {
+
+            // Check to see if release would also be removed from warning due to task plan removal
+            if (employeeOnLeaveWarning.taskPlans.findIndex(tp => tp.release._id.toString() === release._id.toString()) === -1) {
                 employeeOnLeaveWarning.releases = employeeOnLeaveWarning.releases.filter(r => r._id.toString() !== release._id.toString())
-                warningResponse.removed.push({
-                    _id: release._id,
-                    warningType: SC.WARNING_TYPE_RELEASE,
-                    type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                    source: true
-                })
             }
+
             await employeeOnLeaveWarning.save()
 
         } else {
-            let deleteWarningResponse = await deleteWarningWithResponse(employeeOnLeaveWarning, SC.WARNING_EMPLOYEE_ON_LEAVE)
-            if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-                warningResponse.added.push(...deleteWarningResponse.added)
-            if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-                warningResponse.removed.push(...deleteWarningResponse.removed)
+            // No task plan remaining after removal of this task plan so remove warning
+            employeeOnLeaveWarning.taskPlans.forEach(tp => {
+                if (tp) {
+                    warningResponse.removed.push({
+                        _id: tp._id,
+                        warningType: SC.WARNING_TYPE_TASK_PLAN,
+                        type: SC.WARNING_EMPLOYEE_ON_LEAVE
+                    })
+                }
+            })
 
+
+            // This flag would only be removed from release plan when there are not other employee on leave warning associated with this release plan
+
+            let count = await WarningModel.count({
+                'releasePlans._id': releasePlan._id,
+                type: SC.WARNING_EMPLOYEE_ON_LEAVE
+            })
+
+            if(count == 1){
+                // only one employee on leave warning found for this release plan which is the warning we are process
+                // since all task plans of this release plan is now removed from leave warning we can mark this release plan as removed
+                warningResponse.removed.push({
+                    _id: releasePlan._id,
+                    warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                    type: SC.WARNING_EMPLOYEE_ON_LEAVE
+                })
+            }
+
+            await employeeOnLeaveWarning.remove()
         }
     }
     return warningResponse
@@ -1972,16 +2027,17 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
 
     //EMPLOYEE ASK FOR LEAVE UPDATE
     let warningsAskForLeave = await updateEmployeeAskForLeaveOnTaskDeletion(taskPlan, releasePlan, release)
+    logger.debug('[task-plan-deleted-warning]: ', {warningsAskForLeave})
 
     if (warningsAskForLeave.added && warningsAskForLeave.added.length)
         warningResponse.added.push(...warningsAskForLeave.added)
     if (warningsAskForLeave.removed && warningsAskForLeave.removed.length)
         warningResponse.removed.push(...warningsAskForLeave.removed)
-    logger.debug('[task-plan-deleted-warning]: [Employee-Ask-For-Leave] warning response ', {warningsAskForLeave})
+
 
     //EMPLOYEE ON LEAVE UPDATE
 
-    let warningsOnLeave = await updateEmployeeOnLeaveOnDeleteTaskPlan(taskPlan, releasePlan, release)
+    let warningsOnLeave = await updateEmployeeOnLeaveOnTaskDeletion(taskPlan, releasePlan, release)
 
     if (warningsOnLeave.added && warningsOnLeave.added.length)
         warningResponse.added.push(...warningsOnLeave.added)
