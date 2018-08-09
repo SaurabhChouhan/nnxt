@@ -81,7 +81,7 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    return await MDL.TaskPlanningModel.find({'release._id': releaseID})
+    return await MDL.TaskPlanningModel.find({'release._id': releaseID}).sort({'planningDate': 1})
 
 }
 
