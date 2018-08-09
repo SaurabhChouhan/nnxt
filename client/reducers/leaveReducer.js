@@ -27,7 +27,7 @@ let leaveReducer = (state = initialState, action) => {
                 all: state.all.map(item => item._id.toString() === action.leave._id.toString() ? Object.assign({}, action.leave) : item)
             })
 
-        case AC.DELETE_LEAVE:
+        case AC.REVOKE_LEAVE:
             return Object.assign({}, state, {all: state.all.filter(item => item._id.toString() !== action.leave._id.toString())})
 
 
