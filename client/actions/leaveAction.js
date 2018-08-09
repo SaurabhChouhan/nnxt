@@ -21,8 +21,8 @@ export const updateLeave = (leave) => ({
     leave: leave
 })
 
-export const deleteLeave = (leave) => ({
-    type: AC.DELETE_LEAVE,
+export const revokeLeave = (leave) => ({
+    type: AC.REVOKE_LEAVE,
     leave: leave
 })
 
@@ -210,7 +210,7 @@ export const deleteLeaveFromServer = (leaveID) => {
         ).then(json => {
                 if (json.success) {
                     if (json.data.leave) {
-                        dispatch(deleteLeave(json.data.leave))
+                        dispatch(revokeLeave(json.data.leave))
                     }
                 }
                 return json
@@ -220,10 +220,9 @@ export const deleteLeaveFromServer = (leaveID) => {
 }
 
 
-export const cancelLeaveRequestFromServer = (leaveID, reason) => {
-    console.log("leaveID", leaveID)
-    return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/cancel',
+export const rejectLeaveRequestFromServer = (leaveID, reason) => {
+    return function (dispatch) {
+        return fetch('/api/leave/' + leaveID + '/reject',
             {
                 method: "put",
                 credentials: "include",

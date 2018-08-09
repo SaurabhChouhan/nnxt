@@ -553,12 +553,12 @@ const updateFlagsOnShift = async (generatedWarnings) => {
     // save them and then return only once all save operation completes so that user interface is appropriately modified
 
     let rpSavePromises = affectedReleasePlans.map(rp => {
-        logger.debug("Saving release plan ", {rp})
+        //logger.debug("Saving release plan ", {rp})
         return rp.save()
     })
 
     let tpSavePromises = affectedTaskPlans.map(tp => {
-        logger.debug("Saving task plan ", {tp})
+        //logger.debug("Saving task plan ", {tp})
         return tp.save()
     })
 

@@ -191,12 +191,12 @@ const updateFlags = async (generatedWarnings) => {
     // save them and then return only once all save operation completes so that user interface is appropriately modified
 
     let rpSavePromises = affectedReleasePlans.map(rp => {
-        logger.debug("Saving release plan ", {rp})
+        //logger.debug("Saving release plan ", {rp})
         return rp.save()
     })
 
     let tpSavePromises = affectedTaskPlans.map(tp => {
-        logger.debug("Saving task plan ", {tp})
+        //logger.debug("Saving task plan ", {tp})
         return tp.save()
     })
 
@@ -224,7 +224,9 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     if (!endDateMoment.isSameOrAfter(startDateMoment))
         throw new AppError("Leave end date cannot be before start date", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if (!startDateMoment.isSameOrAfter(U.todaysMomentOfTimezoneInUTC()))
+    let startDateIndia = U.momentInTimeZone(leaveInput.startDate, SC.INDIAN_TIMEZONE)
+
+    if (!startDateIndia.isSameOrAfter(U.getPastMidNight(SC.INDIAN_TIMEZONE)))
         throw new AppError("Leave start date should be greater than or equal to today's date", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     let leaveDaysCount = endDateMoment.diff(startDateMoment, 'days')
@@ -376,15 +378,15 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
 }
 
 
-leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
+leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
 
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
-        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only cancel those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if (!_.includes([SC.LEAVE_STATUS_RAISED], leaveRequest.status))
+        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only reject those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     /*------------------------------------LEAVE CANCELLATION SECTION----------------------------------*/
     leaveRequest.approver = user
@@ -397,7 +399,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
         added: [],
         removed: []
     }
-    let warningsLeaveDeleted = await MDL.WarningModel.leaveDeleted(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
+    let warningsLeaveDeleted = await MDL.WarningModel.leaveRevoked(leaveRequest)
 
     if (warningsLeaveDeleted.added && warningsLeaveDeleted.added.length)
         generatedWarnings.added.push(...warningsLeaveDeleted.added)
@@ -420,35 +422,45 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
 }
 
 
-leaveSchema.statics.deleteLeave = async (leaveID, user) => {
-    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
-    if (!leaveRequest) {
+leaveSchema.statics.revokeLeave = async (leaveID, user) => {
+    let leave = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
+
+    if (!leave) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    if (leaveRequest.user._id.toString() !== user._id.toString()) {
-        throw new AppError("This leave is not belongs to your leave ,user can delete his own leave only", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
-    }
-    if (!_.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
-        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only delete those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "," + SC.LEAVE_STATUS_APPROVED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    logger.debug("leave deleted=> leave [" + leaveRequest._id + "] with user [" + user._id + "]",)
+    if (leave.user._id.toString() !== user._id.toString()) {
+        throw new AppError("Leave do not belongs to you, cannot delete!", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+    }
+
+    // Leave can only be deleted one day prior to its start
+
+    let pastMidnightIndia = U.getPastMidNight(SC.INDIAN_TIMEZONE)
+    let startDateInIndia = U.momentInTimeZone(leave.startDateString, SC.INDIAN_TIMEZONE)
+
+    if(!startDateInIndia.isAfter(pastMidnightIndia) && _.includes([SC.LEAVE_STATUS_APPROVED], leave.status))
+        throw new AppError("Can remove approved leave upto 1 day prior to their start date", EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
     let generatedWarnings = {
         added: [],
         removed: []
     }
-    let warningsLeaveDeleted = await MDL.WarningModel.leaveDeleted(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
+    let warningsLeaveRevoked = await MDL.WarningModel.leaveRevoked(leave)
 
-    if (warningsLeaveDeleted.added && warningsLeaveDeleted.added.length)
-        generatedWarnings.added.push(...warningsLeaveDeleted.added)
-    if (warningsLeaveDeleted.removed && warningsLeaveDeleted.removed.length)
-        generatedWarnings.removed.push(...warningsLeaveDeleted.removed)
+    logger.debug("leaveModel.leaveRevoked(): ", {warningsLeaveRevoked})
+
+    if (warningsLeaveRevoked.added && warningsLeaveRevoked.added.length)
+        generatedWarnings.added.push(...warningsLeaveRevoked.added)
+    if (warningsLeaveRevoked.removed && warningsLeaveRevoked.removed.length)
+        generatedWarnings.removed.push(...warningsLeaveRevoked.removed)
 
     let affected = await updateFlags(generatedWarnings)
 
 
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
-    let leave = await LeaveModel.findByIdAndRemove(mongoose.Types.ObjectId(leaveID))
+    await leave.remove()
+
     return {
         leave: leave,
         warnings: generatedWarnings,

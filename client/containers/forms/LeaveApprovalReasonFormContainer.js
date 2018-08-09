@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 return json
             })
         } else {
-            return dispatch(A.cancelLeaveRequestFromServer(values.leaveID, values.reason)).then(json => {
+            return dispatch(A.rejectLeaveRequestFromServer(values.leaveID, values.reason)).then(json => {
                 if (json.success) {
                     NotificationManager.success('Leave request Cancelled Successfully')
                     dispatch(A.hideComponent(COC.LEAVE_REJECT_DIALOG))

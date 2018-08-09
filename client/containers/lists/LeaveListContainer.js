@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponentHideOthers(COC.LEAVE_DETAIL_PAGE))
     },
 
-    deleteLeave: (leave) => dispatch(A.deleteLeaveFromServer(leave._id)).then(json => {
+    revokeLeave: (leave) => dispatch(A.deleteLeaveFromServer(leave._id)).then(json => {
         if (json.success) {
             NotificationManager.success('Leave deleted successfully')
         } else {
