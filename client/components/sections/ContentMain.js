@@ -17,7 +17,8 @@ import {
     TechnologyListContainer,
     UserProfileFormContainer,
     LeaveDetailPageContainer,
-    DashboardSectionContainer
+    DashboardSectionContainer,
+    TaskReportDetailPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -301,6 +302,15 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.MOVE_TASK_PLAN_DIALOG))
                         }
                     }/>
+                </ContentSection>
+
+            }
+        })
+        routes.push({
+            url: "/task-report-detail",
+            render: (props) => {
+                return <ContentSection>
+                    <TaskReportDetailPageContainer name={COC.TASK_REPORT_DETAIL_PAGE}/>
                 </ContentSection>
 
             }

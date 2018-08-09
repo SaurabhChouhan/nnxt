@@ -49,6 +49,21 @@ class TaskReportList extends Component {
         return 0
     }
 
+    viewDetailButton(cell, row, enumObject, rowIndex) {
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
+                this.props.taskPlanSelected(row).then(json => {
+                    if (json.success) {
+                        this.props.history.push('/app-home/task-report-detail')
+                        this.props.showTaskDetailPage()
+                    }
+                    return json
+                })
+            }}>
+                <i className="fa fa-eye"></i>
+            </button>
+        )
+    }
+
     render() {
         const {reports} = this.props
         console.log("reports------------------", reports)
@@ -71,6 +86,11 @@ class TaskReportList extends Component {
                                 hover={true}>
                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                        hidden={true}>ID
+                    </TableHeaderColumn>
+
+                    <TableHeaderColumn editable={false} columnTitle={'View Detail'}
+                                       dataField='detailButton'
+                                       dataFormat={this.viewDetailButton.bind(this)}>View Detail
                     </TableHeaderColumn>
                     <TableHeaderColumn columnTitle dataField='employee'
                                        dataFormat={this.formatDeveloperName.bind(this)}>Developer
