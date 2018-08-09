@@ -80,6 +80,11 @@ export const sameMomentInUTC = (d) => {
     return moment.utc().startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }
 
+export const momentFromDBDate = (d) => {
+    return moment.tz(d, SC.UTC_TIMEZONE)
+}
+
+
 export const momentFromDateInTimeZone = (d, timeZone) => {
     return moment.tz(timeZone).startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }

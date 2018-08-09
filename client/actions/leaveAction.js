@@ -223,14 +223,15 @@ export const deleteLeaveFromServer = (leaveID) => {
 export const cancelLeaveRequestFromServer = (leaveID, reason) => {
     console.log("leaveID", leaveID)
     return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/cancel-request/' + reason,
+        return fetch('/api/leave/' + leaveID + '/cancel',
             {
                 method: "put",
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({reason: reason})
             }
         ).then(
             response => {
@@ -252,14 +253,15 @@ export const cancelLeaveRequestFromServer = (leaveID, reason) => {
 export const approveLeaveRequestFromServer = (leaveID, reason) => {
     console.log("leaveID", leaveID)
     return function (dispatch, getState) {
-        return fetch('/api/leave/' + leaveID + '/approve-request/' + reason,
+        return fetch('/api/leave/' + leaveID + '/approve/',
             {
                 method: "put",
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({reason: reason})
             }
         ).then(
             response => {

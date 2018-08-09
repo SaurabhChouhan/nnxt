@@ -321,39 +321,38 @@ const updateEmployeeStatisticsOnLeaveApprove = async (leave, requester, approver
 }
 
 
-leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, approver) => {
-    let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID),)
+leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
+    let leave = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
-    if (!leaveRequest) {
-        throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    if (!leave) {
+        throw new AppError("Leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    let requester = await MDL.UserModel.findById(mongoose.Types.ObjectId(leaveRequest.user._id))
-    if (!requester) {
-        throw new AppError("Requester of leave is not found ", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
+    let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(leave.user._id))
 
-    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status)) {
-        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only approve those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-
+    if (!employee) {
+        throw new AppError("Requester of leave not found ", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
+    if (_.includes([SC.LEAVE_STATUS_APPROVED], leave.status)) {
+        throw new AppError('Leave already approved', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
 
     /*--------------------------------EMPLOYEE STATISTICS UPDATE SECTION---------------------------*/
-    await updateEmployeeStatisticsOnLeaveApprove(leaveRequest, requester, approver)
+    //await updateEmployeeStatisticsOnLeaveApprove(leave, employee, approver)
     /*------------------------------------LEAVE APPROVAL SECTION----------------------------------*/
 
-    leaveRequest.status = SC.LEAVE_STATUS_APPROVED
-    leaveRequest.approver = approver
-    leaveRequest.approver.name = approver.firstName + approver.lastName
-    leaveRequest.approver.reason = reason
-    await leaveRequest.save()
+    leave.status = SC.LEAVE_STATUS_APPROVED
+    leave.approver = approver
+    leave.approver.name = U.getFullName(approver)
+    leave.approver.reason = reason
+    await leave.save()
 
     /*--------------------------------------WARNING UPDATE SECTION ----------------------------------*/
     let generatedWarnings = {
         added: [],
         removed: []
     }
-    let warningsLeaveApproved = await MDL.WarningModel.leaveApproved(leaveRequest.startDateString, leaveRequest.endDateString, requester, approver)
+    let warningsLeaveApproved = await MDL.WarningModel.leaveApproved(leave)
 
     if (warningsLeaveApproved.added && warningsLeaveApproved.added.length)
         generatedWarnings.added.push(...warningsLeaveApproved.added)
@@ -363,13 +362,13 @@ leaveSchema.statics.approveLeaveRequest = async (leaveID, reason, approver) => {
     let affected = await updateFlags(generatedWarnings)
 
 
-    leaveRequest = leaveRequest.toObject()
-    leaveRequest.canDelete = approver._id.toString() === requester._id.toString()
-    leaveRequest.canCancel = false
-    leaveRequest.canApprove = false
+    leave = leave.toObject()
+    leave.canDelete = approver._id.toString() === employee._id.toString()
+    leave.canCancel = false
+    leave.canApprove = false
 
     return {
-        leave: leaveRequest,
+        leave: leave,
         warnings: generatedWarnings,
         affectedReleasePlans: affected.affectedReleasePlans,
         affectedTaskPlans: affected.affectedTaskPlans
