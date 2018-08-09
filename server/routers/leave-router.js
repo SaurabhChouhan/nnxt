@@ -71,9 +71,9 @@ leaveRouter.del("/:leaveID", async ctx => {
 /**
  * Cancel Leave request
  */
-leaveRouter.put("/:leaveID/cancel", async ctx => {
+leaveRouter.put("/:leaveID/reject", async ctx => {
     if (U.isHighestManagementRole(ctx)) {
-        return await MDL.LeaveModel.cancelLeaveRequest(ctx.params.leaveID, ctx.params.reason, ctx.state.user)
+        return await MDL.LeaveModel.rejectLeave(ctx.params.leaveID, ctx.params.reason, ctx.state.user)
     } else {
         throw new AppError("Only role with " + SC.ROLE_TOP_MANAGEMENT + " can cancel request ", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }

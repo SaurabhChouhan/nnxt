@@ -191,12 +191,12 @@ const updateFlags = async (generatedWarnings) => {
     // save them and then return only once all save operation completes so that user interface is appropriately modified
 
     let rpSavePromises = affectedReleasePlans.map(rp => {
-        logger.debug("Saving release plan ", {rp})
+        //logger.debug("Saving release plan ", {rp})
         return rp.save()
     })
 
     let tpSavePromises = affectedTaskPlans.map(tp => {
-        logger.debug("Saving task plan ", {tp})
+        //logger.debug("Saving task plan ", {tp})
         return tp.save()
     })
 
@@ -378,15 +378,15 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
 }
 
 
-leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
+leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
 
     let leaveRequest = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
 
     if (!leaveRequest) {
         throw new AppError("leave request Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
-    if (_.includes([SC.LEAVE_STATUS_APPROVED], leaveRequest.status))
-        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only cancel those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    if (!_.includes([SC.LEAVE_STATUS_RAISED], leaveRequest.status))
+        throw new AppError("Leave has status as [" + leaveRequest.status + "]. You can only reject those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     /*------------------------------------LEAVE CANCELLATION SECTION----------------------------------*/
     leaveRequest.approver = user
@@ -399,7 +399,7 @@ leaveSchema.statics.cancelLeaveRequest = async (leaveID, reason, user) => {
         added: [],
         removed: []
     }
-    let warningsLeaveDeleted = await MDL.WarningModel.leaveRevoked(leaveRequest.startDateString, leaveRequest.endDateString, leaveRequest, leaveRequest.user)
+    let warningsLeaveDeleted = await MDL.WarningModel.leaveRevoked(leaveRequest)
 
     if (warningsLeaveDeleted.added && warningsLeaveDeleted.added.length)
         generatedWarnings.added.push(...warningsLeaveDeleted.added)
@@ -432,16 +432,14 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
     if (leave.user._id.toString() !== user._id.toString()) {
         throw new AppError("Leave do not belongs to you, cannot delete!", EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
     }
-    if (!_.includes([SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_APPROVED], leave.status))
-        throw new AppError("Leave has status as [" + leave.status + "]. You can only delete those leaves where status is in [" + SC.LEAVE_STATUS_RAISED + "," + SC.LEAVE_STATUS_APPROVED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     // Leave can only be deleted one day prior to its start
 
     let pastMidnightIndia = U.getPastMidNight(SC.INDIAN_TIMEZONE)
     let startDateInIndia = U.momentInTimeZone(leave.startDateString, SC.INDIAN_TIMEZONE)
 
-    if(!startDateInIndia.isAfter(pastMidnightIndia))
-        throw new AppError("Cannot remove leave after it has been started", EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+    if(!startDateInIndia.isAfter(pastMidnightIndia) && _.includes([SC.LEAVE_STATUS_APPROVED], leave.status))
+        throw new AppError("Can remove approved leave upto 1 day prior to their start date", EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
     let generatedWarnings = {

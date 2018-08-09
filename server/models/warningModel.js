@@ -2925,9 +2925,31 @@ warningSchema.statics.leaveRaised = async (leave, startDate, endDate, employee) 
 }
 
 
+const leaveRevokedProcessReleasePlan = async (releasePlans, warningType, warningResponse) => {
+
+    for (const rp of releasePlans) {
+        // This flag would only be removed from release plan when there are not other employee on leave warning associated with this release plan
+        let count = await WarningModel.count({
+            'releasePlans._id': rp._id,
+            type: warningType
+        })
+
+        logger.debug("leaveRevokedProcessReleasePlan(): " + rp._id, {count})
+
+        if (count == 0) {
+            warningResponse.removed.push({
+                _id: rp._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: warningType
+            })
+        }
+    }
+
+}
+
 /**
  * Handle warnings when leave is revoked by requester. A user can revoke leave even when it is approved.
-  */
+ */
 
 warningSchema.statics.leaveRevoked = async (leave) => {
 
@@ -2946,7 +2968,7 @@ warningSchema.statics.leaveRevoked = async (leave) => {
         'leave._id': leave._id
     })
 
-    if(leaveWarning){
+    if (leaveWarning) {
         // a leave warning is found check to see its type (can be employee ask for leave or employee on leave. Do removal appropriately
         // this warning would be removed a
 
@@ -2958,15 +2980,8 @@ warningSchema.statics.leaveRevoked = async (leave) => {
             })
         })
 
-        leaveWarning.releasePlans.forEach(tp => {
-            warningResponse.removed.push({
-                _id: tp._id,
-                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: leaveWarning.type
-
-            })
-        })
-        await leaveWarning.remove()
+        await leaveWarning.remove() // removing so that count in next method doesn't include this warning
+        await leaveRevokedProcessReleasePlan(leaveWarning.releasePlans, leaveWarning.type, warningResponse)
     }
 
     return warningResponse
