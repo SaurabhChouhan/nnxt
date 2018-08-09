@@ -24,6 +24,7 @@ class ReleasePlanSection extends Component {
         this.showReleasePlans = this.showReleasePlans.bind(this)
         this.showWarnings = this.showWarnings.bind(this)
         this.showTaskPlans = this.showTaskPlans.bind(this)
+        this.showTaskReport = this.showTaskReport.bind(this)
 
     }
 
