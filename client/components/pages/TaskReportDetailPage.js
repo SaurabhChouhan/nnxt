@@ -3,6 +3,7 @@ import {Timeline, TimelineEvent} from 'react-event-timeline'
 import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
+import {ReportingCommentFormContainer} from "../../containers";
 
 class TaskReportDetailPage extends React.Component {
     constructor(props) {
@@ -118,6 +119,7 @@ class TaskReportDetailPage extends React.Component {
                         </div>
 
                     }
+                    <ReportingCommentFormContainer/>
                 </TimelineEvent>
             </Timeline>
 
