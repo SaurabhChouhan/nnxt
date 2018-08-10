@@ -2161,3 +2161,7 @@ hr {
     border: 1px solid #ddd;
 }
 
+.commentInputPadding {
+    padding-left: 3px;
+}
+
