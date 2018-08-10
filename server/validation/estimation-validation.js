@@ -10,6 +10,9 @@ export const estimationInitiationStruct = t.struct({
     project: t.struct({
         _id: ObjectId
     }),
+    developmentType: t.struct({
+        _id: ObjectId
+    }),
     notes: t.Nil,
     release: t.Nil,
     isDeleted: t.Nil,

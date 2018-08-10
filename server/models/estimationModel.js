@@ -16,7 +16,14 @@ let estimationSchema = mongoose.Schema({
         required: true,
         enum: [SC.STATUS_INITIATED, SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_REVIEW_REQUESTED, SC.STATUS_CHANGE_REQUESTED, SC.STATUS_APPROVED, SC.STATUS_REOPENED, SC.STATUS_PROJECT_AWARDED]
     },
-    technologies: [String],
+    developmentType: {
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    },
+    technologies: [{
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    }],
     estimatedHours: {type: Number},
     suggestedHours: {type: Number},
     description: String,
@@ -228,6 +235,8 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     if (negotiator._id.toString() === estimator._id.toString())
         throw new AppError('Estimator and negotiator can not be same ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    let developmentType = await MDL.DevelopmentModel.findById(estimationInput.developmentType._id)
+
     estimationInput.status = SC.STATUS_INITIATED
     estimationInput.estimatedHours = 0
     estimationInput.suggestedHours = 0
@@ -235,6 +244,7 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     estimationInput.client = project.client
     estimationInput.estimator = estimator
     estimationInput.negotiator = negotiator
+    estimationInput.developmentType = developmentType
     estimationInput.statusHistory = [{
         name: negotiator.firstName,
         status: SC.STATUS_INITIATED

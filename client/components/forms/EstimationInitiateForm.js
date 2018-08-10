@@ -22,6 +22,10 @@ let EstimationInitiateForm = (props) => {
         </div>
         <div className="row">
             <div className="col-md-6">
+                <Field name="developmentType._id" component={renderSelect} label={"Development Type:"} options={props.developmentTypes}
+                       displayField={"name"} validate={[required]}/>
+            </div>
+            <div className="col-md-6">
                 <Field name="technologies" component={renderMultiSelect} label="technologies:"
                        data={props.technologies}/>
             </div>

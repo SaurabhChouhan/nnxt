@@ -80,7 +80,7 @@ class EstimationList extends Component {
 
     formatTechnologies(technologies) {
         if (Array.isArray(technologies))
-            return _.join(technologies)
+            return _.join(technologies.map(t => t.name))
         return ''
     }
 
