@@ -92,7 +92,7 @@ const releaseReducer = (state = initialState, action) => {
         case AC.DELETE_TASK_PLAN:
             // Delete task planning from planning list
             return Object.assign({}, state, {
-                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.filter(plan => plan._id != action.planID) : []
+                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.filter(plan => plan._id.toString() !== action.planID.toString()) : []
             })
 
 
