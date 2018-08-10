@@ -45,7 +45,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.reopenTaskPlanOnServer(task._id))
 
     },
-    openMoveTaskPlanForm: (releasePlan) => {
+    openMoveTaskPlanForm: (releasePlan, workCalendarEmployeeID) => {
+        releasePlan.workCalendarEmployeeID = workCalendarEmployeeID
         dispatch(initialize("move-task-planning", releasePlan))
         dispatch(A.showComponent(COC.MOVE_TASK_PLAN_DIALOG))
 
