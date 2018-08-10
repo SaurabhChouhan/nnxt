@@ -61,19 +61,7 @@ class ReleaseTaskPlanningPage extends Component {
         let nowMomentString = moment(now).format(SC.DATE_FORMAT)
         let nowMoment = moment(nowMomentString)
         let planningMoment = moment(row.planningDateString)
-
         return ''
-        /*
-        if (planningMoment.isBefore(nowMoment))
-            return ''
-        else
-            return (<button className=" pull-left btn btn-custom" type="button"
-                             onClick={() => {
-                                 this.setState({showTaskDeleteConfirmationDialog: true, row: row})
-                             }}>
-            <i className="fa fa-trash"></i>
-        </button>)
-        */
     }
 
     reopenCellButton(cell, row, enumObject, rowIndex) {
@@ -96,7 +84,7 @@ class ReleaseTaskPlanningPage extends Component {
         if (row && row.canMove)
             return (<button className=" btn btn-custom customBtn mergeBtn" type="button"
                             onClick={() => {
-                                this.props.openMoveTaskPlanForm(row)
+                                this.props.openMoveTaskPlanForm(row, this.props.workCalendarEmployeeID)
                             }}>Move</button>)
         else return ''
     }
@@ -138,7 +126,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     onConfirmDeleteRequest() {
         this.setState({showTaskDeleteConfirmationDialog: false})
-        this.props.deleteTaskPlanningRow(this.state.row)
+        this.props.deleteTaskPlanningRow(this.state.row, this.props.workCalendarEmployeeID)
     }
 
     reopenTask() {
@@ -147,8 +135,7 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     formatFlags(flags) {
-        let flagImageArray = []
-        flagImageArray = flags && flags.length ? flags.map((flag, idx) => {
+        let flagImageArray = flags && flags.length ? flags.map((flag, idx) => {
             if (flag === SC.WARNING_UNPLANNED)
                 return <img className="div-hover releasePlanFlagImg" key={"unplanned" + idx} src="/images/unplanned.png"
                             title="Unplanned"/>

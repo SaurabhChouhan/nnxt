@@ -9,7 +9,7 @@ import * as SC from '../../../server/serverconstants'
 moment.locale('en')
 momentLocalizer()
 let ReleaseMoveTaskPlanForm = (props) => {
-    const {change, team, handleSubmit, submitting, pristine, reset, initial} = props
+    const {change, team, handleSubmit, submitting, pristine, reset, initial, workCalendarEmployeeID} = props
     const today = new Date()
     const todayMoment = moment(today).hour(0).minute(0).second(0).milliseconds(0)
     const devStartDateMoment = moment(initial.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
