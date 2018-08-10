@@ -26,6 +26,41 @@ class ReportingTaskDetailPage extends React.Component {
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
 
+
+                <TimelineEvent title={'Comments :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <ReportingCommentFormContainer/>
+                    {
+                        <div className="ReportingCommentTable">
+
+                            <BootstrapTable
+                                data={releasePlan.comments && releasePlan.comments.length ? releasePlan.comments : []}
+                                multiColumnSearch={true}
+                                search={true}
+                                striped={true}
+                                hover={true}>
+                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                                </TableHeaderColumn>
+                                <TableHeaderColumn width="40%" columnTitle dataField='comment'
+                                >Comment
+                                </TableHeaderColumn>
+                                <TableHeaderColumn width="10%" columnTitle dataField="commentType"
+                                                   dataSort={true}>
+                                    Comment Type</TableHeaderColumn>
+                                <TableHeaderColumn width="10%" columnTitle dataField="name">
+                                    Commented By</TableHeaderColumn>
+                                <TableHeaderColumn width="10%" columnTitle dataField="dateString">
+                                    Date
+                                </TableHeaderColumn>
+                            </BootstrapTable>
+                        </div>
+
+                    }
+
+                </TimelineEvent>
+
+
                 <TimelineEvent style={{fontSize: '20px'}}
                                title={'Project Name :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
@@ -91,41 +126,8 @@ class ReportingTaskDetailPage extends React.Component {
 
 
                     </Timeline>
+
                 </TimelineEvent>
-
-                <TimelineEvent title={'Comments :'}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    {
-                        <div className="ReportingCommentTable">
-
-                            <BootstrapTable
-                                data={releasePlan.comments && releasePlan.comments.length ? releasePlan.comments : []}
-                                multiColumnSearch={true}
-                                search={true}
-                                striped={true}
-                                hover={true}>
-                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width="40%" columnTitle dataField='comment'
-                                >Comment
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="commentType"
-                                                   dataSort={true}>
-                                    Comment Type</TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="name">
-                                    Commented By</TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="dateString">
-                                    Date
-                                </TableHeaderColumn>
-                            </BootstrapTable>
-                        </div>
-
-                    }
-                    <ReportingCommentFormContainer/>
-                </TimelineEvent>
-
-
             </Timeline>
 
 

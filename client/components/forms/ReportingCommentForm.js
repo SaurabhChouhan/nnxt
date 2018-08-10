@@ -24,7 +24,7 @@ class ReportingCommentForm extends React.Component {
 
                     <Field name="releasePlanID" component="input" className="form-control" type="hidden"></Field>
                     <Field name="releaseID" component="input" className="form-control" type="hidden"></Field>
-                    <div className="col-md-7">
+                    <div className="col-md-7 commentInputPadding">
                         <Field name="comment" label="Comment :" component={renderTextArea} type="text"
                                placeholder="Enter comments or issues here" validate={[required]}/>
                     </div>
