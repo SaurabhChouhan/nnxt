@@ -138,7 +138,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     onConfirmDeleteRequest() {
         this.setState({showTaskDeleteConfirmationDialog: false})
-        this.props.deleteTaskPlanningRow(this.state.row)
+        this.props.deleteTaskPlanningRow(this.state.row, this.props.workCalendarEmployeeID)
     }
 
     reopenTask() {

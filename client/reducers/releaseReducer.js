@@ -48,7 +48,6 @@ const releaseReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 selectedReleasePlan: action.releasePlan,
                 expanded: false,
-                schedules: [],
                 developerPlans: []
             })
 

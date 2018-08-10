@@ -31,9 +31,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error(json.message)
     }),
 
-    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
+    deleteTaskPlanningRow: (plan, workCalendarEmployeeID) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
+            if (workCalendarEmployeeID && plan.employee._id.toString() == workCalendarEmployeeID.toString())
+                dispatch(A.getEmployeeWorkCalendarFromServer(workCalendarEmployeeID))
         }
         else {
             NotificationManager.error(json.message)
