@@ -76,6 +76,18 @@ export const momentInUTC = (dateString) => {
     return undefined
 }
 
+
+export const convertUTCDateMomentToTZ = (utcMoment, timeZone) => {
+    // format in utc
+    console.log("utc moment found as ", utcMoment)
+
+    let dateString = utcMoment.utc().format(SC.DATE_FORMAT)
+    console.log("date string in utc is ", dateString)
+    // now parse it using timezone
+    return moment.tz(dateString, SC.DATE_FORMAT, timeZone).clone()
+
+}
+
 export const sameMomentInUTC = (d) => {
     return moment.utc().startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }
