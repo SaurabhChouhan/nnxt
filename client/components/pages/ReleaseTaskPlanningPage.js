@@ -61,19 +61,7 @@ class ReleaseTaskPlanningPage extends Component {
         let nowMomentString = moment(now).format(SC.DATE_FORMAT)
         let nowMoment = moment(nowMomentString)
         let planningMoment = moment(row.planningDateString)
-
         return ''
-        /*
-        if (planningMoment.isBefore(nowMoment))
-            return ''
-        else
-            return (<button className=" pull-left btn btn-custom" type="button"
-                             onClick={() => {
-                                 this.setState({showTaskDeleteConfirmationDialog: true, row: row})
-                             }}>
-            <i className="fa fa-trash"></i>
-        </button>)
-        */
     }
 
     reopenCellButton(cell, row, enumObject, rowIndex) {

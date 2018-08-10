@@ -24,7 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 
 const mapStateToProps = (state) => ({
-    team: state.user && state.user.allDevelopers && state.user.allDevelopers.length ? state.user.allDevelopers : [],
+    team: state.release.teamOfRelease,
     initialValues: {
         'employeeId': undefined
     }
