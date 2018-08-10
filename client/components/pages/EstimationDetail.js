@@ -108,7 +108,7 @@ class EstimationDetail extends Component {
                                 </h5>
                             </div>
                             {
-                                (_.includes([SC.STATUS_INITIATED], estimation.status) && userRoleInThisEstimation === SC.ROLE_NEGOTIATOR ) &&
+                                (_.includes([SC.STATUS_INITIATED], estimation.status) && userRoleInThisEstimation === SC.ROLE_NEGOTIATOR) &&
                                 <button type="button" className="btn customBtn" onClick={() => {
                                     this.props.editEstimationInitiateForm(estimation)
                                 }
@@ -224,12 +224,14 @@ class EstimationDetail extends Component {
                                 }>filter</button>
                                 }
 
-                                <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
-                                <li><a href=""> <i className="fa fa-file-word-o"></i></a></li>
-                                <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
-                                <li><a href=""> <i className="glyphicon glyphicon-option-vertical pull-right">
-                                </i></a>
-                                </li>
+                                {/*
+                                    <li><a href=""> <i className="fa fa-file-pdf-o"></i></a></li>
+                                    < li > < a href=""> <i className="fa fa-file-word-o"></i></a></li>
+                                    <li><a href=""> <i className=" fa fa-file-excel-o"></i></a></li>
+                                    <li><a href=""> <i className="glyphicon glyphicon-option-vertical pull-right">
+                                    </i></a>
+                                    </li>
+                                */}
 
 
                             </ul>
@@ -242,14 +244,27 @@ class EstimationDetail extends Component {
                         <div className="estimationuser tooltip"><span>C</span>
                             <p className="tooltiptext">{estimation.client ? estimation.client.name : ''}</p>
                         </div>
-                        <div className="estimationuser"><span>E</span></div>
-                        <div className="estimationuser"><span>N</span></div>
+                        <div className="estimationuser tooltip"><span>N</span>
+                            <p className="tooltiptext">{estimation.negotiator ? estimation.negotiator.firstName : ''}</p>
+                        </div>
+                        <div className="estimationuser tooltip"><span>E</span>
+                            <p className="tooltiptext">{estimation.estimator ? estimation.estimator.firstName : ''}</p>
+                        </div>
                     </div>
                     <div className="col-md-2">
                         <div className="logo">
+
+                            {
+                                estimation.technologies.map(t =>
+                                    <img src={"/images/technology/" + t.name.replace(' ', '_') + ".png"}/>
+                                )
+                            }
+
+                            {/*
                             <img src="/images/react.png"/>
                             <img src="/images/mongodb.png"/>
-                            {/*  <img src="/images/node.png"/>*/}
+                              <img src="/images/node.png"/>
+                             */}
 
                         </div>
                     </div>

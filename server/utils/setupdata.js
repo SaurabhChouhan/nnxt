@@ -639,41 +639,61 @@ const addLeaveTypes = async () => {
 
 const addTechnologies = async () => {
     console.log("SETTING UP TECHNOLOGIES ...")
-    if (!await MDL.TechnologyModel.exists('React')) {
-        await MDL.TechnologyModel.saveTechnology({
-            name: 'React'
-        })
-    }
-    if (!await MDL.TechnologyModel.exists('Koa')) {
-        await MDL.TechnologyModel.saveTechnology({
-            name: 'Koa'
-        })
-    }
+
     if (!await MDL.TechnologyModel.exists('Node')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'Node'
         })
     }
-    if (!await MDL.TechnologyModel.exists('iOS')) {
+
+    if (!await MDL.TechnologyModel.exists('Objective-C')) {
         await MDL.TechnologyModel.saveTechnology({
-            name: 'iOS'
+            name: 'Objective-C'
         })
     }
+
+    if (!await MDL.TechnologyModel.exists('Swift')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Swift'
+        })
+    }
+
     if (!await MDL.TechnologyModel.exists('Android')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'Android'
         })
     }
+
     if (!await MDL.TechnologyModel.exists('Mac')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'Mac'
         })
     }
+
     if (!await MDL.TechnologyModel.exists('React Native')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'React Native'
         })
     }
+
+    if (!await MDL.TechnologyModel.exists('React')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'React'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('Angular')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Angular'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('Koa')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Koa'
+        })
+    }
+
 }
 
 const addDevelopmentTypes = async () => {
