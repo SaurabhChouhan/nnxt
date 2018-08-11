@@ -137,7 +137,7 @@ const addFeatureByNegotiator = async (featureInput, negotiator) => {
     estimationFeature.negotiator.name = featureInput.name
     estimationFeature.negotiator.description = featureInput.description
     // add feature name/description to estimator section as well as name/description of feature is just for grouping purpose and would not become actual requirement
-    estimationFeature.estimator.name = featureInput.description
+    estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
 
     estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours

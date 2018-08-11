@@ -600,6 +600,28 @@ const addProjects = async () => {
         }
     }
 
+    let brian = await MDL.ClientModel.findOne({name: 'Brian'})
+
+    if (brian) {
+        if (!await MDL.ProjectModel.exists('Iconoland', brian._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'Iconoland',
+                client: brian
+            })
+        }
+    }
+
+    let javed = await MDL.ClientModel.findOne({name: 'Javed'})
+
+    if (javed) {
+        if (!await MDL.ProjectModel.exists('JCI', brian._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'JCI',
+                client: javed
+            })
+        }
+    }
+
 }
 
 const addLeaveTypes = async () => {

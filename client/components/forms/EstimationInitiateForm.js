@@ -33,7 +33,7 @@ let EstimationInitiateForm = (props) => {
 
         <div className="row">
             <div className="col-md-12">
-                <Field name="description" component={renderTextArea} label="Description:" validate={[required]}/>
+                <Field name="description" component={renderTextArea} label="Description:" validate={[required]} rows="10"/>
             </div>
         </div>
         <div className="row initiatEstimation">

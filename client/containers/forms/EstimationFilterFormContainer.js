@@ -54,7 +54,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(initialize('Estimation-filter', {
                 changedByNegotiator: false,
                 changedByEstimator: true,
-                permissionRequested: false,
+                permissionRequested: true,
                 addedFromRepository: false,
                 addedByNegotiator: false,
                 addedByEstimator: true,
