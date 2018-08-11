@@ -501,9 +501,18 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
         if (estimation._id.toString() !== estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+        let canApprove = false
+
+        if (estimationTask.estimator.name && estimationTask.estimator.description && estimationTask.estimator.estimatedHours) {
+            // estimation already have all the required information so negotiator can approve task even if he has updated it
+            // eventually name/description in estimation section would be used and hence estimator should not have any problem
+            canApprove = true
+
+        }
+
         await MDL.EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
             $inc: {"negotiator.estimatedHours": estimationTask.negotiator.estimatedHours ? newTaskInput.estimatedHours - estimationTask.negotiator.estimatedHours : newTaskInput.estimatedHours},
-            "canApprove": false,
+            "canApprove": canApprove,
             "negotiator.changedInThisIteration": true
         })
     }
@@ -549,7 +558,12 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
 
     estimationTask.feature = newTaskInput.feature ? newTaskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.negotiator.name = newTaskInput.name
-    estimationTask.canApprove = false
+
+    if (estimationTask.estimator.name && estimationTask.estimator.description && estimationTask.estimator.estimatedHours)
+        estimationTask.canApprove = true
+    else
+        estimationTask.canApprove = false
+
     estimationTask.negotiator.description = newTaskInput.description
     estimationTask.negotiator.estimatedHours = newTaskInput.estimatedHours
 
