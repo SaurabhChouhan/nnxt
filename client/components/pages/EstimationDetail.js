@@ -307,6 +307,12 @@ class EstimationDetail extends Component {
 
                 <div className=" col-md-12">
                     <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
+                    <div className="col-md-2 col-md-offset-4">
+                        <button style={{float: 'right'}} type="button" className="btn customBtn" onClick={
+                            () => {
+                                this.props.refreshEstimation(estimation)
+                            }}><i className="fa fa-refresh"></i></button>
+                    </div>
                 </div>
                 <div className="col-md-12">
                     <EstimationFeaturesContainer estimationStatus={estimation.status}

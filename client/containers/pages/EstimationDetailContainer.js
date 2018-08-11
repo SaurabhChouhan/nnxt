@@ -16,7 +16,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             estimation: {
                 _id: estimation._id
             },
-            type:SC.TYPE_DEVELOPMENT
+            type: SC.TYPE_DEVELOPMENT
         }))
     },
     showAddFeatureForm: (estimation) => {
@@ -86,8 +86,21 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     onTaskDelete: (taskID) => dispatch(A.estimationTaskDelete(taskID)),
 
-    estimationFilterForm: () => dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG)),
+    estimationFilterForm: () => {
+        dispatch(A.showComponent(COC.ESTIMATION_FILTER_DIALOG))
+        /*
+        dispatch(initialize('Estimation-filter', {
+            changedByNegotiator: true,
+            changedByEstimator: true,
+            permissionRequested: true,
+            addedFromRepository: true,
+            addedByNegotiator: true,
+            addedByEstimator: true,
+            hasError: true
+        }))
+        */
 
+    },
     editEstimationInitiateForm: (estimation) => {
         dispatch(A.getAllProjectsFromServer())
         dispatch(A.getAllUsersFromServer())
@@ -121,8 +134,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error("Estimation not reopened")
         }
     }),
+    refreshEstimation: (estimation) => dispatch(A.getEstimationFromServer(estimation._id)).then(json => {
+        if (json.success) {
+            NotificationManager.success("Estimation refreshed successfully")
+        }
 
-
+        return json
+    }),
     deleteEstimation: (estimation) => dispatch(A.deleteEstimationOnServer(estimation._id)).then(json => {
         if (json.success) {
             NotificationManager.success("Estimation Deleted successfully")
