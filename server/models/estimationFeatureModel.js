@@ -136,6 +136,10 @@ const addFeatureByNegotiator = async (featureInput, negotiator) => {
     let estimationFeature = new EstimationFeatureModel()
     estimationFeature.negotiator.name = featureInput.name
     estimationFeature.negotiator.description = featureInput.description
+    // add feature name/description to estimator section as well as name/description of feature is just for grouping purpose and would not become actual requirement
+    estimationFeature.estimator.name = featureInput.description
+    estimationFeature.estimator.description = featureInput.description
+
     estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours
     estimationFeature.estimator.estimatedHours = 0
     estimationFeature.negotiator.changeSuggested = true
@@ -423,21 +427,20 @@ const approveFeatureByNegotiator = async (feature, estimation, negotiator) => {
     if (pendingTaskCountOfFeature != 0)
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
-    if (feature.negotiator.estimatedHours != feature.estimator.estimatedHours) {
-
+    if (feature.negotiator.estimatedHours == 0) {
         if (estimation && estimation._id) {
             await MDL.EstimationModel.updateOne({"_id": estimation._id}, {
                 $inc: {
-                    "suggestedHours": feature.negotiator.estimatedHours ? feature.estimator.estimatedHours - feature.negotiator.estimatedHours : feature.estimator.estimatedHours,
-                },
+                    "suggestedHours": feature.estimator.estimatedHours
+                }
             })
         }
     }
 
 
-    feature.negotiator.name = feature.estimator.name
-    feature.negotiator.description = feature.estimator.description
-    feature.negotiator.estimatedHours = feature.estimator.estimatedHours
+    //feature.negotiator.name = feature.estimator.name
+    //feature.negotiator.description = feature.estimator.description
+    //feature.negotiator.estimatedHours = feature.estimator.estimatedHours
 
 
     feature.negotiator.changeSuggested = false
@@ -776,7 +779,7 @@ const addFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatu
     })
     if (
         errorTasks.length ||
-        ( repositoryFeature.estimatedHours == 0)
+        (repositoryFeature.estimatedHours == 0)
         || _.isEmpty(repositoryFeature.name)
         || _.isEmpty(repositoryFeature.description)) {
 

@@ -272,6 +272,8 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
     let estimationTask = new EstimationTaskModel()
     estimationTask.negotiator.name = taskInput.name
     estimationTask.negotiator.description = taskInput.description
+    estimationTask.estimator.name = taskInput.name
+    estimationTask.estimator.description = taskInput.description
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
     estimationTask.negotiator.changeSuggested = true
     estimationTask.status = SC.STATUS_PENDING
