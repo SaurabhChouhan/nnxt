@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
                 } else {
-                    NotificationManager.error("Task Updation Failed")
+                    NotificationManager.error(json.message)
                 }
             })
         }
@@ -31,7 +31,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_TASK_DIALOG))
                 } else {
-                    NotificationManager.error("Task Addition Failed")
+                    NotificationManager.error(json.message)
                 }
             })
         }

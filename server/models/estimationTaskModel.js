@@ -108,8 +108,8 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if(taskInput.estimatedHours < 1){
-        throw new AppError("Estimated hours should be at least 1", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    if (taskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
     }
 
     if (taskInput.feature && taskInput.feature._id) {
@@ -212,12 +212,12 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await MDL.EstimationModel.findById(taskInput.estimation._id)
     if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST, "estimation.notfound")
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    if(taskInput.estimatedHours < 1){
-        throw new AppError("Estimated hours should be at least 1", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    if (taskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
     }
 
     if (taskInput.feature && taskInput.feature._id) {
@@ -370,7 +370,7 @@ const updateTaskByEstimator = async (newTaskInput, estimationTask, estimation, e
         }
     }
 
-    if(newTaskInput.estimatedHours < 1){
+    if (newTaskInput.estimatedHours < 1) {
         throw new AppError("Estimated hours should be at least 1", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
@@ -390,8 +390,8 @@ const updateTaskByEstimator = async (newTaskInput, estimationTask, estimation, e
     if (newTaskInput.repo && !newTaskInput.repo.addedFromThisEstimation)
         throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
 
-    if(newTaskInput.estimatedHours < 1){
-        throw new AppError("Estimated hours should be at least 1", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    if (newTaskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
     }
 
     if (estimationTask.feature && estimationTask.feature._id) {
@@ -510,7 +510,9 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-
+    if (newTaskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
+    }
 
     if (estimationTask.feature && estimationTask.feature._id) {
         estimationFeatureObj = await MDL.EstimationFeatureModel.findById(mongoose.Types.ObjectId(estimationTask.feature._id))

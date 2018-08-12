@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
                 } else {
-                    NotificationManager.error("Feature updation Failed")
+                    NotificationManager.error(json.message)
                 }
             })
         }
@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_FEATURE_DIALOG))
                 } else {
-                    NotificationManager.error("Feature Addition Failed")
+                    NotificationManager.error(json.message)
                 }
             })
         }
