@@ -8,7 +8,6 @@ import * as MDL from "../models"
 import _ from 'lodash'
 import logger from '../logger'
 
-
 mongoose.Promise = global.Promise
 
 let estimationTaskSchema = mongoose.Schema({
@@ -55,7 +54,10 @@ let estimationTaskSchema = mongoose.Schema({
         isMovedToFeature: {type: Boolean, default: false},
         isMovedOutOfFeature: {type: Boolean, default: false}
     },
-    technologies: [String],
+    technologies: [{
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    }],
     tags: [String],
     notes: [{
         name: {type: String, required: true},

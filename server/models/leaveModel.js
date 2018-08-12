@@ -229,6 +229,19 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     if (!startDateIndia.isSameOrAfter(U.getPastMidNight(SC.INDIAN_TIMEZONE)))
         throw new AppError("Leave start date should be greater than or equal to today's date", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    let countLeave = await MDL.LeaveModel.count({
+        $and: [
+            {"user._id": user._id},
+            {startDate: {$lte: endDateMoment.toDate()}},
+            {endDate: {$gte: startDateMoment.toDate()}},
+            {status: {$in: [SC.LEAVE_STATUS_RAISED, SC.LEAVE_STATUS_APPROVED]}}
+        ]
+    })
+
+    if(countLeave > 0){
+        throw new AppError("Leave dates conflicts with other raised/approved leave", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
     let leaveDaysCount = endDateMoment.diff(startDateMoment, 'days')
     if (!leaveDaysCount)
         leaveDaysCount = 0
@@ -438,7 +451,7 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
     let pastMidnightIndia = U.getPastMidNight(SC.INDIAN_TIMEZONE)
     let startDateInIndia = U.momentInTimeZone(leave.startDateString, SC.INDIAN_TIMEZONE)
 
-    if(!startDateInIndia.isAfter(pastMidnightIndia) && _.includes([SC.LEAVE_STATUS_APPROVED], leave.status))
+    if (!startDateInIndia.isAfter(pastMidnightIndia) && _.includes([SC.LEAVE_STATUS_APPROVED], leave.status))
         throw new AppError("Can remove approved leave upto 1 day prior to their start date", EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/

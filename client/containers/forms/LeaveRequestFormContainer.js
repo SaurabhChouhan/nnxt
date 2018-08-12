@@ -14,9 +14,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 dispatch(A.hideComponent(COC.LEAVE_REQUEST_FORM_DIALOG))
 
             } else {
-                NotificationManager.error('leave Request Not Added!')
-                if (json.code == EC.ALREADY_EXISTS)
-                    throw new SubmissionError({name: "leave Request Already Exists"})
+                NotificationManager.error(json.message)
             }
             return json
         })
