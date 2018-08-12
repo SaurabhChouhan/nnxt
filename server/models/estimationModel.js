@@ -16,7 +16,14 @@ let estimationSchema = mongoose.Schema({
         required: true,
         enum: [SC.STATUS_INITIATED, SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_REVIEW_REQUESTED, SC.STATUS_CHANGE_REQUESTED, SC.STATUS_APPROVED, SC.STATUS_REOPENED, SC.STATUS_PROJECT_AWARDED]
     },
-    technologies: [String],
+    developmentType: {
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    },
+    technologies: [{
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    }],
     estimatedHours: {type: Number},
     suggestedHours: {type: Number},
     description: String,
@@ -228,6 +235,8 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     if (negotiator._id.toString() === estimator._id.toString())
         throw new AppError('Estimator and negotiator can not be same ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    let developmentType = await MDL.DevelopmentModel.findById(estimationInput.developmentType._id)
+
     estimationInput.status = SC.STATUS_INITIATED
     estimationInput.estimatedHours = 0
     estimationInput.suggestedHours = 0
@@ -235,6 +244,7 @@ estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
     estimationInput.client = project.client
     estimationInput.estimator = estimator
     estimationInput.negotiator = negotiator
+    estimationInput.developmentType = developmentType
     estimationInput.statusHistory = [{
         name: negotiator.firstName,
         status: SC.STATUS_INITIATED
@@ -368,18 +378,16 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
 
         if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
             estimationTaskPromises = EstimationPendingTasks.map(async task => {
-                if (task.estimator.changeRequested
-                    || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+                if ((!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
                     || _.isEmpty(task.estimator.name)
                     || _.isEmpty(task.estimator.description)) {
                     return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'canApprove': false})
                 } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'canApprove': true})
 
             })
-
             estimationTasks = await Promise.all(estimationTaskPromises)
-
         }
+
         if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
             estimationTaskPromises = EstimationPendingTasks.map(async task => {
                 if ((!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
@@ -399,8 +407,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
             if (EstimationPendingFeatures && EstimationPendingFeatures.length) {
 
                 let estimationFeaturePromises = EstimationPendingFeatures.map(async feature => {
-                    if (feature.estimator.changeRequested
-                        || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
+                    if ((!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
                         || _.isEmpty(feature.estimator.name)
                         || _.isEmpty(feature.estimator.description)) {
                         // console.log("bk 6")

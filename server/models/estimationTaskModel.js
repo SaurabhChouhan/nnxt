@@ -4,10 +4,10 @@ import * as EC from '../errorcodes'
 import * as SC from "../serverconstants"
 import * as V from "../validation"
 import {userHasRole} from "../utils"
+import * as U from "../utils"
 import * as MDL from "../models"
 import _ from 'lodash'
 import logger from '../logger'
-
 
 mongoose.Promise = global.Promise
 
@@ -55,7 +55,10 @@ let estimationTaskSchema = mongoose.Schema({
         isMovedToFeature: {type: Boolean, default: false},
         isMovedOutOfFeature: {type: Boolean, default: false}
     },
-    technologies: [String],
+    technologies: [{
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    }],
     tags: [String],
     notes: [{
         name: {type: String, required: true},
@@ -106,6 +109,11 @@ const addTaskByEstimator = async (taskInput, estimator) => {
     if (!_.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Estimator can only add task into those estimations where status is in [" + SC.STATUS_ESTIMATION_REQUESTED + ", " + SC.STATUS_CHANGE_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    if (taskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
+    }
+
+    taskInput.estimatedHours = U.twoDecimalHours(taskInput.estimatedHours)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
@@ -143,13 +151,6 @@ const addTaskByEstimator = async (taskInput, estimator) => {
             })
         }
     }
-
-
-    /*
-    if (estimation && estimation._id) {
-        await MDL.EstimationModel.updateOne({_id: estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
-    }
-    */
 
     // Modify estimation
     estimation.estimatedHours += taskInput.estimatedHours
@@ -207,9 +208,15 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
         throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
     let estimation = await MDL.EstimationModel.findById(taskInput.estimation._id)
     if (!estimation)
-        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Estimation not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST, "estimation.notfound")
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only add task into those estimations where status is in [" + SC.STATUS_INITIATED + ", " + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (taskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
+    }
+
+    taskInput.estimatedHours = U.twoDecimalHours(taskInput.estimatedHours)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
@@ -272,6 +279,8 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
     let estimationTask = new EstimationTaskModel()
     estimationTask.negotiator.name = taskInput.name
     estimationTask.negotiator.description = taskInput.description
+    estimationTask.estimator.name = taskInput.name
+    estimationTask.estimator.description = taskInput.description
     estimationTask.negotiator.estimatedHours = taskInput.estimatedHours
     estimationTask.negotiator.changeSuggested = true
     estimationTask.status = SC.STATUS_PENDING
@@ -359,6 +368,12 @@ const updateTaskByEstimator = async (newTaskInput, estimationTask, estimation, e
         }
     }
 
+    if (newTaskInput.estimatedHours < 1) {
+        throw new AppError("Estimated hours should be at least 1", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    newTaskInput.estimatedHours = U.twoDecimalHours(newTaskInput.estimatedHours)
+
     if (!estimationTask.negotiator.estimatedHours) {
         estimationTask.negotiator.estimatedHours = 0
     }
@@ -374,6 +389,10 @@ const updateTaskByEstimator = async (newTaskInput, estimationTask, estimation, e
 
     if (newTaskInput.repo && !newTaskInput.repo.addedFromThisEstimation)
         throw new AppError('Task is From Repository ', EC.TASK_FROM_REPOSITORY_ERROR)
+
+    if (newTaskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
+    }
 
     if (estimationTask.feature && estimationTask.feature._id) {
         let estimationFeatureObj = await MDL.EstimationFeatureModel.findById(estimationTask.feature._id)
@@ -491,6 +510,12 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
     if (!_.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status))
         throw new AppError("Estimation has status as [" + estimation.status + "]. Negotiator can only update task into those estimations where status is in [" + SC.STATUS_INITIATED + "," + SC.STATUS_REVIEW_REQUESTED + "]", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
+    if (newTaskInput.estimatedHours < 1) {
+        throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
+    }
+
+    newTaskInput.estimatedHours = U.twoDecimalHours(newTaskInput.estimatedHours)
+
     if (estimationTask.feature && estimationTask.feature._id) {
         estimationFeatureObj = await MDL.EstimationFeatureModel.findById(mongoose.Types.ObjectId(estimationTask.feature._id))
         if (!estimationFeatureObj)
@@ -499,9 +524,18 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
         if (estimation._id.toString() !== estimationFeatureObj.estimation._id.toString())
             throw new AppError('Feature not found for this estimation', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+        let canApprove = false
+
+        if (estimationTask.estimator.name && estimationTask.estimator.description && estimationTask.estimator.estimatedHours) {
+            // estimation already have all the required information so negotiator can approve task even if he has updated it
+            // eventually name/description in estimation section would be used and hence estimator should not have any problem
+            canApprove = true
+
+        }
+
         await MDL.EstimationFeatureModel.updateOne({_id: estimationTask.feature._id}, {
             $inc: {"negotiator.estimatedHours": estimationTask.negotiator.estimatedHours ? newTaskInput.estimatedHours - estimationTask.negotiator.estimatedHours : newTaskInput.estimatedHours},
-            "canApprove": false,
+            "canApprove": canApprove,
             "negotiator.changedInThisIteration": true
         })
     }
@@ -547,7 +581,12 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
 
     estimationTask.feature = newTaskInput.feature ? newTaskInput.feature : estimationTask.feature ? estimationTask.feature : undefined
     estimationTask.negotiator.name = newTaskInput.name
-    estimationTask.canApprove = false
+
+    if (estimationTask.estimator.name && estimationTask.estimator.description && estimationTask.estimator.estimatedHours)
+        estimationTask.canApprove = true
+    else
+        estimationTask.canApprove = false
+
     estimationTask.negotiator.description = newTaskInput.description
     estimationTask.negotiator.estimatedHours = newTaskInput.estimatedHours
 
@@ -1642,7 +1681,6 @@ estimationTaskSchema.statics.grantReOpenPermissionOfTask = async (taskID, user) 
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-
     if (!task.estimation || !task.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -1670,7 +1708,7 @@ const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotia
     if (estimation.negotiator._id.toString() !== negotiator._id.toString())
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (!task.addedInThisIteration || task.owner !== SC.OWNER_NEGOTIATOR)
+    if (!task.addedInThisIteration)
         task.negotiator.changedInThisIteration = true
 
     let estimationFeatureObj
@@ -1705,7 +1743,7 @@ const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotia
     }
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
-    task.canApprove = false
+    task.canApprove = true // even though negotiator granted permission it can still change his mind and approve task
     task.status = SC.STATUS_PENDING
     task.updated = Date.now()
     await task.save()
@@ -1784,17 +1822,18 @@ const approveTaskByNegotiator = async (task, estimation, negotiator) => {
     if (task.negotiator.estimatedHours == 0)
         task.negotiator.estimatedHours = task.estimator.estimatedHours
 
-    task.negotiator.changeSuggested = false
+    //task.negotiator.changeSuggested = false
     task.negotiator.changeGranted = false
-    task.negotiator.changedInThisIteration = false
-    task.negotiator.isMovedToFeature = false
-    task.negotiator.isMovedOutOfFeature = false
-    task.estimator.changeRequested = false
-    task.estimator.changedKeyInformation = false
-    task.estimator.removalRequested = false
-    task.estimator.changedInThisIteration = false
-    task.estimator.isMovedToFeature = false
-    task.estimator.isMovedOutOfFeature = false
+    task.negotiator.changedInThisIteration = true
+    //task.negotiator.changedInThisIteration = false
+    //task.negotiator.isMovedToFeature = false
+    //task.negotiator.isMovedOutOfFeature = false
+    //task.estimator.changeRequested = false
+    //task.estimator.changedKeyInformation = false
+    //task.estimator.removalRequested = false
+    //task.estimator.changedInThisIteration = false
+    //task.estimator.isMovedToFeature = false
+    //task.estimator.isMovedOutOfFeature = false
     task.status = SC.STATUS_APPROVED
     task.canApprove = false
     task.updated = Date.now()
@@ -2199,6 +2238,7 @@ const reOpenTaskByNegotiator = async (task, estimation, negotiator) => {
 
     task.status = SC.STATUS_PENDING
     task.canApprove = true
+    task.negotiator.changedInThisIteration = true
     await task.save()
     task = task.toObject()
 

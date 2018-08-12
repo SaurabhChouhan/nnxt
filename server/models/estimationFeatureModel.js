@@ -29,7 +29,7 @@ let estimationFeatureSchema = mongoose.Schema({
     estimator: {
         name: {type: String},
         description: {type: String},
-        estimatedHours: {type: Number, default: 0},
+        estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
         changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
@@ -39,7 +39,7 @@ let estimationFeatureSchema = mongoose.Schema({
     negotiator: {
         name: {type: String},
         description: {type: String},
-        estimatedHours: {type: Number, default: 0},
+        estimatedHours: {type: Number},
         changeSuggested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
@@ -92,8 +92,8 @@ const addFeatureByEstimator = async (featureInput, estimator) => {
     let estimationFeature = new EstimationFeatureModel()
     estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
-    estimationFeature.estimator.estimatedHours = featureInput.estimatedHours
-    estimationFeature.negotiator.estimatedHours = 0
+    //estimationFeature.estimator.estimatedHours = featureInput.estimatedHours
+    //estimationFeature.negotiator.estimatedHours = 0
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
     estimationFeature.canApprove = false
@@ -136,8 +136,12 @@ const addFeatureByNegotiator = async (featureInput, negotiator) => {
     let estimationFeature = new EstimationFeatureModel()
     estimationFeature.negotiator.name = featureInput.name
     estimationFeature.negotiator.description = featureInput.description
-    estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours
-    estimationFeature.estimator.estimatedHours = 0
+    // add feature name/description to estimator section as well as name/description of feature is just for grouping purpose and would not become actual requirement
+    estimationFeature.estimator.name = featureInput.name
+    estimationFeature.estimator.description = featureInput.description
+
+    //estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours
+    //estimationFeature.estimator.estimatedHours = 0
     estimationFeature.negotiator.changeSuggested = true
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
@@ -423,21 +427,20 @@ const approveFeatureByNegotiator = async (feature, estimation, negotiator) => {
     if (pendingTaskCountOfFeature != 0)
         throw new AppError('There are non-approved tasks in this feature, cannot approve', EC.TASK_APPROVAL_ERROR, EC.HTTP_FORBIDDEN)
 
-    if (feature.negotiator.estimatedHours != feature.estimator.estimatedHours) {
-
+    if (feature.negotiator.estimatedHours == 0) {
         if (estimation && estimation._id) {
             await MDL.EstimationModel.updateOne({"_id": estimation._id}, {
                 $inc: {
-                    "suggestedHours": feature.negotiator.estimatedHours ? feature.estimator.estimatedHours - feature.negotiator.estimatedHours : feature.estimator.estimatedHours,
-                },
+                    "suggestedHours": feature.estimator.estimatedHours
+                }
             })
         }
     }
 
 
-    feature.negotiator.name = feature.estimator.name
-    feature.negotiator.description = feature.estimator.description
-    feature.negotiator.estimatedHours = feature.estimator.estimatedHours
+    //feature.negotiator.name = feature.estimator.name
+    //feature.negotiator.description = feature.estimator.description
+    //feature.negotiator.estimatedHours = feature.estimator.estimatedHours
 
 
     feature.negotiator.changeSuggested = false
@@ -776,7 +779,7 @@ const addFeatureFromRepositoryByEstimator = async (estimationID, repositoryFeatu
     })
     if (
         errorTasks.length ||
-        ( repositoryFeature.estimatedHours == 0)
+        (repositoryFeature.estimatedHours == 0)
         || _.isEmpty(repositoryFeature.name)
         || _.isEmpty(repositoryFeature.description)) {
 

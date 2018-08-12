@@ -39,7 +39,8 @@ const mapStateToProps = (state, ownProps) => ({
         state.user && state.user.loggedIn && state.user.loggedIn._id && user._id.toString() != state.user.loggedIn._id.toString() && user.roles && user.roles.length ? user.roles.findIndex(r => r.name == SC.ROLE_ESTIMATOR) != -1 : false
     ) : [],
     projects: state.project.all,
-    technologies: state.technology.all.map(t => t.name)
+    technologies: state.technology.all,
+    developmentTypes: state.developmentType.all
 })
 
 const EstimationInitiateFormContainer = connect(

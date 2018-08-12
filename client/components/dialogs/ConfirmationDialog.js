@@ -60,5 +60,31 @@ const ConfirmationDialog = (props) => {
     }
 
 }
+
+export const NewConfirmationDialog = (props) => {
+    const {show, onClose,body, title, children} = props
+    return <Modal show={show} onHide={onClose}>
+        {
+            <ModalHeader>
+                <ModalTitle>{title ? title : 'Confirm Operation'}</ModalTitle>
+            </ModalHeader>
+        }
+        {
+            <ModalBody>
+                {children}
+            </ModalBody>
+        }
+        {
+            <ModalFooter>
+                <Button onClick={props.onClose}>Cancel</Button>
+                <Button onClick={props.onConfirm}>Confirm</Button>
+            </ModalFooter>
+        }
+    </Modal>
+}
+
+
+
+
 export default ConfirmationDialog
 

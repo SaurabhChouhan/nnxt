@@ -276,6 +276,18 @@ const estimationReducer = (state = initialState, action) => {
         case AC.CLEAR_FILTER_FROM_ESTIMATION:
             return Object.assign({}, state, {
                 filter: {
+                    changedByNegotiator: false,
+                    changedByEstimator: false,
+                    permissionRequested: false,
+                    addedFromRepository: false,
+                    addedByNegotiator: false,
+                    addedByEstimator: false,
+                    hasError: false
+                }
+            })
+        case AC.SELECT_ALL_FILTER_FROM_ESTIMATION:
+            return Object.assign({}, state, {
+                filter: {
                     changedByNegotiator: true,
                     changedByEstimator: true,
                     permissionRequested: true,
@@ -283,8 +295,6 @@ const estimationReducer = (state = initialState, action) => {
                     addedByNegotiator: true,
                     addedByEstimator: true,
                     hasError: true
-
-
                 }
             })
 

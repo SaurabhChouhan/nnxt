@@ -209,6 +209,25 @@ button.customBtn:hover {
     border: 2px solid #FF534F;
 }
 
+
+button.secondaryBtn, button.secondaryBtn:focus {
+    background: #75acf1;
+    color: #fff;
+    padding: 1px 12px;
+    font-size: 20px;
+    border: 2px solid #75acf1;
+    /* margin: 5px; */
+    transition: 0.8s;
+    border-radius: 0;
+}
+
+button.secondaryBtn:hover {
+    background: #fff;
+    color: #75acf1;
+    border: 2px solid #75acf1;
+}
+
+
 .sidebar-wrapper {
     float: left;
     width: 20%;
@@ -2159,5 +2178,9 @@ hr {
     text-decoration: none;
     background-color: #fff;
     border: 1px solid #ddd;
+}
+
+.commentInputPadding {
+    padding-left: 3px;
 }
 

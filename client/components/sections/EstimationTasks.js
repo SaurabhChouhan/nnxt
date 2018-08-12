@@ -18,51 +18,42 @@ let EstimationTasks = (props) => {
                                         expanded={true}/> :
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                 } else {
-                    if (changedByNegotiator && t.negotiator && t.negotiator.changeSuggested && (!t.addedInThisIteration)) {
+                    if (changedByNegotiator && t.negotiator && (t.negotiator.changeSuggested || t.negotiator.changedInThisIteration)) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                    }
-                    if (changedByEstimator && t.estimator && t.estimator.changedKeyInformation) {
+                    } else if (changedByEstimator && t.estimator && (t.estimator.changedKeyInformation || t.estimator.changedInThisIteration)) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                    }
-                    if (permissionRequested && ((t.estimator && t.estimator.removalRequested) || (t.estimator && t.estimator.changeRequested))) {
+                    } else if (permissionRequested && ((t.estimator && t.estimator.removalRequested) || (t.estimator && t.estimator.changeRequested))) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                    }
-                    if (addedFromRepository && t.repo && !t.repo.addedFromThisEstimation) {
+                    } else if (addedFromRepository && t.repo && !t.repo.addedFromThisEstimation) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                    }
-
-                    if (addedByNegotiator && t.addedInThisIteration && t.owner == SC.OWNER_NEGOTIATOR) {
+                    } else if (addedByNegotiator && t.addedInThisIteration && t.owner == SC.OWNER_NEGOTIATOR) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                    }
-                    if (addedByEstimator && t.addedInThisIteration && t.owner == SC.OWNER_ESTIMATOR) {
+                    } else if (addedByEstimator && t.addedInThisIteration && t.owner == SC.OWNER_ESTIMATOR) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                    }
-
-                    if (hasError && t.hasError) {
+                    } else if (hasError && t.hasError) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx} {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx} {...childProps}/>
                     }
-
                 }
             }
 

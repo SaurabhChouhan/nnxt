@@ -13,17 +13,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             logger.debug(logger.ESTIMATION_TASK_FORM_SUBMIT, "values:", values)
             dispatch(A.updateTaskToEstimationOnServer(values)).then(json => {
                 if (json.success) {
-                    if (values.loggedInUserRole == SC.ROLE_NEGOTIATOR)
-                        NotificationManager.success("Added task suggestion")
-                    else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR)
-                        NotificationManager.success("Updated task")
+                    NotificationManager.success("Suggestions saved successfully")
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
                 } else {
-                    if (values.loggedInUserRole == SC.ROLE_NEGOTIATOR)
-                        NotificationManager.error("Suggestions not saved")
-                    else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR)
-                        NotificationManager.error("Task updates failed")
+                    NotificationManager.error(json.message)
                 }
             })
         }
@@ -33,20 +27,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.addTaskToEstimationOnServer(values)).then(json => {
                 if (json.success) {
                     if (values.loggedInUserRole == SC.ROLE_NEGOTIATOR)
-                        NotificationManager.success("Task Suggested")
+                        NotificationManager.success("Task suggestions saved successfully")
                     else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR)
-                        NotificationManager.success("Task Added")
+                        NotificationManager.success("Task estimations saved successfully")
                     // hide dialog
                     dispatch(A.hideComponent(COC.ESTIMATION_SUGGEST_TASK_FORM_DIALOG))
                 } else {
-                    if (values.loggedInUserRole == SC.ROLE_NEGOTIATOR)
-                        NotificationManager.error("Update Task Suggestion Failed")
-                    else if (values.loggedInUserRole == SC.ROLE_ESTIMATOR)
-                        NotificationManager.error("Task Addition Failed")
+                    NotificationManager.error(json.message)
                 }
             })
         }
-
     }
 })
 

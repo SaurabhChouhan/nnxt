@@ -1425,7 +1425,7 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     /*Checking that new planning date  is before now or not */
 
     if (todaysDateInIndia.isAfter(rePlanningDateInIndia)) {
-        throw new AppError('Can not merge before now', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Can not move before todays date', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
     let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
@@ -1436,8 +1436,11 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
 
     // Tasks of past dates cannot be merged
     if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
-        throw new AppError('Cannot merge tasks having past dates', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Cannot move past tasks', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
+
+    if(taskPlanningDateInIndia.isSame(rePlanningDateInIndia))
+        throw new AppError('Cannot move to same date', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
     if (!releasePlan) {
@@ -1511,7 +1514,7 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     taskPlan.planningDateString = taskPlanningInput.rePlanningDate
     await taskPlan.save()
     taskPlan = taskPlan.toObject()
-    taskPlan.canMerge = true
+    taskPlan.canMove = true
     return {warnings: generatedWarnings, taskPlan: taskPlan, taskPlans: affectedTaskPlans}
 }
 

@@ -9,13 +9,13 @@ class RepositorySearch extends Component {
             selectedValue: SC.ALL,
             type: [SC.ALL, 'Feature', 'Task'],
             tags: [],
-            suggestions: this.props.estimation && this.props.estimation.technologies ? this.props.estimation.technologies : [],
+            suggestions: this.props.estimation && this.props.estimation.technologies ? this.props.estimation.technologies.map(f => f.name) : [],
             searchText: ''
         };
         this.props.estimation.technologies.map((f, i) => {
             this.state.tags.push({
                 id: this.state.tags.length + 1,
-                text: f
+                text: f.name
             });
         })
         this.handleDelete = this.handleDelete.bind(this);

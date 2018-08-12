@@ -31,9 +31,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error(json.message)
     }),
 
-    deleteTaskPlanningRow: (plan) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
+    deleteTaskPlanningRow: (plan, workCalendarEmployeeID) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
+            if (workCalendarEmployeeID && plan.employee._id.toString() == workCalendarEmployeeID.toString())
+                dispatch(A.getEmployeeWorkCalendarFromServer(workCalendarEmployeeID))
         }
         else {
             NotificationManager.error(json.message)
@@ -43,7 +45,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.reopenTaskPlanOnServer(task._id))
 
     },
-    openMoveTaskPlanForm: (releasePlan) => {
+    openMoveTaskPlanForm: (releasePlan, workCalendarEmployeeID) => {
+        releasePlan.workCalendarEmployeeID = workCalendarEmployeeID
         dispatch(initialize("move-task-planning", releasePlan))
         dispatch(A.showComponent(COC.MOVE_TASK_PLAN_DIALOG))
 

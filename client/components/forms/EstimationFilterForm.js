@@ -20,7 +20,7 @@ let EstimationFilterForm = (props) => {
                 </div>
                 <div>
                     <Field name="addedByNegotiator" component={renderCheckBox}
-                           label={"Currently Added By You"}
+                           label={"Added By You"}
                     />
                     <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"
                          className="filterFlag"
@@ -37,7 +37,7 @@ let EstimationFilterForm = (props) => {
                 </div>
                 <div>
                     <Field name="addedByEstimator" component={renderCheckBox}
-                           label={"Currently Added By: " + estimation.estimator.firstName + " " + estimation.estimator.lastName}
+                           label={"Added By: " + estimation.estimator.firstName + " " + estimation.estimator.lastName}
                     />
                     <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
                          className="filterFlag" title="Added by Estimator"/>
@@ -80,7 +80,7 @@ let EstimationFilterForm = (props) => {
                 </div>
                 <div>
                     <Field name="addedByEstimator" component={renderCheckBox}
-                           label={"Currently Added By You"}
+                           label={"Added By You"}
                     />
                     <img key="estimator_new_flag" src="/images/estimator_new_flag.png"
                          className="filterFlag" title="Added by Estimator"/>
@@ -103,7 +103,7 @@ let EstimationFilterForm = (props) => {
                 </div>
                 <div>
                     <Field name="addedByNegotiator" component={renderCheckBox}
-                           label={"Currently Added By: " + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
+                           label={"Added By: " + estimation.negotiator.firstName + " " + estimation.negotiator.lastName}
                     />
                     <img key="negotiator_new_flag" src="/images/negotiator_new_flag.png"
                          className="filterFlag"
@@ -130,12 +130,26 @@ let EstimationFilterForm = (props) => {
             </div>
 
             }
-            <button type="submit" disabled={pristine || submitting} className="btn customBtn  FilterBtn ">
-                Apply Filter
-            </button>
-            <button type="button" className="btn customBtn "
-                    onClick={() => props.clearFilter()}>Clear Filter
-            </button>
+
+            <div className={"col-md-12 text-center"}>
+
+                <button type="button" className="btn secondaryBtn"
+                        title={estimation.loggedInUserRole == SC.ROLE_ESTIMATOR ? 'Changed by ' + estimation.negotiator.firstName : 'Changed by ' + estimation.estimator.firstName}
+                        onClick={() => props.newChangedFilter(props.estimation.status)}><i
+                    className={"fa fa-pencil"}></i></button>
+                <button type="button" className="btn secondaryBtn" title={"Select All Filters"}
+                        onClick={() => props.selectAllFilter()}><i className={"fa fa-list"}></i></button>
+                <button type="button" className="btn secondaryBtn" title={"Clear All Filters"}
+                        onClick={() => props.clearFilter()}><i className={"fa fa-cut"}></i></button>
+            </div>
+
+            <div className={"col-md-12 text-center"} style={{marginTop: "15px"}}>
+
+                <button type="submit" disabled={pristine || submitting} className="btn customBtn  FilterBtn ">
+                    Apply Filter
+                </button>
+            </div>
+
         </div>
     </form>
 }

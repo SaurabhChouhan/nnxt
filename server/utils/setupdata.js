@@ -202,11 +202,12 @@ export const addInitialData = async () => {
 export const addNNXTData = async () => {
     await addRolesPermissions()
     await addNNXTUsers()
+    await addDevelopmentTypes()
     await addClients()
     await addProjects()
     await addLeaveTypes()
     await addTechnologies()
-    await addRepositoryTasksAndFeatures()
+    //await addRepositoryTasksAndFeatures()
     await addEmployeeSettings()
     await addLeaveSettings()
     await addEvents()
@@ -488,6 +489,7 @@ const addNNXTUsers = async () => {
 
 const addClients = async () => {
     console.log("SETTING UP CLIENTS ...")
+
     if (!await MDL.ClientModel.exists('Zaib')) {
         await MDL.ClientModel.saveClient({
             name: 'Zaib'
@@ -505,6 +507,25 @@ const addClients = async () => {
             name: 'Dean'
         })
     }
+
+    if (!await MDL.ClientModel.exists('Brian')) {
+        await MDL.ClientModel.saveClient({
+            name: 'Brian'
+        })
+    }
+
+    if (!await MDL.ClientModel.exists('Javed')) {
+        await MDL.ClientModel.saveClient({
+            name: 'Javed'
+        })
+    }
+
+    if (!await MDL.ClientModel.exists('Zakhir')) {
+        await MDL.ClientModel.saveClient({
+            name: 'Zakhir'
+        })
+    }
+
 }
 
 const addProjects = async () => {
@@ -512,16 +533,10 @@ const addProjects = async () => {
     let zaib = await MDL.ClientModel.findOne({name: 'Zaib'})
 
     if (zaib) {
+
         if (!await MDL.ProjectModel.exists('WFSM', zaib._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'WFSM',
-                client: zaib
-            })
-        }
-
-        if (!await MDL.ProjectModel.exists('Catalog', zaib._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'Catalog',
                 client: zaib
             })
         }
@@ -532,6 +547,28 @@ const addProjects = async () => {
                 client: zaib
             })
         }
+
+        if (!await MDL.ProjectModel.exists('Bridgechecker', zaib._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'Bridgechecker',
+                client: zaib
+            })
+        }
+
+        if (!await MDL.ProjectModel.exists('WifiScanner', zaib._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'WifiScanner',
+                client: zaib
+            })
+        }
+
+        if (!await MDL.ProjectModel.exists('WifiPerf', zaib._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'WifiPerf',
+                client: zaib
+            })
+        }
+
     }
 
     let mike = await MDL.ClientModel.findOne({name: 'Mike'})
@@ -559,6 +596,28 @@ const addProjects = async () => {
             await MDL.ProjectModel.saveProject({
                 name: 'Casebrief',
                 client: dean
+            })
+        }
+    }
+
+    let brian = await MDL.ClientModel.findOne({name: 'Brian'})
+
+    if (brian) {
+        if (!await MDL.ProjectModel.exists('Iconoland', brian._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'Iconoland',
+                client: brian
+            })
+        }
+    }
+
+    let javed = await MDL.ClientModel.findOne({name: 'Javed'})
+
+    if (javed) {
+        if (!await MDL.ProjectModel.exists('JCI', brian._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'JCI',
+                client: javed
             })
         }
     }
@@ -602,39 +661,99 @@ const addLeaveTypes = async () => {
 
 const addTechnologies = async () => {
     console.log("SETTING UP TECHNOLOGIES ...")
-    if (!await MDL.TechnologyModel.exists('React')) {
-        await MDL.TechnologyModel.saveTechnology({
-            name: 'React'
-        })
-    }
-    if (!await MDL.TechnologyModel.exists('Koa')) {
-        await MDL.TechnologyModel.saveTechnology({
-            name: 'Koa'
-        })
-    }
+
     if (!await MDL.TechnologyModel.exists('Node')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'Node'
         })
     }
-    if (!await MDL.TechnologyModel.exists('iOS')) {
+
+    if (!await MDL.TechnologyModel.exists('Objective-C')) {
         await MDL.TechnologyModel.saveTechnology({
-            name: 'iOS'
+            name: 'Objective-C'
         })
     }
+
+    if (!await MDL.TechnologyModel.exists('Swift')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Swift'
+        })
+    }
+
     if (!await MDL.TechnologyModel.exists('Android')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'Android'
         })
     }
+
     if (!await MDL.TechnologyModel.exists('Mac')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'Mac'
         })
     }
+
     if (!await MDL.TechnologyModel.exists('React Native')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'React Native'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('React')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'React'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('Angular')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Angular'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('Koa')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Koa'
+        })
+    }
+
+}
+
+const addDevelopmentTypes = async () => {
+    console.log("SETTING UP DEVELOPMENT TYPES ...")
+
+    if (!await MDL.DevelopmentModel.exists('Node Web Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'Node Web Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('iOS Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'iOS Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('Mac Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'Mac Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('Spring Web Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'Spring Web Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('Android Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'Android Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('React Native Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'React Native Development'
         })
     }
 }

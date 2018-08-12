@@ -10,6 +10,11 @@ let employeeReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 workCalendar: action.calendar
             })
+        case AC.RELEASE_PLAN_SELECTED:
+            // clear past work calendar as user selected release plan again
+            return Object.assign({}, state, {
+                workCalendar: {}
+            })
         default:
             return state
     }

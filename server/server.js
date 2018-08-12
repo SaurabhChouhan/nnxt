@@ -17,6 +17,8 @@ import logger from './logger'
 import {HTTP_SERVER_ERROR} from "./errorcodes"
 import * as H from './eventhandlers/handlers'
 import * as SC from './serverconstants'
+import locale from 'koa-locale'
+import i18n from 'koa-i18n'
 
 // Initializing configuration first and then starting application
 co(async () => {
@@ -60,10 +62,31 @@ co(async () => {
     }
     let app = new Koa()
 
+    locale(app)
+
+
     app.use(cookie())
     app.use(koaBody({multipart: true, formidable: {keepExtensions: true}}))
     app.keys = ['A secret that no one knows']
     app.use(koaSession({}, app))
+
+
+    // i18n support
+    app.use(i18n(app, {
+        directory: './locales',
+        locales: ['en-US', 'en'],
+        modes: [
+            'query',                //  optional detect querystring - `/?locale=en-US`
+            'subdomain',            //  optional detect subdomain   - `zh-CN.koajs.com`
+            'cookie',               //  optional detect cookie      - `Cookie: locale=zh-TW`
+            'header',               //  optional detect header      - `Accept-Language: zh-CN,zh;q=0.5`
+            'url',                  //  optional detect url         - `/en`
+            'tld',                  //  optional detect tld(the last domain) - `koajs.cn`
+            function () {
+            }           //  optional custom function (will be bound to the koa context)
+        ]
+    }))
+
 
 // authentication
     require('./auth')
@@ -116,11 +139,19 @@ co(async () => {
         } catch (err) {
             logger.error("Server ERROR:", {error: err})
             ctx.status = err.status || HTTP_SERVER_ERROR
+
+            let message = err.message
+            if (err.i18nkey) {
+                // i18n key is set need to convert message
+                message = ctx.i18n.__(err.i18nkey)
+            }
+
             ctx.body = ctx.body = {
                 success: false,
                 code: err.code,
-                message: err.message,
-                errors: err.errors
+                message: message,
+                errors: err.errors,
+                i18nkey: err.i18nkey
             }
             ctx.app.emit('error', err, ctx);
         }
@@ -141,7 +172,7 @@ co(async () => {
 
     let t;
     const startEventExecutor = async () => {
-        console.log("["+new Date()+"]: Executing events...")
+        console.log("[" + new Date() + "]: Executing events...")
         await H.executeEvents()
         clearTimeout(t)
         t = setTimeout(startEventExecutor, SC.EVENT_INTERVAL)
