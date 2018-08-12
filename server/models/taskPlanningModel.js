@@ -1361,6 +1361,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      */
 
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
+    
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
@@ -1373,6 +1374,9 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     if (taskPlan.report.reportedOnDate)
         throw new AppError('Task is already reported, cannot delete!', EC.ALREADY_REPORTED, EC.HTTP_BAD_REQUEST)
 
+    if (_.includes([SC.REPORT_COMPLETED, SC.REPORT_PENDING], taskPlan.report.status)) {
+        throw new AppError('Task is already reported, cannot delete!', EC.ALREADY_REPORTED, EC.HTTP_BAD_REQUEST)
+    }
     let plannedHourNumber = Number(taskPlan.planning.plannedHours)
 
     /*------------------------------ EMPLOYEE STATISTICS UPDATES ----------------------------------------------*/
@@ -1439,7 +1443,7 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         throw new AppError('Cannot move past tasks', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
 
-    if(taskPlanningDateInIndia.isSame(rePlanningDateInIndia))
+    if (taskPlanningDateInIndia.isSame(rePlanningDateInIndia))
         throw new AppError('Cannot move to same date', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
@@ -1709,7 +1713,7 @@ const getFutureShiftDates = async (shiftInput, shiftingStartMoment, employee, re
                 // Task is planned on business day
                 logger.debug('shiftTasksToFuture(): planning date [' + dateWithPlans + '] is part of business day')
 
-                if(index + daysToShiftNumber + 1 > daysDetails.AllWorkingDayList.length)
+                if (index + daysToShiftNumber + 1 > daysDetails.AllWorkingDayList.length)
                     throw new AppError("Insufficient working days ", EC.INSUFFICIENT_WORKING_DAYS, EC.HTTP_SERVER_ERROR)
 
                 let newShiftingDate = daysDetails.AllWorkingDayList[index + daysToShiftNumber]
@@ -1901,7 +1905,7 @@ const getPastShiftDates = async (shiftInput, shiftingStartMoment, employee, rele
                 // Task is planned on business day
                 logger.debug('getPastShiftDates(): planning date [' + dateWithPlans + '] is part of business day')
 
-                if(index - daysToShiftNumber < 0)
+                if (index - daysToShiftNumber < 0)
                     throw new AppError("Insufficient working days ", EC.INSUFFICIENT_WORKING_DAYS, EC.HTTP_SERVER_ERROR)
 
                 let newShiftingDate = daysDetails.AllWorkingDayList[index - daysToShiftNumber]
