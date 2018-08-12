@@ -4,6 +4,7 @@ import * as EC from '../errorcodes'
 import * as SC from "../serverconstants"
 import * as V from "../validation"
 import {userHasRole} from "../utils"
+import * as U from "../utils"
 import * as MDL from "../models"
 import _ from 'lodash'
 import logger from '../logger'
@@ -112,6 +113,8 @@ const addTaskByEstimator = async (taskInput, estimator) => {
         throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
     }
 
+    taskInput.estimatedHours = U.twoDecimalHours(taskInput.estimatedHours)
+
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
         let estimationFeature = await MDL.EstimationFeatureModel.findById(taskInput.feature._id)
@@ -148,13 +151,6 @@ const addTaskByEstimator = async (taskInput, estimator) => {
             })
         }
     }
-
-
-    /*
-    if (estimation && estimation._id) {
-        await MDL.EstimationModel.updateOne({_id: estimation._id}, {$inc: {"estimatedHours": taskInput.estimatedHours}})
-    }
-    */
 
     // Modify estimation
     estimation.estimatedHours += taskInput.estimatedHours
@@ -219,6 +215,8 @@ const addTaskByNegotiator = async (taskInput, negotiator) => {
     if (taskInput.estimatedHours < 1) {
         throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
     }
+
+    taskInput.estimatedHours = U.twoDecimalHours(taskInput.estimatedHours)
 
     if (taskInput.feature && taskInput.feature._id) {
         // task is part of some feature,
@@ -374,6 +372,8 @@ const updateTaskByEstimator = async (newTaskInput, estimationTask, estimation, e
         throw new AppError("Estimated hours should be at least 1", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
+    newTaskInput.estimatedHours = U.twoDecimalHours(newTaskInput.estimatedHours)
+
     if (!estimationTask.negotiator.estimatedHours) {
         estimationTask.negotiator.estimatedHours = 0
     }
@@ -513,6 +513,8 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
     if (newTaskInput.estimatedHours < 1) {
         throw new AppError("", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST, "estimation.add.atleast1hour")
     }
+
+    newTaskInput.estimatedHours = U.twoDecimalHours(newTaskInput.estimatedHours)
 
     if (estimationTask.feature && estimationTask.feature._id) {
         estimationFeatureObj = await MDL.EstimationFeatureModel.findById(mongoose.Types.ObjectId(estimationTask.feature._id))
