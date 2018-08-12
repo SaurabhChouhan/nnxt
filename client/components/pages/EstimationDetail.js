@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import * as SC from '../../../server/serverconstants'
 import {ConfirmationDialog} from "../"
+import {NewConfirmationDialog} from "../dialogs/ConfirmationDialog";
 import {EstimationFeaturesContainer, EstimationTasksContainer, RepositorySearchContainer} from "../../containers"
 import * as logger from '../../clientLogger'
 import _ from 'lodash'
@@ -121,22 +122,38 @@ class EstimationDetail extends Component {
                     }
                     {
                         this.state.showEstimationRequestDialog &&
-                        <ConfirmationDialog show={true} onConfirm={this.onConfirmEstimationRequest.bind(this)}
-                                            title="Estimation Request" onClose={this.onClose.bind(this)}
-                                            body="You are about to send 'Estimation Request' to Estimator of this Estimation. Please confirm!"/>
+                        <NewConfirmationDialog show={true} onConfirm={this.onConfirmEstimationRequest.bind(this)}
+                                               title="Estimation Request" onClose={this.onClose.bind(this)}
+                        >
+                            <div>This will send an 'Estimation Request' to
+                                <span className={"highlightText"}> {this.props.estimation.estimator.firstName}</span> so
+                                that appropriate estimates can be added.
+                                You will be unable to edit it until <span
+                                    className={"highlightText"}> {this.props.estimation.estimator.firstName}</span> sends
+                                estimation back for your review. Please confirm.
+                            </div>
+                        </NewConfirmationDialog>
                     }
                     {
                         this.state.showEstimationApproveDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmEstimationApprove.bind(this)}
                                             title="Estimation Approve" onClose={this.onClose.bind(this)}
-                                            body="Are you sure you want to approve this estimation. Please confirm!"/>
+                                            body={`Approving estimation means that you are satisfied with this estimation and now locking it. Neither you nor ${this.props.estimation.estimator.firstName} would be able to change anything in estimation. You can re-open estimation anytime to start modifying it again. Please confirm!`}/>
                     }
 
                     {
                         this.state.showEstimationChangeDialog &&
-                        <ConfirmationDialog show={true} onConfirm={this.onConfirmChangeRequest.bind(this)}
-                                            title="Change Request" onClose={this.onClose.bind(this)}
-                                            body="You are about to send 'Change Request' to Estimator of this Estimation. Please confirm!"/>
+                        <NewConfirmationDialog show={true} onConfirm={this.onConfirmChangeRequest.bind(this)}
+                                               title="Change Request" onClose={this.onClose.bind(this)}>
+                            <div>This will send an 'Change Request' to
+                                <span className={"highlightText"}> {this.props.estimation.estimator.firstName}</span> so
+                                that he can make appropriate changes to estimation as per your suggestions.
+                                You will be unable to edit it until <span
+                                    className={"highlightText"}> {this.props.estimation.estimator.firstName}</span> sends
+                                estimation back for your review. Please confirm.
+                            </div>
+                        </NewConfirmationDialog>
+
                     }
 
                     {
@@ -146,8 +163,8 @@ class EstimationDetail extends Component {
                                             dialogName={SC.DIALOG_ESTIMATION_REQUEST_REVIEW}
                                             hasError={this.props.estimation.hasError}
                                             body={this.props.estimation && this.props.estimation.hasError ?
-                                                "There are some tasks/features that have information missing which would prevent Negotiator from approving them during his review. Press 'Cancel' to add missing information or press Confirm to send Estimation for review" :
-                                                "You are about to send 'Review Request' to Negotiator of this Estimation. Please confirm!"
+                                                `There are still few tasks/features that have estimated hours missing. This would prevent ${this.props.estimation.negotiator.firstName} from approving them during his review and hence estimation would need to be send back to you. Press 'Cancel' to add missing information or press Confirm to send Estimation for review` :
+                                                `You are about to send 'Review Request' to ${this.props.estimation.negotiator.firstName}. Please note ${this.props.estimation.negotiator.firstName} would be able to approve all tasks/features  Please confirm!`
                                             }
                         />
                     }
@@ -155,13 +172,15 @@ class EstimationDetail extends Component {
                         this.state.showEstimationReopenDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmReopen.bind(this)}
                                             title="Estimation Reopen" onClose={this.onClose.bind(this)}
-                                            body="Are you sure you want to reopen this estimation. Please confirm!"/>
+                                            body="Reopening an estimation means you would like to make changes to this estimation. Please confirm!"/>
                     }
                     {
                         this.state.showEstimationDeleteDialog &&
                         <ConfirmationDialog show={true} onConfirm={this.onConfirmDelete.bind(this)}
+                                            dialogName={SC.DIALOG_ESTIMATION_REQUEST_REVIEW}
                                             title="Estimation Delete" onClose={this.onClose.bind(this)}
-                                            body="Are you sure you want to delete this estimation. Please confirm!"/>
+                                            hasError={true}
+                                            body="Deleting this estimation would remove it from database. This operation cannot be reversed. Please confirm!!!"/>
                     }
 
 
@@ -239,112 +258,118 @@ class EstimationDetail extends Component {
                     </div>
                 </div>
 
-                <div className="col-md-12 ">
-                    <div className="col-md-2 pad">
-                        <div className="estimationuser tooltip"><span>C</span>
-                            <p className="tooltiptext">{estimation.client ? estimation.client.name : ''}</p>
-                        </div>
-                        <div className="estimationuser tooltip"><span>N</span>
-                            <p className="tooltiptext">{estimation.negotiator ? estimation.negotiator.firstName : ''}</p>
-                        </div>
-                        <div className="estimationuser tooltip"><span>E</span>
-                            <p className="tooltiptext">{estimation.estimator ? estimation.estimator.firstName : ''}</p>
-                        </div>
-                    </div>
-                    <div className="col-md-2">
-                        <div className="logo">
+                < div
+                    className="col-md-12 ">
+                    < div
+                        className="col-md-2 pad">
+                        < div
+                            className="estimationuser tooltip"> < span> C < /span>
+        <p className="tooltiptext">{estimation.client ? estimation.client.name : ''}</p>
+        <
+                            /div>
+        <div className="estimationuser tooltip"><span>N</span>
+            <p className="tooltiptext">{estimation.negotiator ? estimation.negotiator.firstName : ''}</p>
+        </div>
+        < div
+            className="estimationuser tooltip"> < span> E < /span>
+        <p className="tooltiptext">{estimation.estimator ? estimation.estimator.firstName : ''}</p>
+        <
+            /div>
+    </div>
+        <div className="col-md-2">
+            <div className="logo">
 
-                            {
-                                estimation.technologies.map(t =>
-                                    <img src={"/images/technology/" + t.name.replace(' ', '_') + ".png"}/>
-                                )
-                            }
+                {
+                    estimation.technologies.map(t =>
+                        <img src={"/images/technology/" + t.name.replace(' ', '_') + ".png"}/>
+                    )
+                }
 
-                            {/*
+                {/*
                             <img src="/images/react.png"/>
                             <img src="/images/mongodb.png"/>
                               <img src="/images/node.png"/>
                              */}
 
-                        </div>
-                    </div>
-
-                    <div className="col-md-5">
-                        {(userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
-                            userRoleInThisEstimation === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-                        && <form>
-                            <button type="button" className="btn taskbtn"
-                                    onClick={() => this.props.showAddTaskForm(estimation)}><i
-                                className="fa fa-plus-circle"></i>
-                                Add Task
-                            </button>
-                            <button type="button" className="btn featurebtn"
-                                    onClick={() => this.props.showAddFeatureForm(estimation)}
-                            ><i className="fa fa-plus-circle"></i>
-                                Add Feature
-                            </button>
-                        </form>}
-                    </div>
-                    <div className="col-md-3">
-                        <div className="col-md-6  esTime">
-                            <b>{estimation.estimatedHours + " Hrs"}</b>
-                            <div className="clock">
-                                <i className="fa fa-clock-o " title="estimated Hours"></i>
-                            </div>
-
-                        </div>
-                        <div className="col-md-6  esTime">
-                            <b>{estimation.suggestedHours + " Hrs"}</b>
-                            <div className="suggestedclock">
-                                <i className="fa fa-clock-o " title="Suggeted Hours"></i>
-                            </div>
-
-                        </div>
-                    </div>
-
-
-                </div>
-
-                <div className=" col-md-12">
-                    <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
-                    <div className="col-md-2 col-md-offset-4">
-                        <button style={{float: 'right'}} type="button" className="btn customBtn" onClick={
-                            () => {
-                                this.props.refreshEstimation(estimation)
-                            }}><i className="fa fa-refresh"></i></button>
-                    </div>
-                </div>
-                <div className="col-md-12">
-                    <EstimationFeaturesContainer estimationStatus={estimation.status}
-                                                 editView={editView}
-                                                 loggedInUserRole={userRoleInThisEstimation}/>
-                </div>
-                <br/>
-                <div className="col-md-12">
-                    <EstimationTasksContainer estimationStatus={estimation.status}
-                                              editView={editView}
-                                              loggedInUserRole={userRoleInThisEstimation}/>
-                </div>
-                {(estimation.status === SC.STATUS_APPROVED) && (userRoleInThisEstimation === SC.ROLE_NEGOTIATOR) &&
-                <div className="col-md-12">
-                    <button type="button" className="btn customBtn" onClick={
-                        () => {
-                            this.props.showProjectAwardForm(estimation)
-                        }}>Create Release
-                    </button>
-                    <button type="button" className="btn customBtn" onClick={
-                        () => {
-                            this.props.showAddToReleaseForm(estimation)
-                        }}>Add to Release
-                    </button>
-                </div>}
             </div>
-            <div className="col-md-4 estimationsection pad">
-                <RepositorySearchContainer editView={editView}/>
             </div>
+
+            <div className="col-md-5">
+                {(userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
+                    userRoleInThisEstimation === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+                && <form>
+                    <button type="button" className="btn taskbtn"
+                            onClick={() => this.props.showAddTaskForm(estimation)}><i
+                        className="fa fa-plus-circle"></i>
+                        Add Task
+                    </button>
+                    <button type="button" className="btn featurebtn"
+                            onClick={() => this.props.showAddFeatureForm(estimation)}
+                    ><i className="fa fa-plus-circle"></i>
+                        Add Feature
+                    </button>
+                </form>}
+            </div>
+            <div className="col-md-3">
+            <div className="col-md-6  esTime">
+            <b>{estimation.estimatedHours + " Hrs"}</b>
+        <div className="clock">
+            <i className="fa fa-clock-o " title="estimated Hours"></i>
+            </div>
+
         </div>
-    }
+        <div className="col-md-6  esTime">
+            <b>{estimation.suggestedHours + " Hrs"}</b>
+            <div className="suggestedclock">
+            <i className="fa fa-clock-o " title="Suggeted Hours"></i>
+        </div>
 
-}
+    </div>
+    </div>
 
-export default EstimationDetail
+
+                        </div>
+
+                        <div className=" col-md-12">
+                            <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
+                            <div className="col-md-2 col-md-offset-4">
+                                <button style={{float: 'right'}} type="button" className="btn customBtn" onClick={
+                                    () => {
+                                        this.props.refreshEstimation(estimation)
+                                    }}><i className="fa fa-refresh"></i></button>
+                            </div>
+                        </div>
+                        <div className="col-md-12">
+                            <EstimationFeaturesContainer estimationStatus={estimation.status}
+                                                         editView={editView}
+                                                         loggedInUserRole={userRoleInThisEstimation}/>
+                        </div>
+                        <br/>
+                        <div className="col-md-12">
+                            <EstimationTasksContainer estimationStatus={estimation.status}
+                                                      editView={editView}
+                                                      loggedInUserRole={userRoleInThisEstimation}/>
+                        </div>
+                        {(estimation.status === SC.STATUS_APPROVED) && (userRoleInThisEstimation === SC.ROLE_NEGOTIATOR) &&
+                        <div className="col-md-12">
+                            <button type="button" className="btn customBtn" onClick={
+                                () => {
+                                    this.props.showProjectAwardForm(estimation)
+                                }}>Create Release
+                            </button>
+                            <button type="button" className="btn customBtn" onClick={
+                                () => {
+                                    this.props.showAddToReleaseForm(estimation)
+                                }}>Add to Release
+                            </button>
+                        </div>}
+                    </div>
+                    <div className="col-md-4 estimationsection pad">
+                        <RepositorySearchContainer editView={editView}/>
+                    </div>
+                </div>
+                }
+
+                }
+
+                export default EstimationDetail

@@ -354,7 +354,7 @@ class EstimationFeature extends React.PureComponent {
                             <img key="negotiator_edit_flag" src="/images/negotiator_edit_flag.png"
                                  title="Edited by Negotiator"></img>
                         </div>}
-                        {feature.estimator && feature.estimator.requestedInThisIteration && (feature.estimator.changeRequested || feature.estimator.removalRequested  ) &&
+                        {feature.estimator && feature.estimator.requestedInThisIteration && (feature.estimator.changeRequested || feature.estimator.removalRequested) &&
                         <div className="flagStrip">
                             <img key="request_flag" src="/images/request_flag.png"
                                  title="Requested by Estimator"></img>
@@ -387,13 +387,13 @@ class EstimationFeature extends React.PureComponent {
                     className={feature.estimator && feature.estimator.estimatedHours ? "col-md-3 " : "col-md-3 infoHighliter"}>
                     <h4 title={feature.estimator && feature.estimator.estimatedHours ? feature.estimator.estimatedHours : "Feature is not having task inside it hence no Estimated Hours "}>
                         Estimated:</h4>
-                    <h4>&nbsp;{feature.estimator.estimatedHours} {feature.estimator.estimatedHours && 'Hrs'}</h4>
+                    <h4>&nbsp;{typeof(feature.estimator.estimatedHours) == 'number' ? feature.estimator.estimatedHours + ' Hrs' : ''}</h4>
                 </div>
             }
             <div className="col-md-3">
                 <h4 title={feature.negotiator.estimatedHours ? feature.negotiator.estimatedHours : "feature is not having task inside it hence no Suggested Hours"}>
                     Suggested:</h4>
-                <h4>&nbsp;{feature.negotiator.estimatedHours} {feature.negotiator.estimatedHours && 'Hrs'}</h4>
+                <h4>&nbsp;{typeof(feature.negotiator.estimatedHours) == 'number' ? feature.negotiator.estimatedHours + ' Hrs' : ''}</h4>
             </div>
 
             <div className="col-md-6 text-right estimationActions">

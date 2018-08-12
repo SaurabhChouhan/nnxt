@@ -29,7 +29,7 @@ let estimationFeatureSchema = mongoose.Schema({
     estimator: {
         name: {type: String},
         description: {type: String},
-        estimatedHours: {type: Number, default: 0},
+        estimatedHours: {type: Number},
         changeRequested: {type: Boolean, default: false},
         changedKeyInformation: {type: Boolean, default: false},
         removalRequested: {type: Boolean, default: false},
@@ -39,7 +39,7 @@ let estimationFeatureSchema = mongoose.Schema({
     negotiator: {
         name: {type: String},
         description: {type: String},
-        estimatedHours: {type: Number, default: 0},
+        estimatedHours: {type: Number},
         changeSuggested: {type: Boolean, default: false},
         changedInThisIteration: {type: Boolean, default: false},
         changeGranted: {type: Boolean, default: false},
@@ -92,8 +92,8 @@ const addFeatureByEstimator = async (featureInput, estimator) => {
     let estimationFeature = new EstimationFeatureModel()
     estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
-    estimationFeature.estimator.estimatedHours = featureInput.estimatedHours
-    estimationFeature.negotiator.estimatedHours = 0
+    //estimationFeature.estimator.estimatedHours = featureInput.estimatedHours
+    //estimationFeature.negotiator.estimatedHours = 0
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
     estimationFeature.canApprove = false
@@ -140,8 +140,8 @@ const addFeatureByNegotiator = async (featureInput, negotiator) => {
     estimationFeature.estimator.name = featureInput.name
     estimationFeature.estimator.description = featureInput.description
 
-    estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours
-    estimationFeature.estimator.estimatedHours = 0
+    //estimationFeature.negotiator.estimatedHours = featureInput.estimatedHours
+    //estimationFeature.estimator.estimatedHours = 0
     estimationFeature.negotiator.changeSuggested = true
     estimationFeature.status = SC.STATUS_PENDING
     estimationFeature.addedInThisIteration = true
