@@ -145,9 +145,9 @@ class EstimationDetail extends Component {
                         this.state.showEstimationChangeDialog &&
                         <NewConfirmationDialog show={true} onConfirm={this.onConfirmChangeRequest.bind(this)}
                                                title="Change Request" onClose={this.onClose.bind(this)}>
-                            <div>This will send an 'Change Request' to
+                            <div>This will send a 'Change Request' to
                                 <span className={"highlightText"}> {this.props.estimation.estimator.firstName}</span> so
-                                that he can make appropriate changes to estimation as per your suggestions.
+                                that appropriate changes can be made to estimation as per your suggestions.
                                 You will be unable to edit it until <span
                                     className={"highlightText"}> {this.props.estimation.estimator.firstName}</span> sends
                                 estimation back for your review. Please confirm.
@@ -163,8 +163,8 @@ class EstimationDetail extends Component {
                                             dialogName={SC.DIALOG_ESTIMATION_REQUEST_REVIEW}
                                             hasError={this.props.estimation.hasError}
                                             body={this.props.estimation && this.props.estimation.hasError ?
-                                                `There are still few tasks/features that have estimated hours missing. This would prevent ${this.props.estimation.negotiator.firstName} from approving them during his review and hence estimation would need to be send back to you. Press 'Cancel' to add missing information or press Confirm to send Estimation for review` :
-                                                `You are about to send 'Review Request' to ${this.props.estimation.negotiator.firstName}. Please note ${this.props.estimation.negotiator.firstName} would be able to approve all tasks/features  Please confirm!`
+                                                `There are still few tasks/features that have estimated hours missing. This would prevent ${this.props.estimation.negotiator.firstName} from approving them during review and hence estimation would need to be send back to you needing extra iteration for completion. Press 'Cancel' to add missing information or press Confirm to send Estimation for review` :
+                                                `You are about to send 'Review Request' to ${this.props.estimation.negotiator.firstName}. Please note , any estimates given by you would be considered final and ${this.props.estimation.negotiator.firstName} would be able to approve them without needing further changes from you. Please confirm!`
                                             }
                         />
                     }

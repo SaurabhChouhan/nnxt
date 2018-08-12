@@ -1681,7 +1681,6 @@ estimationTaskSchema.statics.grantReOpenPermissionOfTask = async (taskID, user) 
     if (!task)
         throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-
     if (!task.estimation || !task.estimation._id)
         throw new AppError('Estimation Identifier required at [estimation._id]', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -1709,7 +1708,7 @@ const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotia
     if (estimation.negotiator._id.toString() !== negotiator._id.toString())
         throw new AppError('Not an negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if (!task.addedInThisIteration || task.owner !== SC.OWNER_NEGOTIATOR)
+    if (!task.addedInThisIteration)
         task.negotiator.changedInThisIteration = true
 
     let estimationFeatureObj
@@ -1744,7 +1743,7 @@ const grantReOpenPermissionOfTaskByNegotiator = async (task, estimation, negotia
     }
 
     task.negotiator.changeGranted = !task.negotiator.changeGranted
-    task.canApprove = false
+    task.canApprove = true // even though negotiator granted permission it can still change his mind and approve task
     task.status = SC.STATUS_PENDING
     task.updated = Date.now()
     await task.save()
@@ -1823,17 +1822,18 @@ const approveTaskByNegotiator = async (task, estimation, negotiator) => {
     if (task.negotiator.estimatedHours == 0)
         task.negotiator.estimatedHours = task.estimator.estimatedHours
 
-    task.negotiator.changeSuggested = false
+    //task.negotiator.changeSuggested = false
     task.negotiator.changeGranted = false
-    task.negotiator.changedInThisIteration = false
-    task.negotiator.isMovedToFeature = false
-    task.negotiator.isMovedOutOfFeature = false
-    task.estimator.changeRequested = false
-    task.estimator.changedKeyInformation = false
-    task.estimator.removalRequested = false
-    task.estimator.changedInThisIteration = false
-    task.estimator.isMovedToFeature = false
-    task.estimator.isMovedOutOfFeature = false
+    task.negotiator.changedInThisIteration = true
+    //task.negotiator.changedInThisIteration = false
+    //task.negotiator.isMovedToFeature = false
+    //task.negotiator.isMovedOutOfFeature = false
+    //task.estimator.changeRequested = false
+    //task.estimator.changedKeyInformation = false
+    //task.estimator.removalRequested = false
+    //task.estimator.changedInThisIteration = false
+    //task.estimator.isMovedToFeature = false
+    //task.estimator.isMovedOutOfFeature = false
     task.status = SC.STATUS_APPROVED
     task.canApprove = false
     task.updated = Date.now()
@@ -2238,6 +2238,7 @@ const reOpenTaskByNegotiator = async (task, estimation, negotiator) => {
 
     task.status = SC.STATUS_PENDING
     task.canApprove = true
+    task.negotiator.changedInThisIteration = true
     await task.save()
     task = task.toObject()
 

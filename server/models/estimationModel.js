@@ -378,18 +378,16 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
 
         if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
             estimationTaskPromises = EstimationPendingTasks.map(async task => {
-                if (task.estimator.changeRequested
-                    || (!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
+                if ((!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
                     || _.isEmpty(task.estimator.name)
                     || _.isEmpty(task.estimator.description)) {
                     return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'canApprove': false})
                 } else return MDL.EstimationTaskModel.updateOne({_id: task._id}, {'canApprove': true})
 
             })
-
             estimationTasks = await Promise.all(estimationTaskPromises)
-
         }
+
         if (EstimationPendingTasks && (EstimationPendingTasks.length)) {
             estimationTaskPromises = EstimationPendingTasks.map(async task => {
                 if ((!task.estimator.estimatedHours || task.estimator.estimatedHours == 0)
@@ -409,8 +407,7 @@ estimationSchema.statics.canApprove = async (estimationID, estimator) => {
             if (EstimationPendingFeatures && EstimationPendingFeatures.length) {
 
                 let estimationFeaturePromises = EstimationPendingFeatures.map(async feature => {
-                    if (feature.estimator.changeRequested
-                        || (!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
+                    if ((!feature.estimator.estimatedHours || feature.estimator.estimatedHours == 0)
                         || _.isEmpty(feature.estimator.name)
                         || _.isEmpty(feature.estimator.description)) {
                         // console.log("bk 6")

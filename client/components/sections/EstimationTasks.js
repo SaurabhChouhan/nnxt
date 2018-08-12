@@ -18,12 +18,12 @@ let EstimationTasks = (props) => {
                                         expanded={true}/> :
                         <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
                 } else {
-                    if (changedByNegotiator && t.negotiator && t.negotiator.changeSuggested) {
+                    if (changedByNegotiator && t.negotiator && (t.negotiator.changeSuggested || t.negotiator.changedInThisIteration)) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}  />
-                    } else if (changedByEstimator && t.estimator && t.estimator.changedKeyInformation) {
+                    } else if (changedByEstimator && t.estimator && (t.estimator.changedKeyInformation || t.estimator.changedInThisIteration)) {
                         return (expandedTaskID === t._id) ?
                             <EstimationTask task={t} index={idx} key={"task" + idx}  {...childProps}
                                             expanded={true}/> :
