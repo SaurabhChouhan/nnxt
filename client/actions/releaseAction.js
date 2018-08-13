@@ -41,6 +41,11 @@ export const releaseSelected = (release) => ({
     release: release
 })
 
+export const releaseTabSelected = (tab) => ({
+    type: AC.RELEASE_TAB_SELECTED,
+    tab: tab
+})
+
 export const releasePlanSelected = (releasePlan) => ({
     type: AC.RELEASE_PLAN_SELECTED,
     releasePlan: releasePlan
