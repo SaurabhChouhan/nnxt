@@ -91,7 +91,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     formatPlanningDate(row) {
         if (row && !_.isEmpty(row)) {
-            return moment(row, 'YYYY-MM-DD').format(SC.DATE_SHOW)
+            return moment(row, SC.DATE_SHOW).format(SC.DATE_SHOW)
             //return row
         }
         return ''
@@ -290,7 +290,8 @@ class ReleaseTaskPlanningPage extends Component {
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
                                                    width={"10%"}
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned</TableHeaderColumn>
+                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                                    Hours</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
                                                    dataFormat={this.formatDeveloper.bind(this)}
                                                    width={"20%"}>Developer</TableHeaderColumn>

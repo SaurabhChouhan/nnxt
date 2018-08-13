@@ -260,10 +260,11 @@ export const COMMENT_FYI_ONLY = 'FYI Only'
 
 //Dialog Names
 export const DIALOG_ESTIMATION_REQUEST_REVIEW = 'dialog-request-review'
-export const WARNINGS_LIST = 'Warning List'
-export const TASK_PLANS_LIST = 'Task Plan List'
-export const TASK_REPORT_LIST = 'Task Report List'
-export const RELEASE_PLAN_LIST = 'Release Plan List'
+export const RELEASE_DASHBOARD_TAB = 'RELEASE_DASHBOARD_TAB'
+export const RELEASE_WARNINGS_TAB = 'RELEASE_WARNINGS_TAB'
+export const RELEASE_TASK_PLANS_TAB = 'RELEASE_TASK_PLANS_TAB'
+export const RELEASE_REPORT_TAB = 'RELEASE_REPORT_TAB'
+export const RELEASE_PLAN_TAB = 'RELEASE_PLAN_TAB'
 
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]

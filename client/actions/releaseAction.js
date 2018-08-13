@@ -41,6 +41,11 @@ export const releaseSelected = (release) => ({
     release: release
 })
 
+export const releaseTabSelected = (tab) => ({
+    type: AC.RELEASE_TAB_SELECTED,
+    tab: tab
+})
+
 export const releasePlanSelected = (releasePlan) => ({
     type: AC.RELEASE_PLAN_SELECTED,
     releasePlan: releasePlan
@@ -203,6 +208,8 @@ export const getAllTaskPlannedFromServer = (releasePlanID) => {
             json => {
                 if (json.success) {
                     dispatch(addReleaseTaskPlannings(json.data))
+                    dispatch(addDeveloperFilteredData([]))
+                    dispatch(setDevelopersSchedule([]))
                 }
                 return json
             })
@@ -430,6 +437,8 @@ export const shiftTasksToFutureOnServer = (shift) => {
             json => {
                 if (json.success) {
                     dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
+                    dispatch(addDeveloperFilteredData([]))
+                    dispatch(setDevelopersSchedule([]))
                 }
                 return json
             })
@@ -455,6 +464,8 @@ export const shiftTasksToPastOnServer = (shift) => {
             json => {
                 if (json.success) {
                     dispatch(getAllTaskPlannedFromServer(state.release.selectedReleasePlan._id))
+                    dispatch(addDeveloperFilteredData([]))
+                    dispatch(setDevelopersSchedule([]))
                 }
                 return json
             })
@@ -580,6 +591,7 @@ export const releasePlanPlannedAddToReleaseOnServer = (formInput) => {
         )
     }
 }
+
 export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {
     return function (dispatch, getState) {
         return fetch('/api/releases/add-unplanned-task ',
