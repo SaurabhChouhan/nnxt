@@ -209,7 +209,6 @@ button.customBtn:hover {
     border: 2px solid #FF534F;
 }
 
-
 button.secondaryBtn, button.secondaryBtn:focus {
     background: #75acf1;
     color: #fff;
@@ -226,7 +225,6 @@ button.secondaryBtn:hover {
     color: #75acf1;
     border: 2px solid #75acf1;
 }
-
 
 .sidebar-wrapper {
     float: left;
@@ -2183,4 +2181,10 @@ hr {
 .commentInputPadding {
     padding-left: 3px;
 }
+
+.chartSection {
+    background: #f5f5f6;
+    margin-top: 15px
+}
+
 
