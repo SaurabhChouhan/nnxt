@@ -77,7 +77,6 @@ class DashboardSection extends Component {
 
         let baseHour = this.props.plannedVsReported.baseHour
 
-        const {selectedReleaseID, allReleases} = this.props
         return <div>
             <div className={"col-md-6"} style={{marginRight:"0px"}}>
                 <div className={"chartSection"}>
