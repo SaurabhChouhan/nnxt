@@ -13,7 +13,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     showModuleCreationForm: () => {
         dispatch(A.showComponent(COC.MODULE_FORM_DIALOG))
     },
-    deleteModule: (moduleID) => dispatch(A.deleteModuleOnServer(projectID)).then(json => {
+    deleteModule: (moduleID) => dispatch(A.deleteModuleOnServer(moduleID)).then(json => {
         if (json.success) {
             NotificationManager.success('Module Removed Successfully')
         } else {

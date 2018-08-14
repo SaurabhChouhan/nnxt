@@ -58,9 +58,10 @@ class ModuleList extends Component {
     }
 
     render() {
+
         return (
             <div>{this.state.showModuleDeletionDialog &&
-            <ConfirmationDialog show={true} onConfirm={this.OkConfirmationForDeletingModule().bind(this)}
+            <ConfirmationDialog show={true} onConfirm={this.OkConfirmationForDeletingModule.bind(this)}
                                 title={CM.DELETE_MODULE} onClose={this.onClose.bind(this)}
                                 body={CM.DELETE_MODULE_BODY}/>
             }

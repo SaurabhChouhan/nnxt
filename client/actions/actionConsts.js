@@ -77,6 +77,7 @@ export const EDIT_PROJECT = "EDIT_PROJECT"
 export const DELETE_PROJECT = "DELETE_PROJECT"
 
 //module constants
+export const ADD_MODULES = "ADD_MODULES"
 export const ADD_MODULE = "ADD_MODULE"
 export const EDIT_MODULE = "EDIT_MODULE "
 export const DELETE_MODULE = "DELETE_MODULE "

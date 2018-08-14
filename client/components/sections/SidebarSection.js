@@ -105,6 +105,7 @@ const SidebarSection = (props) => {
                             roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 &&
                             <li><Link to="/app-home/modules" onClick={() => {
                                 props.dispatch(A.getAllProjectsFromServer())
+                                props.dispatch(A.getAllModulesFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.MODULE_LIST))
                             }}>Modules</Link></li>
                         }

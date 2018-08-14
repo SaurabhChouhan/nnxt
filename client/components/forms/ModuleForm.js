@@ -10,7 +10,7 @@ let ModuleForm = (props) => {
                 <Field name="name" placeholder={"Name of Module"} component={renderText}
                        label={"Module Name:"} validate={[required]}/>
 
-                <Field name="Project._id" component={renderSelect} label={"Project :"} options={props.projects}
+                <Field name="project._id" component={renderSelect} label={"Project :"} options={props.projects}
                        validate={[required]}/>
 
                 <button type="submit" disabled={props.pristine || props.submitting} className="btn customBtn"> Submit
