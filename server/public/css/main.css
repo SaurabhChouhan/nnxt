@@ -2188,10 +2188,6 @@ hr {
     margin-top: 15px
 }
 
-.release-plan-table {
-
-}
-
 .DeveloperTasksTable :read-only {
     cursor: not-allowed;
 }

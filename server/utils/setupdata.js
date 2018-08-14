@@ -438,7 +438,7 @@ const addNNXTUsers = async () => {
         await MDL.UserModel.createUser({
             email: 'gagrawal@aripratech.com',
             firstName: "Gaurav",
-            lastName: "Agarawal",
+            lastName: "Agrawal",
             roles: [developerRole],
             password: "password",
             employeeCode: 'emp-013',
