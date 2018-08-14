@@ -15,7 +15,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state, ownProps) => ({
     selectedTaskPlan: state.report.taskPlan,
     selectedRelease: state.report.release,
-    selectedReleasePlan: state.report.releasePlan
+    selectedReleasePlan: state.report.releasePlan,
+    taskPlans: state.release.taskPlans,
+
 })
 
 const TaskReportDetailPageContainer = connect(
