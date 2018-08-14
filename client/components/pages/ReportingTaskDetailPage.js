@@ -9,6 +9,12 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 class ReportingTaskDetailPage extends React.Component {
     constructor(props) {
         super(props)
+        this.commentListPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
     }
 
     render() {
@@ -33,13 +39,13 @@ class ReportingTaskDetailPage extends React.Component {
                     <ReportingCommentFormContainer/>
                     {
                         <div className="ReportingCommentTable">
-
                             <BootstrapTable
                                 data={releasePlan.comments && releasePlan.comments.length ? releasePlan.comments : []}
-                                multiColumnSearch={true}
-                                search={true}
                                 striped={true}
-                                hover={true}>
+                                hover={true}
+                                options={this.commentListPageOptions}
+                                pagination
+                                height={"300px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'
