@@ -63,6 +63,10 @@ export {default as EstimationFilterForm} from './forms/EstimationFilterForm'
 export {default as ProjectFormDialog} from './dialogs/ProjectFormDialog'
 export {default as ProjectForm} from './forms/ProjectForm'
 
+//ModuleDialog
+export {default as ModuleFormDialog} from './dialogs/ModuleFormDialog'
+export {default as ModuleForm} from './forms/ModuleForm'
+
 
 //client
 export {default as ClientFormDialog} from './dialogs/ClientFormDialog'

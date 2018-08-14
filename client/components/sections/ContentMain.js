@@ -8,6 +8,7 @@ import {
     EstimationDetailContainer,
     EstimationListContainer,
     ProjectListContainer,
+    ModuleListContainer,
     LeaveListContainer,
     ReleaseListContainer,
     ReleasePlanSectionContainer,
@@ -34,6 +35,7 @@ import {
     LeaveRequestFormDialog,
     MoveTaskInFeatureFormDialog,
     ProjectFormDialog,
+    ModuleFormDialog,
     ReleaseMoveTaskPlanFormDialog,
     ReleaseTaskPlanningFormDialog,
     RepositoryFeatureDetailDialog,
@@ -96,6 +98,23 @@ class ContentMain extends Component {
                         }
                     }/>
                     <ProjectListContainer name={COC.PROJECT_LIST}/>
+                </ContentSection>
+
+
+            }
+        })
+
+        routes.push({
+            url: "/modules",
+            render: (props) => {
+                logger.debug(logger.CONTENT_MAIN_RENDER, "/modules: props:", props)
+                return <ContentSection>
+                    <ModuleFormDialog name={COC.MODULE_FORM_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.MODULE_FORM_DIALOG))
+                        }
+                    }/>
+                    <ModuleListContainer name={COC.MODULE_LIST}/>
                 </ContentSection>
 
 

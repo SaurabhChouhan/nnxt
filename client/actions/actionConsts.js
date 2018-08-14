@@ -76,6 +76,11 @@ export const ADD_PROJECT = "ADD_PROJECT"
 export const EDIT_PROJECT = "EDIT_PROJECT"
 export const DELETE_PROJECT = "DELETE_PROJECT"
 
+//module constants
+export const ADD_MODULE = "ADD_MODULE"
+export const EDIT_MODULE = "EDIT_MODULE "
+export const DELETE_MODULE = "DELETE_MODULE "
+
 //TECHNOLOGY CONSTANTS
 export const ADD_TECHNOLOGIES = "ADD_TECHNOLOGIES"
 export const ADD_TECHNOLOGY = "ADD_TECHNOLOGY"
