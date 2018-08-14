@@ -17,7 +17,8 @@ let initialState = {
     fromSchedule: nowString,
     schedules: [],
     employeeSetting: {},
-    from: nowString
+    from: nowString,
+    selectedTab: SC.RELEASE_DASHBOARD_TAB
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -92,7 +93,7 @@ const releaseReducer = (state = initialState, action) => {
         case AC.DELETE_TASK_PLAN:
             // Delete task planning from planning list
             return Object.assign({}, state, {
-                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.filter(plan => plan._id != action.planID) : []
+                taskPlans: state.taskPlans && Array.isArray(state.taskPlans) && state.taskPlans.length ? state.taskPlans.filter(plan => plan._id.toString() !== action.planID.toString()) : []
             })
 
 
@@ -141,8 +142,10 @@ const releaseReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 selectedRelease: action.releaseDates
             })
-
-
+        case AC.RELEASE_TAB_SELECTED:
+            return Object.assign({}, state, {
+                selectedTab: action.tab
+            })
         default:
             return state
     }

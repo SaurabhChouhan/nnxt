@@ -8,7 +8,8 @@ import {
     TaskPlanListContainer,
     ReleasePlanListContainer,
     WarningListContainer,
-    TaskReportListContainer
+    TaskReportListContainer,
+    ReleaseDashboardSectionContainer
 } from '../../containers'
 
 class ReleasePlanSection extends Component {
@@ -18,30 +19,10 @@ class ReleasePlanSection extends Component {
         this.options = {
             onRowClick: this.onRowClick.bind(this)
         }
-        this.state = {
-            showList: SC.RELEASE_PLAN_LIST
-        }
-        this.showReleasePlans = this.showReleasePlans.bind(this)
-        this.showWarnings = this.showWarnings.bind(this)
-        this.showTaskPlans = this.showTaskPlans.bind(this)
-        this.showTaskReport = this.showTaskReport.bind(this)
-
     }
 
-    showReleasePlans(flag) {
-        this.setState({showList: SC.RELEASE_PLAN_LIST})
-    }
-
-    showWarnings(flag) {
-        this.setState({showList: SC.WARNINGS_LIST})
-    }
-
-    showTaskPlans(flag) {
-        this.setState({showList: SC.TASK_PLANS_LIST})
-    }
-
-    showTaskReport(flag) {
-        this.setState({showList: SC.TASK_REPORT_LIST})
+    componentDidMount() {
+        console.log("ReleasePlanSection-> componentDidMount() called")
     }
 
     onRowClick(row) {
@@ -49,11 +30,10 @@ class ReleasePlanSection extends Component {
         this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
     }
 
-
     render() {
         let team = 0
-        const {release, releasePlans, loggedInUser} = this.props
-        const {showList} = this.state
+        const {release, releasePlans, loggedInUser, selectedTab} = this.props
+
         return (
 
             <div key="estimation_list" className="clearfix">
@@ -168,43 +148,53 @@ class ReleasePlanSection extends Component {
 
                         <div className="container container-width">
                             <ul className="nav nav-tabs">
-                                <li className="active">
+                                <li className={selectedTab === SC.RELEASE_DASHBOARD_TAB && 'active'}>
                                     <a
                                         data-toggle="tab"
-                                        className={showList === SC.RELEASE_PLAN_LIST ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
+                                        className={selectedTab === SC.RELEASE_DASHBOARD_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
                                         onClick={() => {
-                                            this.showReleasePlans()
+                                            this.props.tabSelected(SC.RELEASE_DASHBOARD_TAB)
+                                            this.props.getDashboardData(release)
+                                        }}>Dashboard
+                                    </a>
+                                </li>
+                                <li className={selectedTab === SC.RELEASE_PLAN_TAB&& 'active'}>
+                                    <a
+                                        data-toggle="tab"
+                                        className={selectedTab === SC.RELEASE_PLAN_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
+                                        onClick={() => {
+                                            this.props.tabSelected(SC.RELEASE_PLAN_TAB)
                                             this.props.getAllReleasePlans(release)
                                         }}>Release Plans
                                     </a>
                                 </li>
-                                <li>
+                                <li className={selectedTab === SC.RELEASE_WARNINGS_TAB && 'active'}>
                                     <a
                                         data-toggle="tab"
-                                        className={showList === SC.WARNINGS_LIST ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
+                                        className={selectedTab === SC.RELEASE_WARNINGS_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
                                         onClick={() => {
-                                            this.showWarnings(),
-                                                this.props.getAllWarnings(release)
+                                            this.props.tabSelected(SC.RELEASE_WARNINGS_TAB)
+                                            this.props.getAllWarnings(release)
                                         }}>Warnings
                                     </a>
                                 </li>
-                                <li>
+                                <li className={selectedTab === SC.RELEASE_TASK_PLANS_TAB && 'active'}>
                                     <a
                                         data-toggle="tab"
-                                        className={showList === SC.TASK_PLANS_LIST ? "btn btn-link btn-size " : "btn btn-link btn-size "}
+                                        className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
                                         onClick={() => {
-                                            this.showTaskPlans(),
-                                                this.props.getAllTaskPlans(release)
+                                            this.props.tabSelected(SC.RELEASE_TASK_PLANS_TAB)
+                                            this.props.getAllTaskPlans(release)
                                         }}>Task Plans
                                     </a>
                                 </li>
-                                <li>
+                                <li className={selectedTab === SC.RELEASE_REPORT_TAB && 'active'}>
                                     <a
                                         data-toggle="tab"
-                                        className={showList === SC.TASK_REPORT_LIST ? "btn btn-link btn-size " : "btn btn-link btn-size "}
+                                        className={selectedTab === SC.RELEASE_REPORT_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
                                         onClick={() => {
-                                            this.showTaskReport(),
-                                                this.props.getAllTaskReports(release)
+                                            this.props.tabSelected(SC.RELEASE_REPORT_TAB)
+                                            this.props.getAllTaskReports(release)
                                         }}>Task Report
                                     </a>
                                 </li>
@@ -213,10 +203,11 @@ class ReleasePlanSection extends Component {
                     </div>
                 </div>
                 <div className="col-md-12">
-                    {showList === SC.TASK_REPORT_LIST && <TaskReportListContainer/>}
-                    {showList === SC.TASK_PLANS_LIST && <TaskPlanListContainer/>}
-                    {showList === SC.WARNINGS_LIST && <WarningListContainer/>}
-                    {showList === SC.RELEASE_PLAN_LIST && <ReleasePlanListContainer/>}
+                    {selectedTab === SC.RELEASE_DASHBOARD_TAB && <ReleaseDashboardSectionContainer/>}
+                    {selectedTab === SC.RELEASE_REPORT_TAB && <TaskReportListContainer/>}
+                    {selectedTab === SC.RELEASE_TASK_PLANS_TAB && <TaskPlanListContainer/>}
+                    {selectedTab === SC.RELEASE_WARNINGS_TAB && <WarningListContainer/>}
+                    {selectedTab === SC.RELEASE_PLAN_TAB && <ReleasePlanListContainer/>}
                 </div>
             </div>
 
