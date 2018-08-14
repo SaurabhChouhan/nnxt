@@ -45,7 +45,8 @@ apiRouter.use(async (ctx, next) => {
     RR.holidayRouter.routes(),
     RR.dashboardRouter.routes(),
     RR.taskPlanRouter.routes(),
-    RR.developmentTypeRouter.routes()
+    RR.developmentTypeRouter.routes(),
+    RR.moduleRouter.routes(),
 )
 
 export default apiRouter
