@@ -3,10 +3,17 @@ import {Timeline, TimelineEvent} from 'react-event-timeline'
 import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
+import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
 
 class CalendarTaskDetailPage extends React.Component {
     constructor(props) {
         super(props);
+        this.commentListPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
     }
 
     render() {
@@ -30,10 +37,11 @@ class CalendarTaskDetailPage extends React.Component {
                         <div className="ReportingCommentTable">
 
                             <BootstrapTable data={selectedReleasePlan.comments}
-                                            multiColumnSearch={true}
-                                            search={true}
                                             striped={true}
-                                            hover={true}>
+                                            hover={true}
+                                            options={this.commentListPageOptions}
+                                            pagination
+                                            height={"200px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'
