@@ -127,7 +127,7 @@ class TaskReportDetailPage extends React.Component {
                                 height={"202px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn width={"10%"} columnTitle dataField='planningDate'
+                                <TableHeaderColumn width={"15%"} columnTitle dataField='planningDate'
                                                    dataFormat={this.formatPlanDate.bind(this)}>Planned Date
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width={"75%"} columnTitle dataField='description'>Tasks
