@@ -11,11 +11,16 @@ class ReleasePlanList extends Component {
         this.options = {
             onRowClick: this.onRowClick.bind(this),
             sizePerPageList: [{
-                text: '5', value: 5
+                text: '6', value: 6
             }, {
                 text: '10', value: 10
-            },],
-            sizePerPage: 5  // which size per page you want to locate as default
+            }, {
+                text: '20', value: 20
+            }, {
+                text: '50', value: 50
+            }],
+            sizePerPage: 6,  // which size per page you want to locate as default
+
         }
         this.state = {
             status: SC.ALL,
@@ -208,13 +213,14 @@ class ReleasePlanList extends Component {
 
                 </div>
 
-                <div className="estimation">
+                <div className="estimation release-plan-table" >
                     <BootstrapTable options={this.options} data={releasePlans}
                                     multiColumnSearch={true}
                                     search={true}
                                     striped={true}
                                     pagination
-                                    hover={true}>
+                                    hover={true}
+                                    height={"300px"}>
                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                            hidden={true}>ID</TableHeaderColumn>
 

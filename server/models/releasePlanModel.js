@@ -82,7 +82,7 @@ let releasePlanSchema = mongoose.Schema({
         dateString: String,
         commentType: {
             type: String,
-            enum: [SC.COMMENT_EMERGENCY, SC.COMMENT_CRITICAL, SC.COMMENT_URGENT, SC.COMMENT_REPORTING, SC.COMMENT_FYI_ONLY]
+            enum: [SC.TYPE_BLOCKING, SC.TYPE_INFORMATION, SC.TYPE_WAITING, SC.TYPE_CLARIFICATION, SC.TYPE_REPORT_COMMENT]
         },
     }],
     created: {type: Date, default: Date.now()},

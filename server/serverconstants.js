@@ -252,6 +252,14 @@ export const UTC_TIMEZONE = 'UTC'
 export const DEFAULT_TIMEZONE = 'UTC'
 export const INDIAN_TIMEZONE = 'Asia/Calcutta'
 //Comment Types
+
+export const TYPE_CLARIFICATION = 'Need Clarification'
+export const TYPE_BLOCKING = 'Blocking Issue'
+export const TYPE_WAITING = 'Waiting for Changes'
+export const TYPE_REPORT_COMMENT = 'Report Comment'
+export const TYPE_INFORMATION = 'For Information'
+
+
 export const COMMENT_EMERGENCY = 'Emergency'
 export const COMMENT_CRITICAL = 'Critical'
 export const COMMENT_URGENT = 'Urgent'
