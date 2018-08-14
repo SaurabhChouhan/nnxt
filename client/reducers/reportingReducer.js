@@ -15,7 +15,13 @@ let initialState = {
     iterationType: SC.ITERATION_TYPE_PLANNED,
     dateStringOfReport: U.getNowStringInIndia(),
     reportedTasks: [],
-    releasesReports: []
+    releasesReports: [],
+    reportTaskDetail: {
+        taskPlan: {},
+        taskPlans: [],
+        release: {},
+        releasePlan: {}
+    }
 }
 
 const reportingReducer = (state = initialState, action) => {
@@ -36,11 +42,14 @@ const reportingReducer = (state = initialState, action) => {
         case AC.REPORT_TASK_SELECTED:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                taskPlan: action.taskPlan,
-                releasePlan: Object.assign({}, action.releasePlan, {
-                    estimationDescription: action.estimationDescription
-                }),
-                release: action.release
+                reportTaskDetail: {
+                    taskPlan: action.detail.taskPlan,
+                    taskPlans: action.detail.taskPlans,
+                    release: action.detail.release,
+                    releasePlan: Object.assign({}, action.detail.releasePlan, {
+                        estimationDescription: action.detail.estimationDescription
+                    })
+                }
             })
 
         case AC.UPDATE_SELECTED_TASK_PLAN:

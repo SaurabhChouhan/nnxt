@@ -44,9 +44,12 @@ reportingRouter.get("/:releaseID/details-for-reporting", async ctx => {
 })
 
 
-reportingRouter.get("/:releaseID/release", async ctx => {
-    return await MDL.TaskPlanningModel.getReportsOfRelease(ctx.params.releaseID, ctx.state.user)
+reportingRouter.get("/release-plan-page/release/:releaseID", async ctx => {
+    return await MDL.TaskPlanningModel.getReportsReleasePlanPage(ctx.params.releaseID, ctx.state.user)
 })
 
+reportingRouter.get("/report-task-detail-page/task-plan/:taskPlanID", async ctx => {
+    return await MDL.TaskPlanningModel.getDataReportTaskDetailPage(ctx.params.taskPlanID, ctx.state.user)
+})
 
 export default reportingRouter

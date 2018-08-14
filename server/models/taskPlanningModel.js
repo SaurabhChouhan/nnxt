@@ -2842,20 +2842,102 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
     }
 }
 
-/*
-GetReportTasks
+/**
+ * Returns data used to render (Release Plan Page -> Report Task Tab -> Task List)
  */
-taskPlanningSchema.statics.getReportsOfRelease = async (releaseID, user) => {
+
+taskPlanningSchema.statics.getReportsReleasePlanPage = async (releaseID, user) => {
     console.log("inside report fetch function")
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
+        _id: 1
+    })
+
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+
     return MDL.TaskPlanningModel.find({
         'release._id': mongoose.Types.ObjectId(release._id),
         'report.status': {$in: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
     }).sort({'report.reportedOnDate': -1})
 }
+
+/**
+ * Returns data used to render task details page that opens up on clicking a Reported Task on (Release Plan Page -> Report Task Tab -> Task List)
+ */
+
+taskPlanningSchema.statics.getDataReportTaskDetailPage = async (taskPlanID, user) => {
+
+    /* checking release is valid or not */
+
+    if (!taskPlanID) {
+        throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+
+    if (!taskPlan) {
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+        project: 1,
+        task: 1
+
+    })
+
+    /* user Role in this release to see task detail */
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    /* user assumes no role in this release */
+    if (userRolesInRelease.length == 0)
+        throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /* checking task plan is valid or not */
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
+        task: 1,
+        description: 1,
+        estimation: 1,
+        comments: 1,
+    })
+
+    let estimationDescription = {description: ''}
+
+    if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
+        estimationDescription = await MDL.EstimationModel.findOne({
+            '_id': mongoose.Types.ObjectId(releasePlan.estimation._id),
+            status: SC.STATUS_PROJECT_AWARDED
+        }, {
+            description: 1,
+            _id: 0
+        })
+    }
+
+    releasePlan = releasePlan.toObject()
+
+    releasePlan.comments.length ? releasePlan.comments.map(c => {
+        console.log('iterating on comment ', c)
+        c.dateInIndia = momentTZ(c.date).tz(SC.INDIAN_TIMEZONE).format('DD MMM,YY (hh:mm a)')
+        return c
+    }) : []
+
+    // Find out all the task plans assigned against developer for this release plan
+
+    let taskPlans = await TaskPlanningModel.find({
+        'releasePlan._id': releasePlan._id,
+        'employee._id': user._id
+    })
+
+
+    return {
+        estimationDescription: estimationDescription.description,
+        taskPlan: taskPlan,
+        releasePlan: releasePlan,
+        release: release,
+        taskPlans: taskPlans
+    }
+}
+
 
 taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
     /* checking release is valid or not */
@@ -2899,6 +2981,15 @@ taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
             _id: 0
         })
     }
+
+    releasePlan = releasePlan.toObject()
+
+    releasePlan.comments.length ? releasePlan.comments.map(c => {
+        console.log('iterating on comment ', c)
+        c.dateInIndia = momentTZ(c.date).tz(SC.INDIAN_TIMEZONE).format('DD MMM,YY (hh:mm a)')
+        return c
+    }) : []
+
 
     return {
         estimationDescription: estimationDescription.description,

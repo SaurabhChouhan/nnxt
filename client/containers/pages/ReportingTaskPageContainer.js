@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.setIterationType(iterationType))
         dispatch(A.getReportingTasksForDate(releaseID, date, iterationType, reportedStatus))
     },
-    taskPlanSelected: (taskPlan) => dispatch(A.getTaskDetailsForReportFromServer(taskPlan._id)),
+    taskPlanSelected: (taskPlan) => dispatch(A.getDataForReportTaskDetailPageFromServer(taskPlan._id)),
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.REPORTING_TASK_DETAIL_PAGE))
     },

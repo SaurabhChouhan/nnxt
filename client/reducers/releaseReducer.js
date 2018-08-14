@@ -18,7 +18,8 @@ let initialState = {
     schedules: [],
     employeeSetting: {},
     from: nowString,
-    selectedTab: SC.RELEASE_DASHBOARD_TAB
+    selectedTab: SC.RELEASE_DASHBOARD_TAB,
+    taskPlansOfReleasePlanDeveloper: []
 }
 
 const releaseReducer = (state = initialState, action) => {
