@@ -13,11 +13,11 @@ class ReportingCommentForm extends React.Component {
     render() {
         const {handleSubmit, pristine, submitting} = this.props;
         let options = [
-            {name: SC.COMMENT_EMERGENCY},
-            {name: SC.COMMENT_CRITICAL},
-            {name: SC.COMMENT_URGENT},
-            {name: SC.COMMENT_REPORTING},
-            {name: SC.COMMENT_FYI_ONLY}]
+            {name: SC.TYPE_REPORT_COMMENT},
+            {name: SC.TYPE_INFORMATION},
+            {name: SC.TYPE_CLARIFICATION},
+            {name: SC.TYPE_WAITING},
+            {name: SC.TYPE_BLOCKING}]
         return (
             <form onSubmit={handleSubmit}>
                 <div className="col-md-12 pad reportingCommentForm" style={{marginBottom: '10px'}}>

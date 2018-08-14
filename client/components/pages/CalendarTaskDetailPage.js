@@ -3,10 +3,17 @@ import {Timeline, TimelineEvent} from 'react-event-timeline'
 import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
+import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
 
 class CalendarTaskDetailPage extends React.Component {
     constructor(props) {
         super(props);
+        this.commentListPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
     }
 
     render() {
@@ -30,10 +37,11 @@ class CalendarTaskDetailPage extends React.Component {
                         <div className="ReportingCommentTable">
 
                             <BootstrapTable data={selectedReleasePlan.comments}
-                                            multiColumnSearch={true}
-                                            search={true}
                                             striped={true}
-                                            hover={true}>
+                                            hover={true}
+                                            options={this.commentListPageOptions}
+                                            pagination
+                                            height={"200px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'
@@ -53,6 +61,20 @@ class CalendarTaskDetailPage extends React.Component {
                     }
                 </TimelineEvent>
 
+
+                <TimelineEvent title={'Task Name :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    {selectedTaskPlan && selectedTaskPlan.task && selectedTaskPlan.task.name ? selectedTaskPlan.task.name : ''}
+                </TimelineEvent>
+
+                <TimelineEvent title={'Task Description :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <p className="description"> {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}</p>
+                </TimelineEvent>
+
+
                 <TimelineEvent style={{fontSize: '20px'}}
                                title={'Project Name :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
@@ -66,19 +88,6 @@ class CalendarTaskDetailPage extends React.Component {
                                 icon={<i
                                     className="glyphicon glyphicon-tasks calendar_icon"></i>}>
                     <p className="description">{selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}</p>
-                </TimelineEvent>
-
-
-                <TimelineEvent title={'Task Name :'}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    {selectedTaskPlan && selectedTaskPlan.task && selectedTaskPlan.task.name ? selectedTaskPlan.task.name : ''}
-                </TimelineEvent>
-
-                <TimelineEvent title={'Task Description :'}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    <p className="description"> {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}</p>
                 </TimelineEvent>
 
 

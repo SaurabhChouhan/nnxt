@@ -4,14 +4,48 @@ import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
 import {ReportingCommentFormContainer} from "../../containers";
+import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
 
 class TaskReportDetailPage extends React.Component {
     constructor(props) {
         super(props);
+        this.commentListPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
+
+        this.taskListPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
+    }
+
+    formatDeveloperName(employee) {
+        if (employee)
+            return employee.name
+        return ''
+    }
+
+    formatTaskName(task) {
+
+        if (task)
+            return task.name
+        return ''
+    }
+
+    formatTaskDescription(task) {
+
+        if (task)
+            return task.description
+        return ''
     }
 
     render() {
-        const {selectedTaskPlan, selectedRelease, selectedReleasePlan} = this.props
+        const {selectedTaskPlan, selectedRelease, selectedReleasePlan, taskPlans, ReleasePlan, developerPlans} = this.props
 
         return (
 
@@ -33,10 +67,11 @@ class TaskReportDetailPage extends React.Component {
                         <div className="ReportingCommentTable">
 
                             <BootstrapTable data={selectedReleasePlan.comments}
-                                            multiColumnSearch={true}
-                                            search={true}
                                             striped={true}
-                                            hover={true}>
+                                            hover={true}
+                                            options={this.commentListPageOptions}
+                                            pagination
+                                            height={"302px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'
@@ -57,19 +92,39 @@ class TaskReportDetailPage extends React.Component {
 
                 </TimelineEvent>
 
-                <TimelineEvent style={{fontSize: '20px'}}
-                               title={'Project Name :'}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                <TimelineEvent title={'Task Info :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
 
-                    {selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}
-                </TimelineEvent>
+                    {
+                        <div className="DeveloperTasksTable">
+
+                            <BootstrapTable
+                                data={taskPlans}
+                                striped={true}
+                                hover={true}
+                                options={this.taskListPageOptions}
+                                pagination
+                                height={"202px"}>
+                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='employee'
+                                                   dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatTaskName.bind(this)}>Tasks
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='task'
+                                                   dataFormat={this.formatTaskDescription.bind(this)}>Tasks
+                                    Description
+                                </TableHeaderColumn>
+                            </BootstrapTable>
 
 
-                < TimelineEvent style={{fontSize: '20px'}}
-                                title={'Project Description :'}
-                                icon={<i
-                                    className="glyphicon glyphicon-tasks calendar_icon"></i>}>
-                    <p className="description">{selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}</p>
+                        </div>
+
+                    }
+
                 </TimelineEvent>
 
 
@@ -83,6 +138,23 @@ class TaskReportDetailPage extends React.Component {
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
                     <p className="description"> {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}</p>
+                </TimelineEvent>
+
+
+
+                <TimelineEvent style={{fontSize: '20px'}}
+                               title={'Project Name :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+
+                    {selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}
+                </TimelineEvent>
+
+
+                < TimelineEvent style={{fontSize: '20px'}}
+                                title={'Project Description :'}
+                                icon={<i
+                                    className="glyphicon glyphicon-tasks calendar_icon"></i>}>
+                    <p className="description">{selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}</p>
                 </TimelineEvent>
 
 
