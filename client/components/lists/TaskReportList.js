@@ -9,6 +9,19 @@ class TaskReportList extends Component {
 
     constructor(props) {
         super(props);
+        this.options = {
+            sizePerPageList: [{
+                text: '7', value: 7
+            }, {
+                text: '10', value: 10
+            }, {
+                text: '20', value: 20
+            }, {
+                text: '50', value: 50
+            }],
+            sizePerPage: 7,  // which size per page you want to locate as default
+            paginationShowsTotal:true
+        }
     }
 
     formatDeveloperName(employee) {
@@ -67,18 +80,9 @@ class TaskReportList extends Component {
     render() {
         const {reports} = this.props
         console.log("reports------------------", reports)
-        const options = {
-            sizePerPageList: [{
-                text: '5', value: 5
-            }, {
-                text: '10', value: 10
-            },], // you can change the dropdown list for size per page
-            sizePerPage: 5,  // which size per page you want to locate as default
-
-        };
         return (
-            <div className="estimation releasePlan-taskPlan">
-                <BootstrapTable options={options} data={reports}
+            <div className="estimation releasePlan-taskPlan release-plan-table">
+                <BootstrapTable options={this.options} data={reports}
                                 multiColumnSearch={true}
                                 search={true}
                                 striped={true}

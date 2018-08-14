@@ -7,6 +7,19 @@ class WarningList extends Component {
 
     constructor(props) {
         super(props);
+        this.options = {
+            sizePerPageList: [{
+                text: '7', value: 7
+            }, {
+                text: '10', value: 10
+            }, {
+                text: '20', value: 20
+            }, {
+                text: '50', value: 50
+            }],
+            sizePerPage: 7,  // which size per page you want to locate as default
+            paginationShowsTotal:true
+        }
     }
 
 
@@ -106,17 +119,7 @@ class WarningList extends Component {
 
     render() {
         const {warnings, release} = this.props
-        const options = {
-            sizePerPageList: [{
-                text: '5', value: 5
-            }, {
-                text: '10', value: 10
-            }, {
-                text: 'All', value: warnings.length
-            }], // you can change the dropdown list for size per page
-            sizePerPage: 5,  // which size per page you want to locate as default
 
-        };
         return (
             <div>
                 <div className="col-md-8 releaseOption releaseDetailSearchContent">
@@ -133,8 +136,8 @@ class WarningList extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="estimation">
-                    <BootstrapTable options={options} data={warnings}
+                <div className="estimation release-plan-table">
+                    <BootstrapTable options={this.options} data={warnings}
                                     multiColumnSearch={true}
                                     search={true}
                                     striped={true}
