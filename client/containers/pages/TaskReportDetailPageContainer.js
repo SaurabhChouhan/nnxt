@@ -12,9 +12,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
                 dispatch(A.getReleaseForDashboard(release._id))
             }
+            return json
         })
-
-
     }
 })
 

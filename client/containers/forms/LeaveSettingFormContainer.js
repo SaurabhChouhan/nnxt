@@ -37,6 +37,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 } else {
                     NotificationManager.error('Leave Setting Updated Failed')
                 }
+                return response
             })
         }
     }
