@@ -71,6 +71,7 @@ let ReleaseTaskPlanningForm = (props) => {
                            label={"Description:"}
                            component={renderTextArea}
                            type="text"
+                           rows={8}
                            placeholder="Enter task description"
                            validate={[required]}/>
                 </div>

@@ -114,35 +114,27 @@ class TaskReportDetailPage extends React.Component {
                 <TimelineEvent title={'Task Planning (Developer):'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-
-                    {
-                        <div className="DeveloperTasksTable">
-
-                            <BootstrapTable
-                                data={taskPlans}
-                                striped={true}
-                                hover={true}
-                                options={this.taskListPageOptions}
-                                pagination
-                                height={"202px"}>
-                                <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width={"15%"} columnTitle dataField='planningDate'
-                                                   dataFormat={this.formatPlanDate.bind(this)}>Planned Date
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width={"75%"} columnTitle dataField='description'>Tasks
-                                    Description
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width={"15%"} columnTitle dataField='report'
-                                                   dataFormat={this.formatReportStatus.bind(this)}>Reported Status
-                                </TableHeaderColumn>
-                            </BootstrapTable>
-
-
-                        </div>
-
-                    }
-
+                    <div className="DeveloperTasksTable">
+                        <BootstrapTable
+                            data={taskPlans}
+                            striped={true}
+                            hover={true}
+                            options={this.taskListPageOptions}
+                            pagination
+                            height={"202px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"15%"} columnTitle dataField='planningDate'
+                                               dataFormat={this.formatPlanDate.bind(this)}>Planned Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"75%"} columnTitle dataField='description'>Tasks
+                                Description
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"15%"} columnTitle dataField='report'
+                                               dataFormat={this.formatReportStatus.bind(this)}>Reported Status
+                            </TableHeaderColumn>
+                        </BootstrapTable>
+                    </div>
                 </TimelineEvent>
 
                 <TimelineEvent title={'Task Description :'}
