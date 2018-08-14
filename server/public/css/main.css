@@ -2192,5 +2192,8 @@ hr {
 
 }
 
+.DeveloperTasksTable :read-only {
+    cursor: not-allowed;
+}
 
 
