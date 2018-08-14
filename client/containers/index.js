@@ -65,6 +65,11 @@ export {default as ProjectListContainer} from './lists/ProjectListContainer'
 export {default as ProjectFormContainer} from './forms/ProjectFormContainer'
 
 
+//Modules
+export {default as ModuleListContainer} from './lists/ModuleListContainer'
+export {default as ModuleFormContainer} from './forms/ModuleFormContainer'
+
+
 //technology
 export {default as TechnologyListContainer} from './lists/TechnologyListContainer'
 export {default as TechnologyFormContainer} from './forms/TechnologyFormContainer'

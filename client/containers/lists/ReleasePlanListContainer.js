@@ -1,6 +1,6 @@
 import {connect} from 'react-redux'
 import * as A from '../../actions'
-import {ReleasePlanList} from "../../components"
+import {ReleasePlanList} from '../../components'
 import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
@@ -12,6 +12,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             if (json.success) {
                 dispatch(A.showComponentHideOthers(COC.RELEASE_TASK_PLANNING_PAGE))
             }
+            return json
         })
         dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
         if (roles.indexOf(SC.ROLE_MANAGER) > -1) {

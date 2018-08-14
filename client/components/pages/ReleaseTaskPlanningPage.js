@@ -91,7 +91,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     formatPlanningDate(row) {
         if (row && !_.isEmpty(row)) {
-            return moment(row, SC.DATE_SHOW).format(SC.DATE_SHOW)
+            return moment(row, SC.DATE_FORMAT).format(SC.DATE_SHOW)
             //return row
         }
         return ''

@@ -19,6 +19,7 @@ export {default as dashboardRouter} from './dashboard-router'
 export {default as holidayRouter} from './holiday-router'
 export {default as taskPlanRouter} from './taskplan-router'
 export {default as developmentTypeRouter} from './developmenttype-router'
+export {default as moduleRouter} from './module-router'
 
 // Please export all routers above this router
 export {default as apiRouter} from './api-router'

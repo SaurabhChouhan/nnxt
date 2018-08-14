@@ -19,6 +19,7 @@ import holidayReducer from './holidayReducer'
 import dashboardReducer from './dashboardReducer'
 import employeeReducer from './employeeReducer'
 import developmentTypeReducer from './developmentTypeReducer'
+import moduleReducer from './moduleReducer'
 
 
 const reducers = combineReducers({
@@ -41,6 +42,7 @@ const reducers = combineReducers({
     holiday: holidayReducer,
     dashboard: dashboardReducer,
     employee: employeeReducer,
-    developmentType: developmentTypeReducer
+    developmentType: developmentTypeReducer,
+    module: moduleReducer
 })
 export default reducers
