@@ -11,7 +11,7 @@ class TaskReportList extends Component {
         super(props);
         this.options = {
             sizePerPageList: [{
-                text: '7', value: 7
+                text: '6', value: 6
             }, {
                 text: '10', value: 10
             }, {
@@ -19,8 +19,8 @@ class TaskReportList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage: 7,  // which size per page you want to locate as default
-            paginationShowsTotal:true
+            sizePerPage: 6,  // which size per page you want to locate as default
+            
         }
     }
 
@@ -87,7 +87,8 @@ class TaskReportList extends Component {
                                 search={true}
                                 striped={true}
                                 pagination
-                                hover={true}>
+                                hover={true}
+                                height={"300px"}>
                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                        hidden={true}>ID
                     </TableHeaderColumn>
