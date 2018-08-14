@@ -6,16 +6,21 @@ import * as SC from '../../../server/serverconstants'
 import * as U from '../../../server/utils'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    ReportGoBack: (event) => {
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
-
+    ReportGoBack: (release) => {
+        dispatch(A.getReleaseFromServer(release._id)).then(json => {
+            if (json.success) {
+                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+                dispatch(A.getReleaseForDashboard(release._id))
+            }
+            return json
+        })
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    selectedTaskPlan: state.report.taskPlan,
-    selectedRelease: state.report.release,
-    selectedReleasePlan: state.report.releasePlan,
+    taskPlan: state.report.taskPlan,
+    release: state.report.release,
+    releasePlan: state.report.releasePlan,
     taskPlans: state.release.taskPlans,
 
 })
