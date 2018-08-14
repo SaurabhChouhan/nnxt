@@ -4,7 +4,6 @@ import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie} 
 
 
 const addPercentage = (value) => {
-    console.log("formatter called with value ", value)
     if (value == 0)
         return ''
     return value + '%'
@@ -63,20 +62,11 @@ class DashboardSection extends Component {
 
     render() {
 
-        console.log("DashboardSection->render() called", window.innerWidth, window.innerHeight)
-
         let dashboardWidth = window.innerWidth * 0.8 // as content section has 80% width
-
-        console.log("dashboard width is ", dashboardWidth)
         let barMargin = {top: 20, right: 40, left: 40, bottom: 20}
         let barWidth = (dashboardWidth - 90) / 2
-        console.log("bar width calculated as ", barWidth)
-
         const {estimatedStartAngle, estimatedEndAngle, plannedStartAngle, plannedEndAngle, reportedStartAngle, reportedEndAngle} = getHoursAngles(this.props.hoursData.estimatedHours, this.props.hoursData.plannedHours, this.props.hoursData.reportedHours)
-        console.log(estimatedEndAngle, plannedEndAngle, reportedEndAngle)
-
         let baseHour = this.props.plannedVsReported.baseHour
-
         return <div>
             <div className={"col-md-6"} style={{marginRight:"0px"}}>
                 <div className={"chartSection"}>

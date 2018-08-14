@@ -258,6 +258,16 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id))
 
+    releasePlan = releasePlan.toObject()
+
+    // Arrange comment list in ascending order with time in indian time zone
+
+    releasePlan.comments.length ? releasePlan.comments.map(c => {
+        console.log('iterating on comment ', c)
+        c.dateInIndia = momentTZ(c.date).tz(SC.INDIAN_TIMEZONE).format('DD MMM,YY (hh:mm a)')
+        return c
+    }) : []
+
     if (!releasePlan) {
         throw new AppError('releasePlan not found', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
@@ -1361,7 +1371,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      */
 
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
-    
+
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 

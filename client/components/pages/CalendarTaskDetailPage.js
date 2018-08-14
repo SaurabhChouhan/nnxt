@@ -42,9 +42,12 @@ class CalendarTaskDetailPage extends React.Component {
                                             options={this.commentListPageOptions}
                                             pagination
                                             height={"200px"}>
+                                <TableHeaderColumn width="12%" columnTitle dataField="dateInIndia">
+                                    Date/Time
+                                </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn width="40%" columnTitle dataField='comment'
+                                <TableHeaderColumn width="38%" columnTitle dataField='comment'
                                 >Comment
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="commentType"
@@ -52,9 +55,7 @@ class CalendarTaskDetailPage extends React.Component {
                                     Comment Type</TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="name">
                                     Commented By</TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="dateString">
-                                    Date
-                                </TableHeaderColumn>
+
                             </BootstrapTable>
                         </div>
 

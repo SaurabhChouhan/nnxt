@@ -36,7 +36,8 @@ const releaseReducer = (state = initialState, action) => {
             // Select team
             return Object.assign({}, state, {
                 selectedRelease: action.release,
-                teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam]
+                teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam],
+                selectedTab: SC.RELEASE_DASHBOARD_TAB
             })
 
         case AC.ADD_RELEASE_PLANS:

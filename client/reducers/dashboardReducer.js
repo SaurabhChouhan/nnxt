@@ -26,7 +26,6 @@ const dashboardReducer = (state = initialState, action) => {
             // To calculate percentage of planned work we need to iterate on all iterations of type 'planned' and then
             // sum all plannedHoursEstimatedTasks and then compare them against sum of all estimated hours
             let plannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
-            console.log("planned iterations ", plannedIterations)
 
             if (plannedIterations && plannedIterations.length) {
 

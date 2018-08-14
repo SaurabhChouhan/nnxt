@@ -148,7 +148,7 @@ class ReleasePlanSection extends Component {
 
                         <div className="container container-width">
                             <ul className="nav nav-tabs">
-                                <li className={selectedTab === SC.RELEASE_DASHBOARD_TAB && 'active'}>
+                                <li className={selectedTab === SC.RELEASE_DASHBOARD_TAB ? 'active' : ''}>
                                     <a
                                         data-toggle="tab"
                                         className={selectedTab === SC.RELEASE_DASHBOARD_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
@@ -158,7 +158,7 @@ class ReleasePlanSection extends Component {
                                         }}>Dashboard
                                     </a>
                                 </li>
-                                <li className={selectedTab === SC.RELEASE_PLAN_TAB&& 'active'}>
+                                <li className={selectedTab === SC.RELEASE_PLAN_TAB ? 'active' : ''}>
                                     <a
                                         data-toggle="tab"
                                         className={selectedTab === SC.RELEASE_PLAN_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
@@ -168,7 +168,7 @@ class ReleasePlanSection extends Component {
                                         }}>Release Plans
                                     </a>
                                 </li>
-                                <li className={selectedTab === SC.RELEASE_WARNINGS_TAB && 'active'}>
+                                <li className={selectedTab === SC.RELEASE_WARNINGS_TAB ? 'active' : ''}>
                                     <a
                                         data-toggle="tab"
                                         className={selectedTab === SC.RELEASE_WARNINGS_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
@@ -178,7 +178,7 @@ class ReleasePlanSection extends Component {
                                         }}>Warnings
                                     </a>
                                 </li>
-                                <li className={selectedTab === SC.RELEASE_TASK_PLANS_TAB && 'active'}>
+                                <li className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? 'active' : ''}>
                                     <a
                                         data-toggle="tab"
                                         className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
@@ -188,7 +188,7 @@ class ReleasePlanSection extends Component {
                                         }}>Task Plans
                                     </a>
                                 </li>
-                                <li className={selectedTab === SC.RELEASE_REPORT_TAB && 'active'}>
+                                <li className={selectedTab === SC.RELEASE_REPORT_TAB ? 'active' : ''}>
                                     <a
                                         data-toggle="tab"
                                         className={selectedTab === SC.RELEASE_REPORT_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}

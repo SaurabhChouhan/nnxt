@@ -20,7 +20,6 @@ class ReportingTaskDetailPage extends React.Component {
     render() {
         const {taskPlan, release, releasePlan} = this.props
 
-
         return (
             <Timeline>
                 <span>
@@ -48,6 +47,10 @@ class ReportingTaskDetailPage extends React.Component {
                                 height={"300px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
+                                <TableHeaderColumn width="12%" columnTitle dataField="dateInIndia">
+                                    Date/Time
+                                </TableHeaderColumn>
+
                                 <TableHeaderColumn width="40%" columnTitle dataField='comment'
                                 >Comment
                                 </TableHeaderColumn>
@@ -56,9 +59,6 @@ class ReportingTaskDetailPage extends React.Component {
                                     Comment Type</TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="name">
                                     Commented By</TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="dateString">
-                                    Date
-                                </TableHeaderColumn>
                             </BootstrapTable>
                         </div>
 

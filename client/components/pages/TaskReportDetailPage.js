@@ -74,7 +74,10 @@ class TaskReportDetailPage extends React.Component {
                                             height={"302px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn width="40%" columnTitle dataField='comment'
+                                <TableHeaderColumn width="12%" columnTitle dataField="dateInIndia">
+                                    Date/Time
+                                </TableHeaderColumn>
+                                <TableHeaderColumn width="38%" columnTitle dataField='comment'
                                 >Comment
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="commentType"
@@ -82,9 +85,7 @@ class TaskReportDetailPage extends React.Component {
                                     Comment Type</TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="name">
                                     Commented By</TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="dateString">
-                                    Date
-                                </TableHeaderColumn>
+
                             </BootstrapTable>
                         </div>
 
@@ -92,7 +93,7 @@ class TaskReportDetailPage extends React.Component {
 
                 </TimelineEvent>
 
-                <TimelineEvent title={'Task Info :'}
+                <TimelineEvent title={'Task Planning (Developer):'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
 
