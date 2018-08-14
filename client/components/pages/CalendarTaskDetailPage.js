@@ -30,6 +30,45 @@ class CalendarTaskDetailPage extends React.Component {
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
 
+                <TimelineEvent title={'Assigned To You :'}
+                               icon={<i className="glyphicon glyphicon-user calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <Timeline>
+
+
+                        < TimelineEvent title={' Planned Date :'}
+                                        icon={<i
+                                            className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                        style={{fontSize: '20px'}}>
+                            {selectedTaskPlan && selectedTaskPlan.planningDate ? moment(selectedTaskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT) : ''}
+                        </TimelineEvent>
+
+
+                        <TimelineEvent title={' Planned Hours :'}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTaskPlan && selectedTaskPlan.planning && selectedTaskPlan.planning.plannedHours ? selectedTaskPlan.planning.plannedHours : ''}
+                        </TimelineEvent>
+
+
+                        <TimelineEvent title={'Details :'}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            <p className="description">    {selectedTaskPlan && selectedTaskPlan.description ? selectedTaskPlan.description : ''}</p>
+                        </TimelineEvent>
+
+
+                        <TimelineEvent title={' Reported Status :'}
+                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                                       style={{fontSize: '20px'}}>
+                            {selectedTaskPlan && selectedTaskPlan.report && selectedTaskPlan.report.status ? selectedTaskPlan.report.status : ''}
+                        </TimelineEvent>
+
+
+                    </Timeline>
+                </TimelineEvent>
+
+
                 <TimelineEvent title={'Comments :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
@@ -92,43 +131,6 @@ class CalendarTaskDetailPage extends React.Component {
                 </TimelineEvent>
 
 
-                <TimelineEvent title={'Assigned To You :'}
-                               icon={<i className="glyphicon glyphicon-user calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    <Timeline>
-
-
-                        < TimelineEvent title={' Planned Date :'}
-                                        icon={<i
-                                            className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                        style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.planningDate ? moment(selectedTaskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT) : ''}
-                        </TimelineEvent>
-
-
-                        <TimelineEvent title={' Planned Hours :'}
-                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                       style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.planning && selectedTaskPlan.planning.plannedHours ? selectedTaskPlan.planning.plannedHours : ''}
-                        </TimelineEvent>
-
-
-                        <TimelineEvent title={'Details :'}
-                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                       style={{fontSize: '20px'}}>
-                            <p className="description">    {selectedTaskPlan && selectedTaskPlan.description ? selectedTaskPlan.description : ''}</p>
-                        </TimelineEvent>
-
-
-                        <TimelineEvent title={' Reported Status :'}
-                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                       style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.report && selectedTaskPlan.report.status ? selectedTaskPlan.report.status : ''}
-                        </TimelineEvent>
-
-
-                    </Timeline>
-                </TimelineEvent>
 
 
             </Timeline>
