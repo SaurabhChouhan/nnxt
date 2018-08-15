@@ -27,7 +27,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     reportTask: (task, date, iterationType) => {
         let reportData = {
             _id: task._id,
-            reportedHours: parseInt(task.reportedHours),
+            reportedHours: parseFloat(task.reportedHours),
             status: iterationType == SC.ITERATION_TYPE_PLANNED ? task.status : SC.STATUS_PENDING,
             reportedDate: date,
             iterationType: iterationType,

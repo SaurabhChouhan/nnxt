@@ -8,7 +8,8 @@ const mapStateToProps = (state, ownProps) => ({
     completedPendingProgress: state.dashboard.completedPendingProgress,
     plannedVsReported: state.dashboard.plannedVsReported,
     hoursData: state.dashboard.hoursData,
-    estimatedProgress: state.dashboard.estimatedProgress
+    estimatedProgress: state.dashboard.estimatedProgress,
+    progress: state.dashboard.progress
 })
 
 

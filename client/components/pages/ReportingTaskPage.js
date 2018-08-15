@@ -67,7 +67,7 @@ class ReportingTaskPage extends Component {
             row.reportedHours = row.report.reportedHours
             return row.report.reportedHours
         }
-        return ''
+        return 0
     }
 
     viewEditButton(cell, row, enumObject, rowIndex) {

@@ -22,8 +22,12 @@ class ReportingTaskDetailPage extends React.Component {
         return row._id.toString() == this.props.taskPlan._id.toString() ? 'td-row-completed' : 'td-row-unreported'
     }
 
+    formatCommentDate(date) {
+        return momentTZ(date).tz(SC.INDIAN_TIMEZONE).format('DD MMM,YY (hh:mm a)')
+    }
+
+
     formatPlanDate(date) {
-        console.log('date found as ', date)
         return momentTZ(date).utc().format('DD MMM,YY')
     }
 
@@ -116,7 +120,7 @@ class ReportingTaskDetailPage extends React.Component {
                                 height={"300px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn width="12%" columnTitle dataField="dateInIndia">
+                                <TableHeaderColumn width="12%" columnTitle dataField="date" dataFormat={this.formatCommentDate.bind(this)}>
                                     Date/Time
                                 </TableHeaderColumn>
 

@@ -2233,8 +2233,8 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
     logger.debug("addTaskReportPlannedUpdateRelease(): ", {finalStatus: releasePlan.report.finalStatus})
 
 
-    if (releasePlan.oldStatus === SC.STATUS_PENDING && releasePlan.report.finalStatus === SC.STATUS_COMPLETED) {
-        // if previous final status was pending, which is now changed to completed we can consider estimated hours to be completed
+    if (releasePlan.oldStatus !== SC.STATUS_COMPLETED && releasePlan.report.finalStatus === SC.STATUS_COMPLETED) {
+        // if previous final status was not completed, and now it is changed to completed we can consider estimated hours to be completed
         release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
     } else if (releasePlan.oldStatus === SC.STATUS_COMPLETED && releasePlan.report.finalStatus === SC.STATUS_PENDING) {
         /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
