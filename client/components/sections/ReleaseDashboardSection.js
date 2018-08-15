@@ -161,7 +161,7 @@ class DashboardSection extends Component {
                 </div>
 
                 <div className={"chartSection"}>
-                    <PieChart width={barWidth} height={240} margin={barMargin}>
+                    <PieChart width={barWidth} height={240} margin={{top: 40, right: 0, left: 0, bottom: 20}}>
                         <Pie isAnimationActive={false}
                              dataKey={"value"}
                              data={[{name: 'Actual Progress', value: this.props.progress.actual}]}
@@ -228,7 +228,7 @@ class DashboardSection extends Component {
                     </BarChart>
                 </div>
                 <div className={"chartSection"}>
-                    <PieChart width={barWidth} height={240} margin={barMargin}>
+                    <PieChart width={barWidth} height={240} margin={{top: 40, right: 0, left: 0, bottom: 20}}>
                         <Pie isAnimationActive={false}
                              dataKey={"value"}
                              data={[{name: 'Estimated Hours', value: this.props.hoursData.estimatedHours}]}
