@@ -2221,6 +2221,7 @@ const addTaskReportPlannedUpdateTaskPlan = async (taskPlan, releasePlan, release
         taskPlan.report = {}
 
     taskPlan.report.status = reportInput.status
+    taskPlan.report.description = reportInput.reportDescription
 
     if (!reReport)
     /* only change reported on date if it is first report*/
@@ -2490,7 +2491,6 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
         taskPlan.release = releasePlan.release
         taskPlan.releasePlan = releasePlan
         taskPlan.employee = Object.assign({}, employee, {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
-        taskPlan.description = reportInput.description ? reportInput.description : ''
         taskPlan.task = releasePlan.task
         taskPlan.iterationType = SC.ITERATION_TYPE_UNPLANNED
         taskPlan.report = {
@@ -2539,6 +2539,8 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
     }
     // as we have calculated reported hours to increment we can set new reported hours in task plan
     taskPlan.report.reportedHours = reportInput.reportedHours
+    taskPlan.report.description = reportInput.reportDescription
+    taskPlan.description = reportInput.reportDescription
 
     logger.debug("rereport is calculated as ", {reReport})
 

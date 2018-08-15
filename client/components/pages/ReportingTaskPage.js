@@ -5,6 +5,9 @@ import moment from 'moment'
 import {ReportingDateNavBarContainer} from '../../containers'
 import {withRouter} from 'react-router-dom'
 import {NotificationManager} from 'react-notifications'
+import {ReportTaskDescriptionFormDialog} from "..";
+import * as COC from "../componentConsts";
+import * as A from "../../actions";
 
 
 class ReportingTaskPage extends Component {
@@ -13,6 +16,9 @@ class ReportingTaskPage extends Component {
         super(props)
         this.onReportedStatusChange = this.onReportedStatusChange.bind(this)
         this.onReleaseSelect = this.onReleaseSelect.bind(this)
+        this.state = {
+            showDescriptionDialog: false
+        }
     }
 
     rowClassNameFormat(row, rowIdx) {
@@ -80,15 +86,15 @@ class ReportingTaskPage extends Component {
                 } else {
                     row.rowDataChanged = false
                     row.status = SC.STATUS_COMPLETED
-                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json => {
+                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)/*.then(json => {
                         console.log("reportTask response is ", json)
                         if (!json.success) {
                             console.log("json.success is false ")
                             console.log("row is ", row)
                             row.rowDataChanged = true
                             this.forceUpdate()
-                        }
-                    })
+
+                    })*/
                 }
             }}>
                 <i className="fa fa-check"></i>
@@ -102,8 +108,9 @@ class ReportingTaskPage extends Component {
                     NotificationManager.error('Please select worked hours!')
                 } else {
                     row.rowDataChanged = false
+
                     row.status = SC.STATUS_PENDING
-                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json => {
+                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)/*.then(json => {
                         console.log("reportTask response is ", json)
                         if (!json.success) {
                             console.log("json.success is false ")
@@ -111,7 +118,7 @@ class ReportingTaskPage extends Component {
                             row.rowDataChanged = true
                             this.forceUpdate()
                         }
-                    })
+                    })*/
                 }
             }}>
                 <i className="fa fa-close"></i>
@@ -127,7 +134,9 @@ class ReportingTaskPage extends Component {
                     NotificationManager.error('Please select worked hours!')
                 } else {
                     row.rowDataChanged = false
-                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json => {
+                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)
+                        /*
+                        .then(json => {
                         console.log("reportTask response is ", json)
                         if (!json.success) {
                             console.log("json.success is false ")
@@ -135,7 +144,7 @@ class ReportingTaskPage extends Component {
                             row.rowDataChanged = true
                             this.forceUpdate()
                         }
-                    })
+                    })*/
                 }
             }}>
                 <i className="fa fa-check"></i>
@@ -291,15 +300,18 @@ class ReportingTaskPage extends Component {
                                                            }
                                                        }}
                                     >Worked Hours</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Reported Status'}
+                                    <TableHeaderColumn row='1' editable={false} width="7%"
+                                                       columnTitle={'Reported Status'}
                                                        dataField="report"
                                                        dataFormat={this.formatReportStatus.bind(this)}>Status
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Mark as Complete'}
+                                    <TableHeaderColumn row='1' editable={false} width="7%"
+                                                       columnTitle={'Mark as Complete'}
                                                        dataField="Complete"
                                                        dataFormat={this.viewCompleteButton.bind(this)}>Complete
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Mark as Pending'}
+                                    <TableHeaderColumn row='1' editable={false} width="7%"
+                                                       columnTitle={'Mark as Pending'}
                                                        dataField="Pending"
                                                        dataFormat={this.viewPendingButton.bind(this)}>Pending
                                     </TableHeaderColumn>
