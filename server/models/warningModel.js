@@ -2015,7 +2015,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
             source: true
         })
     }
-//TOO MANY HOURS UPDATE
+    //TOO MANY HOURS UPDATE
     let warningsTooManyHours = await updateTooManyHoursOnTaskPlanDeleted(taskPlan, releasePlan, release, plannedDateUTC)
 
     if (warningsTooManyHours.added && warningsTooManyHours.added.length)
