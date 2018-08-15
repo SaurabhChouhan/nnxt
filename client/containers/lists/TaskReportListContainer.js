@@ -10,6 +10,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.TASK_REPORT_DETAIL_PAGE))
     },
+    getAllTaskReports: (release) => {
+        //dispatch(A.getAllTaskPlansOfThisReleaseFromServer(release._id))
+        dispatch(A.getTaskReportsReleasePlanPage(release._id))
+    }
 })
 
 const mapStateToProps = (state) => ({

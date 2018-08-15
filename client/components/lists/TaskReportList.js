@@ -24,6 +24,10 @@ class TaskReportList extends Component {
         }
     }
 
+    componentDidMount(){
+        this.props.getAllTaskReports(this.props.release)
+    }
+
     formatDeveloperName(employee) {
         if (employee)
             return employee.name

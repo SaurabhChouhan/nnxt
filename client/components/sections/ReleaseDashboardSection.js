@@ -103,6 +103,10 @@ class DashboardSection extends Component {
         super(props);
     }
 
+    componentDidMount(){
+        this.props.getDashboardData(this.props.release)
+    }
+
     onReleaseSelect(releaseID) {
         this.props.setReleaseID(releaseID)
     }

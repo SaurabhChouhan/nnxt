@@ -2951,7 +2951,7 @@ taskPlanningSchema.statics.getDataReportTaskDetailPage = async (taskPlanID, user
 
     let taskPlans = await TaskPlanningModel.find({
         'releasePlan._id': releasePlan._id,
-        'employee._id': user._id
+        'employee._id': taskPlan.employee._id
     })
 
 

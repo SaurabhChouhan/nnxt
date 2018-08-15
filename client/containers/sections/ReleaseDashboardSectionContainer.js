@@ -1,6 +1,10 @@
 import {connect} from 'react-redux'
 import {ReleaseDashboardSection} from "../../components"
+import * as A from "../../actions";
 
+const mapDispatchToprops = (dispatch, ownProps) => ({
+    getDashboardData: (release) => dispatch(A.getReleaseForDashboard(release._id))
+})
 
 const mapStateToProps = (state, ownProps) => ({
     plannedVsUnplannedWork: state.dashboard.plannedVsUnplannedWork,
@@ -15,7 +19,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const ReleaseDashboardSectionContainer = connect(
     mapStateToProps,
-    null
+    mapDispatchToprops
 )(ReleaseDashboardSection)
 
 export default ReleaseDashboardSectionContainer

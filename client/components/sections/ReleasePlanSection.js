@@ -164,7 +164,6 @@ class ReleasePlanSection extends Component {
                                         className={selectedTab === SC.RELEASE_PLAN_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
                                         onClick={() => {
                                             this.props.tabSelected(SC.RELEASE_PLAN_TAB)
-                                            this.props.getAllReleasePlans(release)
                                         }}>Release Plans
                                     </a>
                                 </li>
@@ -174,7 +173,6 @@ class ReleasePlanSection extends Component {
                                         className={selectedTab === SC.RELEASE_WARNINGS_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
                                         onClick={() => {
                                             this.props.tabSelected(SC.RELEASE_WARNINGS_TAB)
-                                            this.props.getAllWarnings(release)
                                         }}>Warnings
                                     </a>
                                 </li>
@@ -184,7 +182,6 @@ class ReleasePlanSection extends Component {
                                         className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
                                         onClick={() => {
                                             this.props.tabSelected(SC.RELEASE_TASK_PLANS_TAB)
-                                            this.props.getAllTaskPlans(release)
                                         }}>Task Plans
                                     </a>
                                 </li>
@@ -194,7 +191,6 @@ class ReleasePlanSection extends Component {
                                         className={selectedTab === SC.RELEASE_REPORT_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
                                         onClick={() => {
                                             this.props.tabSelected(SC.RELEASE_REPORT_TAB)
-                                            this.props.getAllTaskReports(release)
                                         }}>Task Report
                                     </a>
                                 </li>
@@ -203,11 +199,11 @@ class ReleasePlanSection extends Component {
                     </div>
                 </div>
                 <div className="col-md-12">
-                    {selectedTab === SC.RELEASE_DASHBOARD_TAB && <ReleaseDashboardSectionContainer/>}
-                    {selectedTab === SC.RELEASE_REPORT_TAB && <TaskReportListContainer/>}
-                    {selectedTab === SC.RELEASE_TASK_PLANS_TAB && <TaskPlanListContainer/>}
-                    {selectedTab === SC.RELEASE_WARNINGS_TAB && <WarningListContainer/>}
-                    {selectedTab === SC.RELEASE_PLAN_TAB && <ReleasePlanListContainer/>}
+                    {selectedTab === SC.RELEASE_DASHBOARD_TAB && <ReleaseDashboardSectionContainer release={release}/>}
+                    {selectedTab === SC.RELEASE_PLAN_TAB && <ReleasePlanListContainer release={release}/>}
+                    {selectedTab === SC.RELEASE_WARNINGS_TAB && <WarningListContainer release={release}/>}
+                    {selectedTab === SC.RELEASE_TASK_PLANS_TAB && <TaskPlanListContainer release={release}/>}
+                    {selectedTab === SC.RELEASE_REPORT_TAB && <TaskReportListContainer release={release}/>}
                 </div>
             </div>
 

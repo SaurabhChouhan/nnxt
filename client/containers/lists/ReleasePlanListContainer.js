@@ -37,6 +37,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             type: SC.TYPE_DEVELOPMENT
         }))
     },
+    getAllReleasePlans: (release) => dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
 })
 
 const mapStateToProps = (state) => ({
