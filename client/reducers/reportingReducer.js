@@ -38,6 +38,23 @@ const reportingReducer = (state = initialState, action) => {
                 availableReleases: action.releases,
                 dateStringOfReport: action.date
             })
+        case AC.TASK_REPORTED:
+            return Object.assign({}, state, {
+                availableReleases: state.availableReleases.map(r => {
+                    if (r._id.toString() == action.task.release._id.toString()) {
+                        return Object.assign({}, r, {
+                            tasks: r.tasks.map(t => {
+                                if (t._id.toString() == action.task._id.toString()) {
+                                    return action.task
+                                } else
+                                    return t
+                            })
+                        })
+                    } else
+                        return r
+
+                })
+            })
 
         case AC.REPORT_TASK_SELECTED:
             // task is selected to see task detail

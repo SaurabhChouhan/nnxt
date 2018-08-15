@@ -16,8 +16,8 @@ class ReportingTaskPage extends Component {
     }
 
     rowClassNameFormat(row, rowIdx) {
-        console.log("rowClassNameFormat called "+row.rowDataChanged)
-        return row.rowDataChanged ? 'td-row-changed' : row.status === SC.STATUS_COMPLETED ? 'td-row-completed' : row.status === SC.STATUS_PENDING ? 'td-row-pending' : 'td-row-unreported';
+        console.log("rowClassNameFormat called " + row.rowDataChanged)
+        return row.rowDataChanged ? 'td-row-changed' : row.report.status === SC.STATUS_COMPLETED ? 'td-row-completed' : row.report.status === SC.STATUS_PENDING ? 'td-row-pending' : 'td-row-unreported';
     }
 
     formatManager(row) {
@@ -47,14 +47,11 @@ class ReportingTaskPage extends Component {
         return ''
     }
 
-    formatReportedStatus(cell, row) {
-        if (cell)
-            return cell
-        else if (row.report && row.report.status) {
-            row.status = row.report.status
-            return row.report.status
-        }
-        return SC.REPORT_UNREPORTED
+    formatReportStatus(report) {
+
+        if (report && report.status)
+            return report.status
+        return SC.STATUS_UNREPORTED
     }
 
     formatReportedHours(cell, row) {
@@ -76,6 +73,52 @@ class ReportingTaskPage extends Component {
         )
     }
 
+    viewCompleteButton(cell, row, enumObject, rowIndex) {
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
+                if (row.reportedHours == null) {
+                    NotificationManager.error('Please select worked hours!')
+                } else {
+                    row.rowDataChanged = false
+                    row.status = SC.STATUS_COMPLETED
+                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json => {
+                        console.log("reportTask response is ", json)
+                        if (!json.success) {
+                            console.log("json.success is false ")
+                            console.log("row is ", row)
+                            row.rowDataChanged = true
+                            this.forceUpdate()
+                        }
+                    })
+                }
+            }}>
+                <i className="fa fa-check"></i>
+            </button>
+        )
+    }
+
+    viewPendingButton(cell, row, enumObject, rowIndex) {
+        return (<button className=" btn btn-custom " type="button" onClick={() => {
+                if (row.reportedHours == null) {
+                    NotificationManager.error('Please select worked hours!')
+                } else {
+                    row.rowDataChanged = false
+                    row.status = SC.STATUS_PENDING
+                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json => {
+                        console.log("reportTask response is ", json)
+                        if (!json.success) {
+                            console.log("json.success is false ")
+                            console.log("row is ", row)
+                            row.rowDataChanged = true
+                            this.forceUpdate()
+                        }
+                    })
+                }
+            }}>
+                <i className="fa fa-close"></i>
+            </button>
+        )
+    }
+
     viewSubmitButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
                 if (row.status == 'un-reported') {
@@ -84,9 +127,9 @@ class ReportingTaskPage extends Component {
                     NotificationManager.error('Please select worked hours!')
                 } else {
                     row.rowDataChanged = false
-                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json=>{
+                    this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType).then(json => {
                         console.log("reportTask response is ", json)
-                        if(!json.success){
+                        if (!json.success) {
                             console.log("json.success is false ")
                             console.log("row is ", row)
                             row.rowDataChanged = true
@@ -248,17 +291,17 @@ class ReportingTaskPage extends Component {
                                                            }
                                                        }}
                                     >Worked Hours</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' width="15%" columnTitle dataField="status"
-                                                       editable={{
-                                                           type: 'select',
-                                                           options: {
-                                                               values: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]
-                                                           }
-                                                       }} dataFormat={this.formatReportedStatus}>Reported
-                                        Status</TableHeaderColumn>
-                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Submit Report'}
-                                                       dataField="Submit Report"
-                                                       dataFormat={this.viewSubmitButton.bind(this)}>Submit
+                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Reported Status'}
+                                                       dataField="report"
+                                                       dataFormat={this.formatReportStatus.bind(this)}>Status
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Mark as Complete'}
+                                                       dataField="Complete"
+                                                       dataFormat={this.viewCompleteButton.bind(this)}>Complete
+                                    </TableHeaderColumn>
+                                    <TableHeaderColumn row='1' editable={false} width="7%" columnTitle={'Mark as Pending'}
+                                                       dataField="Pending"
+                                                       dataFormat={this.viewPendingButton.bind(this)}>Pending
                                     </TableHeaderColumn>
                                 </BootstrapTable>
 

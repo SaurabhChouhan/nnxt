@@ -80,6 +80,7 @@ export const STATUS_RELEASED = 'released'
 
 export const STATUS_PLAN_REQUESTED = 'plan-requested'
 export const STATUS_COMPLETED = 'completed'
+export const STATUS_UNREPORTED = 'un-reported'
 export const STATUS_UNPLANNED = 'unplanned'
 
 export const TYPE_DEVELOPMENT = 'development'

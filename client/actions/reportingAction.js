@@ -57,6 +57,11 @@ export const setReportsOfRelease = (reports) => ({
     reports: reports
 })
 
+export const taskReported = (task) => ({
+    type: AC.TASK_REPORTED,
+    task: task
+})
+
 
 /**
  * Gets all releases date

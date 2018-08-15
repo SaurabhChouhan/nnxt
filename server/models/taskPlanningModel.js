@@ -53,16 +53,9 @@ let taskPlanningSchema = mongoose.Schema({
             type: String,
             enum: [SC.REPORT_UNREPORTED, SC.REPORT_COMPLETED, SC.REPORT_PENDING]
         },
-        reasons: [{
-            type: String,
-            enum: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
-        }],
         reportedHours: {type: Number, default: 0},
         reportedOnDate: {type: Date},
-        comment: {
-            comment: String,
-            commentType: String
-        }
+        description: String
     }
 }, {
     usePushEach: true

@@ -35,6 +35,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         return dispatch(A.reportTaskToServer(inputTask)).then((json) => {
             if (json.success) {
                 NotificationManager.success('Task report submitted.')
+                dispatch(A.taskReported(json.data.taskPlan))
             } else
                 NotificationManager.error(json.message)
             return json

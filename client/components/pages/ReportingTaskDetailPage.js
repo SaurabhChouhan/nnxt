@@ -43,7 +43,7 @@ class ReportingTaskDetailPage extends React.Component {
 
         if (report && report.status)
             return report.status
-        return ''
+        return SC.STATUS_UNREPORTED
     }
 
     render() {
