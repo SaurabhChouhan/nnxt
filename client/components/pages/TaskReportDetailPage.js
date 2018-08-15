@@ -50,6 +50,10 @@ class TaskReportDetailPage extends React.Component {
         return ''
     }
 
+    assignedTasksRowClass(row) {
+        return row._id.toString() == this.props.taskPlan._id.toString() ? 'td-row-completed' : 'td-row-unreported'
+    }
+
     render() {
         const {taskPlan, release, releasePlan, taskPlans} = this.props
 
@@ -86,6 +90,7 @@ class TaskReportDetailPage extends React.Component {
                             striped={true}
                             hover={true}
                             options={this.taskListPageOptions}
+                            trClassName={this.assignedTasksRowClass.bind(this)}
                             pagination
                             height={"202px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
