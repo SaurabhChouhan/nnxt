@@ -11,9 +11,9 @@ export const showUsersTask = (tasks) => ({
     tasks: tasks
 })
 
-export const setTaskAndProjectDetails = (project) => ({
-    type: AC.SET_TASK_AND_PROJECT_DETAILS,
-    project: project
+export const setCalendarTaskDetails = (detail) => ({
+    type: AC.SET_CALENDAR_TASK_DETAILS,
+    detail: detail
 })
 
 export const getAllTaskPlansFromServer = () => {
@@ -36,7 +36,7 @@ export const getAllTaskPlansFromServer = () => {
 
 export const getTaskAndProjectDetailsForCalendarFromServer = (taskPlanID) => {
     return function (dispatch, getState) {
-        return fetch('/api/calendars/' + taskPlanID + '/task-plan',
+        return fetch('/api/calendars/task-details/task-plan/' + taskPlanID,
             {
                 method: "get",
                 credentials: "include"
@@ -45,7 +45,7 @@ export const getTaskAndProjectDetailsForCalendarFromServer = (taskPlanID) => {
             response => response.json()
         ).then(json => {
             if (json.success) {
-                dispatch(setTaskAndProjectDetails(json.data))
+                dispatch(setCalendarTaskDetails(json.data))
             }
             return json
         })

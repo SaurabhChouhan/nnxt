@@ -9,9 +9,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    selectedTaskPlan: state.calendar.selectedTaskPlan,
-    selectedRelease: state.calendar.selectedRelease,
-    selectedReleasePlan: state.calendar.selectedReleasePlan,
+    taskPlan: state.calendar.calendarTaskDetail.taskPlan,
+    release: state.calendar.calendarTaskDetail.release,
+    releasePlan: state.calendar.calendarTaskDetail.releasePlan,
+    taskPlans: state.calendar.calendarTaskDetail.taskPlans,
 
 })
 

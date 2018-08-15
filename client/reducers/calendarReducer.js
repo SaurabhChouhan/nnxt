@@ -11,7 +11,13 @@ const calendarPageReducer = (state = {
     defaultView: "week",
     defaultDate: undefined,
     selectedView: "week",
-    selectedDate: undefined
+    selectedDate: undefined,
+    calendarTaskDetail: {
+        taskPlan: {},
+        taskPlans: [],
+        release: {},
+        releasePlan: {}
+    }
 
 }, action) => {
     switch (action.type) {
@@ -22,14 +28,16 @@ const calendarPageReducer = (state = {
                 selectedDate: (action.date == null) ? state.defaultDate : action.date
             })
 
-        case AC.SET_TASK_AND_PROJECT_DETAILS:
+        case AC.SET_CALENDAR_TASK_DETAILS:
             return Object.assign({}, state, {
-                selectedRelease: Object.assign({}, action.project, {
-                    taskPlan: undefined,
-                    releasePlan: undefined
-                }),
-                selectedTaskPlan: action.project.taskPlan,
-                selectedReleasePlan: action.project.releasePlan
+                calendarTaskDetail: {
+                    taskPlan: action.detail.taskPlan,
+                    taskPlans: action.detail.taskPlans,
+                    release: action.detail.release,
+                    releasePlan: Object.assign({}, action.detail.releasePlan, {
+                        estimationDescription: action.detail.estimationDescription
+                    })
+                }
             })
 
         case AC.SHOW_USERS_TASKS:

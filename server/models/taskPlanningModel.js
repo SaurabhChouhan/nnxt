@@ -240,20 +240,51 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
 
 taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (taskPlanID, user) => {
 
+    /* checking release is valid or not */
+
+    if (!taskPlanID) {
+        throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
     let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
 
     if (!taskPlan) {
-        throw new AppError('taskPlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    if (!taskPlan.release || !taskPlan.release._id || !taskPlan.releasePlan || !taskPlan.releasePlan._id) {
-        throw new AppError('Not a valid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id))
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+        project: 1,
+        task: 1
+    })
+
+    /* user Role in this release to see task detail */
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    /* user assumes no role in this release */
+    if (userRolesInRelease.length == 0)
+        throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /* checking task plan is valid or not */
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
+        task: 1,
+        description: 1,
+        estimation: 1,
+        comments: 1,
+    })
+
+    let estimationDescription = {description: ''}
+
+    if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
+        estimationDescription = await MDL.EstimationModel.findOne({
+            '_id': mongoose.Types.ObjectId(releasePlan.estimation._id),
+            status: SC.STATUS_PROJECT_AWARDED
+        }, {
+            description: 1,
+            _id: 0
+        })
+    }
 
     releasePlan = releasePlan.toObject()
-
-    // Arrange comment list in ascending order with time in indian time zone
 
     releasePlan.comments.length ? releasePlan.comments.map(c => {
         console.log('iterating on comment ', c)
@@ -261,20 +292,20 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
         return c
     }) : []
 
-    if (!releasePlan) {
-        throw new AppError('releasePlan not found', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    // Find out all the task plans assigned against developer for this release plan
+
+    let taskPlans = await TaskPlanningModel.find({
+        'releasePlan._id': releasePlan._id,
+        'employee._id': user._id
+    })
+
+    return {
+        estimationDescription: estimationDescription.description,
+        taskPlan: taskPlan,
+        releasePlan: releasePlan,
+        release: release,
+        taskPlans: taskPlans
     }
-
-
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id))
-    if (!release) {
-        throw new AppError('release not found', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    }
-
-    release = release.toObject()
-    release.taskPlan = taskPlan
-    release.releasePlan = releasePlan
-    return release
 }
 
 

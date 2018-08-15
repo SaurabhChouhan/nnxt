@@ -13,9 +13,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    selectedTaskPlan: state.report.reportTaskDetail.taskPlan,
-    selectedRelease: state.report.reportTaskDetail.release,
-    selectedReleasePlan: state.report.reportTaskDetail.releasePlan,
+    taskPlan: state.report.reportTaskDetail.taskPlan,
+    release: state.report.reportTaskDetail.release,
+    releasePlan: state.report.reportTaskDetail.releasePlan,
     taskPlans: state.report.reportTaskDetail.taskPlans
 })
 

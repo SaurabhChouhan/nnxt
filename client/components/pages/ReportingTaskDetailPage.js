@@ -101,19 +101,6 @@ class ReportingTaskDetailPage extends React.Component {
                     </div>
                 </TimelineEvent>
 
-                <TimelineEvent title={'Task Day Description :'}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    <p className="description">  {taskPlan && taskPlan.description ? taskPlan.description : ''}</p>
-                </TimelineEvent>
-
-                <TimelineEvent title={'Task Description :'}
-                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    <p className="description">  {releasePlan && releasePlan.task && releasePlan.task.description ? releasePlan.task.description : ''}</p>
-                </TimelineEvent>
-
-
                 <TimelineEvent title={'Comments :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
@@ -146,6 +133,25 @@ class ReportingTaskDetailPage extends React.Component {
 
                     }
 
+                </TimelineEvent>
+
+                <TimelineEvent title={'Task Day Report Details :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <p className="description">  {taskPlan && taskPlan.report && taskPlan.report.description ? taskPlan.report.description : ''}</p>
+                </TimelineEvent>
+
+
+                <TimelineEvent title={'Task Day Requirement :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <p className="description">  {taskPlan && taskPlan.description ? taskPlan.description : ''}</p>
+                </TimelineEvent>
+
+                <TimelineEvent title={'Task Requirement:'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <p className="description">  {releasePlan && releasePlan.task && releasePlan.task.description ? releasePlan.task.description : ''}</p>
                 </TimelineEvent>
 
 
