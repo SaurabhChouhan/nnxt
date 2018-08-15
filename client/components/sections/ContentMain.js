@@ -60,6 +60,7 @@ class ContentMain extends Component {
         // All the routes that should be configured based on permissions this user has
         let routes = []
 
+
         routes.push({
             url: "/dashboard",
             render: (props) => {
