@@ -53,16 +53,9 @@ let taskPlanningSchema = mongoose.Schema({
             type: String,
             enum: [SC.REPORT_UNREPORTED, SC.REPORT_COMPLETED, SC.REPORT_PENDING]
         },
-        reasons: [{
-            type: String,
-            enum: [SC.REASON_GENERAL_DELAY, SC.REASON_EMPLOYEE_ON_LEAVE, SC.REASON_INCOMPLETE_DEPENDENCY, SC.REASON_NO_GUIDANCE_PROVIDED, SC.REASON_RESEARCH_WORK, SC.REASON_UNFAMILIAR_TECHNOLOGY]
-        }],
         reportedHours: {type: Number, default: 0},
         reportedOnDate: {type: Date},
-        comment: {
-            comment: String,
-            commentType: String
-        }
+        description: String
     }
 }, {
     usePushEach: true
@@ -247,31 +240,72 @@ taskPlanningSchema.statics.getAllTaskPlanningsForCalenderOfUser = async (user) =
 
 taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (taskPlanID, user) => {
 
+    /* checking release is valid or not */
+
+    if (!taskPlanID) {
+        throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
     let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
 
     if (!taskPlan) {
-        throw new AppError('taskPlan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    if (!taskPlan.release || !taskPlan.release._id || !taskPlan.releasePlan || !taskPlan.releasePlan._id) {
-        throw new AppError('Not a valid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id))
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+        project: 1,
+        task: 1
+    })
 
-    if (!releasePlan) {
-        throw new AppError('releasePlan not found', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    /* user Role in this release to see task detail */
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    /* user assumes no role in this release */
+    if (userRolesInRelease.length == 0)
+        throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /* checking task plan is valid or not */
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
+        task: 1,
+        description: 1,
+        estimation: 1,
+        comments: 1,
+    })
+
+    let estimationDescription = {description: ''}
+
+    if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
+        estimationDescription = await MDL.EstimationModel.findOne({
+            '_id': mongoose.Types.ObjectId(releasePlan.estimation._id),
+            status: SC.STATUS_PROJECT_AWARDED
+        }, {
+            description: 1,
+            _id: 0
+        })
     }
 
+    releasePlan = releasePlan.toObject()
 
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id))
-    if (!release) {
-        throw new AppError('release not found', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    releasePlan.comments.length ? releasePlan.comments.map(c => {
+        console.log('iterating on comment ', c)
+        c.dateInIndia = momentTZ(c.date).tz(SC.INDIAN_TIMEZONE).format('DD MMM,YY (hh:mm a)')
+        return c
+    }) : []
+
+    // Find out all the task plans assigned against developer for this release plan
+
+    let taskPlans = await TaskPlanningModel.find({
+        'releasePlan._id': releasePlan._id,
+        'employee._id': user._id
+    })
+
+    return {
+        estimationDescription: estimationDescription.description,
+        taskPlan: taskPlan,
+        releasePlan: releasePlan,
+        release: release,
+        taskPlans: taskPlans
     }
-
-    release = release.toObject()
-    release.taskPlan = taskPlan
-    release.releasePlan = releasePlan
-    return release
 }
 
 
@@ -1361,7 +1395,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      */
 
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
-    
+
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
 
@@ -2199,8 +2233,8 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
     logger.debug("addTaskReportPlannedUpdateRelease(): ", {finalStatus: releasePlan.report.finalStatus})
 
 
-    if (releasePlan.oldStatus === SC.STATUS_PENDING && releasePlan.report.finalStatus === SC.STATUS_COMPLETED) {
-        // if previous final status was pending, which is now changed to completed we can consider estimated hours to be completed
+    if (releasePlan.oldStatus !== SC.STATUS_COMPLETED && releasePlan.report.finalStatus === SC.STATUS_COMPLETED) {
+        // if previous final status was not completed, and now it is changed to completed we can consider estimated hours to be completed
         release.iterations[iterationIndex].estimatedHoursCompletedTasks += releasePlan.task.estimatedHours
     } else if (releasePlan.oldStatus === SC.STATUS_COMPLETED && releasePlan.report.finalStatus === SC.STATUS_PENDING) {
         /* When completed status is changed to pending we have to decrement estimated hours from overall statistics */
@@ -2218,6 +2252,7 @@ const addTaskReportPlannedUpdateTaskPlan = async (taskPlan, releasePlan, release
         taskPlan.report = {}
 
     taskPlan.report.status = reportInput.status
+    taskPlan.report.description = reportInput.reportDescription
 
     if (!reReport)
     /* only change reported on date if it is first report*/
@@ -2487,7 +2522,6 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
         taskPlan.release = releasePlan.release
         taskPlan.releasePlan = releasePlan
         taskPlan.employee = Object.assign({}, employee, {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
-        taskPlan.description = reportInput.description ? reportInput.description : ''
         taskPlan.task = releasePlan.task
         taskPlan.iterationType = SC.ITERATION_TYPE_UNPLANNED
         taskPlan.report = {
@@ -2536,6 +2570,8 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
     }
     // as we have calculated reported hours to increment we can set new reported hours in task plan
     taskPlan.report.reportedHours = reportInput.reportedHours
+    taskPlan.report.description = reportInput.reportDescription
+    taskPlan.description = reportInput.reportDescription
 
     logger.debug("rereport is calculated as ", {reReport})
 
@@ -2832,20 +2868,102 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
     }
 }
 
-/*
-GetReportTasks
+/**
+ * Returns data used to render (Release Plan Page -> Report Task Tab -> Task List)
  */
-taskPlanningSchema.statics.getReportsOfRelease = async (releaseID, user) => {
+
+taskPlanningSchema.statics.getReportsReleasePlanPage = async (releaseID, user) => {
     console.log("inside report fetch function")
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID))
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
+        _id: 1
+    })
+
     if (!release) {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
+
     return MDL.TaskPlanningModel.find({
         'release._id': mongoose.Types.ObjectId(release._id),
         'report.status': {$in: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
     }).sort({'report.reportedOnDate': -1})
 }
+
+/**
+ * Returns data used to render task details page that opens up on clicking a Reported Task on (Release Plan Page -> Report Task Tab -> Task List)
+ */
+
+taskPlanningSchema.statics.getDataReportTaskDetailPage = async (taskPlanID, user) => {
+
+    /* checking release is valid or not */
+
+    if (!taskPlanID) {
+        throw new AppError('task plan id not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanID))
+
+    if (!taskPlan) {
+        throw new AppError('Not a valid taskPlan', EC.NOT_EXISTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(taskPlan.release._id), {
+        project: 1,
+        task: 1
+
+    })
+
+    /* user Role in this release to see task detail */
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    /* user assumes no role in this release */
+    if (userRolesInRelease.length == 0)
+        throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    /* checking task plan is valid or not */
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlan.releasePlan._id), {
+        task: 1,
+        description: 1,
+        estimation: 1,
+        comments: 1,
+    })
+
+    let estimationDescription = {description: ''}
+
+    if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
+        estimationDescription = await MDL.EstimationModel.findOne({
+            '_id': mongoose.Types.ObjectId(releasePlan.estimation._id),
+            status: SC.STATUS_PROJECT_AWARDED
+        }, {
+            description: 1,
+            _id: 0
+        })
+    }
+
+    releasePlan = releasePlan.toObject()
+
+    releasePlan.comments.length ? releasePlan.comments.map(c => {
+        console.log('iterating on comment ', c)
+        c.dateInIndia = momentTZ(c.date).tz(SC.INDIAN_TIMEZONE).format('DD MMM,YY (hh:mm a)')
+        return c
+    }) : []
+
+    // Find out all the task plans assigned against developer for this release plan
+
+    let taskPlans = await TaskPlanningModel.find({
+        'releasePlan._id': releasePlan._id,
+        'employee._id': taskPlan.employee._id
+    })
+
+
+    return {
+        estimationDescription: estimationDescription.description,
+        taskPlan: taskPlan,
+        releasePlan: releasePlan,
+        release: release,
+        taskPlans: taskPlans
+    }
+}
+
 
 taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
     /* checking release is valid or not */
@@ -2889,6 +3007,15 @@ taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
             _id: 0
         })
     }
+
+    releasePlan = releasePlan.toObject()
+
+    releasePlan.comments.length ? releasePlan.comments.map(c => {
+        console.log('iterating on comment ', c)
+        c.dateInIndia = momentTZ(c.date).tz(SC.INDIAN_TIMEZONE).format('DD MMM,YY (hh:mm a)')
+        return c
+    }) : []
+
 
     return {
         estimationDescription: estimationDescription.description,

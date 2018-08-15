@@ -22,6 +22,10 @@ class WarningList extends Component {
         }
     }
 
+    componentDidMount(){
+        this.props.getAllWarnings(this.props.release)
+    }
+
 
     formatFlag(flag) {
         if (flag === SC.WARNING_UNPLANNED)

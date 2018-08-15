@@ -46,7 +46,8 @@ import {
     UpdateReleaseDatesFormDialog,
     EstimationAddToReleaseDialog,
     ReleasePlanAddToReleaseDialog,
-    TaskShiftDialog
+    TaskShiftDialog,
+    ReportTaskDescriptionFormDialog
 
 } from "../index"
 import {Route} from 'react-router-dom'
@@ -359,6 +360,11 @@ class ContentMain extends Component {
             render: (props) => {
                 return <ContentSection>
                     <ReportingTaskPageContainer name={COC.REPORTING_TASK_PAGE}/>
+                    <ReportTaskDescriptionFormDialog name={COC.REPORT_TASK_DESCRIPTION_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.REPORT_TASK_DESCRIPTION_DIALOG))
+                        }
+                    }/>
                 </ContentSection>
 
             }

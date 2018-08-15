@@ -30,6 +30,10 @@ class ReleasePlanList extends Component {
         this.onStatusChange = this.onStatusChange.bind(this)
     }
 
+    componentDidMount(){
+        this.props.getAllReleasePlans(this.props.release)
+    }
+
     onFlagChange(flag) {
         this.setState({flag: flag})
         this.props.changeReleaseFlag(this.props.release, this.state.status, flag)

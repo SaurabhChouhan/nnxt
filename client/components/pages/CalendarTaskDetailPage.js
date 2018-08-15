@@ -4,6 +4,7 @@ import moment from 'moment'
 import * as SC from '../../../server/serverconstants'
 import {withRouter} from 'react-router-dom'
 import {BootstrapTable, TableHeaderColumn} from "react-bootstrap-table";
+import momentTZ from "moment-timezone";
 
 class CalendarTaskDetailPage extends React.Component {
     constructor(props) {
@@ -16,8 +17,38 @@ class CalendarTaskDetailPage extends React.Component {
         }
     }
 
+    assignedTasksRowClass(row) {
+        return row._id.toString() == this.props.taskPlan._id.toString() ? 'td-row-completed' : 'td-row-unreported'
+    }
+
+    formatPlanDate(date) {
+        console.log('date found as ', date)
+        return momentTZ(date).utc().format('DD MMM,YY')
+    }
+
+    formatPlannedHours(planning) {
+        if (planning && planning.plannedHours)
+            return planning.plannedHours
+        return ''
+    }
+
+    formatReportedHours(report) {
+        if (report && report.reportedHours)
+            return report.reportedHours
+        return ''
+    }
+
+    formatReportStatus(report) {
+
+        if (report && report.status)
+            return report.status
+        return SC.STATUS_UNREPORTED
+    }
+
+
+
     render() {
-        const {selectedTaskPlan, selectedRelease, selectedReleasePlan} = this.props
+        const {taskPlan, release, releasePlan, taskPlans} = this.props
         return (
 
             <Timeline>
@@ -30,21 +61,65 @@ class CalendarTaskDetailPage extends React.Component {
                         <i className="glyphicon glyphicon-arrow-left"></i></button>
                 </span>
 
+                <TimelineEvent title={'Task Name :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    {taskPlan && taskPlan.task && taskPlan.task.name ? taskPlan.task.name : ''}
+                </TimelineEvent>
+
+                <TimelineEvent title={'Work Assigned to You for this Task:'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <div className="DeveloperTasksTable">
+                        <BootstrapTable
+                            data={taskPlans}
+                            striped={true}
+                            hover={true}
+                            options={this.taskListPageOptions}
+                            pagination
+                            trClassName={this.assignedTasksRowClass.bind(this)}
+                            height={"202px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"15%"} columnTitle dataField='planningDate'
+                                               dataFormat={this.formatPlanDate.bind(this)}>Planned Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"45%"} columnTitle dataField='description'>Tasks
+                                Description
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"15%"} columnTitle dataField='planning'
+                                               dataFormat={this.formatPlannedHours.bind(this)}>Planned Hours
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"15%"} columnTitle dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)}>Reported Hours
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"15%"} columnTitle dataField='report'
+                                               dataFormat={this.formatReportStatus.bind(this)}>Reported Status
+                            </TableHeaderColumn>
+                        </BootstrapTable>
+
+
+                    </div>
+                </TimelineEvent>
+
                 <TimelineEvent title={'Comments :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
                     {
                         <div className="ReportingCommentTable">
 
-                            <BootstrapTable data={selectedReleasePlan.comments}
+                            <BootstrapTable data={releasePlan.comments}
                                             striped={true}
                                             hover={true}
                                             options={this.commentListPageOptions}
                                             pagination
                                             height={"200px"}>
+                                <TableHeaderColumn width="12%" columnTitle dataField="dateInIndia">
+                                    Date/Time
+                                </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn width="40%" columnTitle dataField='comment'
+                                <TableHeaderColumn width="38%" columnTitle dataField='comment'
                                 >Comment
                                 </TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="commentType"
@@ -52,26 +127,30 @@ class CalendarTaskDetailPage extends React.Component {
                                     Comment Type</TableHeaderColumn>
                                 <TableHeaderColumn width="10%" columnTitle dataField="name">
                                     Commented By</TableHeaderColumn>
-                                <TableHeaderColumn width="10%" columnTitle dataField="dateString">
-                                    Date
-                                </TableHeaderColumn>
+
                             </BootstrapTable>
                         </div>
 
                     }
                 </TimelineEvent>
 
-
-                <TimelineEvent title={'Task Name :'}
+                <TimelineEvent title={'Task Day Report Details :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                    {selectedTaskPlan && selectedTaskPlan.task && selectedTaskPlan.task.name ? selectedTaskPlan.task.name : ''}
+                    <p className="description">  {taskPlan && taskPlan.report && taskPlan.report.description ? taskPlan.report.description : ''}</p>
+                </TimelineEvent>
+
+
+                <TimelineEvent title={'Task Day Requirement :'}
+                               icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
+                               style={{fontSize: '20px'}}>
+                    <p className="description">  {taskPlan && taskPlan.description ? taskPlan.description : ''}</p>
                 </TimelineEvent>
 
                 <TimelineEvent title={'Task Description :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
                                style={{fontSize: '20px'}}>
-                    <p className="description"> {selectedReleasePlan && selectedReleasePlan.task && selectedReleasePlan.task.description ? selectedReleasePlan.task.description : ''}</p>
+                    <p className="description"> {releasePlan && releasePlan.task && releasePlan.task.description ? releasePlan.task.description : ''}</p>
                 </TimelineEvent>
 
 
@@ -79,7 +158,7 @@ class CalendarTaskDetailPage extends React.Component {
                                title={'Project Name :'}
                                icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}>
 
-                    {selectedRelease && selectedRelease.project && selectedRelease.project.name ? selectedRelease.project.name : ''}
+                    {release && release.project && release.project.name ? release.project.name : ''}
                 </TimelineEvent>
 
 
@@ -87,47 +166,10 @@ class CalendarTaskDetailPage extends React.Component {
                                 title={'Project Description :'}
                                 icon={<i
                                     className="glyphicon glyphicon-tasks calendar_icon"></i>}>
-                    <p className="description">{selectedReleasePlan && selectedReleasePlan.estimationDescription ? selectedReleasePlan.estimationDescription : ''}</p>
+                    <p className="description">{releasePlan && releasePlan.estimationDescription ? releasePlan.estimationDescription : ''}</p>
                 </TimelineEvent>
 
 
-                <TimelineEvent title={'Assigned To You :'}
-                               icon={<i className="glyphicon glyphicon-user calendar_icon"></i>}
-                               style={{fontSize: '20px'}}>
-                    <Timeline>
-
-
-                        < TimelineEvent title={' Planned Date :'}
-                                        icon={<i
-                                            className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                        style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.planningDate ? moment(selectedTaskPlan.planningDate).format(SC.DATE_AND_TIME_FORMAT) : ''}
-                        </TimelineEvent>
-
-
-                        <TimelineEvent title={' Planned Hours :'}
-                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                       style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.planning && selectedTaskPlan.planning.plannedHours ? selectedTaskPlan.planning.plannedHours : ''}
-                        </TimelineEvent>
-
-
-                        <TimelineEvent title={'Details :'}
-                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                       style={{fontSize: '20px'}}>
-                            <p className="description">    {selectedTaskPlan && selectedTaskPlan.description ? selectedTaskPlan.description : ''}</p>
-                        </TimelineEvent>
-
-
-                        <TimelineEvent title={' Reported Status :'}
-                                       icon={<i className="glyphicon glyphicon-tasks calendar_icon"></i>}
-                                       style={{fontSize: '20px'}}>
-                            {selectedTaskPlan && selectedTaskPlan.report && selectedTaskPlan.report.status ? selectedTaskPlan.report.status : ''}
-                        </TimelineEvent>
-
-
-                    </Timeline>
-                </TimelineEvent>
 
 
             </Timeline>

@@ -7,6 +7,7 @@ import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     fetchWarningOnFlags: (warningType, release) => dispatch(A.getAllWarningsOfThisReleaseFromServer(warningType, release._id)),
+    getAllWarnings: (release) => dispatch(A.getAllWarningsOfThisReleaseFromServer(SC.ALL, release._id))
 })
 
 const mapStateToProps = (state) => ({

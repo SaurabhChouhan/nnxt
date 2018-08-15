@@ -6,15 +6,14 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    taskPlanSelected: (taskPlan) => dispatch(A.getTaskDetailsForReportFromServer(taskPlan._id)).then(json => {
-        if (json && json.releasePlan && json.releasePlan._id) {
-            dispatch(A.getAllTaskPlannedFromServer(json.releasePlan._id))
-        }
-        return json
-    }),
+    taskPlanSelected: (taskPlan) => dispatch(A.getDataForReportTaskDetailPageFromServer(taskPlan._id)),
     showTaskDetailPage: () => {
         dispatch(A.showComponentHideOthers(COC.TASK_REPORT_DETAIL_PAGE))
     },
+    getAllTaskReports: (release) => {
+        //dispatch(A.getAllTaskPlansOfThisReleaseFromServer(release._id))
+        dispatch(A.getTaskReportsReleasePlanPage(release._id))
+    }
 })
 
 const mapStateToProps = (state) => ({

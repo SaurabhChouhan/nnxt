@@ -15,7 +15,13 @@ let initialState = {
     iterationType: SC.ITERATION_TYPE_PLANNED,
     dateStringOfReport: U.getNowStringInIndia(),
     reportedTasks: [],
-    releasesReports: []
+    releasesReports: [],
+    reportTaskDetail: {
+        taskPlan: {},
+        taskPlans: [],
+        release: {},
+        releasePlan: {}
+    }
 }
 
 const reportingReducer = (state = initialState, action) => {
@@ -32,15 +38,35 @@ const reportingReducer = (state = initialState, action) => {
                 availableReleases: action.releases,
                 dateStringOfReport: action.date
             })
+        case AC.TASK_REPORTED:
+            return Object.assign({}, state, {
+                availableReleases: state.availableReleases.map(r => {
+                    if (r._id.toString() == action.task.release._id.toString()) {
+                        return Object.assign({}, r, {
+                            tasks: r.tasks.map(t => {
+                                if (t._id.toString() == action.task._id.toString()) {
+                                    return action.task
+                                } else
+                                    return t
+                            })
+                        })
+                    } else
+                        return r
+
+                })
+            })
 
         case AC.REPORT_TASK_SELECTED:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                taskPlan: action.taskPlan,
-                releasePlan: Object.assign({}, action.releasePlan, {
-                    estimationDescription: action.estimationDescription
-                }),
-                release: action.release
+                reportTaskDetail: {
+                    taskPlan: action.detail.taskPlan,
+                    taskPlans: action.detail.taskPlans,
+                    release: action.detail.release,
+                    releasePlan: Object.assign({}, action.detail.releasePlan, {
+                        estimationDescription: action.detail.estimationDescription
+                    })
+                }
             })
 
         case AC.UPDATE_SELECTED_TASK_PLAN:
@@ -52,7 +78,9 @@ const reportingReducer = (state = initialState, action) => {
         case AC.UPDATE_SELECTED_RELEASE_PLAN:
             // task is selected to see task detail
             return Object.assign({}, state, {
-                releasePlan: action.releasePlan
+                reportTaskDetail: Object.assign({}, state.reportTaskDetail, {
+                    releasePlan: action.releasePlan
+                })
             })
 
         case AC.SET_REPORT_DATE:

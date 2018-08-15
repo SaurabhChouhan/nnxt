@@ -36,12 +36,9 @@ export const releaseSelectedForReporting = (release) => ({
     release: release
 })
 
-export const setReportTaskPlanDetail = (taskPlan, releasePlan, release, estimationDescription) => ({
+export const setReportTaskPlanDetail = (detail) => ({
     type: AC.REPORT_TASK_SELECTED,
-    taskPlan: taskPlan,
-    releasePlan: releasePlan,
-    release: release,
-    estimationDescription: estimationDescription,
+    detail: detail
 })
 
 export const updateSelectedTaskPlan = (taskPlan) => ({
@@ -58,6 +55,11 @@ export const updateSelectedReleasePlan = (releasePlan) => ({
 export const setReportsOfRelease = (reports) => ({
     type: AC.SET_REPORTS_OF_RELEASE,
     reports: reports
+})
+
+export const taskReported = (task) => ({
+    type: AC.TASK_REPORTED,
+    task: task
 })
 
 
@@ -113,9 +115,9 @@ export const getReportingTasksForDate = (releaseID, date, iterationType, taskSta
 }
 
 
-export const getTaskDetailsForReportFromServer = (taskPlanID) => {
+export const getDataForReportTaskDetailPageFromServer = (taskPlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/task-plan/' + taskPlanID, {
+        return fetch('/api/reporting/report-task-detail-page/task-plan/' + taskPlanID, {
                 method: 'get',
                 credentials: 'include',
                 headers: {
@@ -128,16 +130,16 @@ export const getTaskDetailsForReportFromServer = (taskPlanID) => {
         ).then(
             json => {
                 if (json.success) {
-                    dispatch(setReportTaskPlanDetail(json.data.taskPlan, json.data.releasePlan, json.data.release, json.data.estimationDescription))
+                    dispatch(setReportTaskPlanDetail(json.data))
                 }
                 return json
             })
     }
 }
 
-export const getAllTaskReportsOfThisReleaseFromServer = (releaseID) => {
+export const getTaskReportsReleasePlanPage = (releaseID) => {
     return (dispatch, getState) => {
-        return fetch('/api/reporting/' + releaseID + '/release', {
+        return fetch('/api/reporting/release-plan-page/release/' + releaseID, {
                 method: 'get',
                 credentials: 'include',
                 headers: {

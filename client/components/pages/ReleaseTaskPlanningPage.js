@@ -24,6 +24,14 @@ class ReleaseTaskPlanningPage extends Component {
             showTaskReopenConfirmationDialog: false,
             row: {}
         };
+
+        this.taskListPageOptions = {
+            sizePerPageList: [{
+                text: '6', value: 6
+            }],
+            sizePerPage: 6,  // which size per page you want to locate as default
+        }
+
     }
 
 
@@ -91,7 +99,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     formatPlanningDate(row) {
         if (row && !_.isEmpty(row)) {
-            return moment(row, SC.DATE_SHOW).format(SC.DATE_SHOW)
+            return moment(row, SC.DATE_FORMAT).format(SC.DATE_SHOW)
             //return row
         }
         return ''
@@ -282,7 +290,11 @@ class ReleaseTaskPlanningPage extends Component {
                         <div className="estimation">
                             <BootstrapTable options={this.options} data={taskPlans}
                                             striped={true}
-                                            hover={true}>
+                                            hover={true}
+                                            height={"300px"}
+                                            options={this.taskListPageOptions}
+                                            pagination
+                            >
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
                                                    hidden={true}>ID</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planningDateString'

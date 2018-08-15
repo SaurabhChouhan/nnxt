@@ -20,10 +20,10 @@ let ReleaseTaskPlanningForm = (props) => {
     const max = devEndDateMoment.toDate()
 
     let employees = []
-    if(releasePlan && releasePlan.rolesInThisRelease){
-        if(releasePlan.rolesInThisRelease.indexOf(SC.ROLE_MANAGER) > -1)
-            employees = projectUsersOnly?releaseTeam:allTeam
-        else if(releasePlan.rolesInThisRelease.indexOf(SC.ROLE_LEADER) > -1)
+    if (releasePlan && releasePlan.rolesInThisRelease) {
+        if (releasePlan.rolesInThisRelease.indexOf(SC.ROLE_MANAGER) > -1)
+            employees = projectUsersOnly ? releaseTeam : allTeam
+        else if (releasePlan.rolesInThisRelease.indexOf(SC.ROLE_LEADER) > -1)
             employees = releaseTeam
     }
 
@@ -42,9 +42,16 @@ let ReleaseTaskPlanningForm = (props) => {
                        label={" Date :"} validate={[required]}/>
                 <Field name="planning.plannedHours"
                        placeholder={"Enter Hours"}
-                       component={renderText}
+                       component={renderSelect}
                        label={"Planning Hours:"}
-                       validate={[required, number]}/>
+                       validate={[required, number]}
+                       options={
+                           [{'name': '0.5'}, {'name': '1'}, {'name': '1.5'}, {'name': '2'}, {'name': '2.5'}, {'name': '3'}, {'name': '3.5'},
+                               {'name': '4'}, {'name': '4.5'}, {'name': '5'}, {'name': '5.5'}, {'name': '6'}, {'name': '6.5'}, {'name': '7'},
+                               {'name': '7.5'}, {'name': '8'}, {'name': '8.5'}, {'name': '9'}, {'name': '9.5'}, {'name': '10'}, {'name': '10.5'}
+                               ,{'name': '11'}, {'name': '11.5'}, {'name': '12'}]}
+                       valueField={"name"}
+                />
 
                 <Field name="employee.name" component="input" type="hidden"/>
                 {
@@ -71,6 +78,7 @@ let ReleaseTaskPlanningForm = (props) => {
                            label={"Description:"}
                            component={renderTextArea}
                            type="text"
+                           rows={8}
                            placeholder="Enter task description"
                            validate={[required]}/>
                 </div>

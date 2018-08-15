@@ -16,14 +16,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getAllReleasesFromServer(SC.ALL))
 
     },
-    getDashboardData: (release) => dispatch(A.getReleaseForDashboard(release._id)),
-    getAllReleasePlans: (release) => dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL)),
-    getAllWarnings: (release) => dispatch(A.getAllWarningsOfThisReleaseFromServer(SC.ALL, release._id)),
-    getAllTaskPlans: (release) => dispatch(A.getAllTaskPlansOfThisReleaseFromServer(release._id)),
-    getAllTaskReports: (release) => {
-        dispatch(A.getAllTaskPlansOfThisReleaseFromServer(release._id))
-        dispatch(A.getAllTaskReportsOfThisReleaseFromServer(release._id))
-    },
     tabSelected: (tab) => dispatch(A.releaseTabSelected(tab)),
     openUpdateReleaseDatesForm: (release) => {
         dispatch(initialize("update-release-dates", release.iterations[0]))
