@@ -17,7 +17,7 @@ const SidebarSection = (props) => {
             <div className="sidebarContent">
                 <div className="col-md-12 pad">
                     <ul className="list-unstyled">
-                        {
+                        {/*
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1) &&
                             <li><Link to="/app-home/dashboard" onClick={() => {
                                 props.dispatch(A.showComponentHideOthers(COC.DASHBOARD_SECTION))
@@ -29,7 +29,7 @@ const SidebarSection = (props) => {
                                     }
                                 })
                             }}>Dashboard</Link></li>
-                        }
+                        */  }
                         {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
                                 roles.indexOf('Developer') > -1) &&
