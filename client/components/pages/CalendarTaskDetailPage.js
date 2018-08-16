@@ -15,6 +15,13 @@ class CalendarTaskDetailPage extends React.Component {
             }],
             sizePerPage: 4,  // which size per page you want to locate as default
         }
+
+        this.taskListPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
     }
 
     assignedTasksRowClass(row) {

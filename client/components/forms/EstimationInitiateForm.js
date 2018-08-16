@@ -16,16 +16,25 @@ let EstimationInitiateForm = (props) => {
                        validate={[required]}/>
             </div>
             <div className="col-md-6">
-                <Field name="estimator._id" component={renderSelect} label={"Estimator:"} options={props.estimators}
-                       displayField={"firstName"} validate={[required]}/>
+                <Field name="module._id" component={renderSelect} label={"Module:"} options={props.modules}
+                       displayField={"firstName"}/>
             </div>
         </div>
         <div className="row">
             <div className="col-md-6">
-                <Field name="developmentType._id" component={renderSelect} label={"Development Type:"} options={props.developmentTypes}
-                       displayField={"name"} validate={[required]}/>
+                <Field name="estimator._id" component={renderSelect} label={"Estimator:"} options={props.estimators}
+                       displayField={"firstName"} validate={[required]}/>
             </div>
             <div className="col-md-6">
+                <Field name="developmentType._id" component={renderSelect} label={"Development Type:"}
+                       options={props.developmentTypes}
+                       displayField={"name"} validate={[required]}/>
+            </div>
+
+        </div>
+
+        <div className="row">
+            <div className="col-md-12">
                 <Field name="technologies" component={renderMultiSelect} label="technologies:"
                        data={props.technologies}/>
             </div>
@@ -33,7 +42,8 @@ let EstimationInitiateForm = (props) => {
 
         <div className="row">
             <div className="col-md-12">
-                <Field name="description" component={renderTextArea} label="Description:" validate={[required]} rows="10"/>
+                <Field name="description" component={renderTextArea} label="Description:" validate={[required]}
+                       rows="10"/>
             </div>
         </div>
         <div className="row initiatEstimation">

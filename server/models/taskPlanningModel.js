@@ -2131,8 +2131,16 @@ const addTaskReportPlannedUpdateReleasePlan = async (taskPlan, releasePlan, extr
         // The reported status would become final status of employee reporting, if reported date is same or greater than max reported date
         if (!maxReportedMoment || (maxReportedMoment.isSame(reportedMoment) || maxReportedMoment.isBefore(reportedMoment))) {
             if (releasePlan.report.employees[employeeReportIdx].finalStatus !== reportInput.status) {
-                releasePlan.report.employees[employeeReportIdx].finalStatus = reportInput.status
-                employeeFinalStatusChanged = true
+                logger.debug("addTaskReportPlannedUpdateReleasePlan(): reported status is different then final status for employee")
+                logger.debug("addTaskReportPlannedUpdateReleasePlan(): final status ", {finalStatus: releasePlan.report.employees[employeeReportIdx].finalStatus})
+                logger.debug("addTaskReportPlannedUpdateReleasePlan(): taskPlan.report.status ", {reportStatus: taskPlan.report.status})
+                if (releasePlan.report.employees[employeeReportIdx].finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
+                    // This means that task was already reported as completed and that completion was not due to this task but some other task on same date
+                    // It is possible for employee to report a task as completed and then mark another task of same release plan on same date as pending
+                } else {
+                    releasePlan.report.employees[employeeReportIdx].finalStatus = reportInput.status
+                    employeeFinalStatusChanged = true
+                }
             }
         }
 
@@ -2336,6 +2344,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     }
 
 
+    let finalStatusFromCompleteToPending = false;
     if (employeeReportIdx != -1) {
         /**
          * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
@@ -2349,10 +2358,21 @@ const addTaskReportPlanned = async (reportInput, employee) => {
             // See if task was reported in future if so only possible status is pending
             if (reportedMoment.isBefore(maxReportedMoment) && (reportInput.status !== SC.REPORT_PENDING)) {
                 throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
-            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED)
+            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED) {
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
+            } else if (reportedMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
+                // This means task was reported as complete in another task plan of same date throw error
+                throw new AppError('You have reported this Release Plan as [' + SC.REPORT_COMPLETED + '] in another task, cant do it in another task now.')
+            }
+
+            if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
+                // User has marked this task as completed and again changed it back to pending
+                finalStatusFromCompleteToPending = true
+
+            }
         }
     }
+
 
     /* In case this is re-reporting this diff reported hours would help in adjusting statistics */
     let reportedHoursToIncrement = 0
@@ -2398,7 +2418,8 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
         reportedMoment,
         employeePlanningIdx,
-        reportInput
+        reportInput,
+        finalStatusFromCompleteToPending
     })
 
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)

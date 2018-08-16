@@ -40,7 +40,8 @@ const mapStateToProps = (state, ownProps) => ({
     ) : [],
     projects: state.project.all,
     technologies: state.technology.all,
-    developmentTypes: state.developmentType.all
+    developmentTypes: state.developmentType.all,
+    modules: state.module.all,
 })
 
 const EstimationInitiateFormContainer = connect(

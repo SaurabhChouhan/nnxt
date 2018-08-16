@@ -98,7 +98,8 @@ class TaskReportDetailPage extends React.Component {
                             <TableHeaderColumn width={"15%"} columnTitle dataField='planningDate'
                                                dataFormat={this.formatPlanDate.bind(this)}>Planned Date
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"75%"} columnTitle  tdStyle={ { whiteSpace: 'normal' } }  dataField='description'>Tasks
+                            <TableHeaderColumn width={"75%"} columnTitle tdStyle={{whiteSpace: 'normal'}}
+                                               dataField='description'>Tasks
                                 Description
                             </TableHeaderColumn>
                             <TableHeaderColumn width={"15%"} columnTitle dataField='report'

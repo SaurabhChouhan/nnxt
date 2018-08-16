@@ -76,6 +76,17 @@ let warningSchema = mongoose.Schema({
     usePushEach: true
 })
 
+const copyWarnings = (source, target) => {
+    if (!source || !target || !Array.isArray(target.added) || !Array.isArray(target.removed))
+        return
+
+
+    if (source.added && source.added.length)
+        target.added.push(...source.added)
+    if (source.removed && source.removed.length)
+        target.removed.push(...source.removed)
+
+}
 
 /*-------------------------------------------------------------------GET_WARNINGS_SECTION_START---------------------------------------------------------------------*/
 warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
@@ -285,7 +296,7 @@ const taskReportedAsCompleted = async (taskPlan, releasePlan, beforeEndDate) => 
             }
         })]
         completeBeforeWarning.taskPlans = [Object.assign({}, taskPlan.toObject(), {source: true})]
-
+        completeBeforeWarning.employee = taskPlan.employee
         // save
         await completeBeforeWarning.save()
 
@@ -472,7 +483,6 @@ const taskReportedAsPending = async (taskPlan, onEndDate) => {
             await pendingOnEndDateWarning.save()
             return warningResponse
         } else {
-
             // Warning pending on end date yet not added against this employee
             pendingOnEndDateWarning = {}
             pendingOnEndDateWarning.type = SC.WARNING_PENDING_ON_END_DATE
@@ -517,6 +527,43 @@ const taskReportedAsPending = async (taskPlan, onEndDate) => {
             })
         }
     }
+
+    return warningResponse
+}
+
+const deleteCompletedBeforeEndDate = async (taskPlan, releasePlan) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    // find complete before warning
+
+    let completedBeforeEndDateWarning = await WarningModel.findOne({
+        type: SC.WARNING_COMPLETED_BEFORE_END_DATE,
+        'releasePlans': {
+            '$elemMatch': {
+                _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                'employee._id': mongoose.Types.ObjectId(taskPlan.employee._id)
+            }
+        }
+    })
+
+    if (completedBeforeEndDateWarning)
+        await completedBeforeEndDateWarning.remove()
+
+    warningResponse.removed.push({
+        _id: releasePlan._id,
+        warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+        type: SC.WARNING_COMPLETED_BEFORE_END_DATE
+    })
+
+    warningResponse.removed.push({
+        _id: taskPlan._id,
+        warningType: SC.WARNING_TYPE_TASK_PLAN,
+        type: SC.WARNING_COMPLETED_BEFORE_END_DATE
+    })
+
     return warningResponse
 }
 
@@ -531,41 +578,53 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release, extr
         removed: []
     }
 
-    const {reportedMoment, employeePlanningIdx, reportInput} = extra
+    const {reportedMoment, employeePlanningIdx, reportInput, finalStatusFromCompleteToPending} = extra
 
     // Removed unreported flag
 
     let unreportedWarning = await removeUnreported(taskPlan)
 
+    /*
     if (unreportedWarning.added && unreportedWarning.added.length)
         warningResponse.added.push(...unreportedWarning.added)
     if (unreportedWarning.removed && unreportedWarning.removed.length)
         warningResponse.removed.push(...unreportedWarning.removed)
-
+        */
+    copyWarnings(unreportedWarning, warningResponse)
     let generatedWarningsMoreReportedHours = await updateMoreReportedHours(releasePlan, release)
 
+    /*
     if (generatedWarningsMoreReportedHours.added && generatedWarningsMoreReportedHours.added.length)
         warningResponse.added.push(...generatedWarningsMoreReportedHours.added)
     if (generatedWarningsMoreReportedHours.removed && generatedWarningsMoreReportedHours.removed.length)
         warningResponse.removed.push(...generatedWarningsMoreReportedHours.removed)
+        */
+    copyWarnings(generatedWarningsMoreReportedHours, warningResponse)
 
 
     /**
      * Check if employee has reported task on last date of planning against this employee
      */
-    if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
-        if (reportInput.status === SC.REPORT_PENDING) {
+
+    if (reportInput.status === SC.REPORT_PENDING) {
+
+        if (reportedMoment.isSame(releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate)) {
             // Add appropriate warnings
             let warningsReportedAsPending = await taskReportedAsPending(taskPlan, true)
 
             logger.debug('addTaskReport(): taskReportedAsPending ', {warningsReportedAsPending})
-
             // Iterate through warnings and see what flags needs to be added to which task plans/release plans/releases
-
+            /*
             if (warningsReportedAsPending.added && warningsReportedAsPending.added.length)
                 warningResponse.added.push(...warningsReportedAsPending.added)
             if (warningsReportedAsPending.removed && warningsReportedAsPending.removed.length)
                 warningResponse.removed.push(...warningsReportedAsPending.removed)
+                */
+            copyWarnings(warningsReportedAsPending, warningResponse)
+        } else if (finalStatusFromCompleteToPending) {
+            // reported moment is before max planning date and final status was completed and now it is changed to pending
+            let warningDeleteCompletedBeforeEndDate = await deleteCompletedBeforeEndDate(taskPlan, releasePlan)
+            copyWarnings(warningDeleteCompletedBeforeEndDate, warningResponse)
         }
     }
 
@@ -579,10 +638,18 @@ warningSchema.statics.taskReported = async (taskPlan, releasePlan, release, extr
             warningReportedAsCompleted = await taskReportedAsCompleted(taskPlan, releasePlan, true)
         }
 
+        logger.debug("taskReported(): ", {warningReportedAsCompleted})
+
+        /*
         if (warningReportedAsCompleted.added && warningReportedAsCompleted.added.length)
             warningResponse.added.push(...warningReportedAsCompleted.added)
         if (warningReportedAsCompleted.removed && warningReportedAsCompleted.removed.length)
             warningResponse.removed.push(...warningReportedAsCompleted.removed)
+            */
+
+        copyWarnings(warningReportedAsCompleted, warningResponse)
+        logger.debug("taskReported(): ", {warningResponse})
+
     }
     return warningResponse
 }
@@ -2015,7 +2082,7 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
             source: true
         })
     }
-//TOO MANY HOURS UPDATE
+    //TOO MANY HOURS UPDATE
     let warningsTooManyHours = await updateTooManyHoursOnTaskPlanDeleted(taskPlan, releasePlan, release, plannedDateUTC)
 
     if (warningsTooManyHours.added && warningsTooManyHours.added.length)
