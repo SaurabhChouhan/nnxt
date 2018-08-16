@@ -870,7 +870,7 @@ estimationSchema.statics.addEstimationToExistingRelease = async (releaseInput, n
         throw new AppError('Only estimations with status [' + SC.STATUS_APPROVED + '] can be added to release', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
     releaseInput.estimation = estimation
-    const release = await  MDL.ReleaseModel.updateRelease(releaseInput, negotiator, estimation)
+    const release = await MDL.ReleaseModel.updateRelease(releaseInput, negotiator, estimation)
 
     const taskList = await MDL.EstimationTaskModel.find({
         'estimation._id': estimation._id,
