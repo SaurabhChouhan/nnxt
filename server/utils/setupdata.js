@@ -692,9 +692,15 @@ const addTechnologies = async () => {
         })
     }
 
-    if (!await MDL.TechnologyModel.exists('React Native')) {
+    if (!await MDL.TechnologyModel.exists('Java')) {
         await MDL.TechnologyModel.saveTechnology({
-            name: 'React Native'
+            name: 'Java'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('Spring')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Spring'
         })
     }
 
@@ -713,6 +719,12 @@ const addTechnologies = async () => {
     if (!await MDL.TechnologyModel.exists('Koa')) {
         await MDL.TechnologyModel.saveTechnology({
             name: 'Koa'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('React Native')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'React Native'
         })
     }
 
