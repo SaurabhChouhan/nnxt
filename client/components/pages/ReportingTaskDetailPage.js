@@ -16,6 +16,13 @@ class ReportingTaskDetailPage extends React.Component {
             }],
             sizePerPage: 4,  // which size per page you want to locate as default
         }
+
+        this.taskListPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
     }
 
     assignedTasksRowClass(row) {
@@ -120,7 +127,8 @@ class ReportingTaskDetailPage extends React.Component {
                                 height={"300px"}>
                                 <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn width="12%" columnTitle dataField="date" dataFormat={this.formatCommentDate.bind(this)}>
+                                <TableHeaderColumn width="12%" columnTitle dataField="date"
+                                                   dataFormat={this.formatCommentDate.bind(this)}>
                                     Date/Time
                                 </TableHeaderColumn>
 
