@@ -16,6 +16,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getAllReleasesFromServer(SC.ALL))
 
     },
+    getDashboardData: (release) => dispatch(A.getReleaseForDashboard(release._id)),
     tabSelected: (tab) => dispatch(A.releaseTabSelected(tab)),
     openUpdateReleaseDatesForm: (release) => {
         dispatch(initialize("update-release-dates", release.iterations[0]))
