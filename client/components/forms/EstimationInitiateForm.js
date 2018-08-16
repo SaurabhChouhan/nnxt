@@ -17,7 +17,7 @@ let EstimationInitiateForm = (props) => {
             </div>
             <div className="col-md-6">
                 <Field name="module._id" component={renderSelect} label={"Module:"} options={props.modules}
-                       displayField={"firstName"} validate={[required]}/>
+                       displayField={"firstName"}/>
             </div>
         </div>
         <div className="row">

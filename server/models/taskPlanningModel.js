@@ -2344,6 +2344,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     }
 
 
+    let finalStatusFromCompleteToPending = false;
     if (employeeReportIdx != -1) {
         /**
          * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
@@ -2363,8 +2364,15 @@ const addTaskReportPlanned = async (reportInput, employee) => {
                 // This means task was reported as complete in another task plan of same date throw error
                 throw new AppError('You have reported this Release Plan as [' + SC.REPORT_COMPLETED + '] in another task, cant do it in another task now.')
             }
+
+            if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
+                // User has marked this task as completed and again changed it back to pending
+                finalStatusFromCompleteToPending = true
+
+            }
         }
     }
+
 
     /* In case this is re-reporting this diff reported hours would help in adjusting statistics */
     let reportedHoursToIncrement = 0
@@ -2410,7 +2418,8 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
         reportedMoment,
         employeePlanningIdx,
-        reportInput
+        reportInput,
+        finalStatusFromCompleteToPending
     })
 
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)

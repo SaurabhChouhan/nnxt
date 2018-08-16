@@ -204,7 +204,7 @@ export const addNNXTData = async () => {
     await addNNXTUsers()
     await addDevelopmentTypes()
     await addClients()
-    await addProjects()
+    //await addProjects()
     await addLeaveTypes()
     await addTechnologies()
     //await addRepositoryTasksAndFeatures()
@@ -514,6 +514,7 @@ const addClients = async () => {
         })
     }
 
+    /*
     if (!await MDL.ClientModel.exists('Javed')) {
         await MDL.ClientModel.saveClient({
             name: 'Javed'
@@ -525,6 +526,7 @@ const addClients = async () => {
             name: 'Zakhir'
         })
     }
+    */
 
 }
 

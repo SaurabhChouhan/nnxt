@@ -211,14 +211,20 @@ estimationSchema.statics.getById = async estimationID => {
  * Estimation is initiated by Negotiator
  * @param estimationInput
  */
-estimationSchema.statics.initiate = async (estimationInput, negotiator) => {
+estimationSchema.statics.initiate = async (estimationInput, user) => {
 
     // validate input
     V.validate(estimationInput, V.estimationInitiationStruct)
 
+    let negotiator = await MDL.UserModel.findById(user._id)
+
     // enhance estimation input as per requirement
-    if (!negotiator || !userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
-        throw new AppError('Not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+    if (!negotiator)
+        throw new AppError('User not found', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
+    if(!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+        throw new AppError('User not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
+
 
     let project = await MDL.ProjectModel.findById(estimationInput.project._id)
     if (!project)
