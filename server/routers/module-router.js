@@ -1,7 +1,7 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
 import * as V from "../validation"
-import projectRouter from "./project-router";
+
 
 let moduleRouter = new Router({
     prefix: "modules"
@@ -14,6 +14,10 @@ moduleRouter.get("/", async ctx => {
 
 
 moduleRouter.post("/", async ctx => {
+    if (ctx.schemaRequested)
+        return V.generateSchema(V.moduleAdditionStruct)
+
+    V.validate(ctx.request.body, V.moduleAdditionStruct)
 
     return await MDL.ModuleModel.saveModule(ctx.request.body)
 })
