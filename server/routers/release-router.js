@@ -31,7 +31,7 @@ releaseRouter.get("/status/:status", async ctx => {
 /***
  * Update Release dates to another date for re-schedule
  ***/
-releaseRouter.put("/", async ctx => {
+releaseRouter.put("/release-date", async ctx => {
     return await MDL.ReleaseModel.updateReleaseDates(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 })
 

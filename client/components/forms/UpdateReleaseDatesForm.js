@@ -1,41 +1,40 @@
 import React, {Component} from 'react'
 import {Field,formValueSelector, reduxForm} from 'redux-form'
-import {renderDateTimePickerString, renderDateTimeStringShow, renderField} from './fields'
+import {renderDateTimePickerString, renderDateTimeStringShow, renderField, renderSelect} from './fields'
 import {required} from "./validation"
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
-import * as SC from '../../../server/serverconstants'
-import * as U from '../../../server/utils'
+import * as SC from "../../../server/serverconstants";
 
 moment.locale('en')
 momentLocalizer()
 let UpdateReleaseDatesForm = (props) => {
-    const {change, team, handleSubmit, submitting, pristine, reset, release, rePlanStartDate, rePlanEndDate, rePlanningClientReleaseDate} = props
-    const todayMoment = U.nowMomentInTimeZone(SC.INDIAN_TIMEZONE)
-    const startDateMoment = moment(rePlanStartDate).hour(0).minute(0).second(0).milliseconds(0)
-    const endDateMoment = moment(rePlanEndDate).hour(0).minute(0).second(0).milliseconds(0)
-    const clientReleaseDate = moment(rePlanningClientReleaseDate).hour(0).minute(0).second(0).milliseconds(0)
+    const {handleSubmit, submitting, pristine, reset, release, change} = props
 
+    let iterations = release.iterations.filter(i => i.type === SC.ITERATION_TYPE_ESTIMATED)
 
     return <form onSubmit={handleSubmit}>
 
-        <div className="col-md-10">
+        <div className="col-md-8">
 
-            <Field name="release._id" component="input" type="hidden"/>
+            <Field name="_id" component="input" type="hidden"/>
 
-            { <label>Project Name : {release.project.name +' '+ release.name}</label>}
-            <Field name="devStartDate"
-                   placeholder={"Date"}
-                   component={renderDateTimeStringShow}
-                   showTime={false}
-                   formate={SC.DATE_AND_DAY_SHOW_FORMAT}
-                   label={"Start Date : "}
-                   validate={[required]}
-            />
+            <div className="col-md-10 col-md-offset-1">
+                <Field name="iteration._id" component={renderSelect} label={"Iteration :"} options={iterations}
+                       validate={[required]} onChange={(event, newValue, oldValue) => {
+                           let iteration = release.iterations.find(i => i._id.toString() == newValue)
+                           const devStartDate = moment(iteration.devStartDate).format(SC.DATE_FORMAT)
+                           const devEndDate = moment(iteration.devEndDate).format(SC.DATE_FORMAT)
+                           const clientReleaseDate = moment(iteration.clientReleaseDate).format(SC.DATE_FORMAT)
+                           change("updatedDevStartDate", devStartDate)
+                           change("updatedDevEndDate", devEndDate)
+                           change("updatedClientReleaseDate", clientReleaseDate)
+                }}/>
+            </div>
 
-            <div className="col-md-11">
-                <Field name="rePlanStartDate"
+            <div className="col-md-10 col-md-offset-1">
+                <Field name="updatedDevStartDate"
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
@@ -45,18 +44,8 @@ let UpdateReleaseDatesForm = (props) => {
                 />
             </div>
 
-            <Field name="devEndDate"
-                   placeholder={"Date"}
-                   component={renderDateTimeStringShow}
-                   showTime={false}
-
-                   formate={SC.DATE_AND_DAY_SHOW_FORMAT}
-                   label={"End Date : "}
-                   validate={[required]}
-            />
-
-            <div className="col-md-11">
-                <Field name="rePlanEndDate"
+            <div className="col-md-10 col-md-offset-1">
+                <Field name="updatedDevEndDate"
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
@@ -66,23 +55,14 @@ let UpdateReleaseDatesForm = (props) => {
                 />
             </div>
 
-            <Field name="clientReleaseDate"
-                   placeholder={"Date"}
-                   component={renderDateTimeStringShow}
-                   showTime={false}
-                   formate={SC.DATE_AND_DAY_SHOW_FORMAT}
-                   label={"Client Release Date : "}
-                   validate={[required]}
-            />
-
-
-            <div className="col-md-11">
-                <Field name="rePlanningClientReleaseDate"
+            <div className="col-md-10 col-md-offset-1">
+                <Field name="updatedClientReleaseDate"
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
-                       label={"Replanned Client Release Date :"}
+                       label={"Client Release Date :"}
                        validate={[required]}
+                       dropUp={true}
                 />
             </div>
 
