@@ -27,9 +27,9 @@ class ReleaseTaskPlanningPage extends Component {
 
         this.taskListPageOptions = {
             sizePerPageList: [{
-                text: '6', value: 6
+                text: '5', value: 5
             }],
-            sizePerPage: 6,  // which size per page you want to locate as default
+            sizePerPage: 5  // which size per page you want to locate as default
         }
 
     }
