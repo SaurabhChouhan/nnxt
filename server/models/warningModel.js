@@ -3188,52 +3188,6 @@ const removeUnreported = async (taskPlan) => {
     return warningResponse
 }
 
-const taskReopenedCompletedBeforeEndDate = async (taskPlan) => {
-
-    let warningResponse = {
-        added: [],
-        removed: []
-    }
-
-    /**
-     * In case task was completed before end date there would be a completed before end date warning associated with this release plan
-     */
-
-    let completedBeforeEndDateWarning = await WarningModel.findOne({
-        type: SC.WARNING_COMPLETED_BEFORE_END_DATE,
-        'releasePlans': {
-            '$elemMatch': {
-                _id: mongoose.Types.ObjectId(taskPlan.releasePlan._id),
-                'employee._id': mongoose.Types.ObjectId(taskPlan.employee._id)
-            }
-        }
-    })
-
-    if (completedBeforeEndDateWarning) {
-        // remove warning
-        completedBeforeEndDateWarning.releasePlans.forEach(rp => {
-            warningResponse.removed.push({
-                _id: rp._id,
-                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: SC.WARNING_COMPLETED_BEFORE_END_DATE
-            })
-        })
-
-        completedBeforeEndDateWarning.taskPlans.forEach(rp => {
-            warningResponse.removed.push({
-                _id: rp._id,
-                warningType: SC.WARNING_TYPE_TASK_PLAN,
-                type: SC.WARNING_COMPLETED_BEFORE_END_DATE
-            })
-        })
-        // remove warning
-        await completedBeforeEndDateWarning.remove()
-    }
-
-    return warningResponse
-}
-
-
 const taskReopenedPendingOnEndDate = async (taskPlan) => {
 
     let warningResponse = {
@@ -3318,7 +3272,7 @@ const taskReopenedPendingOnEndDate = async (taskPlan) => {
  * @returns {Promise.<*>}
  */
 
-warningSchema.statics.taskReopened = async (taskPlan, extra) => {
+warningSchema.statics.taskReopened = async (taskPlan, releasePlan, extra) => {
     //logger.debug('taskReportedAsPendingOnEndDate(): taskplan ', {taskPlan})
 
     let {onEndDate, beforeEndDate} = extra
@@ -3329,21 +3283,14 @@ warningSchema.statics.taskReopened = async (taskPlan, extra) => {
     }
 
     if (onEndDate) {
-        let pendingOnEndDateWarning = await taskReopenedPendingOnEndDate(taskPlan)
-        if (pendingOnEndDateWarning.added && pendingOnEndDateWarning.added.length)
-            warningResponse.added.push(...pendingOnEndDateWarning.added)
-        if (pendingOnEndDateWarning.removed && pendingOnEndDateWarning.removed.length)
-            warningResponse.removed.push(...pendingOnEndDateWarning.removed)
+        let pendingOnEndDateWarning = await taskReopenedPendingOnEndDate(taskPlan, releasePlan)
+        copyWarnings(pendingOnEndDateWarning, warningResponse)
     }
 
     if (beforeEndDate) {
-        let completedBeforeEndDateWarning = await taskReopenedCompletedBeforeEndDate(taskPlan)
-
-        console.log("WarningModel.taskReopened(): ", {completedBeforeEndDateWarning})
-        if (completedBeforeEndDateWarning.added && completedBeforeEndDateWarning.added.length)
-            warningResponse.added.push(...completedBeforeEndDateWarning.added)
-        if (completedBeforeEndDateWarning.removed && completedBeforeEndDateWarning.removed.length)
-            warningResponse.removed.push(...completedBeforeEndDateWarning.removed)
+        // task reopend before end date there must be completed before end date warning, delete that warning now
+        let completedBeforeEndDateWarning = await deleteCompletedBeforeEndDate(taskPlan, releasePlan)
+        copyWarnings(completedBeforeEndDateWarning, warningResponse)
     }
 
     return warningResponse

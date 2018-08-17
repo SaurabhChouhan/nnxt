@@ -2708,7 +2708,7 @@ taskPlanningSchema.statics.reopenTask = async (taskPlanID, user) => {
 
     logger.debug("taskReopened(): before task reopened warnings")
 
-    let warningsReopenTask = await MDL.WarningModel.taskReopened(taskPlan, {
+    let warningsReopenTask = await MDL.WarningModel.taskReopened(taskPlan, releasePlan, {
         onEndDate,
         beforeEndDate
     })
