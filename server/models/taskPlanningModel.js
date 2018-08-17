@@ -985,9 +985,11 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlanningInput.planningDate, SC.INDIAN_TIMEZONE)
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
+    /*
     if (momentPlanningDateIndia.isBefore(new Date())) {
         throw new AppError('Cannot add planning for past date', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
+    */
 
     /* Conversion of planned hours in number format */
     let plannedHourNumber = Number(taskPlanningInput.planning.plannedHours)
@@ -1819,6 +1821,19 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
     if (count == 0)
         throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
+    // See if there are any reported tasks from this planning date, if yes shifting couldn't occur
+
+    count = await MDL.TaskPlanningModel.count({
+            'employee._id': employee._id,
+            'planningDate': {$gte: shiftStartMoment.toDate()},
+            'release._id': release._id,
+            'report.reportedOnDate': {$ne: null}
+        }
+    )
+
+    if(count > 0)
+        throw new AppError('Operation is causing shift of reported tasks. Operation not allowed!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
     let shiftDates = await getFutureShiftDates(shiftInput, shiftStartMoment, employee, release)
 
     logger.debug("shiftings ", {shiftData: shiftDates})
@@ -2012,6 +2027,17 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
 
     if (count == 0)
         throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+
+    count = await MDL.TaskPlanningModel.count({
+            'employee._id': employee._id,
+            'planningDate': {$gte: shiftStartMoment.toDate()},
+            'release._id': release._id,
+            'report.reportedOnDate': {$ne: null}
+        }
+    )
+
+    if(count > 0)
+        throw new AppError('Operation is causing shift of reported tasks. Operation not allowed!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* checking user role in this release */
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
