@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Field,formValueSelector, reduxForm} from 'redux-form'
+import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderDateTimePickerString, renderDateTimeStringShow, renderField, renderSelect} from './fields'
 import {required} from "./validation"
 import moment from 'moment'
@@ -10,7 +10,14 @@ import * as SC from "../../../server/serverconstants";
 moment.locale('en')
 momentLocalizer()
 let UpdateReleaseDatesForm = (props) => {
-    const {handleSubmit, submitting, pristine, reset, release, change} = props
+    const {
+        handleSubmit, submitting, pristine, reset, release, change,
+        updatedDevStartDate, updatedDevEndDate, updatedClientReleaseDate
+    } = props
+
+    let startMoment = moment(updatedDevStartDate, SC.DATE_FORMAT)
+    let endMoment = moment(updatedDevEndDate, SC.DATE_FORMAT)
+    let clientMoment = moment(updatedClientReleaseDate, SC.DATE_FORMAT)
 
     let iterations = release.iterations.filter(i => i.type === SC.ITERATION_TYPE_ESTIMATED)
 
@@ -23,13 +30,13 @@ let UpdateReleaseDatesForm = (props) => {
             <div className="col-md-10 col-md-offset-1">
                 <Field name="iteration._id" component={renderSelect} label={"Iteration :"} options={iterations}
                        validate={[required]} onChange={(event, newValue, oldValue) => {
-                           let iteration = release.iterations.find(i => i._id.toString() == newValue)
-                           const devStartDate = moment(iteration.devStartDate).format(SC.DATE_FORMAT)
-                           const devEndDate = moment(iteration.devEndDate).format(SC.DATE_FORMAT)
-                           const clientReleaseDate = moment(iteration.clientReleaseDate).format(SC.DATE_FORMAT)
-                           change("updatedDevStartDate", devStartDate)
-                           change("updatedDevEndDate", devEndDate)
-                           change("updatedClientReleaseDate", clientReleaseDate)
+                    let iteration = release.iterations.find(i => i._id.toString() == newValue)
+                    const devStartDate = moment(iteration.devStartDate).format(SC.DATE_FORMAT)
+                    const devEndDate = moment(iteration.devEndDate).format(SC.DATE_FORMAT)
+                    const clientReleaseDate = moment(iteration.clientReleaseDate).format(SC.DATE_FORMAT)
+                    change("updatedDevStartDate", devStartDate)
+                    change("updatedDevEndDate", devEndDate)
+                    change("updatedClientReleaseDate", clientReleaseDate)
                 }}/>
             </div>
 
@@ -38,8 +45,8 @@ let UpdateReleaseDatesForm = (props) => {
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
-
                        label={"Re-Plan Start Date :"}
+                       max={endMoment.toDate()}
                        validate={[required]}
                 />
             </div>
@@ -49,7 +56,8 @@ let UpdateReleaseDatesForm = (props) => {
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
-
+                       min={startMoment.toDate()}
+                       max={clientMoment.toDate()}
                        label={"Replanned End Date :"}
                        validate={[required]}
                 />
@@ -62,6 +70,7 @@ let UpdateReleaseDatesForm = (props) => {
                        showTime={false}
                        label={"Client Release Date :"}
                        validate={[required]}
+                       min={endMoment.toDate()}
                        dropUp={true}
                 />
             </div>
@@ -93,11 +102,11 @@ const selector = formValueSelector('update-release-dates')
 
 UpdateReleaseDatesForm = connect(
     state => {
-        const {rePlanStartDate, rePlanEndDate, rePlanningClientReleaseDate} = selector(state, 'rePlanStartDate', rePlanEndDate, 'rePlanningClientReleaseDate')
+        const {updatedDevStartDate, updatedDevEndDate, updatedClientReleaseDate} = selector(state, 'updatedDevStartDate', 'updatedDevEndDate', 'updatedClientReleaseDate')
         return {
-            rePlanStartDate,
-            rePlanEndDate,
-            rePlanningClientReleaseDate
+            updatedDevStartDate,
+            updatedDevEndDate,
+            updatedClientReleaseDate
         }
     }
 )(UpdateReleaseDatesForm)
