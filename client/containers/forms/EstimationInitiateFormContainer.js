@@ -36,7 +36,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     estimators: state.user.all && Array.isArray(state.user.all) && state.user.all.length ? state.user.all.filter(user =>
-        state.user && state.user.loggedIn && state.user.loggedIn._id && user._id.toString() != state.user.loggedIn._id.toString() && user.roles && user.roles.length ? user.roles.findIndex(r => r.name == SC.ROLE_ESTIMATOR) != -1 : false
+        state.user && state.user.loggedIn && state.user.loggedIn._id && user._id.toString() !== state.user.loggedIn._id.toString() && user.roles && user.roles.length ? user.roles.findIndex(r => r.name === SC.ROLE_ESTIMATOR) != -1 : false
     ) : [],
     projects: state.project.all,
     technologies: state.technology.all,
