@@ -1088,27 +1088,6 @@ const updateEmployeeReleaseOnDeleteTaskPlanning = async (taskPlan, releasePlan, 
     return employeeRelease
 }
 
-
-const EmployeeStatisticsUpdateOnDeleteTaskPlanning = async (taskPlan, releasePlan, employee, plannedHourNumber, user) => {
-    /* when task plan is removed we have to decrease employee statistics  planned hours*/
-    let EmployeeStatisticsModelInput = {
-        release: {
-            _id: taskPlan.release._id.toString(),
-        },
-        employee: {
-            _id: employee._id.toString(),
-        },
-        task: {
-            _id: releasePlan._id.toString(),
-            plannedHours: plannedHourNumber,
-            reportedHours: Number(0),
-            plannedHoursReportedTasks: Number(0)
-        }
-    }
-    return await MDL.EmployeeStatisticsModel.decreaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput, user)
-}
-
-
 const employeeDaysUpdateOnDeleteTaskPlanning = async (taskPlan, employee, plannedHourNumber, user) => {
 
     /* when task plan is removed we have to decrease employee days  planned hours */
@@ -1381,6 +1360,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
      * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
      */
 
+    /*
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
 
     // add 1 day to this date
@@ -1391,6 +1371,7 @@ taskPlanningSchema.statics.deleteTaskPlanning = async (taskPlanID, user) => {
     if (momentPlanningDateIndia.isBefore(new Date())) {
         throw new AppError('Planning date is already over, cannot delete!', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
     }
+    */
 
     if (taskPlan.report.reportedOnDate)
         throw new AppError('Task is already reported, cannot delete!', EC.ALREADY_REPORTED, EC.HTTP_BAD_REQUEST)
@@ -2335,7 +2316,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     logger.debug("addTaskReportPlanned(): Past task count is ", {pastTaskCount})
 
     if (pastTaskCount > 0)
-        throw new AppError('Task has unreported entries in Past!', EC.HAS_UNREPORTED_TASKS, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Please report past entries of this Task first!', EC.HAS_UNREPORTED_TASKS, EC.HTTP_BAD_REQUEST)
 
     // Find out existing employee report data for this release plan
     let employeeReportIdx = -1
