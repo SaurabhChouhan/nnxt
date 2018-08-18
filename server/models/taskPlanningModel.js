@@ -882,26 +882,15 @@ const addTaskPlanUpdateReleasePlan = async (releasePlan, employee, plannedHourNu
                 return e._id.toString() == employee._id.toString()
             })
 
-
             if (employeeReportIdx > -1) {
                 releasePlan.report.employees[employeeReportIdx].finalStatus = SC.STATUS_PENDING
             }
         }
     }
 
-    let oldStatus = releasePlan.report.finalStatus
-
-    // As task was added against thie release plan, final status would rest to pending
-    if (releasePlan.report.finalStatus) {
-        releasePlan.report.finalStatus = SC.STATUS_PENDING
-    }
-
-    //logger.debug('addTaskPlanning(): updated release plan', {releasePlan})
-
     let progress = getNewProgressPercentage(releasePlan)
     releasePlan.diffProgress = progress - releasePlan.report.progress
     releasePlan.report.progress = progress
-    releasePlan.oldStatus = oldStatus
     return releasePlan
 }
 
@@ -918,12 +907,6 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
     if (releasePlan.diffPlannedHoursEstimatedTasks) {
         release.iterations[iterationIndex].plannedHoursEstimatedTasks += releasePlan.diffPlannedHoursEstimatedTasks
-    }
-
-    // As task was added which would make release plan status as pending so adjust completed tasks
-    // If final status was completed before addition of this task
-    if (releasePlan.oldStatus == SC.STATUS_COMPLETED) {
-        release.iterations[iterationIndex].estimatedHoursCompletedTasks -= releasePlan.task.estimatedHours
     }
 
     logger.debug('addTaskPlanning(): [updated release]: ', {release})
@@ -1007,8 +990,10 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
 
     if (employeeReportIdx > -1) {
         // check to see if employee has reported this task as completed if 'yes', task cannot be planned against this employee
-        if (releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED)
-            throw new AppError('Employee reported this task as [' + SC.REPORT_COMPLETED + ']. Cannot plan until reopen.', EC.CANT_PLAN, EC.HTTP_BAD_REQUEST)
+        let maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
+
+        if(momentPlanningDate.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED)
+            throw new AppError('Employee reported this task as [' + SC.REPORT_COMPLETED + ']. Cannot plan in future until reopen.', EC.CANT_PLAN, EC.HTTP_BAD_REQUEST)
     }
 
     /* Get employee roles in this project that this task is planned against*/
@@ -2371,6 +2356,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
 
 
     let finalStatusFromCompleteToPending = false;
+    let finalStatusStillCompleted = false;
     if (employeeReportIdx != -1) {
         /**
          * User has reported tasks of this release plan earlier as well, validate status using following rules, employee cannot report status as
@@ -2394,7 +2380,9 @@ const addTaskReportPlanned = async (reportInput, employee) => {
             if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
                 // User has marked this task as completed and again changed it back to pending
                 finalStatusFromCompleteToPending = true
-
+            } else if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_PENDING) {
+                // Final status of this task is completed and user has reported some other task on max reported date as pending
+                finalStatusStillCompleted = true
             }
         }
     }
@@ -2445,7 +2433,9 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         reportedMoment,
         employeePlanningIdx,
         reportInput,
-        finalStatusFromCompleteToPending
+        finalStatusFromCompleteToPending,
+        finalStatusStillCompleted
+
     })
 
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)

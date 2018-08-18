@@ -45,7 +45,7 @@ let UpdateReleaseDatesForm = (props) => {
                        placeholder={"Date"}
                        component={renderDateTimePickerString}
                        showTime={false}
-                       label={"Re-Plan Start Date :"}
+                       label={"Dev Start Date :"}
                        max={endMoment.toDate()}
                        validate={[required]}
                 />
@@ -58,7 +58,7 @@ let UpdateReleaseDatesForm = (props) => {
                        showTime={false}
                        min={startMoment.toDate()}
                        max={clientMoment.toDate()}
-                       label={"Replanned End Date :"}
+                       label={"Dev Release Date:"}
                        validate={[required]}
                 />
             </div>
