@@ -389,9 +389,7 @@ const updateEmployeeReleaseApproveLeave = async (releases, leave) => {
         } else {
             throw AppError('Employee release should be found for this release/employee combination ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
         }
-
     }
-
 }
 
 leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
@@ -506,6 +504,50 @@ leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
     }
 }
 
+const updateEmployeeReleaseRevokeLeave = async (releases, leave) => {
+
+    for (const release of releases) {
+        // Find out employee release there should only be one employee release
+        let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+            "employee._id": leave.user._id,
+            "release._id": release._id
+        })
+
+        if (employeeRelease) {
+            logger.debug("updateEmployeeReleaseRevokeLeave(): ", {employeeRelease})
+            // Now we would calculate sum of all tasks on leave date range
+            let sumResult = await MDL.TaskPlanningModel.aggregate({
+                $match: {
+                    $and: [
+                        {'planningDate': {$gte: leave.startDate}},
+                        {'planningDate': {$lte: leave.endDate}}
+                    ],
+                    'employee._id': mongoose.Types.ObjectId(leave.user._id),
+                    'release._id': mongoose.Types.ObjectId(release._id)
+                }
+            }, {
+                $group: {
+                    _id: null,
+                    sumPlannedHours: {$sum: '$planning.plannedHours'}
+                }
+            })
+
+            if (sumResult && sumResult.length) {
+                employeeRelease.leaves.plannedHoursOnLeave -= sumResult[0].sumPlannedHours
+            }
+
+            if (leave.isLastMinuteLeave)
+                employeeRelease.leaves.plannedHoursLastMinuteLeave -= sumResult[0].sumPlannedHours
+
+            await employeeRelease.save()
+
+            logger.debug("updateEmployeeReleaseRevokeLeave(): ", {sumResult})
+
+        } else {
+            throw AppError('Employee release should be found for this release/employee combination ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+        }
+    }
+}
 
 leaveSchema.statics.revokeLeave = async (leaveID, user) => {
     let leave = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
@@ -526,6 +568,30 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
     if (!startDateInIndia.isAfter(pastMidnightIndia) && _.includes([SC.LEAVE_STATUS_APPROVED], leave.status))
         throw new AppError("Can remove approved leave upto 1 day prior to their start date", EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
 
+
+    /*--------------------------------EMPLOYEE RELEASE UPDATES---------------------------*/
+
+    if(leave.status == SC.LEAVE_STATUS_APPROVED){
+        // Revoking leave request after its approval would change employee release leave statistics
+
+        // Find out all the release IDs that this leave has impact on
+        let associatedReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
+            $and: [
+                {'planningDate': {$gte: leave.startDate}},
+                {'planningDate': {$lte: leave.endDate}}
+            ],
+            'employee._id': mongoose.Types.ObjectId(leave.user._id)
+        })
+
+        if (associatedReleaseIDs && associatedReleaseIDs.length) {
+            // Iterate over all associated releases and calculate employee releases
+            let releases = await MDL.ReleaseModel.getReleasesByIDs(associatedReleaseIDs)
+            await updateEmployeeReleaseRevokeLeave(releases, leave)
+        }
+    }
+
+
+
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
     let generatedWarnings = {
         added: [],
@@ -541,8 +607,6 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
         generatedWarnings.removed.push(...warningsLeaveRevoked.removed)
 
     let affected = await updateFlags(generatedWarnings)
-
-
     /*------------------------------------LEAVE DELETION SECTION----------------------------------*/
     await leave.remove()
 
