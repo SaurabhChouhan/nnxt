@@ -380,7 +380,7 @@ const updateEmployeeReleaseApproveLeave = async (releases, leave) => {
             }
 
             if (leave.isLastMinuteLeave)
-                employeeRelease.leaves.lastMinuteLeaves += 1
+                employeeRelease.leaves.plannedHoursLastMinuteLeave += sumResult[0].sumPlannedHours
 
             await employeeRelease.save()
 

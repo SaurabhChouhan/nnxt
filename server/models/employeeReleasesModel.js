@@ -29,7 +29,7 @@ let employeeReleasesSchema = mongoose.Schema({
     plannedHoursReportedTasks: {type: Number, default: 0},
     leaves: {
         plannedHoursOnLeave: {type: Number, default: 0},
-        lastMinuteLeaves: {type: Number, default: 0}
+        plannedHoursLastMinuteLeave: {type: Number, default: 0}
     }
 })
 
