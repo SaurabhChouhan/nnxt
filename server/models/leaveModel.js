@@ -7,6 +7,7 @@ import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
 import * as MDL from "../models";
 import _ from "lodash"
+import moment from 'moment'
 
 mongoose.Promise = global.Promise
 
@@ -38,7 +39,8 @@ let leaveSchema = mongoose.Schema({
     endDateString: {type: String, required: true},
     numberOfLeaveDays: {type: Number, required: true},
     created: {type: Date, default: Date.now()},
-    updated: {type: Date, default: Date.now()}
+    updated: {type: Date, default: Date.now()},
+    isLastMinuteLeave: {type: Boolean, default: false}
 })
 
 
@@ -238,7 +240,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
         ]
     })
 
-    if(countLeave > 0){
+    if (countLeave > 0) {
         throw new AppError("Leave dates conflicts with other raised/approved leave", EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
@@ -246,14 +248,24 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     if (!leaveDaysCount)
         leaveDaysCount = 0
 
+
+    let employeeSetting = await MDL.EmployeeSettingModel.getEmployeeSettings()
+
+
     leaveDaysCount = Number(leaveDaysCount)
     let leaveType = await MDL.LeaveTypeModel.findById(mongoose.Types.ObjectId(leaveInput.leaveType._id))
     let newLeave = new LeaveModel()
-
     newLeave.startDate = startDateMoment.toDate()
     newLeave.startDateString = leaveInput.startDate
     newLeave.endDate = endDateMoment.toDate()
     newLeave.endDateString = leaveInput.endDate
+
+    let diffLeaveFromToday = startDateMoment.diff(moment(), 'days')
+    logger.debug("raiseLeaveRequest ", {diffLeaveFromToday})
+    logger.debug("raiseLeaveRequest ", {urgentLeaveDiff: employeeSetting.urgentLeaveDiff})
+
+    if (diffLeaveFromToday <= employeeSetting.urgentLeaveDiff)
+        newLeave.isLastMinuteLeave = true
 
     //note:- this case for current date raise leave
     newLeave.numberOfLeaveDays = leaveDaysCount + 1
@@ -335,6 +347,52 @@ const updateEmployeeStatisticsOnLeaveApprove = async (leave, requester, approver
   */
 }
 
+const updateEmployeeReleaseApproveLeave = async (releases, leave) => {
+
+    for (const release of releases) {
+        // Find out employee release there should only be one employee release
+        let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+            "employee._id": leave.user._id,
+            "release._id": release._id
+        })
+
+        if (employeeRelease) {
+            logger.debug("updateEmployeeReleaseApproveLeave(): ", {employeeRelease})
+            // Now we would calculate sum of all tasks on leave date range
+            let sumResult = await MDL.TaskPlanningModel.aggregate({
+                $match: {
+                    $and: [
+                        {'planningDate': {$gte: leave.startDate}},
+                        {'planningDate': {$lte: leave.endDate}}
+                    ],
+                    'employee._id': mongoose.Types.ObjectId(leave.user._id),
+                    'release._id': mongoose.Types.ObjectId(release._id)
+                }
+            }, {
+                $group: {
+                    _id: null,
+                    sumPlannedHours: {$sum: '$planning.plannedHours'}
+                }
+            })
+
+            if (sumResult && sumResult.length) {
+                employeeRelease.leaves.plannedHoursOnLeave += sumResult[0].sumPlannedHours
+            }
+
+            if (leave.isLastMinuteLeave)
+                employeeRelease.leaves.lastMinuteLeaves += 1
+
+            await employeeRelease.save()
+
+            logger.debug("updateEmployeeReleaseApproveLeave(): ", {sumResult})
+
+        } else {
+            throw AppError('Employee release should be found for this release/employee combination ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+        }
+
+    }
+
+}
 
 leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
     let leave = await LeaveModel.findById(mongoose.Types.ObjectId(leaveID))
@@ -352,8 +410,23 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
         throw new AppError('Leave already approved', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    /*--------------------------------EMPLOYEE STATISTICS UPDATE SECTION---------------------------*/
-    //await updateEmployeeStatisticsOnLeaveApprove(leave, employee, approver)
+    /*--------------------------------EMPLOYEE RELEASE UPDATES---------------------------*/
+
+    // Find out all the release IDs that this leave has impact on
+    let associatedReleaseIDs = await MDL.TaskPlanningModel.distinct('release._id', {
+        $and: [
+            {'planningDate': {$gte: leave.startDate}},
+            {'planningDate': {$lte: leave.endDate}}
+        ],
+        'employee._id': mongoose.Types.ObjectId(leave.user._id)
+    })
+
+    if (associatedReleaseIDs && associatedReleaseIDs.length) {
+        // Iterate over all associated releases and calculate employee releases
+        let releases = await MDL.ReleaseModel.getReleasesByIDs(associatedReleaseIDs)
+        await updateEmployeeReleaseApproveLeave(releases, leave)
+    }
+
     /*------------------------------------LEAVE APPROVAL SECTION----------------------------------*/
 
     leave.status = SC.LEAVE_STATUS_APPROVED
@@ -375,7 +448,6 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
         generatedWarnings.removed.push(...warningsLeaveApproved.removed)
 
     let affected = await updateFlags(generatedWarnings)
-
 
     leave = leave.toObject()
     leave.canDelete = approver._id.toString() === employee._id.toString()

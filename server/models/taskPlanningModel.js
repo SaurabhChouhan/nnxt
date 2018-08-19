@@ -10,7 +10,6 @@ import * as V from '../validation'
 import * as U from '../utils'
 import * as EM from '../errormessages'
 import _ from 'lodash'
-import ReleasePlanModel from "./releasePlanModel";
 
 mongoose.Promise = global.Promise
 
@@ -62,7 +61,6 @@ let taskPlanningSchema = mongoose.Schema({
 })
 
 /*-----------------------------------------------------------------GET_TASK_PLANS_START---------------------------------------------------------------*/
-
 
 taskPlanningSchema.statics.getTaskPlansByIDs = async (taskPlanIDs, select) => {
     let taskPlans = []
@@ -968,6 +966,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     let momentPlanningDateIndia = U.momentInTimeZone(taskPlanningInput.planningDate, SC.INDIAN_TIMEZONE)
     // add 1 day to this date
     momentPlanningDateIndia.add(1, 'days')
+
     /*
     if (momentPlanningDateIndia.isBefore(new Date())) {
         throw new AppError('Cannot add planning for past date', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
