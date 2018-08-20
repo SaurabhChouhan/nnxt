@@ -19,7 +19,7 @@ class TechnologyList extends Component {
         this.setState({showTechnologyDeletionDialog: false})
     }
 
-    OkConfimationForDeleteTechnology() {
+    OkConfirmationForDeletingTechnology() {
         this.setState({showTechnologyDeletionDialog: false})
         this.props.deleteTechnology(this.state.addRow)
     }
@@ -41,7 +41,7 @@ class TechnologyList extends Component {
     render() {
         return (
             <div>{this.state.showTechnologyDeletionDialog &&
-            <ConfirmationDialog show={true} onConfirm={this.OkConfimationForDeleteTechnology.bind(this)}
+            <ConfirmationDialog show={true} onConfirm={this.OkConfirmationForDeletingTechnology.bind(this)}
                                 title={CM.DELETE_TECHNOLOGY} onClose={this.onClose.bind(this)}
                                 body={CM.DELETE_TECHNOLOGY_BODY}/>
             }

@@ -19,7 +19,7 @@ class ClientList extends Component {
         this.setState({showClientDeletionDialog: false})
     }
 
-    OkConfimationForDeletingClient() {
+    OkConfirmationForDeletingClient() {
         this.setState({showClientDeletionDialog: false})
         this.props.deleteClient(this.state.addRow)
     }
@@ -53,7 +53,7 @@ class ClientList extends Component {
     render() {
         return (
             <div>{this.state.showClientDeletionDialog &&
-            <ConfirmationDialog show={true} onConfirm={this.OkConfimationForDeletingClient.bind(this)}
+            <ConfirmationDialog show={true} onConfirm={this.OkConfirmationForDeletingClient.bind(this)}
                                 title={CM.DELETE_CLIENT} onClose={this.onClose.bind(this)}
                                 body={CM.DELETE_CLIENT_BODY}/>
             }
