@@ -5,8 +5,10 @@ import * as EC from '../errorcodes'
 import * as MDL from '../models'
 import * as V from '../validation'
 import momentTZ from 'moment-timezone'
+import moment from 'moment'
 import * as U from '../utils'
 import EstimationModel from "./estimationModel";
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -46,7 +48,11 @@ let releaseSchema = mongoose.Schema({
         email: {type: String, required: [true, 'Developer email name is required']}
     }],
     iterations: [{
-        type: {type: String},
+        type: {
+            type: String,
+            enum: [SC.ITERATION_TYPE_ESTIMATED, SC.ITERATION_TYPE_PLANNED, SC.ITERATION_TYPE_UNPLANNED]
+        },
+        name: {type: String},
         expectedBilledHours: {type: Number, default: 0}, // expected billed hours
         billingRate: {type: Number, default: 0}, // Billing rate per hours
         estimatedHours: {type: Number, default: 0}, // sum of estimated hours of all release plan
@@ -225,6 +231,7 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
      */
     releaseInput.iterations = [{
         type: SC.ITERATION_TYPE_ESTIMATED,
+        name: releaseData.releaseVersionName,
         estimatedHours: estimation.estimatedHours,
         expectedBilledHours: releaseData.billedHours,
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
@@ -252,7 +259,13 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
     return await ReleaseModel.create(releaseInput)
 }
 
-releaseSchema.statics.updateRelease = async (releaseData, user, estimation) => {
+/**
+ * Creates a new iteration for this estimation and adds all the task plan to this release
+ * @param releaseData
+ * @param user
+ * @param estimation
+ */
+releaseSchema.statics.addEstimationToRelease = async (releaseData, user, estimation) => {
     const release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseData.release._id))
     if (!release)
         throw new AppError('Release not found', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -277,6 +290,7 @@ releaseSchema.statics.updateRelease = async (releaseData, user, estimation) => {
         devStartDate: devStartDate.toDate(),
         devEndDate: devEndDate.toDate(),
         negotiator: user,
+        name: releaseData.name,
         stats: estimation.stats.map(s => {
             return {
                 type: s.type,
@@ -313,15 +327,43 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
 
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseInput._id))
 
-    release.devStartDate = U.dateInUTC(releaseInput.devStartDate)
-    release.devEndDate = U.dateInUTC(releaseInput.devReleaseDate)
-    release.clientReleaseDate = U.dateInUTC(releaseInput.clientReleaseDate)
+    let iterationIdx = release.iterations.findIndex(i => i._id.toString() == releaseInput.iteration._id.toString())
+    logger.debug("updateReleaseDates(): iteration index " + iterationIdx)
 
-    // update dates in 'planned' task iteration as well
-    release.iterations[1].devStartDate = U.dateInUTC(releaseInput.devStartDate)
-    release.iterations[1].devEndDate = U.dateInUTC(releaseInput.devReleaseDate)
-    release.iterations[1].clientReleaseDate = U.dateInUTC(releaseInput.clientReleaseDate)
-    return await release.save()
+    let devStartDate = U.momentInUTC(releaseInput.updatedDevStartDate)
+    let devEndDate = U.momentInUTC(releaseInput.updatedDevEndDate)
+    let clientReleaseDate = U.momentInUTC(releaseInput.updatedClientReleaseDate)
+
+    if (iterationIdx >= 0) {
+        // update dates in 'planned' task iteration as well
+
+        release.iterations[iterationIdx].devStartDate = devStartDate.toDate()
+        release.iterations[iterationIdx].devEndDate = devEndDate.toDate()
+        release.iterations[iterationIdx].clientReleaseDate = clientReleaseDate.toDate()
+
+        // Iterate on all iterations to find max min
+
+        let estimatedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_ESTIMATED)
+
+        let minDevStartMoment = null, maxDevEndMoment = null, maxClientReleaseMoment = null;
+
+        estimatedIterations.forEach(i => {
+            minDevStartMoment = minDevStartMoment ? minDevStartMoment.isAfter(i.devStartDate) ? moment(i.devStartDate) : minDevStartMoment : moment(i.devStartDate)
+            maxDevEndMoment = maxDevEndMoment ? maxDevEndMoment.isBefore(i.devEndDate) ? moment(i.devEndDate) : maxDevEndMoment : moment(i.devEndDate)
+            maxClientReleaseMoment = maxClientReleaseMoment ? maxClientReleaseMoment.isBefore(i.clientReleaseDate) ? moment(i.clientReleaseDate) : maxClientReleaseMoment : moment(i.clientReleaseDate)
+        })
+
+
+        logger.debug("updateReleaseDates():  ", {minDevStartMoment})
+        //logger.debug("updateReleaseDates():  ", {maxDevEndDate})
+        //logger.debug("updateReleaseDates():  ", {maxClientReleaseDate})
+
+        release.clientReleaseDate = maxClientReleaseMoment.toDate()
+        release.devEndDate = maxDevEndMoment.toDate()
+        release.devStartDate = minDevStartMoment.toDate()
+        return await release.save()
+    }
+    return {}
 }
 
 releaseSchema.statics.getReleaseById = async (releaseId, user) => {

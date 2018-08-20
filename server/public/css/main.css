@@ -2192,4 +2192,9 @@ hr {
     cursor: not-allowed;
 }
 
+.add-to-release-dialog .modal-dialog {
+    width: 60%;
+}
+
+
 

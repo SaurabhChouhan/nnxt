@@ -15,7 +15,8 @@ let employeeSettingSchema = mongoose.Schema({
     relativelyFree: {type: Number, default: 3},
     someWhatBusy: {type: Number, default: 5},
     busy: {type: Number, default: 7},
-    superBusy: {type: Number, default: 10}
+    superBusy: {type: Number, default: 10},
+    urgentLeaveDiff: {type: Number, default: 5}
 })
 
 /**
@@ -33,9 +34,6 @@ employeeSettingSchema.statics.createEmployeeSettings = async (employeeSettingInp
  * Employee Setting is fetched
  */
 employeeSettingSchema.statics.getEmployeeSettings = async (user) => {
-    if (!user || !(userHasRole(user, SC.ROLE_ADMIN) || userHasRole(user, SC.ROLE_MANAGER) || userHasRole(user, SC.ROLE_LEADER)))
-        throw new AppError('Not allowed to get information on role with [' + SC.ROLE_ADMIN + "or" + SC.ROLE_MANAGER + "or" + SC.ROLE_LEADER + '] can get employee details', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
     let employeeSettings = await EmployeeSettingModel.find({})
     return employeeSettings && employeeSettings.length ? employeeSettings[0] : {}
 }

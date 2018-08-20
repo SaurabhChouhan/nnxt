@@ -12,11 +12,9 @@ momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
     const {change, handleSubmit, submitting, pristine, reset} = props
     const {allTeam, releaseTeam, releasePlan, projectUsersOnly, initial} = props
-    const today = new Date()
-    const todayMoment = moment(today).hour(0).minute(0).second(0).milliseconds(0)
     const devStartDateMoment = moment(initial.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
     const devEndDateMoment = moment(initial.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
-    const min = devStartDateMoment.isSameOrAfter(todayMoment) ? devStartDateMoment.toDate() : todayMoment.toDate()
+    const min = devStartDateMoment.toDate()
     const max = devEndDateMoment.toDate()
 
     let employees = []

@@ -3,10 +3,12 @@ import {UpdateReleaseDatesForm} from "../../components"
 import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
 import {NotificationManager} from "react-notifications"
+import * as SC from "../../../server/serverconstants";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: (ReleaseDates) => {
-        return dispatch(A.updateReleaseDatesOnServer(ReleaseDates)).then(json => {
+    onSubmit: (releaseData) => {
+        console.log("release dates data is ", releaseData)
+        return dispatch(A.changeReleaseDateOfIteration(releaseData)).then(json => {
             if (json.success) {
                 NotificationManager.success("Release dates updated")
                 dispatch(A.hideComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
@@ -20,7 +22,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     release: state.release.selectedRelease
-
 })
 
 const UpdateReleaseDatesFormContainer = connect(

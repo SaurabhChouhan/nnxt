@@ -5,25 +5,37 @@ import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {initialize} from 'redux-form'
+import * as U from "../../../server/utils";
+import moment from "moment/moment";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    ReleaseProjectGoBack: (release) => {
-        dispatch(A.getReleaseFromServer(release._id)).then(json => {
-            if (json.success) {
-                dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
-            }
-        })
-        dispatch(A.getAllReleasesFromServer(SC.ALL))
+        ReleaseProjectGoBack: (release) => {
+            dispatch(A.getReleaseFromServer(release._id)).then(json => {
+                if (json.success) {
+                    dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
+                }
+            })
+            dispatch(A.getAllReleasesFromServer(SC.ALL))
 
-    },
-    getDashboardData: (release) => dispatch(A.getReleaseForDashboard(release._id)),
-    tabSelected: (tab) => dispatch(A.releaseTabSelected(tab)),
-    openUpdateReleaseDatesForm: (release) => {
-        dispatch(initialize("update-release-dates", release.iterations[0]))
-        dispatch(A.showComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
+        },
+        getDashboardData: (release) => dispatch(A.getReleaseForDashboard(release._id)),
+        tabSelected: (tab) => dispatch(A.releaseTabSelected(tab)),
+        openUpdateReleaseDatesForm: (release) => {
 
-    },
-})
+            const devStartDate = moment(release.devStartDate).format(SC.DATE_FORMAT)
+            const devEndDate = moment(release.devEndDate).format(SC.DATE_FORMAT)
+            const clientReleaseDate = moment(release.clientReleaseDate).format(SC.DATE_FORMAT)
+
+
+            let iterations = release.iterations.filter(i => i.type === SC.ITERATION_TYPE_ESTIMATED)
+
+            dispatch(initialize("update-release-dates", {
+                _id: release._id
+            }))
+            dispatch(A.showComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
+        }
+    }
+)
 
 const mapStateToProps = (state) => ({
     loggedInUser: state.user.loggedIn,

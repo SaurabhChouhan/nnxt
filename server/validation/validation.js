@@ -76,7 +76,6 @@ export const validate = (input, rule) => {
     return
 }
 
-
 /*
 ,
     notes: t.maybe(t.list(

@@ -543,16 +543,16 @@ export const getAllTaskPlansOfThisReleaseFromServer = (releaseID) => {
 }
 
 
-export const updateReleaseDatesOnServer = (releaseDates) => {
+export const changeReleaseDateOfIteration = (iterationData) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/', {
+        return fetch('/api/releases/release-date', {
                 method: 'put',
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(releaseDates)
+                body: JSON.stringify(iterationData)
             }
         ).then(
             response => response.json()
