@@ -2221,10 +2221,12 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
     const {reportedHoursToIncrement, reReport, reportedMoment} = extra
 
     let iterationIndex = releasePlan.release.iteration.idx
-
-
     logger.debug("addTaskReportPlannedUpdateRelease(): releaseplan.diffProgress " + releasePlan.diffProgress)
     release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
+    if(statIdx > -1)
+        release.iterations[iterationIndex].stats[statIdx].reportedHours += reportedHoursToIncrement
+
     if (!reReport) {
         logger.debug("addTaskReportPlannedUpdateRelease(): this is a rereport ")
         // Add planned hours of reported task to release if it is first time reporting
