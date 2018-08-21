@@ -34,9 +34,15 @@ class TaskPlanList extends Component {
         return ''
     }
 
-    formatTaskName(task) {
-        if (task)
-            return task.name
+    formatTaskName(task, row) {
+        if (task) {
+            if (row.iterationType == SC.ITERATION_TYPE_PLANNED)
+                return <span style={{color: '#4172c1'}}>{task.name}</span>
+            else if (row.iterationType == SC.ITERATION_TYPE_UNPLANNED)
+                return <span style={{color: '#e52d8c'}}>{task.name}</span>
+            else
+                return <span>{task.name}</span>
+        }
         return ''
     }
 
@@ -49,9 +55,21 @@ class TaskPlanList extends Component {
 
     formatPlannedDate(row) {
         if (row) {
-            return moment(row).format("DD-MM-YYYY")
+            return moment(row).format(SC.DATE_DISPLAY_FORMAT)
         }
         return ''
+    }
+
+    formatReportedStatus(report) {
+        if (report)
+            return report.status
+        return ''
+    }
+
+    formatReportedHours(report) {
+        if (report)
+            return report.reportedHours
+        return 0
     }
 
     formatFlags(flags) {
@@ -155,21 +173,27 @@ class TaskPlanList extends Component {
                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                        hidden={true}>ID
                     </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='employee'
-                                       dataFormat={this.formatDeveloperName.bind(this)}>Developer
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='task'
+                    <TableHeaderColumn width={"20%"}columnTitle dataField='task'
                                        dataFormat={this.formatTaskName.bind(this)}>Tasks
                     </TableHeaderColumn>
-                    <TableHeaderColumn width=" 18%" dataField='flags'
+                    <TableHeaderColumn width={"20%"} columnTitle dataField='employee'
+                                       dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                    </TableHeaderColumn>
+                    <TableHeaderColumn width="18%" dataField='flags'
                                        dataFormat={this.formatFlags.bind(this)}>
                         Flag</TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='planningDate'
+                    <TableHeaderColumn columnTitle width={"12%"} dataField='planningDate'
                                        dataFormat={this.formatPlannedDate.bind(this)}>Planning
                         Date
                     </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='planning' dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                    <TableHeaderColumn columnTitle width={"10%"} dataField='planning' dataFormat={this.formatPlannedHours.bind(this)}>Planned
                         Hours
+                    </TableHeaderColumn>
+                    <TableHeaderColumn width="10%" columnTitle dataField='report'
+                                       dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                        Hours</TableHeaderColumn>
+                    <TableHeaderColumn width="10%" columnTitle dataField='report'
+                                       dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                     </TableHeaderColumn>
 
                 </BootstrapTable>

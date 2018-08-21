@@ -243,7 +243,8 @@ export const TIME_FORMAT_24_HOURS = 'HH:mm'
 export const DATE_AND_TIME_FORMAT = 'LLL'
 export const DATE_MONTH_FORMAT = 'MMMM Do'
 export const DATE_HALF_WEAK_MONTH_FORMAT = 'ddd'
-export const DATE_SHOW = 'Do MMM, YY'
+export const DATE_DISPLAY_FORMAT = 'DD/MM/YYYY'
+
 
 // Time Zones
 // !!! NEVER CHANGE DEFAULT TIME ZONE AS ALL THE DATABASE CALCULATIONS ARE BASED ON THIS !!!

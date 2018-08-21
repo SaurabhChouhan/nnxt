@@ -29,6 +29,10 @@ let taskPlanningSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
         description: {type: String},
+        type: {
+            type: String,
+            enum: [SC.TYPE_DEVELOPMENT, SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW, SC.TYPE_COMPANY]
+        }
     },
     release: {
         _id: mongoose.Schema.ObjectId
@@ -897,6 +901,12 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
     let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours += plannedHourNumber
+    // Increment planned hours in type stats as well
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
+    if(statIdx > -1)
+        release.iterations[iterationIndex].stats[statIdx].plannedHours += plannedHourNumber
+
+    release.iterations[iterationIndex]
 
     if (releasePlan.diffProgress) {
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
@@ -1305,6 +1315,10 @@ const releaseUpdateOndeleteTask = async (taskPlan, releasePlan, release, planned
 
     let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours -= plannedHourNumber
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
+    if(statIdx > -1)
+        release.iterations[iterationIndex].stats[statIdx].plannedHours -= plannedHourNumber
+
     if (releasePlan.diffProgress) {
         logger.debug('deleteTask(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
@@ -2211,10 +2225,12 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
     const {reportedHoursToIncrement, reReport, reportedMoment} = extra
 
     let iterationIndex = releasePlan.release.iteration.idx
-
-
     logger.debug("addTaskReportPlannedUpdateRelease(): releaseplan.diffProgress " + releasePlan.diffProgress)
     release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
+    if(statIdx > -1)
+        release.iterations[iterationIndex].stats[statIdx].reportedHours += reportedHoursToIncrement
+
     if (!reReport) {
         logger.debug("addTaskReportPlannedUpdateRelease(): this is a rereport ")
         // Add planned hours of reported task to release if it is first time reporting
@@ -2363,9 +2379,11 @@ const addTaskReportPlanned = async (reportInput, employee) => {
 
             if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
                 // User has marked this task as completed and again changed it back to pending
+                logger.debug("addTaskReport(): Final status was changed from completed to pending, status would change to pending")
                 finalStatusFromCompleteToPending = true
-            } else if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_PENDING) {
+            } else if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status != SC.STATUS_COMPLETED) {
                 // Final status of this task is completed and user has reported some other task on max reported date as pending
+                logger.debug("addTaskReport(): Final status of this task is completed and user has reported some other task on max reported date as pending. No change in status")
                 finalStatusStillCompleted = true
             }
         }

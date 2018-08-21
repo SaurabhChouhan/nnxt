@@ -198,13 +198,12 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12">
-                    {selectedTab === SC.RELEASE_DASHBOARD_TAB && <ReleaseDashboardSectionContainer release={release}/>}
-                    {selectedTab === SC.RELEASE_PLAN_TAB && <ReleasePlanListContainer release={release}/>}
-                    {selectedTab === SC.RELEASE_WARNINGS_TAB && <WarningListContainer release={release}/>}
-                    {selectedTab === SC.RELEASE_TASK_PLANS_TAB && <TaskPlanListContainer release={release}/>}
-                    {selectedTab === SC.RELEASE_REPORT_TAB && <TaskReportListContainer release={release}/>}
-                </div>
+                {selectedTab === SC.RELEASE_DASHBOARD_TAB && <ReleaseDashboardSectionContainer release={release}/>}
+                {selectedTab === SC.RELEASE_PLAN_TAB && <ReleasePlanListContainer release={release}/>}
+                {selectedTab === SC.RELEASE_WARNINGS_TAB && <WarningListContainer release={release}/>}
+                {selectedTab === SC.RELEASE_TASK_PLANS_TAB && <TaskPlanListContainer release={release}/>}
+                {selectedTab === SC.RELEASE_REPORT_TAB && <TaskReportListContainer release={release}/>}
+
             </div>
 
         )
