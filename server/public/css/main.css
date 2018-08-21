@@ -1237,6 +1237,10 @@ td.rejRowColor {
     margin-bottom: 15px;
 }
 
+.release-options {
+    margin-top: 15px;
+}
+
 .release-content:after {
     content: "";
     text-align: right;
@@ -2195,6 +2199,13 @@ hr {
 .add-to-release-dialog .modal-dialog {
     width: 60%;
 }
+
+.search-btn-container {
+    margin-top:5px;
+    float:right;
+}
+
+
 
 
 

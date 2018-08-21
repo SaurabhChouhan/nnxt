@@ -50,16 +50,16 @@ class ReleaseList extends Component {
         return ''
     }
 
-    formatBilledHours(column, row) {
-        if (row.iterations[0]) {
-            return row.iterations[0].expectedBilledHours
+    formatEstimatedHours(column, row) {
+        if (row.plannedStats) {
+            return row.plannedStats.sumEstimatedHours
         }
         return ''
     }
 
-    formatPlannedHours(column, row) {
-        if (row.iterations[0]) {
-            return row.iterations[0].plannedHours
+    formatReportedHours(column, row) {
+        if (row.plannedStats) {
+            return row.plannedStats.sumReportedHours
         }
         return ''
     }
@@ -134,12 +134,12 @@ class ReleaseList extends Component {
                                 Leader
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
-                                               dataFormat={this.formatBilledHours.bind(this)}>
-                                Billed Hours
+                                               dataFormat={this.formatEstimatedHours.bind(this)}>
+                                Estimated Hours
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
-                                               dataFormat={this.formatPlannedHours.bind(this)}>
-                                Planned Hours
+                                               dataFormat={this.formatReportedHours.bind(this)}>
+                                Reported Hours
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatStartDate.bind(this)}>

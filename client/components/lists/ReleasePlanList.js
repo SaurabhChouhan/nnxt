@@ -30,7 +30,7 @@ class ReleasePlanList extends Component {
         this.onStatusChange = this.onStatusChange.bind(this)
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.getAllReleasePlans(this.props.release)
     }
 
@@ -175,31 +175,25 @@ class ReleasePlanList extends Component {
     render() {
         let team = 0
         const {release, releasePlans} = this.props
-        return (
+        return ([
+                <div className="col-md-12 release-options">
+                    <button type="button" className="col-md-2 btn customBtn" onClick={
+                        () => {
+                            this.props.showAddToReleasePlanForm(release)
+                        }}>Add Task
+                    </button>
+                    <div className="search-btn-container">
+                        <select className="form-control" title="Select Flag" onChange={(flag) =>
+                            this.onFlagChange(flag.target.value)
+                        }>
+                            <option value={SC.ALL}>All Flags</option>
+                            {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
+                                key={warning + idx} value={warning}>{warning}</option>)}
 
-            <div className="clearfix">
-                <div className="col-md-8 releaseOption releaseDetailSearchContent">
-                    <div className="col-md-2">
-                        <button type="button" className="btn customBtn addToReleaseBtn" onClick={
-                            () => {
-                                this.props.showAddToReleasePlanForm(release)
-                            }}>Add to Release
-                        </button>
+                        </select>
                     </div>
-                    <div className="col-md-5 ">
-                        <div className="releaseDetailSearchFlag">
-                            <select className="form-control" title="Select Flag" onChange={(flag) =>
-                                this.onFlagChange(flag.target.value)
-                            }>
-                                <option value={SC.ALL}>All Flags</option>
-                                {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
-                                    key={warning + idx} value={warning}>{warning}</option>)}
-
-                            </select>
-                        </div>
-                    </div>
-                    <div className="col-md-5">
-                        <div className="releaseDetailSearchStatus">
+                    {/*
+                        <div className="col-md-4 search-dropdown">
                             <select className="form-control" title="Select Status"
                                     onChange={(status) => this.onStatusChange(status.target.value)}>
                                 <option value={SC.ALL}>All Status</option>
@@ -213,14 +207,13 @@ class ReleasePlanList extends Component {
 
                             </select>
                         </div>
-                    </div>
-
+                    */}
                 </div>
-
-                <div className="estimation release-plan-table" >
+                ,
+                <div className="col-md-12 estimation release-plan-table">
                     <BootstrapTable options={this.options} data={releasePlans}
                                     multiColumnSearch={true}
-                                    search={true}
+                                    search={false}
                                     striped={true}
                                     pagination
                                     hover={true}
@@ -251,7 +244,7 @@ class ReleasePlanList extends Component {
                     </BootstrapTable>
 
                 </div>
-            </div>
+            ]
         )
     }
 }
