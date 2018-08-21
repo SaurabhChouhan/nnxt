@@ -146,7 +146,7 @@ class ReleaseList extends Component {
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatProgress.bind(this)} dataAlign={"center"}>
-                                Progress
+                                Raised
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatStartDate.bind(this)} dataAlign={"center"}>

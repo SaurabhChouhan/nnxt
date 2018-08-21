@@ -81,9 +81,23 @@ class ReleasePlanList extends Component {
     }
 
 
-    formatTaskName(task) {
-        if (task)
-            return task.name
+    formatTaskName(task, row) {
+
+        if (task) {
+            if (row.release.iteration.iterationType == SC.ITERATION_TYPE_PLANNED)
+                return <span style={{color: '#4172c1'}}>{task.name}</span>
+            else if (row.release.iteration.iterationType == SC.ITERATION_TYPE_UNPLANNED)
+                return <span style={{color: '#e52d8c'}}>{task.name}</span>
+            else
+                return <span>{task.name}</span>
+        }
+
+        return ''
+    }
+
+    formatProgress(report) {
+        if (report)
+            return report.progress + '%'
         return ''
     }
 
@@ -221,24 +235,27 @@ class ReleasePlanList extends Component {
                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                            hidden={true}>ID</TableHeaderColumn>
 
-                        <TableHeaderColumn width="25%" columnTitle dataField='task'
+                        <TableHeaderColumn width="20%" columnTitle dataField='task'
                                            dataFormat={this.formatTaskName.bind(this)}>Task
                             Name</TableHeaderColumn>
 
-                        <TableHeaderColumn width=" 18%" dataField='flags'
+                        <TableHeaderColumn width="12%" columnTitle dataField='report'
+                                           dataFormat={this.formatProgress.bind(this)}
+                                           dataAlign={"right"}>Progress</TableHeaderColumn>
+                        <TableHeaderColumn width="20%" dataField='flags'
                                            dataFormat={this.formatFlags.bind(this)}>
                             Flag</TableHeaderColumn>
-                        <TableHeaderColumn width=" 11%" columnTitle dataField='task'
-                                           dataFormat={this.formatEstimatedHours.bind(this)}>Estimated
+                        <TableHeaderColumn width="12%" columnTitle dataField='task'
+                                           dataFormat={this.formatEstimatedHours.bind(this)} dataAlign={"right"}>Estimated
                             Hours</TableHeaderColumn>
-                        <TableHeaderColumn width=" 10%" columnTitle dataField='planning'
-                                           dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                        <TableHeaderColumn width="12%" columnTitle dataField='planning'
+                                           dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
                             Hours</TableHeaderColumn>
-                        <TableHeaderColumn width=" 11%" columnTitle dataField='report'
-                                           dataFormat={this.formatReportedHours.bind(this)}>Reported
+                        <TableHeaderColumn width="12%" columnTitle dataField='report'
+                                           dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
                             Hours</TableHeaderColumn>
-                        <TableHeaderColumn width="15%" columnTitle dataField='report'
-                                           dataFormat={this.formatReportedStatus.bind(this)}>Status
+                        <TableHeaderColumn width="12%" columnTitle dataField='report'
+                                           dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                         </TableHeaderColumn>
 
                     </BootstrapTable>
