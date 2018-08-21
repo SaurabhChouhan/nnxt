@@ -67,7 +67,7 @@ class ReleasePlanAddToReleaseForm extends Component {
 
                     </div>
                     <div className="col-md-12">
-                        <div className="col-md-6">
+                        <div className="col-md-12">
                             <Field name="name" component={renderText} label={"Name:"} validate={[required]}/>
 
                         </div>
@@ -75,7 +75,7 @@ class ReleasePlanAddToReleaseForm extends Component {
                     <div className="col-md-12">
                         <div className="col-md-12">
                             <Field name="description" component={renderTextArea} label="Description:"
-                                   validate={[required]}/>
+                                   validate={[required]} rows="10"/>
                         </div>
                     </div>
                 </div>

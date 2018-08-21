@@ -20,7 +20,7 @@ class ProjectList extends Component {
         this.setState({showProjectDeletionDialog: false})
     }
 
-    OkConfimationForDeletingProject() {
+    OkConfirmationForDeletingProject() {
         this.setState({showProjectDeletionDialog: false})
         this.props.deleteProject(this.state.addRow)
     }
@@ -60,7 +60,7 @@ class ProjectList extends Component {
     render() {
         return (
             <div>{this.state.showProjectDeletionDialog &&
-            <ConfirmationDialog show={true} onConfirm={this.OkConfimationForDeletingProject.bind(this)}
+            <ConfirmationDialog show={true} onConfirm={this.OkConfirmationForDeletingProject.bind(this)}
                                 title={CM.DELETE_PROJECT} onClose={this.onClose.bind(this)}
                                 body={CM.DELETE_PROJECT_BODY}/>
             }

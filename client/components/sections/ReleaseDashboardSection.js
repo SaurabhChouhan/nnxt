@@ -79,7 +79,8 @@ const getProgressAngles = (actualProgress, plannedProgress, reportedProgress) =>
 
 const renderPieCenter = ({cx, cy, value}) => {
     return (
-        <text x={cx} y={cy} fill="#4172c1" fontSize={"20"} fontWeight={"bold"} textAnchor={'middle'} dominantBaseline="middle">
+        <text x={cx} y={cy} fill="#4172c1" fontSize={"20"} fontWeight={"bold"} textAnchor={'middle'}
+              dominantBaseline="middle">
             {`${value}`}
         </text>
     );
@@ -87,7 +88,8 @@ const renderPieCenter = ({cx, cy, value}) => {
 
 const renderPercentagePieCenter = ({cx, cy, value}) => {
     return (
-        <text x={cx} y={cy} fill="#4172c1" fontSize={"20"} fontWeight={"bold"} textAnchor={'middle'} dominantBaseline="middle">
+        <text x={cx} y={cy} fill="#4172c1" fontSize={"20"} fontWeight={"bold"} textAnchor={'middle'}
+              dominantBaseline="middle">
             {`${value}%`}
         </text>
     );
@@ -103,7 +105,7 @@ class DashboardSection extends Component {
         super(props);
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.getDashboardData(this.props.release)
     }
 
@@ -183,7 +185,7 @@ class DashboardSection extends Component {
                              label={renderPercentage}/>
                         <Pie isAnimationActive={false}
                              dataKey={"value"}
-                             data={[{name: 'Reported Hours', value: this.props.progress.reported}]}
+                             data={[{name: 'Reported Progress', value: this.props.progress.reported}]}
                              cx={barWidth / 2}
                              cy={80} outerRadius={80} innerRadius={72} startAngle={reportedProgressStartAngle}
                              endAngle={reportedProgressEndAngle} fill={reportedColor}

@@ -102,7 +102,7 @@ class DashboardSection extends Component {
                     </div>
                 </div>
             </div>
-            <div className={"col-md-6"} style={{marginRight:"0px"}}>
+            <div className={"col-md-6"} style={{marginRight: "0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.overallProgress]}
                               height={80} width={barWidth} layout={"vertical"} margin={barMargin}>

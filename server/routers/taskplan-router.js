@@ -21,7 +21,7 @@ taskPlanRouter.post("/", async ctx => {
  * Deletion of task plan by leader or manager of that release
  ***/
 taskPlanRouter.del("/:planID", async ctx => {
-    return await MDL.TaskPlanningModel.deleteTaskPlanning(ctx.params.planID, ctx.state.user)
+    return await MDL.TaskPlanningModel.deleteTask(ctx.params.planID, ctx.state.user)
 })
 
 /**
