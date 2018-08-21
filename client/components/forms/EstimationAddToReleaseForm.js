@@ -23,11 +23,15 @@ let EstimationAddToReleaseForm = (props) => {
             <Field name="estimation._id" component="input" type="hidden"/>
 
             <div className="col-md-12">
-                <div className="col-md-6">
+                <div className="col-md-4">
                     <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}
                            validate={[required, number]}/>
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-4">
+                    <Field name="name" component={renderText} label={"Name (Iteration):"}
+                           validate={[required]}/>
+                </div>
+                <div className="col-md-4">
                     <Field name="release._id" component={renderSelect} options={allAvailableReleases}
                            validate={[required]}
                            label={"Release:"}/>

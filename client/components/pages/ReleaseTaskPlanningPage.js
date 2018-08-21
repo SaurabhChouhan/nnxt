@@ -48,20 +48,22 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        let now = new Date()
-        let nowMomentString = moment(now).format(SC.DATE_FORMAT)
-        let nowMoment = moment(nowMomentString)
-        let planningMoment = moment(row.planningDateString)
-        if (planningMoment.isBefore(nowMoment))
-            return '' // planning date is over cannot delete now
-        else if (row.report.reportedOnDate)
+        /*
+            let now = new Date()
+            let nowMomentString = moment(now).format(SC.DATE_FORMAT)
+            let nowMoment = moment(nowMomentString)
+            let planningMoment = moment(row.planningDateString)
+            if (planningMoment.isBefore(nowMoment))
+                return '' // planning date is over cannot delete now
+                */
+        if (row.report.reportedOnDate)
             return '' // task is already report cannot delete now
         else return (<button className=" pull-left btn btn-custom" type="button"
                              onClick={() => {
                                  this.setState({showTaskDeleteConfirmationDialog: true, row: row})
                              }}>
-                <i className="fa fa-trash"></i>
-            </button>)
+            <i className="fa fa-trash"></i>
+        </button>)
     }
 
     editCellButton(cell, row, enumObject, rowIndex) {

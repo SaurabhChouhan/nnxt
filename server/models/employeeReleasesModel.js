@@ -27,17 +27,11 @@ let employeeReleasesSchema = mongoose.Schema({
     reportedHours: {type: Number, default: 0},
     // Total planned hours for reported tasks, good to see deviation between reported and planned hours
     plannedHoursReportedTasks: {type: Number, default: 0},
-    leaves: [{
-        date: {type: Date, default: Date.now()},
-        reason: [{
-            type: String,
-            enum: [SC.REASON_MEDICAL, SC.REASON_PERSONAL, SC.REASON_OCCASION, SC.REASON_FESTIVAL]
-        }],
-        plannedHours: {type: Number, default: 0},
-        isLastMinuteLeave: {type: Boolean, default: false}
-    }]
+    leaves: {
+        plannedHoursOnLeave: {type: Number, default: 0},
+        plannedHoursLastMinuteLeave: {type: Number, default: 0}
+    }
 })
-
 
 const EmployeeReleasesModel = mongoose.model("EmployeeReleases", employeeReleasesSchema)
 export default EmployeeReleasesModel
