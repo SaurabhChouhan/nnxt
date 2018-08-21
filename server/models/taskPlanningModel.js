@@ -2363,9 +2363,11 @@ const addTaskReportPlanned = async (reportInput, employee) => {
 
             if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
                 // User has marked this task as completed and again changed it back to pending
+                logger.debug("addTaskReport(): Final status was changed from completed to pending, status would change to pending")
                 finalStatusFromCompleteToPending = true
-            } else if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_PENDING) {
+            } else if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status != SC.STATUS_COMPLETED) {
                 // Final status of this task is completed and user has reported some other task on max reported date as pending
+                logger.debug("addTaskReport(): Final status of this task is completed and user has reported some other task on max reported date as pending. No change in status")
                 finalStatusStillCompleted = true
             }
         }
