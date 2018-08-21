@@ -897,6 +897,12 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
     let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours += plannedHourNumber
+    // Increment planned hours in type stats as well
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
+    if(statIdx > -1)
+        release.iterations[iterationIndex].stats[statIdx].plannedHours += plannedHourNumber
+
+    release.iterations[iterationIndex]
 
     if (releasePlan.diffProgress) {
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
@@ -1305,6 +1311,10 @@ const releaseUpdateOndeleteTask = async (taskPlan, releasePlan, release, planned
 
     let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours -= plannedHourNumber
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
+    if(statIdx > -1)
+        release.iterations[iterationIndex].stats[statIdx].plannedHours -= plannedHourNumber
+
     if (releasePlan.diffProgress) {
         logger.debug('deleteTask(): [progress] diff progress is ', {diffHours: releasePlan.diffProgress})
         release.iterations[iterationIndex].progress += releasePlan.diffProgress * (releasePlan.task.estimatedHours / release.iterations[iterationIndex].estimatedHours)
