@@ -29,6 +29,10 @@ let taskPlanningSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: {type: String, required: [true, 'Task name is required']},
         description: {type: String},
+        type: {
+            type: String,
+            enum: [SC.TYPE_DEVELOPMENT, SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW, SC.TYPE_COMPANY]
+        }
     },
     release: {
         _id: mongoose.Schema.ObjectId

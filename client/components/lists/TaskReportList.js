@@ -20,7 +20,8 @@ class TaskReportList extends Component {
                 text: '50', value: 50
             }],
             sizePerPage: 6,  // which size per page you want to locate as default
-            
+            onRowClick: this.onRowClick.bind(this)
+
         }
     }
 
@@ -66,6 +67,17 @@ class TaskReportList extends Component {
         return 0
     }
 
+
+    onRowClick(row){
+        this.props.taskPlanSelected(row).then(json => {
+            if (json.success) {
+                this.props.history.push('/app-home/task-report-detail')
+                this.props.showTaskDetailPage()
+            }
+            return json
+        })
+    }
+
     viewDetailButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
                 this.props.taskPlanSelected(row).then(json => {
@@ -96,16 +108,11 @@ class TaskReportList extends Component {
                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                        hidden={true}>ID
                     </TableHeaderColumn>
-
-                    <TableHeaderColumn editable={false} columnTitle={'View Detail'}
-                                       dataField='detailButton'
-                                       dataFormat={this.viewDetailButton.bind(this)}>View Detail
+                    <TableHeaderColumn columnTitle dataField='task'
+                                       dataFormat={this.formatTaskName.bind(this)}>Task Name
                     </TableHeaderColumn>
                     <TableHeaderColumn columnTitle dataField='employee'
                                        dataFormat={this.formatDeveloperName.bind(this)}>Developer
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='task'
-                                       dataFormat={this.formatTaskName.bind(this)}>Task Name
                     </TableHeaderColumn>
                     <TableHeaderColumn columnTitle dataField='planningDateString'>Planning
                         Date

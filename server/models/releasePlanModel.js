@@ -208,7 +208,7 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
     release.iterations[iterationIndex].expectedBilledHours += releasePlanInput.estimatedBilledHours
     release.iterations[iterationIndex].estimatedHours += releasePlanInput.estimatedHours
     // Please note here sum progress estimated hours is divided by new estimated hours (after adding estimated hours of new task)
-    release.iterations[iterationIndex].progress = sumProgressEstimatedHours/release.iterations[iterationIndex].estimatedHours
+    release.iterations[iterationIndex].progress = sumProgressEstimatedHours / release.iterations[iterationIndex].estimatedHours
 
     let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlanInput.type)
     console.log("######### STATS IDX ", idx)
@@ -278,7 +278,8 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
 
     releasePlan.task = {
         name: releasePlanInput.name,
-        description: releasePlanInput.description
+        description: releasePlanInput.description,
+        type: releasePlanInput.type
     }
 
     logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
