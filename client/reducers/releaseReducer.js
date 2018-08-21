@@ -78,6 +78,9 @@ const releaseReducer = (state = initialState, action) => {
                     s.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
                     s.sumExpectedBilledHours += p.expectedBilledHours
                 })
+
+                let prg = s.sumProgressEstimatedHours / s.sumEstimatedHours
+                s.progress = parseFloat(prg.toFixed(2))
                 r.plannedStats = s
                 return r;
             }) : []

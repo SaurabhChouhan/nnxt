@@ -64,6 +64,13 @@ class ReleaseList extends Component {
         return ''
     }
 
+    formatProgress(column, row) {
+        if (row.plannedStats) {
+            return row.plannedStats.progress + '%'
+        }
+        return '0%'
+    }
+
     formatStartDate(column, row) {
         if (row.iterations[0]) {
             return moment(row.iterations[0].devStartDate).format("DD-MM-YYYY")
@@ -117,43 +124,43 @@ class ReleaseList extends Component {
                                         hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='created'
-                                               dataFormat={this.formatCreatedDate.bind(this)}>
-                                Raised
-                            </TableHeaderColumn>
                             <TableHeaderColumn width="12%" dataField='project'
-                                               dataFormat={this.formatProjectName.bind(this)}>
+                                               dataFormat={this.formatProjectName.bind(this)} dataAlign={"center"}>
                                 Project
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='manager'
-                                               dataFormat={this.formatManager.bind(this)}>
+                                               dataFormat={this.formatManager.bind(this)} dataAlign={"center"}>
                                 Manager
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='leader'
-                                               dataFormat={this.formatLeader.bind(this)}>
+                                               dataFormat={this.formatLeader.bind(this)} dataAlign={"center"}>
                                 Leader
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
-                                               dataFormat={this.formatEstimatedHours.bind(this)}>
+                                               dataFormat={this.formatEstimatedHours.bind(this)} dataAlign={"center"}>
                                 Estimated Hours
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
-                                               dataFormat={this.formatReportedHours.bind(this)}>
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"center"}>
                                 Reported Hours
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
-                                               dataFormat={this.formatStartDate.bind(this)}>
+                                               dataFormat={this.formatProgress.bind(this)} dataAlign={"center"}>
+                                Progress
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='iterations[0]'
+                                               dataFormat={this.formatStartDate.bind(this)} dataAlign={"center"}>
                                 Start Date
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
-                                               dataFormat={this.formatEndDate.bind(this)}>
+                                               dataFormat={this.formatEndDate.bind(this)} dataAlign={"center"}>
                                 End Date
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
-                                               dataFormat={this.formatReleaseDate.bind(this)}>
+                                               dataFormat={this.formatReleaseDate.bind(this)} dataAlign={"center"}>
                                 Release Date
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle dataField='status'>
+                            <TableHeaderColumn columnTitle dataField='status' dataAlign={"center"}>
                                 Status
                             </TableHeaderColumn>
                         </BootstrapTable>
