@@ -112,10 +112,10 @@ class TaskReportList extends Component {
         const {reports} = this.props
         console.log("reports------------------", reports)
         return (
-            <div className="estimation releasePlan-taskPlan release-plan-table">
+            <div className="col-md-12 release-options">
                 <BootstrapTable options={this.options} data={reports}
                                 multiColumnSearch={true}
-                                search={true}
+                                search={false}
                                 striped={true}
                                 pagination
                                 hover={true}

@@ -2921,9 +2921,7 @@ warningSchema.statics.leaveRaised = async (leave, startDate, endDate, employee) 
     return warningResponse
 }
 
-
 const leaveRevokedProcessReleasePlan = async (releasePlans, warningType, warningResponse) => {
-
     for (const rp of releasePlans) {
         // This flag would only be removed from release plan when there are not other employee on leave warning associated with this release plan
         let count = await WarningModel.count({
@@ -2941,7 +2939,6 @@ const leaveRevokedProcessReleasePlan = async (releasePlans, warningType, warning
             })
         }
     }
-
 }
 
 /**
@@ -2984,6 +2981,29 @@ warningSchema.statics.leaveRevoked = async (leave) => {
     return warningResponse
 }
 
+const leaveApprovedProcessReleasePlan = async (releasePlans, leaveWarning, warningResponse) => {
+
+    for (const rp of releasePlans) {
+        // This flag would only be removed from release plan when there are not other employee on leave warning associated with this release plan
+        let count = await WarningModel.count({
+            'releasePlans._id': rp._id,
+            _id: {$ne: leaveWarning._id},
+            type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+        })
+
+        logger.debug("leaveApprovedProcessReleasePlan(): " + rp._id, {count})
+
+        if (count == 0) {
+            warningResponse.removed.push({
+                _id: rp._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE
+            })
+        }
+    }
+
+    return warningResponse
+}
 
 warningSchema.statics.leaveApproved = async (leave) => {
 
@@ -3004,7 +3024,8 @@ warningSchema.statics.leaveApproved = async (leave) => {
     logger.debug("leaveApproved(): ", {leaveWarning})
 
     if (leaveWarning) {
-        // As leave warning is found, we need to remove all the employee ask for leave warning from associated R/RP/T and add employee on leave to same associationss
+        // Ask for leave warning need to be removed from task plans,
+        // to remove it from release plan however we would have to check if this is last ask for leave warning with this release plan
 
         leaveWarning.taskPlans.forEach(tp => {
             warningResponse.removed.push({
@@ -3015,6 +3036,9 @@ warningSchema.statics.leaveApproved = async (leave) => {
             })
         })
 
+        await leaveApprovedProcessReleasePlan(leaveWarning.releasePlans, leaveWarning, warningResponse)
+
+        /*
         leaveWarning.releasePlans.forEach(tp => {
             warningResponse.removed.push({
                 _id: tp._id,
@@ -3023,15 +3047,7 @@ warningSchema.statics.leaveApproved = async (leave) => {
                 source: true
             })
         })
-
-        leaveWarning.releases.forEach(tp => {
-            warningResponse.removed.push({
-                _id: tp._id,
-                warningType: SC.WARNING_TYPE_RELEASE,
-                type: SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE,
-                source: true
-            })
-        })
+        */
 
         leaveWarning.type = SC.WARNING_EMPLOYEE_ON_LEAVE
 
@@ -3050,15 +3066,6 @@ warningSchema.statics.leaveApproved = async (leave) => {
             warningResponse.added.push({
                 _id: rp._id,
                 warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: SC.WARNING_EMPLOYEE_ON_LEAVE,
-                source: true
-            })
-        })
-
-        leaveWarning.releases.forEach(r => {
-            warningResponse.removed.push({
-                _id: r._id,
-                warningType: SC.WARNING_TYPE_RELEASE,
                 type: SC.WARNING_EMPLOYEE_ON_LEAVE,
                 source: true
             })

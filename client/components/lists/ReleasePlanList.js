@@ -190,7 +190,7 @@ class ReleasePlanList extends Component {
         let team = 0
         const {release, releasePlans} = this.props
         return ([
-                <div className="col-md-12 release-options">
+                <div key={"release-plan-search"} className="col-md-12 release-options">
                     <button type="button" className="col-md-2 btn customBtn" onClick={
                         () => {
                             this.props.showAddToReleasePlanForm(release)
@@ -224,7 +224,7 @@ class ReleasePlanList extends Component {
                     */}
                 </div>
                 ,
-                <div className="col-md-12 estimation release-plan-table">
+                <div key={"releaseplan-table"} className="col-md-12 estimation release-plan-table">
                     <BootstrapTable options={this.options} data={releasePlans}
                                     multiColumnSearch={true}
                                     search={false}

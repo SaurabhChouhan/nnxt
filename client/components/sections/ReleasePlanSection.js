@@ -58,29 +58,29 @@ class ReleasePlanSection extends Component {
                         className={loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
-                                title={release && release.iterations[0] && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                                title={release && release.devStartDate ? moment(release.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.iterations[0] && release.iterations[0].devStartDate ? moment(release.iterations[0].devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release && release.devStartDate ? moment(release.devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div
                         className={loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
-                                title={release && release.iterations[0] && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                                title={release && release.devEndDate ? moment(release.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.iterations[0] && release.iterations[0].devEndDate ? moment(release.iterations[0].devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.devEndDate ? moment(release.devEndDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
                             <span
-                                title={release && release.iterations[0] && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                                title={release && release.clientReleaseDate ? moment(release.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.iterations[0] && release.iterations[0].clientReleaseDate ? moment(release.iterations[0].clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.clientReleaseDate ? moment(release.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     {loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ?
@@ -133,12 +133,12 @@ class ReleasePlanSection extends Component {
                         <div className="col-md-3">
                             <div className="col-md-6  releaseClock  releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Estimated Hours"></i><b>{release.iterations[0] ? release.iterations[0].estimatedHours : ''}
+                                   title="Estimated Hours"></i><b>{release.plannedStats ? release.plannedStats.sumEstimatedHours : ''}
                                 Hrs</b>
                             </div>
                             <div className="col-md-6  releaseClock releasePlannedHrs releaseProjectPlannedHours">
                                 <i className="fa fa-clock-o "
-                                   title="Planned Hours"></i><b>{release.iterations[0] ? release.iterations[0].plannedHours : ''}
+                                   title="Planned Hours"></i><b>{release.plannedStats ? release.plannedStats.sumPlannedHours : ''}
                                 Hrs</b>
                             </div>
                         </div>

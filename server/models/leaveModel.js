@@ -440,6 +440,8 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
     }
     let warningsLeaveApproved = await MDL.WarningModel.leaveApproved(leave)
 
+    logger.debug("WarningModel.leaveApproved(): ", {warningsLeaveApproved})
+
     if (warningsLeaveApproved.added && warningsLeaveApproved.added.length)
         generatedWarnings.added.push(...warningsLeaveApproved.added)
     if (warningsLeaveApproved.removed && warningsLeaveApproved.removed.length)

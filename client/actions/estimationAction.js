@@ -1196,5 +1196,3 @@ export const addToReleaseOnServer = (formInput) => {
             })
     }
 }
-
-

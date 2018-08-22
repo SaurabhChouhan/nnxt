@@ -162,10 +162,10 @@ class TaskPlanList extends Component {
         console.log("taskPlans------------------", taskPlans)
 
         return (
-            <div className="estimation releasePlan-taskPlan release-plan-table">
+            <div className="col-md-12 estimation release-plan-table">
                 <BootstrapTable options={this.options} data={taskPlans}
                                 multiColumnSearch={true}
-                                search={true}
+                                search={false}
                                 striped={true}
                                 pagination
                                 hover={true}

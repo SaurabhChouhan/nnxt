@@ -16,6 +16,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         //dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
 
 
+    },
+    showCreateReleaseDialog: () => {
+        dispatch(A.getAllProjectsFromServer())
+        dispatch(A.getAllModulesFromServer())
+        dispatch(A.getUsersWithRoleCategoryFromServer())
+        dispatch(A.getAllTechnologiesFromServer())
+        dispatch(A.getAllDevelopmentTypesFromServer())
+        dispatch(A.showComponent(COC.CREATE_RELEASE_FORM_DIALOG))
     }
 })
 

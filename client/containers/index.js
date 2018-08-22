@@ -62,6 +62,9 @@ export {default as EstimationAddToReleaseFormContainer} from './forms/Estimation
 export {default as EstimationFilterFormContainer} from './forms/EstimationFilterFormContainer'
 export {default as ReportTaskDescriptionFormContainer} from './forms/ReportTaskDescriptionFormContainer'
 
+// Release forms
+export {default as CreateReleaseFormContainer} from './forms/CreateReleaseFormContainer'
+
 //Projects
 export {default as ProjectListContainer} from './lists/ProjectListContainer'
 export {default as ProjectFormContainer} from './forms/ProjectFormContainer'
