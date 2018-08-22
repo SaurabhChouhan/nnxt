@@ -162,7 +162,7 @@ class TaskPlanList extends Component {
         console.log("taskPlans------------------", taskPlans)
 
         return (
-            <div className="col-md-12 release-options">
+            <div className="col-md-12 estimation release-plan-table">
                 <BootstrapTable options={this.options} data={taskPlans}
                                 multiColumnSearch={true}
                                 search={false}

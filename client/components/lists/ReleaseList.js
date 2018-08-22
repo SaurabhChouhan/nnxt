@@ -95,31 +95,28 @@ class ReleaseList extends Component {
 
     render() {
         const {releases} = this.props
-        return (
-            <div key="estimation_list" className="clearfix">
-                <div className="col-md-12">
-                    <div className="col-md-4  releaseSearchContent ">
-                        <div className="estimation releaseSelect  releaseSearchStatus">
-                            <select className="form-control" title="Select Status" onChange={(status) =>
-                                this.props.changeReleaseStatus(status.target.value)
-                            }>
-                                <option value={SC.ALL}>All Status</option>
+        return ([
+                <div key={"release-search"} className="col-md-12 release-options">
+                    <div className="search-btn-container">
+                        <select className="col-md-4 form-control" title="Select Status"
+                                onChange={(status) =>
+                                    this.props.changeReleaseStatus(status.target.value)
+                                }>
+                            <option value={SC.ALL}>All Status</option>
 
-                                <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
-                                <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
-
-                            </select>
-                        </div>
-
+                            <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
+                            <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
+                            <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
+                            <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                            <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                        </select>
                     </div>
-                    <div className="estimation">
+                </div>,
+                <div key={"release-table"} className="col-md-12">
+                    <div className="estimation release-plan-table">
                         <BootstrapTable options={this.options} data={releases}
                                         multiColumnSearch={true}
-                                        search={true}
+                                        search={false}
                                         striped={true}
                                         hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
@@ -165,8 +162,7 @@ class ReleaseList extends Component {
                             </TableHeaderColumn>
                         </BootstrapTable>
                     </div>
-                </div>
-            </div>
+                </div>]
         )
     }
 }

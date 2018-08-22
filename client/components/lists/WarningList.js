@@ -126,17 +126,16 @@ class WarningList extends Component {
 
         return ([
             <div key={"warning-search"} className="col-md-12 release-options">
-                <div className="col-md-6 ">
-                    <div className="releaseDetailSearchFlag">
-                        <select className="form-control" title="Select Flag" onChange={(flag) =>
-                            this.props.fetchWarningOnFlags(flag.target.value, release)
-                        }>
-                            <option value={SC.ALL}>All Flags</option>
-                            {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
-                                key={warning + idx} value={warning}>{warning}</option>)}
 
-                        </select>
-                    </div>
+                <div className="search-btn-container">
+                    <select className="form-control" title="Select Flag" onChange={(flag) =>
+                        this.props.fetchWarningOnFlags(flag.target.value, release)
+                    }>
+                        <option value={SC.ALL}>All Flags</option>
+                        {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
+                            key={warning + idx} value={warning}>{warning}</option>)}
+
+                    </select>
                 </div>
             </div>,
             <div key={"warning-table"} className="col-md-12 estimation release-plan-table">
