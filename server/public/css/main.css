@@ -2198,11 +2198,12 @@ hr {
 
 .add-to-release-dialog .modal-dialog {
     width: 60%;
+    left: 80px;
 }
 
 .search-btn-container {
-    margin-top:5px;
-    float:right;
+    margin-top: 5px;
+    float: right;
 }
 
 
