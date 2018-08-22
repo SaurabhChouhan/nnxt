@@ -90,14 +90,16 @@ let EstimationProjectAwardForm = (props) => {
             </div>
 
             <div className="col-md-12">
-                <Field name="team"
-                       component={renderMultiSelect}
-                       label={"Planned Employees For Release:"}
-                       data={team}
-                       validate={required}
-                       textField="name"
-                       valueField="_id"
-                />
+                <div className="col-md-12">
+                    <Field name="team"
+                           component={renderMultiSelect}
+                           label={"Planned Employees For Release:"}
+                           data={team}
+                           validate={required}
+                           textField="name"
+                           valueField="_id"
+                    />
+                </div>
             </div>
 
         </div>

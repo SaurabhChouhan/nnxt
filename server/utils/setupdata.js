@@ -369,9 +369,9 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('kgour@aripratech.com')) {
+    if (!await MDL.UserModel.exists('kamleshgour28@gmail.com')) {
         await MDL.UserModel.createUser({
-            email: 'kgour@aripratech.com',
+            email: 'kamleshgour28@gmail.com',
             firstName: "Kamlesh",
             lastName: "Gour",
             roles: [estimatorRole, leaderRole, developerRole],
@@ -382,11 +382,11 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('bparasar@aripratech.com')) {
+    if (!await MDL.UserModel.exists('bparashar@aripratech.com')) {
         await MDL.UserModel.createUser({
-            email: 'bparasar@aripratech.com',
+            email: 'bparashar@aripratech.com',
             firstName: "Bhuvan",
-            lastName: "Parasar",
+            lastName: "Parashar",
             roles: [estimatorRole, leaderRole, developerRole],
             password: "password",
             employeeCode: 'emp-009',
@@ -395,9 +395,9 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('pmalakar@aripratech.com')) {
+    if (!await MDL.UserModel.exists('praveenm.aripra@gmail.com')) {
         await MDL.UserModel.createUser({
-            email: 'pmalakar@aripratech.com',
+            email: 'praveenm.aripra@gmail.com',
             firstName: "Praveen",
             lastName: "Malakar",
             roles: [developerRole],
@@ -408,9 +408,9 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('kmishra@aripratech.com')) {
+    if (!await MDL.UserModel.exists('khushboo.aripra@gmail.com')) {
         await MDL.UserModel.createUser({
-            email: 'kmishra@aripratech.com',
+            email: 'khushboo.aripra@gmail.com',
             firstName: "Khushboo",
             lastName: "Mishra",
             roles: [developerRole],
@@ -421,9 +421,9 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('vsahu@aripratech.com')) {
+    if (!await MDL.UserModel.exists('vikash.aripra@gmail.com')) {
         await MDL.UserModel.createUser({
-            email: 'vsahu@aripratech.com',
+            email: 'vikash.aripra@gmail.com',
             firstName: "Vikas",
             lastName: "Sahu",
             roles: [developerRole],
@@ -434,9 +434,9 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('gagrawal@aripratech.com')) {
+    if (!await MDL.UserModel.exists('gaurav.aripra@gmail.com')) {
         await MDL.UserModel.createUser({
-            email: 'gagrawal@aripratech.com',
+            email: 'gaurav.aripra@gmail.com',
             firstName: "Gaurav",
             lastName: "Agrawal",
             roles: [developerRole],
@@ -447,9 +447,9 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('mmerchant@aripratech.com')) {
+    if (!await MDL.UserModel.exists('murtaza.aripra@gmail.com')) {
         await MDL.UserModel.createUser({
-            email: 'mmerchant@aripratech.com',
+            email: 'murtaza.aripra@gmail.com',
             firstName: "Murtaza",
             lastName: "Merchant",
             roles: [developerRole],
@@ -460,9 +460,9 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('hrampurawala@aripratech.com')) {
+    if (!await MDL.UserModel.exists('huzefa786r@gmail.com')) {
         await MDL.UserModel.createUser({
-            email: 'hrampurawala@aripratech.com',
+            email: 'huzefa786r@gmail.com',
             firstName: "Huzefa",
             lastName: "Rampurawala",
             roles: [developerRole],
@@ -473,12 +473,40 @@ const addNNXTUsers = async () => {
         })
     }
 
-    if (!await MDL.UserModel.exists('schouhan@aripratech.com')) {
+    /*
+    if (!await MDL.UserModel.exists('contactus@aripratech.com')) {
         await MDL.UserModel.createUser({
             email: 'contactus@aripratech.com',
             firstName: "Saurabh",
             lastName: "Chouhan",
             roles: [topManagementRoles],
+            password: "password",
+            employeeCode: 'emp-002',
+            designation: SC.DESIGNATION_OWNER,
+            dateJoined: '01-01-2012'
+        })
+    }
+    */
+
+    if (!await MDL.UserModel.exists('apogra@gmail.com')) {
+        await MDL.UserModel.createUser({
+            email: 'apogra@gmail.com',
+            firstName: "Mahesh_Est",
+            lastName: "Pogra",
+            roles: [estimatorRole, leaderRole],
+            password: "password",
+            employeeCode: 'emp-002',
+            designation: SC.DESIGNATION_OWNER,
+            dateJoined: '01-01-2012'
+        })
+    }
+
+    if (!await MDL.UserModel.exists('chouhan.saurabh@gmail.com')) {
+        await MDL.UserModel.createUser({
+            email: 'chouhan.saurabh@gmail.com',
+            firstName: "Saurabh_Est",
+            lastName: "Chouhan",
+            roles: [estimatorRole, leaderRole],
             password: "password",
             employeeCode: 'emp-002',
             designation: SC.DESIGNATION_OWNER,
@@ -511,6 +539,12 @@ const addClients = async () => {
     if (!await MDL.ClientModel.exists('Brian')) {
         await MDL.ClientModel.saveClient({
             name: 'Brian'
+        })
+    }
+
+    if (!await MDL.ClientModel.exists('Aripra')) {
+        await MDL.ClientModel.saveClient({
+            name: 'Aripra'
         })
     }
 

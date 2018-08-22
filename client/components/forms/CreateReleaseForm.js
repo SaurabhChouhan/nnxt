@@ -12,11 +12,19 @@ moment.locale('en')
 momentLocalizer()
 
 let CreateReleaseForm = (props) => {
-    //logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_RENDER, props)
     const {pristine, submitting, reset, change} = props
-    const {team, managers, leaders, devStartDate, devReleaseDate, clientReleaseDate, manager, leader} = props
+    const {team, managers, leaders, devStartDate, devReleaseDate, clientReleaseDate, manager, leader, project, module, projects, modules, developmentTypes, technologies} = props
     let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
     let maxRelease = !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
+    let projectModules = project && project._id ? modules.filter(m => m.project._id.toString() === project._id.toString()) : modules
+    let moduleProjects = []
+
+    if (module && module._id && (!project || !project._id)) {
+        let selectedModule = modules.find(m => m._id.toString() === module._id.toString())
+        moduleProjects = projects.filter(p => p._id.toString() === selectedModule.project._id.toString())
+    } else {
+        moduleProjects = projects
+    }
 
     /*
         While creating/adding release to an estimation, an user which is chosen as a Manager cannot be chosen as Leader and vice versa.
@@ -28,20 +36,43 @@ let CreateReleaseForm = (props) => {
     let now = new Date()
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
-
-            <Field name="estimation._id" component="input" type="hidden"/>
-            <Field name="_id" component="input" type="hidden"/>
+            <div className="col-md-12">
+                <div className="col-md-6">
+                    <Field name="releaseVersionName" component={renderText} validate={[required]}
+                           label={"Name (Release Version):"}/>
+                </div>
+                <div className="col-md-6">
+                    <Field name="developmentType._id" component={renderSelect} label={"Development Type:"}
+                           options={developmentTypes}
+                           displayField={"name"} validate={[required]}/>
+                </div>
+            </div>
 
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="billedHours" component={renderText} label={"Negotiated Billed Hours:"}
-                           validate={[required, number]}/>
+                    <Field name="project._id"
+                           component={renderSelect}
+                           label={"Project:"}
+                           options={moduleProjects}
+                           validate={[required]}
+                    />
                 </div>
                 <div className="col-md-6">
-                    <Field name="releaseVersionName" component={renderText} validate={[required]}
-                           label={"Name (Relese Version):"}/>
+                    <Field name="module._id"
+                           component={renderSelect}
+                           label={"Module:"}
+                           options={projectModules}
+                           displayField={"firstName"}
+                    />
                 </div>
             </div>
+            <div className="col-md-12">
+                <div className="col-md-12">
+                    <Field name="technologies" component={renderMultiSelect} label="technologies:"
+                           data={technologies}/>
+                </div>
+            </div>
+
             <div className="col-md-12">
                 <div className="col-md-4">
                     <Field name="devStartDate" component={renderDateTimePickerString}
@@ -65,6 +96,7 @@ let CreateReleaseForm = (props) => {
                            validate={required}/>
                 </div>
             </div>
+
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="manager._id"
@@ -77,7 +109,6 @@ let CreateReleaseForm = (props) => {
                     />
                 </div>
                 <div className="col-md-6">
-
                     <Field name="leader._id"
                            component={renderSelect}
                            label={"Leader Of Release:"}
@@ -90,14 +121,16 @@ let CreateReleaseForm = (props) => {
             </div>
 
             <div className="col-md-12">
-                <Field name="team"
-                       component={renderMultiSelect}
-                       label={"Planned Employees For Release:"}
-                       data={team}
-                       validate={required}
-                       textField="name"
-                       valueField="_id"
-                />
+                <div className="col-md-12">
+                    <Field name="team"
+                           component={renderMultiSelect}
+                           label={"Planned Employees For Release:"}
+                           data={team}
+                           validate={required}
+                           textField="name"
+                           valueField="_id"
+                    />
+                </div>
             </div>
 
         </div>
@@ -125,7 +158,13 @@ CreateReleaseForm = connect(
         const {devStartDate, devReleaseDate, clientReleaseDate} = selector(state, 'devStartDate', 'devReleaseDate', 'clientReleaseDate')
         const manager = selector(state, 'manager')
         const leader = selector(state, 'leader')
+        const _id = selector(state, '_id')
+        const project = selector(state, 'project')
+        const module = selector(state, 'module')
         return {
+            _id,
+            project,
+            module,
             devStartDate,
             devReleaseDate,
             clientReleaseDate,

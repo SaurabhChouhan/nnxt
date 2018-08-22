@@ -21,7 +21,15 @@ let releaseSchema = mongoose.Schema({
         type: String,
         enum: [SC.STATUS_AWARDED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_ISSUE_FIXING, SC.STATUS_TEST_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_STABLE]
     },
+    developmentType: {
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    },
     project: {
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Project name is required']}
+    },
+    module: {
         _id: {type: mongoose.Schema.ObjectId, required: true},
         name: {type: String, required: [true, 'Project name is required']}
     },
@@ -46,6 +54,10 @@ let releaseSchema = mongoose.Schema({
         _id: {type: mongoose.Schema.ObjectId, required: true},
         name: {type: String, required: [true, 'Team name is required']},
         email: {type: String, required: [true, 'Developer email name is required']}
+    }],
+    technologies: [{
+        _id: mongoose.Schema.ObjectId,
+        name: String
     }],
     iterations: [{
         type: {
@@ -178,18 +190,15 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
 }
 
 /**
- * Create a release from estimation and release data provided while creating release
- * @param releaseData - data like billing hours, release state date, manager, leader, team details etc
- * @param user - Negotiator user
- * @param estimation - Estimation for which release is being created
- * @returns {Promise<void>}
+ * Create release without estimation
+ * @param releaseData
+ * @param user
+ * @returns {Promise<*>}
  */
 
-releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
-    let releaseInput = {}
-    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.estimation.project._id))
-    if (!project)
-        throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+releaseSchema.statics.createRelease = async (releaseData, user) => {
+    let release = new MDL.ReleaseModel()
+    logger.debug("createRelease(): ", {releaseData})
 
     const manager = await MDL.UserModel.findOne({
         '_id': mongoose.Types.ObjectId(releaseData.manager._id),
@@ -203,8 +212,90 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         '_id': mongoose.Types.ObjectId(releaseData.leader._id),
         'roles.name': SC.ROLE_LEADER
     })
+
     if (!leader)
         throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (leader._id.toString() === manager._id.toString()) {
+        throw new AppError('Manager and leader can not be the  same user please choose different one ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.project._id), {name: 1})
+    if (!project)
+        throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (releaseData.module && releaseData.module._id) {
+        const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(releaseData.module._id), {name: 1})
+        if (!module)
+            throw new AppError('Module not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        release.module = module
+    }
+
+    const developmentType = await MDL.DevelopmentModel.findById(mongoose.Types.ObjectId(releaseData.developmentType._id), {name: 1})
+    if (!developmentType)
+        throw new AppError('Development type not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    release.developmentType = developmentType
+    release.project = project
+    release.manager = manager
+    release.developmentType = releaseData.developmentType
+    release.leader = leader
+    release.team = releaseData.team
+    release.technologies = releaseData.technologies
+    release.clientReleaseDate = U.dateInUTC(releaseData.clientReleaseDate)
+    release.devStartDate = U.dateInUTC(releaseData.devStartDate)
+    release.devEndDate = U.dateInUTC(releaseData.devReleaseDate)
+
+    /*
+       We would add two iterations below
+       a 'planned' iteration - For tasks that would be added from release interface
+       an 'unplanned' iteration - For unplanned work that would be reported from reporting interface
+
+     */
+    release.iterations = [{
+        type: SC.ITERATION_TYPE_PLANNED,
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate)
+    }, {
+        type: SC.ITERATION_TYPE_UNPLANNED
+    }]
+
+    release.name = releaseData.releaseVersionName
+    release.status = SC.STATUS_AWARDED
+    release.negotiator = user
+    return await release.save()
+}
+
+
+/**
+ * Create a release from estimation and release data provided while creating release
+ * @param releaseData - data like billing hours, release state date, manager, leader, team details etc
+ * @param user - Negotiator user
+ * @param estimation - Estimation for which release is being created
+ * @returns {Promise<void>}
+ */
+
+releaseSchema.statics.createReleaseFromEstimation = async (releaseData, user, estimation) => {
+
+    let release = new MDL.ReleaseModel()
+
+    const manager = await MDL.UserModel.findOne({
+        '_id': mongoose.Types.ObjectId(releaseData.manager._id),
+        'roles.name': SC.ROLE_MANAGER
+    })
+
+    if (!manager)
+        throw new AppError('Project Manager not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    const leader = await MDL.UserModel.findById({
+        '_id': mongoose.Types.ObjectId(releaseData.leader._id),
+        'roles.name': SC.ROLE_LEADER
+    })
+
+    if (!leader)
+        throw new AppError('Project Leader not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
     if (leader._id.toString() === manager._id.toString()) {
         throw new AppError('Manager and leader can not be the  same user please choose different one ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
@@ -213,14 +304,27 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         throw new AppError('Release already created for this estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
 
-    releaseInput.project = project
-    releaseInput.manager = manager
-    releaseInput.leader = leader
-    releaseInput.team = releaseData.team
-    releaseInput.estimations = estimation
-    releaseInput.clientReleaseDate = U.dateInUTC(releaseData.clientReleaseDate)
-    releaseInput.devStartDate = U.dateInUTC(releaseData.devStartDate)
-    releaseInput.devEndDate = U.dateInUTC(releaseData.devReleaseDate)
+    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(estimation.project._id), {name: 1})
+    if (!project)
+        throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimation.module && estimation.module._id) {
+        const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(estimation.module._id), {name: 1})
+        if (!module)
+            throw new AppError('Module not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        release.module = module
+    }
+
+    release.project = project
+    release.manager = manager
+    release.leader = leader
+    release.developmentType = estimation.developmentType
+    release.team = releaseData.team
+    release.estimations = estimation
+    release.clientReleaseDate = U.dateInUTC(releaseData.clientReleaseDate)
+    release.devStartDate = U.dateInUTC(releaseData.devStartDate)
+    release.devEndDate = U.dateInUTC(releaseData.devReleaseDate)
+    release.technologies = estimation.technologies
 
     /*
        We would add three iterations below
@@ -229,7 +333,7 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
        an 'unplanned' iteration - For unplanned work that would be reported from reporting interface
 
      */
-    releaseInput.iterations = [{
+    release.iterations = [{
         type: SC.ITERATION_TYPE_ESTIMATED,
         name: releaseData.releaseVersionName,
         estimatedHours: estimation.estimatedHours,
@@ -253,10 +357,10 @@ releaseSchema.statics.createRelease = async (releaseData, user, estimation) => {
         type: SC.ITERATION_TYPE_UNPLANNED
     }]
 
-    releaseInput.name = releaseData.releaseVersionName
-    releaseInput.status = SC.STATUS_AWARDED
-    releaseInput.negotiator = user
-    return await ReleaseModel.create(releaseInput)
+    release.name = releaseData.releaseVersionName
+    release.status = SC.STATUS_AWARDED
+    release.negotiator = user
+    return await release.save()
 }
 
 /**

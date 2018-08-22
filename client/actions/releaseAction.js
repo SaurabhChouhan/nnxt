@@ -1,10 +1,17 @@
 import * as AC from './actionConsts'
 import * as A from '../actions'
+import {updateSelectedEstimation} from "./estimationAction";
 
 export const addReleases = (releases) => ({
     type: AC.ADD_RELEASES,
     releases: releases
 })
+
+export const addRelease = (release) => ({
+    type: AC.ADD_RELEASE,
+    release: release
+})
+
 
 export const addAvailableReleases = (releases) => ({
     type: AC.ADD_AVAILABLE_RELEASES,
@@ -617,3 +624,27 @@ export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {
         )
     }
 }
+
+export const createReleaseOnServer = (formInput) => {
+    return (dispatch, getState) => {
+        return fetch('/api/releases', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addRelease(json.data))
+                }
+                return json
+            })
+    }
+}
+

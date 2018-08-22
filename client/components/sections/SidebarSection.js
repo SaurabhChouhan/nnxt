@@ -122,7 +122,7 @@ const SidebarSection = (props) => {
 
                         {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
-                                roles.indexOf(SC.ROLE_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_NON_PROJECT_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_TOP_MANAGEMENT)) &&
+                                roles.indexOf(SC.ROLE_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_NON_PROJECT_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1) &&
                             <li><Link to="/app-home/leave" onClick={() => {
                                 props.dispatch(A.getAllLeavesFromServer(SC.ALL))
                                 props.dispatch(A.getAllLeaveTypesFromServer())

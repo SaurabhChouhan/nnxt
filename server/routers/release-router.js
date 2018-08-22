@@ -21,6 +21,12 @@ releaseRouter.get("/", async ctx => {
     return await MDL.ReleaseModel.getAvailableReleases(ctx.state.user)
 })
 
+
+releaseRouter.post("/", async ctx => {
+    return await MDL.ReleaseModel.createRelease(ctx.request.body, ctx.state.user)
+})
+
+
 /***
  * Get all releases and by status filtering also
  ***/

@@ -55,15 +55,42 @@ const releaseReducer = (state = initialState, action) => {
                     s.sumExpectedBilledHours += p.expectedBilledHours
                 })
 
-                let prg = s.sumProgressEstimatedHours / s.sumEstimatedHours
-                s.progress = parseFloat(prg.toFixed(2))
+                s.progress = s.sumEstimatedHours != 0 ? parseFloat((s.sumProgressEstimatedHours / s.sumEstimatedHours).toFixed(2)) : 0
                 r.plannedStats = s
                 return r;
             }) : []
 
             return Object.assign({}, state, {all: allReleases})
 
+        case AC.ADD_RELEASE:
+            let addedRelease = action.release
+            let plannedItrs = addedRelease.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
+            let sums = {
+                sumPlannedHours: 0,
+                sumEstimatedHours: 0,
+                sumReportedHours: 0,
+                sumEstimatedHoursCompletedTasks: 0,
+                sumPlannedHoursReportedTasks: 0,
+                sumProgressEstimatedHours: 0,
+                sumPlannedHoursEstimatedTasks: 0,
+                sumExpectedBilledHours: 0
+            }
 
+            plannedItrs.forEach(p => {
+                sums.sumPlannedHours += p.plannedHours
+                sums.sumEstimatedHours += p.estimatedHours
+                sums.sumReportedHours += p.reportedHours
+                sums.sumEstimatedHoursCompletedTasks += p.estimatedHoursCompletedTasks
+                sums.sumPlannedHoursReportedTasks += p.plannedHoursReportedTasks
+                sums.sumProgressEstimatedHours += p.estimatedHours * p.progress
+                sums.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
+                sums.sumExpectedBilledHours += p.expectedBilledHours
+            })
+
+            sums.progress = sums.sumEstimatedHours != 0 ? parseFloat((sums.sumProgressEstimatedHours / sums.sumEstimatedHours).toFixed(2)) : 0
+            addedRelease.plannedStats = sums
+            return Object.assign({}, state, {all: [...state.all, addedRelease]})
+            break;
         case AC.RELEASE_SELECTED:
             // add selected release details from server
             // Select team
@@ -71,7 +98,7 @@ const releaseReducer = (state = initialState, action) => {
             let release = action.release
 
             let plannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
-            let s = {
+            let sm = {
                 sumPlannedHours: 0,
                 sumEstimatedHours: 0,
                 sumReportedHours: 0,
@@ -83,19 +110,18 @@ const releaseReducer = (state = initialState, action) => {
             }
 
             plannedIterations.forEach(p => {
-                s.sumPlannedHours += p.plannedHours
-                s.sumEstimatedHours += p.estimatedHours
-                s.sumReportedHours += p.reportedHours
-                s.sumEstimatedHoursCompletedTasks += p.estimatedHoursCompletedTasks
-                s.sumPlannedHoursReportedTasks += p.plannedHoursReportedTasks
-                s.sumProgressEstimatedHours += p.estimatedHours * p.progress
-                s.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
-                s.sumExpectedBilledHours += p.expectedBilledHours
+                sm.sumPlannedHours += p.plannedHours
+                sm.sumEstimatedHours += p.estimatedHours
+                sm.sumReportedHours += p.reportedHours
+                sm.sumEstimatedHoursCompletedTasks += p.estimatedHoursCompletedTasks
+                sm.sumPlannedHoursReportedTasks += p.plannedHoursReportedTasks
+                sm.sumProgressEstimatedHours += p.estimatedHours * p.progress
+                sm.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
+                sm.sumExpectedBilledHours += p.expectedBilledHours
             })
 
-            let prg = s.sumProgressEstimatedHours / s.sumEstimatedHours
-            s.progress = parseFloat(prg.toFixed(2))
-            release.plannedStats = s
+            sm.progress = sm.sumEstimatedHours != 0 ? parseFloat((sm.sumProgressEstimatedHours / sm.sumEstimatedHours).toFixed(2)) : 0
+            release.plannedStats = sm
             return Object.assign({}, state, {
                 selectedRelease: release,
                 teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam]

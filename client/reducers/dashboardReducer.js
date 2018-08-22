@@ -55,39 +55,36 @@ const dashboardReducer = (state = initialState, action) => {
                  * Overall progress
                  */
 
-                let prg = s.sumProgressEstimatedHours / s.sumEstimatedHours
-                prg = parseFloat(prg.toFixed(2))
-
-                progress['actual'] = prg
+                progress['actual'] = s.sumEstimatedHours != 0 ? parseFloat((s.sumProgressEstimatedHours / s.sumEstimatedHours).toFixed(2)) : 0
                 overallProgress = {
                     ran: Math.random(),
                     total: 100,
-                    progress: prg,
-                    remaining: parseFloat((100 - prg).toFixed(2))
+                    progress: progress['actual'],
+                    remaining: parseFloat((100 - progress['actual']).toFixed(2))
                 }
 
                 /**
                  * Progress Completed/Pending tasks
                  */
 
-                let progressCompletedTasks = (s.sumEstimatedHoursCompletedTasks * 100) / s.sumEstimatedHours
-                progressCompletedTasks = parseFloat(progressCompletedTasks.toFixed(2))
-                let progressPendingTasks = parseFloat((prg - progressCompletedTasks).toFixed(2))
+                let progressCompletedTasks = s.sumEstimatedHours != 0 ? parseFloat(((s.sumEstimatedHoursCompletedTasks * 100) / s.sumEstimatedHours).toFixed(2)) : 0
+                //progressCompletedTasks = parseFloat(progressCompletedTasks.toFixed(2))
+                let progressPendingTasks = parseFloat((progress['actual'] - progressCompletedTasks).toFixed(2))
 
                 completedPendingProgress = {
                     ran: Math.random(),
                     total: 100,
                     completed: progressCompletedTasks,
                     pending: progressPendingTasks,
-                    remaining: parseFloat((100 - prg).toFixed(2))
+                    remaining: parseFloat((100 - progress['actual']).toFixed(2))
                 }
 
                 /**
                  * Estimated progress as per reporting
                  */
 
-                let estimatedProgressReporting = parseFloat(((s.sumReportedHours * 100) / s.sumEstimatedHours).toFixed(2))
-                let estimatedProgressPlanning = parseFloat(((s.sumPlannedHoursReportedTasks * 100) / s.sumEstimatedHours).toFixed(2))
+                let estimatedProgressReporting = s.sumEstimatedHours != 0 ? parseFloat(((s.sumReportedHours * 100) / s.sumEstimatedHours).toFixed(2)) : 0
+                let estimatedProgressPlanning = s.sumEstimatedHours != 0 ? parseFloat(((s.sumPlannedHoursReportedTasks * 100) / s.sumEstimatedHours).toFixed(2)) : 0
 
                 estimatedProgress = {
                     ran: Math.random(),
@@ -104,7 +101,7 @@ const dashboardReducer = (state = initialState, action) => {
                  * Planned Vs Unplanned work calculation
                  */
 
-                let planned = parseFloat(((s.sumPlannedHoursEstimatedTasks * 100) / s.sumEstimatedHours).toFixed(2))
+                let planned = s.sumEstimatedHours != 0 ? parseFloat(((s.sumPlannedHoursEstimatedTasks * 100) / s.sumEstimatedHours).toFixed(2)) : 0
                 plannedVsUnplannedWork = {
                     ran: Math.random(), // added random as animation and label were not working simultaneously, need to remove this as soon as bug with rechart is fixed
                     total: 100,

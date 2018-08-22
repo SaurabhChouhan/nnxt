@@ -49,6 +49,10 @@ let estimationSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: String
     },
+    module: {
+        _id: mongoose.Schema.ObjectId,
+        name: String
+    },
     release: {
         _id: mongoose.Schema.ObjectId,
         name: String
@@ -222,9 +226,8 @@ estimationSchema.statics.initiate = async (estimationInput, user) => {
     if (!negotiator)
         throw new AppError('User not found', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
 
-    if(!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
+    if (!userHasRole(negotiator, SC.ROLE_NEGOTIATOR))
         throw new AppError('User not a negotiator', EC.INVALID_USER, EC.HTTP_BAD_REQUEST)
-
 
     let project = await MDL.ProjectModel.findById(estimationInput.project._id)
     if (!project)
@@ -241,7 +244,17 @@ estimationSchema.statics.initiate = async (estimationInput, user) => {
     if (negotiator._id.toString() === estimator._id.toString())
         throw new AppError('Estimator and negotiator can not be same ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
 
-    let developmentType = await MDL.DevelopmentModel.findById(estimationInput.developmentType._id)
+    let developmentType = await MDL.DevelopmentModel.findById(estimationInput.developmentType._id, {name: 1})
+
+    if (!developmentType)
+        throw new AppError('Development type not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (estimationInput.module && estimationInput.module._id) {
+        const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(estimationInput.module._id), {name: 1})
+        if (!module)
+            throw new AppError('Module not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        estimationInput.module = module
+    }
 
     estimationInput.status = SC.STATUS_INITIATED
     estimationInput.estimatedHours = 0
@@ -822,7 +835,7 @@ estimationSchema.statics.createReleaseFromEstimation = async (releaseInput, nego
     releaseInput.estimation = estimation
 
     // Create new release
-    const release = await MDL.ReleaseModel.createRelease(releaseInput, negotiator, estimation)
+    const release = await MDL.ReleaseModel.createReleaseFromEstimation(releaseInput, negotiator, estimation)
     if (!release)
         throw new AppError('Release not created', EC.SERVER_ERROR, EC.HTTP_SERVER_ERROR)
 

@@ -7,15 +7,14 @@ import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formInput) => {
-        formInput.billedHours = parseInt(formInput.billedHours)
         logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_SUBMIT, "formInput:", formInput)
-        return dispatch(A.addCreateReleaseOnServer(formInput)).then(json => {
+        return dispatch(A.createReleaseOnServer(formInput)).then(json => {
             if (json.success) {
-                NotificationManager.success("Project Awarded")
+                NotificationManager.success("Release Created")
                 // hide dialog
-                dispatch(A.hideComponent(COC.ESTIMATION_PROJECT_AWARD_FORM_DIALOG))
+                dispatch(A.hideComponent(COC.CREATE_RELEASE_FORM_DIALOG))
             } else {
-                NotificationManager.error("Project Awardation Failed")
+                NotificationManager.error("Release Creation Failed")
             }
         })
     }
@@ -42,7 +41,11 @@ const mapStateToProps = (state) => {
     return {
         team,
         managers,
-        leaders
+        leaders,
+        projects: state.project.all,
+        technologies: state.technology.all,
+        developmentTypes: state.developmentType.all,
+        modules: state.module.all
     }
 }
 
