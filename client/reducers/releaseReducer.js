@@ -26,32 +26,8 @@ const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_AVAILABLE_RELEASES:
             // add all releases from server
-            let releases = action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases.map(r => {
-                let plannedIterations = r.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
-                let s = {
-                    sumPlannedHours: 0,
-                    sumEstimatedHours: 0,
-                    sumReportedHours: 0,
-                    sumEstimatedHoursCompletedTasks: 0,
-                    sumPlannedHoursReportedTasks: 0,
-                    sumProgressEstimatedHours: 0,
-                    sumPlannedHoursEstimatedTasks: 0
-                }
 
-                plannedIterations.forEach(p => {
-                    s.sumPlannedHours += p.plannedHours
-                    s.sumEstimatedHours += p.estimatedHours
-                    s.sumReportedHours += p.reportedHours
-                    s.sumEstimatedHoursCompletedTasks += p.estimatedHoursCompletedTasks
-                    s.sumPlannedHoursReportedTasks += p.plannedHoursReportedTasks
-                    s.sumProgressEstimatedHours += p.estimatedHours * p.progress
-                    s.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
-                })
-                r.plannedStats = s
-                return r;
-            }) : []
-
-            return Object.assign({}, state, {allAvailableReleases: releases})
+            return Object.assign({}, state, {allAvailableReleases: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})
 
         case AC.ADD_RELEASES:
             // add all releases from server
@@ -91,8 +67,37 @@ const releaseReducer = (state = initialState, action) => {
         case AC.RELEASE_SELECTED:
             // add selected release details from server
             // Select team
+
+            let release = action.release
+
+            let plannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
+            let s = {
+                sumPlannedHours: 0,
+                sumEstimatedHours: 0,
+                sumReportedHours: 0,
+                sumEstimatedHoursCompletedTasks: 0,
+                sumPlannedHoursReportedTasks: 0,
+                sumProgressEstimatedHours: 0,
+                sumPlannedHoursEstimatedTasks: 0,
+                sumExpectedBilledHours: 0
+            }
+
+            plannedIterations.forEach(p => {
+                s.sumPlannedHours += p.plannedHours
+                s.sumEstimatedHours += p.estimatedHours
+                s.sumReportedHours += p.reportedHours
+                s.sumEstimatedHoursCompletedTasks += p.estimatedHoursCompletedTasks
+                s.sumPlannedHoursReportedTasks += p.plannedHoursReportedTasks
+                s.sumProgressEstimatedHours += p.estimatedHours * p.progress
+                s.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
+                s.sumExpectedBilledHours += p.expectedBilledHours
+            })
+
+            let prg = s.sumProgressEstimatedHours / s.sumEstimatedHours
+            s.progress = parseFloat(prg.toFixed(2))
+            release.plannedStats = s
             return Object.assign({}, state, {
-                selectedRelease: action.release,
+                selectedRelease: release,
                 teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam]
             })
 
