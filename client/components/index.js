@@ -33,6 +33,8 @@ export {default as EstimationProjectAwardForm} from './forms/EstimationProjectAw
 export {default as EstimationAddToReleaseForm} from './forms/EstimationAddToReleaseForm'
 export {default as ReportTaskDescriptionForm} from './forms/ReportTaskDescriptionForm'
 
+// Release Forms
+export {default as CreateReleaseForm} from './forms/CreateReleaseForm'
 
 // Estimation Page
 
@@ -59,6 +61,7 @@ export {default as AttendenceSettingForm} from './forms/AttendanceSettingForm'
 export {default as EstimationFilterDialog} from './dialogs/EstimationFilterDialog'
 export {default as EstimationFilterForm} from './forms/EstimationFilterForm'
 export {default as ReportTaskDescriptionFormDialog} from './dialogs/ReportTaskDescriptionFormDialog'
+export {default as CreateReleaseDialog} from './dialogs/CreateReleaseDialog'
 
 
 //ProjectDialog

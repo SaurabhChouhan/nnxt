@@ -97,6 +97,11 @@ class ReleaseList extends Component {
         const {releases} = this.props
         return ([
                 <div key={"release-search"} className="col-md-12 release-options">
+                    <button type="button" className="col-md-2 btn customBtn" onClick={
+                        () => {
+                            this.props.showCreateReleaseDialog()
+                        }}>Create Release
+                    </button>
                     <div className="search-btn-container">
                         <select className="col-md-4 form-control" title="Select Status"
                                 onChange={(status) =>
