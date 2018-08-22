@@ -124,9 +124,8 @@ class WarningList extends Component {
     render() {
         const {warnings, release} = this.props
 
-        return (
-            <div>
-                <div className="col-md-8 releaseOption releaseDetailSearchContent">
+        return ([
+            <div key={"warning-search"} className="col-md-12 release-options">
                     <div className="col-md-6 ">
                         <div className="releaseDetailSearchFlag">
                             <select className="form-control" title="Select Flag" onChange={(flag) =>
@@ -139,11 +138,11 @@ class WarningList extends Component {
                             </select>
                         </div>
                     </div>
-                </div>
-                <div className="col-md-12 estimation release-plan-table">
+            </div>,
+            <div key={"warning-table"} className="col-md-12 estimation release-plan-table">
                     <BootstrapTable options={this.options} data={warnings}
                                     multiColumnSearch={true}
-                                    search={true}
+                                search={false}
                                     striped={true}
                                     pagination
                                     hover={true}
@@ -164,9 +163,7 @@ class WarningList extends Component {
                         </TableHeaderColumn>
 
                     </BootstrapTable>
-                </div>
-            </div>
-        )
+            </div>])
     }
 }
 

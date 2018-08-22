@@ -112,10 +112,10 @@ class TaskReportList extends Component {
         const {reports} = this.props
         console.log("reports------------------", reports)
         return (
-            <div className="col-md-12 estimation releasePlan-taskPlan release-plan-table">
+            <div className="col-md-12 release-options">
                 <BootstrapTable options={this.options} data={reports}
                                 multiColumnSearch={true}
-                                search={true}
+                                search={false}
                                 striped={true}
                                 pagination
                                 hover={true}
@@ -129,12 +129,10 @@ class TaskReportList extends Component {
                     <TableHeaderColumn width={"25%"} columnTitle dataField='employee'
                                        dataFormat={this.formatDeveloperName.bind(this)}>Developer
                     </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"14%"} dataField='planningDateString'
-                                       dataFormat={this.formatPlanningDate.bind(this)}>Planning
+                    <TableHeaderColumn columnTitle width={"14%"} dataField='planningDateString' dataFormat={this.formatPlanningDate.bind(this)}>Planning
                         Date
                     </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"12%"} dataField='planning'
-                                       dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
+                    <TableHeaderColumn columnTitle width={"12%"} dataField='planning' dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
                         Hours
                     </TableHeaderColumn>
                     <TableHeaderColumn width="12%" columnTitle dataField='report'
