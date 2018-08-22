@@ -162,7 +162,7 @@ class TaskPlanList extends Component {
         console.log("taskPlans------------------", taskPlans)
 
         return (
-            <div className="estimation releasePlan-taskPlan release-plan-table">
+            <div className="col-md-12 estimation releasePlan-taskPlan release-plan-table">
                 <BootstrapTable options={this.options} data={taskPlans}
                                 multiColumnSearch={true}
                                 search={true}
@@ -173,7 +173,7 @@ class TaskPlanList extends Component {
                     <TableHeaderColumn columnTitle isKey dataField='_id'
                                        hidden={true}>ID
                     </TableHeaderColumn>
-                    <TableHeaderColumn width={"20%"}columnTitle dataField='task'
+                    <TableHeaderColumn width={"20%"} columnTitle dataField='task'
                                        dataFormat={this.formatTaskName.bind(this)}>Tasks
                     </TableHeaderColumn>
                     <TableHeaderColumn width={"20%"} columnTitle dataField='employee'
@@ -186,7 +186,8 @@ class TaskPlanList extends Component {
                                        dataFormat={this.formatPlannedDate.bind(this)}>Planning
                         Date
                     </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"10%"} dataField='planning' dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                    <TableHeaderColumn columnTitle width={"10%"} dataField='planning'
+                                       dataFormat={this.formatPlannedHours.bind(this)}>Planned
                         Hours
                     </TableHeaderColumn>
                     <TableHeaderColumn width="10%" columnTitle dataField='report'

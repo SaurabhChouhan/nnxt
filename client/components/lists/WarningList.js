@@ -22,7 +22,7 @@ class WarningList extends Component {
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.props.getAllWarnings(this.props.release)
     }
 
@@ -140,7 +140,7 @@ class WarningList extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="estimation release-plan-table">
+                <div className="col-md-12 estimation release-plan-table">
                     <BootstrapTable options={this.options} data={warnings}
                                     multiColumnSearch={true}
                                     search={true}
