@@ -77,36 +77,42 @@ class EstimationDetail extends Component {
             <div className="col-md-8 pad estimation-container">
                 <div className="col-md-12 estimateheader">
                     {estimation.canApprove && userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && estimation.status === SC.STATUS_REVIEW_REQUESTED ?
-                        <div className="col-md-5 pad">
+                        <div className="col-md-7 pad">
 
-                            <div className="col-md-6 backarrow estimationBackArrow">
-                                <h5>
-                                    <button title="Go Back" className="btn-link pad" onClick={() => {
+                            <div title="Go Back" className=" col-md-7 backarrow estimationBackArrow">
+                                <div className="col-md-1 pad">
+                                    <button className="btn-link pad backBtnMarginTop" onClick={() => {
                                         this.props.history.push("/app-home/estimation")
                                         this.props.estimationGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-
-                                    <b>{estimation.project ? estimation.project.name : ''}</b>
-                                </h5>
+                                </div>
+                                <div className="col-md-11 pad">
+                                    <h5>
+                                        <b>{estimation.project ? estimation.project.name : ''}</b>
+                                    </h5>
+                                </div>
                             </div>
-                            <div className="col-md-6">
+                            <div className="col-md-5">
                                 <button className="btn approveBtn"
                                         onClick={() => this.setState({showEstimationApproveDialog: true})}>Approve
                                     Estimation
                                 </button>
                             </div>
                         </div>
-                        : <div className="col-md-5 pad">
+                        : <div className="col-md-7 pad">
 
-                            <div title="Go Back" className="col-md-5 backarrow estimationBackArrow">
-                                <h5>
-                                    <button className="btn-link pad" onClick={() => {
+                            <div title="Go Back" className=" backarrow estimationBackArrow">
+                                <div className="col-md-1">
+                                    <button className="btn-link pad backBtnMarginTop" onClick={() => {
                                         this.props.history.push("/app-home/estimation")
                                         this.props.estimationGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-
-                                    <b>{estimation.project ? estimation.project.name : ''}</b>
-                                </h5>
+                                </div>
+                                <div className="col-md-11">
+                                    <h5>
+                                        <b>{estimation.project ? estimation.project.name : ''}</b>
+                                    </h5>
+                                </div>
                             </div>
                             {
                                 (_.includes([SC.STATUS_INITIATED], estimation.status) && userRoleInThisEstimation === SC.ROLE_NEGOTIATOR) &&
@@ -184,7 +190,7 @@ class EstimationDetail extends Component {
                     }
 
 
-                    <div className="col-md-3">
+                    <div className="col-md-3 pad">
                         {
                             userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && estimation.status === SC.STATUS_INITIATED &&
                             <button className="btn customBtn"
@@ -221,7 +227,7 @@ class EstimationDetail extends Component {
                         }
 
                     </div>
-                    <div className="col-md-1">
+                    <div className="col-md-1 pad">
                         {
                             userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && (estimation.status === SC.STATUS_INITIATED || estimation.status === SC.STATUS_REVIEW_REQUESTED) &&
                             < button type="button" className="btn customBtn deleteEstimationBtn" onClick={() => {
@@ -233,7 +239,7 @@ class EstimationDetail extends Component {
 
                     </div>
 
-                    <div className="col-md-3 pad ">
+                    <div className="col-md-1 pad ">
                         <div className="estimationfileoption">
                             <ul className="list-unstyled">
                                 {editView &&
@@ -263,113 +269,111 @@ class EstimationDetail extends Component {
                     < div
                         className="col-md-2 pad">
                         < div
-                            className="estimationuser tooltip"> < span> C < /span>
-        <p className="tooltiptext">{estimation.client ? estimation.client.name : ''}</p>
-        <
-                            /div>
-        <div className="estimationuser tooltip"><span>N</span>
-            <p className="tooltiptext">{estimation.negotiator ? estimation.negotiator.firstName : ''}</p>
-        </div>
-        < div
-            className="estimationuser tooltip"> < span> E < /span>
-        <p className="tooltiptext">{estimation.estimator ? estimation.estimator.firstName : ''}</p>
-        <
-            /div>
-    </div>
-        <div className="col-md-2">
-            <div className="logo">
+                            className="estimationuser tooltip"><span> C </span>
+                            <p className="tooltiptext">{estimation.client ? estimation.client.name : ''}</p>
+                        </div>
+                        <div className="estimationuser tooltip"><span>N</span>
+                            <p className="tooltiptext">{estimation.negotiator ? estimation.negotiator.firstName : ''}</p>
+                        </div>
+                        < div
+                            className="estimationuser tooltip"><span> E </span>
+                            <p className="tooltiptext">{estimation.estimator ? estimation.estimator.firstName : ''}</p>
+                        </div>
+                    </div>
+                    <div className="col-md-2">
+                        <div className="logo">
 
-                {
-                    estimation.technologies.map(t =>
-                        <img src={"/images/technology/" + t.name.replace(' ', '_') + ".png"}/>
-                    )
-                }
+                            {
+                                estimation.technologies.map(t =>
+                                    <img src={"/images/technology/" + t.name.replace(' ', '_') + ".png"}/>
+                                )
+                            }
 
-                {/*
+                            {/*
                             <img src="/images/react.png"/>
                             <img src="/images/mongodb.png"/>
                               <img src="/images/node.png"/>
                              */}
 
-            </div>
-            </div>
-
-            <div className="col-md-5">
-                {(userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
-                    userRoleInThisEstimation === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
-                && <form>
-                    <button type="button" className="btn taskbtn"
-                            onClick={() => this.props.showAddTaskForm(estimation)}><i
-                        className="fa fa-plus-circle"></i>
-                        Add Task
-                    </button>
-                    <button type="button" className="btn featurebtn"
-                            onClick={() => this.props.showAddFeatureForm(estimation)}
-                    ><i className="fa fa-plus-circle"></i>
-                        Add Feature
-                    </button>
-                </form>}
-            </div>
-            <div className="col-md-3">
-            <div className="col-md-6  esTime">
-            <b>{estimation.estimatedHours + " Hrs"}</b>
-        <div className="clock">
-            <i className="fa fa-clock-o " title="estimated Hours"></i>
-            </div>
-
-        </div>
-        <div className="col-md-6  esTime">
-            <b>{estimation.suggestedHours + " Hrs"}</b>
-            <div className="suggestedclock">
-            <i className="fa fa-clock-o " title="Suggeted Hours"></i>
-        </div>
-
-    </div>
-    </div>
-
-
                         </div>
-
-                        <div className=" col-md-12">
-                            <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
-                            <div className="col-md-2 col-md-offset-4">
-                                <button style={{float: 'right'}} type="button" className="btn customBtn" onClick={
-                                    () => {
-                                        this.props.refreshEstimation(estimation)
-                                    }}><i className="fa fa-refresh"></i></button>
-                            </div>
-                        </div>
-                        <div className="col-md-12">
-                            <EstimationFeaturesContainer estimationStatus={estimation.status}
-                                                         editView={editView}
-                                                         loggedInUserRole={userRoleInThisEstimation}/>
-                        </div>
-                        <br/>
-                        <div className="col-md-12">
-                            <EstimationTasksContainer estimationStatus={estimation.status}
-                                                      editView={editView}
-                                                      loggedInUserRole={userRoleInThisEstimation}/>
-                        </div>
-                        {(estimation.status === SC.STATUS_APPROVED) && (userRoleInThisEstimation === SC.ROLE_NEGOTIATOR) &&
-                        <div className="col-md-12">
-                            <button type="button" className="btn customBtn" onClick={
-                                () => {
-                                    this.props.showProjectAwardForm(estimation)
-                                }}>Create Release
-                            </button>
-                            <button type="button" className="btn customBtn" onClick={
-                                () => {
-                                    this.props.showAddToReleaseForm(estimation)
-                                }}>Add to Release
-                            </button>
-                        </div>}
                     </div>
-                    <div className="col-md-4 estimationsection pad">
-                        <RepositorySearchContainer editView={editView}/>
+
+                    <div className="col-md-5">
+                        {(userRoleInThisEstimation === SC.ROLE_NEGOTIATOR && _.includes([SC.STATUS_INITIATED, SC.STATUS_REVIEW_REQUESTED], estimation.status) ||
+                            userRoleInThisEstimation === SC.ROLE_ESTIMATOR && _.includes([SC.STATUS_ESTIMATION_REQUESTED, SC.STATUS_CHANGE_REQUESTED], estimation.status))
+                        && <form>
+                            <button type="button" className="btn taskbtn"
+                                    onClick={() => this.props.showAddTaskForm(estimation)}><i
+                                className="fa fa-plus-circle"></i>
+                                Add Task
+                            </button>
+                            <button type="button" className="btn featurebtn"
+                                    onClick={() => this.props.showAddFeatureForm(estimation)}
+                            ><i className="fa fa-plus-circle"></i>
+                                Add Feature
+                            </button>
+                        </form>}
+                    </div>
+                    <div className="col-md-3">
+                        <div className="col-md-6  esTime">
+                            <b>{estimation.estimatedHours + " Hrs"}</b>
+                            <div className="clock">
+                                <i className="fa fa-clock-o " title="estimated Hours"></i>
+                            </div>
+
+                        </div>
+                        <div className="col-md-6  esTime">
+                            <b>{estimation.suggestedHours + " Hrs"}</b>
+                            <div className="suggestedclock">
+                                <i className="fa fa-clock-o " title="Suggeted Hours"></i>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div className=" col-md-12">
+                    <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
+                    <div className="col-md-2 col-md-offset-4">
+                        <button style={{float: 'right'}} type="button" className="btn customBtn" onClick={
+                            () => {
+                                this.props.refreshEstimation(estimation)
+                            }}><i className="fa fa-refresh"></i></button>
                     </div>
                 </div>
-                }
+                <div className="col-md-12">
+                    <EstimationFeaturesContainer estimationStatus={estimation.status}
+                                                 editView={editView}
+                                                 loggedInUserRole={userRoleInThisEstimation}/>
+                </div>
+                <br/>
+                <div className="col-md-12">
+                    <EstimationTasksContainer estimationStatus={estimation.status}
+                                              editView={editView}
+                                              loggedInUserRole={userRoleInThisEstimation}/>
+                </div>
+                {(estimation.status === SC.STATUS_APPROVED) && (userRoleInThisEstimation === SC.ROLE_NEGOTIATOR) &&
+                <div className="col-md-12">
+                    <button type="button" className="btn customBtn" onClick={
+                        () => {
+                            this.props.showProjectAwardForm(estimation)
+                        }}>Create Release
+                    </button>
+                    <button type="button" className="btn customBtn" onClick={
+                        () => {
+                            this.props.showAddToReleaseForm(estimation)
+                        }}>Add to Release
+                    </button>
+                </div>}
+            </div>
+            <div className="col-md-4 estimationsection pad">
+                <RepositorySearchContainer editView={editView}/>
+            </div>
+        </div>
+    }
 
-                }
+}
 
-                export default EstimationDetail
+export default EstimationDetail

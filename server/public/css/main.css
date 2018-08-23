@@ -653,7 +653,7 @@ table th {
 }
 
 .backarrow b {
-    font-size: 20px;
+    font-size: 19px;
     padding: 3px;
 }
 
@@ -2201,10 +2201,13 @@ hr {
 }
 
 .search-btn-container {
-    margin-top:5px;
-    float:right;
+    margin-top: 5px;
+    float: right;
 }
 
+.backBtnMarginTop {
+    margin-top: 10px;
+}
 
 
 
