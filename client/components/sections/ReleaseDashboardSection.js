@@ -194,6 +194,20 @@ class DashboardSection extends Component {
                         <Tooltip/>
                     </PieChart>
                 </div>
+                <div className={"chartSection"}>
+                    <BarChart data={[this.props.unplannedReport]}
+                              height={80} width={barWidth} layout={"vertical"} margin={barMargin}>
+                        <XAxis type="number" hide={true}/>
+                        <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
+                        <Legend/>
+                        <Bar barSize={10} dataKey="reportedHours" fill={reportedColor}
+                             name={"Unplanned Reported Hours"}>
+                            <LabelList dataKey="reportedHours" position="top"/>
+                        </Bar>
+                    </BarChart>
+                </div>
+
 
             </div>
             <div className={"col-md-6"}>

@@ -29,6 +29,9 @@ const dashboardReducer = (state = initialState, action) => {
             // sum all plannedHoursEstimatedTasks and then compare them against sum of all estimated hours
             let plannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
 
+            // there should only be one unplanned iteration
+            let unPlannedIteration = release.iterations.find(i => i.type == SC.ITERATION_TYPE_UNPLANNED)
+
             if (plannedIterations && plannedIterations.length) {
 
                 let s = {
@@ -130,6 +133,7 @@ const dashboardReducer = (state = initialState, action) => {
                 hoursData.estimatedHours = s.sumEstimatedHours
             }
 
+
             return Object.assign({}, state, {
                 plannedVsUnplannedWork,
                 overallProgress,
@@ -137,7 +141,11 @@ const dashboardReducer = (state = initialState, action) => {
                 plannedVsReported,
                 hoursData,
                 estimatedProgress,
-                progress: progress
+                progress: progress,
+                unplannedReport: {
+                    ran: Math.random(),
+                    reportedHours: unPlannedIteration ? unPlannedIteration.reportedHours : 0
+                }
             })
 
         case AC.SET_RELEASE_ID:
