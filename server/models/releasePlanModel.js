@@ -274,8 +274,6 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
     }
 
     releasePlan.flags = [] // no flags for such release plans
-    releasePlan.report = {}
-
     releasePlan.task = {
         name: releasePlanInput.name,
         description: releasePlanInput.description,

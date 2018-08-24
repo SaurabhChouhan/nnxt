@@ -30,8 +30,8 @@ let releaseSchema = mongoose.Schema({
         name: {type: String, required: [true, 'Project name is required']}
     },
     module: {
-        _id: {type: mongoose.Schema.ObjectId, required: true},
-        name: {type: String, required: [true, 'Project name is required']}
+        _id: {type: mongoose.Schema.ObjectId},
+        name: {type: String}
     },
     manager: {
         _id: {type: mongoose.Schema.ObjectId, required: true},

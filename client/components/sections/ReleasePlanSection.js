@@ -145,8 +145,7 @@ class ReleasePlanSection extends Component {
 
                     </div>
                     <div className="col-md-12 pad">
-
-                        <div className="container container-width">
+                        <div className="container pad">
                             <ul className="nav nav-tabs">
                                 <li className={selectedTab === SC.RELEASE_DASHBOARD_TAB ? 'active' : ''}>
                                     <a

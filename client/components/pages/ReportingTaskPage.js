@@ -94,7 +94,7 @@ class ReportingTaskPage extends Component {
         </button>
     }
 
-    viewPendingButton(cell, row, enumObject, rowIndex) {
+    viewPendingButton(cell, row) {
         return <button className=" btn btn-custom " type="button" style={{padding: '0px', border: '0'}} onClick={() => {
             if (row.reportedHours == null) {
                 NotificationManager.error('Please select worked hours!')
@@ -109,18 +109,18 @@ class ReportingTaskPage extends Component {
         </button>
     }
 
-    viewSubmitButton(cell, row, enumObject, rowIndex) {
-        return <button className=" btn btn-custom " type="button" onClick={() => {
-            if (row.status == 'un-reported') {
-                NotificationManager.error('Please select status!')
-            } else if (row.reportedHours == null) {
+    viewReportButton(cell, row) {
+        return <button className=" btn btn-custom " type="button" style={{padding: '0px', border: '0'}} onClick={() => {
+            if (row.reportedHours == null) {
                 NotificationManager.error('Please select worked hours!')
             } else {
                 row.rowDataChanged = false
+
+                row.status = SC.STATUS_PENDING
                 this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)
             }
         }}>
-            <i className="fa fa-check"></i>
+            <img src="/images/report.png"/>
         </button>
     }
 
@@ -332,10 +332,10 @@ class ReportingTaskPage extends Component {
                                                        dataAlign="center"
                                     >Worked Hours</TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="20%"
-                                                       columnTitle={'Mark as Pending'}
-                                                       dataField="Pending"
+                                                       columnTitle={'Report Hours'}
+                                                       dataField="Report"
                                                        dataAlign="center"
-                                                       dataFormat={this.viewPendingButton.bind(this)}>Pending
+                                                       dataFormat={this.viewReportButton.bind(this)}>Pending
                                     </TableHeaderColumn>
                                 </BootstrapTable>
 

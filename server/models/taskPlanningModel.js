@@ -902,8 +902,8 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
     let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours += plannedHourNumber
     // Increment planned hours in type stats as well
-    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
-    if(statIdx > -1)
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
+    if (statIdx > -1)
         release.iterations[iterationIndex].stats[statIdx].plannedHours += plannedHourNumber
 
     release.iterations[iterationIndex]
@@ -1315,8 +1315,8 @@ const releaseUpdateOndeleteTask = async (taskPlan, releasePlan, release, planned
 
     let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours -= plannedHourNumber
-    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
-    if(statIdx > -1)
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
+    if (statIdx > -1)
         release.iterations[iterationIndex].stats[statIdx].plannedHours -= plannedHourNumber
 
     if (releasePlan.diffProgress) {
@@ -2227,8 +2227,8 @@ const addTaskReportPlannedUpdateRelease = async (taskPlan, releasePlan, release,
     let iterationIndex = releasePlan.release.iteration.idx
     logger.debug("addTaskReportPlannedUpdateRelease(): releaseplan.diffProgress " + releasePlan.diffProgress)
     release.iterations[iterationIndex].reportedHours += reportedHoursToIncrement
-    let statIdx = release.iterations[iterationIndex].stats.findIndex(s=> s.type == releasePlan.task.type)
-    if(statIdx > -1)
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
+    if (statIdx > -1)
         release.iterations[iterationIndex].stats[statIdx].reportedHours += reportedHoursToIncrement
 
     if (!reReport) {
@@ -2374,7 +2374,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
             } else if (reportedMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
                 // This means task was reported as complete in another task plan of same date throw error
-                throw new AppError('You have reported this Release Plan as [' + SC.REPORT_COMPLETED + '] in another task, cant do it in another task now.')
+                throw new AppError('You have reported this Release Plan as [' + SC.REPORT_COMPLETED + '] in another task, reporting release task as completed in more than one task is not allowed.')
             }
 
             if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
@@ -2457,6 +2457,25 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     }
 }
 
+
+const addTaskReportUnplannedUpdateEmployeeRelease = async (release, employee, extra) => {
+
+    const {reportedHoursToIncrement} = extra
+
+    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(employee._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    })
+
+    if (!employeeRelease)
+        throw new AppError("We should have found employee release ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    employeeRelease.reportedHours += reportedHoursToIncrement
+
+    return employeeRelease
+}
+
+
 const addTaskReportUnplannedUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
 
     const {reportInput, reportedHoursToIncrement, reportedMoment, reReport, employeeReportIdx, employee} = extra
@@ -2464,6 +2483,11 @@ const addTaskReportUnplannedUpdateReleasePlan = async (taskPlan, releasePlan, ex
     // COMMON SUMMARY DATA UPDATES
 
     logger.debug("addTaskReportUnplannedUpdateReleasePlan(): Reported Hours to increment is ", {reportedHoursToIncrement})
+
+    if (!releasePlan.report)
+        releasePlan.report = {
+            reportedHours: 0
+        }
 
     releasePlan.report.reportedHours += reportedHoursToIncrement
 
@@ -2522,6 +2546,10 @@ const addTaskReportUnplannedUpdateRelease = async (taskPlan, releasePlan, releas
         /* if reported date is greater than earlier max reported date change that */
         release.iterations[iterationIndex].maxReportedDate = reportedMoment.toDate()
     }
+
+    let statIdx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
+    if (statIdx > -1)
+        release.iterations[iterationIndex].stats[statIdx].reportedHours += reportedHoursToIncrement
 
     return release
 }
@@ -2614,6 +2642,13 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
 
     logger.debug("rereport is calculated as ", {reReport})
 
+
+    /******************************** EMPLOYEE RELEASE UPDATES **************************************************/
+    let employeeRelease = await addTaskReportUnplannedUpdateEmployeeRelease(release, employee, {
+        reportedHoursToIncrement
+    })
+
+
     /******************************** RELEASE PLAN UPDATES **************************************************/
     releasePlan = await addTaskReportUnplannedUpdateReleasePlan(taskPlan, releasePlan, {
         reportInput,
@@ -2632,12 +2667,11 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
         reportedMoment
     })
 
+
     // No warning handling would be done for unplanned release plans
-    logger.debug('release before save ', {release})
+    await employeeRelease.save()
     await release.save()
-    logger.debug('release plan before save ', {releasePlan})
     await releasePlan.save()
-    logger.debug('task plan before save ', {taskPlan})
     taskPlan = await taskPlan.save()
     return {
         taskPlan
