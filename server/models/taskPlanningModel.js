@@ -2902,11 +2902,13 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
                 taskPlan.task = rp.task
                 if (tp) {
                     taskPlan.report = {
-                        reportedHours: tp.report.reportedHours
+                        reportedHours: tp.report.reportedHours,
+                        description: tp.report.description
                     }
                 } else {
                     taskPlan.report = {
-                        reportedHours: 0
+                        reportedHours: 0,
+                        description: ''
                     }
                 }
                 return taskPlan
