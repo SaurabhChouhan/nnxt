@@ -2198,6 +2198,7 @@ hr {
 
 .add-to-release-dialog .modal-dialog {
     width: 60%;
+    left: 80px;
 }
 
 .search-btn-container {
