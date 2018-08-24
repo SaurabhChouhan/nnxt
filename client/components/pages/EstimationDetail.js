@@ -86,7 +86,7 @@ class EstimationDetail extends Component {
                                         this.props.estimationGoBack()
                                     }}><i className="glyphicon glyphicon-arrow-left"></i></button>
                                 </div>
-                                <div className="col-md-11 pad">
+                                <div className="col-md-11 ">
                                     <h5>
                                         <b>{estimation.project ? estimation.project.name : ''}</b>
                                     </h5>
@@ -101,8 +101,8 @@ class EstimationDetail extends Component {
                         </div>
                         : <div className="col-md-7 pad">
 
-                            <div title="Go Back" className=" backarrow estimationBackArrow">
-                                <div className="col-md-1">
+                            <div title="Go Back" className="col-md-7  backarrow estimationBackArrow">
+                                <div className="col-md-1 pad">
                                     <button className="btn-link pad backBtnMarginTop" onClick={() => {
                                         this.props.history.push("/app-home/estimation")
                                         this.props.estimationGoBack()
