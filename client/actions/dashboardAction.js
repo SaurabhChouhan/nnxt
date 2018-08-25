@@ -7,6 +7,11 @@ export const calculateReleaseStats = (release) => ({
     release: release
 })
 
+export const addReleaseDailyPlannings = (dailyPlannings) => ({
+    type: AC.ADD_DAILY_PLANNINGS,
+    dailyPlannings: dailyPlannings
+})
+
 
 export const getReleaseForDashboard = (releaseID) => {
     console.log("releaseID", releaseID)
@@ -33,4 +38,30 @@ export const getReleaseForDashboard = (releaseID) => {
         )
     }
 }
+
+export const getReleaseDayPlannings = (releaseID, month, year) => {
+    return function (dispatch) {
+        return fetch('/api/dashboard/day-plannings/' + releaseID + '/month/' + month + '/year/' + year,
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(addReleaseDailyPlannings(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
 

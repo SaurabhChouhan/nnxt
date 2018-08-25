@@ -439,7 +439,7 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
     let clientReleaseDate = U.momentInUTC(releaseInput.updatedClientReleaseDate)
 
     if (iterationIdx >= 0) {
-        // update dates in 'planned' task iteration as well
+        // update dates in selected task iteration as well
 
         release.iterations[iterationIdx].devStartDate = devStartDate.toDate()
         release.iterations[iterationIdx].devEndDate = devEndDate.toDate()
@@ -465,6 +465,16 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
         release.clientReleaseDate = maxClientReleaseMoment.toDate()
         release.devEndDate = maxDevEndMoment.toDate()
         release.devStartDate = minDevStartMoment.toDate()
+
+        // update both planned/unplanned iteration with this new dates as well
+        let plannedUnplannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_UNPLANNED)
+
+        plannedUnplannedIterations.forEach(i => {
+            i.clientReleaseDate = maxClientReleaseMoment.toDate()
+            i.devEndDate = maxDevEndMoment.toDate()
+            i.devStartDate = minDevStartMoment.toDate()
+        })
+
         return await release.save()
     }
     return {}

@@ -15,4 +15,8 @@ dashboardRouter.get('/', (ctx, next) => {
     return ctx.body = {}
 })
 
+dashboardRouter.get('/day-plannings/:releaseID/month/:month/year/:year', async (ctx, next) => {
+    return await MDL.TaskPlanningModel.getReleaseDayPlannings(ctx.params.releaseID, ctx.params.month, ctx.params.year, ctx.state.user);
+})
+
 export default dashboardRouter

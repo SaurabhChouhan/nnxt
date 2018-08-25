@@ -153,7 +153,6 @@ class ReleasePlanSection extends Component {
                                         className={selectedTab === SC.RELEASE_DASHBOARD_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
                                         onClick={() => {
                                             this.props.tabSelected(SC.RELEASE_DASHBOARD_TAB)
-                                            this.props.getDashboardData(release)
                                         }}>Dashboard
                                     </a>
                                 </li>

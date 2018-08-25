@@ -671,91 +671,6 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlanningDates) => {
 
 /*-------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_END---------------------------------------------------------------*/
 
-
-/*-------------------------------------------------ADD_TASK_PLANNING_SECTION_START---------------------------------------------------------------*/
-
-const updateEmployeeStaticsOnAddTaskPlanning = async (releasePlan, release, employee, plannedHourNumber) => {
-    /* Add or update Employee Statistics Details when task is planned */
-    /* Checking release plan  details  with  release and employee */
-    if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id),
-        'tasks._id': mongoose.Types.ObjectId(releasePlan._id),
-
-    }) > 0) {
-
-        /* Increased planned hours of release plan for  Already added employees statics details */
-        let EmployeeStatisticsModelInput = {
-            release: {
-                _id: release._id.toString(),
-                version: release.name
-            },
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            task: {
-                _id: releasePlan._id.toString(),
-                name: releasePlan.task.name,
-                plannedHours: plannedHourNumber,
-                reportedHours: Number(0),
-                plannedHoursReportedTasks: Number(0)
-            }
-        }
-        return await MDL.EmployeeStatisticsModel.increaseTaskDetailsHoursToEmployeeStatistics(EmployeeStatisticsModelInput)
-
-    } else if (await MDL.EmployeeStatisticsModel.count({
-        'employee._id': mongoose.Types.ObjectId(employee._id),
-        'release._id': mongoose.Types.ObjectId(release._id)
-    }) > 0) {
-
-        /* Add  release plan with planned hours for Already added employees statics details without release plan   */
-        let EmployeeStatisticsModelInput = {
-            release: {
-                _id: release._id.toString(),
-                version: release.name
-            },
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            task: {
-                _id: releasePlan._id.toString(),
-                name: releasePlan.task.name,
-                plannedHours: plannedHourNumber,
-                reportedHours: 0,
-                plannedHoursReportedTasks: 0
-            }
-        }
-        return await MDL.EmployeeStatisticsModel.addTaskDetailsToEmployeeStatistics(EmployeeStatisticsModelInput)
-
-    } else {
-        /* Add employee statistics details with release plan and planned hours   */
-
-        let EmployeeStatisticsModelInput = {
-            release: {
-                _id: release._id.toString(),
-                version: release.name
-            },
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            leaves: [],
-            tasks: [
-                {
-                    _id: releasePlan._id.toString(),
-                    name: releasePlan.task.name,
-                    plannedHours: plannedHourNumber,
-                    reportedHours: 0,
-                    plannedHoursReportedTasks: 0
-                }
-            ]
-        }
-        return await MDL.EmployeeStatisticsModel.addEmployeeStatisticsDetails(EmployeeStatisticsModelInput)
-    }
-}
-
 const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, momentPlanningDate) => {
 
     // Add or update employee days details when task is planned
@@ -3100,125 +3015,111 @@ taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
     }
 }
 
+taskPlanningSchema.statics.getReleaseDayPlannings = async (releaseID, month, year, user) => {
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+
+    let release = await MDL.ReleaseModel.findById(releaseID, {devStartDate: 1, devEndDate: 1})
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let monthStartMoment = momentTZ.tz(SC.UTC_TIMEZONE)
+    // Add one month to this date and then we get start of month which will get us midnight of last day of this month
+
+    console.log("month is ", month, typeof(month))
+
+    month = parseInt(month)
+    year = parseInt(year)
+
+    if (month != NaN)
+        monthStartMoment.month(month)
+
+    if (year != NaN)
+        monthStartMoment.year(year)
+
+    monthStartMoment.startOf('month')
+    let monthEndMoment = monthStartMoment.clone().add(1, 'month')
+    monthEndMoment.subtract(1, 'day')
+
+    logger.debug("month range is is ", {monthEndMoment, monthStartMoment})
+
+    if (!monthEndMoment.isValid())
+        throw new AppError('Invalid month or year', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    let taskPlannings = await MDL.TaskPlanningModel.aggregate(
+        {
+            $match: {
+                'release._id': mongoose.Types.ObjectId(releaseID),
+                $and: [{'planningDate': {$lte: monthEndMoment.toDate()}}, {'planningDate': {$gte: monthStartMoment.toDate()}}]
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    month: {$month: "$planningDate"},
+                    day: {$dayOfMonth: "$planningDate"},
+                    year: {$year: "$planningDate"}
+                },
+                plannedHours: {$sum: '$planning.plannedHours'},
+                reportedHours: {$sum: '$report.reportedHours'},
+                planningDate: {$first: '$planningDate'}
+
+            }
+        }, {
+            $project: {
+                plannedHours: 1,
+                reportedHours: 1,
+                planningDate: 1,
+                planningDateString: {$dateToString: {format: '%d/%m', date: "$planningDate"}}
+            }
+        }
+    )
+
+    //taskPlannings = taskPlannings.toObject()
+
+    // We would now insert week days where there are no planning
+
+    let startMoment = moment(release.devStartDate)
+    let endMoment = moment(release.devEndDate)
+
+    if (startMoment.isBefore(monthStartMoment))
+        startMoment = monthStartMoment
+
+    if (endMoment.isAfter(monthEndMoment))
+        endMoment = monthEndMoment.clone()
+
+    while (startMoment.isSameOrBefore(endMoment)) {
+        // Don't include holidays
+        if (startMoment.day() != 0 && startMoment.day() != 6) {
+            if (taskPlannings.findIndex(t => moment(t.planningDate).isSame(startMoment)) == -1) {
+                // Add dummy entry
+                taskPlannings.push({
+                    planningDateString: startMoment.format('DD/MM'),
+                    planningDate: startMoment.clone().toDate(),
+                    plannedHours: 0,
+                    reportedHours: 0
+                })
+            }
+        }
+        startMoment.add(1, 'days')
+    }
+
+    return taskPlannings.sort((d1, d2) => {
+        if (moment(d1.planningDate).isBefore(d2.planningDate))
+            return -1;
+        else if (moment(d1.planningDate).isAfter(d2.planningDate))
+            return 1;
+        else
+            return 0;
+
+    })
+
+}
+
 /*----------------------------------------------------------------------REPORTING_SECTION_END------------------------------------------------------------------------*/
 
 
 const TaskPlanningModel = mongoose.model('TaskPlanning', taskPlanningSchema)
 export default TaskPlanningModel
-/*
-*
-const makeWarningUpdatesShiftToFuture = async (release, employeeDays) => {
-
-
-    logger.debug('[task-shift] taskPlanningModel.makeWarningUpdatesShiftToFuture(): Generated warnings [' + U.formatDateInUTC(employeeDays.date) + ']', {generatedWarnings})
-
-    let warningPromises = []
-    let tooManyHoursReleasePlanRemove = []
-    let tooManyHoursReleasePlanAdd = []
-
-    if (generatedWarnings.removed && generatedWarnings.removed.length) {
-        generatedWarnings.removed.forEach(w => {
-            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
-                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    // add all release plan ids into this array
-                    tooManyHoursReleasePlanRemove.push(w._id.toString())
-
-                }
-                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('[task-shift] shiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is removed from task plan with id [' + w._id + ']')
-                    // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
-                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
-                        if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
-                            logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
-                            t.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-                            return t.save()
-
-                        }
-                    }))
-                }
-            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
-                // TODO - need to handle employee on leave warnings
-
-            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
-                // TODO - need to handle employee ask for leave warnings
-            }
-        })
-    }
-
-    if (generatedWarnings.added && generatedWarnings.added.length) {
-        generatedWarnings.added.forEach(w => {
-            if (w.type === SC.WARNING_TOO_MANY_HOURS) {
-
-                if (w.warningType === SC.WARNING_TYPE_RELEASE_PLAN) {
-                    logger.debug('taskShiftToFuture(): [' + U.formatDateInUTC(employeeDays.date) + '] warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against release plan with id [' + w._id + ']')
-
-                    // As release plan id is part of added list, remove it from remove list if present as even one addition would mean release plan still have that warning
-                    tooManyHoursReleasePlanAdd.push(w._id.toString())
-                }
-
-                if (w.warningType === SC.WARNING_TYPE_TASK_PLAN) {
-                    logger.debug('taskShiftToFuture(): warning [' + SC.WARNING_TOO_MANY_HOURS + '] is added against task plan with id [' + w._id + ']')
-                    // this warning has affected task plan other than associated with current release plan find that release plan and add flag there as well
-                    warningPromises.push(MDL.TaskPlanningModel.findById(w._id).then(t => {
-                        if (t && t.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
-                            logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against task plan [' + t._id + ']')
-                            t.flags.push(SC.WARNING_TOO_MANY_HOURS)
-                            return t.save()
-                        }
-                    }))
-                }
-            } else if (w.type === SC.WARNING_EMPLOYEE_ON_LEAVE) {
-                // TODO - need to handle employee on leave warnings
-
-            } else if (w.type === SC.WARNING_EMPLOYEE_ASK_FOR_LEAVE) {
-                // TODO - need to handle employee ask for leave warnings
-            }
-        })
-    }
-    return await Promise.all(warningPromises).then(() => {
-        return {
-            tooManyHoursReleasePlanRemove,
-            tooManyHoursReleasePlanAdd
-        }
-    })
-}
-*/
-
-/*
-                logger.debug('BEFORE FILTER ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanRemove})
-                logger.debug('BEFORE FILTER ADD/REMOVE REELASE PLANS ', {tooManyHoursReleasePlanAdd})
-                */
-/*
-                    logger.debug('BEFORE FILTER REMOVE ', {tooManyHoursReleasePlanRemove})
-                    tooManyHoursReleasePlanRemove = tooManyHoursReleasePlanRemove.filter(rid => tooManyHoursReleasePlanAdd.indexOf(rid) == -1)
-                    logger.debug('FILTERED REMOVE ', {tooManyHoursReleasePlanRemove})
-                    tooManyHoursReleasePlanRemove = _.uniq(tooManyHoursReleasePlanRemove)
-                    tooManyHoursReleasePlanAdd = _.uniq(tooManyHoursReleasePlanAdd)
-
-                    logger.debug('ADD/REMOVE RELEASE PLANS ', {tooManyHoursReleasePlanRemove})
-                    logger.debug('ADD/REMOVE RELEASE PLANS ', {tooManyHoursReleasePlanAdd})
-*/
-/*                   // now add/remove release plan flags
-                   tooManyHoursReleasePlanRemove.forEach(rid => {
-                       MDL.ReleasePlanModel.findById(rid).then(r => {
-                           logger.debug('Pulling  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
-                           if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) > -1) {
-                               r.flags.pull(SC.WARNING_TOO_MANY_HOURS)
-                               return r.save().then(() => {
-                                   logger.debug('release plan [' + r._id + '] has been saved')
-                               }).catch(error => {
-                                   logger.error('caught error ', {error})
-                               })
-                           }
-                       })
-                   })
-                   tooManyHoursReleasePlanAdd.forEach(rid => {
-                       MDL.ReleasePlanModel.findById(rid).then(r => {
-                           if (r && r.flags.indexOf(SC.WARNING_TOO_MANY_HOURS) === -1) {
-                               logger.debug('Pushing  [' + SC.WARNING_TOO_MANY_HOURS + '] warning against release plan [' + r._id + ']')
-                               r.flags.push(SC.WARNING_TOO_MANY_HOURS)
-                               return r.save()
-                           }
-                       })
-                   })
-*/

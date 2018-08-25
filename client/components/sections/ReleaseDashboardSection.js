@@ -1,6 +1,8 @@
 import React, {Component} from 'react'
 import {withRouter} from "react-router-dom";
-import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie} from 'recharts'
+import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie, ResponsiveContainer} from 'recharts'
+import {NotificationManager} from "react-notifications";
+import moment from "moment";
 
 
 const addPercentage = (value) => {
@@ -103,9 +105,14 @@ const renderPercentage = ({cx, cy, value}) => {
 class DashboardSection extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+            monthMoment: moment()
+        }
+
     }
 
     componentDidMount() {
+        console.log("ReleaseDashboardSection:componentDidMount()")
         this.props.getDashboardData(this.props.release)
     }
 
@@ -125,6 +132,15 @@ class DashboardSection extends Component {
         let plannedColor = '#ffa75b', reportedColor = '#e52d8c', actualColor = '#4172c1', completedColor = '#6CE190',
             pendingColor = '#f5f968', unfinishedColor = '#E25858'
 
+        let releaseStartMonth = moment(this.props.release.devStartDate)
+        let releaseEndMonth = moment(this.props.release.devEndDate)
+
+        let beforeOrSameAsStartMonth = false
+        let afterOrSameAsLastMonth = false
+        if ((this.state.monthMoment.month() <= releaseStartMonth.month() && this.state.monthMoment.year() <= releaseStartMonth.year()) || this.state.monthMoment.year() < releaseStartMonth.year())
+            beforeOrSameAsStartMonth = true
+        if ((this.state.monthMoment.month() >= releaseEndMonth.month() && this.state.monthMoment.year() == releaseEndMonth.year()) || this.state.monthMoment.year() > releaseEndMonth.year())
+            afterOrSameAsLastMonth = true
 
         return <div>
             <div className={"col-md-6"} style={{marginRight: "0px"}}>
@@ -151,6 +167,7 @@ class DashboardSection extends Component {
                               layout={"vertical"}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
                         <Legend/>
                         <Bar barSize={10} dataKey="completed" stackId="a" fill={completedColor}
                              name={"Progress (Completed Tasks)"}>
@@ -275,6 +292,52 @@ class DashboardSection extends Component {
                         <Tooltip/>
                     </PieChart>
                 </div>
+            </div>
+            <div className={"col-md-12"}>
+                {!beforeOrSameAsStartMonth && <button className={"btn reportingArrow"}
+                                              style={{position: 'absolute', top: 93, left: 20}}
+                                              onClick={() => {
+                                                  let newMonthMoment = this.state.monthMoment.subtract(1, 'month')
+                                                  this.props.getReleaseDailyPlannings(this.props.release._id, newMonthMoment.month(), newMonthMoment.year())
+                                              }}
+                                              type="button">
+                    <i className="glyphicon glyphicon-arrow-left"></i>
+                </button>}
+
+
+                <div className={"chartSection"}
+                     style={{paddingRight: "0px", paddingLeft: "50px"}}>
+                    <BarChart data={this.props.dailyPlannings}
+                              height={200} width={dashboardWidth - 150}
+                              margin={{top: 40, right: 0, left: 0, bottom: 20}}
+                              barCategoryGap={15} barGap={5}>
+                        <XAxis dataKey={"planningDateString"} type={"category"}/>
+                        <YAxis type="number"/>
+                        <Tooltip/>
+                        <Legend/>
+                        <Bar barSize={10} dataKey="plannedHours"
+                             fill={plannedColor}
+                             name={'Planned Hours'}>
+                            <LabelList dataKey="plannedHours" position="top"/>
+                        </Bar>
+
+                        <Bar barSize={10} dataKey="reportedHours"
+                             fill={reportedColor}
+                             name={'Reported Hours'}>
+                            <LabelList dataKey="reportedHours" position="top"/>
+                        </Bar>
+                    </BarChart>
+                </div>
+
+                {!afterOrSameAsLastMonth && <button className={"btn reportingArrow"}
+                                            style={{position: 'absolute', top: 93, right: 20}}
+                                            onClick={() => {
+                                                let newMonthMoment = this.state.monthMoment.add(1, 'month')
+                                                this.props.getReleaseDailyPlannings(this.props.release._id, newMonthMoment.month(), newMonthMoment.year())
+                                            }}
+                                            type="button">
+                    <i className="glyphicon glyphicon-arrow-right"></i>
+                </button>}
 
             </div>
         </div>

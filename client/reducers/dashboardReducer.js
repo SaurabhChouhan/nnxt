@@ -148,6 +148,12 @@ const dashboardReducer = (state = initialState, action) => {
                 }
             })
 
+        case AC.ADD_DAILY_PLANNINGS:
+            return Object.assign({}, state, {
+                dailyPlannings: [...action.dailyPlannings]
+            })
+            break;
+
         case AC.SET_RELEASE_ID:
             // while selection of reporting status it is set to state also
             return Object.assign({}, state, {
