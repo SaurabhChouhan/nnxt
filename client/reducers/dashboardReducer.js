@@ -133,6 +133,10 @@ const dashboardReducer = (state = initialState, action) => {
                 hoursData.estimatedHours = s.sumEstimatedHours
             }
 
+            let unplannedReport = {
+                ran: Math.random(),
+                reportedHours: unPlannedIteration ? unPlannedIteration.reportedHours : 0
+            }
 
             return Object.assign({}, state, {
                 plannedVsUnplannedWork,
@@ -141,16 +145,37 @@ const dashboardReducer = (state = initialState, action) => {
                 plannedVsReported,
                 hoursData,
                 estimatedProgress,
-                progress: progress,
-                unplannedReport: {
-                    ran: Math.random(),
-                    reportedHours: unPlannedIteration ? unPlannedIteration.reportedHours : 0
-                }
+                progress,
+                unplannedReport
             })
 
         case AC.ADD_DAILY_PLANNINGS:
             return Object.assign({}, state, {
-                dailyPlannings: [...action.dailyPlannings]
+                dailyPlannings: [...action.dailyPlannings],
+                plannedVsUnplannedWork: Object.assign({}, state.plannedVsUnplannedWork, {
+                    ran: Math.random()
+                }),
+                overallProgress: Object.assign({}, state.overallProgress, {
+                    ran: Math.random()
+                }),
+                completedPendingProgress: Object.assign({}, state.completedPendingProgress, {
+                    ran: Math.random()
+                }),
+                plannedVsReported: Object.assign({}, state.plannedVsReported, {
+                    ran: Math.random()
+                }),
+                hoursData: Object.assign({}, state.hoursData, {
+                    ran: Math.random()
+                }),
+                estimatedProgress: Object.assign({}, state.estimatedProgress, {
+                    ran: Math.random()
+                }),
+                progress: Object.assign({}, state.progress, {
+                    ran: Math.random()
+                }),
+                unplannedReport: Object.assign({}, state.unplannedReport, {
+                    ran: Math.random()
+                })
             })
             break;
 

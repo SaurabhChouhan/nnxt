@@ -5,11 +5,10 @@ import moment from 'moment'
 
 const mapDispatchToprops = (dispatch, ownProps) => ({
     getDashboardData: (release) => {
-        dispatch(A.getReleaseForDashboard(release._id))
-
-        // get month/year of today's date
-        let m = moment()
-        dispatch(A.getReleaseDayPlannings(release._id, m.month(), m.year()))
+        dispatch(A.getReleaseForDashboard(release._id)).then(()=>{
+            let m = moment()
+            dispatch(A.getReleaseDayPlannings(release._id, m.month(), m.year()))
+        })
     },
     getReleaseDailyPlannings: (releaseID, month, year) => {
         dispatch(A.getReleaseDayPlannings(releaseID, month, year))
