@@ -8,7 +8,10 @@ let initialState = {
     plannedVsReported: {},
     hoursData: {},
     estimatedProgress: {},
-    progress: {}
+    progress: {},
+    dailyPlannings: [],
+    resetDailyPlanningMonth: false
+
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -138,6 +141,7 @@ const dashboardReducer = (state = initialState, action) => {
                 reportedHours: unPlannedIteration ? unPlannedIteration.reportedHours : 0
             }
 
+
             return Object.assign({}, state, {
                 plannedVsUnplannedWork,
                 overallProgress,
@@ -152,6 +156,7 @@ const dashboardReducer = (state = initialState, action) => {
         case AC.ADD_DAILY_PLANNINGS:
             return Object.assign({}, state, {
                 dailyPlannings: [...action.dailyPlannings],
+                resetDailyPlanningMonth: action.resetDailyPlanningMonth,
                 plannedVsUnplannedWork: Object.assign({}, state.plannedVsUnplannedWork, {
                     ran: Math.random()
                 }),

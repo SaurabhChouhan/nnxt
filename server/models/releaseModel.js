@@ -254,6 +254,7 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
      */
     release.iterations = [{
         type: SC.ITERATION_TYPE_PLANNED,
+        name: "planned",
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate)
@@ -350,6 +351,7 @@ releaseSchema.statics.createReleaseFromEstimation = async (releaseData, user, es
         })
     }, {
         type: SC.ITERATION_TYPE_PLANNED,
+        name: "Planned",
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate)
