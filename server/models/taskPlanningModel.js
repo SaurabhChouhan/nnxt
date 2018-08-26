@@ -2264,7 +2264,7 @@ const addTaskReportPlannedUpdateTaskPlan = async (taskPlan, releasePlan, release
     return taskPlan
 }
 
-const addTaskReportPlanned = async (reportInput, employee) => {
+const addTaskReportPlanned = async (reportInput, employee, mode) => {
     /* Get task plan */
     let taskPlan = await MDL.TaskPlanningModel.findById(reportInput._id)
 
@@ -2284,6 +2284,8 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
+    let taskPlanMoment = U.momentInUTC(taskPlan.planningDateString)
+
     /* See if this is a re-report if yes then check if time for re-reporting is gone */
     let reReport = false
     if (taskPlan.report && taskPlan.report.reportedOnDate) {
@@ -2294,9 +2296,26 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         if (twoHoursFromReportedOnDate.isBefore(new Date())) {
             throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
         }
+    } else {
+        // Employee cannot report task planned in future
+        let planningMomentInIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
+        // add 1 day to reach midnight of next day
+        //planningMomentInIndia.add(1, 'days')
+        if(moment().isBefore(planningMomentInIndia) && mode == SC.MODE_PRODUCTION)
+            throw new AppError('Cannot report future task plans', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+
+        /*
+        // This is first time reporting, only past or today's task plan can be reported
+        let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
+        let reportedDate = U.momentInTimeZone(reportInput.reportedDate, SC.INDIAN_TIMEZONE)
+
+        if (todaysDateInIndia.isAfter(rePlanningDateInIndia)) {
+            throw new AppError('Can not move before todays date', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+        }
+        */
+
     }
 
-    let reportedMoment = U.momentInUTC(reportInput.reportedDate)
     let maxReportedMoment
 
     /**
@@ -2306,7 +2325,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     let pastTaskCount = await MDL.TaskPlanningModel.count({
         'releasePlan._id': releasePlan._id,
         'employee._id': mongoose.Types.ObjectId(employee._id),
-        'planningDate': {$lt: reportedMoment.toDate()},
+        'planningDate': {$lt: taskPlanMoment.toDate()},
         'report.status': SC.REPORT_UNREPORTED
     })
 
@@ -2346,20 +2365,20 @@ const addTaskReportPlanned = async (reportInput, employee) => {
             // This task was reported earlier as well, we have to hence validate if reported status is allowed or not
             maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
             // See if task was reported in future if so only possible status is pending
-            if (reportedMoment.isBefore(maxReportedMoment) && (reportInput.status !== SC.REPORT_PENDING)) {
+            if (taskPlanMoment.isBefore(maxReportedMoment) && (reportInput.status !== SC.REPORT_PENDING)) {
                 throw new AppError('Task was reported in future, only allowed status is [' + SC.REPORT_PENDING + ']', EC.REPORT_STATUS_NOT_ALLOWED, EC.HTTP_BAD_REQUEST)
-            } else if (reportedMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED) {
+            } else if (taskPlanMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED) {
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, hence report can no longer be added in future')
-            } else if (reportedMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
+            } else if (taskPlanMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
                 // This means task was reported as complete in another task plan of same date throw error
                 throw new AppError('You have reported this Release Plan as [' + SC.REPORT_COMPLETED + '] in another task, reporting release task as completed in more than one task is not allowed.')
             }
 
-            if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
+            if (taskPlanMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status == SC.STATUS_COMPLETED) {
                 // User has marked this task as completed and again changed it back to pending
                 logger.debug("addTaskReport(): Final status was changed from completed to pending, status would change to pending")
                 finalStatusFromCompleteToPending = true
-            } else if (reportedMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status != SC.STATUS_COMPLETED) {
+            } else if (taskPlanMoment.isSame(maxReportedMoment) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && reportInput.status == SC.STATUS_PENDING && taskPlan.report.status != SC.STATUS_COMPLETED) {
                 // Final status of this task is completed and user has reported some other task on max reported date as pending
                 logger.debug("addTaskReport(): Final status of this task is completed and user has reported some other task on max reported date as pending. No change in status")
                 finalStatusStillCompleted = true
@@ -2381,7 +2400,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     releasePlan = await addTaskReportPlannedUpdateReleasePlan(taskPlan, releasePlan, {
         reportInput,
         reportedHoursToIncrement,
-        reportedMoment,
+        reportedMoment: taskPlanMoment,
         reReport,
         employeeReportIdx,
         maxReportedMoment,
@@ -2394,7 +2413,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         reportInput,
         reportedHoursToIncrement,
         reReport,
-        reportedMoment
+        reportedMoment: taskPlanMoment
     })
 
     /*************************** TASK PLAN UPDATES ***********************************/
@@ -2411,7 +2430,7 @@ const addTaskReportPlanned = async (reportInput, employee) => {
     // Need to add/update reporting warnings.
 
     let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
-        reportedMoment,
+        reportedMoment: taskPlanMoment,
         employeePlanningIdx,
         reportInput,
         finalStatusFromCompleteToPending,
@@ -2658,14 +2677,14 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
 }
 
 
-taskPlanningSchema.statics.addTaskReport = async (taskReport, employee) => {
-    console.log("taskreport " + JSON.stringify(taskReport))
+taskPlanningSchema.statics.addTaskReport = async (taskReport, employee, mode) => {
+    logger.debug("addTaskReport() mode is " + mode)
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED) {
-        return await addTaskReportPlanned(taskReport, employee)
+        return await addTaskReportPlanned(taskReport, employee, mode)
     } else if (taskReport.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
-        return await addTaskReportUnplanned(taskReport, employee)
+        return await addTaskReportUnplanned(taskReport, employee, mode)
     }
 }
 

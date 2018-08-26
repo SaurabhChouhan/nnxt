@@ -345,3 +345,6 @@ export const EVENT_COMPLETED = 'completed'
 export const EVENT_FAILED = 'failed'
 
 export const EVENT_INTERVAL = 1000 * 300
+
+export const MODE_DEVELOPMENT = "development"
+export const MODE_PRODUCTION = "production"

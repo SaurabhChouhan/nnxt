@@ -3,7 +3,8 @@ const config = {
         default: {
             port: 3000,
             setupData: false,
-            dropDatabase: false
+            dropDatabase: false,
+            mode: 'development'
         },
         development: {
             port: 3000,
