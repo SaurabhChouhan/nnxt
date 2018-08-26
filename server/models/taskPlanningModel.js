@@ -19,7 +19,7 @@ let taskPlanningSchema = mongoose.Schema({
         name: {type: String},
         role: {type: String},
     },
-    created: {type: Date, default: Date.now()},
+    plannedOnDate: {type: Date, default: Date.now()},
     planningDate: {type: Date},
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
@@ -733,7 +733,7 @@ const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, 
     return employeeRelease
 }
 
-const addTaskPlanUpdateEmployeeReleaseManagerLeader = async (releasePlan, release, employee, extra) => {
+const addTaskPlanUpdateEmployeeReleaseLeaderManager = async (releasePlan, release, employee, extra) => {
     const {plannedHours, momentPlanningDateIndia, user} = extra
 
     let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
@@ -756,7 +756,7 @@ const addTaskPlanUpdateEmployeeReleaseManagerLeader = async (releasePlan, releas
     // See if task is planned before or after
     let diff = moment().diff(momentPlanningDateIndia, 'hours')
     logger.debug("addTaskPlanUpdateEmployeeRelease() ", {plannedBeforeDiff: diff})
-    if (diff > 0){
+    if (diff > 0) {
         employeeRelease.management.before.plannedHours += plannedHours
         employeeRelease.management.before.plannedCount += 1
         employeeRelease.management.before.diffHours += diff
@@ -875,7 +875,7 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
 const addTaskPlanCreateTaskPlan = async (releasePlan, release, employee, plannedHourNumber, momentPlanningDate, taskPlanningInput) => {
     let taskPlan = new TaskPlanningModel()
-    taskPlan.created = Date.now()
+    taskPlan.plannedOnDate = Date.now()
     taskPlan.planningDate = momentPlanningDate
     taskPlan.planningDateString = momentPlanningDate.format(SC.DATE_FORMAT)
     taskPlan.task = releasePlan.task
@@ -995,7 +995,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     // Save it here so that if employee is same as user who is adding task then employee release is found in next method
     await employeeRelease.save()
 
-    let employeeReleaseManagerLeader = await addTaskPlanUpdateEmployeeReleaseManagerLeader(releasePlan, release, selectedEmployee, {
+    let employeeReleaseManagerLeader = await addTaskPlanUpdateEmployeeReleaseLeaderManager(releasePlan, release, selectedEmployee, {
         plannedHours: plannedHourNumber,
         momentPlanningDateIndia,
         user
@@ -1034,7 +1034,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
 
 /*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_START----------------------------------------------------------*/
 
-const updateEmployeeReleaseOndeleteTask = async (taskPlan, releasePlan, release, employee) => {
+const deleteTaskUpdateEmployeeRelease = async (taskPlan, releasePlan, release, employee) => {
 
     let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
         'employee._id': mongoose.Types.ObjectId(employee._id),
@@ -1049,7 +1049,37 @@ const updateEmployeeReleaseOndeleteTask = async (taskPlan, releasePlan, release,
     return employeeRelease
 }
 
-const employeeDaysUpdateOndeleteTask = async (taskPlan, employee, plannedHourNumber, user) => {
+
+const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePlan, release, leaderManager) => {
+
+    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(leaderManager._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    })
+
+    if (!employeeRelease)
+        throw new AppError('Employee release should have found on delete task plan. ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    let plannedOnDate = moment(taskPlan.plannedOnDate)
+    let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
+
+    // See if task is planned before or after
+    let diff = plannedOnDate.diff(momentPlanningDateIndia, 'hours')
+    logger.debug("deleteTaskUpdateEmployeeReleaseLeaderManager() ", {plannedBeforeDiff: diff})
+    if (diff > 0) {
+        employeeRelease.management.before.plannedHours -= taskPlan.planning.plannedHours
+        employeeRelease.management.before.plannedCount -= 1
+        employeeRelease.management.before.diffHours -= diff
+    } else {
+        employeeRelease.management.after.plannedHours -= taskPlan.planning.plannedHours
+        employeeRelease.management.after.plannedCount -= 1
+        employeeRelease.management.after.diffHours -= -diff
+    }
+    return employeeRelease
+}
+
+
+const deleteTaskUpdateEmployeeDays = async (taskPlan, employee, plannedHourNumber, user) => {
 
     /* when task plan is removed we have to decrease employee days  planned hours */
     let oldEmployeeDaysModelInput = {
@@ -1064,7 +1094,7 @@ const employeeDaysUpdateOndeleteTask = async (taskPlan, employee, plannedHourNum
 }
 
 
-const releasePlanUpdateOndeleteTask = async (taskPlan, releasePlan, employee, plannedHourNumber) => {
+const deleteTaskUpdateReleasePlan = async (taskPlan, releasePlan, employee, plannedHourNumber) => {
     // due to task plan deletion reduce planned hours & task count
 
     releasePlan.planning.plannedHours -= plannedHourNumber
@@ -1263,7 +1293,7 @@ const releasePlanUpdateOndeleteTask = async (taskPlan, releasePlan, employee, pl
 }
 
 
-const releaseUpdateOndeleteTask = async (taskPlan, releasePlan, release, plannedHourNumber) => {
+const deleteTaskUpdateRelease = async (taskPlan, releasePlan, release, plannedHourNumber) => {
 
     let iterationIndex = releasePlan.release.iteration.idx
     release.iterations[iterationIndex].plannedHours -= plannedHourNumber
@@ -1318,26 +1348,6 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
         throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-
-    /**
-     * A task plan can only be deleted before or on date it is planned after that it cannot be deleted.
-     * Now here is tricky part, the date is over or not is based on timezone, for now we will consider timezone of project as indian time zone
-     * So first we will get to that date which is 12:00 am of next day of planned date and then we will compare it with now
-     */
-
-    /*
-    let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
-
-    // add 1 day to this date
-    momentPlanningDateIndia.add(1, 'days')
-
-    //logger.debug('moment planning date india ', {momentPlanningDateIndia})
-
-    if (momentPlanningDateIndia.isBefore(new Date())) {
-        throw new AppError('Planning date is already over, cannot delete!', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
-    }
-    */
-
     if (taskPlan.report.reportedOnDate)
         throw new AppError('Task is already reported, cannot delete!', EC.ALREADY_REPORTED, EC.HTTP_BAD_REQUEST)
 
@@ -1347,16 +1357,18 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
     let plannedHourNumber = Number(taskPlan.planning.plannedHours)
 
     /*------------------------------ EMPLOYEE STATISTICS UPDATES ----------------------------------------------*/
-    let employeeRelease = await updateEmployeeReleaseOndeleteTask(taskPlan, releasePlan, release, employee)
+    let employeeRelease = await deleteTaskUpdateEmployeeRelease(taskPlan, releasePlan, release, employee)
+
+    let employeeReleaseLeaderManager = await deleteTaskUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, user)
 
     /*------------------------------ EMPLOYEE DAYS UPDATES --------------------------------------------*/
-    await employeeDaysUpdateOndeleteTask(taskPlan, employee, plannedHourNumber, user)
+    await deleteTaskUpdateEmployeeDays(taskPlan, employee, plannedHourNumber, user)
 
     /*------------------------------- RELEASE PLAN UPDATES ------------------------------------------------------*/
-    releasePlan = await releasePlanUpdateOndeleteTask(taskPlan, releasePlan, employee, plannedHourNumber)
+    releasePlan = await deleteTaskUpdateReleasePlan(taskPlan, releasePlan, employee, plannedHourNumber)
 
     /*------------------------------- RELEASE UPDATES ---------------------------------------------------*/
-    release = await releaseUpdateOndeleteTask(taskPlan, releasePlan, release, plannedHourNumber)
+    release = await deleteTaskUpdateRelease(taskPlan, releasePlan, release, plannedHourNumber)
 
     /*------------------------------- WARNING UPDATES ---------------------------------------------------*/
     let generatedWarnings = await MDL.WarningModel.taskPlanDeleted(taskPlan, releasePlan, release)
@@ -1366,6 +1378,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
     await taskPlan.remove()
 
     await employeeRelease.save()
+    await employeeReleaseLeaderManager.save()
     await releasePlan.save()
     await release.save()
     /* remove task planning */
@@ -1484,7 +1497,7 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
 
     // update flags
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
-    taskPlan.created = Date.now()
+    taskPlan.plannedOnDate = Date.now()
     taskPlan.planningDate = rePlanningDateUtc
     taskPlan.planningDateString = taskPlanningInput.rePlanningDate
     await taskPlan.save()
@@ -2048,7 +2061,19 @@ const addTaskReportPlannedUpdateEmployeeRelease = async (taskPlan, release, empl
     if (!reReport) {
         employeeRelease.report.plannedHoursReportedTasks += taskPlan.planning.plannedHours
         employeeRelease.report.reportedCount += 1
+        // We will note down if employee has reported this task after the date it is supposed to be reported
+        let now = moment()
+        let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
+        let hours = now.diff(momentPlanningDateIndia, 'hours')
+        logger.debug("addTaskReportPlannedUpdateEmployeeRelease(): ", {hours})
+        if (hours > 24) {
+            // hours diff of reporting time is greater than 24 hours, report
+            employeeRelease.report.reportedAfterCount += 1
+            employeeRelease.report.reportedAfterHours += (hours - 24)
+        }
     }
+
+
     return employeeRelease
 }
 
@@ -2250,7 +2275,6 @@ const addTaskReportPlanned = async (reportInput, employee) => {
         throw new AppError('This task is not assigned to you ', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
     /* find release plan associated with this task plan */
-
     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
@@ -2271,7 +2295,6 @@ const addTaskReportPlanned = async (reportInput, employee) => {
             throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
         }
     }
-
 
     let reportedMoment = U.momentInUTC(reportInput.reportedDate)
     let maxReportedMoment
@@ -2539,7 +2562,7 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
     if (!taskPlan) {
         // No task plan found against this release plan so will be creating new one
         taskPlan = new MDL.TaskPlanningModel()
-        taskPlan.created = Date.now()
+        taskPlan.plannedOnDate = Date.now()
         taskPlan.planningDate = reportedMoment.toDate()
         taskPlan.planningDateString = reportedMoment.format(SC.DATE_FORMAT)
         taskPlan.release = releasePlan.release

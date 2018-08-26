@@ -20,7 +20,8 @@ let employeeReleasesSchema = mongoose.Schema({
     },
     report: {
         reportedHours: {type: Number, default: 0}, // Total reported hours by employee in a release
-        reportCount: {type: Number, default: 0}, // Number of task reported
+        reportedCount: {type: Number, default: 0}, // Number of task reported
+        reportedAfterCount: {type: Number, default: 0},
         reportedAfterHours: {type: Number, default: 0}, // Would be noted if reported after date it was supposed to be reported
     },
     planning: {
@@ -29,12 +30,12 @@ let employeeReleasesSchema = mongoose.Schema({
         plannedHoursReportedTasks: {type: Number, default: 0},// Total planned hours for reported tasks, good to see deviation between reported and planned hours
     },
     management: {
-        before:{
+        before: {
             plannedHours: {type: Number, default: 0}, // Total planned hours that are planned before their dates
             plannedCount: {type: Number, default: 0}, // Number of tasks planned before their dates
             diffHours: {type: Number, default: 0}, // Diff hours from planning date
         },
-        after:{
+        after: {
             plannedHours: {type: Number, default: 0}, // Total planned hours that are planned after their dates
             plannedCount: {type: Number, default: 0}, // Number of tasks planned after their dates
             diffHours: {type: Number, default: 0}, // Diff hours from planning date
