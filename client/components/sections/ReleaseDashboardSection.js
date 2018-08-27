@@ -1,6 +1,19 @@
 import React, {Component} from 'react'
 import {withRouter} from "react-router-dom";
-import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie, CartesianGrid, ReferenceLine, Label} from 'recharts'
+import {
+    BarChart,
+    XAxis,
+    YAxis,
+    Tooltip,
+    Legend,
+    Bar,
+    LabelList,
+    PieChart,
+    Pie,
+    CartesianGrid,
+    ReferenceLine,
+    Label
+} from 'recharts'
 import {NotificationManager} from "react-notifications";
 import moment from "moment";
 
@@ -287,10 +300,10 @@ class DashboardSection extends Component {
                 </div>
             </div>
 
-            <div className={"col-md-3"}>
+            <div className={"col-md-2"}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.unplannedReport]}
-                              height={80} width={(dashboardWidth - 90) / 4} layout={"vertical"} margin={barMargin}>
+                              height={120} width={(dashboardWidth - 120) / 6} layout={"vertical"} margin={barMargin}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>
                         <Tooltip/>
@@ -302,10 +315,10 @@ class DashboardSection extends Component {
                     </BarChart>
                 </div>
             </div>
-            <div className={"col-md-6"}>
+            <div className={"col-md-4"}>
                 <div className={"chartSection"}>
-                    <BarChart data={[this.props.plannedMgmt]}
-                              height={100} width={(dashboardWidth - 90) / 2} layout={"vertical"}
+                    <BarChart data={[this.props.mgmtData]}
+                              height={120} width={(dashboardWidth - 120) / 3} layout={"vertical"}
                               margin={{top: 20, right: 40, left: 40, bottom: 20}}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>
@@ -320,16 +333,37 @@ class DashboardSection extends Component {
                             <LabelList dataKey="plannedAfter" position="top"/>
                         </Bar>
                         <ReferenceLine x={0} stroke='black' isFront={true}>
-                            <Label value="0 Hours" position="top" />
+                            <Label value="0 Hours" position="top"/>
                         </ReferenceLine>
 
                     </BarChart>
                 </div>
             </div>
-            <div className={"col-md-3"}>
+
+            <div className={"col-md-4"}>
                 <div className={"chartSection"}>
-                    <BarChart data={[this.props.plannedMgmt]}
-                              height={100} width={(dashboardWidth - 90) / 4} layout={"vertical"}
+                    <BarChart data={[this.props.mgmtData]}
+                              height={120} width={(dashboardWidth - 120) / 3} layout={"vertical"} margin={barMargin}>
+                        <XAxis type="number" hide={true}/>
+                        <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
+                        <Legend/>
+                        <Bar barSize={10} dataKey="plannedHoursOnLeave" stackId="a" fill={plannedColor} name={"PH (On Leave)"}>
+                            <LabelList dataKey="plannedHoursOnLeave" position="top" />
+                        </Bar>
+                        <Bar barSize={10} dataKey="plannedHoursLastMinuteLeave" stackId="a" fill={unfinishedColor}
+                             name={"PH (Last Minute)"}>
+                            <LabelList dataKey="plannedHoursLastMinuteLeave" position="top" />
+                        </Bar>
+                    </BarChart>
+                </div>
+            </div>
+
+
+            <div className={"col-md-2"}>
+                <div className={"chartSection"}>
+                    <BarChart data={[this.props.mgmtData]}
+                              height={120} width={(dashboardWidth - 120) / 6} layout={"vertical"}
                               margin={{top: 20, right: 40, left: 40, bottom: 20}}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>

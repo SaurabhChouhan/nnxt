@@ -552,15 +552,19 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
                 avg.reportedAfterAvg += U.twoDecimalHours(er.report.reportedAfterHours / er.report.reportedAfterCount)
             }
 
+            avg.plannedHoursOnLeave += U.twoDecimalHours(er.leaves.plannedHoursOnLeave)
+            avg.plannedHoursLastMinuteLeave += U.twoDecimalHours(er.leaves.plannedHoursLastMinuteLeave)
             return avg
 
         }, {
             plannedBeforeAvg: 0,
             plannedAfterAvg: 0,
-            reportedAfterAvg: 0
+            reportedAfterAvg: 0,
+            plannedHoursOnLeave: 0,
+            plannedHoursLastMinuteLeave: 0
         })
 
-        result.planningMgmt = avg
+        result.mgmtData = avg
 
 
     }

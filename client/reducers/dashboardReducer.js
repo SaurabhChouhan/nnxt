@@ -151,11 +151,13 @@ const dashboardReducer = (state = initialState, action) => {
                 estimatedProgress,
                 progress,
                 unplannedReport,
-                plannedMgmt: {
+                mgmtData: {
                     ran: Math.random(),
-                    plannedAfter: action.planningMgmt.plannedAfterAvg,
-                    plannedBefore: -action.planningMgmt.plannedBeforeAvg,
-                    reportedAfter: action.planningMgmt.reportedAfterAvg
+                    plannedAfter: action.mgmtData.plannedAfterAvg,
+                    plannedBefore: -action.mgmtData.plannedBeforeAvg,
+                    reportedAfter: action.mgmtData.reportedAfterAvg,
+                    plannedHoursLastMinuteLeave: action.mgmtData.plannedHoursLastMinuteLeave,
+                    plannedHoursOnLeave: action.mgmtData.plannedHoursOnLeave - action.mgmtData.plannedHoursLastMinuteLeave
                 }
             })
 
@@ -187,7 +189,7 @@ const dashboardReducer = (state = initialState, action) => {
                 unplannedReport: Object.assign({}, state.unplannedReport, {
                     ran: Math.random()
                 }),
-                plannedMgmt: Object.assign({}, state.plannedMgmt, {
+                mgmtData: Object.assign({}, state.mgmtData, {
                     ran: Math.random()
                 })
             })

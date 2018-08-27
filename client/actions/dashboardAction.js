@@ -5,7 +5,7 @@ import * as AC from "./actionConsts";
 export const calculateReleaseStats = (data) => ({
     type: AC.CALCULATE_RELEASE_STATS,
     release: data.release,
-    planningMgmt: data.planningMgmt
+    mgmtData: data.mgmtData
 })
 
 export const addReleaseDailyPlannings = (dailyPlannings, resetDailyPlanningMonth) => ({

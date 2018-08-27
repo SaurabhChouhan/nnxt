@@ -27,7 +27,7 @@ const mapStateToProps = (state, ownProps) => ({
     dailyPlannings: state.dashboard.dailyPlannings,
     selectedRelease: state.release.selectedRelease,
     resetDailyPlanningMonth: state.dashboard.resetDailyPlanningMonth,
-    plannedMgmt: state.dashboard.plannedMgmt
+    mgmtData: state.dashboard.mgmtData
 })
 
 
