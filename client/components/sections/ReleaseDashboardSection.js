@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {withRouter} from "react-router-dom";
-import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie, CartesianGrid, ReferenceLine} from 'recharts'
+import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie, CartesianGrid, ReferenceLine, Label} from 'recharts'
 import {NotificationManager} from "react-notifications";
 import moment from "moment";
 
@@ -311,8 +311,7 @@ class DashboardSection extends Component {
                         <YAxis type="category" dataKey={"name"} hide={true}/>
                         <Tooltip/>
                         <Legend/>
-                        <ReferenceLine x={0} stroke='#000'/>
-                        <Bar barSize={10} dataKey="plannedBefore" fill={reportedColor}
+                        <Bar barSize={10} dataKey="plannedBefore" fill={"#ffcb9e"}
                              name={"Planned Before"}>
                             <LabelList dataKey="plannedBefore" position="top"/>
                         </Bar>
@@ -320,6 +319,10 @@ class DashboardSection extends Component {
                              name={"Planned After"}>
                             <LabelList dataKey="plannedAfter" position="top"/>
                         </Bar>
+                        <ReferenceLine x={0} stroke='black' isFront={true}>
+                            <Label value="0 Hours" position="top" />
+                        </ReferenceLine>
+
                     </BarChart>
                 </div>
 
