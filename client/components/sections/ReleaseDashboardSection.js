@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {withRouter} from "react-router-dom";
-import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie, ResponsiveContainer} from 'recharts'
+import {BarChart, XAxis, YAxis, Tooltip, Legend, Bar, LabelList, PieChart, Pie, CartesianGrid, ReferenceLine} from 'recharts'
 import {NotificationManager} from "react-notifications";
 import moment from "moment";
 
@@ -219,21 +219,6 @@ class DashboardSection extends Component {
                         <Tooltip/>
                     </PieChart>
                 </div>
-                <div className={"chartSection"}>
-                    <BarChart data={[this.props.unplannedReport]}
-                              height={80} width={barWidth} layout={"vertical"} margin={barMargin}>
-                        <XAxis type="number" hide={true}/>
-                        <YAxis type="category" dataKey={"name"} hide={true}/>
-                        <Tooltip/>
-                        <Legend/>
-                        <Bar barSize={10} dataKey="reportedHours" fill={reportedColor}
-                             name={"Unplanned Reported Hours"}>
-                            <LabelList dataKey="reportedHours" position="top"/>
-                        </Bar>
-                    </BarChart>
-                </div>
-
-
             </div>
             <div className={"col-md-6"}>
                 <div className={"chartSection"}>
@@ -301,6 +286,46 @@ class DashboardSection extends Component {
                     </PieChart>
                 </div>
             </div>
+
+            <div className={"col-md-3"}>
+                <div className={"chartSection"}>
+                    <BarChart data={[this.props.unplannedReport]}
+                              height={80} width={(dashboardWidth - 90) / 4} layout={"vertical"} margin={barMargin}>
+                        <XAxis type="number" hide={true}/>
+                        <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
+                        <Legend/>
+                        <Bar barSize={10} dataKey="reportedHours" fill={reportedColor}
+                             name={"Unplanned Reported Hours"}>
+                            <LabelList dataKey="reportedHours" position="top"/>
+                        </Bar>
+                    </BarChart>
+                </div>
+            </div>
+            <div className={"col-md-6"}>
+                <div className={"chartSection"}>
+                    <BarChart data={[this.props.plannedMgmt]}
+                              height={100} width={(dashboardWidth - 90) / 2} layout={"vertical"}
+                              margin={{top: 20, right: 40, left: 40, bottom: 20}}>
+                        <XAxis type="number" hide={true}/>
+                        <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
+                        <Legend/>
+                        <ReferenceLine x={0} stroke='#000'/>
+                        <Bar barSize={10} dataKey="plannedBefore" fill={reportedColor}
+                             name={"Planned Before"}>
+                            <LabelList dataKey="plannedBefore" position="top"/>
+                        </Bar>
+                        <Bar barSize={10} dataKey="plannedAfter" fill={plannedColor}
+                             name={"Planned After"}>
+                            <LabelList dataKey="plannedAfter" position="top"/>
+                        </Bar>
+                    </BarChart>
+                </div>
+
+            </div>
+
+
             <div className={"col-md-12"}>
                 {!beforeOrSameAsStartMonth && <button className={"btn reportingArrow"}
                                                       style={{position: 'absolute', top: 93, left: 20}}
@@ -318,6 +343,7 @@ class DashboardSection extends Component {
                               height={250} width={planningsWidth}
                               margin={{top: 40, right: 0, left: 0, bottom: 20}}
                               barGap={2}>
+                        <CartesianGrid strokeDasharray="3 3"/>
                         <XAxis dataKey={"planningDateString"} type={"category"}/>
                         <YAxis type="number"/>
                         <Tooltip/>

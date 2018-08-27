@@ -150,7 +150,12 @@ const dashboardReducer = (state = initialState, action) => {
                 hoursData,
                 estimatedProgress,
                 progress,
-                unplannedReport
+                unplannedReport,
+                plannedMgmt: {
+                    ran: Math.random(),
+                    plannedAfter: action.planningMgmt.plannedAfterAvg,
+                    plannedBefore: -action.planningMgmt.plannedBeforeAvg
+                }
             })
 
         case AC.ADD_DAILY_PLANNINGS:
@@ -179,6 +184,9 @@ const dashboardReducer = (state = initialState, action) => {
                     ran: Math.random()
                 }),
                 unplannedReport: Object.assign({}, state.unplannedReport, {
+                    ran: Math.random()
+                }),
+                plannedMgmt: Object.assign({}, state.plannedMgmt, {
                     ran: Math.random()
                 })
             })

@@ -527,9 +527,39 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
     }
     let release = await ReleaseModel.findById(queryData.releaseID)
 
-    return {
+    // Get data of past/present planning
+    let employeeReleases = await MDL.EmployeeReleasesModel.find({
+        "release._id": mongoose.Types.ObjectId(queryData.releaseID)
+    }).lean()
+
+    logger.debug("getReleaseDataForDashboard(): ", {employeeReleases})
+
+    let result = {
         release
     }
+
+    if (employeeReleases && employeeReleases.length) {
+        let avg = employeeReleases.reduce((avg, er) => {
+            logger.debug("getReleaseDataForDashboard(): Iterating on ", {er})
+            if (er.management.before && er.management.before.plannedCount > 0) {
+                avg.plannedBeforeAvg += U.twoDecimalHours(er.management.before.diffHours / er.management.before.plannedCount)
+            }
+            if (er.management.after && er.management.after.plannedCount > 0) {
+                avg.plannedAfterAvg += U.twoDecimalHours(er.management.after.diffHours / er.management.after.plannedCount)
+            }
+            return avg
+
+        }, {
+            plannedBeforeAvg: 0,
+            plannedAfterAvg: 0
+        })
+
+        result.planningMgmt = avg
+
+
+    }
+
+    return result
 }
 
 
