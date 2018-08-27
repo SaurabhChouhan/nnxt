@@ -8,7 +8,10 @@ let initialState = {
     plannedVsReported: {},
     hoursData: {},
     estimatedProgress: {},
-    progress: {}
+    progress: {},
+    dailyPlannings: [],
+    resetDailyPlanningMonth: false
+
 }
 
 const dashboardReducer = (state = initialState, action) => {
@@ -28,6 +31,9 @@ const dashboardReducer = (state = initialState, action) => {
             // To calculate percentage of planned work we need to iterate on all iterations of type 'planned' and then
             // sum all plannedHoursEstimatedTasks and then compare them against sum of all estimated hours
             let plannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
+
+            // there should only be one unplanned iteration
+            let unPlannedIteration = release.iterations.find(i => i.type == SC.ITERATION_TYPE_UNPLANNED)
 
             if (plannedIterations && plannedIterations.length) {
 
@@ -130,6 +136,12 @@ const dashboardReducer = (state = initialState, action) => {
                 hoursData.estimatedHours = s.sumEstimatedHours
             }
 
+            let unplannedReport = {
+                ran: Math.random(),
+                reportedHours: unPlannedIteration ? unPlannedIteration.reportedHours : 0
+            }
+
+
             return Object.assign({}, state, {
                 plannedVsUnplannedWork,
                 overallProgress,
@@ -137,8 +149,51 @@ const dashboardReducer = (state = initialState, action) => {
                 plannedVsReported,
                 hoursData,
                 estimatedProgress,
-                progress: progress
+                progress,
+                unplannedReport,
+                mgmtData: {
+                    ran: Math.random(),
+                    plannedAfter: action.mgmtData.plannedAfterAvg,
+                    plannedBefore: -action.mgmtData.plannedBeforeAvg,
+                    reportedAfter: action.mgmtData.reportedAfterAvg,
+                    plannedHoursLastMinuteLeave: action.mgmtData.plannedHoursLastMinuteLeave,
+                    plannedHoursOnLeave: action.mgmtData.plannedHoursOnLeave - action.mgmtData.plannedHoursLastMinuteLeave
+                }
             })
+
+        case AC.ADD_DAILY_PLANNINGS:
+            return Object.assign({}, state, {
+                dailyPlannings: [...action.dailyPlannings],
+                resetDailyPlanningMonth: action.resetDailyPlanningMonth,
+                plannedVsUnplannedWork: Object.assign({}, state.plannedVsUnplannedWork, {
+                    ran: Math.random()
+                }),
+                overallProgress: Object.assign({}, state.overallProgress, {
+                    ran: Math.random()
+                }),
+                completedPendingProgress: Object.assign({}, state.completedPendingProgress, {
+                    ran: Math.random()
+                }),
+                plannedVsReported: Object.assign({}, state.plannedVsReported, {
+                    ran: Math.random()
+                }),
+                hoursData: Object.assign({}, state.hoursData, {
+                    ran: Math.random()
+                }),
+                estimatedProgress: Object.assign({}, state.estimatedProgress, {
+                    ran: Math.random()
+                }),
+                progress: Object.assign({}, state.progress, {
+                    ran: Math.random()
+                }),
+                unplannedReport: Object.assign({}, state.unplannedReport, {
+                    ran: Math.random()
+                }),
+                mgmtData: Object.assign({}, state.mgmtData, {
+                    ran: Math.random()
+                })
+            })
+            break;
 
         case AC.SET_RELEASE_ID:
             // while selection of reporting status it is set to state also

@@ -145,8 +145,7 @@ class ReleasePlanSection extends Component {
 
                     </div>
                     <div className="col-md-12 pad">
-
-                        <div className="container container-width">
+                        <div className="container pad">
                             <ul className="nav nav-tabs">
                                 <li className={selectedTab === SC.RELEASE_DASHBOARD_TAB ? 'active' : ''}>
                                     <a
@@ -154,7 +153,6 @@ class ReleasePlanSection extends Component {
                                         className={selectedTab === SC.RELEASE_DASHBOARD_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
                                         onClick={() => {
                                             this.props.tabSelected(SC.RELEASE_DASHBOARD_TAB)
-                                            this.props.getDashboardData(release)
                                         }}>Dashboard
                                     </a>
                                 </li>

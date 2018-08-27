@@ -18,17 +18,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.getAllReleasesFromServer(SC.ALL))
 
         },
-        getDashboardData: (release) => dispatch(A.getReleaseForDashboard(release._id)),
         tabSelected: (tab) => dispatch(A.releaseTabSelected(tab)),
         openUpdateReleaseDatesForm: (release) => {
-
-            const devStartDate = moment(release.devStartDate).format(SC.DATE_FORMAT)
-            const devEndDate = moment(release.devEndDate).format(SC.DATE_FORMAT)
-            const clientReleaseDate = moment(release.clientReleaseDate).format(SC.DATE_FORMAT)
-
-
-            let iterations = release.iterations.filter(i => i.type === SC.ITERATION_TYPE_ESTIMATED)
-
             dispatch(initialize("update-release-dates", {
                 _id: release._id
             }))

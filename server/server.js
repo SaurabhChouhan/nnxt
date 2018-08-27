@@ -64,7 +64,6 @@ co(async () => {
 
     locale(app)
 
-
     app.use(cookie())
     app.use(koaBody({multipart: true, formidable: {keepExtensions: true}}))
     app.keys = ['A secret that no one knows']
@@ -128,6 +127,7 @@ co(async () => {
 
     app.use(async (ctx, next) => {
         try {
+            ctx.conf = conf
             let response = await next()
             if (response !== undefined) {
                 ctx.body = {

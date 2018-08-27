@@ -1,9 +1,18 @@
 import {connect} from 'react-redux'
 import {ReleaseDashboardSection} from "../../components"
 import * as A from "../../actions";
+import moment from 'moment'
 
 const mapDispatchToprops = (dispatch, ownProps) => ({
-    getDashboardData: (release) => dispatch(A.getReleaseForDashboard(release._id))
+    getDashboardData: (release) => {
+        dispatch(A.getReleaseForDashboard(release._id)).then(() => {
+            let m = moment()
+            dispatch(A.getReleaseDayPlannings(release._id, m.month(), m.year()))
+        })
+    },
+    getReleaseDailyPlannings: (releaseID, month, year) => {
+        dispatch(A.getReleaseDayPlannings(releaseID, month, year))
+    }
 })
 
 const mapStateToProps = (state, ownProps) => ({
@@ -13,7 +22,12 @@ const mapStateToProps = (state, ownProps) => ({
     plannedVsReported: state.dashboard.plannedVsReported,
     hoursData: state.dashboard.hoursData,
     estimatedProgress: state.dashboard.estimatedProgress,
-    progress: state.dashboard.progress
+    progress: state.dashboard.progress,
+    unplannedReport: state.dashboard.unplannedReport,
+    dailyPlannings: state.dashboard.dailyPlannings,
+    selectedRelease: state.release.selectedRelease,
+    resetDailyPlanningMonth: state.dashboard.resetDailyPlanningMonth,
+    mgmtData: state.dashboard.mgmtData
 })
 
 

@@ -491,8 +491,8 @@ const addNNXTUsers = async () => {
     if (!await MDL.UserModel.exists('apogra@gmail.com')) {
         await MDL.UserModel.createUser({
             email: 'apogra@gmail.com',
-            firstName: "Mahesh_Est",
-            lastName: "Pogra",
+            firstName: "Mahesh P",
+            lastName: "",
             roles: [estimatorRole, leaderRole],
             password: "password",
             employeeCode: 'emp-002',
@@ -504,8 +504,8 @@ const addNNXTUsers = async () => {
     if (!await MDL.UserModel.exists('chouhan.saurabh@gmail.com')) {
         await MDL.UserModel.createUser({
             email: 'chouhan.saurabh@gmail.com',
-            firstName: "Saurabh_Est",
-            lastName: "Chouhan",
+            firstName: "Saurabh C",
+            lastName: "",
             roles: [estimatorRole, leaderRole],
             password: "password",
             employeeCode: 'emp-002',

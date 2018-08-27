@@ -35,7 +35,7 @@ reportingRouter.post("/comment", async ctx => {
 reportingRouter.put("/task-plans/:taskID", async ctx => {
     if (ctx.schemaRequested)
         return V.generateSchema(V.releaseTaskReportStruct)
-    return await MDL.TaskPlanningModel.addTaskReport(ctx.request.body, ctx.state.user)
+    return await MDL.TaskPlanningModel.addTaskReport(ctx.request.body, ctx.state.user, ctx.conf.server.mode)
 })
 
 
