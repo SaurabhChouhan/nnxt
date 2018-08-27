@@ -520,6 +520,18 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
 
 }
 
+releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(queryData.releaseID, user)
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], rolesInRelease)) {
+        throw new AppError('Not a Manager/Leader of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    let release = await ReleaseModel.findById(queryData.releaseID)
+
+    return {
+        release
+    }
+}
+
 
 releaseSchema.statics.getReleaseDetailsForReporting = async (releaseId, user) => {
     return await ReleaseModel.find({

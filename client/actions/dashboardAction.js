@@ -2,9 +2,9 @@ import * as A from '../actions'
 import * as AC from "./actionConsts";
 
 
-export const calculateReleaseStats = (release) => ({
+export const calculateReleaseStats = (data) => ({
     type: AC.CALCULATE_RELEASE_STATS,
-    release: release
+    release: data.release
 })
 
 export const addReleaseDailyPlannings = (dailyPlannings, resetDailyPlanningMonth) => ({
@@ -17,14 +17,17 @@ export const addReleaseDailyPlannings = (dailyPlannings, resetDailyPlanningMonth
 export const getReleaseForDashboard = (releaseID) => {
     console.log("releaseID", releaseID)
     return function (dispatch) {
-        return fetch('/api/releases/release/' + releaseID,
+        return fetch('/api/dashboard/release-data',
             {
-                method: "get",
+                method: "post",
                 credentials: "include",
                 headers: {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    releaseID: releaseID
+                })
             }
         ).then(
             response => {
