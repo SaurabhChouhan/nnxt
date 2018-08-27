@@ -325,8 +325,25 @@ class DashboardSection extends Component {
 
                     </BarChart>
                 </div>
-
             </div>
+            <div className={"col-md-3"}>
+                <div className={"chartSection"}>
+                    <BarChart data={[this.props.plannedMgmt]}
+                              height={100} width={(dashboardWidth - 90) / 4} layout={"vertical"}
+                              margin={{top: 20, right: 40, left: 40, bottom: 20}}>
+                        <XAxis type="number" hide={true}/>
+                        <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
+                        <Legend/>
+                        <Bar barSize={10} dataKey="reportedAfter" fill={"#d671a5"}
+                             name={"Reported After"}>
+                            <LabelList dataKey="reportedAfter" position="top"/>
+                        </Bar>
+
+                    </BarChart>
+                </div>
+            </div>
+
 
 
             <div className={"col-md-12"}>
