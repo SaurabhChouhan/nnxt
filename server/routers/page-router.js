@@ -49,7 +49,7 @@ pageRouter.get('/super-admin', async ctx => {
     )
 
 
-    return ctx.render("common", {
+    return ctx.render("index", {
         html: '',
         preloadedState: JSON.stringify(initialState).replace(/</g, '\\u003c')
     })
@@ -75,7 +75,7 @@ pageRouter.get('/admin', async ctx => {
         </Provider>
     )
 
-    return ctx.render("common", {
+    return ctx.render("index", {
         html: '',
         preloadedState: JSON.stringify(initialState).replace(/</g, '\\u003c')
     })
