@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
 import * as V from "../validation"
+import * as MDL from "./index";
+import ProjectModel from "./projectModel";
 
 
 let technologySchema = mongoose.Schema({
@@ -22,7 +24,25 @@ technologySchema.statics.saveTechnology = async (technologyInput) => {
 }
 
 technologySchema.statics.delete = async (id) => {
-    let response = await TechnologyModel.findById(id).remove()
+    let technology = await TechnologyModel.findById(id)
+    let response = undefined
+
+    let technologyCount = await MDL.EstimationModel.count({
+        'technologies._id': technology._id,
+        'isDeleted': false
+    }) || await MDL.ReleaseModel.count({
+        'technologies._id': technology._id,
+
+    })
+
+
+    if (technologyCount > 0) {
+        throw new AppError(' this technology is available in estimation as well as release', EC.TECHNOLOGY_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+    }
+    else {
+        response = await TechnologyModel.findById(id).remove()
+    }
+
     return response
 }
 
