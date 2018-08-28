@@ -94,30 +94,23 @@ projectSchema.statics.softDelete = async (id) => {
     let response = undefined
 
 
-    let projectCount = await MDL.EstimationModel.count({
+    let associationCount = await MDL.EstimationModel.count({
         'project._id': project._id,
         'isDeleted': false
     }) || await MDL.ReleaseModel.count({
         'project._id': project._id,
-
     })
 
+    console.log("association count is ", associationCount)
 
-    if (projectCount > 0) {
-        throw new AppError(' this project is available in estimation as well as release', EC.PROJECT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+    if (associationCount > 0) {
+        throw new AppError('Cant remove, Project associated with Estimations/Releases.', EC.PROJECT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
     }
 
-    if (project.canHardDelete) {
-        response = await ProjectModel.findById(id).remove()
-    }
-    else {
-        project = await ProjectModel.findById(id)
-        project.isDeleted = true
-        response = await project.save()
-    }
-
+    response = await ProjectModel.findById(id).remove()
     return response
 }
+
 projectSchema.statics.editProject = async projectInput => {
     let project = await ProjectModel.findById(projectInput._id)
     //let count = await ProjectModel.count({'name': projectInput.name, 'client._id': projectInput.client._id})

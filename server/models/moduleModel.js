@@ -69,7 +69,7 @@ moduleSchema.statics.Delete = async (id) => {
 
 
     if (moduleCount > 0) {
-        throw new AppError(' this module is available in estimation as well as release', EC.MODULE_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Cant remove, Module is associated with Estimations/Releases', EC.MODULE_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
     }
 
     if (module.canHardDelete) {

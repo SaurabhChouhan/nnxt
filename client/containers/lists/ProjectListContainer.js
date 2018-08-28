@@ -17,11 +17,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (json.success) {
             NotificationManager.success('Project Removed Successfully')
         } else {
-            NotificationManager.error('Project Not removed!')
+            NotificationManager.error(json.message)
             throw new SubmissionError({projects: "Project Removal Failed"})
         }
-    }),
-
+    })
 })
 
 const mapStateToProps = (state, ownProps) => {
