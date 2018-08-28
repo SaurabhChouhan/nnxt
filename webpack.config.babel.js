@@ -5,7 +5,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import StyleExtHtmlWebpackPlugin from 'style-ext-html-webpack-plugin'
 
-const buildPath = path.join(__dirname, 'dist');
+const buildPath = path.join(__dirname, 'server', 'public', 'js')
 
 const config = {
     devtool: 'source-map',
@@ -13,9 +13,9 @@ const config = {
         js: './client/client.js',
     },
     output: {
-        path: path.join(__dirname, 'server', 'public', 'js'),
-        filename: '[name].[chunkhash].js',
-        publicPath: '/'
+        path: buildPath,
+        filename: 'app.[chunkhash].js',
+        publicPath: '/js'
     },
     module: {
         rules: [
@@ -42,6 +42,7 @@ const config = {
         ],
     },
     plugins: [
+        new webpack.optimize.ModuleConcatenationPlugin(),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
             filename: 'vendor.[chunkhash].js',
@@ -50,20 +51,18 @@ const config = {
                     module.context.indexOf('node_modules') >= 0;
             }
         }),
-        new webpack.optimize.ModuleConcatenationPlugin(),
-        /*
         new HtmlWebpackPlugin({
-            template: path.join(__dirname, 'index.ejs'),
+            template: path.join(__dirname, './server/views/index-tmpl.mustache'),
             path: buildPath,
             excludeChunks: ['base'],
-            filename: 'index.html',
+            filename: path.join(__dirname, './server/views/index.mustache'),
             minify: {
                 collapseWhitespace: true,
                 collapseInlineTagWhitespace: true,
                 removeComments: true,
                 removeRedundantAttributes: true
             }
-        }),*/
+        }),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false,
@@ -87,6 +86,7 @@ const config = {
                 'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
             }
         }),
+        /*
         new ExtractTextPlugin({
             filename: '[name].[contenthash].css',
             allChunks: true
@@ -94,6 +94,7 @@ const config = {
         new StyleExtHtmlWebpackPlugin({
             minify: true
         }),
+        */
         new CompressionPlugin({
             asset: "[path].gz[query]",
             algorithm: "gzip",
