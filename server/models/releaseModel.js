@@ -539,8 +539,8 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
                 avg.plannedAfterAvg += U.twoDecimalHours(er.management.after.diffHours / er.management.after.plannedCount)
             }
 
-            avg.plannedBeforeCount = er.management.before.plannedCount
-            avg.plannedAfterCount = er.management.after.plannedCount
+            avg.plannedBeforeCount += er.management.before.plannedCount
+            avg.plannedAfterCount += er.management.after.plannedCount
 
             if (er.report && er.report.reportedAfterCount > 0) {
                 avg.reportedAfterAvg += U.twoDecimalHours(er.report.reportedAfterHours / er.report.reportedAfterCount)
