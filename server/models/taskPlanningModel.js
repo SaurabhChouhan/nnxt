@@ -2947,6 +2947,7 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
             }).then(tp => {
                 if (!tp) {
                     tp = {}
+                    tp._id = rp._id // release plan id is used while reporting task plan
                     tp.release = rp.release
                     tp.releasePlan = {
                         _id: rp._id
@@ -2956,6 +2957,8 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
                         reportedHours: 0,
                         description: ''
                     }
+                } else {
+                    tp._id = rp._id
                 }
 
                 return tp
