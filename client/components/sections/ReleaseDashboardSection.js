@@ -14,7 +14,6 @@ import {
     ReferenceLine,
     Label
 } from 'recharts'
-import {NotificationManager} from "react-notifications";
 import moment from "moment";
 
 
@@ -233,7 +232,7 @@ class DashboardSection extends Component {
                     </PieChart>
                 </div>
             </div>
-            <div className={"col-md-6"}>
+            <div className={"col-md-6"} style={{paddingLeft: "0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.plannedVsUnplannedWork]}
                               height={80} width={barWidth} layout={"vertical"} margin={barMargin}>
@@ -300,25 +299,26 @@ class DashboardSection extends Component {
                 </div>
             </div>
 
-            <div className={"col-md-2"}>
+            <div className={"col-md-3"}>
                 <div className={"chartSection"}>
-                    <BarChart data={[this.props.unplannedReport]}
-                              height={120} width={(dashboardWidth - 120) / 6} layout={"vertical"} margin={barMargin}>
+                    <BarChart data={[this.props.mgmtData]}
+                              height={120} width={(dashboardWidth - 60) / 4} layout={"vertical"} margin={barMargin}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>
                         <Tooltip/>
                         <Legend/>
-                        <Bar barSize={10} dataKey="reportedHours" fill={reportedColor}
-                             name={"Unplanned Reported Hours"}>
-                            <LabelList dataKey="reportedHours" position="top"/>
+                        <Bar barSize={10} dataKey="plannedBeforeCount" fill={"#ffcb9e"}
+                             name={"Planned Before Count"}>
+                            <LabelList dataKey="plannedBeforeCount" position="top"/>
                         </Bar>
                     </BarChart>
                 </div>
             </div>
-            <div className={"col-md-4"}>
+
+            <div className={"col-md-6"} style ={{paddingLeft:"0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.mgmtData]}
-                              height={120} width={(dashboardWidth - 120) / 3} layout={"vertical"}
+                              height={120} width={(dashboardWidth - 60) / 2} layout={"vertical"}
                               margin={{top: 20, right: 40, left: 40, bottom: 20}}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>
@@ -340,30 +340,63 @@ class DashboardSection extends Component {
                 </div>
             </div>
 
-            <div className={"col-md-4"}>
+            <div className={"col-md-3"} style ={{paddingLeft:"0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.mgmtData]}
-                              height={120} width={(dashboardWidth - 120) / 3} layout={"vertical"} margin={barMargin}>
+                              height={120} width={(dashboardWidth - 60) / 4} layout={"vertical"} margin={barMargin}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>
                         <Tooltip/>
                         <Legend/>
-                        <Bar barSize={10} dataKey="plannedHoursOnLeave" stackId="a" fill={plannedColor} name={"PH (On Leave)"}>
-                            <LabelList dataKey="plannedHoursOnLeave" position="top" />
-                        </Bar>
-                        <Bar barSize={10} dataKey="plannedHoursLastMinuteLeave" stackId="a" fill={unfinishedColor}
-                             name={"PH (Last Minute)"}>
-                            <LabelList dataKey="plannedHoursLastMinuteLeave" position="top" />
+                        <Bar barSize={10} dataKey="plannedAfterCount" fill={plannedColor}
+                             name={"Planned After Count"}>
+                            <LabelList dataKey="plannedAfterCount" position="top"/>
                         </Bar>
                     </BarChart>
                 </div>
             </div>
 
 
-            <div className={"col-md-2"}>
+            <div className={"col-md-3"}>
+                <div className={"chartSection"}>
+                    <BarChart data={[this.props.unplannedReport]}
+                              height={120} width={(dashboardWidth - 60) / 4} layout={"vertical"} margin={barMargin}>
+                        <XAxis type="number" hide={true}/>
+                        <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
+                        <Legend/>
+                        <Bar barSize={10} dataKey="reportedHours" fill={reportedColor}
+                             name={"Unplanned Reported Hours"}>
+                            <LabelList dataKey="reportedHours" position="top"/>
+                        </Bar>
+                    </BarChart>
+                </div>
+            </div>
+
+            <div className={"col-md-6"} style={{paddingLeft:"0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.mgmtData]}
-                              height={120} width={(dashboardWidth - 120) / 6} layout={"vertical"}
+                              height={120} width={(dashboardWidth - 60) / 2} layout={"vertical"} margin={barMargin}>
+                        <XAxis type="number" hide={true}/>
+                        <YAxis type="category" dataKey={"name"} hide={true}/>
+                        <Tooltip/>
+                        <Legend/>
+                        <Bar barSize={10} dataKey="plannedHoursOnLeave" stackId="a" fill={plannedColor}
+                             name={"Planned Hours (On Leave)"}>
+                            <LabelList dataKey="plannedHoursOnLeave" position="top"/>
+                        </Bar>
+                        <Bar barSize={10} dataKey="plannedHoursLastMinuteLeave" stackId="a" fill={unfinishedColor}
+                             name={"Planned Hours (Last Minute)"}>
+                            <LabelList dataKey="plannedHoursLastMinuteLeave" position="top"/>
+                        </Bar>
+                    </BarChart>
+                </div>
+            </div>
+
+            <div className={"col-md-3"} style={{paddingLeft:"0px"}}>
+                <div className={"chartSection"}>
+                    <BarChart data={[this.props.mgmtData]}
+                              height={120} width={(dashboardWidth - 60) / 4} layout={"vertical"}
                               margin={{top: 20, right: 40, left: 40, bottom: 20}}>
                         <XAxis type="number" hide={true}/>
                         <YAxis type="category" dataKey={"name"} hide={true}/>
@@ -373,12 +406,9 @@ class DashboardSection extends Component {
                              name={"Reported After"}>
                             <LabelList dataKey="reportedAfter" position="top"/>
                         </Bar>
-
                     </BarChart>
                 </div>
             </div>
-
-
 
             <div className={"col-md-12"}>
                 {!beforeOrSameAsStartMonth && <button className={"btn reportingArrow"}

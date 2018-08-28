@@ -539,6 +539,9 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
                 avg.plannedAfterAvg += U.twoDecimalHours(er.management.after.diffHours / er.management.after.plannedCount)
             }
 
+            avg.plannedBeforeCount = er.management.before.plannedCount
+            avg.plannedAfterCount = er.management.after.plannedCount
+
             if (er.report && er.report.reportedAfterCount > 0) {
                 avg.reportedAfterAvg += U.twoDecimalHours(er.report.reportedAfterHours / er.report.reportedAfterCount)
             }
@@ -552,7 +555,9 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
             plannedAfterAvg: 0,
             reportedAfterAvg: 0,
             plannedHoursOnLeave: 0,
-            plannedHoursLastMinuteLeave: 0
+            plannedHoursLastMinuteLeave: 0,
+            plannedBeforeCount: 0,
+            plannedAfterCount: 0
         })
 
         result.mgmtData = avg
@@ -563,7 +568,9 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
             plannedAfterAvg: 0,
             reportedAfterAvg: 0,
             plannedHoursOnLeave: 0,
-            plannedHoursLastMinuteLeave: 0
+            plannedHoursLastMinuteLeave: 0,
+            plannedBeforeCount: 0,
+            plannedAfterCount: 0
         }
     }
 
