@@ -6,9 +6,10 @@ import {initialize, SubmissionError} from "redux-form";
 import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showPorjectEditForm: (project) => {
+    showProjectEditForm: (project) => {
         dispatch(A.showComponent(COC.PROJECT_FORM_DIALOG)),
-        dispatch(initialize('project', project))},
+            dispatch(initialize('project', project))
+    },
     showProjectCreationForm: () => {
         dispatch(A.showComponent(COC.PROJECT_FORM_DIALOG))
     },
