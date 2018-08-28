@@ -14,7 +14,8 @@ const config = {
         production: {
             port: 3000,
             setupData: false,
-            dropDatabase: false
+            dropDatabase: false,
+            mode: 'production'
         },
         kamlesh: {
             port: 3002,
