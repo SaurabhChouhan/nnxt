@@ -42,7 +42,7 @@ class ProjectList extends Component {
 
 
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                this.props.showPorjectEditForm(row)
+                this.props.showProjectEditForm(row)
 
             }}>
                 <i className="fa fa-pencil"></i>

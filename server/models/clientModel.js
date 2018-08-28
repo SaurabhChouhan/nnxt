@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
+import * as MDL from "./index";
 
 mongoose.Promise = global.Promise
 
@@ -12,7 +13,8 @@ let clientSchema = mongoose.Schema({
     country: String,
     isDeleted: {type: Boolean, default: false},
     isArchived: {type: Boolean, default: false},
-    canHardDelete: {type: Boolean, default: true}
+    canHardDelete: {type: Boolean, default: true},
+    isActive: {type: Boolean, default: true},
 })
 
 clientSchema.statics.getAllActive = async () => {
@@ -43,6 +45,19 @@ clientSchema.statics.delete = async (id) => {
 clientSchema.statics.deleteClient = async (id) => {
     let client = await ClientModel.findById(id)
     let response = undefined
+
+    let clientCount = await MDL.EstimationModel.count({
+        'client._id': client._id,
+        'isDeleted': false
+    }) || await MDL.ProjectModel.count({
+        'client._id': client._id,
+        'isDeleted': false
+    })
+
+
+    if (clientCount > 0) {
+        throw new AppError(' this client is available in estimation ', EC.CLIENT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+    }
 
     if (client.canHardDelete) {
         response = await ClientModel.findById(id).remove()

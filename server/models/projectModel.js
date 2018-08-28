@@ -18,7 +18,8 @@ let projectSchema = mongoose.Schema({
     },
     isDeleted: {type: Boolean, default: false},
     isArchived: {type: Boolean, default: false},
-    canHardDelete: {type: Boolean, default: true}
+    canHardDelete: {type: Boolean, default: true},
+    isActive: {type: Boolean, default: true},
 })
 
 projectSchema.statics.getAllActive = async (loggedInUser) => {
@@ -72,6 +73,7 @@ projectSchema.statics.saveProject = async projectInput => {
         throw new AppError("No such client", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     projectInput.client = client
+    projectInput.client.isActive = true
     return await ProjectModel.create(projectInput)
 }
 
@@ -90,6 +92,21 @@ projectSchema.statics.delete = async (id) => {
 projectSchema.statics.softDelete = async (id) => {
     let project = await ProjectModel.findById(id)
     let response = undefined
+
+
+    let projectCount = await MDL.EstimationModel.count({
+        'project._id': project._id,
+        'isDeleted': false
+    }) || await MDL.ReleaseModel.count({
+        'project._id': project._id,
+
+    })
+
+
+    if (projectCount > 0) {
+        throw new AppError(' this project is available in estimation as well as release', EC.PROJECT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+    }
+
     if (project.canHardDelete) {
         response = await ProjectModel.findById(id).remove()
     }

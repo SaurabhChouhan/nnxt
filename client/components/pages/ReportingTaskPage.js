@@ -237,7 +237,7 @@ class ReportingTaskPage extends Component {
                     </div>
 
                 </div>
-                <div className="estimation reporting">
+                <div className="col-md-12 estimation reporting">
                     {
                         iterationType == SC.ITERATION_TYPE_PLANNED && releases && releases.length ? releases.map((release, idx) =>
                             <div key={release._id}>
@@ -250,7 +250,7 @@ class ReportingTaskPage extends Component {
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn row='0' colSpan='6'
+                                    <TableHeaderColumn row='0' colSpan='7'
                                                        dataAlign="center">{release.releaseName}</TableHeaderColumn>
 
                                     <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'View Detail'}
