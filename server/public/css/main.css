@@ -2149,6 +2149,10 @@ hr {
     margin-bottom: 15px;
 }
 
+.reporting {
+    height: 40%;
+}
+
 .reporting label {
     color: #F66E65;
     font-size: 30px;

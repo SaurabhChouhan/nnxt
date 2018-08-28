@@ -19,6 +19,15 @@ class ReportingTaskPage extends Component {
         this.state = {
             showDescriptionDialog: false
         }
+
+        this.reportTaskPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4,  // which size per page you want to locate as default
+        }
+
+
     }
 
     rowClassNameFormat(row, rowIdx) {
@@ -241,12 +250,14 @@ class ReportingTaskPage extends Component {
                     {
                         iterationType == SC.ITERATION_TYPE_PLANNED && releases && releases.length ? releases.map((release, idx) =>
                             <div key={release._id}>
-                                <BootstrapTable options={this.options}
+                                <BootstrapTable options={this.reportTaskPageOptions}
                                                 data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
                                                 striped={true}
                                                 hover={true}
                                                 trClassName={this.rowClassNameFormat.bind(this)}
-                                                cellEdit={cellEditProp}>
+                                                cellEdit={cellEditProp}
+                                                height={"100%"}
+                                                pagination>
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
