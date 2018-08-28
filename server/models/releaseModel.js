@@ -254,12 +254,16 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
      */
     release.iterations = [{
         type: SC.ITERATION_TYPE_PLANNED,
-        name: "planned",
+        name: "Planned",
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }, {
-        type: SC.ITERATION_TYPE_UNPLANNED
+        type: SC.ITERATION_TYPE_UNPLANNED,
+        name: "Unplanned",
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }]
 
     release.name = releaseData.releaseVersionName
@@ -356,7 +360,11 @@ releaseSchema.statics.createReleaseFromEstimation = async (releaseData, user, es
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }, {
-        type: SC.ITERATION_TYPE_UNPLANNED
+        type: SC.ITERATION_TYPE_UNPLANNED,
+        name: "Unplanned",
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }]
 
     release.name = releaseData.releaseVersionName
@@ -448,9 +456,7 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
         release.iterations[iterationIdx].clientReleaseDate = clientReleaseDate.toDate()
 
         // Iterate on all iterations to find max min
-
-        let estimatedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_ESTIMATED)
-
+        let estimatedIterations = release.iterations
         let minDevStartMoment = null, maxDevEndMoment = null, maxClientReleaseMoment = null;
 
         estimatedIterations.forEach(i => {
@@ -566,7 +572,14 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
 
         result.mgmtData = avg
 
-
+    } else {
+        result.mgmtData = {
+            plannedBeforeAvg: 0,
+            plannedAfterAvg: 0,
+            reportedAfterAvg: 0,
+            plannedHoursOnLeave: 0,
+            plannedHoursLastMinuteLeave: 0
+        }
     }
 
     return result
