@@ -12,7 +12,7 @@ const config = {
             dropDatabase: false
         },
         production: {
-            port: 8080,
+            port: 3000,
             setupData: false,
             dropDatabase: false
         },
@@ -66,6 +66,11 @@ const config = {
         default: {
             dbname: 'nnxt',
             url: 'mongodb://localhost/nnxt',
+            useMongoClient: true
+        },
+        production: {
+            dbname: 'nnxt',
+            url: 'mongodb://nnxtadmin:1nn0cu0us@localhost/nnxt',
             useMongoClient: true
         },
         kamlesh: {
