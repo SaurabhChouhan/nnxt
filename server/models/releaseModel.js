@@ -520,6 +520,58 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
 
 }
 
+releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(queryData.releaseID, user)
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], rolesInRelease)) {
+        throw new AppError('Not a Manager/Leader of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+    let release = await ReleaseModel.findById(queryData.releaseID)
+
+    // Get data of past/present planning
+    let employeeReleases = await MDL.EmployeeReleasesModel.find({
+        "release._id": mongoose.Types.ObjectId(queryData.releaseID)
+    }).lean()
+
+    logger.debug("getReleaseDataForDashboard(): ", {employeeReleases})
+
+    let result = {
+        release
+    }
+
+    if (employeeReleases && employeeReleases.length) {
+        let avg = employeeReleases.reduce((avg, er) => {
+            logger.debug("getReleaseDataForDashboard(): Iterating on ", {er})
+            if (er.management.before && er.management.before.plannedCount > 0) {
+                avg.plannedBeforeAvg += U.twoDecimalHours(er.management.before.diffHours / er.management.before.plannedCount)
+            }
+            if (er.management.after && er.management.after.plannedCount > 0) {
+                avg.plannedAfterAvg += U.twoDecimalHours(er.management.after.diffHours / er.management.after.plannedCount)
+            }
+
+            if (er.report && er.report.reportedAfterCount > 0) {
+                avg.reportedAfterAvg += U.twoDecimalHours(er.report.reportedAfterHours / er.report.reportedAfterCount)
+            }
+
+            avg.plannedHoursOnLeave += U.twoDecimalHours(er.leaves.plannedHoursOnLeave)
+            avg.plannedHoursLastMinuteLeave += U.twoDecimalHours(er.leaves.plannedHoursLastMinuteLeave)
+            return avg
+
+        }, {
+            plannedBeforeAvg: 0,
+            plannedAfterAvg: 0,
+            reportedAfterAvg: 0,
+            plannedHoursOnLeave: 0,
+            plannedHoursLastMinuteLeave: 0
+        })
+
+        result.mgmtData = avg
+
+
+    }
+
+    return result
+}
+
 
 releaseSchema.statics.getReleaseDetailsForReporting = async (releaseId, user) => {
     return await ReleaseModel.find({

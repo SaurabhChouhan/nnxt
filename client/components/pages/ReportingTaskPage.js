@@ -335,7 +335,7 @@ class ReportingTaskPage extends Component {
                                                        columnTitle={'Report Hours'}
                                                        dataField="Report"
                                                        dataAlign="center"
-                                                       dataFormat={this.viewReportButton.bind(this)}>Pending
+                                                       dataFormat={this.viewReportButton.bind(this)}>Report
                                     </TableHeaderColumn>
                                 </BootstrapTable>
 

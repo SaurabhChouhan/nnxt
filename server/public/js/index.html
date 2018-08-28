@@ -1,0 +1,41 @@
+Html Webpack Plugin:
+<pre>
+  StyleExtHtmlWebpackPluginError: StyleExtHtmlWebpackPlugin: could not find ExtractTextWebpackPlugin's generated .css file; available files: 'js.e8e35effd0f61  0476a96.js,vendor.db4bf74f7bab6dde1986.js,js.e8e35effd0f610476a96.js.map'
+  
+  - common.js:8 error
+    [nnxt]/[style-ext-html-webpack-plugin]/lib/common.js:8:15
+  
+  - findFile.js:36 findGeneratedCssFile
+    [nnxt]/[style-ext-html-webpack-plugin]/lib/findFile.js:36:3
+  
+  - findFile.js:49 findCssFile
+    [nnxt]/[style-ext-html-webpack-plugin]/lib/findFile.js:49:12
+  
+  - plugin.js:43 wirePluginEvent
+    [nnxt]/[style-ext-html-webpack-plugin]/lib/plugin.js:43:25
+  
+  - plugin.js:16 Compilation.compilation.plugin
+    [nnxt]/[style-ext-html-webpack-plugin]/lib/plugin.js:16:7
+  
+  - Tapable.js:272 Compilation.applyPluginsAsyncWaterfall
+    [nnxt]/[tapable]/lib/Tapable.js:272:13
+  
+  - index.js:686 Promise
+    [nnxt]/[html-webpack-plugin]/index.js:686:21
+  
+  - new Promise
+  
+  - index.js:679 promisedApplyPluginsAsyncWaterfall
+    [nnxt]/[html-webpack-plugin]/index.js:679:14
+  
+  - index.js:690 
+    [nnxt]/[html-webpack-plugin]/index.js:690:55
+  
+  - index.js:178 Promise.resolve.then.then.then.then.then.then.html
+    [nnxt]/[html-webpack-plugin]/index.js:178:18
+  
+  
+  - next_tick.js:188 process._tickCallback
+    internal/process/next_tick.js:188:7
+  
+</pre>

@@ -5,7 +5,7 @@ import moment from 'moment'
 
 const mapDispatchToprops = (dispatch, ownProps) => ({
     getDashboardData: (release) => {
-        dispatch(A.getReleaseForDashboard(release._id)).then(()=>{
+        dispatch(A.getReleaseForDashboard(release._id)).then(() => {
             let m = moment()
             dispatch(A.getReleaseDayPlannings(release._id, m.month(), m.year()))
         })
@@ -26,7 +26,8 @@ const mapStateToProps = (state, ownProps) => ({
     unplannedReport: state.dashboard.unplannedReport,
     dailyPlannings: state.dashboard.dailyPlannings,
     selectedRelease: state.release.selectedRelease,
-    resetDailyPlanningMonth:state.dashboard.resetDailyPlanningMonth
+    resetDailyPlanningMonth: state.dashboard.resetDailyPlanningMonth,
+    mgmtData: state.dashboard.mgmtData
 })
 
 
