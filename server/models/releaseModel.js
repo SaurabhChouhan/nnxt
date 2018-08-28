@@ -465,24 +465,9 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
             maxClientReleaseMoment = maxClientReleaseMoment ? maxClientReleaseMoment.isBefore(i.clientReleaseDate) ? moment(i.clientReleaseDate) : maxClientReleaseMoment : moment(i.clientReleaseDate)
         })
 
-
-        logger.debug("updateReleaseDates():  ", {minDevStartMoment})
-        //logger.debug("updateReleaseDates():  ", {maxDevEndDate})
-        //logger.debug("updateReleaseDates():  ", {maxClientReleaseDate})
-
         release.clientReleaseDate = maxClientReleaseMoment.toDate()
         release.devEndDate = maxDevEndMoment.toDate()
         release.devStartDate = minDevStartMoment.toDate()
-
-        // update both planned/unplanned iteration with this new dates as well
-        let plannedUnplannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_UNPLANNED)
-
-        plannedUnplannedIterations.forEach(i => {
-            i.clientReleaseDate = maxClientReleaseMoment.toDate()
-            i.devEndDate = maxDevEndMoment.toDate()
-            i.devStartDate = minDevStartMoment.toDate()
-        })
-
         return await release.save()
     }
     return {}
