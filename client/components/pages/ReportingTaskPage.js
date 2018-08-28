@@ -24,10 +24,8 @@ class ReportingTaskPage extends Component {
             sizePerPageList: [{
                 text: '4', value: 4
             }],
-            sizePerPage: 4,  // which size per page you want to locate as default
+            sizePerPage: 4  // which size per page you want to locate as default
         }
-
-
     }
 
     rowClassNameFormat(row, rowIdx) {
