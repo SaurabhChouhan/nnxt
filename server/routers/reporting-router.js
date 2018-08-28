@@ -12,7 +12,7 @@ let reportingRouter = new Router({
  * Get all the releases that user is associated with
  */
 reportingRouter.get("/user-releases", async ctx => {
-    return await MDL.ReleaseModel.getAllReleasesOfUser(ctx.state.user)
+    return await MDL.ReleaseModel.getReportingReleasesOfUser(ctx.state.user)
 })
 
 reportingRouter.get("/task-plans/release/:releaseID/date/:date/iteration-type/:iterationType/task-status/:reportedStatus", async ctx => {

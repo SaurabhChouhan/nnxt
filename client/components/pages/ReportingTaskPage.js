@@ -170,7 +170,7 @@ class ReportingTaskPage extends Component {
 
     render() {
 
-        const {allReleases, releases, reportedStatus, releaseID, iterationType} = this.props
+        const {allReleases, activeReleases, releases, reportedStatus, releaseID, iterationType} = this.props
         const cellEditProp = {
             mode: 'click',
             blurToSave: true,
@@ -212,7 +212,7 @@ class ReportingTaskPage extends Component {
 
                                     <option key={SC.ALL} value={SC.ALL}>All Project</option>
                                     {
-                                        allReleases && allReleases.length ? allReleases.map((release, idx) =>
+                                        activeReleases && activeReleases.length ? activeReleases.map((release, idx) =>
                                             <option
                                                 key={idx}
                                                 value={release._id}>

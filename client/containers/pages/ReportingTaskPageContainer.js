@@ -54,6 +54,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     allReleases: state.report.allReleases,
+    activeReleases: state.report.activeReleases,
     releases: state.report.availableReleases,
     dateOfReport: state.report.dateStringOfReport,
     releaseID: state.report.releaseID,

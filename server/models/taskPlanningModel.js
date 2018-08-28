@@ -2831,6 +2831,51 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
 
     console.log("iteration type is ", iterationType)
 
+    let dateUTC = U.dateInUTC(dateString)
+
+    let releaseCriteria = {}
+
+    if (iterationType == SC.ITERATION_TYPE_PLANNED) {
+        releaseCriteria = {
+            'iterations': {
+                $elemMatch: {
+                    type: {$in: [SC.ITERATION_TYPE_ESTIMATED, SC.ITERATION_TYPE_PLANNED]},
+                    devStartDate: {$lte: dateUTC},
+                    devEndDate: {$gte: dateUTC}
+                }
+            }
+        }
+    } else if (iterationType == SC.ITERATION_TYPE_UNPLANNED) {
+        releaseCriteria = {
+            'iterations': {
+                $elemMatch: {
+                    type: {$in: [SC.ITERATION_TYPE_UNPLANNED]},
+                    devStartDate: {$lte: dateUTC},
+                    devEndDate: {$gte: dateUTC}
+                }
+            }
+        }
+    }
+
+    /*
+    if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
+        // report tasks of a specific release is requested
+        releaseCriteria['_id'] = mongoose.Types.ObjectId(releaseID)
+    }
+    */
+
+    let releaseIDs = await MDL.ReleaseModel.distinct('_id', releaseCriteria)
+    // Above release IDs are all release ids where unplanned tasks needs to be shown on selected date
+    logger.debug("getReportTasks(): ", {distinctReleaseIDs: releaseIDs})
+
+    // Get releases by ids
+
+    let releaseNames = await MDL.ReleaseModel.getReleasesByIDs(releaseIDs, {
+        project: 1,
+        name: 1,
+        _id: 1
+    })
+
     if (iterationType == SC.ITERATION_TYPE_PLANNED) {
         // In this iteration type, user would be able to report tasks that have tasks plans planned on chosen date
         let criteria = {
@@ -2869,37 +2914,30 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
             }))
         })
         let releases = await Promise.all(promises)
-        return releases
+
+        return {
+            reportReleases: releases,
+            activeReleases: releaseNames
+        }
+
     } else if (iterationType == SC.ITERATION_TYPE_UNPLANNED) {
         // In this iteration type employee would be able to report all the unplanned release plan added against a release
         // Unplanned task would only be shown for dev date range of unplanned iteration
 
-        let dateUTC = U.dateInUTC(dateString)
-
-        let releaseCriteria = {
-            'iterations': {
-                $elemMatch: {
-                    type: SC.ITERATION_TYPE_UNPLANNED,
-                    devStartDate: {$lte: dateUTC},
-                    devEndDate: {$gte: dateUTC}
-                }
-            }
-        }
+        let releasePlans = undefined
 
 
         if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
-            // report tasks of a specific release is requested
-            releaseCriteria['_id'] = mongoose.Types.ObjectId(releaseID)
+            releasePlans = await MDL.ReleasePlanModel.find({
+                "release._id": releaseID,
+                'release.iteration.iterationType': SC.ITERATION_TYPE_UNPLANNED
+            })
+        } else {
+            releasePlans = await MDL.ReleasePlanModel.find({
+                "release._id": {$in: releaseIDs},
+                'release.iteration.iterationType': SC.ITERATION_TYPE_UNPLANNED
+            })
         }
-
-        let releaseIDs = await MDL.ReleaseModel.distinct('_id', releaseCriteria)
-        // Above release IDs are all release ids where unplanned tasks needs to be shown on selected date
-        logger.debug("getReportTasks(): ", {distinctReleaseIDs: releaseIDs})
-
-        let releasePlans = await MDL.ReleasePlanModel.find({
-            "release._id": {$in: releaseIDs},
-            'release.iteration.iterationType': SC.ITERATION_TYPE_UNPLANNED
-        })
 
         let releasePlanPromises = _.map(releasePlans, (rp) => {
             return MDL.TaskPlanningModel.findOne({
@@ -2945,7 +2983,12 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
             }))
         })
         let releases = await Promise.all(promises)
-        return releases
+
+        return {
+            reportReleases: releases,
+            activeReleases: releaseNames
+        }
+
     } else {
         console.log("returning empty array")
         return {}

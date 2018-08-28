@@ -617,9 +617,9 @@ releaseSchema.statics.getAllReleasesToAddEstimation = async (estimationId, negot
 }
 
 
-releaseSchema.statics.getAllReleasesOfUser = async (user) => {
+releaseSchema.statics.getReportingReleasesOfUser = async (user) => {
     return await MDL.ReleaseModel.find(
-        {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}, {'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]}, {
+        {$or: [{'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]}, {
             project: 1,
             name: 1,
             _id: 1
