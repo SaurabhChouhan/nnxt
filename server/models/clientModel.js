@@ -56,7 +56,7 @@ clientSchema.statics.deleteClient = async (id) => {
 
 
     if (clientCount > 0) {
-        throw new AppError(' this client is available in estimation ', EC.CLIENT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+        throw new AppError(' this client is available in estimation/project ', EC.CLIENT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
     }
 
     if (client.canHardDelete) {
