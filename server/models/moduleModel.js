@@ -42,6 +42,7 @@ moduleSchema.statics.saveModule = async moduleInput => {
         throw new AppError("No such client", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     moduleInput.project = project
+    moduleInput.project.isActive = true
     return await ModuleModel.create(moduleInput)
 }
 
@@ -57,6 +58,20 @@ moduleSchema.statics.exists = async (name, projectId) => {
 moduleSchema.statics.Delete = async (id) => {
     let module = await ModuleModel.findById(id)
     let response = undefined
+
+    let moduleCount = await MDL.EstimationModel.count({
+        'module._id': module._id,
+        'isDeleted': false
+    }) || await MDL.ReleaseModel.count({
+        'module._id': module._id,
+
+    })
+
+
+    if (moduleCount > 0) {
+        throw new AppError(' this module is available in estimation as well as release', EC.MODULE_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+    }
+
     if (module.canHardDelete) {
         response = await ModuleModel.findById(id).remove()
     }
