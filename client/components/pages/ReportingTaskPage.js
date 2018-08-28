@@ -19,6 +19,13 @@ class ReportingTaskPage extends Component {
         this.state = {
             showDescriptionDialog: false
         }
+
+        this.reportTaskPageOptions = {
+            sizePerPageList: [{
+                text: '4', value: 4
+            }],
+            sizePerPage: 4  // which size per page you want to locate as default
+        }
     }
 
     rowClassNameFormat(row, rowIdx) {
@@ -163,7 +170,7 @@ class ReportingTaskPage extends Component {
 
     render() {
 
-        const {allReleases, releases, reportedStatus, releaseID, iterationType} = this.props
+        const {allReleases, activeReleases, releases, reportedStatus, releaseID, iterationType} = this.props
         const cellEditProp = {
             mode: 'click',
             blurToSave: true,
@@ -205,7 +212,7 @@ class ReportingTaskPage extends Component {
 
                                     <option key={SC.ALL} value={SC.ALL}>All Project</option>
                                     {
-                                        allReleases && allReleases.length ? allReleases.map((release, idx) =>
+                                        activeReleases && activeReleases.length ? activeReleases.map((release, idx) =>
                                             <option
                                                 key={idx}
                                                 value={release._id}>
@@ -237,20 +244,22 @@ class ReportingTaskPage extends Component {
                     </div>
 
                 </div>
-                <div className="estimation reporting">
+                <div className="col-md-12 estimation reporting">
                     {
                         iterationType == SC.ITERATION_TYPE_PLANNED && releases && releases.length ? releases.map((release, idx) =>
                             <div key={release._id}>
-                                <BootstrapTable options={this.options}
+                                <BootstrapTable options={this.reportTaskPageOptions}
                                                 data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
                                                 striped={true}
                                                 hover={true}
                                                 trClassName={this.rowClassNameFormat.bind(this)}
-                                                cellEdit={cellEditProp}>
+                                                cellEdit={cellEditProp}
+                                                height={"100%"}
+                                                pagination>
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
-                                    <TableHeaderColumn row='0' colSpan='6'
+                                    <TableHeaderColumn row='0' colSpan='7'
                                                        dataAlign="center">{release.releaseName}</TableHeaderColumn>
 
                                     <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'View Detail'}

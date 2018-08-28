@@ -35,7 +35,8 @@ const reportingReducer = (state = initialState, action) => {
         case AC.ADD_RELEASES_AND_TASKS_OF_SELECTED_DATE:
             // Releases and its task plans where loggedIn user in involved as (manager, leader, developer) for selected date
             return Object.assign({}, state, {
-                availableReleases: action.releases,
+                availableReleases: action.reportReleases,
+                activeReleases: action.activeReleases,
                 dateStringOfReport: action.date
             })
         case AC.TASK_REPORTED:

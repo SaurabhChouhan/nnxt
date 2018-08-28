@@ -254,12 +254,16 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
      */
     release.iterations = [{
         type: SC.ITERATION_TYPE_PLANNED,
-        name: "planned",
+        name: "Planned",
         clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }, {
-        type: SC.ITERATION_TYPE_UNPLANNED
+        type: SC.ITERATION_TYPE_UNPLANNED,
+        name: "Unplanned",
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }]
 
     release.name = releaseData.releaseVersionName
@@ -356,7 +360,11 @@ releaseSchema.statics.createReleaseFromEstimation = async (releaseData, user, es
         devStartDate: U.dateInUTC(releaseData.devStartDate),
         devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }, {
-        type: SC.ITERATION_TYPE_UNPLANNED
+        type: SC.ITERATION_TYPE_UNPLANNED,
+        name: "Unplanned",
+        clientReleaseDate: U.dateInUTC(releaseData.clientReleaseDate),
+        devStartDate: U.dateInUTC(releaseData.devStartDate),
+        devEndDate: U.dateInUTC(releaseData.devReleaseDate)
     }]
 
     release.name = releaseData.releaseVersionName
@@ -448,9 +456,7 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
         release.iterations[iterationIdx].clientReleaseDate = clientReleaseDate.toDate()
 
         // Iterate on all iterations to find max min
-
-        let estimatedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_ESTIMATED)
-
+        let estimatedIterations = release.iterations
         let minDevStartMoment = null, maxDevEndMoment = null, maxClientReleaseMoment = null;
 
         estimatedIterations.forEach(i => {
@@ -459,24 +465,9 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
             maxClientReleaseMoment = maxClientReleaseMoment ? maxClientReleaseMoment.isBefore(i.clientReleaseDate) ? moment(i.clientReleaseDate) : maxClientReleaseMoment : moment(i.clientReleaseDate)
         })
 
-
-        logger.debug("updateReleaseDates():  ", {minDevStartMoment})
-        //logger.debug("updateReleaseDates():  ", {maxDevEndDate})
-        //logger.debug("updateReleaseDates():  ", {maxClientReleaseDate})
-
         release.clientReleaseDate = maxClientReleaseMoment.toDate()
         release.devEndDate = maxDevEndMoment.toDate()
         release.devStartDate = minDevStartMoment.toDate()
-
-        // update both planned/unplanned iteration with this new dates as well
-        let plannedUnplannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_UNPLANNED)
-
-        plannedUnplannedIterations.forEach(i => {
-            i.clientReleaseDate = maxClientReleaseMoment.toDate()
-            i.devEndDate = maxDevEndMoment.toDate()
-            i.devStartDate = minDevStartMoment.toDate()
-        })
-
         return await release.save()
     }
     return {}
@@ -548,6 +539,9 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
                 avg.plannedAfterAvg += U.twoDecimalHours(er.management.after.diffHours / er.management.after.plannedCount)
             }
 
+            avg.plannedBeforeCount = er.management.before.plannedCount
+            avg.plannedAfterCount = er.management.after.plannedCount
+
             if (er.report && er.report.reportedAfterCount > 0) {
                 avg.reportedAfterAvg += U.twoDecimalHours(er.report.reportedAfterHours / er.report.reportedAfterCount)
             }
@@ -561,12 +555,23 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
             plannedAfterAvg: 0,
             reportedAfterAvg: 0,
             plannedHoursOnLeave: 0,
-            plannedHoursLastMinuteLeave: 0
+            plannedHoursLastMinuteLeave: 0,
+            plannedBeforeCount: 0,
+            plannedAfterCount: 0
         })
 
         result.mgmtData = avg
 
-
+    } else {
+        result.mgmtData = {
+            plannedBeforeAvg: 0,
+            plannedAfterAvg: 0,
+            reportedAfterAvg: 0,
+            plannedHoursOnLeave: 0,
+            plannedHoursLastMinuteLeave: 0,
+            plannedBeforeCount: 0,
+            plannedAfterCount: 0
+        }
     }
 
     return result
@@ -619,9 +624,9 @@ releaseSchema.statics.getAllReleasesToAddEstimation = async (estimationId, negot
 }
 
 
-releaseSchema.statics.getAllReleasesOfUser = async (user) => {
+releaseSchema.statics.getReportingReleasesOfUser = async (user) => {
     return await MDL.ReleaseModel.find(
-        {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}, {'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]}, {
+        {$or: [{'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]}, {
             project: 1,
             name: 1,
             _id: 1

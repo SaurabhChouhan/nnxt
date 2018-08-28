@@ -2301,7 +2301,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         let planningMomentInIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
         // add 1 day to reach midnight of next day
         //planningMomentInIndia.add(1, 'days')
-        if(moment().isBefore(planningMomentInIndia) && mode == SC.MODE_PRODUCTION)
+        if (moment().isBefore(planningMomentInIndia) && mode == SC.MODE_PRODUCTION)
             throw new AppError('Cannot report future task plans', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
 
         /*
@@ -2831,6 +2831,51 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
 
     console.log("iteration type is ", iterationType)
 
+    let dateUTC = U.dateInUTC(dateString)
+
+    let releaseCriteria = {}
+
+    if (iterationType == SC.ITERATION_TYPE_PLANNED) {
+        releaseCriteria = {
+            'iterations': {
+                $elemMatch: {
+                    type: {$in: [SC.ITERATION_TYPE_ESTIMATED, SC.ITERATION_TYPE_PLANNED]},
+                    devStartDate: {$lte: dateUTC},
+                    devEndDate: {$gte: dateUTC}
+                }
+            }
+        }
+    } else if (iterationType == SC.ITERATION_TYPE_UNPLANNED) {
+        releaseCriteria = {
+            'iterations': {
+                $elemMatch: {
+                    type: {$in: [SC.ITERATION_TYPE_UNPLANNED]},
+                    devStartDate: {$lte: dateUTC},
+                    devEndDate: {$gte: dateUTC}
+                }
+            }
+        }
+    }
+
+    /*
+    if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
+        // report tasks of a specific release is requested
+        releaseCriteria['_id'] = mongoose.Types.ObjectId(releaseID)
+    }
+    */
+
+    let releaseIDs = await MDL.ReleaseModel.distinct('_id', releaseCriteria)
+    // Above release IDs are all release ids where unplanned tasks needs to be shown on selected date
+    logger.debug("getReportTasks(): ", {distinctReleaseIDs: releaseIDs})
+
+    // Get releases by ids
+
+    let releaseNames = await MDL.ReleaseModel.getReleasesByIDs(releaseIDs, {
+        project: 1,
+        name: 1,
+        _id: 1
+    })
+
     if (iterationType == SC.ITERATION_TYPE_PLANNED) {
         // In this iteration type, user would be able to report tasks that have tasks plans planned on chosen date
         let criteria = {
@@ -2869,47 +2914,54 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
             }))
         })
         let releases = await Promise.all(promises)
-        return releases
+
+        return {
+            reportReleases: releases,
+            activeReleases: releaseNames
+        }
+
     } else if (iterationType == SC.ITERATION_TYPE_UNPLANNED) {
         // In this iteration type employee would be able to report all the unplanned release plan added against a release
-        let criteria = {
-            'release.iteration.iterationType': SC.ITERATION_TYPE_UNPLANNED
-        }
+        // Unplanned task would only be shown for dev date range of unplanned iteration
+
+        let releasePlans = undefined
+
 
         if (releaseID && releaseID.toLowerCase() !== SC.ALL) {
-            // report tasks of a specific release is requested
-            criteria['release._id'] = mongoose.Types.ObjectId(releaseID)
+            releasePlans = await MDL.ReleasePlanModel.find({
+                "release._id": releaseID,
+                'release.iteration.iterationType': SC.ITERATION_TYPE_UNPLANNED
+            })
+        } else {
+            releasePlans = await MDL.ReleasePlanModel.find({
+                "release._id": {$in: releaseIDs},
+                'release.iteration.iterationType': SC.ITERATION_TYPE_UNPLANNED
+            })
         }
 
-        let releasePlans = await MDL.ReleasePlanModel.find(criteria)
-
         let releasePlanPromises = _.map(releasePlans, (rp) => {
-
             return MDL.TaskPlanningModel.findOne({
                 'releasePlan._id': rp._id,
                 'employee._id': mongoose.Types.ObjectId(user._id),
                 'planningDate': U.dateInUTC(dateString)
             }).then(tp => {
-
-                let taskPlan = {}
-                taskPlan._id = rp._id
-                taskPlan.release = rp.release
-                taskPlan.releasePlan = {
-                    _id: rp._id
-                }
-                taskPlan.task = rp.task
-                if (tp) {
-                    taskPlan.report = {
-                        reportedHours: tp.report.reportedHours,
-                        description: tp.report.description
+                if (!tp) {
+                    tp = {}
+                    tp._id = rp._id // release plan id is used while reporting task plan
+                    tp.release = rp.release
+                    tp.releasePlan = {
+                        _id: rp._id
                     }
-                } else {
-                    taskPlan.report = {
+                    tp.task = rp.task
+                    tp.report = {
                         reportedHours: 0,
                         description: ''
                     }
+                } else {
+                    tp._id = rp._id
                 }
-                return taskPlan
+
+                return tp
             })
         })
 
@@ -2934,7 +2986,12 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
             }))
         })
         let releases = await Promise.all(promises)
-        return releases
+
+        return {
+            reportReleases: releases,
+            activeReleases: releaseNames
+        }
+
     } else {
         console.log("returning empty array")
         return {}

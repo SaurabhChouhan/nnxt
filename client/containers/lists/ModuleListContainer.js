@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (json.success) {
             NotificationManager.success('Module Removed Successfully')
         } else {
-            NotificationManager.error('Module Not removed!')
+            NotificationManager.error(json.message)
             throw new SubmissionError({modules: "Module Removal Failed"})
         }
     }),

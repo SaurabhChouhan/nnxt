@@ -40,7 +40,7 @@ appHomePageRouter.get('*', async ctx => {
     )
 
 
-    return ctx.render("home", {
+    return ctx.render("index", {
         html: '',
         preloadedState: JSON.stringify(initialState).replace(/</g, '\\u003c')
     })

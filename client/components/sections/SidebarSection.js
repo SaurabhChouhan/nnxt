@@ -54,7 +54,7 @@ const SidebarSection = (props) => {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
                                 roles.indexOf(SC.ROLE_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_NON_PROJECT_DEVELOPER) > -1) &&
                             <li><Link to="/app-home/reporting" onClick={() => {
-                                props.dispatch(A.getUserReleasesFromServer(SC.ALL))
+                                //props.dispatch(A.getUserReleasesFromServer(SC.ALL))
                                 /*on reporting click by default all task plans and projects will be there with params
                                 releaseID,
                                  * @param releaseID - releaseId by default all release will be fetched

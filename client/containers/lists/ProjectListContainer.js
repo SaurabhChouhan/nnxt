@@ -6,9 +6,10 @@ import {initialize, SubmissionError} from "redux-form";
 import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showPorjectEditForm: (project) => {
+    showProjectEditForm: (project) => {
         dispatch(A.showComponent(COC.PROJECT_FORM_DIALOG)),
-        dispatch(initialize('project', project))},
+            dispatch(initialize('project', project))
+    },
     showProjectCreationForm: () => {
         dispatch(A.showComponent(COC.PROJECT_FORM_DIALOG))
     },
@@ -16,11 +17,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (json.success) {
             NotificationManager.success('Project Removed Successfully')
         } else {
-            NotificationManager.error('Project Not removed!')
+            NotificationManager.error(json.message)
             throw new SubmissionError({projects: "Project Removal Failed"})
         }
-    }),
-
+    })
 })
 
 const mapStateToProps = (state, ownProps) => {

@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         if (json.success) {
             NotificationManager.success('Client Removed Successfully')
         } else {
-            NotificationManager.error('Client Not removed!')
+            NotificationManager.error(json.message)
             throw new SubmissionError({client: "Client Removal Failed"})
         }
     }),

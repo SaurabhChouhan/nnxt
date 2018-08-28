@@ -154,7 +154,9 @@ const dashboardReducer = (state = initialState, action) => {
                 mgmtData: {
                     ran: Math.random(),
                     plannedAfter: action.mgmtData.plannedAfterAvg,
+                    plannedAfterCount: action.mgmtData.plannedAfterCount,
                     plannedBefore: -action.mgmtData.plannedBeforeAvg,
+                    plannedBeforeCount: action.mgmtData.plannedBeforeCount,
                     reportedAfter: action.mgmtData.reportedAfterAvg,
                     plannedHoursLastMinuteLeave: action.mgmtData.plannedHoursLastMinuteLeave,
                     plannedHoursOnLeave: action.mgmtData.plannedHoursOnLeave - action.mgmtData.plannedHoursLastMinuteLeave

@@ -19,7 +19,7 @@ let UpdateReleaseDatesForm = (props) => {
     let endMoment = moment(updatedDevEndDate, SC.DATE_FORMAT)
     let clientMoment = moment(updatedClientReleaseDate, SC.DATE_FORMAT)
 
-    let iterations = release.iterations.filter(i => i.type === SC.ITERATION_TYPE_ESTIMATED || i.type === SC.ITERATION_TYPE_PLANNED)
+    let iterations = release.iterations
 
     return <form onSubmit={handleSubmit}>
 
