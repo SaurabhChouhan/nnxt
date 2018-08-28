@@ -32,7 +32,10 @@ export const generateUnreportedWarnings = async (event, data) => {
     })
 
     if (tasks && tasks.length) {
+        logger.debug("Found ["+tasks.length+'] unreported tasks for moment ', {moment})
         await processTasks(tasks)
+    } else {
+        logger.debug("No unreported tasks found for moment ", {moment})
     }
 
     logger.debug("generate unreported warnings executed ", {event})
