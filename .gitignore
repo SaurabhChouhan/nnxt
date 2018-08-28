@@ -9,3 +9,5 @@ server/public/js/bundle.js
 server/public/js/bundle.js.gz
 combined.log
 dbDmp
+server/public/js/
+server/views/index.mustache
