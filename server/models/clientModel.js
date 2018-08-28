@@ -46,17 +46,14 @@ clientSchema.statics.deleteClient = async (id) => {
     let client = await ClientModel.findById(id)
     let response = undefined
 
-    let clientCount = await MDL.EstimationModel.count({
-        'client._id': client._id,
-        'isDeleted': false
-    }) || await MDL.ProjectModel.count({
+    let projectCount = await MDL.ProjectModel.count({
         'client._id': client._id,
         'isDeleted': false
     })
 
 
-    if (clientCount > 0) {
-        throw new AppError(' this client is available in estimation/project ', EC.CLIENT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+    if (projectCount > 0) {
+        throw new AppError('Cannot remove client, it is associated with projects.', EC.CLIENT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
     }
 
     if (client.canHardDelete) {
