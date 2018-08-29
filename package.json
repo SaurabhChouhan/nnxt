@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "cross-env BABEL_ENV=server NODE_ENV=development nodemon --ignore '*.log'  --verbose ./server/server.js --exec babel-node",
+    "start": "cross-env BABEL_ENV=server NODE_ENV=development nodemon --ignore '*.*'  --verbose ./server/server.js --exec babel-node",
     "start.prod": "cross-env BABEL_ENV=server NODE_ENV=production nodemon --verbose ./server/server.js --exec babel-node",
     "start.khushboo": "cross-env BABEL_ENV=server NODE_ENV=khushboo nodemon ./server/server.js --exec babel-node",
     "start.kamlesh": "cross-env BABEL_ENV=server NODE_ENV=kamlesh nodemon ./server/server.js --exec babel-node",

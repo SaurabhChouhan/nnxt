@@ -14,11 +14,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             values.estimatedBilledHours = parseInt(values.estimatedBilledHours)
             dispatch(A.releasePlanPlannedAddToReleaseOnServer(values)).then(json => {
                 if (json.success) {
-                    NotificationManager.success("Added  Planned To ReleasePlan")
+                    NotificationManager.success("Release Plan Added")
+                    dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
+                    dispatch(A.getReleaseFromServer(values.release._id))
                     // hide dialog
                     dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
                 }
-                dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
+
             })
         }
         else {

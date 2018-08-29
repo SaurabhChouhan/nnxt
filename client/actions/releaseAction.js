@@ -102,9 +102,9 @@ export const addTaskPlannings = (taskPlannings) => ({
     type: AC.ADD_TASK_PLANNINGS,
     taskPlannings: taskPlannings
 })
-export const updateReleaseDates = (releaseDates) => ({
+export const updateReleaseDates = (release) => ({
     type: AC.UPDATE_RELEASE_DATES,
-    releaseDates: releaseDates
+    release
 })
 
 export const selectIteration = (iteration) => ({
