@@ -22,6 +22,12 @@ export const editProject = (project) => ({
     project: project
 })
 
+export const updateProject = (projectID) => ({
+
+    type: AC.UPDATE_PROJECT,
+    projectID: projectID
+})
+
 export const getAllProjectsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/projects', {
@@ -162,6 +168,33 @@ export const editProjectOnServer = (project) => {
                     dispatch(editProject(json.data))
                 }
                 return json
+        })
+    }
+}
+
+
+export const toggleIsActive = (projectID) => {
+    console.log("projectID",projectID)
+    return function (dispatch, getState) {
+        return fetch('/api/projects/' + projectID ,
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'ap plication/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+            if (json.success) {
+                dispatch(updateProject(json.data))
+                // clear user form after update is successful
+            }
+            return json
         })
     }
 }

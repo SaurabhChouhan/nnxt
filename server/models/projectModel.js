@@ -73,7 +73,6 @@ projectSchema.statics.saveProject = async projectInput => {
         throw new AppError("No such client", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     projectInput.client = client
-    projectInput.client.isActive = true
     return await ProjectModel.create(projectInput)
 }
 
@@ -126,6 +125,17 @@ projectSchema.statics.editProject = async projectInput => {
         project.client = client
         return await project.save()
     }
+}
+
+
+projectSchema.statics.isActiveProject = async (id) => {
+    let project = await ProjectModel.findById(id)
+    if (!project) {
+        throw new AppError("project Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    project.isActive = !project.isActive
+    return await project.save()
+
 }
 
 const ProjectModel = mongoose.model('Project', projectSchema)

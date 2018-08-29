@@ -21,9 +21,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             throw new SubmissionError({projects: "Project Removal Failed"})
         }
     }),
-    showIsActive: (projectID,value) => {
+    toggleIsActive: (projectID) => {
 console.log("projectID",projectID)
-        dispatch(A.showIsActive(projectID,value))
+        dispatch(A.toggleIsActive(projectID))
     },
 })
 

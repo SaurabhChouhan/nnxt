@@ -67,7 +67,7 @@ class ProjectList extends Component {
 
                               })
                               console.log("row",row)
-                               this.props.showIsActive(row._id,value)
+                               this.props.toggleIsActive(row._id)
                           }}
 
             />
