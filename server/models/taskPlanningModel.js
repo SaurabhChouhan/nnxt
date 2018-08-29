@@ -1424,8 +1424,8 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     let devStartMoment = moment(devStartDate)
     let devEndMoment = moment(devEndDate)
 
-    if(devStartMoment.isValid() && devEndMoment.isValid()){
-        if(devStartMoment.isAfter(rePlanningDateUtc) || devEndMoment.isBefore(rePlanningDateUtc))
+    if (devStartMoment.isValid() && devEndMoment.isValid()) {
+        if (devStartMoment.isAfter(rePlanningDateUtc) || devEndMoment.isBefore(rePlanningDateUtc))
             throw new AppError("Cannot move task plan out of its development dates", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     } else {
         throw new AppError('Invalid start/end date, please check with system administrator. ', EC.DATA_INCONSISTENT, EC.SERVER_ERROR)
@@ -3090,8 +3090,9 @@ taskPlanningSchema.statics.getDataReportTaskDetailPage = async (taskPlanID, user
     let taskPlans = await TaskPlanningModel.find({
         'releasePlan._id': releasePlan._id,
         'employee._id': taskPlan.employee._id
-    })
-
+    }).sort({
+        planningDate: 1
+    }).exec()
 
     return {
         estimationDescription: estimationDescription.description,
