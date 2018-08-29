@@ -24,8 +24,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({
-    initial: state.release.selectedRelease.iterations[0]
+const mapStateToProps = (state) => ({
+    selectedIteration: state.release.selectedRelease.iterations[state.release.selectedIteration.idx]
 })
 
 

@@ -17,6 +17,7 @@ let initialState = {
     fromSchedule: nowString,
     schedules: [],
     employeeSetting: {},
+    selectedIteration: undefined,
     from: nowString,
     selectedTab: SC.RELEASE_DASHBOARD_TAB,
     taskPlansOfReleasePlanDeveloper: []
@@ -233,6 +234,10 @@ const releaseReducer = (state = initialState, action) => {
         case AC.RELEASE_TAB_SELECTED:
             return Object.assign({}, state, {
                 selectedTab: action.tab
+            })
+        case AC.ITERATION_SELECTED:
+            return Object.assign({}, state, {
+                selectedIteration: action.iteration
             })
         default:
             return state
