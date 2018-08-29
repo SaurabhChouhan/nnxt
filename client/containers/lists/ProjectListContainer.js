@@ -20,7 +20,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error(json.message)
             throw new SubmissionError({projects: "Project Removal Failed"})
         }
-    })
+    }),
+    showIsActive: (projectID,value) => {
+console.log("projectID",projectID)
+        dispatch(A.showIsActive(projectID,value))
+    },
 })
 
 const mapStateToProps = (state, ownProps) => {
