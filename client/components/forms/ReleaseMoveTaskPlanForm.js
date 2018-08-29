@@ -16,7 +16,7 @@ let ReleaseMoveTaskPlanForm = (props) => {
     const devEndDateMoment = moment(initial.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
 
 
-    const min = devStartDateMoment.isSameOrAfter(todayMoment) ? devStartDateMoment.toDate() : todayMoment.toDate()
+    const min = devStartDateMoment.toDate()
     const max = devEndDateMoment.toDate()
     return <form onSubmit={handleSubmit}>
         <div className="row">
@@ -33,26 +33,28 @@ let ReleaseMoveTaskPlanForm = (props) => {
 
                 <Field name="planningDateString"
                        placeholder={"Date"}
-                       component={renderDateTimeStringShow}
+                       component={renderDateTimePickerString}
+                       readOnly={true}
                        showTime={false}
                        min={min}
                        max={max}
-                       formate={SC.DATE_AND_DAY_SHOW_FORMAT}
-                       label={"Planning Date : "}
+                       formate={SC.DATE_DISPLAY_FORMAT}
+                       label={"Current Date:"}
+                       validate={[required]}
+                       read
+                />
+
+
+                <Field name="rePlanningDate"
+                       placeholder={"Date"}
+                       component={renderDateTimePickerString}
+                       showTime={false}
+                       min={min}
+                       max={max}
+                       label={"Move to Date :"}
                        validate={[required]}
                 />
 
-                <div className="col-md-8">
-                    <Field name="rePlanningDate"
-                           placeholder={"Date"}
-                           component={renderDateTimePickerString}
-                           showTime={false}
-                           min={min}
-                           max={max}
-                           label={"Move to Date :"}
-                           validate={[required]}
-                    />
-                </div>
 
                 {/*<Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>
