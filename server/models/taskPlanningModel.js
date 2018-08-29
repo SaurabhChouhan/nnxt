@@ -2302,17 +2302,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         // add 1 day to reach midnight of next day
         //planningMomentInIndia.add(1, 'days')
         if (moment().isBefore(planningMomentInIndia) && mode == SC.MODE_PRODUCTION)
-            throw new AppError('Cannot report future task plans', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
-
-        /*
-        // This is first time reporting, only past or today's task plan can be reported
-        let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
-        let reportedDate = U.momentInTimeZone(reportInput.reportedDate, SC.INDIAN_TIMEZONE)
-
-        if (todaysDateInIndia.isAfter(rePlanningDateInIndia)) {
-            throw new AppError('Can not move before todays date', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-        }
-        */
+            throw new AppError('Reporting tasks planned in future is not allowed', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
 
     }
 
@@ -2552,7 +2542,7 @@ const addTaskReportUnplannedUpdateRelease = async (taskPlan, releasePlan, releas
     return release
 }
 
-const addTaskReportUnplanned = async (reportInput, employee) => {
+const addTaskReportUnplanned = async (reportInput, employee, mode) => {
     /**
      * In 'unplanned' task reporting there would not be any corresponding task plan as case with 'planned' tasks,
      * rather it would have only release plan.
@@ -2609,6 +2599,14 @@ const addTaskReportUnplanned = async (reportInput, employee) => {
         if (twoHoursFromReportedOnDate.isBefore(new Date())) {
             throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
         }
+    } else {
+        // Employee cannot report task planned in future
+        let planningMomentInIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
+        // add 1 day to reach midnight of next day
+        //planningMomentInIndia.add(1, 'days')
+        if (moment().isBefore(planningMomentInIndia) && mode == SC.MODE_PRODUCTION)
+            throw new AppError('Reporting tasks in future dates is not allowed.', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
+
     }
 
     if (!reReport)
