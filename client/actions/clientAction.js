@@ -1,4 +1,5 @@
 import * as AC from "./actionConsts"
+import {updateProject} from "./projectAction";
 
 
 export const addClient = (client) => ({
@@ -18,6 +19,12 @@ export const editClient = (client) => ({
     type: AC.UPDATE_CLIENT,
     client: client
 })
+
+export const updateClient = (clientID) => ({
+    type: AC.UPDATE_TOGGLE_CLIENT,
+    clientID: clientID
+})
+
 
 
 export const getAllClientsFromServer = () => {
@@ -118,3 +125,29 @@ export const editClientOnServer = (client) => {
     }
 }
 
+
+export const toggleClientIsActive = (clientID) => {
+    console.log("clientID",clientID)
+    return function (dispatch, getState) {
+        return fetch('/api/clients/' + clientID ,
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+            if (json.success) {
+                dispatch(updateClient(json.data))
+                // clear user form after update is successful
+            }
+            return json
+        })
+    }
+}

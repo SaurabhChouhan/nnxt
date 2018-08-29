@@ -19,6 +19,9 @@ const clientReducer = (state = initialState, action) => {
 
         case AC.UPDATE_CLIENT:
             return Object.assign({}, state, {all: state.all.map(item => item._id == action.client._id ? action.client : item)})
+        case AC.UPDATE_TOGGLE_CLIENT:
+            return Object.assign({}, state, {selected: action.clientID})
+
         default:
             return state
     }

@@ -42,6 +42,7 @@ export const ADD_CLIENTS = "ADD_CLIENTS"
 export const ADD_CLIENT = "ADD_CLIENT"
 export const UPDATE_CLIENT = "UPDATE_CLIENT"
 export const DELETE_CLIENT = "DELETE_CLIENT"
+export const UPDATE_TOGGLE_CLIENT = "UPDATE_TOGGLE_CLIENT"
 
 
 //ESTIMATION CONSTANTS
@@ -75,6 +76,7 @@ export const ADD_PROJECTS = "ADD_PROJECTS"
 export const ADD_PROJECT = "ADD_PROJECT"
 export const EDIT_PROJECT = "EDIT_PROJECT"
 export const DELETE_PROJECT = "DELETE_PROJECT"
+export const UPDATE_PROJECT = "UPDATE_PROJECT"
 
 //module constants
 export const ADD_MODULES = "ADD_MODULES"

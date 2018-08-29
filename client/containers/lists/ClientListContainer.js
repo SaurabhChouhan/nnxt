@@ -23,6 +23,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             throw new SubmissionError({client: "Client Removal Failed"})
         }
     }),
+    toggleIsActive: (clientID) => {
+        console.log("clientID",clientID)
+        dispatch(A.toggleClientIsActive(clientID))
+    },
+
 
 })
 
