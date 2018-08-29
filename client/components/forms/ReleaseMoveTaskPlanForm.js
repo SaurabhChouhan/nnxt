@@ -12,10 +12,9 @@ let ReleaseMoveTaskPlanForm = (props) => {
     const {handleSubmit, submitting, pristine, reset, selectedIteration} = props
     const devStartDateMoment = moment(selectedIteration.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
     const devEndDateMoment = moment(selectedIteration.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
-
-
     const min = devStartDateMoment.toDate()
     const max = devEndDateMoment.toDate()
+
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-10">

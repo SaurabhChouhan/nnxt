@@ -1421,20 +1421,27 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
 
     logger.debug("moveTask() ", {devStartDate, devEndDate})
 
+    let devStartMoment = moment(devStartDate)
+    let devEndMoment = moment(devEndDate)
+
+    if(devStartMoment.isValid() && devEndMoment.isValid()){
+        if(devStartMoment.isAfter(rePlanningDateUtc) || devEndMoment.isBefore(rePlanningDateUtc))
+            throw new AppError("Cannot move task plan out of its development dates", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    } else {
+        throw new AppError('Invalid start/end date, please check with system administrator. ', EC.DATA_INCONSISTENT, EC.SERVER_ERROR)
+    }
+
+    /*
     if (todaysDateInIndia.isAfter(rePlanningDateInIndia)) {
         throw new AppError('Can not move before todays date', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
+    */
 
     let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
     if (!taskPlan) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
     let taskPlanningDateInIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
-
-    // Tasks of past dates cannot be merged
-    if (taskPlanningDateInIndia.isBefore(todaysDateInIndia)) {
-        throw new AppError('Cannot move past tasks', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
-    }
 
     if (taskPlanningDateInIndia.isSame(rePlanningDateInIndia))
         throw new AppError('Cannot move to same date', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
