@@ -29,7 +29,7 @@ clientRouter.put('/', async ctx => {
 
 
 clientRouter.put('/:id', async ctx => {
-    return await MDL.ClientModel.isActiveProject(ctx.params.id)
+    return await MDL.ClientModel.isActiveClient(ctx.params.id)
 })
 
 export default clientRouter
