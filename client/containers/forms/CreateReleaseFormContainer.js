@@ -42,7 +42,9 @@ const mapStateToProps = (state) => {
         team,
         managers,
         leaders,
-        projects: state.project.all,
+        projects: state.project.all && Array.isArray(state.project.all) && state.project.all.length ? state.project.all.filter(project =>
+            project.isActive === true
+        ) : [],
         technologies: state.technology.all,
         developmentTypes: state.developmentType.all,
         modules: state.module.all

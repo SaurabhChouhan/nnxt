@@ -17,6 +17,7 @@ let initialState = {
     fromSchedule: nowString,
     schedules: [],
     employeeSetting: {},
+    selectedIteration: undefined,
     from: nowString,
     selectedTab: SC.RELEASE_DASHBOARD_TAB,
     taskPlansOfReleasePlanDeveloper: []
@@ -226,13 +227,31 @@ const releaseReducer = (state = initialState, action) => {
                 taskPlans: action.taskPlannings
             })
         case AC.UPDATE_RELEASE_DATES:
+
+            let rls = action.release
+            let itrs = rls.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
+            let stats = {
+                sumPlannedHours: 0,
+                sumEstimatedHours: 0
+            }
+
+            itrs.forEach(p => {
+                stats.sumPlannedHours += p.plannedHours
+                stats.sumEstimatedHours += p.estimatedHours
+            })
+
+            rls.plannedStats = stats
             // update release dates details
             return Object.assign({}, state, {
-                selectedRelease: action.releaseDates
+                selectedRelease: rls
             })
         case AC.RELEASE_TAB_SELECTED:
             return Object.assign({}, state, {
                 selectedTab: action.tab
+            })
+        case AC.ITERATION_SELECTED:
+            return Object.assign({}, state, {
+                selectedIteration: action.iteration
             })
         default:
             return state

@@ -22,6 +22,12 @@ export const editProject = (project) => ({
     project: project
 })
 
+export const updateProject = (project) => ({
+
+    type: AC.UPDATE_PROJECT,
+    project: project
+})
+
 export const getAllProjectsFromServer = () => {
     return (dispatch, getState) => {
         return fetch('/api/projects', {
@@ -86,7 +92,6 @@ export const getAllProjectsUserEstimationsFromServer = () => {
 }
 
 
-
 export const addProjectOnServer = (formInput) => {
     return function (dispatch, getState) {
         return fetch('/api/projects',
@@ -104,12 +109,12 @@ export const addProjectOnServer = (formInput) => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
-                    dispatch(addProject(json.data))
+            if (json.success) {
+                dispatch(addProject(json.data))
 
 
-                }
-                return json
+            }
+            return json
         })
     }
 }
@@ -131,11 +136,11 @@ export const deleteProjectOnServer = (projectID) => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
-                    dispatch(deleteProject(projectID))
-                    // clear user form after update is successful
-                }
-                return json
+            if (json.success) {
+                dispatch(deleteProject(projectID))
+                // clear user form after update is successful
+            }
+            return json
         })
     }
 }
@@ -158,10 +163,37 @@ export const editProjectOnServer = (project) => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
-                    dispatch(editProject(json.data))
+            if (json.success) {
+                dispatch(editProject(json.data))
+            }
+            return json
+        })
+    }
+}
+
+
+export const toggleIsActive = (projectID) => {
+    console.log("projectID", projectID)
+    return function (dispatch, getState) {
+        return fetch('/api/projects/' + projectID,
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'ap plication/json'
                 }
-                return json
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+            if (json.success) {
+                dispatch(updateProject(json.data))
+                // clear user form after update is successful
+            }
+            return json
         })
     }
 }

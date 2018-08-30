@@ -102,10 +102,16 @@ export const addTaskPlannings = (taskPlannings) => ({
     type: AC.ADD_TASK_PLANNINGS,
     taskPlannings: taskPlannings
 })
-export const updateReleaseDates = (releaseDates) => ({
+export const updateReleaseDates = (release) => ({
     type: AC.UPDATE_RELEASE_DATES,
-    releaseDates: releaseDates
+    release
 })
+
+export const selectIteration = (iteration) => ({
+    type: AC.ITERATION_SELECTED,
+    iteration
+})
+
 
 export const getAllReleasesFromServer = (status) => {
     return (dispatch, getState) => {
@@ -128,7 +134,6 @@ export const getAllReleasesFromServer = (status) => {
             })
     }
 }
-
 
 export const getAllAvailableReleasesFromServer = () => {
     return (dispatch, getState) => {
@@ -647,4 +652,28 @@ export const createReleaseOnServer = (formInput) => {
             })
     }
 }
+
+export const getIterationDatesReleasePlansFromServer = (releasePlanId) => {
+    return (dispatch) => {
+        return fetch('/api/releases/release-plan/' + releasePlanId + '/iteration-data', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    if (json.data && json.data.release && json.data.release.iteration)
+                        dispatch(selectIteration(json.data.release.iteration))
+                }
+                return json
+            })
+    }
+}
+
 

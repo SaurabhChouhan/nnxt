@@ -10,7 +10,6 @@ const processTasks = async (tasks) => {
     for (const task of tasks) {
         logger.debug("Adding unreported warning against task plan [" + task.task.name + "]")
         let warningResponse = await MDL.WarningModel.addUnreported(task)
-        logger.debug("generateUnreportedWarnings(): ", {warningResponse})
         await MDL.TaskPlanningModel.updateFlags(warningResponse)
     }
 }
@@ -23,6 +22,8 @@ export const generateUnreportedWarnings = async (event, data) => {
     let moment = momentTZ.tz(SC.INDIAN_TIMEZONE).startOf('day')
 
     moment = U.sameMomentInUTC(moment.toDate())
+
+    logger.debug("generateUnreportedWarnings(): ", {moment})
     // Since task plannings are placed in UTC we need to convert it to UTC
 
     // Find out all the task plans which are left unreported in past dates
@@ -38,8 +39,6 @@ export const generateUnreportedWarnings = async (event, data) => {
         logger.debug("No unreported tasks found for moment ", {moment})
     }
 
-    logger.debug("generate unreported warnings executed ", {event})
-
     await event.eventExecutionSuccessful()
     return true
 }
@@ -52,10 +51,11 @@ export const generateUnreportedWarnings = async (event, data) => {
 export const processEvents = async events => {
     let now = new Date()
     for (const e of events) {
-        // Need to see if this event is indeed need to be execute by by comparing current date/time with time parsed using timezone
+        // Need to see if this event needs to be executed or not based pon current date/time in timezone
         let eventMoment = momentTZ.tz(e.execution.dateString, e.execution.format, e.execution.timeZone)
+        logger.debug("processEvents() ", {eventMoment})
         if (eventMoment.isBefore(now)) {
-            logger.debug("[======= " + e.method + " =========] is eligible to be executed now")
+            logger.info("[======= " + e.method + " =========] is eligible to be executed now")
             // iterate on date array and create object from that
             let data = {}
             if (e.data && e.data.length) {
@@ -66,11 +66,9 @@ export const processEvents = async events => {
             try {
                 await H[e.method](e, data)
                 // event execution successful
-                logger.debug("[======= " + e.method + " =========] execution completed")
-                //await e.eventExecutionSuccessful()
             } catch (e) {
                 console.log(e)
-                logger.debug("[======= " + e.method + " =========] execution failed!")
+                logger.info("[======= " + e.method + " =========] execution failed!")
             }
         } else {
             logger.debug("Event with method [" + e.method + "] is not eligible to be executed now")
@@ -80,13 +78,16 @@ export const processEvents = async events => {
 }
 
 export const executeEvents = async () => {
+    // adding 5 hours 31 minutes would ensure that all events that are added for India do get selected
     let now = momentTZ.utc().add(5, 'h').add(31, 'm')
+    logger.debug("Checking events that are expired on ", {now})
+
     let events = await MDL.EventModel.find({
         "execution.dateInUTC": {$lt: now.toDate()},
         status: SC.EVENT_SCHEDULED
     })
 
-    // Mark all this events as running to prevent them from picked by other process
+    // Mark all this events as running to prevent them from picking by other process
     MDL.EventModel.update({
         "execution.dateInUTC": {$lt: now.toDate()},
         status: SC.EVENT_SCHEDULED

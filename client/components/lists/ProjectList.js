@@ -3,6 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
 import * as CM from "../../clientMsg"
+import ToggleButton from 'react-toggle-button'
 
 class ProjectList extends Component {
 
@@ -10,7 +11,8 @@ class ProjectList extends Component {
         super(props)
         this.state = {
             showProjectDeletionDialog: false,
-            addRow: null
+            addRow: null,
+            value: true
 
 
         }
@@ -50,6 +52,31 @@ class ProjectList extends Component {
 
         )
     }
+
+
+    viewToggleButton(cell, row, enumObject, rowIndex) {
+        return (
+            <span>
+            <ToggleButton className=" hoverTooltip"
+                          value={row.isActive || false}
+
+                          onToggle={(value) => {
+                              console.log("hello", value)
+                              this.setState({
+                                  value: !value,
+
+                              })
+                              console.log("row", row)
+                              this.props.toggleIsActive(row._id)
+                          }}
+
+            />
+
+</span>
+
+        )
+    }
+
 
     formatClient(client) {
         if (client)
@@ -91,6 +118,10 @@ class ProjectList extends Component {
                                         </TableHeaderColumn>
                                         <TableHeaderColumn width="15%" dataField='deleteButton'
                                                            dataFormat={this.viewDeleteButton.bind(this)}>Delete project
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn width="15%" dataField='toggleButton'
+                                                           dataFormat={this.viewToggleButton.bind(this)}>Active/Inactive
+                                            project
                                         </TableHeaderColumn>
 
                                     </BootstrapTable>

@@ -1,6 +1,7 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
 import * as V from "../validation"
+import projectRouter from "./project-router";
 
 
 let clientRouter = new Router({
@@ -26,5 +27,9 @@ clientRouter.put('/', async ctx => {
     return await MDL.ClientModel.editClient(ctx.request.body)
 })
 
+
+clientRouter.put('/:id', async ctx => {
+    return await MDL.ClientModel.isActiveClient(ctx.params.id)
+})
 
 export default clientRouter

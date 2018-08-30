@@ -4,7 +4,7 @@ const config = {
             port: 3000,
             setupData: false,
             dropDatabase: false,
-            mode: 'development'
+            mode: 'production'
         },
         development: {
             port: 3000,

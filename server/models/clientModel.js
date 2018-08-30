@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
 import * as MDL from "./index";
+import ProjectModel from "./projectModel";
 
 mongoose.Promise = global.Promise
 
@@ -76,6 +77,17 @@ clientSchema.statics.editClient = async clientInput => {
 
     client.name = clientInput.name
 
+    return await client.save()
+
+}
+
+
+clientSchema.statics.isActiveClient = async (id) => {
+    let client = await ClientModel.findById(id)
+    if (!client) {
+        throw new AppError("client Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+    client.isActive = !client.isActive
     return await client.save()
 
 }

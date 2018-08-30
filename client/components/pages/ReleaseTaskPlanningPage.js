@@ -48,14 +48,6 @@ class ReleaseTaskPlanningPage extends Component {
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        /*
-            let now = new Date()
-            let nowMomentString = moment(now).format(SC.DATE_FORMAT)
-            let nowMoment = moment(nowMomentString)
-            let planningMoment = moment(row.planningDateString)
-            if (planningMoment.isBefore(nowMoment))
-                return '' // planning date is over cannot delete now
-                */
         if (row.report.reportedOnDate)
             return '' // task is already report cannot delete now
         else return (<button className=" pull-left btn btn-custom" type="button"
@@ -89,6 +81,16 @@ class ReleaseTaskPlanningPage extends Component {
 
     }
 
+    moveCellButton(cell, row) {
+        if (row.report.reportedOnDate)
+            return '' // task is already report cannot delete now
+        else return (<button className=" pull-left btn btn-custom" type="button"
+                             onClick={() => {
+                                 this.props.openMoveTaskPlanForm(row, this.props.workCalendarEmployeeID)
+                             }}>
+            <i className="fa fa-cut"></i>
+        </button>)
+    }
 
     actionCellButton(cell, row) {
         if (row && row.canMove)
@@ -300,33 +302,39 @@ class ReleaseTaskPlanningPage extends Component {
                                 <TableHeaderColumn columnTitle isKey dataField='_id'
                                                    hidden={true}>ID</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planningDateString'
-                                                   width={"15%"}
+                                                   width={"10%"}
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
                                                    width={"10%"}
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>Planned
+                                                   dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"center"}>Planned
                                     Hours</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
                                                    dataFormat={this.formatDeveloper.bind(this)}
-                                                   width={"20%"}>Developer</TableHeaderColumn>
+                                                   width={"18%"}>Developer</TableHeaderColumn>
                                 <TableHeaderColumn dataField='flags'
                                                    dataFormat={this.formatFlags.bind(this)} width={"18%"}>Flags
                                 </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReport.bind(this)} width={"13%"}>Status
+                                                   dataFormat={this.formatReport.bind(this)} width={"14%"} dataAlign={"center"}>Status
                                 </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle={"Delete Task"} width="8%" dataField='button'
-                                                   dataFormat={this.deleteCellButton.bind(this)}><i
+                                <TableHeaderColumn columnTitle={"Delete Task"} width="7%" dataField='button'
+                                                   dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}><i
                                     className="fa fa-trash"></i>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle={"Edit Task"} width="8%" dataField='button'
-                                                   dataFormat={this.editCellButton.bind(this)}><i
+                                <TableHeaderColumn columnTitle={"Edit Task"} width="7%" dataField='button'
+                                                   dataFormat={this.editCellButton.bind(this)} dataAlign={"center"}><i
                                     className="fa fa-pencil"></i>
                                 </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle={"Reopen Task"} width="8%" dataField='button'
-                                                   dataFormat={this.reopenCellButton.bind(this)}><i
+                                <TableHeaderColumn columnTitle={"Move"} width="9%" dataField='button'
+                                                   dataFormat={this.moveCellButton.bind(this)} dataAlign={"center"}><i
+                                    className="fa fa-cut"></i>
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle={"Reopen Task"} width="7%" dataField='button'
+                                                   dataFormat={this.reopenCellButton.bind(this)} dataAlign={"center"}><i
                                     className="fa fa-unlock"></i>
                                 </TableHeaderColumn>
+
+
                             </BootstrapTable>
                             {
                                 this.state && this.state.showTaskDeleteConfirmationDialog &&

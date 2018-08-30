@@ -45,11 +45,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.reopenTaskPlanOnServer(task._id))
 
     },
-    openMoveTaskPlanForm: (releasePlan, workCalendarEmployeeID) => {
-        releasePlan.workCalendarEmployeeID = workCalendarEmployeeID
-        dispatch(initialize("move-task-planning", releasePlan))
-        dispatch(A.showComponent(COC.MOVE_TASK_PLAN_DIALOG))
-
+    openMoveTaskPlanForm: (taskPlan, workCalendarEmployeeID) => {
+        taskPlan.workCalendarEmployeeID = workCalendarEmployeeID
+        dispatch(A.getIterationDatesReleasePlansFromServer(taskPlan.releasePlan._id)).then(()=>{
+            dispatch(initialize("move-task-planning", taskPlan))
+            dispatch(A.showComponent(COC.MOVE_TASK_PLAN_DIALOG))
+        })
     },
     planTaskFilter: (taskPlanFilter) => dispatch(A.addTaskPlanningFiltersOnServer(taskPlanFilter)).then(json => {
         if (json.success) {

@@ -3,6 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
 import * as CM from "../../clientMsg"
+import ToggleButton from "react-toggle-button";
 
 class ClientList extends Component {
 
@@ -10,7 +11,8 @@ class ClientList extends Component {
         super(props)
         this.state = {
             showClientDeletionDialog: false,
-            addRow: null
+            addRow: null,
+            value: true
         }
 
     }
@@ -50,6 +52,25 @@ class ClientList extends Component {
         )
     }
 
+
+    viewToggleButton(cell, row, enumObject, rowIndex) {
+        return (
+            <ToggleButton className=" hoverTooltip"
+                          value={row.isActive || false}
+                            onToggle={(value) => {
+                              console.log("hello", value)
+                              this.setState({
+                                  value: !value,
+                              })
+                              console.log("row", row)
+                              this.props.toggleIsActive(row._id)
+                          }}
+
+            />
+        )
+    }
+
+
     render() {
         return (
             <div>{this.state.showClientDeletionDialog &&
@@ -82,7 +103,10 @@ class ClientList extends Component {
                                         <TableHeaderColumn width="15%" dataField='deleteButton'
                                                            dataFormat={this.viewDeleteButton.bind(this)}>Delete Client
                                         </TableHeaderColumn>
-
+                                        <TableHeaderColumn width="15%" dataField='toggleButton'
+                                                           dataFormat={this.viewToggleButton.bind(this)}>Active/Inactive
+                                            Client
+                                        </TableHeaderColumn>
                                     </BootstrapTable>
                                 </div>
 

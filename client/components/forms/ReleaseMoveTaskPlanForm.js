@@ -9,15 +9,12 @@ import * as SC from '../../../server/serverconstants'
 moment.locale('en')
 momentLocalizer()
 let ReleaseMoveTaskPlanForm = (props) => {
-    const {change, team, handleSubmit, submitting, pristine, reset, initial, workCalendarEmployeeID} = props
-    const today = new Date()
-    const todayMoment = moment(today).hour(0).minute(0).second(0).milliseconds(0)
-    const devStartDateMoment = moment(initial.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
-    const devEndDateMoment = moment(initial.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
-
-
-    const min = devStartDateMoment.isSameOrAfter(todayMoment) ? devStartDateMoment.toDate() : todayMoment.toDate()
+    const {handleSubmit, submitting, pristine, reset, selectedIteration} = props
+    const devStartDateMoment = moment(selectedIteration.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
+    const devEndDateMoment = moment(selectedIteration.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
+    const min = devStartDateMoment.toDate()
     const max = devEndDateMoment.toDate()
+
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-10">
@@ -33,26 +30,28 @@ let ReleaseMoveTaskPlanForm = (props) => {
 
                 <Field name="planningDateString"
                        placeholder={"Date"}
-                       component={renderDateTimeStringShow}
+                       component={renderDateTimePickerString}
+                       readOnly={true}
                        showTime={false}
                        min={min}
                        max={max}
-                       formate={SC.DATE_AND_DAY_SHOW_FORMAT}
-                       label={"Planning Date : "}
+                       formate={SC.DATE_DISPLAY_FORMAT}
+                       label={"Current Date:"}
+                       validate={[required]}
+                       read
+                />
+
+
+                <Field name="rePlanningDate"
+                       placeholder={"Date"}
+                       component={renderDateTimePickerString}
+                       showTime={false}
+                       min={min}
+                       max={max}
+                       label={"Move to Date :"}
                        validate={[required]}
                 />
 
-                <div className="col-md-8">
-                    <Field name="rePlanningDate"
-                           placeholder={"Date"}
-                           component={renderDateTimePickerString}
-                           showTime={false}
-                           min={min}
-                           max={max}
-                           label={"Move to Date :"}
-                           validate={[required]}
-                    />
-                </div>
 
                 {/*<Field name="planning.plannedHours" placeholder={"Enter Hours"} component={renderText}
                        label={"Estimated Hours:"} validate={[required, number]}/>

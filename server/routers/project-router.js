@@ -38,4 +38,9 @@ projectRouter.delete("/:id", async ctx => {
 projectRouter.put('/', async ctx => {
     return await MDL.ProjectModel.editProject(ctx.request.body)
 })
+
+projectRouter.put('/:id', async ctx => {
+    return await MDL.ProjectModel.isActiveProject(ctx.params.id)
+})
+
 export default projectRouter
