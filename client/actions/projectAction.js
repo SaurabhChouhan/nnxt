@@ -22,10 +22,10 @@ export const editProject = (project) => ({
     project: project
 })
 
-export const updateProject = (projectID) => ({
+export const updateProject = (project) => ({
 
     type: AC.UPDATE_PROJECT,
-    projectID: projectID
+    project: project
 })
 
 export const getAllProjectsFromServer = () => {
@@ -92,7 +92,6 @@ export const getAllProjectsUserEstimationsFromServer = () => {
 }
 
 
-
 export const addProjectOnServer = (formInput) => {
     return function (dispatch, getState) {
         return fetch('/api/projects',
@@ -110,12 +109,12 @@ export const addProjectOnServer = (formInput) => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
-                    dispatch(addProject(json.data))
+            if (json.success) {
+                dispatch(addProject(json.data))
 
 
-                }
-                return json
+            }
+            return json
         })
     }
 }
@@ -137,11 +136,11 @@ export const deleteProjectOnServer = (projectID) => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
-                    dispatch(deleteProject(projectID))
-                    // clear user form after update is successful
-                }
-                return json
+            if (json.success) {
+                dispatch(deleteProject(projectID))
+                // clear user form after update is successful
+            }
+            return json
         })
     }
 }
@@ -164,19 +163,19 @@ export const editProjectOnServer = (project) => {
                 return response.json()
             }
         ).then(json => {
-                if (json.success) {
-                    dispatch(editProject(json.data))
-                }
-                return json
+            if (json.success) {
+                dispatch(editProject(json.data))
+            }
+            return json
         })
     }
 }
 
 
 export const toggleIsActive = (projectID) => {
-    console.log("projectID",projectID)
+    console.log("projectID", projectID)
     return function (dispatch, getState) {
-        return fetch('/api/projects/' + projectID ,
+        return fetch('/api/projects/' + projectID,
             {
                 method: "put",
                 credentials: "include",

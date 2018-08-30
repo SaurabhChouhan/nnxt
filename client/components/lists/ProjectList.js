@@ -58,7 +58,7 @@ class ProjectList extends Component {
         return (
             <span>
             <ToggleButton className=" hoverTooltip"
-                          value={this.state.value || false}
+                          value={row.isActive || false}
 
                           onToggle={(value) => {
                               console.log("hello", value)
@@ -66,8 +66,8 @@ class ProjectList extends Component {
                                   value: !value,
 
                               })
-                              console.log("row",row)
-                               this.props.toggleIsActive(row._id)
+                              console.log("row", row)
+                              this.props.toggleIsActive(row._id)
                           }}
 
             />

@@ -82,7 +82,7 @@ clientSchema.statics.editClient = async clientInput => {
 }
 
 
-clientSchema.statics.isActiveProject = async (id) => {
+clientSchema.statics.isActiveClient = async (id) => {
     let client = await ClientModel.findById(id)
     if (!client) {
         throw new AppError("client Not Found", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)

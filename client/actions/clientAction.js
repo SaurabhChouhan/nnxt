@@ -20,9 +20,9 @@ export const editClient = (client) => ({
     client: client
 })
 
-export const updateClient = (clientID) => ({
+export const updateClient = (client) => ({
     type: AC.UPDATE_TOGGLE_CLIENT,
-    clientID: clientID
+    client: client
 })
 
 

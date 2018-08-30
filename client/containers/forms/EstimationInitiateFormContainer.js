@@ -38,7 +38,9 @@ const mapStateToProps = (state, ownProps) => ({
     estimators: state.user.all && Array.isArray(state.user.all) && state.user.all.length ? state.user.all.filter(user =>
         state.user && state.user.loggedIn && state.user.loggedIn._id && user._id.toString() !== state.user.loggedIn._id.toString() && user.roles && user.roles.length ? user.roles.findIndex(r => r.name === SC.ROLE_ESTIMATOR) != -1 : false
     ) : [],
-    projects: state.project.all,
+    projects: state.project.all && Array.isArray(state.project.all) && state.project.all.length ? state.project.all.filter(project =>
+        project.isActive === true
+    ) : [],
     technologies: state.technology.all,
     developmentTypes: state.developmentType.all,
     modules: state.module.all

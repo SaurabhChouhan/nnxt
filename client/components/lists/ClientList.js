@@ -55,24 +55,18 @@ class ClientList extends Component {
 
     viewToggleButton(cell, row, enumObject, rowIndex) {
         return (
-            <span>
             <ToggleButton className=" hoverTooltip"
-                          value={this.state.value || false}
-
-                          onToggle={(value) => {
+                          value={row.isActive || false}
+                            onToggle={(value) => {
                               console.log("hello", value)
                               this.setState({
                                   value: !value,
-
                               })
                               console.log("row", row)
                               this.props.toggleIsActive(row._id)
                           }}
 
             />
-
-</span>
-
         )
     }
 
