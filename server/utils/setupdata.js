@@ -667,7 +667,7 @@ const addLeaveTypes = async () => {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Casual leave (CL)',
             description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calendar year.\n' +
-            'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
+                'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
         })
     }
     let les = await MDL.LeaveTypeModel.findOne({name: 'Leave for Emergency Services (LES)'})
@@ -689,8 +689,8 @@ const addLeaveTypes = async () => {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Annual Leave (AL)',
             description: 'Employees in full-time positions of a continuing or permanent nature shall be entitled to accumulate annual leave as follows:\n' +
-            '\n' +
-            'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
+                '\n' +
+                'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
         })
     }
 }
@@ -959,14 +959,32 @@ const addEvents = async () => {
 
 const addUnreportedWarningEvent = async () => {
     // Setting up to run every night 1:00 am in india from today
-    let m = momentTZ()
-    let date = new Date(m.year(), m.month(), m.date(), 1, 0)
+    let m = momentTZ.tz(SC.INDIAN_TIMEZONE)
+    m.startOf('day')
+    m.hour(1)
+
+    // Unreported warning would be checked at 5:00 PM  and 1:00 AM every day
 
     await MDL.EventModel.addRecurEvent({
         method: 'generateUnreportedWarnings',
-        date: date,
-        minDate: undefined,
-        maxDate: undefined,
+        executionMoment: m,
+        minMoment: undefined,
+        maxMoment: undefined,
+        timeZone: SC.INDIAN_TIMEZONE,
+        format: SC.DATE_TIME_24HOUR_FORMAT,
+        increment: 1,
+        incrementUnit: SC.MOMENT_DAYS
+    })
+
+    let m1 = momentTZ.tz(SC.INDIAN_TIMEZONE)
+    m1.startOf('day')
+    m1.hour(17)
+
+    await MDL.EventModel.addRecurEvent({
+        method: 'generateUnreportedWarnings',
+        executionMoment: m1,
+        minMoment: undefined,
+        maxMoment: undefined,
         timeZone: SC.INDIAN_TIMEZONE,
         format: SC.DATE_TIME_24HOUR_FORMAT,
         increment: 1,

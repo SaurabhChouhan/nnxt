@@ -92,6 +92,15 @@ export const sameMomentInUTC = (d) => {
     return moment.utc().startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }
 
+export const momentInUTCFromMoment = (m) => {
+    return moment.utc().startOf('day').minute(m.minute()).hour(m.hour()).date(m.date()).month(m.month()).year(m.year())
+}
+
+export const momentInTZFromUTCMoment = (m, timeZone) => {
+    let m1 = m.clone().utc()
+    return moment.tz(timeZone).startOf('day').minute(m1.minute()).hour(m1.hour()).date(m1.date()).month(m1.month()).year(m1.year())
+}
+
 export const sameMomentInTimezone = (d, timeZone) => {
     console.log("d.getMinutes() ", d.getMinutes())
     console.log("d.getHours() ", d.getHours())
