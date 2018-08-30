@@ -1426,7 +1426,7 @@ const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
 
 const moveTaskUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
 
-    let {rePlanningDateMoment, existingPlanningMoment} = extra
+    let {rePlanningDateMoment, existingPlanningMoment, selectedEmployee} = extra
 
     if (existingPlanningMoment.isSame(releasePlan.planning.minPlanningDate)) {
         logger.debug("moveTaskUpdateReleasePlan(): existing planning moment is same as min planning date")
@@ -1461,7 +1461,7 @@ const moveTaskUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
 
             if (results && results.length > 0) {
                 // Check to see if replanning moment is before this minimum date, then replanning moment becomes minimum
-                logger.debug("moveTaskUpdateReleasePlan(): new min date is ", {newMinDate:results[0].minPlanningDate})
+                logger.debug("moveTaskUpdateReleasePlan(): new min date is ", {newMinDate: results[0].minPlanningDate})
                 if (rePlanningDateMoment.isBefore(results[0].minPlanningDate))
                     releasePlan.planning.minPlanningDate = rePlanningDateMoment.toDate()
                 else
@@ -1502,7 +1502,7 @@ const moveTaskUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
                 })
 
             if (results && results.length > 0) {
-                logger.debug("moveTaskUpdateReleasePlan(): new max date is ", {newMaxDate:results[0].maxPlanningDate})
+                logger.debug("moveTaskUpdateReleasePlan(): new max date is ", {newMaxDate: results[0].maxPlanningDate})
                 if (rePlanningDateMoment.isAfter(results[0].maxPlanningDate))
                     releasePlan.planning.maxPlanningDate = rePlanningDateMoment.toDate()
                 else
@@ -1526,7 +1526,122 @@ const moveTaskUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
         releasePlan.planning.minPlanningDate = rePlanningDateMoment.toDate()
     }
 
+    // Update employee planning data
+    let employeePlanningIdx = -1
+    if (releasePlan.planning.employees) {
+        employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+            return e._id.toString() == selectedEmployee._id.toString()
+        })
+    }
 
+    if (employeePlanningIdx == -1) {
+        throw new AppError("Employee planning index should not be -1 here", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    let employeeMinPlanningDate = releasePlan.planning.employees[employeePlanningIdx].minPlanningDate
+    let employeeMaxPlanningDate = releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate
+
+    if (existingPlanningMoment.isSame(employeeMinPlanningDate)) {
+        logger.debug("moveTaskUpdateReleasePlan(): existing planning moment is same as min planning date")
+
+        // task at minimum date is moved, if it is moved after existing date there is possibility that minimum date changes if there are no
+        // other tasks remaining on minimum date due to movement of this task
+        let otherTaskCount = await MDL.TaskPlanningModel.count({
+            'planningDate': existingPlanningMoment.toDate(),
+            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(selectedEmployee._id)
+        })
+
+        if (otherTaskCount == 0) {
+            logger.debug("moveTaskUpdateReleasePlan(): other min planning task count is 0")
+
+            let results = await MDL.TaskPlanningModel.aggregate(
+                {
+                    $match: {
+                        'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                        '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id)
+                    }
+                },
+                {
+                    $group: {
+                        '_id': 'taskPlanning.releasePlan._id',
+                        'minPlanningDate': {
+                            '$min': '$planningDate'
+                        }
+                    }
+                }
+            )
+
+            if (results && results.length > 0) {
+                // Check to see if replanning moment is before this minimum date, then replanning moment becomes minimum
+                logger.debug("moveTaskUpdateReleasePlan(): new min date is ", {newMinDate: results[0].minPlanningDate})
+                if (rePlanningDateMoment.isBefore(results[0].minPlanningDate))
+                    releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = rePlanningDateMoment.toDate()
+                else
+                    releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = results[0].minPlanningDate
+            } else {
+                // there is no remaining task so this new moment becomes max planning date
+                logger.debug("moveTaskUpdateReleasePlan(): only single task plan min date is changed to replanning moment")
+                releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = rePlanningDateMoment.toDate()
+            }
+        }
+    }
+
+    if (existingPlanningMoment.isSame(employeeMaxPlanningDate)) {
+        logger.debug("moveTaskUpdateReleasePlan(): existing planning moment is same as max planning date")
+        // task at maximum date is moved, if it is moved before existing date there is possibility that maximum date changes if there are no
+        // other tasks remaining on minimum date due to movement of this task
+        let otherTaskCount = await MDL.TaskPlanningModel.count({
+            'planningDate': existingPlanningMoment.toDate(),
+            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+            'employee._id': mongoose.Types.ObjectId(selectedEmployee._id)
+        })
+
+
+        if (otherTaskCount == 0) {
+            logger.debug("moveTaskUpdateReleasePlan(): other max planning task count is 0")
+            let results = await MDL.TaskPlanningModel.aggregate(
+                {
+                    $match: {
+                        'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                        '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+                        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id)
+                    }
+                },
+                {
+                    $group: {
+                        '_id': 'taskPlanning.releasePlan._id',
+                        'maxPlanningDate': {'$max': '$planningDate'}
+                    }
+                })
+
+            if (results && results.length > 0) {
+                logger.debug("moveTaskUpdateReleasePlan(): new max date is ", {newMaxDate: results[0].maxPlanningDate})
+                if (rePlanningDateMoment.isAfter(results[0].maxPlanningDate))
+                    releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = rePlanningDateMoment.toDate()
+                else
+                    releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = results[0].maxPlanningDate
+            } else {
+                // there is no remaining task so this new moment becomes max planning date
+                logger.debug("moveTaskUpdateReleasePlan(): only single task plan max date is changed to replanning moment")
+                releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = rePlanningDateMoment.toDate()
+            }
+        }
+    }
+
+    if (rePlanningDateMoment.isAfter(employeeMaxPlanningDate)) {
+        // Replanning date is more then existing max planning date, max date would change
+        logger.debug("moveTaskUpdateReleasePlan(): replanning date is after max planning date")
+        releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = rePlanningDateMoment.toDate()
+    }
+
+    if (rePlanningDateMoment.isBefore(employeeMinPlanningDate)) {
+        logger.debug("moveTaskUpdateReleasePlan(): replanning date is before")
+        releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = rePlanningDateMoment.toDate()
+    }
     return releasePlan
 }
 /**
@@ -1611,7 +1726,8 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
 
     releasePlan = await moveTaskUpdateReleasePlan(taskPlan, releasePlan, {
         rePlanningDateMoment,
-        existingPlanningMoment
+        existingPlanningMoment,
+        selectedEmployee
     })
 
     let generatedWarnings = await MDL.WarningModel.taskMoved(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
