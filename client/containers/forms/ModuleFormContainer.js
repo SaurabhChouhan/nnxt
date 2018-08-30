@@ -41,7 +41,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     clients: state.client.all,
-    projects: state.project.all,
+    projects: state.project.all && Array.isArray(state.project.all) && state.project.all.length ? state.project.all.filter(project =>
+        project.isActive === true
+    ) : [],
 
 })
 
