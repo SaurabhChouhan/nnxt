@@ -16,7 +16,7 @@ let projectReducer = (state = initialState, action) => {
         case AC.DELETE_PROJECT:
             return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.projectID)})
         case AC.UPDATE_PROJECT:
-            return Object.assign({}, state, {selected: action.projectID})
+            return Object.assign({}, state, {all: state.all.map(item => item._id == action.project._id ? action.project : item)})
 
         default:
             return state
