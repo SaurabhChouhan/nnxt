@@ -1872,6 +1872,90 @@ const shiftTasksUpdateEmployeeDays = async (affectedMoments, employee) => {
     return result
 }
 
+const shiftTasksUpdateReleasePlanDates = async (releasePlanDates) => {
+    for (const releasePlanDate of releasePlanDates) {
+        await MDL.ReleasePlanModel.update({_id: mongoose.Types.ObjectId(releasePlanDate._id)}, {
+            $set: {
+                "planning.minPlanningDate": releasePlanDate.minPlanningDate,
+                "planning.maxPlanningDate": releasePlanDate.maxPlanningDate
+            }
+        })
+    }
+}
+
+const shiftTasksUpdateReleasePlanEmployeeDates = async (releasePlanDates, employee) => {
+    for (const releasePlanDate of releasePlanDates) {
+        let releasePlan = await MDL.ReleasePlanModel.findById(releasePlanDate._id)
+        let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+            return e._id.toString() === employee._id.toString()
+        })
+
+        if (employeePlanningIdx > -1) {
+            releasePlan.planning.employees[employeePlanningIdx].minPlanningDate = releasePlanDate.minPlanningDate
+            releasePlan.planning.employees[employeePlanningIdx].maxPlanningDate = releasePlanDate.maxPlanningDate
+            await releasePlan.save()
+        }
+    }
+}
+
+const shiftTasksUpdateReleasePlans = async (affectedMoments, employee) => {
+    // Due to task shifting min/max dates of release plans of shifted task plans would be affected, along with employee min/max do that change
+
+    // We would find out all distinct release plans whose task plans have been affected
+    // as affected moments are in ascending order first date would be minimum and last date would be maximum
+
+    let releasePlanIDs = await MDL.TaskPlanningModel.distinct("releasePlan._id", {
+        $and: [
+            {planningDate: {$gte: affectedMoments[0].toDate()}},
+            {planningDate: {$lte: affectedMoments[affectedMoments.length - 1].toDate()}},
+            {"employee._id": employee._id}
+        ]
+    })
+
+    logger.debug("shiftTasksUpdateReleasePlans(): ", {releasePlanIDs})
+
+    // Above release plans are the ones that are affected due to release, update min/max planning dates
+
+    let releasePlans = await MDL.ReleasePlanModel.getReleasePlansByIDs(releasePlanIDs)
+
+    let releasePlanDates = await MDL.TaskPlanningModel.aggregate(
+        {
+            $match: {
+                'releasePlan._id': {$in: releasePlanIDs}
+            }
+        },
+        {
+            $group: {
+                '_id': '$releasePlan._id',
+                'maxPlanningDate': {'$max': '$planningDate'},
+                'minPlanningDate': {'$min': '$planningDate'}
+            }
+        })
+
+    logger.debug("shiftTasksUpdateReleasePlans() ", {releasePlanDates})
+
+    let releasePlanEmployeeDates = await MDL.TaskPlanningModel.aggregate(
+        {
+            $match: {
+                'releasePlan._id': {$in: releasePlanIDs},
+                'employee._id': employee._id
+            }
+        },
+        {
+            $group: {
+                '_id': "$releasePlan._id",
+                'maxPlanningDate': {'$max': '$planningDate'},
+                'minPlanningDate': {'$min': '$planningDate'}
+            }
+        })
+
+    logger.debug("shiftTasksUpdateReleasePlans() ", {releasePlanEmployeeDates})
+    await shiftTasksUpdateReleasePlanDates(releasePlanDates)
+    await shiftTasksUpdateReleasePlanEmployeeDates(releasePlanEmployeeDates, employee)
+
+    return releasePlans
+}
+
 
 const getFutureShiftDates = async (shiftInput, shiftingStartMoment, employee, release) => {
 
@@ -1967,7 +2051,6 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
         return V.generateSchema(V.releaseTaskPlanningShiftStruct)
 
     V.validate(shiftInput, V.releaseTaskPlanningShiftStruct)
-
 
     let employee = await MDL.UserModel.findById(mongoose.Types.ObjectId(shiftInput.employeeId))
     if (!employee)
@@ -2069,6 +2152,9 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
         await MDL.TaskPlanningModel.update({'release._id': release._id}, {$set: {'isShifted': false}}, {multi: true}).exec()
 
         let employeeDaysArray = await shiftTasksUpdateEmployeeDays(momentsToProcess, employee)
+        let releasePlans = await shiftTasksUpdateReleasePlans(momentsToProcess, employee)
+
+
         // Employee days have been updated and modified array of employee days would now be used to update warnings (
         logger.debug('shiftTasksToFuture() employee days ', {employeeDaysArray})
         return await shiftTasksUpdateWarnings(employeeDaysArray, momentsToProcess, release, employee)
@@ -2277,6 +2363,7 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
         logger.debug("shiftTasksToPase(): ", {momentsToProcess})
 
         let employeeDaysArray = await shiftTasksUpdateEmployeeDays(momentsToProcess, employee)
+        await shiftTasksUpdateReleasePlans(momentsToProcess, employee)
         logger.debug('shiftTasksToFuture() employee days ', {employeeDaysArray})
         return await shiftTasksUpdateWarnings(employeeDaysArray, momentsToProcess, release, employee)
     } else {
