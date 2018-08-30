@@ -17,6 +17,12 @@ const config = {
             dropDatabase: false,
             mode: 'production'
         },
+        setupData: {
+            port: 3000,
+            setupData: true,
+            dropDatabase: true,
+            mode: 'production'
+        },
         kamlesh: {
             port: 3002,
             setupData: false,
@@ -70,6 +76,11 @@ const config = {
             useMongoClient: true
         },
         production: {
+            dbname: 'nnxt',
+            url: 'mongodb://nnxtadmin:1nn0cu0us@localhost/nnxt',
+            useMongoClient: true
+        },
+        setupData: {
             dbname: 'nnxt',
             url: 'mongodb://nnxtadmin:1nn0cu0us@localhost/nnxt',
             useMongoClient: true
