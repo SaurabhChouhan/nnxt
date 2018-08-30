@@ -1386,8 +1386,149 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
 }
 /*-------------------------------------------------DELETE_TASK_PLANNING_SECTION_END----------------------------------------------------------*/
 
-/*-------------------------------------------------MERGE_TASK_PLANNING_SECTION_START----------------------------------------------------------*/
+/*-------------------------------------------------MOVE TASK PLAN----------------------------------------------------------*/
 
+const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
+
+    const {rePlanningDateUtc, selectedEmployee, plannedHourNumber} = extra
+
+    // Employee days of existing date and merged date would be modified
+
+    let existingDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
+        'date': taskPlan.planningDate
+    })
+
+    let rePlannedDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
+        'date': rePlanningDateUtc
+    })
+
+    if (existingDateEmployeeDays) {
+        // Total hours would be reduced
+        existingDateEmployeeDays.plannedHours -= plannedHourNumber
+    } else {
+        throw new AppError('There should be an employee days entry for task that is merged', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    if (rePlannedDateEmployeeDays) {
+        rePlannedDateEmployeeDays.plannedHours += plannedHourNumber
+    } else {
+        // create employee days as not exists
+        rePlannedDateEmployeeDays = new MDL.EmployeeDaysModel()
+        rePlannedDateEmployeeDays.date = rePlanningDateUtc
+        rePlannedDateEmployeeDays.dateString = U.formatDateInUTC(rePlanningDateUtc)
+        rePlannedDateEmployeeDays.employee = taskPlan.employee
+        rePlannedDateEmployeeDays.plannedHours = plannedHourNumber
+    }
+    return {existingDateEmployeeDays, rePlannedDateEmployeeDays}
+}
+
+const moveTaskUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
+
+    let {rePlanningDateMoment, existingPlanningMoment} = extra
+
+    if (existingPlanningMoment.isSame(releasePlan.planning.minPlanningDate)) {
+        logger.debug("moveTaskUpdateReleasePlan(): existing planning moment is same as min planning date")
+
+        // task at minimum date is moved, if it is moved after existing date there is possibility that minimum date changes if there are no
+        // other tasks remaining on minimum date due to movement of this task
+        let otherTaskCount = await MDL.TaskPlanningModel.count({
+            'planningDate': existingPlanningMoment.toDate(),
+            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
+        })
+
+        if (otherTaskCount == 0) {
+            logger.debug("moveTaskUpdateReleasePlan(): other min planning task count is 0")
+
+            let results = await MDL.TaskPlanningModel.aggregate(
+                {
+                    $match: {
+                        'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                        '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
+                    }
+                },
+                {
+                    $group: {
+                        '_id': 'taskPlanning.releasePlan._id',
+                        'minPlanningDate': {
+                            '$min': '$planningDate'
+                        }
+                    }
+                }
+            )
+
+            if (results && results.length > 0) {
+                // Check to see if replanning moment is before this minimum date, then replanning moment becomes minimum
+                logger.debug("moveTaskUpdateReleasePlan(): new min date is ", {newMinDate:results[0].minPlanningDate})
+                if (rePlanningDateMoment.isBefore(results[0].minPlanningDate))
+                    releasePlan.planning.minPlanningDate = rePlanningDateMoment.toDate()
+                else
+                    releasePlan.planning.minPlanningDate = results[0].minPlanningDate
+            } else {
+                // there is no remaining task so this new moment becomes max planning date
+                logger.debug("moveTaskUpdateReleasePlan(): only single task plan min date is changed to replanning moment")
+                releasePlan.planning.minPlanningDate = rePlanningDateMoment.toDate()
+            }
+        }
+    }
+
+    if (existingPlanningMoment.isSame(releasePlan.planning.maxPlanningDate)) {
+        logger.debug("moveTaskUpdateReleasePlan(): existing planning moment is same as max planning date")
+        // task at maximum date is moved, if it is moved before existing date there is possibility that maximum date changes if there are no
+        // other tasks remaining on minimum date due to movement of this task
+        let otherTaskCount = await MDL.TaskPlanningModel.count({
+            'planningDate': existingPlanningMoment.toDate(),
+            '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)},
+            'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id)
+        })
+
+
+        if (otherTaskCount == 0) {
+            logger.debug("moveTaskUpdateReleasePlan(): other max planning task count is 0")
+            let results = await MDL.TaskPlanningModel.aggregate(
+                {
+                    $match: {
+                        'releasePlan._id': mongoose.Types.ObjectId(taskPlan.releasePlan._id),
+                        '_id': {$ne: mongoose.Types.ObjectId(taskPlan._id)}
+                    }
+                },
+                {
+                    $group: {
+                        '_id': 'taskPlanning.releasePlan._id',
+                        'maxPlanningDate': {'$max': '$planningDate'}
+                    }
+                })
+
+            if (results && results.length > 0) {
+                logger.debug("moveTaskUpdateReleasePlan(): new max date is ", {newMaxDate:results[0].maxPlanningDate})
+                if (rePlanningDateMoment.isAfter(results[0].maxPlanningDate))
+                    releasePlan.planning.maxPlanningDate = rePlanningDateMoment.toDate()
+                else
+                    releasePlan.planning.maxPlanningDate = results[0].maxPlanningDate
+            } else {
+                // there is no remaining task so this new moment becomes max planning date
+                logger.debug("moveTaskUpdateReleasePlan(): only single task plan max date is changed to replanning moment")
+                releasePlan.planning.maxPlanningDate = rePlanningDateMoment.toDate()
+            }
+        }
+    }
+
+    if (rePlanningDateMoment.isAfter(releasePlan.planning.maxPlanningDate)) {
+        // Replanning date is more then existing max planning date, max date would change
+        logger.debug("moveTaskUpdateReleasePlan(): replanning date is after max planning date")
+        releasePlan.planning.maxPlanningDate = rePlanningDateMoment.toDate()
+    }
+
+    if (rePlanningDateMoment.isBefore(releasePlan.planning.minPlanningDate)) {
+        logger.debug("moveTaskUpdateReleasePlan(): replanning date is before")
+        releasePlan.planning.minPlanningDate = rePlanningDateMoment.toDate()
+    }
+
+
+    return releasePlan
+}
 /**
  *  Move task plan to another date
  **/
@@ -1400,10 +1541,10 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     /* Conversion of now and dates into moment */
     let now = new Date()
 
-    let todaysDateInIndia = U.momentInTimeZone(U.formatDateInTimezone(new Date(), SC.INDIAN_TIMEZONE), SC.INDIAN_TIMEZONE)
     let rePlanningDateInIndia = U.momentInTimeZone(taskPlanningInput.rePlanningDate, SC.INDIAN_TIMEZONE)
 
     let rePlanningDateUtc = U.dateInUTC(taskPlanningInput.rePlanningDate)
+    let rePlanningDateMoment = U.momentInUTC(taskPlanningInput.rePlanningDate)
 
     let releasePlan = await MDL.ReleasePlanModel.findById(mongoose.Types.ObjectId(taskPlanningInput.releasePlan._id))
     if (!releasePlan) {
@@ -1431,12 +1572,6 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         throw new AppError('Invalid start/end date, please check with system administrator. ', EC.DATA_INCONSISTENT, EC.SERVER_ERROR)
     }
 
-    /*
-    if (todaysDateInIndia.isAfter(rePlanningDateInIndia)) {
-        throw new AppError('Can not move before todays date', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
-    }
-    */
-
     let taskPlan = await MDL.TaskPlanningModel.findById(mongoose.Types.ObjectId(taskPlanningInput._id))
     if (!taskPlan) {
         throw new AppError('Invalid task plan', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
@@ -1455,7 +1590,6 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -1466,44 +1600,26 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
 
     /******************************** EMPLOYEE DAYS UPDATE **************************************************/
 
-        // Employee days of existing date and merged date would be modified
 
-    let existingDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-            'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
-            'date': taskPlan.planningDate
-        })
-
-    let rePlannedDateEmployeeDays = await MDL.EmployeeDaysModel.findOne({
-        'employee._id': mongoose.Types.ObjectId(selectedEmployee._id),
-        'date': rePlanningDateUtc
+    let {existingDateEmployeeDays, rePlannedDateEmployeeDays} = await moveTaskUpdateEmployeeDays(taskPlan, releasePlan, {
+        rePlanningDateUtc,
+        selectedEmployee,
+        plannedHourNumber
     })
 
-    if (existingDateEmployeeDays) {
-        // Total hours would be reduced
-        existingDateEmployeeDays.plannedHours -= plannedHourNumber
-        await existingDateEmployeeDays.save()
-    } else {
-        throw new AppError('There should be an employee days entry for task that is merged', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
-    }
+    let existingPlanningMoment = moment(taskPlan.planningDate)
 
-    if (rePlannedDateEmployeeDays) {
-        rePlannedDateEmployeeDays.plannedHours += plannedHourNumber
-        await rePlannedDateEmployeeDays.save()
-    } else {
-        // create employee days as not exists
-        rePlannedDateEmployeeDays = new MDL.EmployeeDaysModel()
-        rePlannedDateEmployeeDays.date = rePlanningDateUtc
-        rePlannedDateEmployeeDays.dateString = U.formatDateInUTC(rePlanningDateUtc)
-        rePlannedDateEmployeeDays.employee = taskPlan.employee
-        rePlannedDateEmployeeDays.plannedHours = plannedHourNumber
-        await rePlannedDateEmployeeDays.save()
-    }
-
-    logger.debug("[ taskMoved ]:()=> UPDATED: existing date employee days ", {existingDateEmployeeDays})
-    logger.debug("[ taskMoved ]:()=>: UPDATED: rePlaning date employee days ", {rePlannedDateEmployeeDays})
+    releasePlan = await moveTaskUpdateReleasePlan(taskPlan, releasePlan, {
+        rePlanningDateMoment,
+        existingPlanningMoment
+    })
 
     let generatedWarnings = await MDL.WarningModel.taskMoved(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
     logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
+
+    await existingDateEmployeeDays.save()
+    await rePlannedDateEmployeeDays.save()
+    await releasePlan.save()
 
     // update flags
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
