@@ -4,7 +4,8 @@ const config = {
             port: 3000,
             setupData: false,
             dropDatabase: false,
-            mode: 'production'
+            mode: 'production',
+            eventInterval: 60000
         },
         development: {
             port: 3000,
@@ -15,7 +16,8 @@ const config = {
             port: 3000,
             setupData: false,
             dropDatabase: false,
-            mode: 'production'
+            mode: 'production',
+            eventInterval: 1800000
         },
         setupData: {
             port: 3000,

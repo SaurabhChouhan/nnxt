@@ -20,6 +20,7 @@ let taskPlanningSchema = mongoose.Schema({
         role: {type: String},
     },
     plannedOnDate: {type: Date, default: Date.now()},
+    updatedOnDate: {type: Date, default: Date.now()},
     planningDate: {type: Date},
     planningDateString: String,
     isShifted: {type: Boolean, default: false},
@@ -739,7 +740,7 @@ const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, 
 }
 
 const addTaskPlanUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePlan, release, employee, extra) => {
-    const {plannedHours, momentPlanningDateIndia, user} = extra
+    const {plannedHours, user} = extra
 
     let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
         'employee._id': mongoose.Types.ObjectId(user._id),
@@ -766,7 +767,7 @@ const addTaskPlanUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePl
     } else {
         employeeRelease.management.after.plannedHours += plannedHours
         employeeRelease.management.after.plannedCount += 1
-        employeeRelease.management.after.diffHours += -taskPlan.planning.plannedDiffHours
+        employeeRelease.management.after.diffHours += taskPlan.planning.plannedDiffHours
     }
 
     return employeeRelease
@@ -877,7 +878,6 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 
 
 const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
-
     let {
         selectedEmployee,
         plannedHourNumber,
@@ -896,17 +896,18 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
     taskPlan.employee = Object.assign({}, selectedEmployee.toObject(), {name: ((selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '') + (selectedEmployee.lastName ? selectedEmployee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
 
+    // Add 10 to get to 10am in India so that anything planned before that is considered as past
+    momentPlanningDateIndia = momentPlanningDateIndia.clone().add(10, 'hour')
+
     let diff = moment(taskPlan.plannedOnDate).diff(momentPlanningDateIndia, 'hours')
-
     logger.debug("addTaskPlanCreateTaskPlan() ", {diff})
-
     if (diff > 0) {
         // task is planned in past or for today
         taskPlan.planning.plannedFor = SC.PLANNED_FOR_PAST
         taskPlan.planning.plannedDiffHours = diff
     } else {
         taskPlan.planning.plannedFor = SC.PLANNED_FOR_FUTURE
-        taskPlan.planning.plannedDiffHours = diff
+        taskPlan.planning.plannedDiffHours = -diff
     }
 
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
@@ -1094,20 +1095,14 @@ const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePla
     if (!employeeRelease)
         throw new AppError('Employee release should have found on delete task plan. ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
-    let plannedOnDate = moment(taskPlan.plannedOnDate)
-    let momentPlanningDateIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
-
-    // See if task is planned before or after
-    let diff = plannedOnDate.diff(momentPlanningDateIndia, 'hours')
-    logger.debug("deleteTaskUpdateEmployeeReleaseLeaderManager() ", {plannedBeforeDiff: diff})
-    if (diff > 0) {
+    if (taskPlan.planning.plannedFor == SC.PLANNED_FOR_PAST) {
         employeeRelease.management.before.plannedHours -= taskPlan.planning.plannedHours
         employeeRelease.management.before.plannedCount -= 1
-        employeeRelease.management.before.diffHours -= diff
+        employeeRelease.management.before.diffHours -= taskPlan.planning.plannedDiffHours
     } else {
         employeeRelease.management.after.plannedHours -= taskPlan.planning.plannedHours
         employeeRelease.management.after.plannedCount -= 1
-        employeeRelease.management.after.diffHours -= -diff
+        employeeRelease.management.after.diffHours -= taskPlan.planning.plannedDiffHours
     }
     return employeeRelease
 }
@@ -1678,6 +1673,69 @@ const moveTaskUpdateReleasePlan = async (taskPlan, releasePlan, extra) => {
     }
     return releasePlan
 }
+
+const moveTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, release, leaderManager, oldPlannedFor) => {
+
+    let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
+        'employee._id': mongoose.Types.ObjectId(leaderManager._id),
+        'release._id': mongoose.Types.ObjectId(release._id)
+    })
+
+    if (!employeeRelease)
+        throw new AppError('Employee release should have found on move task plan. ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    // Remove entries of task plan old dates
+    if (oldPlannedFor.plannedFor == SC.PLANNED_FOR_PAST) {
+        employeeRelease.management.before.plannedCount -= 1
+        employeeRelease.management.before.diffHours -= oldPlannedFor.diffHours
+    } else {
+        employeeRelease.management.after.plannedCount -= 1
+        employeeRelease.management.after.diffHours -= oldPlannedFor.diffHours
+    }
+
+    // Add entries new task
+    if (taskPlan.planning.plannedFor == SC.PLANNED_FOR_PAST) {
+        employeeRelease.management.before.plannedCount += 1
+        employeeRelease.management.before.diffHours += taskPlan.planning.plannedDiffHours
+    } else {
+        employeeRelease.management.after.plannedCount += 1
+        employeeRelease.management.after.diffHours += taskPlan.planning.plannedDiffHours
+    }
+
+    return employeeRelease
+}
+
+const moveTaskUpdateTaskPlan = (taskPlan, extra) => {
+
+    let {rePlanningDateUtc, taskPlanningInput, rePlanningDateInIndia} = extra
+
+    // updated on date would contain new date
+    taskPlan.updatedOnDate = Date.now()
+
+    rePlanningDateInIndia = rePlanningDateInIndia.clone().add(10, 'hour')
+    let diff = moment(taskPlan.updatedOnDate).diff(rePlanningDateInIndia, 'hours')
+    logger.debug("addTaskPlanCreateTaskPlan() ", {diff})
+
+    let oldPlannedFor = {
+        plannedFor: taskPlan.planning.plannedFor,
+        diffHours: taskPlan.planning.plannedDiffHours
+    }
+
+    if (diff > 0) {
+        // task is planned in past or for today
+        taskPlan.planning.plannedFor = SC.PLANNED_FOR_PAST
+        taskPlan.planning.plannedDiffHours = diff
+
+    } else {
+        taskPlan.planning.plannedFor = SC.PLANNED_FOR_FUTURE
+        taskPlan.planning.plannedDiffHours = -diff
+    }
+    taskPlan.planningDate = rePlanningDateUtc
+    taskPlan.planningDateString = taskPlanningInput.rePlanningDate
+
+    return oldPlannedFor
+}
+
 /**
  *  Move task plan to another date
  **/
@@ -1767,16 +1825,25 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     let generatedWarnings = await MDL.WarningModel.taskMoved(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
     logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
 
-    await existingDateEmployeeDays.save()
-    await rePlannedDateEmployeeDays.save()
-    await releasePlan.save()
+    const oldPlannedFor = await moveTaskUpdateTaskPlan(taskPlan, {
+        rePlanningDateUtc,
+        taskPlanningInput,
+        rePlanningDateInIndia
+    })
+
+    const employeeReleaseLeaderManager = await moveTaskUpdateEmployeeReleaseLeaderManager(taskPlan, release, user, oldPlannedFor)
+
+    logger.debug("moveTask() ", {oldPlannedFor})
+    logger.debug("moveTask() ", {taskPlan})
 
     // update flags
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
-    taskPlan.plannedOnDate = Date.now()
-    taskPlan.planningDate = rePlanningDateUtc
-    taskPlan.planningDateString = taskPlanningInput.rePlanningDate
+    await employeeReleaseLeaderManager.save()
+    await existingDateEmployeeDays.save()
+    await rePlannedDateEmployeeDays.save()
+    await releasePlan.save()
     await taskPlan.save()
+
     taskPlan = taskPlan.toObject()
     taskPlan.canMove = true
     return {warnings: generatedWarnings, taskPlan: taskPlan, taskPlans: affectedTaskPlans}
