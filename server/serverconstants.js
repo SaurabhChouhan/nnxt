@@ -227,7 +227,8 @@ export const REASON_FESTIVAL = "festival"
 export const REPORT_UNREPORTED = "un-reported"
 export const REPORT_COMPLETED = "completed"
 export const REPORT_PENDING = "pending"
-
+export const PLANNED_FOR_PAST = "planned_for_past"
+export const PLANNED_FOR_FUTURE = "planned_for_future"
 
 // Date Formate and Time Zone
 export const DEFAULT_DATE_FORMAT = 'DD-MM-YYYY'

@@ -42,14 +42,19 @@ let taskPlanningSchema = mongoose.Schema({
     },
     employee: {
         _id: mongoose.Schema.ObjectId,
-        name: {type: String, required: [true, 'employee name is required']},
+        name: {type: String, required: [true, 'employee name is required']}
     },
     flags: [{
         type: String,
         enum: SC.ALL_WARNING_NAME_ARRAY
     }],
     planning: {
-        plannedHours: {type: Number, default: 0}
+        plannedHours: {type: Number, default: 0},
+        plannedFor: {
+            type: String,
+            enum: [SC.PLANNED_FOR_FUTURE, SC.PLANNED_FOR_PAST]
+        },
+        plannedDiffHours: {type: Number, default: 0}
     },
     report: {
         status: {
@@ -733,7 +738,7 @@ const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, 
     return employeeRelease
 }
 
-const addTaskPlanUpdateEmployeeReleaseLeaderManager = async (releasePlan, release, employee, extra) => {
+const addTaskPlanUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePlan, release, employee, extra) => {
     const {plannedHours, momentPlanningDateIndia, user} = extra
 
     let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
@@ -754,16 +759,14 @@ const addTaskPlanUpdateEmployeeReleaseLeaderManager = async (releasePlan, releas
         }
     }
     // See if task is planned before or after
-    let diff = moment().diff(momentPlanningDateIndia, 'hours')
-    logger.debug("addTaskPlanUpdateEmployeeRelease() ", {plannedBeforeDiff: diff})
-    if (diff > 0) {
+    if (taskPlan.planning.plannedFor == SC.PLANNED_FOR_PAST) {
         employeeRelease.management.before.plannedHours += plannedHours
         employeeRelease.management.before.plannedCount += 1
-        employeeRelease.management.before.diffHours += diff
+        employeeRelease.management.before.diffHours += taskPlan.planning.plannedDiffHours
     } else {
         employeeRelease.management.after.plannedHours += plannedHours
         employeeRelease.management.after.plannedCount += 1
-        employeeRelease.management.after.diffHours += -diff
+        employeeRelease.management.after.diffHours += -taskPlan.planning.plannedDiffHours
     }
 
     return employeeRelease
@@ -873,7 +876,16 @@ const addTaskPlanUpdateRelease = async (release, releasePlan, plannedHourNumber)
 }
 
 
-const addTaskPlanCreateTaskPlan = async (releasePlan, release, employee, plannedHourNumber, momentPlanningDate, taskPlanningInput) => {
+const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
+
+    let {
+        selectedEmployee,
+        plannedHourNumber,
+        momentPlanningDate,
+        taskPlanningInput,
+        momentPlanningDateIndia
+    } = extra
+
     let taskPlan = new TaskPlanningModel()
     taskPlan.plannedOnDate = Date.now()
     taskPlan.planningDate = momentPlanningDate
@@ -881,8 +893,22 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, employee, planned
     taskPlan.task = releasePlan.task
     taskPlan.release = release
     taskPlan.releasePlan = releasePlan
-    taskPlan.employee = Object.assign({}, employee.toObject(), {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
+    taskPlan.employee = Object.assign({}, selectedEmployee.toObject(), {name: ((selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '') + (selectedEmployee.lastName ? selectedEmployee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
+
+    let diff = moment(taskPlan.plannedOnDate).diff(momentPlanningDateIndia, 'hours')
+
+    logger.debug("addTaskPlanCreateTaskPlan() ", {diff})
+
+    if (diff > 0) {
+        // task is planned in past or for today
+        taskPlan.planning.plannedFor = SC.PLANNED_FOR_PAST
+        taskPlan.planning.plannedDiffHours = diff
+    } else {
+        taskPlan.planning.plannedFor = SC.PLANNED_FOR_FUTURE
+        taskPlan.planning.plannedDiffHours = diff
+    }
+
     taskPlan.description = taskPlanningInput.description ? taskPlanningInput.description : ''
     taskPlan.iterationType = releasePlan.release.iteration.iterationType
     taskPlan.report = {
@@ -995,11 +1021,6 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     // Save it here so that if employee is same as user who is adding task then employee release is found in next method
     await employeeRelease.save()
 
-    let employeeReleaseManagerLeader = await addTaskPlanUpdateEmployeeReleaseLeaderManager(releasePlan, release, selectedEmployee, {
-        plannedHours: plannedHourNumber,
-        momentPlanningDateIndia,
-        user
-    })
 
     // Get updated release/release plan objects
     /*-------------------------------- RELEASE PLAN UPDATE SECTION --------
@@ -1010,7 +1031,20 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     release = await addTaskPlanUpdateRelease(release, releasePlan, plannedHourNumber)
 
     /*-------------------------------- TASK PLAN CREATE SECTION -------------------------------------------*/
-    let taskPlan = await addTaskPlanCreateTaskPlan(releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, taskPlanningInput)
+    let taskPlan = await addTaskPlanCreateTaskPlan(releasePlan, release, {
+        selectedEmployee,
+        plannedHourNumber,
+        momentPlanningDate,
+        taskPlanningInput,
+        momentPlanningDateIndia
+    })
+
+    // This method is intentionally kept after create release plan as it used details added there
+    let employeeReleaseManagerLeader = await addTaskPlanUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, selectedEmployee, {
+        plannedHours: plannedHourNumber,
+        momentPlanningDateIndia,
+        user
+    })
 
     /*--------------------------------- WARNING UPDATE SECTION ---------------------------------------------*/
     let generatedWarnings = await MDL.WarningModel.taskAdded(taskPlan, releasePlan, release, selectedEmployee, plannedHourNumber, momentPlanningDate, releasePlan.planning.plannedTaskCounts == 1, plannedAfterMaxDate)
