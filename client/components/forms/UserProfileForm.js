@@ -20,13 +20,8 @@ class UserProfileForm extends Component {
         return <div className="col-md-8">
             <div className="col-md-12">
                 <div className="col-md-12 pad">
-
                     <div className="col-md-12">
-
-
                         <form key="userProfileForm" onSubmit={handleSubmit}>
-
-
                             {/*firstname lastName*/}
                             <div className="row">
 
@@ -44,7 +39,7 @@ class UserProfileForm extends Component {
                             <div className="row">
                                 <div className="col-md-6">
                                     <Field name="phone" label={"Phone No.:"} placeholder={"phone Name"}
-                                           component={renderText} validate={[required, number]}/>
+                                           component={renderText} validate={[number]}/>
                                 </div>
                                 <div className="col-md-6">
                                     <Field name="email" label={"Email :"} placeholder={"Email"}
@@ -57,7 +52,7 @@ class UserProfileForm extends Component {
                             <div className="row">
                                 <div className="col-md-6">
                                     <Field name="address" label={"Address :"} placeholder={"address"}
-                                           component={renderTextArea} validate={[required]}/>
+                                           component={renderTextArea} />
                                 </div>
 
                             </div>
@@ -86,7 +81,7 @@ class UserProfileForm extends Component {
                                     <Field name="dob" placeholder={"date of birth :"}
                                            component={renderDateTimePickerString}
                                            showTime={false}
-                                           label={"DOB :"} validate={[required]}/>
+                                           label={"DOB :"}/>
                                 </div>
 
                                 <div className="col-md-6">

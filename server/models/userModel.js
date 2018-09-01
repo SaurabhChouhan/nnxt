@@ -267,7 +267,7 @@ userSchema.statics.editUser = async userObj => {
     if (storedUser.email != userObj.email) {
         let count = await UserModel.count({_id: {'$ne': mongoose.Schema.ObjectId(userObj._id)}, 'email': userObj.email})
         if (count != 0) {
-            throw new AppError("Email already used ", EC.EMAIL_ALREADY_USED)
+            throw new AppError("Email is associated with other user!", EC.EMAIL_ALREADY_USED)
         }
     }
 

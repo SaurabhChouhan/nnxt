@@ -720,6 +720,8 @@ const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, 
         'release._id': mongoose.Types.ObjectId(release._id)
     })
 
+    logger.debug("addTaskPlanUpdateEmployeeRelease() ", {employeeRelease})
+
     if (!employeeRelease) {
         // employee release not exists create one
         employeeRelease = new MDL.EmployeeReleasesModel()
@@ -747,12 +749,14 @@ const addTaskPlanUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePl
         'release._id': mongoose.Types.ObjectId(release._id)
     })
 
+    logger.debug("addTaskPlanUpdateEmployeeReleaseLeaderManager() ", {employeeRelease})
+
     if (!employeeRelease) {
         // employee release not exists create one
         employeeRelease = new MDL.EmployeeReleasesModel()
         employeeRelease.employee = {
-            _id: mongoose.Types.ObjectId(employee._id),
-            name: employee.firstName + ' ' + employee.lastName
+            _id: mongoose.Types.ObjectId(user._id),
+            name: U.getFullName(user)
         }
         employeeRelease.release = {
             _id: mongoose.Types.ObjectId(release._id),
