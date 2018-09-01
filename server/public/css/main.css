@@ -2219,6 +2219,13 @@ hr {
     margin-top: 10px;
 }
 
+.warningSource span + span:before, .noWarningSource span + span:before {
+    content: " | ";
+}
+
+.warningSource .source {
+    color: red;
+}
 
 
 

@@ -3,6 +3,36 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 
+
+const ReleasePlanFormat = (props) => {
+    if (props.releasePlans && props.releasePlans.length > 0)
+        return props.releasePlans.map(releasePlan => {
+            if (releasePlan.task) {
+                if (releasePlan.source)
+                    return <span className={"source"}>{releasePlan.task.name}</span>
+                else
+                    return <span>{releasePlan.task.name}</span>
+            }
+        })
+    else
+        return ''
+}
+
+const ReleaseFormat = (props) => {
+    if (props.releases && props.releases.length > 0)
+        return props.releases.map(release => {
+            if (release.project) {
+                if (release.source)
+                    return <span className={"source"}>{release.project.name}</span>
+                else
+                    return <span>{release.project.name}</span>
+            }
+        })
+    else
+        return ''
+}
+
+
 class WarningList extends Component {
 
     constructor(props) {
@@ -25,7 +55,6 @@ class WarningList extends Component {
     componentDidMount() {
         this.props.getAllWarnings(this.props.release)
     }
-
 
     formatFlag(flag) {
         if (flag === SC.WARNING_UNPLANNED)
@@ -103,23 +132,20 @@ class WarningList extends Component {
             return <img className="div-hover releasePlanFlagImg" key={"employee-ask-for-leave"}
                         src="/images/employee-ask-for-leave.png"
                         title="Employee Ask For Leave"/>
-
     }
 
     formatReleases(releases) {
-        if (releases && releases.length > 0)
-            return releases.map(release => release.project && release.project.name ? release.project.name : "project").join(", ")
-        else
-            return ''
+        return <ReleaseFormat releases={releases}/>
     }
+
 
     formatReleasePlans(releasePlans) {
-        if (releasePlans && releasePlans.length > 0)
-            return releasePlans.map(releasePlan => releasePlan.task && releasePlan.task.name ? releasePlan.task.name : "releasePlan").join(", ")
-        else
-            return ''
+        return <ReleasePlanFormat releasePlans={releasePlans}/>
     }
 
+    warningSourceClassFormat(fieldValue, row) {
+        return row.type == SC.WARNING_TOO_MANY_HOURS ? 'warningSource' : 'noWarningSource'
+    }
 
     render() {
         const {warnings, release} = this.props
@@ -154,10 +180,10 @@ class WarningList extends Component {
                     <TableHeaderColumn width="12%" columnTitle dataField='type'
                                        dataFormat={this.formatFlag.bind(this)}>Warning Flag
                     </TableHeaderColumn>
-                    <TableHeaderColumn width="15%" columnTitle dataField='releases'
+                    <TableHeaderColumn width="15%" columnClassName={this.warningSourceClassFormat} columnTitle dataField='releases'
                                        dataFormat={this.formatReleases.bind(this)}>Projects
                     </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle dataField='releasePlans'
+                    <TableHeaderColumn columnClassName={this.warningSourceClassFormat} dataField='releasePlans'
                                        dataFormat={this.formatReleasePlans.bind(this)}>Tasks
                     </TableHeaderColumn>
 
