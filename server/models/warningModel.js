@@ -2266,8 +2266,8 @@ const updateTooManyHoursOnTaskShift = async (release, employeeDaysArray, maxPlan
             let newWarning = new WarningModel()
             newWarning.type = SC.WARNING_TOO_MANY_HOURS
             newWarning.taskPlans = [...taskPlans]
-            newWarning.releasePlans = [...newReleasePlans]
-            newWarning.releases = [...newReleases]
+            newWarning.releasePlans = [...newReleasePlans.map(rp => rp.release._id.toString() == release._id.toString() ? Object.assign({}, rp.toObject(), {source: true}) : rp)]
+            newWarning.releases = [...newReleases.map(r => r._id.toString() == release._id.toString() ? Object.assign({}, r.toObject(), {source: true}) : r)]
             newWarning.employeeDays = [employeeDay]
             logger.debug('[task-shift] WarningModel.updateTooManyHoursTasksMoved() [' + U.formatDateInUTC(employeeDay.date) + '] creating new warning ', {newWarning})
 
