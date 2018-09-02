@@ -1826,7 +1826,6 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         selectedEmployee
     })
 
-    let generatedWarnings = await MDL.WarningModel.taskMoved(taskPlan, releasePlan, release, existingDateEmployeeDays, rePlannedDateEmployeeDays, selectedEmployee)
     logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
 
     const oldPlannedFor = await moveTaskUpdateTaskPlan(taskPlan, {
@@ -1840,13 +1839,20 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     logger.debug("moveTask() ", {oldPlannedFor})
     logger.debug("moveTask() ", {taskPlan})
 
-    // update flags
-    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
     await employeeReleaseLeaderManager.save()
     await existingDateEmployeeDays.save()
     await rePlannedDateEmployeeDays.save()
     await releasePlan.save()
     await taskPlan.save()
+
+    // Need to call this after every operation so that warnings are generated based on new data
+    let generatedWarnings = await MDL.WarningModel.taskMoved(taskPlan, releasePlan, release, {
+        existingDateEmployeeDays,
+        rePlannedDateEmployeeDays,
+        selectedEmployee
+    })
+    // update flags
+    let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
 
     taskPlan = taskPlan.toObject()
     taskPlan.canMove = true
