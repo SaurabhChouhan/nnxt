@@ -2,8 +2,6 @@ import path from 'path';
 import webpack from 'webpack'
 import CompressionPlugin from 'compression-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
-import ExtractTextPlugin from 'extract-text-webpack-plugin'
-import StyleExtHtmlWebpackPlugin from 'style-ext-html-webpack-plugin'
 
 const buildPath = path.join(__dirname, 'server', 'public', 'js')
 
@@ -14,7 +12,7 @@ const config = {
     },
     output: {
         path: buildPath,
-        filename: 'app.bundle.js',
+        filename: 'app.bundle.1.js',
         publicPath: '/js'
     },
     module: {
@@ -45,7 +43,7 @@ const config = {
         new webpack.optimize.ModuleConcatenationPlugin(),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            filename: 'vendor.bundle.js',
+            filename: 'vendor.bundle.1.js',
             minChunks(module) {
                 return module.context &&
                     module.context.indexOf('node_modules') >= 0;
