@@ -129,6 +129,13 @@ class ReleaseTaskPlanningPage extends Component {
         return ''
     }
 
+    formatReportHours(report) {
+        if (report && report.reportedHours) {
+            return report.reportedHours
+        }
+        return ''
+    }
+
     formatTaskName(task) {
         if (task && task.name) {
             return task.name
@@ -305,17 +312,19 @@ class ReleaseTaskPlanningPage extends Component {
                                                    width={"10%"}
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
-                                                   width={"10%"}
-                                                   dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"center"}>Planned
-                                    Hours</TableHeaderColumn>
+                                                   width={"9%"}
+                                                   dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"center"}>Planned</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
                                                    dataFormat={this.formatDeveloper.bind(this)}
                                                    width={"18%"}>Developer</TableHeaderColumn>
                                 <TableHeaderColumn dataField='flags'
-                                                   dataFormat={this.formatFlags.bind(this)} width={"18%"}>Flags
+                                                   dataFormat={this.formatFlags.bind(this)} width={"12%"}>Flags
                                 </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReport.bind(this)} width={"14%"} dataAlign={"center"}>Status
+                                                   dataFormat={this.formatReport.bind(this)} width={"12%"} dataAlign={"center"}>Status
+                                </TableHeaderColumn>
+                                <TableHeaderColumn columnTitle dataField='report'
+                                                   dataFormat={this.formatReportHours.bind(this)} width={"9%"} dataAlign={"center"}>Reported
                                 </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle={"Delete Task"} width="7%" dataField='button'
                                                    dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}><i
