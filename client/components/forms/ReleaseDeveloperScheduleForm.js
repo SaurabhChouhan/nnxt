@@ -49,9 +49,6 @@ class ReleaseDeveloperScheduleForm extends Component {
                         <button className={"btn reportingArrow"}
                                 style={{marginLeft: '-16px'}}
                                 onClick={() => {
-                                    if (!employeeID) {
-                                        return NotificationManager.error('Please select employee!')
-                                    }
                                     let newMonthMoment = this.state.monthMoment.clone().subtract(1, 'month')
                                     props.getDeveloperSchedules(employeeID, newMonthMoment.month(), newMonthMoment.year())
                                     this.setState({
@@ -69,9 +66,6 @@ class ReleaseDeveloperScheduleForm extends Component {
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '27px'}}
                                 onClick={() => {
-                                    if (!employeeID) {
-                                        return NotificationManager.error('Please select employee!')
-                                    }
                                     let newMonthMoment = this.state.monthMoment.clone().add(1, 'month')
                                     props.getDeveloperSchedules(employeeID, newMonthMoment.month(), newMonthMoment.year())
                                     this.setState({
