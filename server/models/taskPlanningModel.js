@@ -3601,7 +3601,7 @@ taskPlanningSchema.statics.getReleaseDayPlannings = async (releaseID, month, yea
 
     let release = await MDL.ReleaseModel.findById(releaseID, {devStartDate: 1, devEndDate: 1})
 
-    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 

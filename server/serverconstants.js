@@ -68,15 +68,15 @@ export const LEAVE_STATUS_APPROVED = 'approved'
 export const LEAVE_STATUS_CANCELLED = 'cancelled'
 export const ALL_LEAVE_STATUS_ARRAY = [LEAVE_STATUS_RAISED, LEAVE_STATUS_APPROVED, LEAVE_STATUS_CANCELLED]
 
-//Statuses
+//Release Statuses
 
-export const STATUS_AWARDED = 'awarded'
-export const STATUS_DEV_IN_PROGRESS = 'dev-in-progress'
-export const STATUS_DEV_COMPLETED = 'dev-completed'
-export const STATUS_ISSUE_FIXING = 'issue-fixing'
-export const STATUS_TEST_COMPLETED = 'test-completed'
-export const STATUS_STABLE = 'stable'
-export const STATUS_RELEASED = 'released'
+export const STATUS_AWARDED = 'awarded'  // Project awarded
+export const STATUS_DEV_IN_PROGRESS = 'dev-in-progress' // Development in progress
+export const STATUS_DEV_COMPLETED = 'dev-completed' // Development completed
+export const STATUS_TEST_COMPLETED = 'test-completed' // Testing completed
+export const STATUS_DEPLOYED = 'deployed' // Release id deployed on production
+export const STATUS_ISSUE_FIXING = 'issue-fixing' // Issue-fixing phase after deployment
+export const STATUS_STABLE = 'stable' // Release become stable
 
 export const STATUS_PLAN_REQUESTED = 'plan-requested'
 export const STATUS_COMPLETED = 'completed'

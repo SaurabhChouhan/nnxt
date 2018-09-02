@@ -12,6 +12,13 @@ class ReleaseList extends Component {
         this.options = {
             onRowClick: this.onRowClick.bind(this)
         }
+        this.state = {
+            showAllReleases: false,
+            releaseStatus: SC.ALL
+        }
+
+        this.handleAllReleasesCheckBox = this.handleAllReleasesCheckBox.bind(this);
+        this.handleStatusChange = this.handleStatusChange.bind(this)
     }
 
     onRowClick(row) {
@@ -93,6 +100,25 @@ class ReleaseList extends Component {
         return ''
     }
 
+    handleAllReleasesCheckBox(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        this.setState({
+            showAllReleases: value
+        });
+        this.props.showAllReleasesChanged(this.state.releaseStatus, value)
+        console.log("****************** showAllRelease is ", value)
+    }
+
+    handleStatusChange(event) {
+        const target = event.target;
+        this.setState({
+            releaseStatus: target.value
+        });
+
+        this.props.changeReleaseStatus(target.value, this.state.showAllReleases)
+    }
+
     render() {
         const {releases} = this.props
         return ([
@@ -102,13 +128,12 @@ class ReleaseList extends Component {
                             this.props.showCreateReleaseDialog()
                         }}>Create Release
                     </button>
+
                     <div className="search-btn-container">
                         <select className="col-md-4 form-control" title="Select Status"
-                                onChange={(status) =>
-                                    this.props.changeReleaseStatus(status.target.value)
-                                }>
+                                value={this.state.releaseStatus}
+                                onChange={this.handleStatusChange}>
                             <option value={SC.ALL}>All Status</option>
-
                             <option value={SC.STATUS_AWARDED}>{SC.STATUS_AWARDED}</option>
                             <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
                             <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
@@ -118,6 +143,16 @@ class ReleaseList extends Component {
                             <option value={SC.STATUS_STABLE}>{SC.STATUS_STABLE}</option>
                         </select>
                     </div>
+                    <div className="search-btn-container">
+                        <div className={"input checkbox col-md-4"} style={{width: "100%"}}>
+                            <label>
+                                <input checked={this.state.showAllReleases} onChange={this.handleAllReleasesCheckBox}
+                                       type="checkbox"/>
+                                Show All Releases
+                            </label>
+                        </div>
+                    </div>
+
                 </div>,
                 <div key={"release-table"} className="col-md-12">
                     <div className="estimation release-plan-table">

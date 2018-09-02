@@ -28,10 +28,14 @@ releaseRouter.post("/", async ctx => {
 
 
 /***
- * Get all releases and by status filtering also
+ * Get all releases
  ***/
-releaseRouter.get("/status/:status", async ctx => {
-    return await MDL.ReleaseModel.getReleases(ctx.params.status, ctx.state.user)
+releaseRouter.get("/mine/status/:status", async ctx => {
+    return await MDL.ReleaseModel.getMyReleases(ctx.params.status, ctx.state.user)
+})
+
+releaseRouter.get("/all/status/:status", async ctx => {
+    return await MDL.ReleaseModel.getAllReleases(ctx.params.status, ctx.state.user)
 })
 
 /***
@@ -45,7 +49,7 @@ releaseRouter.put("/release-date", async ctx => {
  * Get release details by release Id
  ***/
 releaseRouter.get("/release/:releaseID", async ctx => {
-    return await MDL.ReleaseModel.getReleaseById(ctx.params.releaseID, ctx.state.user)
+    return await MDL.ReleaseModel.getFullReleaseDetailsById(ctx.params.releaseID, ctx.state.user)
 })
 
 
