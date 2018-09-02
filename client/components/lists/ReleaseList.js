@@ -109,11 +109,13 @@ class ReleaseList extends Component {
                                 }>
                             <option value={SC.ALL}>All Status</option>
 
-                            <option value={SC.STATUS_PLAN_REQUESTED}>{SC.STATUS_PLAN_REQUESTED}</option>
+                            <option value={SC.STATUS_AWARDED}>{SC.STATUS_AWARDED}</option>
                             <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
                             <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                            <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
+                            <option value={SC.STATUS_TEST_COMPLETED}>{SC.STATUS_TEST_COMPLETED}</option>
+                            <option value={SC.STATUS_DEPLOYED}>{SC.STATUS_DEPLOYED}</option>
                             <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
+                            <option value={SC.STATUS_STABLE}>{SC.STATUS_STABLE}</option>
                         </select>
                     </div>
                 </div>,
