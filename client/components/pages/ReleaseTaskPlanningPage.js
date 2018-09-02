@@ -86,7 +86,7 @@ class ReleaseTaskPlanningPage extends Component {
             return '' // task is already report cannot delete now
         else return (<button className=" pull-left btn btn-custom" type="button"
                              onClick={() => {
-                                 this.props.openMoveTaskPlanForm(row, this.props.workCalendarEmployeeID)
+                                 this.props.openMoveTaskPlanForm(row, this.props.workCalendarEmployeeIDs)
                              }}>
             <i className="fa fa-cut"></i>
         </button>)
@@ -145,7 +145,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     onConfirmDeleteRequest() {
         this.setState({showTaskDeleteConfirmationDialog: false})
-        this.props.deleteTaskPlanningRow(this.state.row, this.props.workCalendarEmployeeID)
+        this.props.deleteTaskPlanningRow(this.state.row, this.props.workCalendarEmployeeIDs)
     }
 
     reopenTask() {
@@ -238,7 +238,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
 
-        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeID, developers} = this.props
+        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeIDs, developers} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -290,7 +290,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn releasePlanTaskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeID)}>
+                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeIDs)}>
                                 <i className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>

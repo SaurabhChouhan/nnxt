@@ -44,7 +44,7 @@ class ReleaseDevelopersSchedules extends React.Component {
         return (<div>
             {
                 workCalendar.employees.map(employee => {
-                    return <div key={'schedule_1'} className={colMdClass + " releaseSchedule"}>
+                    return <div key={'schedule_' + employee._id} className={colMdClass + " releaseSchedule"}>
                         <div className="schCalendar releaseDevInfo">
                             <div className="releaseDevHeading">
                                 <h5>{employee.name}</h5>

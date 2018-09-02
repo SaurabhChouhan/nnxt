@@ -3,7 +3,7 @@ import {ReleaseTaskPlanningForm} from "../../components"
 import * as A from "../../actions"
 import * as COC from "../../components/componentConsts";
 import {NotificationManager} from 'react-notifications'
-import * as EC from '../../../server/errorcodes'
+import {ALL} from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (taskPlan) => {
@@ -14,8 +14,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 NotificationManager.success("taskPlan Planning Added")
                 dispatch(A.hideComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
                 // If workCalendar employee id matches with task planning employee id fetch work calendar
-                if (taskPlan.employee._id.toString() == taskPlan.workCalendarEmployeeID.toString())
-                    dispatch(A.getEmployeeWorkCalendarFromServer(taskPlan.workCalendarEmployeeID))
+                if (taskPlan.workCalendarEmployeeIDs.indexOf(taskPlan.employee._id.toString()) > -1) {
+                    if (taskPlan.workCalendarEmployeeIDs.length > 1) {
+                        // issue fetch for all release employees
+                        dispatch(A.getEmployeeWorkCalendarFromServer(ALL, null, null, taskPlan.release._id))
+                    }
+                    else
+                        dispatch(A.getEmployeeWorkCalendarFromServer(taskPlan.employee._id))
+                }
                 return json
             }
             else {

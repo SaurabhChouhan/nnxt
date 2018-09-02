@@ -3,6 +3,7 @@ import {ReleaseMoveTaskPlanForm} from "../../components"
 import * as COC from '../../components/componentConsts'
 import * as A from '../../actions'
 import {NotificationManager} from "react-notifications"
+import {ALL} from "../../../server/serverconstants";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (newTaskPlanning) => {
@@ -12,10 +13,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 NotificationManager.success("Task Planning Merged")
                 dispatch(A.hideComponent(COC.MOVE_TASK_PLAN_DIALOG))
 
-                if (newTaskPlanning.employee._id.toString() == newTaskPlanning.workCalendarEmployeeID.toString())
-                    dispatch(A.getEmployeeWorkCalendarFromServer(newTaskPlanning.workCalendarEmployeeID))
-                return json
-
+                if (newTaskPlanning.workCalendarEmployeeIDs.indexOf(newTaskPlanning.employee._id.toString()) > -1) {
+                    if (newTaskPlanning.workCalendarEmployeeIDs.length > 1) {
+                        // issue fetch for all release employees
+                        dispatch(A.getEmployeeWorkCalendarFromServer(ALL, null, null, newTaskPlanning.release._id))
+                    }
+                    else
+                        dispatch(A.getEmployeeWorkCalendarFromServer(newTaskPlanning.employee._id))
+                }
             }
             else NotificationManager.error(json.message)
 
