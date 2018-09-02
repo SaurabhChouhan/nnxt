@@ -16,7 +16,6 @@ import path from 'path'
 import logger from './logger'
 import {HTTP_SERVER_ERROR} from "./errorcodes"
 import * as H from './eventhandlers/handlers'
-import * as SC from './serverconstants'
 import locale from 'koa-locale'
 import i18n from 'koa-i18n'
 
