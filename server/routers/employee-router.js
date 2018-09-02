@@ -44,4 +44,8 @@ employeeRouter.get("/:employeeID/employee-schedule/:month/year/:year", async ctx
     return await MDL.EmployeeDaysModel.getMonthlyWorkCalendar(ctx.params.employeeID, ctx.params.month, ctx.params.year, ctx.state.user)
 })
 
+employeeRouter.get("/:employeeID/employee-schedule/:month/year/:year/release/:releaseID", async ctx => {
+    return await MDL.EmployeeDaysModel.getMonthlyWorkCalendar(ctx.params.employeeID, ctx.params.month, ctx.params.year, ctx.state.user, ctx.params.releaseID)
+})
+
 export default employeeRouter

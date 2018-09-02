@@ -5,8 +5,6 @@ import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {initialize} from 'redux-form'
-import * as U from "../../../server/utils";
-import moment from "moment/moment";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
         ReleaseProjectGoBack: (release) => {

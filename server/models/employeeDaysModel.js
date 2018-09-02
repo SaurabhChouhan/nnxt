@@ -79,58 +79,11 @@ employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
     return await EmployeeDaysModel.find({})
 }
 
-employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, year, user) => {
-    if (!employeeID) {
-        throw new AppError('Employee is not selected, please select any employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-    if (!month) {
-        throw new AppError('Please select month', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-    }
-    let monthMoment = moment().month(month)
-    monthMoment.year(year)
-
-    if (!monthMoment.isValid())
-        throw new AppError('Invalid month or year sent', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
-
-    let cal = {}
-
-    let startMonth = monthMoment.startOf('month')
-    let endMonth = monthMoment.clone().endOf('month')
-
-    let startDay = startMonth.day()
-
-
-    if (startDay == 0)
-    // this is sunday so make it as 7 as it would come last and it would be easier for logic to run
-        startDay = 7
-
-
-    logger.debug("getMonthlyWorkCalendar(): ", {startMonth})
-    logger.debug("getMonthlyWorkCalendar(): ", {endMonth})
-
-    let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
-    if (!selectedEmployee) {
-        throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
-    }
-
-    let employeeDays = await EmployeeDaysModel.aggregate([{
-        $match: {
-            $and: [
-                {date: {$gte: startMonth.toDate(), $lte: endMonth.toDate()}},
-                {"employee._id": selectedEmployee._id}
-            ]
-        }
-    }, {
-        $sort: {date: 1}
-    }]).exec()
-
-
-    /*
-       We will now iterate over employee days in order to fill proper planned hours against each date
-     */
+const getEmployeeWorkCalendar = async (employee, startMonth, endMonth, startDay) => {
 
     let schedule = []
 
+    // Fill each date with 0 hours so that days without work shows 0
     for (let i = 1; i <= endMonth.date(); i++) {
         schedule.push({
             date: i,
@@ -138,16 +91,6 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, ye
         })
     }
 
-
-    if (employeeDays && employeeDays.length) {
-        employeeDays.forEach(e => {
-            let date = U.momentInUTC(e.dateString).date()
-            // place planned hours against this date
-            schedule[date - 1].hours = e.plannedHours
-        })
-    }
-
-    // Now we will divide schedule into week rows
     let weeklySchedule = []
     weeklySchedule.push([])
 
@@ -159,8 +102,30 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, ye
         })
     }
 
-    let k = 0;
+    // Update those dates where employee has work
+    let employeeDays = await EmployeeDaysModel.aggregate([{
+        $match: {
+            $and: [
+                {date: {$gte: startMonth.toDate(), $lte: endMonth.toDate()}},
+                {"employee._id": employee._id}
+            ]
+        }
+    }, {
+        $sort: {date: 1}
+    }]).exec()
 
+    /*
+        We will now iterate over employee days in order to fill proper planned hours against each date
+    */
+    if (employeeDays && employeeDays.length) {
+        employeeDays.forEach(e => {
+            let date = U.momentInUTC(e.dateString).date()
+            // place planned hours against this date
+            schedule[date - 1].hours = e.plannedHours
+        })
+    }
+
+    let k = 0;
     schedule.forEach(s => {
         if (startDay < 8) {
             weeklySchedule[k].push(s)
@@ -174,17 +139,83 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, ye
         }
     })
 
+    return {
+        _id: employee._id,
+        name: employee.name ? employee.name : U.getFullName(employee),
+        schedule: weeklySchedule
+    }
+}
+
+const getAllEmployeesWorkCalendar = async (employees, startMonth, endMonth, startDay) => {
+    let schedules = []
+
+    for (const employee of employees) {
+        let employeeSchedule = await getEmployeeWorkCalendar(employee, startMonth, endMonth, startDay)
+        schedules.push(employeeSchedule)
+    }
+    return schedules
+}
+
+employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, year, user, releaseID) => {
+
+    if (releaseID) {
+        let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+        if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
+            throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see employee schedules of that release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        }
+    } else if (employeeID == SC.ALL) {
+        if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT))
+            throw new AppError('Only user with role [' + SC.ROLE_TOP_MANAGEMENT + '] can see employee schedules of all employees', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let monthMoment = moment().month(month)
+    monthMoment.year(year)
+    if (!monthMoment.isValid())
+        throw new AppError('Invalid month or year sent', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    let startMonth = monthMoment.startOf('month')
+    let endMonth = monthMoment.clone().endOf('month')
+    let startDay = startMonth.day()
+    if (startDay == 0)
+    // this is sunday so make it as 7 as it would come last and it would be easier for logic to run
+        startDay = 7
+
+    logger.debug("getMonthlyWorkCalendar(): ", {startMonth})
+    logger.debug("getMonthlyWorkCalendar(): ", {endMonth})
+
+    // Now we will divide schedule into week rows
+
+    let employeeSchedules = []
+    if (employeeID == SC.ALL) {
+
+        let developers;
+        if (releaseID) {
+            // Users of release is requested
+            developers = await MDL.ReleaseModel.getReleaseEmployees(releaseID)
+        } else {
+            developers = await MDL.UserModel.getAllActiveWithRoleDeveloper(user)
+        }
+
+        // Get all developers from backend
+        employeeSchedules = await getAllEmployeesWorkCalendar(developers, startMonth, endMonth, startDay)
+
+    } else {
+
+        let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
+
+        if (!selectedEmployee) {
+            throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+        }
+
+        let employeeSchedule = await getEmployeeWorkCalendar(selectedEmployee, startMonth, endMonth, startDay)
+        employeeSchedules.push(employeeSchedule)
+    }
 
     return {
         startDay: startDay,
         heading: startMonth.format('MMMM, YY'),
         month: startMonth.month(),
         year: startMonth.year(),
-        employees: [{
-            _id: selectedEmployee._id,
-            name: ((selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '') + (selectedEmployee.lastName ? selectedEmployee.lastName : '')),
-            schedule: weeklySchedule
-        }]
+        employees: employeeSchedules
     }
 }
 

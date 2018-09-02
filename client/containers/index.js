@@ -43,6 +43,7 @@ export {default as EstimationDetailContainer} from './pages/EstimationDetailCont
 export {default as EstimationTasksContainer} from './sections/EstimationTasksContainer'
 export {default as EstimationFeaturesContainer} from './sections/EstimationFeaturesContainer'
 export {default as DashboardSectionContainer} from './sections/DashboardSectionContainer'
+export {default as CompanySectionContainer} from './sections/CompanySectionContainer'
 export {default as ReleaseDashboardSectionContainer} from './sections/ReleaseDashboardSectionContainer'
 
 

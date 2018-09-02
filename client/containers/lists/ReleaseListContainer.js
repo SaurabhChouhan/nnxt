@@ -5,16 +5,14 @@ import * as COC from '../../components/componentConsts'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    changeReleaseStatus: (status) => dispatch(A.getAllReleasesFromServer(status)),
+    changeReleaseStatus: (status, flag) => dispatch(A.getAllReleasesFromServer(status, flag)),
+    showAllReleasesChanged: (status, flag) => dispatch(A.getAllReleasesFromServer(status, flag)),
     releaseSelected: (release) => {
         dispatch(A.getReleaseFromServer(release._id)).then(json => {
             if (json.success) {
                 dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
             }
         })
-        //dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
-
-
     },
     showCreateReleaseDialog: () => {
         dispatch(A.getAllProjectsFromServer())

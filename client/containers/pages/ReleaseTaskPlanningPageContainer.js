@@ -9,7 +9,7 @@ import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
-    showTaskPlanningCreationForm: (releasePlan, workCalendarEmployeeID) => {
+    showTaskPlanningCreationForm: (releasePlan, workCalendarEmployeeIDs) => {
         dispatch(initialize("task-planning", {
             release: releasePlan.release,
             task: releasePlan.task,
@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 _id: releasePlan._id,
             },
             projectUsersOnly: true,
-            workCalendarEmployeeID
+            workCalendarEmployeeIDs
 
         }))
         dispatch(A.showComponent(COC.RELEASE_TASK_PLANNING_FORM_DIALOG))
@@ -31,11 +31,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error(json.message)
     }),
 
-    deleteTaskPlanningRow: (plan, workCalendarEmployeeID) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
+    deleteTaskPlanningRow: (plan, workCalendarEmployeeIDs) => dispatch(A.deleteTaskPlanningFromServer(plan._id)).then(json => {
         if (json.success) {
             NotificationManager.success("Task Planning Deleted")
-            if (workCalendarEmployeeID && plan.employee._id.toString() == workCalendarEmployeeID.toString())
-                dispatch(A.getEmployeeWorkCalendarFromServer(workCalendarEmployeeID))
+            if (workCalendarEmployeeIDs.indexOf(plan.employee._id.toString()) > -1) {
+                if (workCalendarEmployeeIDs.length > 1) {
+                    // issue fetch for all release employees
+                    dispatch(A.getEmployeeWorkCalendarFromServer(SC.ALL, null, null, plan.release._id))
+                }
+                else
+                    dispatch(A.getEmployeeWorkCalendarFromServer(plan.employee._id))
+            }
         }
         else {
             NotificationManager.error(json.message)
@@ -45,20 +51,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.reopenTaskPlanOnServer(task._id))
 
     },
-    openMoveTaskPlanForm: (taskPlan, workCalendarEmployeeID) => {
-        taskPlan.workCalendarEmployeeID = workCalendarEmployeeID
-        dispatch(A.getIterationDatesReleasePlansFromServer(taskPlan.releasePlan._id)).then(()=>{
+    openMoveTaskPlanForm: (taskPlan, workCalendarEmployeeIDs) => {
+        taskPlan.workCalendarEmployeeIDs = workCalendarEmployeeIDs
+        dispatch(A.getIterationDatesReleasePlansFromServer(taskPlan.releasePlan._id)).then(() => {
             dispatch(initialize("move-task-planning", taskPlan))
             dispatch(A.showComponent(COC.MOVE_TASK_PLAN_DIALOG))
         })
     },
-    planTaskFilter: (taskPlanFilter) => dispatch(A.addTaskPlanningFiltersOnServer(taskPlanFilter)).then(json => {
-        if (json.success) {
-            NotificationManager.success("Task Planning Added")
-        }
-        else NotificationManager.error("Task Planning Failed")
-    }),
-
     ReleaseTaskGoBack: (release) => {
         dispatch(A.getReleaseFromServer(release._id)).then(json => {
             if (json.success) {
@@ -91,8 +90,12 @@ const mapStateToProps = (state) => ({
     releasePlan: state.release.selectedReleasePlan,
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,
+    developers: [{
+        _id: 'all',
+        name: 'All Employees'
+    }, ...state.release.teamOfRelease],
     expanded: state.release.expanded,
-    workCalendarEmployeeID: state.employee.workCalendar.employees && state.employee.workCalendar.employees.length ? state.employee.workCalendar.employees[0]._id : undefined
+    workCalendarEmployeeIDs: state.employee.workCalendar.employees && state.employee.workCalendar.employees.length ? state.employee.workCalendar.employees.map(e => e._id) : []
 })
 
 const ReleaseTaskPlanningPageContainer = connect(

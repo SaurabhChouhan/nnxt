@@ -86,7 +86,7 @@ class ReleaseTaskPlanningPage extends Component {
             return '' // task is already report cannot delete now
         else return (<button className=" pull-left btn btn-custom" type="button"
                              onClick={() => {
-                                 this.props.openMoveTaskPlanForm(row, this.props.workCalendarEmployeeID)
+                                 this.props.openMoveTaskPlanForm(row, this.props.workCalendarEmployeeIDs)
                              }}>
             <i className="fa fa-cut"></i>
         </button>)
@@ -145,7 +145,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     onConfirmDeleteRequest() {
         this.setState({showTaskDeleteConfirmationDialog: false})
-        this.props.deleteTaskPlanningRow(this.state.row, this.props.workCalendarEmployeeID)
+        this.props.deleteTaskPlanningRow(this.state.row, this.props.workCalendarEmployeeIDs)
     }
 
     reopenTask() {
@@ -238,7 +238,7 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
 
-        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeID} = this.props
+        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeIDs, developers} = this.props
         return (
             <div>
                 <div className="col-md-8 pad">
@@ -290,7 +290,7 @@ class ReleaseTaskPlanningPage extends Component {
                         </div>
                         <div className="col-md-4 planBtn">
                             <button type="button" className="btn releasePlanTaskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeID)}>
+                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeIDs)}>
                                 <i className="fa fa-plus-circle"></i>
                                 Plan Task
                             </button>
@@ -313,7 +313,8 @@ class ReleaseTaskPlanningPage extends Component {
                                                    dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='planning'
                                                    width={"9%"}
-                                                   dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"center"}>Planned</TableHeaderColumn>
+                                                   dataFormat={this.formatPlannedHours.bind(this)}
+                                                   dataAlign={"center"}>Planned</TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='employee'
                                                    dataFormat={this.formatDeveloper.bind(this)}
                                                    width={"18%"}>Developer</TableHeaderColumn>
@@ -321,10 +322,12 @@ class ReleaseTaskPlanningPage extends Component {
                                                    dataFormat={this.formatFlags.bind(this)} width={"12%"}>Flags
                                 </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReport.bind(this)} width={"12%"} dataAlign={"center"}>Status
+                                                   dataFormat={this.formatReport.bind(this)} width={"12%"}
+                                                   dataAlign={"center"}>Status
                                 </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReportHours.bind(this)} width={"9%"} dataAlign={"center"}>Reported
+                                                   dataFormat={this.formatReportHours.bind(this)} width={"9%"}
+                                                   dataAlign={"center"}>Reported
                                 </TableHeaderColumn>
                                 <TableHeaderColumn columnTitle={"Delete Task"} width="7%" dataField='button'
                                                    dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}><i
@@ -401,9 +404,9 @@ class ReleaseTaskPlanningPage extends Component {
                 </div>
                 <div className="col-md-4 estimationsection pad">
                     <div>
-                        <ReleaseDeveloperScheduleFormContainer/>
+                        <ReleaseDeveloperScheduleFormContainer developers={developers} releaseID={release._id}/>
                     </div>
-                    <ReleaseDevelopersSchedulesContainer/>
+                    <ReleaseDevelopersSchedulesContainer colMdClass={"col-md-12"}/>
                 </div>
             </div>
         )

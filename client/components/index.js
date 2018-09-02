@@ -44,6 +44,7 @@ export {default as EstimationTasks} from './sections/EstimationTasks'
 export {default as EstimationFeature} from './sections/EstimationFeature'
 export {default as EstimationFeatures} from './sections/EstimationFeatures'
 export {default as DashboardSection} from './sections/DashboardSection'
+export {default as CompanySection} from './sections/CompanySection'
 export {default as ReleaseDashboardSection} from './sections/ReleaseDashboardSection'
 export {default as EstimationDetail} from './pages/EstimationDetail'
 

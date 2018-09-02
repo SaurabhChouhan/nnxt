@@ -23,3 +23,4 @@ export const TYPE_TESTING = 'testing'
 export const TYPE_REVIEW = 'review'
 export const TYPE_MANAGEMENT = 'management'
 export const TYPE_COMPANY = 'company'
+

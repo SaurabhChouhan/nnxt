@@ -111,7 +111,7 @@ releaseSchema.statics.getAvailableReleases = async (status, user) => {
     return await ReleaseModel.find({})
 }
 
-releaseSchema.statics.getReleases = async (status, user) => {
+releaseSchema.statics.getMyReleases = async (status, user) => {
     let filter = {}
     if (status && status.toLowerCase() !== SC.ALL)
         filter = {
@@ -120,6 +120,24 @@ releaseSchema.statics.getReleases = async (status, user) => {
         }
     else
         filter = {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]}
+
+    return await ReleaseModel.find(filter)
+}
+
+releaseSchema.statics.getAllReleases = async (status, user) => {
+    let filter = {}
+    if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+        throw new AppError("Only user with role [" + SC.ROLE_TOP_MANAGEMENT + "] can see all releases")
+    }
+
+    if (status && status.toLowerCase() !== SC.ALL) {
+        filter = {
+            'status': status
+        }
+    }
+    else {
+        filter = {}
+    }
 
     return await ReleaseModel.find(filter)
 }
@@ -473,7 +491,7 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
     return {}
 }
 
-releaseSchema.statics.getReleaseById = async (releaseId, user) => {
+releaseSchema.statics.getFullReleaseDetailsById = async (releaseId, user) => {
     let release = undefined
 
     let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseId, user)
@@ -499,6 +517,9 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
                 ]
             }
         )
+    } else if (U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+        // Top management can see all the details
+        release = await ReleaseModel.findById(releaseId)
     }
 
     if (release) {
@@ -507,17 +528,16 @@ releaseSchema.statics.getReleaseById = async (releaseId, user) => {
         return release
     }
 
-    return undefined
+    throw new AppError("You are not authorized to veiw details of this release")
 
 }
 
 releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
     let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(queryData.releaseID, user)
-    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], rolesInRelease)) {
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], rolesInRelease) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
         throw new AppError('Not a Manager/Leader of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
-    let release = await ReleaseModel.findById(queryData.releaseID)
-
+    let release = await ReleaseModel.getFullReleaseDetailsById(queryData.releaseID, user)
     // Get data of past/present planning
     let employeeReleases = await MDL.EmployeeReleasesModel.find({
         "release._id": mongoose.Types.ObjectId(queryData.releaseID)
@@ -721,6 +741,18 @@ releaseSchema.statics.getReleasesByIDs = async (releaseIDs, select) => {
         releases.push(release)
     }
     return releases
+}
+
+releaseSchema.statics.getReleaseEmployees = async (releaseID) => {
+    let release = await ReleaseModel.findById(releaseID, {
+        team: 1,
+        nonProjectTeam: 1
+    })
+
+    if (!release)
+        return []
+
+    return [...release.team, ...release.nonProjectTeam]
 }
 
 

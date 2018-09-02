@@ -131,9 +131,7 @@ class DashboardSection extends Component {
         this.props.setReleaseID(releaseID)
     }
 
-
     render() {
-
         let dashboardWidth = window.innerWidth * 0.8 // as content section has 80% width
         let barMargin = {top: 20, right: 40, left: 40, bottom: 20}
         let barWidth = (dashboardWidth - 90) / 2
@@ -142,7 +140,6 @@ class DashboardSection extends Component {
         let baseHour = this.props.plannedVsReported.baseHour
         let plannedColor = '#ffa75b', reportedColor = '#e52d8c', actualColor = '#4172c1', completedColor = '#6CE190',
             pendingColor = '#f5f968', unfinishedColor = '#E25858'
-
 
         let planningsWidth = dashboardWidth - 150
         if (this.props.dailyPlannings && this.props.dailyPlannings.length) {

@@ -25,7 +25,8 @@ class ReleaseDevelopersSchedules extends React.Component {
 
         let that = this;
 
-        const {workCalendar, employeeSetting, from} = this.props
+        const {workCalendar, employeeSetting, from, colMdClass} = this.props
+
         let fromString = moment(from).format(SC.DATE_FORMAT)
         let fromMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
         let startMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).hour(0).minute(0).second(0).millisecond(0)
@@ -36,89 +37,86 @@ class ReleaseDevelopersSchedules extends React.Component {
             startMoment = startMoment.clone().add(1, 'days')
         }
 
-
-        let employee;
-
-        if (workCalendar.employees && workCalendar.employees.length)
-            employee = workCalendar.employees[0]
-
-        if (!employee || !employee.schedule || !employee.schedule.length)
-            return <div></div>
+        if (!workCalendar || !workCalendar.employees || !workCalendar.employees.length)
+            return null
 
 
-        return <div>
-            <div key={'schedule_1'}
-                 className="col-md-12 releaseSchedule">
-                <div className="schCalendar releaseDevInfo">
-                    <div className="releaseDevHeading">
-                        <h5>{employee.name}</h5>
-                        <i className="glyphicon glyphicon-resize-full pull-right"></i>
-                        <span
-                            className="pull-right">{workCalendar.heading}</span>
-                    </div>
+        return (<div>
+            {
+                workCalendar.employees.map(employee => {
+                    return <div key={'schedule_' + employee._id} className={colMdClass + " releaseSchedule"}>
+                        <div className="schCalendar releaseDevInfo">
+                            <div className="releaseDevHeading">
+                                <h5>{employee.name}</h5>
+                                <i className="glyphicon glyphicon-resize-full pull-right"></i>
+                                <span
+                                    className="pull-right">{workCalendar.heading}</span>
+                            </div>
 
-                    <div className={"schCalendarDates"}>
-                        <div className="schCalendarDayRow">
-                            <div key={'monday'} className="schCalendarCell">
-                                <h5>Mon</h5>
-                            </div>
-                            <div key={'tuesday'} className="schCalendarCell">
-                                <h5>Tue</h5>
-                            </div>
-                            <div key={'wednesday'} className="schCalendarCell">
-                                <h5>Wed</h5>
-                            </div>
-                            <div key={'thursday'} className="schCalendarCell">
-                                <h5>Thu</h5>
-                            </div>
-                            <div key={'friday'} className="schCalendarCell">
-                                <h5>Fri</h5>
-                            </div>
-                            <div key={'saturday'} className="schCalendarCell">
-                                <h5>Sat</h5>
-                            </div>
-                            <div key={'sunday'} className="schCalendarCell">
-                                <h5>Sun</h5>
-                            </div>
-                        </div>
-
-                        {
-                            employee.schedule.map((week, idx) => {
-                                    return <div key={'week_' + idx} className="schCalendarDayRow">
-                                        {
-                                            week.map((day, dayIdx) => {
-                                                let color = day.hours >= employeeSetting.superBusy ?
-                                                    '#dd6c6c'
-                                                    : day.hours >= employeeSetting.busy ?
-                                                        '#91d861'
-                                                        : day.hours >= employeeSetting.someWhatBusy ?
-                                                            '#d645f7'
-                                                            : day.hours >= employeeSetting.relativelyFree ?
-                                                                '#76c0e2'
-                                                                : day.hours != 0 ?
-                                                                    '#fffcc1'
-                                                                    : day.hours == 0 && (dayIdx == 5 || dayIdx == 6) ?
-                                                                        'white' :
-                                                                        '#e8c392'
-                                                return <div key={'day_' + dayIdx} className="schCalendarCell">
-                                                    <h5>{day.date > 0 ? day.date : ''}</h5>
-                                                    <div className="releaseEmployee">
+                            <div className={"schCalendarDates"}>
+                                <div className="schCalendarDayRow">
+                                    <div key={'monday'} className="schCalendarCell">
+                                        <h5>Mon</h5>
+                                    </div>
+                                    <div key={'tuesday'} className="schCalendarCell">
+                                        <h5>Tue</h5>
+                                    </div>
+                                    <div key={'wednesday'} className="schCalendarCell">
+                                        <h5>Wed</h5>
+                                    </div>
+                                    <div key={'thursday'} className="schCalendarCell">
+                                        <h5>Thu</h5>
+                                    </div>
+                                    <div key={'friday'} className="schCalendarCell">
+                                        <h5>Fri</h5>
+                                    </div>
+                                    <div key={'saturday'} className="schCalendarCell">
+                                        <h5>Sat</h5>
+                                    </div>
+                                    <div key={'sunday'} className="schCalendarCell">
+                                        <h5>Sun</h5>
+                                    </div>
+                                </div>
+                                {
+                                    employee.schedule.map((week, idx) => {
+                                            return <div key={'week_' + idx} className="schCalendarDayRow">
+                                                {
+                                                    week.map((day, dayIdx) => {
+                                                        let color = day.hours >= employeeSetting.superBusy ?
+                                                            '#dd6c6c'
+                                                            : day.hours >= employeeSetting.busy ?
+                                                                '#91d861'
+                                                                : day.hours >= employeeSetting.someWhatBusy ?
+                                                                    '#d645f7'
+                                                                    : day.hours >= employeeSetting.relativelyFree ?
+                                                                        '#76c0e2'
+                                                                        : day.hours != 0 ?
+                                                                            '#fffcc1'
+                                                                            : day.hours == 0 && (dayIdx == 5 || dayIdx == 6) ?
+                                                                                'white' :
+                                                                                '#e8c392'
+                                                        return <div key={'day_' + dayIdx} className="schCalendarCell">
+                                                            <h5>{day.date > 0 ? day.date : ''}</h5>
+                                                            <div className="releaseEmployee">
                                                         <span className={"schCalendarHour"} style={{
                                                             backgroundColor: color
                                                         }}
                                                               onClick={that.calendarDateClicked.bind(that, day, employee)}>{day.hours >= 0 ? day.hours : ''}</span>
-                                                    </div>
-                                                </div>
-                                            })
+                                                            </div>
+                                                        </div>
+                                                    })
+                                                }
+                                            </div>
                                         }
-                                    </div>
+                                    )
                                 }
-                            )
-                        }
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                })
+            }
+        </div>)
+
     }
 }
 

@@ -32,7 +32,12 @@ class ReleasePlanSection extends Component {
 
     render() {
         let team = 0
-        const {release, releasePlans, loggedInUser, selectedTab} = this.props
+        const {release, loggedInUser, selectedTab} = this.props
+
+        let isManager = loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ? true : false
+        let isLeader = loggedInUser && loggedInUser._id && release.leader._id && loggedInUser._id.toString() === release.leader._id.toString() ? true : false
+        let isManagement = loggedInUser && loggedInUser.roleNames.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1 ? true : false
+        console.log("isManager ", isManager, " | isLeader ", isLeader, " | isManagement ", isManagement)
 
         return (
 
@@ -55,7 +60,7 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                     <div
-                        className={loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
+                        className={isManager ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
                                 title={release && release.devStartDate ? moment(release.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
@@ -65,7 +70,7 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                     <div
-                        className={loggedInUser && U.userHasRole(loggedInUser, SC.ROLE_MANAGER) ? "col-md-1" : "col-md-2"}>
+                        className={isManager ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
                             <span
                                 title={release && release.devEndDate ? moment(release.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
@@ -83,7 +88,7 @@ class ReleasePlanSection extends Component {
                             <p>{release && release.clientReleaseDate ? moment(release.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
-                    {loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ?
+                    {isManager ?
                         <div className="col-md-2">
                             <button className=" btn btn-custom customBtn " type="button"
                                     onClick={() => {
@@ -156,54 +161,68 @@ class ReleasePlanSection extends Component {
                                         }}>Dashboard
                                     </a>
                                 </li>
-                                <li className={selectedTab === SC.RELEASE_PLAN_TAB ? 'active' : ''}>
-                                    <a
-                                        data-toggle="tab"
-                                        className={selectedTab === SC.RELEASE_PLAN_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
-                                        onClick={() => {
-                                            this.props.tabSelected(SC.RELEASE_PLAN_TAB)
-                                        }}>Release Plans
-                                    </a>
-                                </li>
-                                <li className={selectedTab === SC.RELEASE_WARNINGS_TAB ? 'active' : ''}>
-                                    <a
-                                        data-toggle="tab"
-                                        className={selectedTab === SC.RELEASE_WARNINGS_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
-                                        onClick={() => {
-                                            this.props.tabSelected(SC.RELEASE_WARNINGS_TAB)
-                                        }}>Warnings
-                                    </a>
-                                </li>
-                                <li className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? 'active' : ''}>
-                                    <a
-                                        data-toggle="tab"
-                                        className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
-                                        onClick={() => {
-                                            this.props.tabSelected(SC.RELEASE_TASK_PLANS_TAB)
-                                        }}>Task Plans
-                                    </a>
-                                </li>
-                                <li className={selectedTab === SC.RELEASE_REPORT_TAB ? 'active' : ''}>
-                                    <a
-                                        data-toggle="tab"
-                                        className={selectedTab === SC.RELEASE_REPORT_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
-                                        onClick={() => {
-                                            this.props.tabSelected(SC.RELEASE_REPORT_TAB)
-                                        }}>Task Report
-                                    </a>
-                                </li>
+                                {
+                                    (isManager || isLeader) &&
+                                    <li className={selectedTab === SC.RELEASE_PLAN_TAB ? 'active' : ''}>
+                                        <a
+                                            data-toggle="tab"
+                                            className={selectedTab === SC.RELEASE_PLAN_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
+                                            onClick={() => {
+                                                this.props.tabSelected(SC.RELEASE_PLAN_TAB)
+                                            }}>Release Plans
+                                        </a>
+                                    </li>
+                                }
+                                {
+                                    (isManager || isLeader) &&
+                                    <li className={selectedTab === SC.RELEASE_WARNINGS_TAB ? 'active' : ''}>
+                                        <a
+                                            data-toggle="tab"
+                                            className={selectedTab === SC.RELEASE_WARNINGS_TAB ? "btn  btn-link btn-size" : "btn  btn-link btn-size"}
+                                            onClick={() => {
+                                                this.props.tabSelected(SC.RELEASE_WARNINGS_TAB)
+                                            }}>Warnings
+                                        </a>
+                                    </li>
+                                }
+                                {
+                                    (isManager || isLeader) &&
+                                    <li className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? 'active' : ''}>
+                                        <a
+                                            data-toggle="tab"
+                                            className={selectedTab === SC.RELEASE_TASK_PLANS_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
+                                            onClick={() => {
+                                                this.props.tabSelected(SC.RELEASE_TASK_PLANS_TAB)
+                                            }}>Task Plans
+                                        </a>
+                                    </li>
+                                }
+                                {
+                                    (isManager || isLeader) &&
+                                    <li className={selectedTab === SC.RELEASE_REPORT_TAB ? 'active' : ''}>
+                                        <a
+                                            data-toggle="tab"
+                                            className={selectedTab === SC.RELEASE_REPORT_TAB ? "btn btn-link btn-size " : "btn btn-link btn-size "}
+                                            onClick={() => {
+                                                this.props.tabSelected(SC.RELEASE_REPORT_TAB)
+                                            }}>Task Report
+                                        </a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                     </div>
                 </div>
                 {selectedTab === SC.RELEASE_DASHBOARD_TAB && <ReleaseDashboardSectionContainer release={release}/>}
-                {selectedTab === SC.RELEASE_PLAN_TAB && <ReleasePlanListContainer release={release}/>}
-                {selectedTab === SC.RELEASE_WARNINGS_TAB && <WarningListContainer release={release}/>}
-                {selectedTab === SC.RELEASE_TASK_PLANS_TAB && <TaskPlanListContainer release={release}/>}
-                {selectedTab === SC.RELEASE_REPORT_TAB && <TaskReportListContainer release={release}/>}
-
+                {(isManager || isLeader) && selectedTab === SC.RELEASE_PLAN_TAB &&
+                <ReleasePlanListContainer release={release}/>}
+                {(isManager || isLeader) && selectedTab === SC.RELEASE_WARNINGS_TAB &&
+                <WarningListContainer release={release}/>}
+                {(isManager || isLeader) && selectedTab === SC.RELEASE_TASK_PLANS_TAB &&
+                <TaskPlanListContainer release={release}/>}
+                {(isManager || isLeader) && selectedTab === SC.RELEASE_REPORT_TAB &&
+                <TaskReportListContainer release={release}/>}
             </div>
-
         )
     }
 }

@@ -113,9 +113,15 @@ export const selectIteration = (iteration) => ({
 })
 
 
-export const getAllReleasesFromServer = (status) => {
+export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/status/' + status, {
+        let api = '';
+        if (flag)
+            api = '/api/releases/all/status/' + status
+        else
+            api = '/api/releases/mine/status/' + status
+
+        return fetch(api, {
                 method: 'get',
                 credentials: "include",
                 headers: {

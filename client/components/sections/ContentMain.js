@@ -19,7 +19,8 @@ import {
     UserProfileFormContainer,
     LeaveDetailPageContainer,
     DashboardSectionContainer,
-    TaskReportDetailPageContainer
+    TaskReportDetailPageContainer,
+    CompanySectionContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -61,6 +62,19 @@ class ContentMain extends Component {
         // All the routes that should be configured based on permissions this user has
         let routes = []
 
+
+        routes.push({
+            url: "/company",
+            render: (props) => {
+                return <ContentSection>
+                    <CompanySectionContainer name={COC.COMPANY_SECTION} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.COMPANY_SECTION))
+                        }
+                    }/>
+                </ContentSection>
+            }
+        })
 
         routes.push({
             url: "/dashboard",
