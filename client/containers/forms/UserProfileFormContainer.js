@@ -13,7 +13,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 NotificationManager.success('User Profile Updated Successfully')
             }
             else {
-                NotificationManager.error('User Profile Update Failed');
+                NotificationManager.error(json.message);
             }
         }),
             logger.debug(logger.USER_PROFILE_FORM_CONNECT, "onSubmit():", values)

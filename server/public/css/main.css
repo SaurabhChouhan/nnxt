@@ -970,10 +970,15 @@ td.rejRowColor {
     text-align: center;
     padding-left: 22px;
     padding-right: 22px;
-    padding-top: 70px;
+    padding-top: 40px;
     font-style: normal;
 
     /*margin: 180px 138px;*/
+}
+
+.login_img li {
+    color: #C5C7C9;
+    font-size: 18px;
 }
 
 .textcentered {
@@ -2214,6 +2219,13 @@ hr {
     margin-top: 10px;
 }
 
+.warningSource span + span:before, .noWarningSource span + span:before {
+    content: " | ";
+}
+
+.warningSource .source {
+    color: red;
+}
 
 
 

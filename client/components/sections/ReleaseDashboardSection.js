@@ -145,8 +145,13 @@ class DashboardSection extends Component {
 
 
         let planningsWidth = dashboardWidth - 150
-        if (this.props.dailyPlannings && this.props.dailyPlannings.length)
-            planningsWidth = 50 * this.props.dailyPlannings.length
+        if (this.props.dailyPlannings && this.props.dailyPlannings.length) {
+            if (this.props.dailyPlannings.length > 6)
+                planningsWidth = 50 * this.props.dailyPlannings.length
+            else
+                planningsWidth = 300
+
+        }
 
         if (this.props.resetDailyPlanningMonth) {
             this.state.monthMoment = moment()
@@ -308,14 +313,14 @@ class DashboardSection extends Component {
                         <Tooltip/>
                         <Legend/>
                         <Bar barSize={10} dataKey="plannedBeforeCount" fill={"#ffcb9e"}
-                             name={"Planned Before Count"}>
+                             name={"Planned Past Count"}>
                             <LabelList dataKey="plannedBeforeCount" position="top"/>
                         </Bar>
                     </BarChart>
                 </div>
             </div>
 
-            <div className={"col-md-6"} style ={{paddingLeft:"0px"}}>
+            <div className={"col-md-6"} style={{paddingLeft: "0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.mgmtData]}
                               height={120} width={(dashboardWidth - 60) / 2} layout={"vertical"}
@@ -325,11 +330,11 @@ class DashboardSection extends Component {
                         <Tooltip/>
                         <Legend/>
                         <Bar barSize={10} dataKey="plannedBefore" fill={"#ffcb9e"}
-                             name={"Planned Before"}>
+                             name={"Planned Past"}>
                             <LabelList dataKey="plannedBefore" position="top"/>
                         </Bar>
                         <Bar barSize={10} dataKey="plannedAfter" fill={plannedColor}
-                             name={"Planned After"}>
+                             name={"Planned Future"}>
                             <LabelList dataKey="plannedAfter" position="top"/>
                         </Bar>
                         <ReferenceLine x={0} stroke='black' isFront={true}>
@@ -340,7 +345,7 @@ class DashboardSection extends Component {
                 </div>
             </div>
 
-            <div className={"col-md-3"} style ={{paddingLeft:"0px"}}>
+            <div className={"col-md-3"} style={{paddingLeft: "0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.mgmtData]}
                               height={120} width={(dashboardWidth - 60) / 4} layout={"vertical"} margin={barMargin}>
@@ -349,7 +354,7 @@ class DashboardSection extends Component {
                         <Tooltip/>
                         <Legend/>
                         <Bar barSize={10} dataKey="plannedAfterCount" fill={plannedColor}
-                             name={"Planned After Count"}>
+                             name={"Planned Future Count"}>
                             <LabelList dataKey="plannedAfterCount" position="top"/>
                         </Bar>
                     </BarChart>
@@ -373,7 +378,7 @@ class DashboardSection extends Component {
                 </div>
             </div>
 
-            <div className={"col-md-6"} style={{paddingLeft:"0px"}}>
+            <div className={"col-md-6"} style={{paddingLeft: "0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.mgmtData]}
                               height={120} width={(dashboardWidth - 60) / 2} layout={"vertical"} margin={barMargin}>
@@ -393,7 +398,7 @@ class DashboardSection extends Component {
                 </div>
             </div>
 
-            <div className={"col-md-3"} style={{paddingLeft:"0px"}}>
+            <div className={"col-md-3"} style={{paddingLeft: "0px"}}>
                 <div className={"chartSection"}>
                     <BarChart data={[this.props.mgmtData]}
                               height={120} width={(dashboardWidth - 60) / 4} layout={"vertical"}

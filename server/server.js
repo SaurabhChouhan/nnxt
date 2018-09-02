@@ -165,10 +165,11 @@ co(async () => {
         console.log("[" + new Date() + "]: Executing events...")
         await H.executeEvents()
         clearTimeout(t)
-        t = setTimeout(startEventExecutor, SC.EVENT_INTERVAL)
+        t = setTimeout(startEventExecutor, conf.server.eventInterval)
     }
 
-    t = setTimeout(startEventExecutor, SC.EVENT_INTERVAL)
+    // First time events would be executed 30 seconds after server restart
+    t = setTimeout(startEventExecutor, 30000)
 
     app.listen(conf.server.port, () => {
         console.log('Server started on %s', conf.server.port)

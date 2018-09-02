@@ -235,7 +235,7 @@ class ReleasePlanList extends Component {
                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                            hidden={true}>ID</TableHeaderColumn>
 
-                        <TableHeaderColumn width="20%" columnTitle dataField='task'
+                        <TableHeaderColumn width="20%" dataField='task'
                                            dataFormat={this.formatTaskName.bind(this)}>Task
                             Name</TableHeaderColumn>
 

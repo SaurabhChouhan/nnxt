@@ -925,7 +925,7 @@ const addEmployeeSettings = async () => {
     if (!employeeSettings || !employeeSettings.length) {
         await MDL.EmployeeSettingModel.createEmployeeSettings({
             minPlannedHours: 4,
-            maxPlannedHours: 8,
+            maxPlannedHours: 9,
             free: 1,
             relativelyFree: 3,
             someWhatBusy: 5,
