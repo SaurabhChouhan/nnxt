@@ -156,29 +156,32 @@ export const getUsersWithRoleDeveloperFromServer = () => {
     }
 }
 
-
 export const getAllDeveloperFromServer = () => {
     return function (dispatch, getState) {
-        return fetch('/api/users/role-developer',
-            {
-                method: "get",
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
+        let state = getState()
+        // Fetch developers only if not already fetched
+        if (state && state.user.allDevelopers && state.user.allDevelopers.length == 0) {
+            return fetch('/api/users/role-developer',
+                {
+                    method: "get",
+                    credentials: "include",
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    }
                 }
-            }
-        ).then(
-            response => {
-                return response.json()
-            }
-        ).then(json => {
-                if (json.success) {
-                    dispatch(addDevelopersToState(json.data))
+            ).then(
+                response => {
+                    return response.json()
                 }
-                return json
-            }
-        )
+            ).then(json => {
+                    if (json.success) {
+                        dispatch(addDevelopersToState(json.data))
+                    }
+                    return json
+                }
+            )
+        }
     }
 }
 

@@ -47,7 +47,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     openMoveTaskPlanForm: (taskPlan, workCalendarEmployeeID) => {
         taskPlan.workCalendarEmployeeID = workCalendarEmployeeID
-        dispatch(A.getIterationDatesReleasePlansFromServer(taskPlan.releasePlan._id)).then(()=>{
+        dispatch(A.getIterationDatesReleasePlansFromServer(taskPlan.releasePlan._id)).then(() => {
             dispatch(initialize("move-task-planning", taskPlan))
             dispatch(A.showComponent(COC.MOVE_TASK_PLAN_DIALOG))
         })
@@ -91,6 +91,10 @@ const mapStateToProps = (state) => ({
     releasePlan: state.release.selectedReleasePlan,
     taskPlans: state.release.taskPlans,
     developerPlans: state.release.developerPlans,
+    developers: [{
+        _id: 'all',
+        name: 'All Employees'
+    }, ...state.release.teamOfRelease],
     expanded: state.release.expanded,
     workCalendarEmployeeID: state.employee.workCalendar.employees && state.employee.workCalendar.employees.length ? state.employee.workCalendar.employees[0]._id : undefined
 })

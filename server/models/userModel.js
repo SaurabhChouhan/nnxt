@@ -110,9 +110,10 @@ userSchema.statics.getAllActiveWithRoleDeveloper = async (loggedInUser) => {
                 "roles.name": {
                     $in: [SC.ROLE_DEVELOPER]
                 }, isDeleted: false
-            }, {password: 0}
-        ).exec()
-        return ( Team && Team.length ? Team.map(t => {
+            }, {firstName: 1, lastName: 1}
+        ).sort({firstName: 1}).exec()
+
+        return (Team && Team.length ? Team.map(t => {
             t = t.toObject()
             t.name = t.firstName + ' ' + t.lastName
             return t

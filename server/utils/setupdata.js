@@ -434,6 +434,7 @@ const addNNXTUsers = async () => {
         })
     }
 
+    /*
     if (!await MDL.UserModel.exists('gaurav.aripra@gmail.com')) {
         await MDL.UserModel.createUser({
             email: 'gaurav.aripra@gmail.com',
@@ -446,6 +447,7 @@ const addNNXTUsers = async () => {
             dateJoined: '01-01-2018'
         })
     }
+    */
 
     if (!await MDL.UserModel.exists('murtaza.aripra@gmail.com')) {
         await MDL.UserModel.createUser({

@@ -517,7 +517,7 @@ releaseSchema.statics.getFullReleaseDetailsById = async (releaseId, user) => {
                 ]
             }
         )
-    } else if(U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)){
+    } else if (U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
         // Top management can see all the details
         release = await ReleaseModel.findById(releaseId)
     }
@@ -741,6 +741,18 @@ releaseSchema.statics.getReleasesByIDs = async (releaseIDs, select) => {
         releases.push(release)
     }
     return releases
+}
+
+releaseSchema.statics.getReleaseEmployees = async (releaseID) => {
+    let release = await ReleaseModel.findById(releaseID, {
+        team: 1,
+        nonProjectTeam: 1
+    })
+
+    if (!release)
+        return []
+
+    return [...release.team, ...release.nonProjectTeam]
 }
 
 

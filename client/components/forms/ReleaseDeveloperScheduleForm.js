@@ -5,13 +5,13 @@ import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
 import {NotificationManager} from 'react-notifications'
+import {ALL} from '../../../server/serverconstants'
 
 moment.locale('en')
 momentLocalizer()
 
 
 class ReleaseDeveloperScheduleForm extends Component {
-
     constructor(props) {
         super(props)
         this.state = {
@@ -19,9 +19,13 @@ class ReleaseDeveloperScheduleForm extends Component {
         }
     }
 
+    componentDidMount(){
+        this.props.getDeveloperSchedules(ALL, this.state.monthMoment.month(), this.state.monthMoment.year(), this.props.releaseID)
+    }
+
     render() {
         let props = this.props
-        const {handleSubmit, employeeID, team} = props
+        const {handleSubmit, employeeID, developers, releaseID} = props
         return <div>
             <form onSubmit={handleSubmit}>
                 <div className="col-md-offset-3 col-md-6 repositoryHeading releaseDevScheduleHeading">
@@ -31,12 +35,11 @@ class ReleaseDeveloperScheduleForm extends Component {
                     <div className="col-md-offset-3 col-md-6 pad">
                         <Field name="employeeID"
                                onChange={(event, newValue, oldValue) => {
-                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month(), this.state.monthMoment.year())
+                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month(), this.state.monthMoment.year(), releaseID)
                                }}
                                component={renderSelect}
-                               noneOptionText={"Select Employee..."}
-
-                               options={team}
+                               showNoneOption={false}
+                               options={developers}
                         />
 
                     </div>
@@ -46,7 +49,7 @@ class ReleaseDeveloperScheduleForm extends Component {
                         <button className={"btn reportingArrow"}
                                 style={{marginLeft: '-16px'}}
                                 onClick={() => {
-                                    if(!employeeID) {
+                                    if (!employeeID) {
                                         return NotificationManager.error('Please select employee!')
                                     }
                                     let newMonthMoment = this.state.monthMoment.clone().subtract(1, 'month')
@@ -66,7 +69,7 @@ class ReleaseDeveloperScheduleForm extends Component {
                         <button className="btn reportingArrow"
                                 style={{marginLeft: '27px'}}
                                 onClick={() => {
-                                    if(!employeeID) {
+                                    if (!employeeID) {
                                         return NotificationManager.error('Please select employee!')
                                     }
                                     let newMonthMoment = this.state.monthMoment.clone().add(1, 'month')

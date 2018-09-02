@@ -6,6 +6,7 @@ import * as SC from '../../../server/serverconstants'
 import * as A from '../../actions'
 import * as COC from '../componentConsts'
 import * as U from '../../../server/utils'
+import {initialize} from 'redux-form'
 
 const SidebarSection = (props) => {
     let roles = []
@@ -29,7 +30,19 @@ const SidebarSection = (props) => {
                                     }
                                 })
                             }}>Dashboard</Link></li>
-                        */  }
+                        */}
+
+                        {
+                            (roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1) &&
+                            <li><Link to="/app-home/company" onClick={() => {
+                                props.dispatch(A.showComponentHideOthers(COC.COMPANY_SECTION))
+                                props.dispatch(A.getAllDeveloperFromServer())
+                                props.dispatch(initialize('developer-Schedule', {
+                                    employeeID: SC.ALL
+                                }))
+
+                            }}>Company</Link></li>
+                        }
                         {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
                                 roles.indexOf('Developer') > -1) &&
@@ -39,7 +52,6 @@ const SidebarSection = (props) => {
 
                             }}>Calendar</Link></li>
                         }
-
                         {
 
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1) &&

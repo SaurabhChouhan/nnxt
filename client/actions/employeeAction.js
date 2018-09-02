@@ -87,25 +87,22 @@ export const addWorkCalendar = (calendar) => ({
     calendar: calendar
 })
 
-export const getEmployeeWorkCalendarFromServer = (employeeID, month, year) => {
-    console.log("inside getEmployeeWorkCalendarFromServer")
+export const getEmployeeWorkCalendarFromServer = (employeeID, month, year, releaseID) => {
+
     return function (dispatch, getState) {
-
-        console.log("inside function of getEmployeeWorkCalendarFromServer")
-
         let state = getState()
-
-        console.log("state found as ", state)
-
-        if(month == undefined) {
+        if (month == undefined) {
             month = state.employee.workCalendar.month
         }
-        if(year == undefined)
+        if (year == undefined)
             year = state.employee.workCalendar.year
 
-        console.log("calling API [/api/employees/' + employeeID + /employee-schedule/" + month + "/year/" + year)
+        let api = '/api/employees/' + employeeID + "/employee-schedule/" + month + "/year/" + year
 
-        return fetch('/api/employees/' + employeeID + "/employee-schedule/" + month + "/year/" + year,
+        if (releaseID)
+            api += '/release/' + releaseID
+
+        return fetch(api,
             {
                 method: "get",
                 credentials: "include",
