@@ -23,12 +23,8 @@ let projectSchema = mongoose.Schema({
 })
 
 projectSchema.statics.getAllActive = async (loggedInUser) => {
-    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR)) {
-        // Negotiator can see all projects (Estimation Initiate)
-        return await ProjectModel.find({isDeleted: false, isArchived: false}).exec()
-    } else {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    // Negotiator can see all projects (Estimation Initiate)
+    return await ProjectModel.find({isDeleted: false, isArchived: false}).exec()
 }
 
 projectSchema.statics.getProjectsOfReleasesInvolved = async (loggedInUser) => {
