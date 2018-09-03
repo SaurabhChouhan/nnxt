@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import {withRouter} from 'react-router-dom'
 
 
@@ -80,14 +81,14 @@ class ReleaseList extends Component {
 
     formatStartDate(column, row) {
         if (row.iterations[0]) {
-            return moment(row.iterations[0].devStartDate).format("DD-MM-YYYY")
+            return momentTZ.utc(row.iterations[0].devStartDate).format("DD-MM-YYYY")
         }
         return ''
     }
 
     formatEndDate(column, row) {
         if (row.iterations[0]) {
-            return moment(row.iterations[0].devEndDate).format("DD-MM-YYYY")
+            return momentTZ.utc(row.iterations[0].devEndDate).format("DD-MM-YYYY")
         }
         return ''
     }
@@ -95,7 +96,7 @@ class ReleaseList extends Component {
 
     formatReleaseDate(column, row) {
         if (row.iterations[0]) {
-            return moment(row.iterations[0].clientReleaseDate).format("DD-MM-YYYY")
+            return momentTZ.utc(row.iterations[0].clientReleaseDate).format("DD-MM-YYYY")
         }
         return ''
     }
