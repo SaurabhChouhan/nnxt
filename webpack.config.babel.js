@@ -12,7 +12,7 @@ const config = {
     },
     output: {
         path: buildPath,
-        filename: 'app.bundle.1.js',
+        filename: 'app.bundle.2.js',
         publicPath: '/js'
     },
     module: {
