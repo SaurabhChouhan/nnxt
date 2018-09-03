@@ -3,6 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import {ReleaseTaskSearchFormContainer} from '../../containers'
 
 class TaskPlanList extends Component {
@@ -55,7 +56,7 @@ class TaskPlanList extends Component {
 
     formatPlannedDate(row) {
         if (row) {
-            return moment(row).format(SC.DATE_DISPLAY_FORMAT)
+            return momentTZ.utc(row).format(SC.DATE_DISPLAY_FORMAT)
         }
         return ''
     }
