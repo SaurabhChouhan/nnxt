@@ -15,6 +15,8 @@ import {
     Label
 } from 'recharts'
 import moment from "moment";
+import momentTZ from 'moment-timezone'
+import {DATE_FORMAT} from "../../../server/serverconstants";
 
 
 const addPercentage = (value) => {
@@ -154,8 +156,8 @@ class DashboardSection extends Component {
             this.state.monthMoment = moment()
         }
 
-        let releaseStartMonth = moment(this.props.release.devStartDate)
-        let releaseEndMonth = moment(this.props.release.devEndDate)
+        let releaseStartMonth = moment(momentTZ.utc(this.props.release.devStartDate).format(DATE_FORMAT))
+        let releaseEndMonth = moment(momentTZ.utc(this.props.release.devEndDate).format(DATE_FORMAT))
 
         let beforeOrSameAsStartMonth = false
         let afterOrSameAsLastMonth = false

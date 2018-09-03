@@ -3661,8 +3661,8 @@ taskPlanningSchema.statics.getReleaseDayPlannings = async (releaseID, month, yea
 
     // We would now insert week days where there are no planning
 
-    let startMoment = moment(release.devStartDate)
-    let endMoment = moment(release.devEndDate)
+    let startMoment = momentTZ.utc(release.devStartDate)
+    let endMoment = momentTZ.utc(release.devEndDate)
 
     if (startMoment.isBefore(monthStartMoment))
         startMoment = monthStartMoment

@@ -3,6 +3,7 @@ import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderDateTimePickerString, renderDateTimeStringShow, renderField, renderSelect} from './fields'
 import {required} from "./validation"
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
 import * as SC from "../../../server/serverconstants";
@@ -31,9 +32,9 @@ let UpdateReleaseDatesForm = (props) => {
                 <Field name="iteration._id" component={renderSelect} label={"Iteration :"} options={iterations}
                        validate={[required]} onChange={(event, newValue, oldValue) => {
                     let iteration = release.iterations.find(i => i._id.toString() == newValue)
-                    const devStartDate = moment(iteration.devStartDate).format(SC.DATE_FORMAT)
-                    const devEndDate = moment(iteration.devEndDate).format(SC.DATE_FORMAT)
-                    const clientReleaseDate = moment(iteration.clientReleaseDate).format(SC.DATE_FORMAT)
+                    const devStartDate = momentTZ.utc(iteration.devStartDate).format(SC.DATE_FORMAT)
+                    const devEndDate = momentTZ.utc(iteration.devEndDate).format(SC.DATE_FORMAT)
+                    const clientReleaseDate = momentTZ.utc(iteration.clientReleaseDate).format(SC.DATE_FORMAT)
                     change("updatedDevStartDate", devStartDate)
                     change("updatedDevEndDate", devEndDate)
                     change("updatedClientReleaseDate", clientReleaseDate)
