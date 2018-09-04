@@ -49,7 +49,8 @@ import {
     ReleasePlanAddToReleaseDialog,
     TaskShiftDialog,
     ReportTaskDescriptionFormDialog,
-    CreateReleaseDialog
+    CreateReleaseDialog,
+    UpdateReleaseDialog
 
 } from "../index"
 import {Route} from 'react-router-dom'
@@ -291,11 +292,11 @@ class ContentMain extends Component {
                 return <ContentSection>
                     <ReleaseListContainer name={COC.RELEASE_LIST}/>
                     <CreateReleaseDialog name={COC.CREATE_RELEASE_FORM_DIALOG} show={true}
-                                                   close={
-                                                       () => {
-                                                           this.props.dispatch(A.hideComponent(COC.CREATE_RELEASE_FORM_DIALOG))
-                                                       }
-                    }/>
+                                         close={
+                                             () => {
+                                                 this.props.dispatch(A.hideComponent(COC.CREATE_RELEASE_FORM_DIALOG))
+                                             }
+                                         }/>
                 </ContentSection>
 
             }
@@ -312,6 +313,12 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
                         }
                     }/>
+                    <UpdateReleaseDialog name={COC.UPDATE_RELEASE_FORM_DIALOG} show={true}
+                                         close={
+                                             () => {
+                                                 this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_FORM_DIALOG))
+                                             }
+                                         }/>
                     <ReleasePlanAddToReleaseDialog name={COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG} show={true}
                                                    close={
                                                        () => {

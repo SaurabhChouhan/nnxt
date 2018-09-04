@@ -19,12 +19,6 @@ const config = {
             mode: 'production',
             eventInterval: 1800000
         },
-        setupData: {
-            port: 3000,
-            setupData: true,
-            dropDatabase: true,
-            mode: 'production'
-        },
         kamlesh: {
             port: 3002,
             setupData: false,

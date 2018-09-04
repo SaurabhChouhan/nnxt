@@ -85,13 +85,22 @@ class ReleasePlanSection extends Component {
                             <p>{release && release.clientReleaseDate ? momentTZ.utc(release.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
+
                     {isManager ?
                         <div className="col-md-2">
-                            <button className=" btn btn-custom customBtn " type="button"
-                                    onClick={() => {
+                            <ul className="ordered-button">
+                                <li>
+                                    <img onClick={() => {
                                         this.props.openUpdateReleaseDatesForm(release)
-                                    }}>Update Dates
-                            </button>
+                                    }} src={'/images/edit_date.png'}></img>
+                                </li>
+                                <li>
+                                    <img onClick={() => {
+                                        this.props.openUpdateReleaseForm(release)
+                                    }} src={'/images/edit_release.png'}></img>
+                                </li>
+                            </ul>
+
                         </div> : null
                     }
 
