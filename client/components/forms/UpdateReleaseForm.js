@@ -1,17 +1,21 @@
+import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
-import React from 'react'
-import {renderDateTimePickerString, renderMultiSelect, renderSelect, renderText} from './fields'
-import * as logger from '../../clientLogger'
-import {number, required} from "./validation"
+import {
+    renderDateTimePickerString,
+    renderMultiSelect,
+    renderSelect,
+    renderText
+} from './fields'
+import {required} from "./validation"
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
-import _ from 'lodash'
+import _ from "lodash";
 
 moment.locale('en')
 momentLocalizer()
-
-let CreateReleaseForm = (props) => {
+let UpdateReleaseForm = (props) => {
     const {pristine, submitting, reset, change} = props
     const {team, managers, leaders, devStartDate, devReleaseDate, clientReleaseDate, manager, leader, project, module, projects, modules, developmentTypes, technologies} = props
     let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
@@ -34,6 +38,7 @@ let CreateReleaseForm = (props) => {
     let updatedManagerList = leader && leader._id ? managers.filter(m => m._id.toString() !== leader._id.toString()) : managers
     let updatedLeaderList = manager && manager._id ? leaders.filter(l => l._id.toString() !== manager._id.toString()) : leaders
     let now = new Date()
+
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-12">
@@ -147,13 +152,13 @@ let CreateReleaseForm = (props) => {
     </form>
 }
 
-CreateReleaseForm = reduxForm({
-    form: 'create-release'
-})(CreateReleaseForm)
+UpdateReleaseForm = reduxForm({
+    form: 'update-release'
+})(UpdateReleaseForm)
 
 const selector = formValueSelector('create-release')
 
-CreateReleaseForm = connect(
+UpdateReleaseForm = connect(
     state => {
         const {devStartDate, devReleaseDate, clientReleaseDate} = selector(state, 'devStartDate', 'devReleaseDate', 'clientReleaseDate')
         const manager = selector(state, 'manager')
@@ -172,6 +177,6 @@ CreateReleaseForm = connect(
             leader
         }
     }
-)(CreateReleaseForm)
+)(UpdateReleaseForm)
 
-export default CreateReleaseForm
+export default UpdateReleaseForm

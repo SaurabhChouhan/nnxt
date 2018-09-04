@@ -22,6 +22,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 _id: release._id
             }))
             dispatch(A.showComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
+        },
+        openUpdateReleaseForm: (release) => {
+            dispatch(initialize("update-release", {
+                _id: release._id
+            }))
+            dispatch(A.showComponent(COC.UPDATE_RELEASE_FORM_DIALOG))
         }
     }
 )

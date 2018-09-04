@@ -65,6 +65,7 @@ export {default as ReportTaskDescriptionFormContainer} from './forms/ReportTaskD
 
 // Release forms
 export {default as CreateReleaseFormContainer} from './forms/CreateReleaseFormContainer'
+export {default as UpdateReleaseFormContainer} from './forms/UpdateReleaseFormContainer'
 
 //Projects
 export {default as ProjectListContainer} from './lists/ProjectListContainer'
