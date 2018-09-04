@@ -134,3 +134,4 @@ export {default as WarningListContainer} from './lists/WarningListContainer'
 //
 export {default as HolidayFormContainer} from './forms/HolidayFormContainer'
 export {default as HolidayListContainer} from './lists/HolidayListContainer'
+export {default as TaskPlanDateNavBarContainer} from './forms/TaskPlanDateNavBarContainer'

@@ -20,7 +20,7 @@ class ReportingCommentForm extends React.Component {
             {name: SC.TYPE_BLOCKING}]
         return (
             <form onSubmit={handleSubmit}>
-                <div className="col-md-12 pad reportingCommentForm" style={{marginBottom: '10px'}}>
+                <div className="col-md-12 pad ">
 
                     <Field name="releasePlanID" component="input" className="form-control" type="hidden"></Field>
                     <Field name="releaseID" component="input" className="form-control" type="hidden"></Field>

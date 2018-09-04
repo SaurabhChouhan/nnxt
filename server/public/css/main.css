@@ -1885,7 +1885,7 @@ hr {
 }
 
 .reportingCommentForm {
-    margin-top: 15px;
+    margin-top: 0px;
 }
 
 .releaseReadMoreLabel {
@@ -1908,6 +1908,12 @@ hr {
 
 .releaseReadLessLabelClick {
     margin-top: 30px;
+}
+
+.ReportingCommentTable .react-bs-table table td, .ReportingCommentTable .react-bs-table table th {
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
 }
 
 .releasePlanChkBtn {
@@ -2152,6 +2158,7 @@ hr {
 
 .react-bs-table-bordered {
     margin-bottom: 15px;
+    border:none;
 }
 
 .reporting {
@@ -2226,6 +2233,14 @@ hr {
 .warningSource .source {
     color: red;
 }
-
-
+.planFilterTaskForm {
+    background-color: #f1f1f1;
+    height: 70px;
+    border-bottom: 2px solid #34343C;
+    border-top: 2px solid #34343C;
+    margin-top: 10px;
+}
+.search-btn-taskplan-list{
+    margin-top: 20;;
+}
 

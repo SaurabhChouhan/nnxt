@@ -253,6 +253,11 @@ const releaseReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 selectedIteration: action.iteration
             })
+        case AC.SEARCH_TASK_PLANS_IN_RELEASE:
+            // Stores task planning details on Release section of selected tasks
+            return Object.assign({}, state, {
+                taskPlans: action.taskPlans,
+            })
         default:
             return state
     }
