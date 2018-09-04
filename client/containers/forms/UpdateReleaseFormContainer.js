@@ -1,19 +1,18 @@
 import {connect} from 'react-redux'
 import {UpdateReleaseForm} from "../../components"
-import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formInput) => {
-        return dispatch(A.createReleaseOnServer(formInput)).then(json => {
+        return dispatch(A.updateReleaseOnServer(formInput)).then(json => {
             if (json.success) {
                 NotificationManager.success("Release Updated")
                 // hide dialog
                 dispatch(A.hideComponent(COC.UPDATE_RELEASE_FORM_DIALOG))
             } else {
-                NotificationManager.error("Release Updates Failed")
+                NotificationManager.error(json.message)
             }
         })
     }
@@ -33,7 +32,6 @@ const mapStateToProps = (state) => {
                 return dev
             })
             : []
-
     }
 
     return {

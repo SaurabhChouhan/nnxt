@@ -24,8 +24,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.showComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
         },
         openUpdateReleaseForm: (release) => {
+            dispatch(A.getAllProjectsFromServer())
+            dispatch(A.getAllModulesFromServer())
+            dispatch(A.getUsersWithRoleCategoryFromServer())
+            dispatch(A.getAllTechnologiesFromServer())
+            dispatch(A.getAllDevelopmentTypesFromServer())
+
             dispatch(initialize("update-release", {
-                _id: release._id
+                _id: release._id,
+                developmentType: release.developmentType,
+                leader: release.leader,
+                manager: release.manager,
+                team: release.team
             }))
             dispatch(A.showComponent(COC.UPDATE_RELEASE_FORM_DIALOG))
         }

@@ -159,7 +159,7 @@ const getAllEmployeesWorkCalendar = async (employees, startMonth, endMonth, star
 employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, year, user, releaseID) => {
 
     if (releaseID) {
-        let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+        let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(releaseID, user)
         if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
             throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see employee schedules of that release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
         }

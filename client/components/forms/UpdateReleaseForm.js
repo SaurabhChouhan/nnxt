@@ -43,62 +43,9 @@ let UpdateReleaseForm = (props) => {
         <div className="row">
             <div className="col-md-12">
                 <div className="col-md-6">
-                    <Field name="releaseVersionName" component={renderText} validate={[required]}
-                           label={"Name (Release Version):"}/>
-                </div>
-                <div className="col-md-6">
                     <Field name="developmentType._id" component={renderSelect} label={"Development Type:"}
                            options={developmentTypes}
                            displayField={"name"} validate={[required]}/>
-                </div>
-            </div>
-
-            <div className="col-md-12">
-                <div className="col-md-6">
-                    <Field name="project._id"
-                           component={renderSelect}
-                           label={"Project:"}
-                           options={moduleProjects}
-                           validate={[required]}
-                    />
-                </div>
-                <div className="col-md-6">
-                    <Field name="module._id"
-                           component={renderSelect}
-                           label={"Module:"}
-                           options={projectModules}
-                           displayField={"firstName"}
-                    />
-                </div>
-            </div>
-            <div className="col-md-12">
-                <div className="col-md-12">
-                    <Field name="technologies" component={renderMultiSelect} label="technologies:"
-                           data={technologies}/>
-                </div>
-            </div>
-
-            <div className="col-md-12">
-                <div className="col-md-4">
-                    <Field name="devStartDate" component={renderDateTimePickerString}
-                           min={now}
-                           max={max}
-                           showTime={false}
-                           label={"Expected Start Date For Developer:"} validate={[required]}/>
-                </div>
-                <div className="col-md-4">
-                    <Field name="devReleaseDate" component={renderDateTimePickerString}
-                           min={moment(devStartDate).toDate()}
-                           max={maxRelease}
-                           showTime={false}
-                           label={"Expected Developer Release Date:"} validate={[required]}/>
-                </div>
-                <div className="col-md-4">
-                    <Field name="clientReleaseDate" component={renderDateTimePickerString}
-                           min={moment(devReleaseDate).toDate()}
-                           showTime={false}
-                           label={"Expected Client Release Date:"}
-                           validate={required}/>
                 </div>
             </div>
 

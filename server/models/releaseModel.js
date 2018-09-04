@@ -177,16 +177,8 @@ releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) 
 }
 
 
-releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
-    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
-        manager: 1,
-        leader: 1,
-        team: 1,
-        nonProjectTeam: 1
-    })
-
+releaseSchema.statics.getUserRolesInRelease = async (release, user) => {
     let rolesInRelease = []
-
     if (release) {
         if (release.manager && release.manager._id.toString() === user._id.toString())
             rolesInRelease.push(SC.ROLE_MANAGER)
@@ -205,6 +197,19 @@ releaseSchema.statics.getUserRolesInThisRelease = async (releaseID, user) => {
         return undefined
 
     return rolesInRelease
+}
+
+releaseSchema.statics.getUserRolesInReleaseById = async (releaseID, user) => {
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
+        manager: 1,
+        leader: 1,
+        team: 1,
+        nonProjectTeam: 1
+    })
+
+    return await ReleaseModel.getUserRolesInRelease(release, user)
+
+
 }
 
 /**
@@ -238,6 +243,10 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
         throw new AppError('Manager and leader can not be the  same user please choose different one ', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
+    if (!releaseData.team || releaseData.team.length == 0) {
+        throw new AppError('At least one developer should be assigned to a release', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
     const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.project._id), {name: 1})
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -256,7 +265,6 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
     release.developmentType = developmentType
     release.project = project
     release.manager = manager
-    release.developmentType = releaseData.developmentType
     release.leader = leader
     release.team = releaseData.team
     release.technologies = releaseData.technologies
@@ -287,6 +295,102 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
     release.name = releaseData.releaseVersionName
     release.status = SC.STATUS_AWARDED
     release.negotiator = user
+    return await release.save()
+}
+
+const updateReleaseProcessTeam = async (releaseID, team, newTeam)=>{
+
+    let existingTeamIDs = team.map(t => t._id.toString())
+    let newTeamIDs = newTeam.map(t => t._id.toString())
+
+    logger.debug("updateReleaseProcessTeam(): ", {existingTeamIDs})
+    logger.debug("updateReleaseProcessTeam(): ", {newTeamIDs})
+
+
+    for(const eti of existingTeamIDs){
+        if (!U.includeAny(eti, newTeamIDs)) {
+            logger.debug("updateRelease(): team member [" + eti + '] is removed from release')
+            // Team member with task plan associated cannot be removed from release
+            let taskCount = await MDL.TaskPlanningModel.count({
+                'release._id': releaseID,
+                'employee._id': mongoose.Types.ObjectId(eti)
+            })
+            if(taskCount > 0){
+                let employee = team.find(t=> t._id.toString() == eti)
+                throw new AppError('You cannot remove ['+employee.name+'] from release as user has planned tasks in this release')
+            }
+        }
+    }
+}
+
+releaseSchema.statics.updateRelease = async (releaseData, user) => {
+
+    //V.validate(releaseData, V.releaseUpdateStruct)
+
+    // try to see if release exists
+
+    let release = await ReleaseModel.findById(releaseData._id)
+
+    if (!release)
+        throw new AppError("Release not found ", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInRelease(release, user)
+
+    if (!U.includeAny(SC.ROLE_MANAGER, rolesInRelease)) {
+        throw new AppError('Only Manager of release can update a release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    logger.debug("updateRelease(): ", {releaseData})
+
+    const manager = await MDL.UserModel.findOne({
+        '_id': mongoose.Types.ObjectId(releaseData.manager._id),
+        'roles.name': SC.ROLE_MANAGER
+    })
+
+    if (!manager)
+        throw new AppError("Either this user do not exists or do not have manager role", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    const leader = await MDL.UserModel.findById({
+        '_id': mongoose.Types.ObjectId(releaseData.leader._id),
+        'roles.name': SC.ROLE_LEADER
+    })
+
+    if (!leader)
+        throw new AppError('Either user do not exists or do not have manager role', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (leader._id.toString() === manager._id.toString()) {
+        throw new AppError('Manager and leader can not be the same user please choose different users for each role.', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (!releaseData.team || releaseData.team.length == 0) {
+        throw new AppError('At least one developer should be assigned to a release', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    const developmentType = await MDL.DevelopmentModel.findById(mongoose.Types.ObjectId(releaseData.developmentType._id), {name: 1})
+    if (!developmentType)
+        throw new AppError('Development type not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (release.manager._id.toString() != manager._id.toString() || release.leader._id.toString() != leader._id.toString()) {
+        // Manager or Leader can only be changed if no planning has been done till now
+        let taskCount = await MDL.TaskPlanningModel.count({
+            'release._id': release._id
+        })
+
+        if (taskCount > 0)
+            throw new AppError('Manger/Leader of release can only be changed when no plan is added into release', EC.INVALID_OPERATION, EC.HTTP_FORBIDDEN)
+    }
+
+    /*  Now we will compare previous team with new team and see if any existing developer is removed or not. Removing developer once they have
+        assigned a task would be prevented
+     */
+
+
+    // iterate on existing team IDs to see if any id is not present in new team ids
+    await updateReleaseProcessTeam(release._id, release.team, releaseData.team)
+    release.developmentType = developmentType
+    release.manager = manager
+    release.leader = leader
+    release.team = releaseData.team
     return await release.save()
 }
 
@@ -494,7 +598,7 @@ releaseSchema.statics.updateReleaseDates = async (releaseInput, user, schemaRequ
 releaseSchema.statics.getFullReleaseDetailsById = async (releaseId, user) => {
     let release = undefined
 
-    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseId, user)
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(releaseId, user)
 
     if (U.includeAny(SC.ROLE_MANAGER, rolesInRelease)) {
         release = await ReleaseModel.findOne({
@@ -533,7 +637,7 @@ releaseSchema.statics.getFullReleaseDetailsById = async (releaseId, user) => {
 }
 
 releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
-    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(queryData.releaseID, user)
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(queryData.releaseID, user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], rolesInRelease) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
         throw new AppError('Not a Manager/Leader of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }

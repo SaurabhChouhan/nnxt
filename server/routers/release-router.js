@@ -26,6 +26,11 @@ releaseRouter.post("/", async ctx => {
     return await MDL.ReleaseModel.createRelease(ctx.request.body, ctx.state.user)
 })
 
+releaseRouter.put("/", async ctx => {
+    return await MDL.ReleaseModel.updateRelease(ctx.request.body, ctx.state.user)
+})
+
+
 
 /***
  * Get all releases
@@ -80,7 +85,7 @@ releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
  * Get release Plan list in which logged in user is involved as a manager or leader or developer or non project developer  by release ID and release plan status
  ***/
 releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", async ctx => {
-    let roleInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(ctx.params.releaseID, ctx.state.user)
+    let roleInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(ctx.params.releaseID, ctx.state.user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
