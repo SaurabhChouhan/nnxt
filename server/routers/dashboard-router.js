@@ -24,4 +24,25 @@ dashboardRouter.post('/release-data', async (ctx) => {
 })
 
 
+/*Email Notification APIs*/
+dashboardRouter.get('/email-template', async (ctx) => {
+    return MDL.EmailTemplatesModel.getAllTemplates(ctx.state.user)
+})
+
+dashboardRouter.post('/email-template', async (ctx) => {
+    return MDL.EmailTemplatesModel.addTemplate(ctx.state.user,ctx.request.body)
+})
+
+dashboardRouter.put('/email-template', async (ctx) => {
+    return MDL.EmailTemplatesModel.updateTemplate(ctx.state.user,ctx.request.body)
+})
+
+dashboardRouter.put('/approved-email-template/:id', async (ctx) => {
+    return MDL.EmailTemplatesModel.approvedTemplate(ctx.state.user,ctx.params.id)
+})
+
+dashboardRouter.del('/email-template/:id', async (ctx) => {
+    return MDL.EmailTemplatesModel.deleteTemplate(ctx.state.user,ctx.params.id)
+})
+
 export default dashboardRouter

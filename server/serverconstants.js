@@ -349,3 +349,10 @@ export const EVENT_INTERVAL = 1000 * 3600
 
 export const MODE_DEVELOPMENT = "development"
 export const MODE_PRODUCTION = "production"
+
+/* Email Notifications Configuration Settings */
+
+export const SENDER_EMAIL_ADDRESS = "nnxt@aripratech.com"
+export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.png"
+export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
+export const COPY_RIGHT_FOOTER_MESSAGE = "Copyright 2018 : All right reserved."

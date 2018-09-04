@@ -78,7 +78,9 @@
     "tcomb-validation": "^3.4.1",
     "to-regex": "^3.0.1",
     "to-regex-range": "^3.0.0",
-    "winston": "^3.0.0-rc1"
+    "winston": "^3.0.0-rc1",
+    "aws-sdk": "^2.178.0",
+    "string-template": "^1.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
