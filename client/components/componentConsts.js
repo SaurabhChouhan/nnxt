@@ -8,6 +8,7 @@ export const ADMIN_PERMISSION_TAB = "Manage Permission"
 export const EMPLOYEE_SETTING_TAB = "Employee Setting"
 export const LEAVE_SETTING_TAB = "Leave Setting"
 export const HOLIDAY_TAB = "Holiday "
+export const EMAIL_TAB = "Email Templates"
 
 // forms
 export const PERMISSION_FORM = "PERMISSION_FORM"
