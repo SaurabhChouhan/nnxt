@@ -89,6 +89,11 @@ export const expandDescription = (flag) => ({
     flag: flag
 })
 
+export const expandDescriptionTaskList = (flag) => ({
+    type: AC.EXPAND_DESCRIPTION_TASK_LIST,
+    flag: flag
+})
+
 export const setEmployeeSettings = (empSetting) => ({
     type: AC.SET_EMPLOYEE_SETTINGS,
     empSetting: empSetting

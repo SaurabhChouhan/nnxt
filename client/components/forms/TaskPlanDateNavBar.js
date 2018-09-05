@@ -12,15 +12,36 @@ moment.locale('en')
 
 class TaskPlanDateNavBar extends Component {
 
+    constructor(props){
+        super(props)
+        this.state = {
+            expandDescription: false
+        }
+
+    }
+
     componentDidMount() {
         // On task plan load view user would be shown tasks of today's day and beyond
         console.log("componentDidMount ", this.props)
         this.props.fetchTasks({
-            releaseID:this.props.releaseID,
-            startDate:this.props.initialValues.startDate,
-            endDate:this.props.initialValues.endDate
+            releaseID: this.props.releaseID,
+            startDate: this.props.initialValues.startDate,
+            endDate: this.props.initialValues.endDate
         })
+
+
+        this.handleExpandDescriptionCheckBox = this.handleExpandDescriptionCheckBox.bind(this);
     }
+
+    handleExpandDescriptionCheckBox(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        this.setState({
+            expandDescription: value
+        })
+        this.props.expandDescription(value)
+    }
+
 
     render() {
         const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting, status, flag} = this.props
@@ -32,21 +53,9 @@ class TaskPlanDateNavBar extends Component {
         let maxStartMoment = filterEndMoment && filterEndMoment.isValid() ? filterEndMoment : releaseEndMoment
         let minEndMoment = filterStartMoment && filterStartMoment.isValid() ? filterStartMoment : releaseStartMoment
 
-        console.log("TaskPlanNavBar ", {
-            releaseStartMoment,
-            releaseEndMoment,
-            filterStartMoment,
-            filterEndMoment,
-            maxStartMoment,
-            minEndMoment,
-            startDate,
-            endDate,
-            releaseID
-        })
-
         return <form onSubmit={handleSubmit}>
             <div className="col-md-12 planFilterTaskForm">
-                <div className="col-md-8">
+                <div className="col-md-6">
                     <div className="col-md-6">
                         <Field name="startDate"
                                placeholder={"Start Date"}
@@ -122,6 +131,14 @@ class TaskPlanDateNavBar extends Component {
                             flag: newValue
                         })
                     }} noneOptionText='All'/>
+                </div>
+                <div className={"col-md-2 top-label-checkbox"}>
+                    <label>
+                        Expand Requirement
+                    </label>
+                    <input checked={this.state.expandDescription}
+                           onChange={this.handleExpandDescriptionCheckBox}
+                           type="checkbox"/>
                 </div>
             </div>
         </form>

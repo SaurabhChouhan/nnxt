@@ -25,10 +25,19 @@ class TaskPlanList extends Component {
             sizePerPage: 6,  // which size per page you want to locate as default
 
         }
+
+        this.state = {
+            showDescription: false
+        }
     }
 
     componentDidMount() {
         //this.props.getAllTaskPlans(this.props.release)
+    }
+
+
+    onRowDoubleClick(row) {
+
     }
 
     formatDeveloperName(employee) {
@@ -73,6 +82,12 @@ class TaskPlanList extends Component {
         if (report)
             return report.reportedHours
         return 0
+    }
+
+    formatReportDescription(report) {
+        if (report)
+            return report.description
+        return ''
     }
 
     formatFlags(flags) {
@@ -169,43 +184,54 @@ class TaskPlanList extends Component {
                 <div>
                     <TaskPlanDateNavBarContainer/>
                 </div>
-            <div className="col-md-12 estimation release-plan-table">
-                <BootstrapTable options={this.options} data={taskPlans}
-                                multiColumnSearch={true}
-                                search={false}
-                                striped={true}
-                                pagination
-                                hover={true}
-                                height={"300px"}>
-                    <TableHeaderColumn columnTitle isKey dataField='_id'
-                                       hidden={true}>ID
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width={"20%"} columnTitle dataField='task'
-                                       dataFormat={this.formatTaskName.bind(this)}>Tasks
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width={"20%"} columnTitle dataField='employee'
-                                       dataFormat={this.formatDeveloperName.bind(this)}>Developer
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width="18%" dataField='flags'
-                                       dataFormat={this.formatFlags.bind(this)}>
-                        Flag</TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"12%"} dataField='planningDate'
-                                       dataFormat={this.formatPlannedDate.bind(this)}>Planning
-                        Date
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"10%"} dataField='planning'
-                                       dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                        Hours
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width="10%" columnTitle dataField='report'
-                                       dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                        Hours</TableHeaderColumn>
-                    <TableHeaderColumn width="10%" columnTitle dataField='report'
-                                       dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
-                    </TableHeaderColumn>
+                <div
+                    className={this.props.expandDescription ? "col-md-12 estimation release-plan-table wrapTextTable" : "col-md-12 estimation release-plan-table"}>
+                    <BootstrapTable options={this.options} data={taskPlans}
+                                    multiColumnSearch={true}
+                                    search={false}
+                                    striped={true}
+                                    pagination
+                                    hover={true}
+                                    height={"300px"}>
+                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                           hidden={true}>ID
+                        </TableHeaderColumn>
+                        <TableHeaderColumn columnTitle width={"10%"} dataField='planningDate'
+                                           dataFormat={this.formatPlannedDate.bind(this)}>Planning
+                            Date
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width={"18%"} columnTitle dataField='task'
+                                           dataFormat={this.formatTaskName.bind(this)}>Tasks
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
+                                           dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                        </TableHeaderColumn>
+                        {!this.props.expandDescription && <TableHeaderColumn width="14%" dataField='flags'
+                                                                             dataFormat={this.formatFlags.bind(this)}>
+                            Flag</TableHeaderColumn>
+                        }
+                        <TableHeaderColumn columnTitle width={"8%"} dataField='planning'
+                                           dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
+                        </TableHeaderColumn>
+                        <TableHeaderColumn width="8%" columnTitle dataField='report'
+                                           dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                        </TableHeaderColumn>
+                        {this.props.expandDescriptionTaskList ?
+                            <TableHeaderColumn width="34%" columnTitle dataField='report'
+                                               dataFormat={this.formatReportDescription.bind(this)} dataAlign={"right"}>Day
+                                Requirement
+                            </TableHeaderColumn> : <TableHeaderColumn width="20%" columnTitle dataField='report'
+                                                                      dataFormat={this.formatReportDescription.bind(this)}
+                                                                      dataAlign={"right"}>Day
+                                Requirement
+                            </TableHeaderColumn>
+                        }
+                        <TableHeaderColumn width="8%" columnTitle dataField='report'
+                                           dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                        </TableHeaderColumn>
 
-                </BootstrapTable>
-            </div>
+                    </BootstrapTable>
+                </div>
             </div>
         )
     }

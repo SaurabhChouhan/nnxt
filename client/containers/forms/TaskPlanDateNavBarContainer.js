@@ -8,7 +8,8 @@ import {DATE_FORMAT} from "../../../server/serverconstants";
 const mapDispatchToProps = (dispatch, ownProps) => ({
     fetchTasks: (values) => {
         dispatch(A.getSearchTaskPlanResultFromServer(values))
-    }
+    },
+    expandDescription: (flag) => dispatch(A.expandDescriptionTaskList(flag))
 })
 
 const mapStateToProps = (state) => {
