@@ -6,15 +6,18 @@ import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
 import _ from 'lodash'
 import * as U from '../../../server/utils'
+
+import * as SC from '../../../server/serverconstants'
 import momentTZ from "moment-timezone";
 import {DATE_FORMAT} from "../../../server/serverconstants";
+import {required} from "./validation";
 
 moment.locale('en')
 momentLocalizer()
 
 
 let TaskPlanDateNavBar = (props) => {
-    const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting} = props
+    const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting, status, flag} = props
     let releaseStartMoment = moment(momentTZ.utc(devStartDate).format(DATE_FORMAT))
     let releaseEndMoment = moment(momentTZ.utc(devEndDate).format(DATE_FORMAT))
     let filterStartMoment = startDate ? moment(startDate) : undefined
@@ -48,14 +51,16 @@ let TaskPlanDateNavBar = (props) => {
                                props.fetchTasks({
                                    releaseID,
                                    startDate: newValue,
-                                   endDate
+                                   endDate,
+                                   status,
+                                   flag
                                })
 
                            }}
                            showTime={false}
                            min={releaseStartMoment.toDate()}
                            max={maxStartMoment.toDate()}
-                           label={" Start Date:"}/>
+                           label={" Start Date :"}/>
                 </div>
                 <div className="col-md-6">
                     <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
@@ -63,20 +68,55 @@ let TaskPlanDateNavBar = (props) => {
                                props.fetchTasks({
                                    releaseID,
                                    startDate,
-                                   endDate: newValue
+                                   endDate: newValue,
+                                   status,
+                                   flag
                                })
                            }}
                            showTime={false}
                            min={minEndMoment.toDate()}
                            max={releaseEndMoment.toDate()}
-                           label={" End Date:"}/>
+                           label={" End Date :"}/>
                 </div>
 
             </div>
-            <div className="col-md-4 search-btn-taskplan-list">
-                <button type="submit" className="col-md-4 btn customBtn" disabled={pristine || submitting}>Search
-                </button>
 
+            <div className="col-md-2">
+
+                <Field name="status" component={renderSelect} label={"Status"} options={
+                    SC.ALL_TASK_STATUS.map((status, idx) =>
+                        ({
+                            _id: status,
+                            name: status
+                        })
+                    )
+                } onChange={(event, newValue) => {
+                           props.fetchTasks({
+                               releaseID,
+                               startDate,
+                               endDate,
+                               status: newValue,
+                               flag
+                           })
+                       }} noneOptionText = 'All'/>
+            </div>
+            <div className="col-md-2">
+                <Field name="flag" component={renderSelect} label={"Flag"} options={
+                    SC.ALL_WARNING_NAME_ARRAY.map((status, idx) =>
+                        ({
+                            _id: status,
+                            name: status
+                        })
+                    )
+                } onChange={(event, newValue, oldValue) => {
+                           props.fetchTasks({
+                               releaseID,
+                               startDate,
+                               endDate,
+                               status,
+                               flag: newValue
+                           })
+                       }} noneOptionText = 'All'/>
             </div>
         </div>
     </form>
@@ -90,11 +130,13 @@ const selector = formValueSelector('task-filter')
 
 TaskPlanDateNavBar = connect(
     state => {
-        const {releaseId, startDate, endDate} = selector(state, 'releaseId', 'startDate', 'endDate')
+        const {releaseId, startDate, endDate, status, flag} = selector(state, 'releaseId', 'startDate', 'endDate', 'status', 'flag')
         return {
             releaseId,
             startDate,
-            endDate
+            endDate,
+            status,
+            flag
         }
     }
 )(TaskPlanDateNavBar)

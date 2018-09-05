@@ -105,16 +105,11 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
 }
 
 taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
-
     if (criteria) {
-        let filter = {
-            '$and': []
-        }
+        let filter = {}
         if (criteria.releaseID) {
             // Search is based on release ID
-            filter['$and'].push({
-                'release._id': mongoose.Types.ObjectId(criteria.releaseID)
-            })
+            filter['release._id'] = mongoose.Types.ObjectId(criteria.releaseID)
             let release = await MDL.ReleaseModel.findById(criteria.releaseID)
             if (!release) {
                 throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -134,16 +129,27 @@ taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
         if (criteria.startDate) {
             //
             let startMoment = U.momentInUTC(criteria.startDate)
-            filter['$and'].push({
-                'planningDate': {$gte: startMoment}
-            })
+            filter['$and'] = [{'planningDate': {$gte: startMoment}}]
         }
         if (criteria.endDate) {
             let endMoment = U.momentInUTC(criteria.endDate)
-            filter['$and'].push({
-                'planningDate': {$lte: endMoment}
-            })
+            if (filter.hasOwnProperty('$and')) {
+                filter['$and'].push({
+                    'planningDate': {$lte: endMoment}
+                })
+            } else {
+                filter['$and'] = [{'planningDate': {$lte: endMoment}}]
+            }
         }
+
+        if (criteria.status) {
+            filter['report.status'] = criteria.status
+        }
+
+        if (criteria.flag) {
+            filter['flags'] = criteria.flag
+        }
+
         logger.debug("searchTaskPlans() ", {filter})
         return await TaskPlanningModel.find(filter)
     }
