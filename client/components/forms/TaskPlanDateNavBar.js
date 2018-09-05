@@ -6,13 +6,35 @@ import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
 import _ from 'lodash'
 import * as U from '../../../server/utils'
+import momentTZ from "moment-timezone";
+import {DATE_FORMAT} from "../../../server/serverconstants";
 
 moment.locale('en')
 momentLocalizer()
+
+
 let TaskPlanDateNavBar = (props) => {
-    const {handleSubmit, startDate, endDate,pristine, submitting} = props
-    let min = startDate && U.nowMomentInIndia().isSameOrBefore(U.momentInUTC(startDate)) ? U.momentInUTC(startDate) : U.nowMomentInIndia()
-    console.log("min", min)
+    const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting} = props
+    let releaseStartMoment = moment(momentTZ.utc(devStartDate).format(DATE_FORMAT))
+    let releaseEndMoment = moment(momentTZ.utc(devEndDate).format(DATE_FORMAT))
+    let filterStartMoment = startDate ? moment(startDate) : undefined
+    let filterEndMoment = endDate ? moment(endDate) : undefined
+
+
+    let maxStartMoment = filterEndMoment && filterEndMoment.isValid() ? filterEndMoment : releaseEndMoment
+    let minEndMoment = filterStartMoment && filterStartMoment.isValid() ? filterStartMoment : releaseStartMoment
+
+    console.log("TaskPlanNavBar ", {
+        releaseStartMoment,
+        releaseEndMoment,
+        filterStartMoment,
+        filterEndMoment,
+        maxStartMoment,
+        minEndMoment,
+        startDate,
+        endDate,
+        releaseID
+    })
 
     return <form onSubmit={handleSubmit}>
         <div className="col-md-12 planFilterTaskForm">
@@ -22,27 +44,39 @@ let TaskPlanDateNavBar = (props) => {
                            placeholder={"Start Date"}
                            component={renderDateTimePickerString}
                            onChange={(event, newValue, oldValue) => {
+                               console.log("onChange() ", releaseID, startDate)
+                               props.fetchTasks({
+                                   releaseID,
+                                   startDate: newValue,
+                                   endDate
+                               })
 
                            }}
                            showTime={false}
-                           min={min ? min.toDate() : min}
-                           label={" Start Date :"}/>
+                           min={releaseStartMoment.toDate()}
+                           max={maxStartMoment.toDate()}
+                           label={" Start Date:"}/>
                 </div>
                 <div className="col-md-6">
                     <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
                            onChange={(event, newValue, oldValue) => {
-                               //props.getEmployeePlanDetails(employeeId, startDate, newValue, selectedReleaseID)
+                               props.fetchTasks({
+                                   releaseID,
+                                   startDate,
+                                   endDate: newValue
+                               })
                            }}
                            showTime={false}
-                           min={min ? min.toDate() : min}
-                           label={" End Date :"}/>
+                           min={minEndMoment.toDate()}
+                           max={releaseEndMoment.toDate()}
+                           label={" End Date:"}/>
                 </div>
 
             </div>
             <div className="col-md-4 search-btn-taskplan-list">
                 <button type="submit" className="col-md-4 btn customBtn" disabled={pristine || submitting}>Search
                 </button>
-                
+
             </div>
         </div>
     </form>

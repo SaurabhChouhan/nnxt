@@ -2243,4 +2243,11 @@ hr {
 .search-btn-taskplan-list{
     margin-top: 20;;
 }
+.ordered-button li {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 26px;
+    margin-top: 13px;
+    list-style: none;
+}
 

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "cross-env BABEL_ENV=server NODE_ENV=development nodemon --watch server --verbose ./server/server.js --exec babel-node",
-    "start.prod": "cross-env BABEL_ENV=server NODE_ENV=production nodemon --verbose ./server/server.js --exec babel-node",
+    "start.prod": "cross-env BABEL_ENV=server NODE_ENV=production nodemon --watch server ./server/server.js --exec babel-node",
     "start.khushboo": "cross-env BABEL_ENV=server NODE_ENV=khushboo nodemon --watch server --verbose ./server/server.js --exec babel-node",
     "start.kamlesh": "cross-env BABEL_ENV=server NODE_ENV=kamlesh nodemon ./server/server.js --exec babel-node",
     "start.gaurav": "cross-env BABEL_ENV=server NODE_ENV=gaurav nodemon ./server/server.js --exec babel-node",
@@ -16,7 +16,6 @@
     "start.ratnesh": "cross-env BABEL_ENV=server NODE_ENV=ratnesh nodemon ./server/server.js --exec babel-node",
     "client.dev.build": "cross-env BABEL_ENV=client webpack -d -w",
     "client.prod.build": "cross-env BABEL_ENV=client webpack -p",
-    "start.setupData": "cross-env BABEL_ENV=server NODE_ENV=setupData nodemon --watch server --verbose ./server/server.js --exec babel-node",
     "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node"
   },
   "dependencies": {

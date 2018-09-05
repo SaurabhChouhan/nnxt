@@ -4,6 +4,7 @@ import {renderCheckBox, renderDateTimePickerString, renderSelect, renderText, re
 import {number, required} from "./validation"
 import {connect} from 'react-redux'
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import momentLocalizer from 'react-widgets-moment'
 import * as SC from '../../../server/serverconstants'
 
@@ -12,8 +13,8 @@ momentLocalizer()
 let ReleaseTaskPlanningForm = (props) => {
     const {change, handleSubmit, submitting, pristine, reset} = props
     const {allTeam, releaseTeam, releasePlan, projectUsersOnly, initial} = props
-    const devStartDateMoment = moment(initial.devStartDate).hour(0).minute(0).second(0).milliseconds(0)
-    const devEndDateMoment = moment(initial.devEndDate).hour(0).minute(0).second(0).milliseconds(0)
+    const devStartDateMoment = moment(momentTZ.utc(initial.devStartDate).format(SC.DATE_FORMAT))
+    const devEndDateMoment = moment(momentTZ.utc(initial.devEndDate).format(SC.DATE_FORMAT))
     const min = devStartDateMoment.toDate()
     const max = devEndDateMoment.toDate()
 

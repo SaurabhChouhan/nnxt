@@ -96,7 +96,7 @@ warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
     // Get all roles user have in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see warnings of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }

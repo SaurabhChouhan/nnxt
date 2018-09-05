@@ -35,6 +35,7 @@ export {default as ReportTaskDescriptionForm} from './forms/ReportTaskDescriptio
 
 // Release Forms
 export {default as CreateReleaseForm} from './forms/CreateReleaseForm'
+export {default as UpdateReleaseForm} from './forms/UpdateReleaseForm'
 
 // Estimation Page
 
@@ -63,6 +64,7 @@ export {default as EstimationFilterDialog} from './dialogs/EstimationFilterDialo
 export {default as EstimationFilterForm} from './forms/EstimationFilterForm'
 export {default as ReportTaskDescriptionFormDialog} from './dialogs/ReportTaskDescriptionFormDialog'
 export {default as CreateReleaseDialog} from './dialogs/CreateReleaseDialog'
+export {default as UpdateReleaseDialog} from './dialogs/UpdateReleaseDialog'
 
 
 //ProjectDialog

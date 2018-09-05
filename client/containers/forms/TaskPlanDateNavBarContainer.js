@@ -4,19 +4,18 @@ import * as A from '../../actions/index'
 import moment from 'moment'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-
-    onSubmit: (values) => {
-        console.log("get the values of on submit TaskPlanDateNavBarContainer", values),
-            dispatch(A.getSearchTaskPlanResultFromServer(values))
-
+    fetchTasks: (values) => {
+        dispatch(A.getSearchTaskPlanResultFromServer(values))
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({
-
+const mapStateToProps = (state) => ({
     initialValues: {
         "releaseID": state.release.selectedRelease._id,
-    }
+    },
+    devStartDate: state.release.selectedRelease.devStartDate,
+    devEndDate: state.release.selectedRelease.devEndDate,
+    releaseID: state.release.selectedRelease._id
 })
 
 const TaskPlanDateNavBarContainer = connect(

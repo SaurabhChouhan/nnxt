@@ -27,7 +27,6 @@ const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_AVAILABLE_RELEASES:
             // add all releases from server
-
             return Object.assign({}, state, {allAvailableReleases: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})
 
         case AC.ADD_RELEASES:

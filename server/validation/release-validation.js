@@ -69,6 +69,10 @@ export const releaseUpdateDatesStruct = t.struct({
     })
 })
 
+export const releaseUpdateStruct = t.struct({
+    _id: ObjectId
+})
+
 export const plannedReleasePlanAddStruct = t.struct({
     name: RequiredString,
     description: RequiredString,

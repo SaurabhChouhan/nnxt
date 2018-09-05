@@ -29,7 +29,6 @@ class ReportingDateNavBar extends React.Component {
                                     this.props.setReportDate(prevDate)
                                     this.props.onReleaseSelected(releaseID, prevDate, iterationType, reportedStatus)
                                     change("dateOfReport", moment(prevDate).clone().toDate())
-
                                 }}
                                 type="button">
                             <i className="glyphicon glyphicon-arrow-left"></i>

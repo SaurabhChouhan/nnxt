@@ -1,9 +1,8 @@
 import React, {Component} from 'react'
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
-import * as U from '../../../server/utils'
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import {
     TaskPlanListContainer,
     ReleasePlanListContainer,
@@ -39,6 +38,7 @@ class ReleasePlanSection extends Component {
         let isManagement = loggedInUser && loggedInUser.roleNames.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1 ? true : false
         console.log("isManager ", isManager, " | isLeader ", isLeader, " | isManagement ", isManagement)
 
+
         return (
 
             <div key="estimation_list" className="clearfix">
@@ -62,39 +62,45 @@ class ReleasePlanSection extends Component {
                     <div
                         className={isManager ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
-                            <span
-                                title={release && release.devStartDate ? moment(release.devStartDate).format("DD-MM-YYYY") : ''}>Start Date</span>
+                            <span>Start Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release && release.devStartDate ? moment(release.devStartDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release && release.devStartDate ? momentTZ.utc(release.devStartDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div
                         className={isManager ? "col-md-1" : "col-md-2"}>
                         <div className="releaseTitle">
-                            <span
-                                title={release && release.devEndDate ? moment(release.devEndDate).format("DD-MM-YYYY") : ''}>End Date</span>
+                            <span>End Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.devEndDate ? moment(release.devEndDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.devEndDate ? momentTZ.utc(release.devEndDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
                     <div className="col-md-2">
                         <div className="releaseTitle">
-                            <span
-                                title={release && release.clientReleaseDate ? moment(release.clientReleaseDate).format("DD-MM-YYYY") : ''}>Release Date</span>
+                            <span>Release Date</span>
                         </div>
                         <div className="releasecontent">
-                            <p>{release && release.clientReleaseDate ? moment(release.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
+                            <p>{release && release.clientReleaseDate ? momentTZ.utc(release.clientReleaseDate).format("DD-MM-YYYY") : ''}</p>
                         </div>
                     </div>
+
                     {isManager ?
                         <div className="col-md-2">
-                            <button className=" btn btn-custom customBtn " type="button"
-                                    onClick={() => {
+                            <ul className="ordered-button">
+                                <li>
+                                    <img onClick={() => {
                                         this.props.openUpdateReleaseDatesForm(release)
-                                    }}>Update Dates
-                            </button>
+                                    }} src={'/images/edit_date.png'}></img>
+                                </li>
+                                <li>
+                                    <img onClick={() => {
+                                        this.props.openUpdateReleaseForm(release)
+                                    }} src={'/images/edit_release.png'}></img>
+                                </li>
+                            </ul>
+
                         </div> : null
                     }
 

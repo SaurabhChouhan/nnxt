@@ -155,7 +155,7 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a "planned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -249,7 +249,7 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
         throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can add a planned release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -348,7 +348,7 @@ releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {
     let releasePlan = await ReleasePlanModel.findById(mongoose.Types.ObjectId(releasePlanID))
     releasePlan = releasePlan.toObject()
 
-    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releasePlan.release._id.toString(), user)
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(releasePlan.release._id.toString(), user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], rolesInRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + 'or' + SC.ROLE_DEVELOPER + 'or' + SC.ROLE_NON_PROJECT_DEVELOPER + '] can see Release Plan Details', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN
         )
