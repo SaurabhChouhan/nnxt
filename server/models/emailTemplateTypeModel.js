@@ -12,7 +12,7 @@ mongoose.Promise = global.Promise
 let emailTemplateTypeSchema = mongoose.Schema({
     templateTypeName: {type: String, unique : true , required: [true, 'Template type name is required']},
     isDeleted: {type: Boolean,default:false},
-    status:"Approved",
+    status:String,
     created:{type: Date,default:new Date()},
     updated:{type: Date,default:new Date()},
 })
