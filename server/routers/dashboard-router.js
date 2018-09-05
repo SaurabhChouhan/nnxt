@@ -25,6 +25,14 @@ dashboardRouter.post('/release-data', async (ctx) => {
 
 
 /*Email Notification APIs*/
+dashboardRouter.post('/email-template-type', async (ctx) => {
+    return MDL.EmailTemplateTypeModel.addTemplateType(ctx.state.user,ctx.request.body)
+})
+
+dashboardRouter.get('/email-template-types', async (ctx) => {
+    return MDL.EmailTemplateTypeModel.getAllTemplateTypes(ctx.state.user)
+})
+
 dashboardRouter.get('/email-template', async (ctx) => {
     return MDL.EmailTemplatesModel.getAllTemplates(ctx.state.user)
 })
