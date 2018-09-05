@@ -95,5 +95,15 @@ emailTemplatesSchema.statics.getAllTemplates = async (user) => {
     return await EmailTemplatesModel.find({})
 }
 
+emailTemplatesSchema.statics.isExistThisTemplateName = async (templateName) => {
+    let isExistThisTemplateName = false
+    let condition = {templateName:{'$regex' : '^'+templateName+'$', '$options' : 'i'}}
+    let emailTemplate = await EmailTemplatesModel.find(condition)
+    if(emailTemplate && emailTemplate.length>0){
+        isExistThisTemplateName = true
+    }
+    return isExistThisTemplateName
+}
+
 const EmailTemplatesModel = mongoose.model("emailTemplate", emailTemplatesSchema)
 export default EmailTemplatesModel
