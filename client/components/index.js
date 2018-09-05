@@ -16,6 +16,9 @@ export {default as AdminUserForm} from './forms/AdminUserForm'
 export {default as AdminRoleForm} from './forms/AdminRoleForm'
 export {default as AdminRoleList} from './lists/AdminRoleList'
 export {default as EmployeeSettingForm} from './forms/EmployeeSettingForm'
+export {default as EmailTemplateForm} from './forms/EmailTemplateForm'
+export {default as EmailTemplateList} from './lists/EmailTemplateList'
+export {default as EmailTypeForm} from './forms/EmailTypeForm'
 
 
 //Common Dialoge
