@@ -115,6 +115,14 @@ export const searchReleaseTaskPlans = (data) => ({
     type: AC.SEARCH_TASK_PLANS_IN_RELEASE,
     taskPlans:data
 })
+export const setStartDateForTaskPlan = (startDate) => ({
+    type: AC.SEARCH_TASK_PLANS_START_DATE,
+    startDate:startDate
+})
+export const setEndDateForTaskPlan = (endDate) => ({
+    type: AC.SEARCH_TASK_PLANS_END_DATE,
+    endDate:endDate
+})
 
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {

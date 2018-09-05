@@ -20,7 +20,9 @@ let initialState = {
     selectedIteration: undefined,
     from: nowString,
     selectedTab: SC.RELEASE_DASHBOARD_TAB,
-    taskPlansOfReleasePlanDeveloper: []
+    taskPlansOfReleasePlanDeveloper: [],
+    startDate:'',
+    endDate:'',
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -257,6 +259,18 @@ const releaseReducer = (state = initialState, action) => {
             // Stores task planning details on Release section of selected tasks
             return Object.assign({}, state, {
                 taskPlans: action.taskPlans,
+            })
+
+        case AC.SEARCH_TASK_PLANS_START_DATE:
+            // Stores task planning details on Release section of selected tasks
+            return Object.assign({}, state, {
+                startDate: action.startDate,
+            })
+
+        case AC.SEARCH_TASK_PLANS_END_DATE:
+            // Stores task planning details on Release section of selected tasks
+            return Object.assign({}, state, {
+                endDate: action.endDate,
             })
         default:
             return state
