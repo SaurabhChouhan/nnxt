@@ -105,6 +105,5 @@ emailTemplatesSchema.statics.isExistThisTemplateName = async (templateName) => {
     return isExistThisTemplateName
 }
 
-
 const EmailTemplatesModel = mongoose.model("emailTemplate", emailTemplatesSchema)
 export default EmailTemplatesModel
