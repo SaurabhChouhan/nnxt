@@ -224,18 +224,23 @@ export const renderDateTimePickerString = ({
                                                currentDate,
                                                meta: {touched, error, warning},
                                                hoverEnabledMsg,
-                                               hoverDisabledMsg
+                                               hoverDisabledMsg,
+                                               displayFormat = 'DD/MM/YYYY',
+                                               valueFormat = 'YYYY-MM-DD'
+
                                            }) => {
 
     let val = undefined
 
+    console.log("renderDateTimePickerString", value)
+
     if (value) {
         if (showCalendar && showTime)
-            val = moment(value, 'YYYY-MM-DD').toDate()
+            val = moment(value, valueFormat).toDate()
         else if (showCalendar)
-            val = moment(value, 'YYYY-MM-DD').toDate()
+            val = moment(value, valueFormat).toDate()
         else if (showTime)
-            val = moment(value, 'YYYY-MM-DD').toDate()
+            val = moment(value, valueFormat).toDate()
     }
 
     const parse = event => {
@@ -243,18 +248,22 @@ export const renderDateTimePickerString = ({
             if (showCalendar) {
                 if (showTime) {
                     if (typeof(event) === 'object' && event.target && event.target.value) {
-                        let v = moment(event.target.value).format('YYYY-MM-DD')
+                        console.log("renderDateTimePickerString->parse(event.target.value)", event.target.value)
+                        let v = moment(event.target.value, displayFormat).format(valueFormat)
                         return v
                     } else {
-                        let v = moment(event).format('YYYY-MM-DD')
+                        console.log("renderDateTimePickerString->parse(event)", event)
+                        let v = moment(event, displayFormat).format(valueFormat)
                         return v
                     }
                 } else {
                     if (typeof(event) === 'object' && event.target && event.target.value) {
-                        let v = moment(event.target.value).format('YYYY-MM-DD')
+                        console.log("renderDateTimePickerString->parse(event.target.value)", event.target.value)
+                        let v = moment(event.target.value, displayFormat).format(valueFormat)
                         return v
                     } else {
-                        let v = moment(event).format('YYYY-MM-DD')
+                        let v = moment(event, displayFormat).format(valueFormat)
+                        console.log("renderDateTimePickerString->parse(event)", event)
                         return v
                     }
                 }
@@ -267,7 +276,7 @@ export const renderDateTimePickerString = ({
                     } else {
                         if (event && event.length == 7)
                             event = '0' + event
-                        let v = moment(event).format('YYYY-MM-DD')
+                        let v = moment(event).format(valueFormat)
                         return v
                     }
                 }
@@ -299,6 +308,7 @@ export const renderDateTimePickerString = ({
             calendar={showCalendar}
             value={val}
             dropUp={dropUp}
+            format={displayFormat}
             currentDate={currentDate}
             onKeyPress={event => event.preventDefault()}
             onKeyDown={event => event.preventDefault()}

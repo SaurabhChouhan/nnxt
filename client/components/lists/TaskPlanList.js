@@ -28,7 +28,7 @@ class TaskPlanList extends Component {
     }
 
     componentDidMount() {
-        this.props.getAllTaskPlans(this.props.release)
+        //this.props.getAllTaskPlans(this.props.release)
     }
 
     formatDeveloperName(employee) {
