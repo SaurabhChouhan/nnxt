@@ -19,9 +19,9 @@ class EmailTemplateList extends Component {
 
                     <BootstrapTable striped={true}>
                         <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
-                        <TableHeaderColumn width="20%" dataField="name">Name</TableHeaderColumn>
-                        <TableHeaderColumn width="20%" dataField="type">Type</TableHeaderColumn>
-                        <TableHeaderColumn width="20%" dataField="subject">Subject</TableHeaderColumn>
+                        <TableHeaderColumn width="20%" dataField="templateName">Name</TableHeaderColumn>
+                        <TableHeaderColumn width="20%" dataField="templateType">Type</TableHeaderColumn>
+                        <TableHeaderColumn width="20%" dataField="templateSubject">Subject</TableHeaderColumn>
                         <TableHeaderColumn width="5%" dataField="status"><i className="fa fa-check"></i></TableHeaderColumn>
                         <TableHeaderColumn width="5%" dataField='button'><i className="fa fa-pencil"></i></TableHeaderColumn>
                         <TableHeaderColumn width="5%" dataField='button'><i className="fa fa-trash"></i></TableHeaderColumn>

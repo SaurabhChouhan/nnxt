@@ -5,23 +5,27 @@ import * as SC from "../../server/serverconstants";
 let initialState = {
 }
 
-export const userReducer = (state = initialState, action) => {
+export const emailReducer = (state = initialState, action) => {
     switch (action.type) {
+
         case AC.ADD_ALL_EMAIL_TEMPLATES:
-            return Object.assign({}, state, {all: action.allEmailTemplates})
+            return Object.assign({}, state, {allEmailTemplates: action.allEmailTemplates})
+
+        case AC.ADD_ALL_EMAIL_TEMPLATES_TYPES:
+            return Object.assign({}, state, {allEmailTemplatesTypes: action.allEmailTemplatesTypes})
 
         case AC.ADD_EMAIL_TEMPLATE:
-            return Object.assign({}, state, {all: [...state.all, action.newEmailTemplate]})
+            return Object.assign({}, state, {newEmailTemplate: [...state.all, action.newEmailTemplate]})
 
-        case AC.ADD_ALL_EMAIL_SUBJECTS:
-            return Object.assign({}, state, {allSubjects: action.allEmailTemplateSubjects})
+        case AC.ADD_IS_EMAIL_TEMPLATE_TYPE_EXIST:
+            return Object.assign({}, state, {isEmailTemplateTypeExist: action.isEmailTemplateTypeExist})
 
-        case AC.ADD_EMAIL_SUBJECT:
-            return Object.assign({}, state, {allSubjects: [...state.allSubjects, action.emailSubject]})
+        case AC.ADD_IS_EMAIL_TEMPLATE_NAME_EXIST:
+            return Object.assign({}, state, {isEmailTemplateNameExist: action.isEmailTemplateNameExist})
 
         default:
             return state
     }
 }
 
-export default userReducer
+export default emailReducer
