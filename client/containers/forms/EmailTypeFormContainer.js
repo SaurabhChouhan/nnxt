@@ -9,7 +9,7 @@ import * as COC from "../../components/componentConsts";
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (values) => {
         if (!values._id) {
-            return dispatch(A.addEmailSubjectOnServer(values)).then((json) => {
+            return dispatch(A.addEmailTypesOnServer(values)).then((json) => {
                     if (json.success) {
                         dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_LIST))
                         NotificationManager.success('Email Type Added Successful');
@@ -24,16 +24,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 }
             )
         }
-    }
+    },
+    verifyTemplateType:(templateType) => dispatch(A.verifyTemplatesTypeFromServer(templateType))
 })
 
 const mapStateToProps = (state, ownProps) => ({
-
+    templateType: state.form && state.form.emailType && state.form.emailType.values && state.form.emailType.values.name ? state.form.emailType.values.name : null,
+    isEmailTemplateTypeExist: state.emailTemplate.isEmailTemplateTypeExist
 })
 
-const EmailSubjectFormContainer = connect(
+const EmailTypeFormContainer = connect(
     mapStateToProps,
     mapDispatchToProps
 )(EmailTypeForm)
 
-export default EmailSubjectFormContainer
+export default EmailTypeFormContainer

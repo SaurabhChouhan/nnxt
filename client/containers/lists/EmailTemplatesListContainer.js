@@ -6,13 +6,16 @@ import {initialize, SubmissionError} from 'redux-form'
 import {NotificationManager} from "react-notifications";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    showEmailTemplateForm: () => dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_FORM))
+    showEmailTemplateForm: () => {
+        dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_FORM))
+        dispatch(A.getAllEmailTemplatesTypesFromServer())
+    }
 })
 
 const mapStateToProps = (state, ownProps) => {
     return {
         loggedInUser: state.user.loggedIn,
-        users: state.user.all
+        emailTemplates: state.emailTemplate.allEmailTemplates
     }
 }
 

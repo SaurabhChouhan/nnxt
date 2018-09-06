@@ -17,7 +17,7 @@ class EmailTemplateList extends Component {
                         Create Template
                     </button>
 
-                    <BootstrapTable striped={true}>
+                    <BootstrapTable striped={true} hoveNR={true} options={this.options} data={this.props.emailTemplates}>
                         <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
                         <TableHeaderColumn width="20%" dataField="templateName">Name</TableHeaderColumn>
                         <TableHeaderColumn width="20%" dataField="templateType">Type</TableHeaderColumn>

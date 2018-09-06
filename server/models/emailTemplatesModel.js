@@ -36,6 +36,13 @@ let emailTemplatesSchema = mongoose.Schema({
 })
 
 emailTemplatesSchema.statics.addTemplate = async (user,templateInfoDataObj) => {
+    let templateType = await MDL.EmailTemplateTypeModel.findOne({
+        _id: templateInfoDataObj.templateType
+    })
+    console.log("templateType", templateType)
+    if(!templateType) {
+        throw new AppError("Template Type not found.", EC.NOT_FOUND)
+    }
     let emailTemplate = {
         createdBy: user,
         templateName:templateInfoDataObj.templateName,
@@ -43,7 +50,7 @@ emailTemplatesSchema.statics.addTemplate = async (user,templateInfoDataObj) => {
         templateHeader:templateInfoDataObj.templateHeader,
         templateBody: templateInfoDataObj.templateBody,
         templateFooter : templateInfoDataObj.templateFooter,
-        templateType : templateInfoDataObj.templateType,
+        templateType : templateType.name,
         status:"Pending",
         isDeleted:false,
         created:new Date(),
@@ -58,12 +65,19 @@ emailTemplatesSchema.statics.updateTemplate = async (user,templateInfoDataObj) =
     if(!emailTemplate){
         throw new AppError("Template not found.", EC.NOT_FOUND)
     }
+    let templateType = await MDL.EmailTemplateTypeModel.findOne({
+        _id: templateInfoDataObj.templateType
+    })
+
+    if(!templateType) {
+        throw new AppError("Template Type not found.", EC.NOT_FOUND)
+    }
     emailTemplate.createdBy =  user
     emailTemplate.templateSubject = templateInfoDataObj.templateSubject
     emailTemplate.templateHeader = templateInfoDataObj.templateHeader
     emailTemplate.templateBody = templateInfoDataObj.templateBody
     emailTemplate.templateFooter = templateInfoDataObj.templateFooter
-    emailTemplate.templateType = templateInfoDataObj.templateType
+    emailTemplate.templateType = templateType.name
     emailTemplate.status = "Pending"
     emailTemplate.isDeleted = false
     emailTemplate.updated = new Date()

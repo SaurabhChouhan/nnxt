@@ -11,11 +11,14 @@ export const emailReducer = (state = initialState, action) => {
         case AC.ADD_ALL_EMAIL_TEMPLATES:
             return Object.assign({}, state, {allEmailTemplates: action.allEmailTemplates})
 
+        case AC.ADD_NEW_EMAIL_TEMPLATE:
+            return Object.assign({}, state, {newEmailTemplate: [...state.allEmailTemplates, action.newEmailTemplate]})
+
         case AC.ADD_ALL_EMAIL_TEMPLATES_TYPES:
             return Object.assign({}, state, {allEmailTemplatesTypes: action.allEmailTemplatesTypes})
 
-        case AC.ADD_EMAIL_TEMPLATE:
-            return Object.assign({}, state, {newEmailTemplate: [...state.all, action.newEmailTemplate]})
+        case AC.ADD_NEW_EMAIL_TEMPLATE_TYPE:
+            return Object.assign({}, state, {allEmailTemplatesTypes: [...state.allEmailTemplatesTypes, action.newEmailTemplateType]})
 
         case AC.ADD_IS_EMAIL_TEMPLATE_TYPE_EXIST:
             return Object.assign({}, state, {isEmailTemplateTypeExist: action.isEmailTemplateTypeExist})

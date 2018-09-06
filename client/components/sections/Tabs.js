@@ -248,7 +248,7 @@ class Tabs extends Component {
 
             case EMAIL_TAB:
                 store.dispatch(A.getAllEmailTemplatesFromServer())
-                store.dispatch(A.getAllEmailSubjectsFromServer())
+                store.dispatch(A.getAllEmailTemplatesTypesFromServer())
                 store.dispatch(A.showComponentHideOthers(EMAIL_TEMPLATE_LIST))
                 break;
 

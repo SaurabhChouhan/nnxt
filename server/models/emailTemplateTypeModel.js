@@ -10,7 +10,7 @@ import momentTZ from 'moment-timezone'
 mongoose.Promise = global.Promise
 
 let emailTemplateTypeSchema = mongoose.Schema({
-    templateTypeName: {type: String, unique : true , required: [true, 'Template type name is required']},
+    name: {type: String, unique : true , required: [true, 'Template type name is required']},
     isDeleted: {type: Boolean,default:false},
     status:String,
     created:{type: Date,default:new Date()},
@@ -19,7 +19,7 @@ let emailTemplateTypeSchema = mongoose.Schema({
 
 emailTemplateTypeSchema.statics.addTemplateType = async (user,templateTypeObj) => {
     let emailTemplateType = {
-        templateTypeName:templateTypeObj.templateTypeName,
+        name:templateTypeObj.name,
         status:"Approved",
         isDeleted:false,
         created:new Date(),
@@ -34,7 +34,7 @@ emailTemplateTypeSchema.statics.getAllTemplateTypes = async (user) => {
 
 emailTemplateTypeSchema.statics.isExistThisTemplateType = async (templateType) => {
     let isExistThisTemplateType = false
-    let condition = {templateTypeName:{'$regex' : '^'+templateType+'$', '$options' : 'i'}}
+    let condition = {name:{'$regex' : '^'+templateType+'$', '$options' : 'i'}}
     let emailTemplateType = await EmailTemplateTypeModel.find(condition)
     if(emailTemplateType && emailTemplateType.length>0){
         isExistThisTemplateType = true

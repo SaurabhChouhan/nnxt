@@ -4,7 +4,7 @@ import {renderTextArea, renderText, renderSelect} from './fields'
 import {email, passwordLength, required} from "./validation"
 import {connect} from 'react-redux'
 import * as logger from '../../clientLogger'
-import {EmailSubjectFormContainer} from '../../containers'
+import {EmailTypeFormContainer} from '../../containers'
 
 
 class EmailTemplateForm extends Component {
@@ -12,7 +12,12 @@ class EmailTemplateForm extends Component {
         super(props);
     }
 
+    checkTemplateName(templateName){
+        this.props.verifyTemplateName(templateName)
+    }
+
     render() {
+        console.log("allEmailTemplatesTypes", this.props.allEmailTemplatesTypes)
         return [
             <div key="UserFormBackButton">
                 <button type="button"
@@ -26,8 +31,12 @@ class EmailTemplateForm extends Component {
                     <div className="col-md-12">
                         <Field name="_id" component="input" className="form-control" type="hidden"></Field>
                         <Field name="templateName" label="Name:" component={renderText} type="text"
-                               validate={[required]}/>
-                        <Field name="type" label="Type:" component={renderSelect}/>
+                               validate={[required]} onkeyup={this.checkTemplateName(this.props.templateName)}/>
+                        {this.props.isEmailTemplateNameExist ?
+                            <h5 className="validation-error">Template name already exist!</h5>:null
+                        }
+                        <Field name="templateType" label="Type:" options={this.props.allEmailTemplatesTypes}
+                               validate={[required]} component={renderSelect}/>
                         <Field name="templateSubject" label="Subject:" component={renderText} type="text"
                                validate={[required]}/>
                         <Field name="templateHeader" label="Header:" component={renderTextArea}
@@ -36,14 +45,18 @@ class EmailTemplateForm extends Component {
                                validate={[required]}/>
                         <Field name="templateFooter" label="Footer:" component={renderTextArea}
                                validate={[required]}/>
-                        <button type="submit"
-                                className="btn btn-submit"> {(!this.props._id && "Add") || (this.props._id && "Update")} </button>
+                        {this.props.isEmailTemplateNameExist ?
+                            <button type="submit" className="btn btn-submit" disabled> {(!this.props._id && "Add") || (this.props._id && "Update")}
+                            </button>
+                            :<button type="submit" className="btn btn-submit"> {(!this.props._id && "Add") || (this.props._id && "Update")}
+                            </button>
+                        }
                     </div>
                 </div>
             </form>
             </div>,
             <div className="col-md-5 col-md-offset-1">
-            <EmailSubjectFormContainer/>
+            <EmailTypeFormContainer/>
             </div>
         ]
 
@@ -51,7 +64,7 @@ class EmailTemplateForm extends Component {
 }
 
 EmailTemplateForm = reduxForm({
-    form: 'email-template'
+    form: 'emailTemplate'
 })(EmailTemplateForm)
 
 export default EmailTemplateForm

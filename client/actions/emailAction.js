@@ -11,8 +11,13 @@ export const addAllEmailTemplatesTypes = (allEmailTemplatesTypes) => ({
     allEmailTemplatesTypes
 })
 
-export const addEmailTemplate = (newEmailTemplate) => ({
-    type: AC.ADD_EMAIL_TEMPLATE,
+export const addNewEmailTemplatesType = (newEmailTemplateType) => ({
+    type: AC.ADD_ALL_EMAIL_TEMPLATES_TYPES,
+    newEmailTemplateType
+})
+
+export const addNewEmailTemplates = (newEmailTemplate) => ({
+    type: AC.ADD_NEW_EMAIL_TEMPLATE,
     newEmailTemplate
 })
 
@@ -28,7 +33,7 @@ export const addIsEmailTemplateNameExist = (isEmailTemplateNameExist) => ({
 
 /* GET , ADD , UPDATE All email templates from server APIs  BLOCK */
 
-export const getAllEmailTemplatesFromServer = (formInput) => {
+export const getAllEmailTemplatesFromServer = () => {
     return function (dispatch, getState) {
         return fetch('/api/dashboard/email-template',
             {
@@ -72,7 +77,7 @@ export const addEmailTemplateOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addAllEmailTemplates(json.data))
+                    dispatch(addNewEmailTemplates(json.data))
                 }
                 return json
             }
@@ -106,7 +111,7 @@ export const updateEmailTemplateOnServer = (formInput) => {
     }
 }
 
-export const isEmailTemplateNameIsExistOnServer = (templateName) => {
+export const verifyTemplatesNameFromServer = (templateName) => {
     return function (dispatch, getState) {
         return fetch('/api/dashboard/verify-email-template-name/'+templateName,
             {
@@ -137,7 +142,7 @@ export const isEmailTemplateNameIsExistOnServer = (templateName) => {
 
 /* GET , ADD , UPDATE All email templates Types from server APIs  BLOCK */
 
-export const getAllEmailTemplatesTypesFromServer = (formInput) => {
+export const getAllEmailTemplatesTypesFromServer = () => {
     return function (dispatch, getState) {
         return fetch('/api/dashboard/email-template-types',
             {
@@ -180,7 +185,7 @@ export const addEmailTypesOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addAllEmailTemplatesTypes(json.data))
+                    dispatch(addNewEmailTemplatesType(json.data))
                 }
                 return json
             }
@@ -188,7 +193,7 @@ export const addEmailTypesOnServer = (formInput) => {
     }
 }
 
-export const isEmailTemplateTypeIsExistOnServer = (templateType) => {
+export const verifyTemplatesTypeFromServer = (templateType) => {
     return function (dispatch, getState) {
         return fetch('/api/dashboard/verify-email-template-type/'+templateType,
             {
