@@ -3336,7 +3336,15 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
                     devStartDate: {$lte: dateUTC},
                     devEndDate: {$gte: dateUTC}
                 }
-            }
+            },
+            '$or': [
+                {
+                    'team._id': user._id
+                },
+                {
+                    'nonProjectTeam._id': user._id
+                }
+            ]
         }
     } else if (iterationType == SC.ITERATION_TYPE_UNPLANNED) {
         releaseCriteria = {
@@ -3346,7 +3354,15 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
                     devStartDate: {$lte: dateUTC},
                     devEndDate: {$gte: dateUTC}
                 }
-            }
+            },
+            '$or': [
+                {
+                    'team._id': user._id
+                },
+                {
+                    'nonProjectTeam._id': user._id
+                }
+            ]
         }
     }
 
