@@ -25,10 +25,6 @@ class TaskPlanList extends Component {
             sizePerPage: 6,  // which size per page you want to locate as default
 
         }
-
-        this.state = {
-            showDescription: false
-        }
     }
 
     componentDidMount() {
@@ -177,7 +173,7 @@ class TaskPlanList extends Component {
 
     render() {
         const {taskPlans} = this.props
-        console.log("taskPlans------------------", taskPlans)
+        console.log("taskPlans------------------", taskPlans, this.props.expandDescription)
 
         return (
             <div>

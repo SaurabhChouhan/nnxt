@@ -12,7 +12,7 @@ moment.locale('en')
 
 class TaskPlanDateNavBar extends Component {
 
-    constructor(props){
+    constructor(props) {
         super(props)
         this.state = {
             expandDescription: false
@@ -137,7 +137,12 @@ class TaskPlanDateNavBar extends Component {
                         Expand Requirement
                     </label>
                     <Field name={"expandDescription"} component="input" onChange={this.handleExpandDescriptionCheckBox}
-                           type="checkbox"/>
+                           type="checkbox"
+                           onChange={(event, newValue) => {
+                               this.props.expandDescription(newValue)
+                           }
+                           }
+                    />
                 </div>
             </div>
         </form>
