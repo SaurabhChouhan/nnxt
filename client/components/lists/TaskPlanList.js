@@ -12,6 +12,8 @@ class TaskPlanList extends Component {
 
     constructor(props) {
         super(props);
+        let sizePerPage = Math.floor((props.screenHeight - 320)/25)
+
         this.options = {
             sizePerPageList: [{
                 text: '6', value: 6
@@ -22,7 +24,7 @@ class TaskPlanList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage: 6,  // which size per page you want to locate as default
+            sizePerPage,  // which size per page you want to locate as default
 
         }
     }
