@@ -26,6 +26,17 @@ export const emailReducer = (state = initialState, action) => {
         case AC.ADD_IS_EMAIL_TEMPLATE_NAME_EXIST:
             return Object.assign({}, state, {isEmailTemplateNameExist: action.isEmailTemplateNameExist})
 
+        case AC.EDIT_TEMPLATE_INFO:
+            return Object.assign({}, state, {editTemplateInfo: action.editTemplateInfo})
+
+        case AC.EDITED_EMAIL_TEMPLATE:
+            return Object.assign({}, state, {
+                all: state.allEmailTemplates.map(item => item._id == action.template._id ? action.template : item)
+            })
+
+        case AC.DELETE_EMAIL_TEMPLATE:
+            return Object.assign({}, state, {allEmailTemplates: state.allEmailTemplates.filter(item => item._id !== action.templateID)})
+
         default:
             return state
     }

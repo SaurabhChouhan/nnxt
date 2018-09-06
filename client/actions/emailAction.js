@@ -31,6 +31,22 @@ export const addIsEmailTemplateNameExist = (isEmailTemplateNameExist) => ({
     isEmailTemplateNameExist
 })
 
+export const editTemplate = (template) => ({
+    type: AC.EDITED_EMAIL_TEMPLATE,
+    template
+})
+
+export const saveEditTemplateInfo = (editTemplateInfo) => ({
+    type: AC.EDIT_TEMPLATE_INFO,
+    editTemplateInfo
+})
+
+export const deleteEmailTemplate = (templateID) => ({
+    type: AC.DELETE_EMAIL_TEMPLATE,
+    templateID
+})
+
+
 /* GET , ADD , UPDATE All email templates from server APIs  BLOCK */
 
 export const getAllEmailTemplatesFromServer = () => {
@@ -103,7 +119,7 @@ export const updateEmailTemplateOnServer = (formInput) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(addAllEmailTemplates(json.data))
+                    dispatch(editTemplate(json.data))
                 }
                 return json
             }
@@ -129,6 +145,31 @@ export const verifyTemplatesNameFromServer = (templateName) => {
         ).then(json => {
                 if (json.success) {
                     dispatch(addIsEmailTemplateNameExist(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+export const deleteEmailTemplateFromServer = (templateID) => {
+    return function (dispatch, getState) {
+        return fetch('/api/dashboard/email-template/'+templateID,
+            {
+                method: "delete",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(deleteEmailTemplate(json.data))
                 }
                 return json
             }

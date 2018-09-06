@@ -29,7 +29,7 @@ emailTemplateTypeSchema.statics.addTemplateType = async (user,templateTypeObj) =
 }
 
 emailTemplateTypeSchema.statics.getAllTemplateTypes = async (user) => {
-    return await EmailTemplateTypeModel.find({})
+    return await EmailTemplateTypeModel.find({isDeleted : false})
 }
 
 emailTemplateTypeSchema.statics.isExistThisTemplateType = async (templateType) => {
