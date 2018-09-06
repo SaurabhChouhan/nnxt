@@ -16,7 +16,7 @@ const mapStateToProps = (state) => {
 
     let releaseStartMoment = moment(momentTZ.utc(state.release.selectedRelease.devStartDate).format(DATE_FORMAT))
     let releaseEndMoment = moment(momentTZ.utc(state.release.selectedRelease.devEndDate).format(DATE_FORMAT))
-    let now = moment()
+    let now = moment(moment().format(DATE_FORMAT), DATE_FORMAT)
 
     let startDate = undefined
     let endDate = undefined
@@ -34,11 +34,13 @@ const mapStateToProps = (state) => {
         initialValues: {
             "releaseID": state.release.selectedRelease._id,
             startDate,
-            endDate
+            endDate,
+            expandDescription:state.release.expandDescriptionTaskList
         },
         devStartDate: state.release.selectedRelease.devStartDate,
         devEndDate: state.release.selectedRelease.devEndDate,
-        releaseID: state.release.selectedRelease._id
+        releaseID: state.release.selectedRelease._id,
+        expandDescription:state.release.expandDescriptionTaskList
     }
 }
 

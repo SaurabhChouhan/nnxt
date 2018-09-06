@@ -184,54 +184,84 @@ class TaskPlanList extends Component {
                 <div>
                     <TaskPlanDateNavBarContainer/>
                 </div>
-                <div
-                    className={this.props.expandDescription ? "col-md-12 estimation release-plan-table wrapTextTable" : "col-md-12 estimation release-plan-table"}>
-                    <BootstrapTable options={this.options} data={taskPlans}
-                                    multiColumnSearch={true}
-                                    search={false}
-                                    striped={true}
-                                    pagination
-                                    hover={true}
-                                    height={"300px"}>
-                        <TableHeaderColumn columnTitle isKey dataField='_id'
-                                           hidden={true}>ID
-                        </TableHeaderColumn>
-                        <TableHeaderColumn columnTitle width={"10%"} dataField='planningDate'
-                                           dataFormat={this.formatPlannedDate.bind(this)}>Planning
-                            Date
-                        </TableHeaderColumn>
-                        <TableHeaderColumn width={"18%"} columnTitle dataField='task'
-                                           dataFormat={this.formatTaskName.bind(this)}>Tasks
-                        </TableHeaderColumn>
-                        <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
-                                           dataFormat={this.formatDeveloperName.bind(this)}>Developer
-                        </TableHeaderColumn>
-                        {!this.props.expandDescription && <TableHeaderColumn width="14%" dataField='flags'
-                                                                             dataFormat={this.formatFlags.bind(this)}>
-                            Flag</TableHeaderColumn>
-                        }
-                        <TableHeaderColumn columnTitle width={"8%"} dataField='planning'
-                                           dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
-                        </TableHeaderColumn>
-                        <TableHeaderColumn width="8%" columnTitle dataField='report'
-                                           dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                        </TableHeaderColumn>
-                        {this.props.expandDescriptionTaskList ?
-                            <TableHeaderColumn width="34%" columnTitle dataField='report'
-                                               dataFormat={this.formatReportDescription.bind(this)} dataAlign={"right"}>Day
-                                Requirement
-                            </TableHeaderColumn> : <TableHeaderColumn width="20%" columnTitle dataField='report'
-                                                                      dataFormat={this.formatReportDescription.bind(this)}
-                                                                      dataAlign={"right"}>Day
-                                Requirement
-                            </TableHeaderColumn>
-                        }
-                        <TableHeaderColumn width="8%" columnTitle dataField='report'
-                                           dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
-                        </TableHeaderColumn>
 
-                    </BootstrapTable>
-                </div>
+                {this.props.expandDescription ?
+                    <div
+                        className={"col-md-12 wrapTextTable"}>
+                        <BootstrapTable options={this.options} data={taskPlans}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={"300px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planningDate'
+                                               dataFormat={this.formatPlannedDate.bind(this)}>Planning
+                                Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"20%"} dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Tasks
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
+                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                            </TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                            </TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"42%"} dataField='description'>Day Requirement
+                            </TableHeaderColumn>
+
+
+                        </BootstrapTable>
+                    </div> :
+                    <div className={"col-md-12"}>
+                        <BootstrapTable options={this.options} data={taskPlans}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={"300px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planningDate'
+                                               dataFormat={this.formatPlannedDate.bind(this)}>Planning
+                                Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"20%"} dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Tasks
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
+                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="14%" dataField='flags'
+                                               dataFormat={this.formatFlags.bind(this)}>
+                                Flag</TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planning'
+                                               dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"20%"} dataField='description'>Day Requirement
+                            </TableHeaderColumn>
+
+                        </BootstrapTable>
+                    </div>
+                }
             </div>
         )
     }

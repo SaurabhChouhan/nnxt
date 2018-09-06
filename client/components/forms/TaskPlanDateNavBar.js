@@ -136,8 +136,7 @@ class TaskPlanDateNavBar extends Component {
                     <label>
                         Expand Requirement
                     </label>
-                    <input checked={this.state.expandDescription}
-                           onChange={this.handleExpandDescriptionCheckBox}
+                    <Field name={"expandDescription"} component="input" onChange={this.handleExpandDescriptionCheckBox}
                            type="checkbox"/>
                 </div>
             </div>
