@@ -426,13 +426,23 @@ class ContentMain extends Component {
         }
     }
 
+    componentDidMount() {
+        this.props.showLaunchComponent()
+
+    }
+
     render() {
         logger.debug(logger.CONTENT_MAIN_RENDER, this.props)
         return <div>
             {
                 this.state.routes.length > 0 &&
                 <Route key={"app_home_route"} dispatch={this.props.dispatch} exact path={this.props.match.url}
-                       render={this.state.routes[0].render}/>
+                       render={(props) => {
+                           return <ContentSection>
+                               <CalendarTaskPageContainer name={COC.CALENDAR_TASK_PAGE}/>
+                           </ContentSection>
+
+                       }}/>
             }
             {
                 this.state.routes.map((route, idx) => <Route key={"app_route" + idx}
