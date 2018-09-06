@@ -2980,18 +2980,34 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 
 const addTaskReportUnplannedUpdateEmployeeRelease = async (release, employee, extra) => {
 
-    const {reportedHoursToIncrement} = extra
+    const {reportedHoursToIncrement, reReport} = extra
 
     let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
         'employee._id': mongoose.Types.ObjectId(employee._id),
         'release._id': mongoose.Types.ObjectId(release._id)
     })
 
-    if (!employeeRelease)
-        throw new AppError("We should have found employee release ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    if (!employeeRelease) {
+        // For unplanned reporting it is possible that there is no employee release
+        employeeRelease = new MDL.EmployeeReleasesModel()
+        employeeRelease.employee = {
+            _id: mongoose.Types.ObjectId(employee._id),
+            name: employee.firstName + ' ' + employee.lastName
+        }
 
-    employeeRelease.report.reportedHours += reportedHoursToIncrement
+        employeeRelease.release = {
+            _id: mongoose.Types.ObjectId(release._id),
+            name: release.name
+        }
+    }
 
+    if (!reReport) {
+        employeeRelease.report.reportedHours += reportedHoursToIncrement
+        employeeRelease.report.reportedCount += 1
+        employeeRelease.report.plannedHoursReportedTasks += reportedHoursToIncrement
+        employeeRelease.planning.plannedHours += reportedHoursToIncrement
+        employeeRelease.planning.plannedCount += 1
+    }
     return employeeRelease
 }
 
@@ -3110,6 +3126,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
         taskPlan.releasePlan = releasePlan
         taskPlan.employee = Object.assign({}, employee, {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
         taskPlan.task = releasePlan.task
+        taskPlan.planning.plannedHours = reportInput.reportedHours
         taskPlan.iterationType = SC.ITERATION_TYPE_UNPLANNED
         taskPlan.report = {
             status: SC.REPORT_PENDING
