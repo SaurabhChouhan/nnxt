@@ -27,20 +27,14 @@ class CalendarTaskPage extends React.Component {
 
         let bg = "";
         if (event.report.status == "un-reported") {
-            bg = "#9fa725"
+            bg = "#e0e1e1"
         }
-
-        else if (event.report.status == "Started") {
-            bg = "#1A4ECD"
-        }
-
         else if (event.report.status == "pending") {
-            bg = "#FF0000"
+            bg = "#f5f968"
         }
-
         else if (event.report.status == "completed") {
 
-            bg = "#4AD938"
+            bg = "#6ce190"
         }
         else {
             bg = "#000000"
@@ -50,7 +44,7 @@ class CalendarTaskPage extends React.Component {
             backgroundColor: bg,
             borderRadius: '0px',
             opacity: 0.8,
-            color: "#fff",
+            color: "#000000",
             border: '0px',
             display: 'block'
         };

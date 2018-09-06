@@ -32,6 +32,8 @@ const SidebarSection = (props) => {
                             }}>Dashboard</Link></li>
                         */}
 
+
+
                         {
                             (roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1) &&
                             <li><Link to="/app-home/company" onClick={() => {
