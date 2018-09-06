@@ -128,24 +128,25 @@ taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
 
         if (criteria.startDate) {
             //
-            let startMoment = U.momentInUTC(criteria.startDate)
-
             if (criteria.reportedOnly) {
+                let startMoment = U.momentInTimeZone(criteria.startDate, SC.INDIAN_TIMEZONE)
                 filter['$and'] = [{'report.reportedOnDate': {$gte: startMoment}}]
             } else {
+                let startMoment = U.momentInUTC(criteria.startDate)
                 filter['$and'] = [{'planningDate': {$gte: startMoment}}]
             }
         }
 
         if (criteria.endDate) {
-            let endMoment = U.momentInUTC(criteria.endDate)
-
             if (filter.hasOwnProperty('$and')) {
                 if (criteria.reportedOnly) {
+                    let endMoment = U.momentInTimeZone(criteria.endDate, SC.INDIAN_TIMEZONE)
+                    endMoment.endOf('day')
                     filter['$and'].push({
                         'report.reportedOnDate': {$lte: endMoment}
                     })
                 } else {
+                    let endMoment = U.momentInUTC(criteria.endDate)
                     filter['$and'].push({
                         'planningDate': {$lte: endMoment}
                     })
@@ -162,21 +163,26 @@ taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
 
         if (criteria.status) {
             filter['report.status'] = criteria.status
+        } else {
+            if (criteria.reportedOnly) {
+                filter['report.status'] = {$in: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
+            }
         }
 
         if (criteria.flag) {
             filter['flags'] = criteria.flag
         }
 
-        if (criteria.reportedOnly) {
-            filter['report.status'] = {$in: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
+        if (criteria.developer) {
+            filter['employee._id'] = mongoose.Types.ObjectId(criteria.developer)
         }
+
 
         logger.debug("searchTaskPlans() ", {filter})
 
         let sort = {}
 
-        if(criteria.reportedOnly){
+        if (criteria.reportedOnly) {
             sort['report.reportedOnDate'] = 0;
         } else {
             sort['planningDate'] = 1;

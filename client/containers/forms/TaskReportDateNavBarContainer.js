@@ -41,11 +41,7 @@ const mapStateToProps = (state) => {
         devEndDate: state.release.selectedRelease.devEndDate,
         releaseID: state.release.selectedRelease._id,
         expandDescription:state.release.expandDescriptionTaskList,
-
-        developers: state.user.allDevelopers && state.user.allDevelopers ? [{
-            _id: 'all',
-            name: 'All Employees'
-        }, ...state.user.allDevelopers] : []
+        developers: state.release.teamOfRelease && state.release.teamOfRelease.length ? [...state.release.teamOfRelease] : []
     }
 }
 

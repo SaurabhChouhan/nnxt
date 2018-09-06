@@ -9,6 +9,7 @@ class TaskReportList extends Component {
 
     constructor(props) {
         super(props);
+        let sizePerPage = Math.floor((props.screenHeight - 320)/25)
         this.options = {
             sizePerPageList: [{
                 text: '6', value: 6
@@ -19,20 +20,27 @@ class TaskReportList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage: 6,  // which size per page you want to locate as default
+            sizePerPage,  // which size per page you want to locate as default
             onRowClick: this.onRowClick.bind(this)
 
         }
     }
 
     componentDidMount() {
-        this.props.getAllTaskReports(this.props.release)
+        //this.props.getAllTaskReports(this.props.release)
     }
 
     formatPlanningDate(dateString) {
         if (dateString) {
             return moment(dateString, SC.DATE_FORMAT).format(SC.DATE_DISPLAY_FORMAT)
             //return row
+        }
+        return ''
+    }
+
+    formatReportedOnDate(report){
+        if(report && report.reportedOnDate){
+            return moment(report.reportedOnDate).format(SC.DATE_TIME_FORMAT)
         }
         return ''
     }
@@ -114,7 +122,9 @@ class TaskReportList extends Component {
     }
 
     render() {
-        const {reports} = this.props
+        const {reports, screenHeight} = this.props
+        let tableHeight = screenHeight - 335
+
         console.log("reports------------------", reports)
         console.log("expandDescription------------------", this.props.expandDescription)
         return (
@@ -130,31 +140,30 @@ class TaskReportList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={"300px"}>
+                                        height={tableHeight+"px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"15%"} dataField='task'
                                                dataFormat={this.formatTaskName.bind(this)}>Task Name
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"28%"} columnTitle dataField='report'
+                            <TableHeaderColumn width={"33%"} columnTitle dataField='report'
                                                dataFormat={this.formatTaskDescription.bind(this)}>Task Description
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"15%"} columnTitle dataField='employee'
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
                                                dataFormat={this.formatDeveloperName.bind(this)}>Developer
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle width={"12%"} dataField='planningDateString'
+                            <TableHeaderColumn columnTitle width={"10%"} dataField='planningDateString'
                                                dataFormat={this.formatPlanningDate.bind(this)}>Planning
                                 Date
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle width={"10%"} dataField='planning'
-                                               dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
-                                Hours
+                            <TableHeaderColumn columnTitle width={"12%"} dataField='report'
+                                               dataFormat={this.formatReportedOnDate.bind(this)}>Reported On
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="10%" columnTitle dataField='report'
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn width="10%" columnTitle dataField='report'
+                                </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>
 
@@ -167,31 +176,33 @@ class TaskReportList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={"300px"}>
+                                        height={tableHeight+"px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"15%"} dataField='task'
                                                dataFormat={this.formatTaskName.bind(this)}>Task Name
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"28%"} columnTitle dataField='report'
+                            <TableHeaderColumn width={"25%"} columnTitle dataField='report'
                                                dataFormat={this.formatTaskDescription.bind(this)}>Task Description
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"15%"} columnTitle dataField='employee'
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
                                                dataFormat={this.formatDeveloperName.bind(this)}>Developer
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle width={"12%"} dataField='planningDateString'
-                                               dataFormat={this.formatPlanningDate.bind(this)}>Planning
-                                Date
+                            <TableHeaderColumn columnTitle width={"10%"} dataField='planningDateString'
+                                               dataFormat={this.formatPlanningDate.bind(this)}>Planned On
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle width={"10%"} dataField='planning'
+                            <TableHeaderColumn columnTitle width={"12%"} dataField='report'
+                                               dataFormat={this.formatReportedOnDate.bind(this)}>Reported On
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planning'
                                                dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
-                                Hours
+
                             </TableHeaderColumn>
-                            <TableHeaderColumn width="10%" columnTitle dataField='report'
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn width="10%" columnTitle dataField='report'
+                                </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>
 

@@ -238,7 +238,7 @@ export const getReleaseTaskReportsResultFromServer = (formInput) => {
 
     // Add reported true flag in order to get only those task plans that are reported
 
-    formInput.reported = true
+    formInput.reportedOnly = true
 
     return (dispatch) => {
         return fetch('/api/task-plans/search', {

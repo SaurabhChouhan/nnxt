@@ -57,7 +57,7 @@ class TaskReportDateNavBar extends Component {
                 <div className="col-md-6">
                     <div className="col-md-6">
                         <Field name="startDate"
-                               placeholder={"Start Date"}
+                               placeholder={"From Date (Reported On)"}
                                component={renderDateTimePickerString}
                                onChange={(event, newValue, oldValue) => {
                                    console.log("onChange() ", releaseID, startDate)
@@ -76,7 +76,7 @@ class TaskReportDateNavBar extends Component {
                                label={" Start Date :"}/>
                     </div>
                     <div className="col-md-6">
-                        <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
+                        <Field name="endDate" placeholder={"To Date (Reported On):"} component={renderDateTimePickerString}
                                onChange={(event, newValue, oldValue) => {
                                    this.props.fetchTaskReports({
                                        releaseID,
@@ -97,7 +97,7 @@ class TaskReportDateNavBar extends Component {
                 <div className="col-md-2">
 
                     <Field name="status" component={renderSelect} label={"Status"} options={
-                        SC.ALL_TASK_STATUS.map((status, idx) =>
+                        SC.ALL_REPORTED_STATUS.map((status, idx) =>
                             ({
                                 _id: status,
                                 name: status
