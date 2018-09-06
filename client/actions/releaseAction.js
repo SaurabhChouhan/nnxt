@@ -89,6 +89,11 @@ export const expandDescription = (flag) => ({
     flag: flag
 })
 
+export const expandDescriptionTaskList = (flag) => ({
+    type: AC.EXPAND_DESCRIPTION_TASK_LIST,
+    flag: flag
+})
+
 export const setEmployeeSettings = (empSetting) => ({
     type: AC.SET_EMPLOYEE_SETTINGS,
     empSetting: empSetting
@@ -111,7 +116,10 @@ export const selectIteration = (iteration) => ({
     type: AC.ITERATION_SELECTED,
     iteration
 })
-
+export const searchReleaseTaskPlans = (data) => ({
+    type: AC.SEARCH_TASK_PLANS_IN_RELEASE,
+    taskPlans:data
+})
 
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
@@ -705,5 +713,27 @@ export const getIterationDatesReleasePlansFromServer = (releasePlanId) => {
             })
     }
 }
-
+export const getSearchTaskPlanResultFromServer = (formInput) => {
+    console.log("get the release result from server getSearchTaskPlanResultFromServer ",formInput)
+    return (dispatch) => {
+        return fetch('/api/task-plans/search', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addReleaseTaskPlannings(json.data))
+                }
+                return json
+            })
+    }
+}
 

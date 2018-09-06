@@ -1885,7 +1885,7 @@ hr {
 }
 
 .reportingCommentForm {
-    margin-top: 15px;
+    margin-top: 0px;
 }
 
 .releaseReadMoreLabel {
@@ -1908,6 +1908,33 @@ hr {
 
 .releaseReadLessLabelClick {
     margin-top: 30px;
+}
+
+.ReportingCommentTable .react-bs-table table td, .ReportingCommentTable .react-bs-table table th {
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
+}
+
+.wrapTextTable .react-bs-table table td, .wrapTextTable .react-bs-table table th {
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
+}
+
+.top-label-checkbox {
+    display: table;
+}
+
+.top-label-checkbox label {
+    display: table-row;
+    width: 100%;
+}
+
+.top-label-checkbox input[type=checkbox]{
+    width: 30px; /*Desired width*/
+    height: 30px; /*Desired height*/
+    cursor: pointer;
 }
 
 .releasePlanChkBtn {
@@ -2152,6 +2179,7 @@ hr {
 
 .react-bs-table-bordered {
     margin-bottom: 15px;
+    border: none;
 }
 
 .reporting {
@@ -2227,6 +2255,18 @@ hr {
     color: red;
 }
 
+.planFilterTaskForm {
+    background-color: #f1f1f1;
+    height: 70px;
+    border-bottom: 2px solid #34343C;
+    border-top: 2px solid #34343C;
+    margin-top: 10px;
+}
+
+.search-btn-taskplan-list {
+    margin-top: 22px;
+}
+
 .ordered-button li {
     display: inline-block;
     margin-right: 10px;
@@ -2234,3 +2274,4 @@ hr {
     margin-top: 13px;
     list-style: none;
 }
+

@@ -349,3 +349,10 @@ export const EVENT_INTERVAL = 1000 * 3600
 
 export const MODE_DEVELOPMENT = "development"
 export const MODE_PRODUCTION = "production"
+
+//Task Plan Search Status
+export const ALL_TASK_STATUS = [
+    STATUS_UNREPORTED,
+    STATUS_PENDING,
+    STATUS_COMPLETED
+]

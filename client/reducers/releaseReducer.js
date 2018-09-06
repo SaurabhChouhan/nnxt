@@ -14,6 +14,7 @@ let initialState = {
     taskPlans: [],
     developerPlans: [],
     expanded: false,
+    expandDescriptionTaskList:false,
     fromSchedule: nowString,
     schedules: [],
     employeeSetting: {},
@@ -27,7 +28,6 @@ const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_AVAILABLE_RELEASES:
             // add all releases from server
-
             return Object.assign({}, state, {allAvailableReleases: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})
 
         case AC.ADD_RELEASES:
@@ -131,8 +131,6 @@ const releaseReducer = (state = initialState, action) => {
         case AC.ADD_RELEASE_PLANS:
             // adding release plan li
             return Object.assign({}, state, {releasePlans: action.releasePlans})
-
-
         case AC.RELEASE_PLAN_SELECTED:
             // selecting release plan and its initial data
             return Object.assign({}, state, {
@@ -253,6 +251,11 @@ const releaseReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 selectedIteration: action.iteration
             })
+        case AC.EXPAND_DESCRIPTION_TASK_LIST:
+            return Object.assign({}, state, {
+                expandDescriptionTaskList: action.flag
+            })
+
         default:
             return state
     }

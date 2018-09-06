@@ -104,6 +104,60 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
 
 }
 
+taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
+    if (criteria) {
+        let filter = {}
+        if (criteria.releaseID) {
+            // Search is based on release ID
+            filter['release._id'] = mongoose.Types.ObjectId(criteria.releaseID)
+            let release = await MDL.ReleaseModel.findById(criteria.releaseID)
+            if (!release) {
+                throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            }
+
+            let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInRelease(release, user)
+            if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+                throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+            }
+        } else {
+            // As release is not supplied complete task plans are searched
+            if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+                throw new AppError('Only user with role [' + SC.ROLE_TOP_MANAGEMENT + '] can see Task Plans spanning multiple releases', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+            }
+        }
+
+        if (criteria.startDate) {
+            //
+            let startMoment = U.momentInUTC(criteria.startDate)
+            filter['$and'] = [{'planningDate': {$gte: startMoment}}]
+        }
+        if (criteria.endDate) {
+            let endMoment = U.momentInUTC(criteria.endDate)
+            if (filter.hasOwnProperty('$and')) {
+                filter['$and'].push({
+                    'planningDate': {$lte: endMoment}
+                })
+            } else {
+                filter['$and'] = [{'planningDate': {$lte: endMoment}}]
+            }
+        }
+
+        if (criteria.status) {
+            filter['report.status'] = criteria.status
+        }
+
+        if (criteria.flag) {
+            filter['flags'] = criteria.flag
+        }
+
+        logger.debug("searchTaskPlans() ", {filter})
+        return await TaskPlanningModel.find(filter)
+    }
+
+    return []
+
+
+}
 
 /* get all task plannings according to developers and date range */
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, releaseID, fromDate, toDate, user) => {

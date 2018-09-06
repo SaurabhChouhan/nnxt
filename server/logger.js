@@ -5,7 +5,7 @@ const stringFormat = format((info, opts) => {
 })
 
 const logger = winston.createLogger({
-    level: 'error',
+    level: 'debug',
     format: format.combine(
         format.splat(),
         format.timestamp({

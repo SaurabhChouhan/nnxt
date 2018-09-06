@@ -39,9 +39,16 @@ taskPlanRouter.get("/release-plan/:releasePlanID", async ctx => {
     return await MDL.TaskPlanningModel.getTaskPlansOfReleasePlan(ctx.params.releasePlanID, ctx.state.user)
 })
 
+/**
+ * Get all task planning of a release
+ */
 taskPlanRouter.get("/release/:releaseID", async ctx => {
     console.log("ctx.params.releaseID", ctx.params.releaseID)
     return await MDL.TaskPlanningModel.getAllTaskPlannings(ctx.params.releaseID, ctx.state.user)
+})
+
+taskPlanRouter.post('/search', async ctx => {
+    return await MDL.TaskPlanningModel.searchTaskPlans(ctx.request.body, ctx.state.user)
 })
 
 /***
