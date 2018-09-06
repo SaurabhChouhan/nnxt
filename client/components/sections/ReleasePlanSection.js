@@ -60,7 +60,7 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                     <div
-                        className={isManager ? "col-md-1" : "col-md-2"}>
+                        className={isManager ? "col-md-2" : "col-md-3"}>
                         <div className="releaseTitle">
                             <span>Start Date</span>
                         </div>
@@ -69,7 +69,7 @@ class ReleasePlanSection extends Component {
                         </div>
                     </div>
                     <div
-                        className={isManager ? "col-md-1" : "col-md-2"}>
+                        className={isManager ? "col-md-2" : "col-md-3"}>
                         <div className="releaseTitle">
                             <span>End Date</span>
                         </div>
@@ -104,6 +104,7 @@ class ReleasePlanSection extends Component {
                         </div> : null
                     }
 
+                    {/*
                     <div className=" col-md-2 releasefileoption">
                         <ul className="list-unstyled">
                             <li><a href="#"> <i className="fa fa-file-pdf-o"></i></a></li>
@@ -111,6 +112,7 @@ class ReleasePlanSection extends Component {
                             <li><a href="#"> <i className=" fa fa-file-excel-o"></i></a></li>
                         </ul>
                     </div>
+                    */}
 
                 </div>
                 <div className="col-md-12">

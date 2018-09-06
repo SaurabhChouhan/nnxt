@@ -234,9 +234,14 @@ export const getReleasePlanByIdFromServer = (releasePlanID) => {
     }
 }
 export const getReleaseTaskReportsResultFromServer = (formInput) => {
-    console.log("get the release result from server getReleaseTaskReportsResultFromServer ",formInput)
+    console.log("get the release result from server getReleaseTaskReportsResultFromServer ", formInput)
+
+    // Add reported true flag in order to get only those task plans that are reported
+
+    formInput.reported = true
+
     return (dispatch) => {
-        return fetch('/api/task-report/search', {
+        return fetch('/api/task-plans/search', {
                 method: 'post',
                 credentials: "include",
                 headers: {

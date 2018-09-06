@@ -172,8 +172,10 @@ class TaskPlanList extends Component {
 
 
     render() {
-        const {taskPlans} = this.props
+        const {taskPlans, screenHeight, screenWidth} = this.props
         console.log("taskPlans------------------", taskPlans, this.props.expandDescription)
+
+        let tableHeight = screenHeight - 320
 
         return (
             <div>
@@ -189,7 +191,7 @@ class TaskPlanList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={"300px"}>
+                                        height={tableHeight+"px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>
@@ -224,7 +226,7 @@ class TaskPlanList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={"300px"}>
+                                        height={tableHeight+"px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>

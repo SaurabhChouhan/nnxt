@@ -31,3 +31,9 @@ export const showLoader = () => ({
 export const hideLoader = () => ({
     type: AC.HIDE_LOADER
 })
+
+export const setScreenSize = (height, width) => ({
+    type: AC.SET_SCREEN_SIZE,
+    screenWidth: width,
+    screenHeight: height
+})

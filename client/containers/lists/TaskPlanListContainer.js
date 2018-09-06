@@ -9,7 +9,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state) => ({
     taskPlans: state.release.taskPlans,
-    expandDescription: state.release.expandDescriptionTaskList
+    expandDescription: state.release.expandDescriptionTaskList,
+    screenWidth: state.app.screenWidth,
+    screenHeight: state.app.screenHeight
 })
 
 const TaskPlanListContainer = withRouter(connect(

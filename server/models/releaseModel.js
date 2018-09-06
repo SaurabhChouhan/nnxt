@@ -298,16 +298,12 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
     return await release.save()
 }
 
-const updateReleaseProcessTeam = async (releaseID, team, newTeam)=>{
+const updateReleaseValidateTeam = async (releaseID, team, newTeam) => {
 
     let existingTeamIDs = team.map(t => t._id.toString())
     let newTeamIDs = newTeam.map(t => t._id.toString())
 
-    logger.debug("updateReleaseProcessTeam(): ", {existingTeamIDs})
-    logger.debug("updateReleaseProcessTeam(): ", {newTeamIDs})
-
-
-    for(const eti of existingTeamIDs){
+    for (const eti of existingTeamIDs) {
         if (!U.includeAny(eti, newTeamIDs)) {
             logger.debug("updateRelease(): team member [" + eti + '] is removed from release')
             // Team member with task plan associated cannot be removed from release
@@ -315,9 +311,9 @@ const updateReleaseProcessTeam = async (releaseID, team, newTeam)=>{
                 'release._id': releaseID,
                 'employee._id': mongoose.Types.ObjectId(eti)
             })
-            if(taskCount > 0){
-                let employee = team.find(t=> t._id.toString() == eti)
-                throw new AppError('You cannot remove ['+employee.name+'] from release as user has planned tasks in this release')
+            if (taskCount > 0) {
+                let employee = team.find(t => t._id.toString() == eti)
+                throw new AppError('You cannot remove [' + employee.name + '] from release as user has planned tasks in this release')
             }
         }
     }
@@ -386,7 +382,21 @@ releaseSchema.statics.updateRelease = async (releaseData, user) => {
 
 
     // iterate on existing team IDs to see if any id is not present in new team ids
-    await updateReleaseProcessTeam(release._id, release.team, releaseData.team)
+    await updateReleaseValidateTeam(release._id, release.team, releaseData.team)
+
+    // Now that team is validated we need to check if any user id is present in non-project team, if yes the we need to remove it from there
+
+
+    if (release.nonProjectTeam && release.nonProjectTeam.length) {
+        let nonProjectIDs = release.nonProjectTeam.map(t => t._id.toString())
+        let newTeamIDs = releaseData.team.map(t => t._id.toString())
+
+        nonProjectIDs.forEach(nonProjectID => {
+            if (U.includeAny(nonProjectID, newTeamIDs))
+                release.nonProjectTeam.pull({_id: nonProjectID})
+        })
+    }
+
     release.developmentType = developmentType
     release.manager = manager
     release.leader = leader

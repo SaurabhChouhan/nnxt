@@ -5,7 +5,9 @@ let initialState = {
     ssrFlag: false, // used for server side rendering
     visibleComponents: [], // which components should be visible in a particular tab,
     allReleases: [],
-    selectedReleaseID: undefined
+    selectedReleaseID: undefined,
+    screenWidth: 1366,
+    screenHeight: 768
 }
 
 const appReducer = (state = initialState, action) => {
@@ -40,6 +42,11 @@ const appReducer = (state = initialState, action) => {
         case AC.CLEAR_SSR_FLAG:
             return Object.assign({}, state, {
                 ssrFlag: false
+            })
+        case AC.SET_SCREEN_SIZE:
+            return Object.assign({}, state, {
+                screenWidth: action.screenWidth,
+                screenHeight: action.screenHeight
             })
         default:
             return state

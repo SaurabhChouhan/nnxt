@@ -129,16 +129,34 @@ taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
         if (criteria.startDate) {
             //
             let startMoment = U.momentInUTC(criteria.startDate)
-            filter['$and'] = [{'planningDate': {$gte: startMoment}}]
+
+            if (criteria.reportedOnly) {
+                filter['$and'] = [{'report.reportedOnDate': {$gte: startMoment}}]
+            } else {
+                filter['$and'] = [{'planningDate': {$gte: startMoment}}]
+            }
         }
+
         if (criteria.endDate) {
             let endMoment = U.momentInUTC(criteria.endDate)
+
             if (filter.hasOwnProperty('$and')) {
-                filter['$and'].push({
-                    'planningDate': {$lte: endMoment}
-                })
+                if (criteria.reportedOnly) {
+                    filter['$and'].push({
+                        'report.reportedOnDate': {$lte: endMoment}
+                    })
+                } else {
+                    filter['$and'].push({
+                        'planningDate': {$lte: endMoment}
+                    })
+                }
+
             } else {
-                filter['$and'] = [{'planningDate': {$lte: endMoment}}]
+                if (criteria.reportedOnly) {
+                    filter['$and'] = [{'report.reportedOnDate': {$lte: endMoment}}]
+                } else {
+                    filter['$and'] = [{'planningDate': {$lte: endMoment}}]
+                }
             }
         }
 
@@ -150,7 +168,20 @@ taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
             filter['flags'] = criteria.flag
         }
 
+        if (criteria.reportedOnly) {
+            filter['report.status'] = {$in: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
+        }
+
         logger.debug("searchTaskPlans() ", {filter})
+
+        let sort = {}
+
+        if(criteria.reportedOnly){
+            sort['report.reportedOnDate'] = 0;
+        } else {
+            sort['planningDate'] = 1;
+        }
+
         return await TaskPlanningModel.find(filter)
     }
 
