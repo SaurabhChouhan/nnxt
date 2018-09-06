@@ -121,6 +121,11 @@ export const searchReleaseTaskPlans = (data) => ({
     taskPlans:data
 })
 
+export const expandDescriptionTaskReportList = (flag) => ({
+    type: AC.EXPAND_DESCRIPTION_TASK_REPORT_LIST,
+    flag: flag
+})
+
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
         let api = '';
@@ -736,4 +741,6 @@ export const getSearchTaskPlanResultFromServer = (formInput) => {
             })
     }
 }
+
+
 

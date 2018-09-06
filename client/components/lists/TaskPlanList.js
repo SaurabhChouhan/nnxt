@@ -12,6 +12,8 @@ class TaskPlanList extends Component {
 
     constructor(props) {
         super(props);
+        let sizePerPage = Math.floor((props.screenHeight - 320)/25)
+
         this.options = {
             sizePerPageList: [{
                 text: '6', value: 6
@@ -22,7 +24,7 @@ class TaskPlanList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage: 6,  // which size per page you want to locate as default
+            sizePerPage,  // which size per page you want to locate as default
 
         }
     }
@@ -172,8 +174,10 @@ class TaskPlanList extends Component {
 
 
     render() {
-        const {taskPlans} = this.props
+        const {taskPlans, screenHeight} = this.props
         console.log("taskPlans------------------", taskPlans, this.props.expandDescription)
+
+        let tableHeight = screenHeight - 335
 
         return (
             <div>
@@ -189,7 +193,7 @@ class TaskPlanList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={"300px"}>
+                                        height={tableHeight+"px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>
@@ -224,7 +228,7 @@ class TaskPlanList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={"300px"}>
+                                        height={tableHeight+"px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>

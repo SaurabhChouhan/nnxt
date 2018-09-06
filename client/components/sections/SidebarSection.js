@@ -59,6 +59,7 @@ const SidebarSection = (props) => {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1) &&
                             <li><Link to="/app-home/release" onClick={() => {
                                 props.dispatch(A.getAllReleasesFromServer(SC.ALL))
+                                props.dispatch(A.getAllDeveloperFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
 
                             }}>Release</Link></li>

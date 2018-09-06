@@ -21,7 +21,8 @@ let initialState = {
     selectedIteration: undefined,
     from: nowString,
     selectedTab: SC.RELEASE_DASHBOARD_TAB,
-    taskPlansOfReleasePlanDeveloper: []
+    taskPlansOfReleasePlanDeveloper: [],
+    expandDescriptionTaskReportList:false,
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -254,6 +255,10 @@ const releaseReducer = (state = initialState, action) => {
         case AC.EXPAND_DESCRIPTION_TASK_LIST:
             return Object.assign({}, state, {
                 expandDescriptionTaskList: action.flag
+            })
+        case AC.EXPAND_DESCRIPTION_TASK_REPORT_LIST:
+            return Object.assign({}, state, {
+                expandDescriptionTaskReportList: action.flag
             })
 
         default:

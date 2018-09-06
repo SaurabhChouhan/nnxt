@@ -13,7 +13,8 @@ const mapDispatchToProps = (dispatch) => ({
     showLaunchComponent: () => {
         dispatch(A.getAllTaskPlansFromServer())
         dispatch(showComponent(CALENDAR_TASK_PAGE))
-    }
+    },
+    dispatch: dispatch
 })
 
 const AppHomeContainer = withRouter(connect(

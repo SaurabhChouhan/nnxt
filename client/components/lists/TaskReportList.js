@@ -3,12 +3,13 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-
+import {TaskReportDateNavBarContainer} from '../../containers'
 
 class TaskReportList extends Component {
 
     constructor(props) {
         super(props);
+        let sizePerPage = Math.floor((props.screenHeight - 320)/25)
         this.options = {
             sizePerPageList: [{
                 text: '6', value: 6
@@ -19,20 +20,27 @@ class TaskReportList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage: 6,  // which size per page you want to locate as default
+            sizePerPage,  // which size per page you want to locate as default
             onRowClick: this.onRowClick.bind(this)
 
         }
     }
 
     componentDidMount() {
-        this.props.getAllTaskReports(this.props.release)
+        //this.props.getAllTaskReports(this.props.release)
     }
 
     formatPlanningDate(dateString) {
         if (dateString) {
             return moment(dateString, SC.DATE_FORMAT).format(SC.DATE_DISPLAY_FORMAT)
             //return row
+        }
+        return ''
+    }
+
+    formatReportedOnDate(report){
+        if(report && report.reportedOnDate){
+            return moment(report.reportedOnDate).format(SC.DATE_TIME_FORMAT)
         }
         return ''
     }
@@ -82,7 +90,12 @@ class TaskReportList extends Component {
         return 0
     }
 
-
+    formatTaskDescription(report) {
+        console.log("get the task Description",report.description)
+        if (report)
+            return report.description
+        return ''
+    }
     onRowClick(row) {
         this.props.taskPlanSelected(row).then(json => {
             if (json.success) {
@@ -109,40 +122,92 @@ class TaskReportList extends Component {
     }
 
     render() {
-        const {reports} = this.props
-        console.log("reports------------------", reports)
-        return (
-            <div className="col-md-12 release-options">
-                <BootstrapTable options={this.options} data={reports}
-                                multiColumnSearch={true}
-                                search={false}
-                                striped={true}
-                                pagination
-                                hover={true}
-                                height={"300px"}>
-                    <TableHeaderColumn columnTitle isKey dataField='_id'
-                                       hidden={true}>ID
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"25%"} dataField='task'
-                                       dataFormat={this.formatTaskName.bind(this)}>Task Name
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width={"25%"} columnTitle dataField='employee'
-                                       dataFormat={this.formatDeveloperName.bind(this)}>Developer
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"14%"} dataField='planningDateString' dataFormat={this.formatPlanningDate.bind(this)}>Planning
-                        Date
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"12%"} dataField='planning' dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
-                        Hours
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width="12%" columnTitle dataField='report'
-                                       dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                        Hours</TableHeaderColumn>
-                    <TableHeaderColumn width="12%" columnTitle dataField='report'
-                                       dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
-                    </TableHeaderColumn>
+        const {reports, screenHeight} = this.props
+        let tableHeight = screenHeight - 335
 
-                </BootstrapTable>
+        console.log("reports------------------", reports)
+        console.log("expandDescription------------------", this.props.expandDescription)
+        return (
+            <div>
+                <div>
+                    <TaskReportDateNavBarContainer/>
+                </div>
+                {this.props.expandDescription ?
+                    <div className="col-md-12 wrapTextTable">
+                        <BootstrapTable options={this.options} data={reports}
+                                        multiColumnSearch={true}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={tableHeight+"px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"15%"} dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Task Name
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"33%"} columnTitle dataField='report'
+                                               dataFormat={this.formatTaskDescription.bind(this)}>Task Description
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
+                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"10%"} dataField='planningDateString'
+                                               dataFormat={this.formatPlanningDate.bind(this)}>Planning
+                                Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"12%"} dataField='report'
+                                               dataFormat={this.formatReportedOnDate.bind(this)}>Reported On
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                                </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
+                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+
+                        </BootstrapTable>
+                    </div> :
+                    <div className="col-md-12 ">
+                        <BootstrapTable options={this.options} data={reports}
+                                        multiColumnSearch={true}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={tableHeight+"px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"15%"} dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Task Name
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"25%"} columnTitle dataField='report'
+                                               dataFormat={this.formatTaskDescription.bind(this)}>Task Description
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
+                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"10%"} dataField='planningDateString'
+                                               dataFormat={this.formatPlanningDate.bind(this)}>Planned On
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"12%"} dataField='report'
+                                               dataFormat={this.formatReportedOnDate.bind(this)}>Reported On
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planning'
+                                               dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
+
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                                </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
+                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+
+                        </BootstrapTable>
+                    </div>}
             </div>
         )
     }

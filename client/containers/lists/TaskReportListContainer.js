@@ -17,7 +17,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state) => ({
-    reports: state.report.releasesReports
+    reports: state.report.releasesReports,
+    expandDescription: state.release.expandDescriptionTaskReportList,
+    screenWidth: state.app.screenWidth,
+    screenHeight: state.app.screenHeight
 })
 
 const TaskReportListContainer = withRouter(connect(

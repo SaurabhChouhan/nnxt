@@ -152,3 +152,4 @@ export {default as HolidayList} from './lists/HolidayList'
 
 //Task Search Form with start and End date
 export {default as TaskPlanDateNavBar} from './forms/TaskPlanDateNavBar'
+export {default as TaskReportDateNavBar} from './forms/TaskReportDateNavBar'
