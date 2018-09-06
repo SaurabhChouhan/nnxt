@@ -17,7 +17,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state) => ({
-    reports: state.report.releasesReports
+    reports: state.report.releasesReports,
+    expandDescription: state.release.expandDescriptionTaskReportList
 })
 
 const TaskReportListContainer = withRouter(connect(

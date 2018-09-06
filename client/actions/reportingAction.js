@@ -233,7 +233,29 @@ export const getReleasePlanByIdFromServer = (releasePlanID) => {
             })
     }
 }
-
+export const getReleaseTaskReportsResultFromServer = (formInput) => {
+    console.log("get the release result from server getReleaseTaskReportsResultFromServer ",formInput)
+    return (dispatch) => {
+        return fetch('/api/task-report/search', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(setReportsOfRelease(json.data))
+                }
+                return json
+            })
+    }
+}
 
 
 
