@@ -177,7 +177,7 @@ class TaskPlanList extends Component {
         const {taskPlans, screenHeight, screenWidth} = this.props
         console.log("taskPlans------------------", taskPlans, this.props.expandDescription)
 
-        let tableHeight = screenHeight - 320
+        let tableHeight = screenHeight - 335
 
         return (
             <div>

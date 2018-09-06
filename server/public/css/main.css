@@ -2257,10 +2257,12 @@ hr {
 
 .planFilterTaskForm {
     background-color: #f1f1f1;
-    height: 70px;
+    height: 80px;
     border-bottom: 2px solid #34343C;
     border-top: 2px solid #34343C;
     margin-top: 10px;
+    margin-bottom:5px;
+    padding-top:3px;
 }
 
 .search-btn-taskplan-list {
