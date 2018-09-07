@@ -204,7 +204,8 @@ export const addNNXTData = async () => {
     await addNNXTUsers()
     await addDevelopmentTypes()
     await addClients()
-    //await addProjects()
+    await addProjects()
+    await addModules()
     await addLeaveTypes()
     await addTechnologies()
     //await addRepositoryTasksAndFeatures()
@@ -520,27 +521,27 @@ const addNNXTUsers = async () => {
 const addClients = async () => {
     console.log("SETTING UP CLIENTS ...")
 
-    if (!await MDL.ClientModel.exists('Zaib')) {
+    if (!await MDL.ClientModel.exists('Obi Brown')) {
         await MDL.ClientModel.saveClient({
-            name: 'Zaib'
+            name: 'Obi Brown'
         })
     }
 
-    if (!await MDL.ClientModel.exists('Mike')) {
+    if (!await MDL.ClientModel.exists('Carl')) {
         await MDL.ClientModel.saveClient({
-            name: 'Mike'
+            name: 'Carl'
         })
     }
 
-    if (!await MDL.ClientModel.exists('Dean')) {
+    if (!await MDL.ClientModel.exists('Erich')) {
         await MDL.ClientModel.saveClient({
-            name: 'Dean'
+            name: 'Erich'
         })
     }
 
-    if (!await MDL.ClientModel.exists('Brian')) {
+    if (!await MDL.ClientModel.exists('Randy')) {
         await MDL.ClientModel.saveClient({
-            name: 'Brian'
+            name: 'Randy'
         })
     }
 
@@ -549,117 +550,71 @@ const addClients = async () => {
             name: 'Aripra'
         })
     }
-
-    /*
-    if (!await MDL.ClientModel.exists('Javed')) {
-        await MDL.ClientModel.saveClient({
-            name: 'Javed'
-        })
-    }
-
-    if (!await MDL.ClientModel.exists('Zakhir')) {
-        await MDL.ClientModel.saveClient({
-            name: 'Zakhir'
-        })
-    }
-    */
-
 }
 
 const addProjects = async () => {
     console.log("SETTING UP PROJECTS ...")
-    let zaib = await MDL.ClientModel.findOne({name: 'Zaib'})
+    let carl = await MDL.ClientModel.findOne({name: 'Carl'})
 
-    if (zaib) {
-
-        if (!await MDL.ProjectModel.exists('WFSM', zaib._id)) {
+    if (carl) {
+        if (!await MDL.ProjectModel.exists('FFL', carl._id)) {
             await MDL.ProjectModel.saveProject({
-                name: 'WFSM',
-                client: zaib
-            })
-        }
-
-        if (!await MDL.ProjectModel.exists('WiFi Survey', zaib._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'WiFi Survey',
-                client: zaib
-            })
-        }
-
-        if (!await MDL.ProjectModel.exists('Bridgechecker', zaib._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'Bridgechecker',
-                client: zaib
-            })
-        }
-
-        if (!await MDL.ProjectModel.exists('WifiScanner', zaib._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'WifiScanner',
-                client: zaib
-            })
-        }
-
-        if (!await MDL.ProjectModel.exists('WifiPerf', zaib._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'WifiPerf',
-                client: zaib
-            })
-        }
-
-    }
-
-    let mike = await MDL.ClientModel.findOne({name: 'Mike'})
-
-    if (mike) {
-        if (!await MDL.ProjectModel.exists('LumaBooth', mike._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'LumaBooth',
-                client: mike
-            })
-        }
-
-        if (!await MDL.ProjectModel.exists('FotoShare', mike._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'FotoShare',
-                client: mike
+                name: 'FFL',
+                client: carl
             })
         }
     }
 
-    let dean = await MDL.ClientModel.findOne({name: 'Dean'})
+    let randy = await MDL.ClientModel.findOne({name: 'Careers IRL'})
 
-    if (dean) {
-        if (!await MDL.ProjectModel.exists('Casebrief', dean._id)) {
+    if (randy) {
+        if (!await MDL.ProjectModel.exists('Careers IRL', randy._id)) {
             await MDL.ProjectModel.saveProject({
-                name: 'Casebrief',
-                client: dean
+                name: 'Careers IRL',
+                client: randy
             })
         }
     }
 
-    let brian = await MDL.ClientModel.findOne({name: 'Brian'})
+    let erich = await MDL.ClientModel.findOne({name: 'Erich'})
 
-    if (brian) {
-        if (!await MDL.ProjectModel.exists('Iconoland', brian._id)) {
+    if (erich) {
+        if (!await MDL.ProjectModel.exists('Synapse', erich._id)) {
             await MDL.ProjectModel.saveProject({
-                name: 'Iconoland',
-                client: brian
+                name: 'Synapse',
+                client: erich
             })
         }
     }
+}
 
-    let javed = await MDL.ClientModel.findOne({name: 'Javed'})
+const addModules = async () => {
+    console.log("SETTING UP MODULES...")
+    let carl = await MDL.ClientModel.findOne({name: 'Carl'})
+    let project = await MDL.ProjectModel.findOne({name: 'FFL', 'client._id': carl._id})
 
-    if (javed) {
-        if (!await MDL.ProjectModel.exists('JCI', brian._id)) {
-            await MDL.ProjectModel.saveProject({
-                name: 'JCI',
-                client: javed
+    if (project) {
+        if (!await MDL.ModuleModel.exists('Android App', project._id)) {
+            await MDL.ModuleModel.saveModule({
+                name: 'Android App',
+                project: project
+            })
+        }
+
+        if (!await MDL.ModuleModel.exists('iOS App', project._id)) {
+            await MDL.ModuleModel.saveModule({
+                name: 'iOS App',
+                project: project
+            })
+        }
+
+        if (!await MDL.ModuleModel.exists('Web App', project._id)) {
+            await MDL.ModuleModel.saveModule({
+                name: 'Web App',
+                project: project
             })
         }
     }
-
 }
 
 const addLeaveTypes = async () => {

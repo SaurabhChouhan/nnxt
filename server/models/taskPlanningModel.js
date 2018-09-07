@@ -778,7 +778,7 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
         'date': momentPlanningDate
     })
 
-    if(!employeeDay){
+    if (!employeeDay) {
         employeeDay = new MDL.EmployeeDaysModel()
         employeeDay.plannedHours = plannedHourNumber
         employeeDay.employee = {
@@ -788,7 +788,7 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
         employeeDay.dateString = momentPlanningDate.format(SC.DATE_FORMAT)
         employeeDay.date = U.momentInUTC(employeeDay.dateString)
     } else {
-        employeeDay.plannedHours+= plannedHourNumber
+        employeeDay.plannedHours += plannedHourNumber
     }
 
     return await employeeDay.save()
@@ -1197,16 +1197,17 @@ const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePla
 
 const deleteTaskUpdateEmployeeDays = async (taskPlan, employee, plannedHourNumber, user) => {
 
-    /* when task plan is removed we have to decrease employee days  planned hours */
-    let oldEmployeeDaysModelInput = {
-        plannedHours: plannedHourNumber,
-        employee: {
-            _id: employee._id.toString(),
-            name: taskPlan.employee.name
-        },
-        dateString: taskPlan.planningDateString,
-    }
-    return await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': employee._id.toString(),
+        'date': U.momentInUTC(taskPlan.planningDateString)
+    })
+
+    if (!employeeDay)
+        throw new AppError('We should have found employee day', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    employeeDay.plannedHours -= plannedHourNumber
+    return employeeDay
+
 }
 
 
@@ -1478,7 +1479,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
     let employeeReleaseLeaderManager = await deleteTaskUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, user)
 
     /*------------------------------ EMPLOYEE DAYS UPDATES --------------------------------------------*/
-    await deleteTaskUpdateEmployeeDays(taskPlan, employee, plannedHourNumber, user)
+    let employeeDay = await deleteTaskUpdateEmployeeDays(taskPlan, employee, plannedHourNumber, user)
 
     /*------------------------------- RELEASE PLAN UPDATES ------------------------------------------------------*/
     releasePlan = await deleteTaskUpdateReleasePlan(taskPlan, releasePlan, employee, plannedHourNumber)
@@ -1492,6 +1493,11 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
 
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
     await taskPlan.remove()
+
+    if (employeeDay.plannedHours > 0)
+        await employeeDay.save()
+    else
+        await employeeDay.remove()
 
     await employeeRelease.save()
     await employeeReleaseLeaderManager.save()
