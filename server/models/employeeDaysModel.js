@@ -23,7 +23,8 @@ let employeeDaysSchema = mongoose.Schema({
     },
     date: {type: Date, default: Date.now()},
     dateString: String,
-    plannedHours: {type: Number, default: 0}
+    plannedHours: {type: Number, default: 0},
+    reportedHours: {type: Number, default: 0}
 })
 
 

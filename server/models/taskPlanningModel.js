@@ -772,35 +772,27 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
-    if (await MDL.EmployeeDaysModel.count({
+
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
         'employee._id': employee._id.toString(),
         'date': momentPlanningDate
-    }) > 0) {
+    })
 
-        /* Update already added employee days details with increment of planned hours   */
-        let EmployeeDaysModelInput = {
-            plannedHours: plannedHourNumber,
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
+    if(!employeeDay){
+        employeeDay = new MDL.EmployeeDaysModel()
+        employeeDay.plannedHours = plannedHourNumber
+        employeeDay.employee = {
+            _id: employee._id,
+            name: U.getFullName(employee)
         }
-        return await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput)
+        employeeDay.dateString = momentPlanningDate.format(SC.DATE_FORMAT)
+        employeeDay.date = U.momentInUTC(employeeDay.dateString)
     } else {
-
-        /*  Add employee days details with planned hour  if not added */
-        let EmployeeDaysModelInput = {
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            plannedHours: plannedHourNumber,
-            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
-        }
-
-        return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput)
+        employeeDay.plannedHours+= plannedHourNumber
     }
+
+    return await employeeDay.save()
+
 }
 
 const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, extra) => {
