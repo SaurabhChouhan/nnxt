@@ -14,10 +14,9 @@ import _ from 'lodash'
 mongoose.Promise = global.Promise
 
 let taskPlanningSchema = mongoose.Schema({
-    user: {
+    creator: {
         _id: mongoose.Schema.ObjectId,
-        name: {type: String},
-        role: {type: String},
+        name: {type: String}
     },
     plannedOnDate: {type: Date, default: Date.now()},
     updatedOnDate: {type: Date, default: Date.now()},
@@ -970,7 +969,8 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
         plannedHourNumber,
         momentPlanningDate,
         taskPlanningInput,
-        momentPlanningDateIndia
+        momentPlanningDateIndia,
+        creator
     } = extra
 
     let taskPlan = new TaskPlanningModel()
@@ -982,6 +982,10 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
     taskPlan.releasePlan = releasePlan
     taskPlan.employee = Object.assign({}, selectedEmployee.toObject(), {name: ((selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '') + (selectedEmployee.lastName ? selectedEmployee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
+    taskPlan.creator = {
+        _id: creator._id,
+        name: U.getFullName(creator)
+    }
 
     // Add 10 to get to 10am in India so that anything planned before that is considered as past
     momentPlanningDateIndia = momentPlanningDateIndia.clone().add(10, 'hour')
@@ -1011,7 +1015,7 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
 /***
  * Create new task planning  in which logged in user is involved as a manager or leader
  ***/
-taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaRequested) => {
+taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.releaseTaskPlanningStruct)
 
@@ -1027,7 +1031,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
         throw new AppError('Release Plan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
     // Get all roles user have in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, creator)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -1124,14 +1128,15 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
         plannedHourNumber,
         momentPlanningDate,
         taskPlanningInput,
-        momentPlanningDateIndia
+        momentPlanningDateIndia,
+        creator
     })
 
     // This method is intentionally kept after create release plan as it used details added there
     let employeeReleaseManagerLeader = await addTaskPlanUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, selectedEmployee, {
         plannedHours: plannedHourNumber,
         momentPlanningDateIndia,
-        user
+        user: creator
     })
 
     /*--------------------------------- WARNING UPDATE SECTION ---------------------------------------------*/
@@ -2988,7 +2993,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
     await employeeDay.save()
-    
+
     await employeeRelease.save()
     //logger.debug('release before save ', {release})
     await release.save()
