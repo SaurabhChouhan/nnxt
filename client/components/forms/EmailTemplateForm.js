@@ -45,12 +45,8 @@ class EmailTemplateForm extends Component {
                                validate={[required]}/>
                         <Field name="templateFooter" label="Footer:" component={renderTextArea}
                                validate={[required]}/>
-                        {this.props.isEmailTemplateNameExist ?
-                            <button type="submit" className="btn btn-submit" disabled> {(!this.props._id && "Add") || (this.props._id && "Update")}
-                            </button>
-                            :<button type="submit" className="btn btn-submit"> {(!this.props._id && "Add") || (this.props._id && "Update")}
-                            </button>
-                        }
+                                <button type="submit" className="btn btn-submit"> Save
+                                </button>
                     </div>
                 </div>
             </form>

@@ -15,15 +15,23 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                         dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_LIST))
                         NotificationManager.success('Email Template Added Successful');
                     } else {
-                        NotificationManager.error('Email Template Added Failed');
-                        if (json.code && json.code == EC.ALREADY_EXISTS) {
-                            // role already exists throw SubmissionError to show appropriate error
-                            throw new SubmissionError({email: 'Email Template already exists'})
-                        }
-                        throw new SubmissionError(json.errors)
+                        NotificationManager.error('Email Template Added Failed')
                     }
                 }
             )
+        }
+        else {
+            return dispatch(A.updateEmailTemplateOnServer(values)).then((json) => {
+                    if (json.success) {
+                        dispatch(A.getAllEmailTemplatesFromServer())
+                        dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_LIST))
+                        NotificationManager.success('Email Template Updated Successful');
+                    } else {
+                        NotificationManager.error('Email Template Updated Failed')
+                    }
+                }
+            )
+
         }
     },
     showEmailTemplateList: () => dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_LIST)),

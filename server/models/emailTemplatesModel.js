@@ -72,7 +72,8 @@ emailTemplatesSchema.statics.updateTemplate = async (user,templateInfoDataObj) =
     if(!templateType) {
         throw new AppError("Template Type not found.", EC.NOT_FOUND)
     }
-    emailTemplate.createdBy =  user
+    //emailTemplate.createdBy =  user,
+    emailTemplate.templateName = templateInfoDataObj.templateName,
     emailTemplate.templateSubject = templateInfoDataObj.templateSubject
     emailTemplate.templateHeader = templateInfoDataObj.templateHeader
     emailTemplate.templateBody = templateInfoDataObj.templateBody
@@ -106,7 +107,7 @@ emailTemplatesSchema.statics.approvedTemplate = async (user,templateID) => {
 }
 
 emailTemplatesSchema.statics.getAllTemplates = async (user) => {
-    return await EmailTemplatesModel.find({})
+    return await EmailTemplatesModel.find({isDeleted : false})
 }
 
 emailTemplatesSchema.statics.isExistThisTemplateName = async (templateName) => {
