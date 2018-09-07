@@ -1168,9 +1168,9 @@ const deleteTaskUpdateEmployeeRelease = async (taskPlan, releasePlan, release, e
 
     // Reduce planned hours
     employeeRelease.planning.plannedHours -= taskPlan.planning.plannedHours
+    employeeRelease.planning.plannedCount -= 1
     return employeeRelease
 }
-
 
 const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePlan, release, leaderManager) => {
 
@@ -2575,6 +2575,26 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
 
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
+
+const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, extra) => {
+    const {
+        taskPlanMoment, employee, reportedHoursToIncrement
+    } = extra
+
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': employee._id.toString(),
+        'date': taskPlanMoment.toDate()
+    })
+
+    if (!employeeDay) {
+        throw new AppError("We should have found employee day during planned task reporting ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    // add reported hours into employee day
+    employeeDay.reportedHours += reportedHoursToIncrement
+    return employeeDay
+}
+
 const addTaskReportPlannedUpdateEmployeeRelease = async (taskPlan, release, employee, extra) => {
     const {reportedHoursToIncrement, reReport} = extra
 
@@ -2947,6 +2967,13 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         reReport
     })
 
+    let employeeDay = await addTaskReportPlannedUpdateEmployeeDays(taskPlan, {
+        taskPlanMoment,
+        employee,
+        reportedHoursToIncrement,
+        reReport
+    })
+
     // Need to add/update reporting warnings.
 
     let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
@@ -2960,6 +2987,8 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)
 
+    await employeeDay.save()
+    
     await employeeRelease.save()
     //logger.debug('release before save ', {release})
     await release.save()

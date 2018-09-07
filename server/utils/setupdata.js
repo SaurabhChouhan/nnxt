@@ -565,12 +565,19 @@ const addProjects = async () => {
         }
     }
 
-    let randy = await MDL.ClientModel.findOne({name: 'Careers IRL'})
+    let randy = await MDL.ClientModel.findOne({name: 'Randy'})
 
     if (randy) {
         if (!await MDL.ProjectModel.exists('Careers IRL', randy._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'Careers IRL',
+                client: randy
+            })
+        }
+
+        if (!await MDL.ProjectModel.exists('Careerify', randy._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: 'Careerify',
                 client: randy
             })
         }
