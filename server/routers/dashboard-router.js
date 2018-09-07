@@ -1,8 +1,6 @@
 import Router from 'koa-router'
 import * as MDL from '../models'
-import EmailUtil from '../notifications/byemail/emailUtil'
-import EmailSendBySES from '../notifications/byemail/email-send-by-ses'
-
+import NotificationUtil from '../notifications/byemail/notificationUtil'
 /**
  * This router would contain all API routes
  * @type {Router}
@@ -66,11 +64,14 @@ dashboardRouter.del('/email-template/:id', async (ctx) => {
 
 dashboardRouter.get('/send-email-template', async (ctx) => {
     let emailData = {
-        to : "kgour@aripratech.com",
-        firstName: "Kamlesh",
-        lastName: "Gour",
+        user:{
+            _id:"5b87dea2749236069ce69430",
+            email : "kgour@aripratech.com",
+            firstName: "Kamlesh",
+            lastName: "Gour"
+        },
         userWelcomeMessage:"Welcome to nnxt"
     }
-    return EmailUtil.sendEmail(emailData,"Welcome-Template")
+    return NotificationUtil.sendEmail(emailData,"Welcome-Template")
 })
 export default dashboardRouter
