@@ -10,6 +10,10 @@ import * as U from '../utils'
 mongoose.Promise = global.Promise
 
 let releasePlanSchema = mongoose.Schema({
+    creator: {
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String}
+    },
     estimation: {
         _id: {type: mongoose.Schema.ObjectId}
     },
@@ -190,6 +194,11 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         type: releasePlanInput.type
     }
 
+    releasePlan.creator = {
+        _id: user._id,
+        name: U.getFullName(user)
+    }
+
     logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
 
     //let releasePlan = await ReleasePlanModel.create(releasePlanInput)
@@ -278,6 +287,11 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
         name: releasePlanInput.name,
         description: releasePlanInput.description,
         type: releasePlanInput.type
+    }
+
+    releasePlan.creator = {
+        _id: user._id,
+        name: U.getFullName(user)
     }
 
     logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
