@@ -6,42 +6,42 @@ import EmailTemplateSendHistoryModel from '../../models/emailTemplateSendHistory
 
 //Send email
 const sendEmail = async (emailData,templateName) =>{
-
-    console.log("Please wait... email is sending...........")
-    let emailTemplate = await EmailTemplatesModel.findOne({"templateName" : templateName,"status" : "Approved","isDeleted" :false})
-        if(emailTemplate && emailTemplate.templateName == templateName) {
+    console.log("Please wait...")
+    console.log("Email is sending.....")
+    return new Promise(async (res, rej) => {
+        let emailTemplate = await EmailTemplatesModel.findOne({"templateName": templateName, "status": "Approved", "isDeleted": false})
+        if (emailTemplate && emailTemplate.templateName == templateName) {
             let templateUpdateWithDataJson = {
-                userName: emailData.firstName +' '+emailData.lastName,
+                userName: emailData.firstName + ' ' + emailData.lastName,
                 userWelcomeMessage: emailData.userWelcomeMessage,
-                NNXT_LOGO_URL:CONSTANT.NNXT_LOGO_URL,
-                COPY_RIGHT_FOOTER_MESSAGE:CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
+                NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
+                COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
             }
-            let welcomeEmailTemplatePromise = await TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,templateUpdateWithDataJson)
-            welcomeEmailTemplatePromise.then(welcomeEmailTemplate => {
+            TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                templateUpdateWithDataJson).then(welcomeEmailTemplate => {
                 let to = [emailData.to]
                 let subject = emailTemplate.templateSubject
                 let message = welcomeEmailTemplate
-                let sent_type = 'Welcome to user'
-                let emailSendResultPromise = EmailSendBySES.sendEmailByAWSsES(to, subject, message, sent_type)
-                //console.log("emailSendResultPromise...........", emailSendResultPromise)
-                emailSendResultPromise.then(emailSendResult => {
-                   console.log("WELCOME_EMAIL_TEMPLATE status ",emailSendResult); // Success!
-                   if(emailSendResult)
+                let sent_type = 'Welcome to nnxt'
+                EmailSendBySES.sendEmailByAWSsES(to, subject, message, sent_type).then(emailSendResult => {
+                    console.log("WELCOME_EMAIL_TEMPLATE status ", emailSendResult); // Success!
+                    if (emailSendResult)
                         res(true)
                     else
-                       res(false)
-                   }, reason => {
-                        console.log("WELCOME_EMAIL_TEMPLATE ",reason); // Error!
-                        rej(false)
-                });
+                        res(false)
                 }, reason => {
-                    console.log("WELCOME_EMAIL_TEMPLATE ",reason); // Error!
+                    console.log("WELCOME_EMAIL_TEMPLATE ", reason); // Error!
                     rej(false)
                 });
-        }else{
+            }, reason => {
+                console.log("WELCOME_EMAIL_TEMPLATE ", reason); // Error!
+                rej(false)
+            });
+        } else {
             console.log("Template not found in DB.")
-            return false
+            rej(false)
         }
+    })
 }
 
 
