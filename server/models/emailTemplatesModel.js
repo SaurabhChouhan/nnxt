@@ -101,7 +101,7 @@ emailTemplatesSchema.statics.approvedTemplate = async (user,templateID) => {
         throw new AppError("Template not found.", EC.NOT_FOUND)
     }
     emailTemplate.approvedBy = user
-    emailTemplate.status = "Approved"
+    emailTemplate.status = (emailTemplate.status == "Approved") ? "Pending" : "Approved"
     emailTemplate.updated = new Date()
     return await emailTemplate.save()
 }

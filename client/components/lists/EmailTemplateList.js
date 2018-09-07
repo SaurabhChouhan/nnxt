@@ -16,10 +16,54 @@ class EmailTemplateList extends Component {
         )
     }
 
+
+
     statusCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-lock pull-left btn btn-custom" type="button">
+        return (<button className={row.status=="Approved"?"fa fa-lock pull-left btn btn-custom":"fa fa-unlock pull-left btn btn-custom"}
+                        title={row.status=="Approved"?"Click To Block/Pending Template" : "Click To Unblock/Approve Template"}
+                        type="button"
+                        onClick={() => this.onClickEmailTemplateApproveSelected(cell, row, rowIndex)}>
             </button>
         )
+    }
+
+    onClickEmailTemplateApproveSelected(cell, row, rowIndex) {
+        if(row.status=="Approved"){
+            this.dialog.show({
+                title: "Block Email Template",
+                body: "Are you sure to block/pending this email template",
+                actions: [
+                    Dialog.DefaultAction('Block/Pending', () => {
+                        this.props.emailTemplateApproveFLag(row);
+                    },'btn-custom'),
+
+                    Dialog.DefaultAction('Close', () => {
+                        this.dialog.hide()
+                    }, 'btn-custom')
+                ],
+                bsSize: 'small',
+                onHide: (dialog) => {
+                    this.dialog.hide()
+                }
+            })}else if(row.status=="Pending"){
+            this.dialog.show({
+                title: "Approve Email Template",
+                body: "Are you sure to Unblock/Approve this email template",
+                actions: [
+                    Dialog.DefaultAction('Unblock/Approve', () => {
+                        this.props.emailTemplateApproveFLag(row);
+                    },'btn-custom'),
+
+                    Dialog.DefaultAction('Close', () => {
+                        this.dialog.hide()
+                    }, 'btn-custom')
+                ],
+                bsSize: 'small',
+                onHide: (dialog) => {
+                    this.dialog.hide()
+                }
+            })
+        }
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
@@ -62,7 +106,7 @@ class EmailTemplateList extends Component {
                         <TableHeaderColumn width="20%" dataField="templateName">Name</TableHeaderColumn>
                         <TableHeaderColumn width="20%" dataField="templateType">Type</TableHeaderColumn>
                         <TableHeaderColumn width="20%" dataField="templateSubject">Subject</TableHeaderColumn>
-                        <TableHeaderColumn width="5%" dataField="status">Status</TableHeaderColumn>
+                        <TableHeaderColumn width="8%" dataField="status">Status</TableHeaderColumn>
                         <TableHeaderColumn width="5%" dataField="status" dataFormat={this.statusCellButton.bind(this)}><i className="fa fa-check"></i></TableHeaderColumn>
                         <TableHeaderColumn width="5%" dataField='button' dataFormat={this.editCellButton.bind(this)}><i className="fa fa-pencil"></i></TableHeaderColumn>
                         <TableHeaderColumn width="5%" dataField='button' dataFormat={this.deleteCellButton.bind(this)}><i className="fa fa-trash"></i></TableHeaderColumn>

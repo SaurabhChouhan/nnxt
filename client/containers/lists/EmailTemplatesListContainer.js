@@ -19,6 +19,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             NotificationManager.error('Email Template Not Deleted!')
         }
     }),
+    emailTemplateApproveFLag: (template) => {
+        dispatch(A.approveTemplate(template)).then(json => {
+            if (json.success) {
+                dispatch(A.getAllEmailTemplatesFromServer())
+            }
+        })
+    },
     showEmailTemplateForm: () => {
         dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_FORM))
         dispatch(A.getAllEmailTemplatesTypesFromServer())

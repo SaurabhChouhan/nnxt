@@ -177,6 +177,31 @@ export const deleteEmailTemplateFromServer = (templateID) => {
     }
 }
 
+export const approveTemplate = (template) => {
+    return function (dispatch, getState) {
+        return fetch('/api/dashboard/approved-email-template/'+template._id,
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(editTemplate(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
 /* GET , ADD , UPDATE All email templates from server APIs  BLOCK */
 
 
