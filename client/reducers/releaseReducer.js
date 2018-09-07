@@ -23,6 +23,7 @@ let initialState = {
     selectedTab: SC.RELEASE_DASHBOARD_TAB,
     taskPlansOfReleasePlanDeveloper: [],
     expandDescriptionTaskReportList:false,
+    expandDescriptionReleaseTaskList:false,
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -259,6 +260,10 @@ const releaseReducer = (state = initialState, action) => {
         case AC.EXPAND_DESCRIPTION_TASK_REPORT_LIST:
             return Object.assign({}, state, {
                 expandDescriptionTaskReportList: action.flag
+            })
+        case AC.EXPAND_DESCRIPTION_RELEASE_PLAN_LIST:
+            return Object.assign({}, state, {
+                expandDescriptionReleaseTaskList: action.flag
             })
 
         default:

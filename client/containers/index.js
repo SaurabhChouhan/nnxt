@@ -135,5 +135,8 @@ export {default as WarningListContainer} from './lists/WarningListContainer'
 //
 export {default as HolidayFormContainer} from './forms/HolidayFormContainer'
 export {default as HolidayListContainer} from './lists/HolidayListContainer'
+
+//Release Task filters
 export {default as TaskPlanDateNavBarContainer} from './forms/TaskPlanDateNavBarContainer'
 export {default as TaskReportDateNavBarContainer} from './forms/TaskReportDateNavBarContainer'
+export {default as ReleasePlanDateNavBarContainer} from './forms/ReleasePlanDateNavBarContainer'

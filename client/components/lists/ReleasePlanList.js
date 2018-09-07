@@ -3,6 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {NotificationManager} from 'react-notifications'
+import {ReleasePlanDateNavBarContainer} from "../../containers/index";
 
 class ReleasePlanList extends Component {
 
@@ -54,6 +55,12 @@ class ReleasePlanList extends Component {
             this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
         }
 
+    }
+    formatTaskDescription(task) {
+        console.log("get the task Description",task.description)
+        if (task)
+            return task.description
+        return ''
     }
 
     formatEstimatedHours(task) {
@@ -189,14 +196,17 @@ class ReleasePlanList extends Component {
     render() {
         let team = 0
         const {release, releasePlans} = this.props
-        return ([
+        console.log("releasePlans..........", releasePlans)
+        console.log("releasePlans..........expandDescriptionTaskReportList", this.props.expandDescriptionTaskReportList)
+        return (
+            <div>
                 <div key={"release-plan-search"} className="col-md-12 release-options">
                     <button type="button" className="col-md-2 btn customBtn" onClick={
                         () => {
                             this.props.showAddToReleasePlanForm(release)
                         }}>Add Task
                     </button>
-                    <div className="search-btn-container">
+                    {/*<div className="search-btn-container">
                         <select className="form-control" title="Select Flag" onChange={(flag) =>
                             this.onFlagChange(flag.target.value)
                         }>
@@ -205,7 +215,7 @@ class ReleasePlanList extends Component {
                                 key={warning + idx} value={warning}>{warning}</option>)}
 
                         </select>
-                    </div>
+                    </div>*/}
                     {/*
                         <div className="col-md-4 search-dropdown">
                             <select className="form-control" title="Select Status"
@@ -223,45 +233,74 @@ class ReleasePlanList extends Component {
                         </div>
                     */}
                 </div>
-                ,
-                <div key={"releaseplan-table"} className="col-md-12 estimation release-plan-table">
-                    <BootstrapTable options={this.options} data={releasePlans}
-                                    multiColumnSearch={true}
-                                    search={false}
-                                    striped={true}
-                                    pagination
-                                    hover={true}
-                                    height={"300px"}>
-                        <TableHeaderColumn columnTitle isKey dataField='_id'
-                                           hidden={true}>ID</TableHeaderColumn>
-
-                        <TableHeaderColumn width="20%" dataField='task'
-                                           dataFormat={this.formatTaskName.bind(this)}>Task
-                            Name</TableHeaderColumn>
-
-                        <TableHeaderColumn width="12%" columnTitle dataField='report'
-                                           dataFormat={this.formatProgress.bind(this)}
-                                           dataAlign={"right"}>Progress</TableHeaderColumn>
-                        <TableHeaderColumn width="20%" dataField='flags'
-                                           dataFormat={this.formatFlags.bind(this)}>
-                            Flag</TableHeaderColumn>
-                        <TableHeaderColumn width="12%" columnTitle dataField='task'
-                                           dataFormat={this.formatEstimatedHours.bind(this)} dataAlign={"right"}>Estimated
-                            Hours</TableHeaderColumn>
-                        <TableHeaderColumn width="12%" columnTitle dataField='planning'
-                                           dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
-                            Hours</TableHeaderColumn>
-                        <TableHeaderColumn width="12%" columnTitle dataField='report'
-                                           dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                            Hours</TableHeaderColumn>
-                        <TableHeaderColumn width="12%" columnTitle dataField='report'
-                                           dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
-                        </TableHeaderColumn>
-
-                    </BootstrapTable>
-
+                <div>
+                    <ReleasePlanDateNavBarContainer/>
                 </div>
-            ]
+
+                {this.props.expandDescription ?
+                    <div key={"releaseplan-table"} className="col-md-12 estimation wrapTextTable">
+                        <BootstrapTable options={this.options} data={releasePlans}
+                                        multiColumnSearch={true}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={"300px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID</TableHeaderColumn>
+
+                            <TableHeaderColumn width="25%" dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Task
+                                Name</TableHeaderColumn>
+
+                            <TableHeaderColumn width={"50an%"} columnTitle dataField='task'
+                                               dataFormat={this.formatTaskDescription.bind(this)}>Task Description
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="25%" columnTitle dataField='task'
+                                               dataFormat={this.formatEstimatedHours.bind(this)} dataAlign={"right"}>Estimated
+                                Hours</TableHeaderColumn>
+
+                        </BootstrapTable>
+
+                    </div> : <div key={"releaseplan-table"} className="col-md-12 estimation">
+                        <BootstrapTable options={this.options} data={releasePlans}
+                                        multiColumnSearch={true}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={"300px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID</TableHeaderColumn>
+
+                            <TableHeaderColumn width="20%" dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Task
+                                Name</TableHeaderColumn>
+
+                            <TableHeaderColumn width="12%" columnTitle dataField='report'
+                                               dataFormat={this.formatProgress.bind(this)}
+                                               dataAlign={"right"}>Progress</TableHeaderColumn>
+                            <TableHeaderColumn width="20%" dataField='flags'
+                                               dataFormat={this.formatFlags.bind(this)}>
+                                Flag</TableHeaderColumn>
+                            <TableHeaderColumn width="12%" columnTitle dataField='task'
+                                               dataFormat={this.formatEstimatedHours.bind(this)} dataAlign={"right"}>Estimated
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn width="12%" columnTitle dataField='planning'
+                                               dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn width="12%" columnTitle dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                                Hours</TableHeaderColumn>
+                            <TableHeaderColumn width="12%" columnTitle dataField='report'
+                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+
+                        </BootstrapTable>
+
+                    </div>}
+            </div>
+
         )
     }
 }
