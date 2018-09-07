@@ -352,6 +352,7 @@ export const MODE_PRODUCTION = "production"
 
 /* Email Notifications Configuration Settings */
 
+export const NNXT_SELF_USER_AND_EMAIL_INFO = {"_id" : "5b87dea2749236069ce69430","email":"nnxt@aripratech.com"}
 export const SENDER_EMAIL_ADDRESS = "nnxt@aripratech.com"
 export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.png"
 export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
