@@ -7,6 +7,9 @@ import {ReleaseTaskSearchFormContainer} from '../../containers'
 import {TaskPlanDateNavBarContainer} from '../../containers'
 import {TaskPlanDateNavBar} from "../index";
 import momentTZ from 'moment-timezone'
+import ReactDOM from 'react-dom';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {NotificationManager} from "react-notifications";
 
 class TaskPlanList extends Component {
 
@@ -27,6 +30,13 @@ class TaskPlanList extends Component {
             sizePerPage,  // which size per page you want to locate as default
 
         }
+
+        this.state = {
+            value: '',
+            copied: false,
+        };
+
+
     }
 
     componentDidMount() {
@@ -81,6 +91,18 @@ class TaskPlanList extends Component {
             return report.reportedHours
         return 0
     }
+
+    formatCopyButton(cell, row, enumObject, rowIndex){
+        return (
+            <div>
+                <CopyToClipboard text={row.description} onCopy={() => this.setState({copied: true})}>
+                    <button id={row._id} className="fa fa-copy pull-left btn btn-custom" type="button" onCopy={() => this.setState({copied: true})}>
+                    </button>
+                </CopyToClipboard>
+            </div>
+        )
+    }
+
 
     formatReportDescription(report) {
         if (report)
@@ -181,6 +203,7 @@ class TaskPlanList extends Component {
 
         return (
             <div>
+                {this.state.copied ? NotificationManager.success('Task Description Copied') : null}
                 <div>
                     <TaskPlanDateNavBarContainer/>
                 </div>
@@ -219,6 +242,9 @@ class TaskPlanList extends Component {
                             <TableHeaderColumn columnTitle width={"42%"} dataField='description'>Day Requirement
                             </TableHeaderColumn>
 
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='description'>Day Requirement
+                            </TableHeaderColumn>
+
 
                         </BootstrapTable>
                     </div> :
@@ -252,13 +278,11 @@ class TaskPlanList extends Component {
                             <TableHeaderColumn columnTitle width={"8%"} dataField='report'
                                                dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
                             </TableHeaderColumn>
+                            <TableHeaderColumn className="description" columnTitle width={"20%"} dataField='description'>Day Requirement
+                            </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"8%"} dataField='report'
-                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                                               dataFormat={this.formatCopyButton.bind(this)} dataAlign={"center"}>Copy
                             </TableHeaderColumn>
-
-                            <TableHeaderColumn columnTitle width={"20%"} dataField='description'>Day Requirement
-                            </TableHeaderColumn>
-
                         </BootstrapTable>
                     </div>
                 }
