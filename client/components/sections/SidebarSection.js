@@ -60,6 +60,7 @@ const SidebarSection = (props) => {
                             <li><Link to="/app-home/release" onClick={() => {
                                 props.dispatch(A.getAllReleasesFromServer(SC.ALL))
                                 props.dispatch(A.getAllDeveloperFromServer())
+                                props.dispatch(A.getUsersWithRoleCategoryFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
 
                             }}>Release</Link></li>

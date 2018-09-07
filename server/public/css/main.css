@@ -2276,4 +2276,8 @@ hr {
     margin-top: 13px;
     list-style: none;
 }
-
+.release-button-container {
+    margin-top: 5px;
+    float: right;
+    padding-left: 15px;
+}
