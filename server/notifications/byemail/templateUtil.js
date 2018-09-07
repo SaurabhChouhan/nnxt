@@ -1,6 +1,5 @@
 import fs  from 'fs'
 import path  from 'path'
-import * as CONSTANT from '/server/serverconstants'
 import emailTemplateReplaceAll from 'string-template'
 
 const getEmailTemplateAfterReplaceEmailData = async (emailTemplate,emailData) =>{

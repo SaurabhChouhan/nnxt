@@ -1,21 +1,15 @@
 import TemplateUtilObj  from './templateUtil'
 import EmailSendBySES from './email-send-by-ses'
-import * as CONSTANT from '/server/serverconstants'
-import EmailTemplatesModel from '/server/models/emailTemplatesModel'
-import EmailTemplateSendHistoryModel from '/server/models/emailTemplateSendHistoryModel'
+import * as CONSTANT from '../../serverconstants'
+import EmailTemplatesModel from '../../models/emailTemplatesModel'
+import EmailTemplateSendHistoryModel from '../../models/emailTemplateSendHistoryModel'
 
 //Send email
 const sendEmail = async (emailData,templateName) =>{
-    emailData = {
-        to : "kamleshgour28@gmail.com",
-        userName: "userName",
-        lastName: "lastName",
-        subject:"Welcome to NNXT",
-        userWelcomeMessage:"Welcome to nnxt"
-    }
+
     console.log("Please wait... email is sending...........")
     let emailTemplate = await EmailTemplatesModel.findOne({"templateName" : templateName,"status" : "Approved","isDeleted" :false})
-        if(emailTemplate.templateName == templateName) {
+        if(emailTemplate && emailTemplate.templateName == templateName) {
             let templateUpdateWithDataJson = {
                 userName: emailData.firstName +' '+emailData.lastName,
                 userWelcomeMessage: emailData.userWelcomeMessage,

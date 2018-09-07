@@ -1,6 +1,6 @@
 import AWS  from 'aws-sdk'
 AWS.config.loadFromPath("./aws_for_ses.json")
-import {SENDER_EMAIL_ADDRESS}  from '/server/serverconstants'
+import {SENDER_EMAIL_ADDRESS}  from '../../serverconstants'
 
 // load AWS SES
 //var ses = new AWS.SES({apiVersion: '2010-12-01'});
@@ -32,6 +32,7 @@ const sendEmailByAWSsES = (to,subject,message,sent_type)=> {
 
                 if (err) {
                     //return false
+                    console.log("sendEmailByAWSsES ",err)
 					res(false)
                 } else {
                     //return true
