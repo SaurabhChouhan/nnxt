@@ -40,7 +40,8 @@ const mapStateToProps = (state) => {
         devStartDate: state.release.selectedRelease.devStartDate,
         devEndDate: state.release.selectedRelease.devEndDate,
         releaseID: state.release.selectedRelease._id,
-        expandDescription:state.release.expandDescriptionTaskList
+        expandDescription:state.release.expandDescriptionTaskList,
+        developers: state.release.teamOfRelease && state.release.teamOfRelease.length ? [...state.release.teamOfRelease] : []
     }
 }
 
