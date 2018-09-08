@@ -9,7 +9,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     fetchReleasePlans: (values) => {
         dispatch(A.searchReleasePlansOnServer(values))
     },
-    expandReleasePlanDescription: (flag) => dispatch(A.expandDescriptionReleasePlanList(flag))
+    expandReleasePlanDescription: (flag) => dispatch(A.expandDescriptionReleasePlanList(flag)),
+
 })
 
 const mapStateToProps = (state) => {

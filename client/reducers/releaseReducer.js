@@ -14,7 +14,7 @@ let initialState = {
     taskPlans: [],
     developerPlans: [],
     expanded: false,
-    expandDescriptionTaskList:false,
+    expandDescriptionTaskList: false,
     fromSchedule: nowString,
     schedules: [],
     employeeSetting: {},
@@ -22,8 +22,15 @@ let initialState = {
     from: nowString,
     selectedTab: SC.RELEASE_DASHBOARD_TAB,
     taskPlansOfReleasePlanDeveloper: [],
-    expandDescriptionTaskReportList:false,
-    expandDescriptionReleaseTaskList:false,
+    expandDescriptionTaskReportList: false,
+    expandDescriptionReleaseTaskList: false,
+    releasePlanFilters: {
+        releaseID: undefined,
+        startDate: undefined,
+        endDate: undefined,
+        status: '',
+        flag: ''
+    }
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -265,7 +272,10 @@ const releaseReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 expandDescriptionReleaseTaskList: action.flag
             })
-
+        case AC.CHANGE_RELEASEPLAN_FILTERS:
+            return Object.assign({}, state, {
+                releasePlanFilters: Object.assign({}, action.filters)
+            })
         default:
             return state
     }

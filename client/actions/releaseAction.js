@@ -1,6 +1,5 @@
 import * as AC from './actionConsts'
 import * as A from '../actions'
-import {updateSelectedEstimation} from "./estimationAction";
 
 export const addReleases = (releases) => ({
     type: AC.ADD_RELEASES,
@@ -118,7 +117,7 @@ export const selectIteration = (iteration) => ({
 })
 export const searchReleaseTaskPlans = (data) => ({
     type: AC.SEARCH_TASK_PLANS_IN_RELEASE,
-    taskPlans:data
+    taskPlans: data
 })
 
 export const expandDescriptionTaskReportList = (flag) => ({
@@ -130,6 +129,12 @@ export const expandDescriptionReleasePlanList = (flag) => ({
     type: AC.EXPAND_DESCRIPTION_RELEASE_PLAN_LIST,
     flag: flag
 })
+
+export const changeReleasePlanFilters = (filters) => ({
+    type: AC.CHANGE_RELEASEPLAN_FILTERS,
+    filters
+})
+
 
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
@@ -724,7 +729,7 @@ export const getIterationDatesReleasePlansFromServer = (releasePlanId) => {
     }
 }
 export const getSearchTaskPlanResultFromServer = (formInput) => {
-    console.log("get the release result from server getSearchTaskPlanResultFromServer ",formInput)
+    console.log("get the release result from server getSearchTaskPlanResultFromServer ", formInput)
     return (dispatch) => {
         return fetch('/api/task-plans/search', {
                 method: 'post',
@@ -763,6 +768,7 @@ export const searchReleasePlansOnServer = (formInput) => {
             json => {
                 if (json.success) {
                     dispatch(addReleasePlans(json.data))
+                    dispatch(changeReleasePlanFilters(formInput))
                 }
                 return json
             })
@@ -770,7 +776,7 @@ export const searchReleasePlansOnServer = (formInput) => {
 }
 
 export const getSearchReleasesFromServerByFlags = (formInput) => {
-    console.log("get the release result from server getSearchReleasesFromServerByFlags ",formInput)
+    console.log("get the release result from server getSearchReleasesFromServerByFlags ", formInput)
     return (dispatch) => {
         return fetch('/api/releases/search', {
                 method: 'post',
