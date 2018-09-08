@@ -284,7 +284,7 @@ export const getReleasePlanDetailsFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/' + releasePlanID + '/release-plan', {
                 method: 'get',
-                credentials: "include",
+                   credentials: "include",
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'

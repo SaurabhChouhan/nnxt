@@ -39,7 +39,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     release: state.release.selectedRelease,
     releasePlans: state.release.releasePlans,
-    expandDescription: state.release.expandDescriptionReleaseTaskList
+    releasePlanFilters: state.release.releasePlanFilters
 })
 
 const ReleasePlanListContainer = withRouter(connect(

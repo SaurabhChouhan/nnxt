@@ -41,8 +41,9 @@ class ReleasePlanList extends Component {
         }
 
     }
+
     formatTaskDescription(task) {
-        console.log("get the task Description",task.description)
+        console.log("get the task Description", task.description)
         if (task)
             return task.description
         return ''
@@ -180,9 +181,9 @@ class ReleasePlanList extends Component {
 
     render() {
         let team = 0
-        const {release, releasePlans} = this.props
-        console.log("releasePlans..........", releasePlans)
-        console.log("releasePlans..........expandDescriptionTaskReportList", this.props.expandDescriptionTaskReportList)
+        const {release, releasePlans, releasePlanFilters} = this.props
+        //console.log("releasePlans..........", releasePlans)
+        //console.log("releasePlans..........expandDescriptionTaskReportList", this.props.expandDescriptionTaskReportList)
         return (
             <div>
                 <div key={"release-plan-search"} className="col-md-12 release-options">
@@ -196,7 +197,7 @@ class ReleasePlanList extends Component {
                     <ReleasePlanDateNavBarContainer/>
                 </div>
 
-                {this.props.expandDescription ?
+                {releasePlanFilters.expandDescription ?
                     <div key={"releaseplan-table"} className="col-md-12 estimation wrapTextTable">
                         <BootstrapTable options={this.options} data={releasePlans}
                                         multiColumnSearch={true}
@@ -212,7 +213,7 @@ class ReleasePlanList extends Component {
                                                dataFormat={this.formatTaskName.bind(this)}>Task
                                 Name</TableHeaderColumn>
 
-                            <TableHeaderColumn width={"50an%"} columnTitle dataField='task'
+                            <TableHeaderColumn width={"50%"} columnTitle dataField='task'
                                                dataFormat={this.formatTaskDescription.bind(this)}>Task Description
                             </TableHeaderColumn>
                             <TableHeaderColumn width="25%" columnTitle dataField='task'

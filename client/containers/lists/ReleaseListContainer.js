@@ -10,7 +10,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     releaseSelected: (release) => {
         dispatch(A.getReleaseFromServer(release._id)).then(json => {
             if (json.success) {
-                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_SECTION))
             }
         })
     },

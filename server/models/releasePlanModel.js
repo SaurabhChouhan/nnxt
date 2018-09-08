@@ -343,7 +343,6 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
 }
 
 releasePlanSchema.statics.search = async (criteria, user) => {
-
     if (criteria) {
         let filter = {}
 
@@ -380,7 +379,10 @@ releasePlanSchema.statics.search = async (criteria, user) => {
         }
 
         if (criteria.status) {
-            filter['report.finalStatus'] = criteria.status
+            if (criteria.status == SC.STATUS_UNPLANNED)
+                filter['report.finalStatus'] = null
+            else
+                filter['report.finalStatus'] = criteria.status
         }
 
         if (criteria.flag) {
