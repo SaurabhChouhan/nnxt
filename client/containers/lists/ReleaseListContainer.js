@@ -10,7 +10,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     releaseSelected: (release) => {
         dispatch(A.getReleaseFromServer(release._id)).then(json => {
             if (json.success) {
-                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_SECTION))
             }
         })
     },
@@ -21,11 +21,17 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.getAllTechnologiesFromServer())
         dispatch(A.getAllDevelopmentTypesFromServer())
         dispatch(A.showComponent(COC.CREATE_RELEASE_FORM_DIALOG))
+    },
+    fetchReleases: (value) => {
+        console.log("fetch releases result values at container",value)
+        dispatch(A.getSearchReleasesFromServerByFlags(value))
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    releases: state.release.all
+    releases: state.release.all,
+    leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
+    developers: state.user.allDevelopers && state.user.allDevelopers.length ? [...state.user.allDevelopers] : []
 })
 
 const ReleaseListContainer = connect(

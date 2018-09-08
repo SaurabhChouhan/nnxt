@@ -307,7 +307,7 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleasePlanSectionContainer name={COC.RELEASE_PLAN_LIST}/>
+                    <ReleasePlanSectionContainer name={COC.RELEASE_PLAN_SECTION}/>
                     <UpdateReleaseDatesFormDialog name={COC.UPDATE_RELEASE_DATES_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_DATES_DIALOG))

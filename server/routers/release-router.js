@@ -31,7 +31,6 @@ releaseRouter.put("/", async ctx => {
 })
 
 
-
 /***
  * Get all releases
  ***/
@@ -90,6 +89,10 @@ releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", asyn
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     return await MDL.ReleasePlanModel.getReleasePlansByReleaseID(ctx.params, ctx.state.user)
+})
+
+releaseRouter.post("/release-plans/search", async ctx => {
+    return await MDL.ReleasePlanModel.search(ctx.request.body, ctx.state.user)
 })
 
 releaseRouter.get("/estimation/:estimationID", async ctx => {
