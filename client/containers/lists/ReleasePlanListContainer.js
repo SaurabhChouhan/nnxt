@@ -23,9 +23,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
         }
     },
-
-    changeReleaseFlag: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
-    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
     showAddToReleasePlanForm: (release) => {
         dispatch(A.showComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
         // initialize
@@ -36,14 +33,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             iteration_type: SC.ITERATION_TYPE_PLANNED,
             type: SC.TYPE_DEVELOPMENT
         }))
-    },
-    getAllReleasePlans: (release) => dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
+    }
 })
 
 const mapStateToProps = (state) => ({
     release: state.release.selectedRelease,
     releasePlans: state.release.releasePlans,
-    expandDescription:state.release.expandDescriptionReleaseTaskList
+    expandDescription: state.release.expandDescriptionReleaseTaskList
 })
 
 const ReleasePlanListContainer = withRouter(connect(

@@ -23,27 +23,12 @@ class ReleasePlanList extends Component {
             sizePerPage: 6,  // which size per page you want to locate as default
 
         }
-        this.state = {
-            status: SC.ALL,
-            flag: SC.ALL
-        }
-        this.onFlagChange = this.onFlagChange.bind(this)
-        this.onStatusChange = this.onStatusChange.bind(this)
     }
 
     componentDidMount() {
-        this.props.getAllReleasePlans(this.props.release)
+
     }
 
-    onFlagChange(flag) {
-        this.setState({flag: flag})
-        this.props.changeReleaseFlag(this.props.release, this.state.status, flag)
-    }
-
-    onStatusChange(status) {
-        this.setState({status: status})
-        this.props.changeReleaseStatus(this.props.release, status, this.state.flag)
-    }
 
     onRowClick(row) {
         console.log("row", row)
@@ -206,32 +191,6 @@ class ReleasePlanList extends Component {
                             this.props.showAddToReleasePlanForm(release)
                         }}>Add Task
                     </button>
-                    {/*<div className="search-btn-container">
-                        <select className="form-control" title="Select Flag" onChange={(flag) =>
-                            this.onFlagChange(flag.target.value)
-                        }>
-                            <option value={SC.ALL}>All Flags</option>
-                            {SC.ALL_WARNING_NAME_ARRAY.map((warning, idx) => <option
-                                key={warning + idx} value={warning}>{warning}</option>)}
-
-                        </select>
-                    </div>*/}
-                    {/*
-                        <div className="col-md-4 search-dropdown">
-                            <select className="form-control" title="Select Status"
-                                    onChange={(status) => this.onStatusChange(status.target.value)}>
-                                <option value={SC.ALL}>All Status</option>
-                                <option value={SC.STATUS_UNPLANNED}>{SC.STATUS_UNPLANNED}</option>
-                                <option value={SC.STATUS_PENDING}>{SC.STATUS_PENDING}</option>
-                                <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                                <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                                <option value={SC.STATUS_RELEASED}>{SC.STATUS_RELEASED}</option>
-                                <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                                <option value={SC.STATUS_OVER}>{SC.STATUS_OVER}</option>
-
-                            </select>
-                        </div>
-                    */}
                 </div>
                 <div>
                     <ReleasePlanDateNavBarContainer/>
@@ -300,7 +259,6 @@ class ReleasePlanList extends Component {
 
                     </div>}
             </div>
-
         )
     }
 }

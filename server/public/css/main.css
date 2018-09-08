@@ -200,10 +200,31 @@ button.customBtn, button.customBtn:focus {
     margin: 5px;
     transition: 0.8s;
     border-radius: 0;
-
 }
 
 button.customBtn:hover {
+    background: #FFFFFF;
+    color: #FF534F;
+    border: 2px solid #FF534F;
+}
+
+button.filterBtn, button.filterBtn:focus {
+    background: #FF534F;
+    color: #fff;
+    padding: 1px 12px;
+    font-size: 14px;
+    border: 2px solid #FF534F;
+    margin: 5px;
+    height: 30px;
+    transition: 0.8s;
+    border-radius: 0;
+    top: 26px;
+    position: absolute;
+    left: 0;
+
+}
+
+button.filterBtn:hover {
     background: #FFFFFF;
     color: #FF534F;
     border: 2px solid #FF534F;
@@ -1931,7 +1952,7 @@ hr {
     width: 100%;
 }
 
-.top-label-checkbox input[type=checkbox]{
+.top-label-checkbox input[type=checkbox] {
     width: 30px; /*Desired width*/
     height: 30px; /*Desired height*/
     cursor: pointer;
@@ -2261,8 +2282,8 @@ hr {
     border-bottom: 2px solid #34343C;
     border-top: 2px solid #34343C;
     margin-top: 10px;
-    margin-bottom:5px;
-    padding-top:3px;
+    margin-bottom: 5px;
+    padding-top: 3px;
 }
 
 .search-btn-taskplan-list {
@@ -2276,6 +2297,7 @@ hr {
     margin-top: 13px;
     list-style: none;
 }
+
 .release-button-container {
     margin-top: 5px;
     float: right;

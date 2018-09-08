@@ -125,10 +125,12 @@ export const expandDescriptionTaskReportList = (flag) => ({
     type: AC.EXPAND_DESCRIPTION_TASK_REPORT_LIST,
     flag: flag
 })
+
 export const expandDescriptionReleasePlanList = (flag) => ({
     type: AC.EXPAND_DESCRIPTION_RELEASE_PLAN_LIST,
     flag: flag
 })
+
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
         let api = '';
@@ -744,10 +746,9 @@ export const getSearchTaskPlanResultFromServer = (formInput) => {
             })
     }
 }
-export const getSearchedReleasePlansFromServer = (formInput) => {
-    console.log("get the release result from server getSearchedReleasePlansFromServer ",formInput)
+export const searchReleasePlansOnServer = (formInput) => {
     return (dispatch) => {
-        return fetch('/api/releases/search', {
+        return fetch('/api/releases/release-plans/search', {
                 method: 'post',
                 credentials: "include",
                 headers: {

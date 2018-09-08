@@ -6,6 +6,7 @@ import * as MDL from '../models'
 import logger from '../logger'
 import * as V from "../validation";
 import * as U from '../utils'
+import TaskPlanningModel from "./taskPlanningModel";
 
 mongoose.Promise = global.Promise
 
@@ -339,6 +340,58 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
         filter = {'release._id': release._id, 'flags': empflag}
 
     return await ReleasePlanModel.find(filter)
+}
+
+releasePlanSchema.statics.search = async (criteria, user) => {
+
+    if (criteria) {
+        let filter = {}
+
+        if (criteria.releaseID) {
+            // Search is based on release ID
+            filter['release._id'] = mongoose.Types.ObjectId(criteria.releaseID)
+            let release = await MDL.ReleaseModel.findById(criteria.releaseID)
+            if (!release) {
+                throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            }
+
+            let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInRelease(release, user)
+            if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+                throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can search Release Tasks of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+            }
+        } else {
+            // As release is not supplied complete task plans are searched
+            if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+                throw new AppError('Only user with role [' + SC.ROLE_TOP_MANAGEMENT + '] can see Release Tasks spanning multiple releases', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+            }
+        }
+
+        if (criteria.startDate && criteria.endDate) {
+            // Release plan should have planned between this
+            let startMoment = U.momentInUTC(criteria.startDate)
+            let endMoment = U.momentInUTC(criteria.endDate)
+            filter['$and'] = [{'planning.maxPlanningDate': {$gte: startMoment}}, {'planning.minPlanningDate': {$lte: endMoment}}]
+        } else if (criteria.startDate) {
+            let startMoment = U.momentInUTC(criteria.startDate)
+            filter['$and'] = [{'planning.minPlanningDate': {$gte: startMoment}}]
+        } else if (criteria.endDate) {
+            let endMoment = U.momentInUTC(criteria.endDate)
+            filter['$and'] = [{'planning.maxPlanningDate': {$lte: endMoment}}]
+        }
+
+        if (criteria.status) {
+            filter['report.finalStatus'] = criteria.status
+        }
+
+        if (criteria.flag) {
+            filter['flags'] = criteria.flag
+        }
+
+        logger.debug("searchReleasePlans() ", {filter})
+        return await ReleasePlanModel.find(filter)
+    }
+
+    return []
 }
 
 releasePlanSchema.statics.getReleasePlanByID = async (releasePlanID, user) => {

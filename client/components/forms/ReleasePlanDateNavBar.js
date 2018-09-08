@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderDateTimePickerString, renderSelect,} from './fields'
 import moment from 'moment'
-import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
 import * as SC from '../../../server/serverconstants'
 import momentTZ from "moment-timezone";
@@ -17,7 +16,6 @@ class ReleasePlanDateNavBar extends Component {
         this.state = {
             expandDescription: false
         }
-
     }
 
     componentDidMount() {
@@ -44,7 +42,7 @@ class ReleasePlanDateNavBar extends Component {
 
 
     render() {
-        const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting, status, flag} = this.props
+        const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, change, status, flag} = this.props
         let releaseStartMoment = moment(momentTZ.utc(devStartDate).format(DATE_FORMAT))
         let releaseEndMoment = moment(momentTZ.utc(devEndDate).format(DATE_FORMAT))
         let filterStartMoment = startDate ? moment(startDate) : undefined
@@ -55,7 +53,20 @@ class ReleasePlanDateNavBar extends Component {
 
         return <form onSubmit={handleSubmit}>
             <div className="col-md-12 planFilterTaskForm">
-                <div className="col-md-6">
+                <div className={"col-md-1"}>
+                    <button type="button" className="btn filterBtn"
+                            onClick={() => {
+                                change('startDate', '')
+                                change('endDate', '')
+                                this.props.fetchReleasePlans({
+                                    releaseID,
+                                    status,
+                                    flag
+                                })
+                            }}>Clear Dates
+                    </button>
+                </div>
+                <div className="col-md-5">
                     <div className="col-md-6">
                         <Field name="startDate"
                                placeholder={"Start Date"}

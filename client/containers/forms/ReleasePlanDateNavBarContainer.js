@@ -7,7 +7,7 @@ import {DATE_FORMAT} from "../../../server/serverconstants";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     fetchReleasePlans: (values) => {
-        dispatch(A.getSearchedReleasePlansFromServer(values))
+        dispatch(A.searchReleasePlansOnServer(values))
     },
     expandReleasePlanDescription: (flag) => dispatch(A.expandDescriptionReleasePlanList(flag))
 })
@@ -35,12 +35,12 @@ const mapStateToProps = (state) => {
             "releaseID": state.release.selectedRelease._id,
             startDate,
             endDate,
-            expandDescription:state.release.expandDescriptionTaskList
+            expandDescription: state.release.expandDescriptionTaskList
         },
         devStartDate: state.release.selectedRelease.devStartDate,
         devEndDate: state.release.selectedRelease.devEndDate,
         releaseID: state.release.selectedRelease._id,
-        expandDescription:state.release.expandDescriptionTaskList
+        expandDescription: state.release.expandDescriptionTaskList
     }
 }
 
