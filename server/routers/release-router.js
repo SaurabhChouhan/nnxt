@@ -30,7 +30,6 @@ releaseRouter.put("/", async ctx => {
     return await MDL.ReleaseModel.updateRelease(ctx.request.body, ctx.state.user)
 })
 
-
 /***
  * Get all releases
  ***/
@@ -40,6 +39,10 @@ releaseRouter.get("/mine/status/:status", async ctx => {
 
 releaseRouter.get("/all/status/:status", async ctx => {
     return await MDL.ReleaseModel.getAllReleases(ctx.params.status, ctx.state.user)
+})
+
+releaseRouter.post('/search', async ctx => {
+    return await MDL.ReleaseModel.search(ctx.request.body, ctx.state.user)
 })
 
 /***

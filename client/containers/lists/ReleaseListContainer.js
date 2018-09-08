@@ -5,6 +5,12 @@ import * as COC from '../../components/componentConsts'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
+    onLoad: () => {
+        dispatch(A.searchReleaseFromServer({
+            showActive: true
+        }))
+        dispatch(A.getUsersWithRoleCategoryFromServer())
+    },
     changeReleaseStatus: (status, flag) => dispatch(A.getAllReleasesFromServer(status, flag)),
     showAllReleasesChanged: (status, flag) => dispatch(A.getAllReleasesFromServer(status, flag)),
     releaseSelected: (release) => {
@@ -23,15 +29,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.showComponent(COC.CREATE_RELEASE_FORM_DIALOG))
     },
     fetchReleases: (value) => {
-        console.log("fetch releases result values at container",value)
-        dispatch(A.getSearchReleasesFromServerByFlags(value))
+        console.log("fetch releases result values at container", value)
+        dispatch(A.searchReleaseFromServer(value))
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
     releases: state.release.all,
     leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
-    developers: state.user.allDevelopers && state.user.allDevelopers.length ? [...state.user.allDevelopers] : []
+    managers: state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : [],
+    initialValues: state.release.releaseFilters
 })
 
 const ReleaseListContainer = connect(

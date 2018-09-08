@@ -14,9 +14,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state) => {
-
-
-
     return {
         initialValues: state.release.releasePlanFilters,
         devStartDate: state.release.selectedRelease.devStartDate,
