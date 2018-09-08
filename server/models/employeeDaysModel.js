@@ -122,7 +122,14 @@ const getEmployeeWorkCalendar = async (employee, startMonth, endMonth, startDay)
         employeeDays.forEach(e => {
             let date = U.momentInUTC(e.dateString).date()
             // place planned hours against this date
-            schedule[date - 1].hours = e.plannedHours
+
+            if (e.reportedHours > 0) {
+                schedule[date - 1].hours = e.reportedHours
+                schedule[date - 1].reported = true
+            }
+            else {
+                schedule[date - 1].hours = e.plannedHours
+            }
         })
     }
 

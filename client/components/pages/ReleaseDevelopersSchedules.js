@@ -82,7 +82,8 @@ class ReleaseDevelopersSchedules extends React.Component {
                                             return <div key={'week_' + idx} className="schCalendarDayRow">
                                                 {
                                                     week.map((day, dayIdx) => {
-                                                        let color = day.hours >= employeeSetting.superBusy ?
+                                                        let color = day.reported && day.hours > 0 ? 'white' : 'black'
+                                                        let backgroundColor = day.hours >= employeeSetting.superBusy ?
                                                             '#dd6c6c'
                                                             : day.hours >= employeeSetting.busy ?
                                                                 '#91d861'
@@ -99,7 +100,8 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                             <h5>{day.date > 0 ? day.date : ''}</h5>
                                                             <div className="releaseEmployee">
                                                         <span className={"schCalendarHour"} style={{
-                                                            backgroundColor: color
+                                                            backgroundColor: backgroundColor,
+                                                            color: color
                                                         }}
                                                               onClick={that.calendarDateClicked.bind(that, day, employee)}>{day.hours >= 0 ? day.hours : ''}</span>
                                                             </div>
