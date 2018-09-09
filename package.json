@@ -15,8 +15,8 @@
     "start.anup": "cross-env BABEL_ENV=server NODE_ENV=anup nodemon ./server/server.js --exec babel-node",
     "start.ravi": "cross-env BABEL_ENV=server NODE_ENV=ravi nodemon ./server/server.js --exec babel-node",
     "start.ratnesh": "cross-env BABEL_ENV=server NODE_ENV=ratnesh nodemon ./server/server.js --exec babel-node",
-    "client.dev.build": "cross-env BABEL_ENV=client webpack -d -w",
-    "client.prod.build": "cross-env BABEL_ENV=client webpack -p",
+    "client.dev.build": "cross-env BABEL_ENV=client webpack --mode development ./client/client.js",
+    "client.prod.build": "cross-env BABEL_ENV=client webpack --mode production  ./client/client.js --progress --profile --colors",
     "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node"
   },
   "dependencies": {
@@ -82,10 +82,11 @@
     "winston": "^3.0.0-rc1"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.2",
     "babel-plugin-css-modules-transform": "^1.3.1",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
     "compression-webpack-plugin": "^1.0.1",
     "cross-env": "^5.1.3",
     "css-loader": "^0.28.7",
@@ -94,9 +95,11 @@
     "html-webpack-plugin": "^3.2.0",
     "node-sass": "^4.7.2",
     "react-scripts": "1.0.17",
+    "rimraf": "^2.6.2",
     "sass-loader": "^6.0.6",
     "style-ext-html-webpack-plugin": "^3.4.7",
     "style-loader": "^0.19.0",
-    "webpack": "^3.8.1"
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0"
   }
 }

@@ -11,3 +11,4 @@ combined.log
 dbDmp
 server/public/js/
 server/views/index.mustache
+dist/
