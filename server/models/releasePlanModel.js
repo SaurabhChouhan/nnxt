@@ -379,12 +379,10 @@ releasePlanSchema.statics.search = async (criteria, user) => {
             }
         }
 
-
         if (criteria.status == SC.STATUS_UNPLANNED) {
-            filter['report.finalStatus'] = null
+            filter['planning.minPlanningDate'] = null
             // since status is unplanned, dates sent should not make any different as it is unplanned and hence there would be no date associated
         } else {
-            // if all status is selected we would have to show unplanned as well as planned with date range
             let dateFilter = undefined
             if (criteria.startDate && criteria.endDate) {
                 // Release plan should have planned between this
@@ -397,6 +395,10 @@ releasePlanSchema.statics.search = async (criteria, user) => {
             } else if (criteria.endDate) {
                 let endMoment = U.momentInUTC(criteria.endDate)
                 dateFilter = {'planning.maxPlanningDate': {$lte: endMoment}}
+            } else if (criteria.status == SC.STATUS_PLANNED) {
+                dateFilter = {
+                    'planning.minPlanningDate': {$ne: null}
+                }
             }
 
             if (dateFilter) {
@@ -407,7 +409,7 @@ releasePlanSchema.statics.search = async (criteria, user) => {
             }
         }
 
-        if (criteria.status && criteria.status != SC.STATUS_UNPLANNED) {
+        if (criteria.status && criteria.status != SC.STATUS_UNPLANNED && criteria.status != SC.STATUS_PLANNED) {
             filter['report.finalStatus'] = criteria.status
         }
 
@@ -416,7 +418,7 @@ releasePlanSchema.statics.search = async (criteria, user) => {
         }
 
         logger.debug("searchReleasePlans() ", {filter})
-        return await ReleasePlanModel.find(filter)
+        return await ReleasePlanModel.find(filter).sort({'planning.minPlanningDate': 1})
     }
 
     return []
