@@ -166,8 +166,9 @@ const releaseReducer = (state = initialState, action) => {
                     releaseID: release._id,
                     startDate,
                     endDate,
-                    status: '',
-                    flag: ''
+                    status: SC.STATUS_PENDING,
+                    flag: '',
+                    updated: false
                 }
             })
 
