@@ -43,7 +43,7 @@ const config = {
         new webpack.optimize.ModuleConcatenationPlugin(),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            filename: 'vendor.bundle.1.js',
+            filename: 'vendor.bundle.2.js',
             minChunks(module) {
                 return module.context &&
                     module.context.indexOf('node_modules') >= 0;
