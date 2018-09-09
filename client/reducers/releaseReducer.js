@@ -33,6 +33,12 @@ let initialState = {
         status: '',
         flag: '',
         expandDescription: false
+    },
+    releaseFilters: {
+        manager: undefined,
+        leader: undefined,
+        status: undefined,
+        showActive: true
     }
 }
 
@@ -301,6 +307,10 @@ const releaseReducer = (state = initialState, action) => {
         case AC.CHANGE_RELEASEPLAN_FILTERS:
             return Object.assign({}, state, {
                 releasePlanFilters: Object.assign({}, action.filters)
+            })
+        case AC.CHANGE_RELEASE_FILTERS:
+            return Object.assign({}, state, {
+                releaseFilters: Object.assign({}, action.filters)
             })
         default:
             return state

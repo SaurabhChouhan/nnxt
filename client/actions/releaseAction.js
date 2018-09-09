@@ -135,6 +135,10 @@ export const changeReleasePlanFilters = (filters) => ({
     filters
 })
 
+export const changeReleaseFilters = (filters) => ({
+    type: AC.CHANGE_RELEASE_FILTERS,
+    filters
+})
 
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
@@ -775,7 +779,7 @@ export const searchReleasePlansOnServer = (formInput) => {
     }
 }
 
-export const getSearchReleasesFromServerByFlags = (formInput) => {
+export const searchReleaseFromServer = (formInput) => {
     console.log("get the release result from server getSearchReleasesFromServerByFlags ", formInput)
     return (dispatch) => {
         return fetch('/api/releases/search', {
@@ -793,6 +797,7 @@ export const getSearchReleasesFromServerByFlags = (formInput) => {
             json => {
                 if (json.success) {
                     dispatch(addReleases(json.data))
+                    dispatch(changeReleaseFilters(formInput))
                 }
                 return json
             })

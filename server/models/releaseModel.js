@@ -9,6 +9,7 @@ import moment from 'moment'
 import * as U from '../utils'
 import EstimationModel from "./estimationModel";
 import logger from '../logger'
+import ReleasePlanModel from "./releasePlanModel";
 
 mongoose.Promise = global.Promise
 
@@ -142,6 +143,38 @@ releaseSchema.statics.getAllReleases = async (status, user) => {
     return await ReleaseModel.find(filter)
 }
 
+releaseSchema.statics.search = async (criteria, user) => {
+
+    if (!U.userHasRole(user, SC.ROLE_MANAGER) && !U.userHasRole(user, SC.ROLE_LEADER) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT))
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can search releases', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    if (criteria) {
+        let filter = {}
+
+        if (criteria.showActive) {
+            // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
+            let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
+            filter['$and'] = [{'devStartDate': {$lte: todaysMoment.toDate()}}, {'devEndDate': {$gte: todaysMoment.toDate()}}]
+        }
+
+        if (criteria.status) {
+            filter['status'] = criteria.status
+        }
+
+        if(criteria.leader){
+            filter['leader._id'] = criteria.leader
+        }
+
+        if(criteria.manager){
+            filter['manager._id'] = criteria.manager
+        }
+
+        logger.debug("searchRelease() ", {filter})
+        return await ReleaseModel.find(filter)
+    }
+
+    return []
+}
 
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
