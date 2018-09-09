@@ -38,7 +38,10 @@ const mapStateToProps = (state, ownProps) => ({
     releases: state.release.all,
     leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
     managers: state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : [],
-    initialValues: state.release.releaseFilters
+    releaseFilters: state.release.releaseFilters,
+    initialValues: {
+        showActive: true
+    }
 })
 
 const ReleaseListContainer = connect(

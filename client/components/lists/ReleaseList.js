@@ -6,7 +6,6 @@ import momentTZ from 'moment-timezone'
 import {withRouter} from 'react-router-dom'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderSelect,} from '../forms/fields'
-import {connect} from 'react-redux'
 
 class ReleaseList extends Component {
     constructor(props) {
@@ -125,7 +124,7 @@ class ReleaseList extends Component {
     }
 
     render() {
-        const {releases, handleSubmit, leaders, managers, initialValues} = this.props
+        const {releases, handleSubmit, leaders, managers, initialValues, releaseFilters} = this.props
 
         return ([
                 <form key={"release-form"} onSubmit={handleSubmit}>
@@ -148,7 +147,7 @@ class ReleaseList extends Component {
                             } onChange={(event, newValue) => {
                                 console.log("get the value of status", newValue)
                                 this.props.fetchReleases(
-                                    Object.assign({}, initialValues, {
+                                    Object.assign({}, releaseFilters, {
                                         status: newValue
                                     })
                                 )
@@ -160,7 +159,7 @@ class ReleaseList extends Component {
                             <Field name="leader" component={renderSelect} label={"Leaders:"} options={leaders}
                                    onChange={(event, newValue) => {
                                        console.log("get the value of status", newValue)
-                                       this.props.fetchReleases(Object.assign({}, initialValues, {
+                                       this.props.fetchReleases(Object.assign({}, releaseFilters, {
                                            leader: newValue
                                        }))
                                    }} noneOptionText='All'/>
@@ -171,7 +170,7 @@ class ReleaseList extends Component {
                             <Field name="manager" component={renderSelect} label={"Managers:"} options={managers}
                                    onChange={(event, newValue) => {
                                        console.log("get the value of status", newValue)
-                                       this.props.fetchReleases(Object.assign({}, initialValues, {
+                                       this.props.fetchReleases(Object.assign({}, releaseFilters, {
                                            manager: newValue
                                        }))
                                    }} noneOptionText='All'/>
@@ -183,7 +182,7 @@ class ReleaseList extends Component {
                                 <label>
                                     <Field name={"showActive"} component={"input"}
                                            onChange={(event, newValue) => {
-                                               this.props.fetchReleases(Object.assign({}, initialValues, {
+                                               this.props.fetchReleases(Object.assign({}, releaseFilters, {
                                                    showActive: newValue
                                                }))
                                            }
