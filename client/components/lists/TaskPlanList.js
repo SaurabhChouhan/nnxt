@@ -2,12 +2,9 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
-import moment from 'moment'
 import {ReleaseTaskSearchFormContainer} from '../../containers'
 import {TaskPlanDateNavBarContainer} from '../../containers'
-import {TaskPlanDateNavBar} from "../index";
 import momentTZ from 'moment-timezone'
-import ReactDOM from 'react-dom';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {NotificationManager} from "react-notifications";
 
@@ -95,8 +92,8 @@ class TaskPlanList extends Component {
     formatCopyButton(cell, row, enumObject, rowIndex){
         return (
             <div>
-                <CopyToClipboard text={row.description} onCopy={() => this.setState({copied: true})}>
-                    <button id={row._id} className="fa fa-copy pull-left btn btn-custom" type="button" onCopy={() => this.setState({copied: true})}>
+                <CopyToClipboard text={row.description} onCopy={() => this.props.onCopy()}>
+                    <button id={row._id} className="fa fa-copy pull-left btn btn-custom" type="button">
                     </button>
                 </CopyToClipboard>
             </div>
@@ -203,7 +200,6 @@ class TaskPlanList extends Component {
 
         return (
             <div>
-                {this.state.copied ? NotificationManager.success('Task Description Copied') : null}
                 <div>
                     <TaskPlanDateNavBarContainer/>
                 </div>
@@ -242,8 +238,6 @@ class TaskPlanList extends Component {
                             <TableHeaderColumn columnTitle width={"42%"} dataField='description'>Day Requirement
                             </TableHeaderColumn>
 
-                            <TableHeaderColumn columnTitle width={"8%"} dataField='description'>Day Requirement
-                            </TableHeaderColumn>
 
 
                         </BootstrapTable>
