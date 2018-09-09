@@ -5,10 +5,8 @@ import * as COC from '../../components/componentConsts'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onLoad: () => {
-        dispatch(A.searchReleaseFromServer({
-            showActive: true
-        }))
+    search: (criteria) => {
+        dispatch(A.searchReleaseFromServer(criteria))
         dispatch(A.getUsersWithRoleCategoryFromServer())
     },
     changeReleaseStatus: (status, flag) => dispatch(A.getAllReleasesFromServer(status, flag)),
@@ -34,15 +32,32 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({
-    releases: state.release.all,
-    leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
-    managers: state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : [],
-    releaseFilters: state.release.releaseFilters,
-    initialValues: {
-        showActive: true
+const mapStateToProps = (state, ownProps) => {
+    // If user has role Manager or top management he would get selected by default in release list
+
+    let childProps = {
+        releases: state.release.all,
+        leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
+        managers: state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : [],
+        releaseFilters: state.release.releaseFilters
     }
-})
+
+    let initialValues = undefined
+    if (!state.release.releaseFilters.updated) {
+        initialValues = {
+            showActive: true
+        }
+        if (state.user.loggedIn && (state.user.loggedIn.roleNames.indexOf(SC.ROLE_MANAGER) > -1 || state.user.loggedIn.roleNames.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1)) {
+            initialValues.manager = state.user.loggedIn._id
+        }
+        childProps['initialValues'] = initialValues
+        childProps.releaseFilters = initialValues
+    } else {
+        childProps.initialValues = childProps.releaseFilters
+    }
+
+    return childProps
+}
 
 const ReleaseListContainer = connect(
     mapStateToProps,

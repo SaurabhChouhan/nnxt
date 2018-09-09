@@ -2,11 +2,11 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
-import moment from 'moment'
 import {ReleaseTaskSearchFormContainer} from '../../containers'
 import {TaskPlanDateNavBarContainer} from '../../containers'
-import {TaskPlanDateNavBar} from "../index";
 import momentTZ from 'moment-timezone'
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {NotificationManager} from "react-notifications";
 
 class TaskPlanList extends Component {
 
@@ -27,6 +27,13 @@ class TaskPlanList extends Component {
             sizePerPage,  // which size per page you want to locate as default
 
         }
+
+        this.state = {
+            value: '',
+            copied: false,
+        };
+
+
     }
 
     componentDidMount() {
@@ -81,6 +88,18 @@ class TaskPlanList extends Component {
             return report.reportedHours
         return 0
     }
+
+    formatCopyButton(cell, row, enumObject, rowIndex){
+        return (
+            <div>
+                <CopyToClipboard text={row.description} onCopy={() => this.props.onCopy()}>
+                    <button id={row._id} className="fa fa-copy pull-left btn btn-custom" type="button">
+                    </button>
+                </CopyToClipboard>
+            </div>
+        )
+    }
+
 
     formatReportDescription(report) {
         if (report)
@@ -220,6 +239,7 @@ class TaskPlanList extends Component {
                             </TableHeaderColumn>
 
 
+
                         </BootstrapTable>
                     </div> :
                     <div className={"col-md-12"}>
@@ -252,13 +272,11 @@ class TaskPlanList extends Component {
                             <TableHeaderColumn columnTitle width={"8%"} dataField='report'
                                                dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
                             </TableHeaderColumn>
+                            <TableHeaderColumn className="description" columnTitle width={"20%"} dataField='description'>Day Requirement
+                            </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"8%"} dataField='report'
-                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                                               dataFormat={this.formatCopyButton.bind(this)} dataAlign={"center"}>Copy
                             </TableHeaderColumn>
-
-                            <TableHeaderColumn columnTitle width={"20%"} dataField='description'>Day Requirement
-                            </TableHeaderColumn>
-
                         </BootstrapTable>
                     </div>
                 }

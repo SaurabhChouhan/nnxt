@@ -4,12 +4,13 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 import {TaskReportDateNavBarContainer} from '../../containers'
+import {CopyToClipboard} from "react-copy-to-clipboard";
 
 class TaskReportList extends Component {
 
     constructor(props) {
         super(props);
-        let sizePerPage = Math.floor((props.screenHeight - 320)/25)
+        let sizePerPage = Math.floor((props.screenHeight - 320) / 25)
         this.options = {
             sizePerPageList: [{
                 text: '6', value: 6
@@ -20,8 +21,7 @@ class TaskReportList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage,  // which size per page you want to locate as default
-            onRowClick: this.onRowClick.bind(this)
+            sizePerPage  // which size per page you want to locate as default
 
         }
     }
@@ -30,37 +30,57 @@ class TaskReportList extends Component {
         //this.props.getAllTaskReports(this.props.release)
     }
 
-    formatPlanningDate(dateString) {
-        if (dateString) {
-            return moment(dateString, SC.DATE_FORMAT).format(SC.DATE_DISPLAY_FORMAT)
-            //return row
-        }
-        return ''
-    }
-
-    formatReportedOnDate(report){
-        if(report && report.reportedOnDate){
-            return moment(report.reportedOnDate).format(SC.DATE_TIME_FORMAT)
-        }
-        return ''
-    }
-
-    formatDeveloperName(employee) {
-        if (employee)
-            return employee.name
+    taskNameHover(cell, row, rowIndex, colIndex) {
+        console.log("taskNameHover()", cell, row)
+        if (cell && cell.name)
+            return cell.name
         return ''
     }
 
     formatTaskName(task, row) {
+        let taskName = '', color = ''
         if (task) {
+            taskName = task.name
             if (row.iterationType == SC.ITERATION_TYPE_PLANNED)
-                return <span style={{color: '#4172c1'}}>{task.name}</span>
+                color = '#4172c1'
             else if (row.iterationType == SC.ITERATION_TYPE_UNPLANNED)
-                return <span style={{color: '#e52d8c'}}>{task.name}</span>
-            else
-                return <span>{task.name}</span>
+                color = '#e52d8c'
         }
 
+        return <div>
+            <CopyToClipboard text={taskName} onCopy={() => this.props.showNotification('Task name copied successfully!!!')}>
+                <button id='copy' className="fa fa-copy pull-left btn btn-custom" type="button">
+                </button>
+            </CopyToClipboard>
+            <span style={{color: color}} onClick={() => {
+                this.props.taskPlanSelected(row).then(json => {
+                    if (json.success) {
+                        this.props.history.push('/app-home/task-report-detail')
+                        this.props.showTaskDetailPage()
+                    }
+                    return json
+                })
+            }}>{taskName}</span>
+        </div>
+    }
+
+    formatTaskDescription(report) {
+        console.log("get the task Description", report.description)
+        if (report)
+            return <div>
+                <CopyToClipboard text={report.description} onCopy={() => this.props.showNotification('Day report text copied successfully!!!')}>
+                    <button id='copy' className="fa fa-copy pull-left btn btn-custom" type="button">
+                    </button>
+                </CopyToClipboard>
+                {report.description}
+            </div>
+        return ''
+    }
+
+    reportDescriptionHover(cell, row, rowIndex, colIndex) {
+        console.log("taskNameHover()", cell, row)
+        if (cell && cell.description)
+            return cell.description
         return ''
     }
 
@@ -90,13 +110,32 @@ class TaskReportList extends Component {
         return 0
     }
 
-    formatTaskDescription(report) {
-        console.log("get the task Description",report.description)
-        if (report)
-            return report.description
+    formatPlanningDate(dateString) {
+        if (dateString) {
+            return moment(dateString, SC.DATE_FORMAT).format(SC.DATE_DISPLAY_FORMAT)
+            //return row
+        }
         return ''
     }
-    onRowClick(row) {
+
+    formatReportedOnDate(report) {
+        if (report && report.reportedOnDate) {
+            return moment(report.reportedOnDate).format(SC.DATE_TIME_FORMAT)
+        }
+        return ''
+    }
+
+    formatDeveloperName(employee) {
+        if (employee)
+            return employee.name
+        return ''
+    }
+
+
+
+    onRowClick(row, second, third) {
+        console.log("second is ", second)
+        console.log("third is ", third)
         this.props.taskPlanSelected(row).then(json => {
             if (json.success) {
                 this.props.history.push('/app-home/task-report-detail')
@@ -140,29 +179,31 @@ class TaskReportList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={tableHeight+"px"}>
+                                        height={tableHeight + "px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle width={"15%"} dataField='task'
+                            <TableHeaderColumn columnTitle={this.taskNameHover.bind(this)} width={"20%"}
+                                               dataField='task'
                                                dataFormat={this.formatTaskName.bind(this)}>Task Name
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"33%"} columnTitle dataField='report'
+                            <TableHeaderColumn width={"32%"} columnTitle={this.reportDescriptionHover.bind(this)}
+                                               dataField='report'
                                                dataFormat={this.formatTaskDescription.bind(this)}>Task Description
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
-                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                            <TableHeaderColumn width={"10%"} columnTitle dataField='employee'
+                                               dataFormat={this.formatDeveloperName.bind(this)} dataAlign={"center"}>Developer
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"10%"} dataField='planningDateString'
-                                               dataFormat={this.formatPlanningDate.bind(this)}>Planning
+                                               dataFormat={this.formatPlanningDate.bind(this)} dataAlign={"center"}>Planning
                                 Date
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"12%"} dataField='report'
-                                               dataFormat={this.formatReportedOnDate.bind(this)}>Reported On
+                                               dataFormat={this.formatReportedOnDate.bind(this)} dataAlign={"center"}>Reported On
                             </TableHeaderColumn>
                             <TableHeaderColumn width="8%" columnTitle dataField='report'
-                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                                </TableHeaderColumn>
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"center"}>Reported
+                            </TableHeaderColumn>
                             <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>
@@ -176,32 +217,34 @@ class TaskReportList extends Component {
                                         striped={true}
                                         pagination
                                         hover={true}
-                                        height={tableHeight+"px"}>
+                                        height={tableHeight + "px"}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID
                             </TableHeaderColumn>
-                            <TableHeaderColumn columnTitle width={"15%"} dataField='task'
+                            <TableHeaderColumn columnTitle={this.taskNameHover.bind(this)} width={"15%"}
+                                               dataField='task'
                                                dataFormat={this.formatTaskName.bind(this)}>Task Name
                             </TableHeaderColumn>
-                            <TableHeaderColumn width={"25%"} columnTitle dataField='report'
+                            <TableHeaderColumn width={"25%"} columnTitle={this.reportDescriptionHover}
+                                               dataField='report'
                                                dataFormat={this.formatTaskDescription.bind(this)}>Task Description
                             </TableHeaderColumn>
                             <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
-                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                                               dataFormat={this.formatDeveloperName.bind(this)} dataAlign={"center"}>Developer
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"10%"} dataField='planningDateString'
-                                               dataFormat={this.formatPlanningDate.bind(this)}>Planned On
+                                               dataFormat={this.formatPlanningDate.bind(this)} dataAlign={"center"}>Planned On
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"12%"} dataField='report'
-                                               dataFormat={this.formatReportedOnDate.bind(this)}>Reported On
+                                               dataFormat={this.formatReportedOnDate.bind(this)} dataAlign={"center"}>Reported On
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle width={"8%"} dataField='planning'
-                                               dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
+                                               dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"center"}>Planned
 
                             </TableHeaderColumn>
                             <TableHeaderColumn width="8%" columnTitle dataField='report'
-                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                                </TableHeaderColumn>
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"center"}>Reported
+                            </TableHeaderColumn>
                             <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>

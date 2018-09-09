@@ -27,6 +27,7 @@ let initialState = {
     expandDescriptionTaskReportList: false,
     expandDescriptionReleaseTaskList: false,
     releasePlanFilters: {
+        updated: false,
         releaseID: undefined,
         startDate: undefined,
         endDate: undefined,
@@ -35,6 +36,7 @@ let initialState = {
         expandDescription: false
     },
     releaseFilters: {
+        updated: false,
         manager: undefined,
         leader: undefined,
         status: undefined,
@@ -306,11 +308,15 @@ const releaseReducer = (state = initialState, action) => {
             })
         case AC.CHANGE_RELEASEPLAN_FILTERS:
             return Object.assign({}, state, {
-                releasePlanFilters: Object.assign({}, action.filters)
+                releasePlanFilters: Object.assign({}, action.filters, {
+                    updated: true
+                })
             })
         case AC.CHANGE_RELEASE_FILTERS:
             return Object.assign({}, state, {
-                releaseFilters: Object.assign({}, action.filters)
+                releaseFilters: Object.assign({}, action.filters, {
+                    updated: true
+                })
             })
         default:
             return state

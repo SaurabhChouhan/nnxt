@@ -151,6 +151,33 @@ releaseSchema.statics.search = async (criteria, user) => {
     if (criteria) {
         let filter = {}
 
+        if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+            // user would only be able to see releases where he is manager or leader
+            filter['$or'] = [
+                {'manager._id': user._id},
+                {'leader._id': user._id}
+            ]
+
+            if (criteria.leader && user._id.toString() != criteria.leader) {
+                if (criteria.leader) {
+                    filter['leader._id'] = criteria.leader
+                }
+            }
+
+            if (criteria.manager && user._id.toString() != criteria.manager) {
+                filter['manager._id'] = criteria.manager
+            }
+
+        } else {
+            if (criteria.leader) {
+                filter['leader._id'] = criteria.leader
+            }
+
+            if (criteria.manager) {
+                filter['manager._id'] = criteria.manager
+            }
+        }
+
         if (criteria.showActive) {
             // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
             let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
@@ -161,13 +188,6 @@ releaseSchema.statics.search = async (criteria, user) => {
             filter['status'] = criteria.status
         }
 
-        if(criteria.leader){
-            filter['leader._id'] = criteria.leader
-        }
-
-        if(criteria.manager){
-            filter['manager._id'] = criteria.manager
-        }
 
         logger.debug("searchRelease() ", {filter})
         return await ReleaseModel.find(filter)
