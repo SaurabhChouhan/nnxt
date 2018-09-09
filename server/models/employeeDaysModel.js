@@ -326,6 +326,13 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
     }
 }
 
+/**
+ * This method would update employee days of all the employees to add reported hours against them
+ */
+employeeDaysSchema.statics.updateEmployeeDays = async () => {
+
+}
+
 
 const EmployeeDaysModel = mongoose.model("EmployeeDay", employeeDaysSchema)
 export default EmployeeDaysModel
