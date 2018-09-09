@@ -97,6 +97,7 @@ class ReleasePlanDateNavBar extends Component {
                     <Field name="status" component={renderSelect} label={"Status"} options={
                         [
                             {_id: SC.STATUS_UNPLANNED, name: SC.STATUS_UNPLANNED},
+                            {_id: SC.STATUS_PLANNED, name: SC.STATUS_PLANNED},
                             {_id: SC.STATUS_PENDING, name: SC.STATUS_PENDING},
                             {_id: SC.STATUS_COMPLETED, name: SC.STATUS_COMPLETED}
                         ]
