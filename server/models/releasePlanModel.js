@@ -379,24 +379,36 @@ releasePlanSchema.statics.search = async (criteria, user) => {
             }
         }
 
-        if (criteria.startDate && criteria.endDate) {
-            // Release plan should have planned between this
-            let startMoment = U.momentInUTC(criteria.startDate)
-            let endMoment = U.momentInUTC(criteria.endDate)
-            filter['$and'] = [{'planning.maxPlanningDate': {$gte: startMoment}}, {'planning.minPlanningDate': {$lte: endMoment}}]
-        } else if (criteria.startDate) {
-            let startMoment = U.momentInUTC(criteria.startDate)
-            filter['$and'] = [{'planning.minPlanningDate': {$gte: startMoment}}]
-        } else if (criteria.endDate) {
-            let endMoment = U.momentInUTC(criteria.endDate)
-            filter['$and'] = [{'planning.maxPlanningDate': {$lte: endMoment}}]
+
+        if (criteria.status == SC.STATUS_UNPLANNED) {
+            filter['report.finalStatus'] = null
+            // since status is unplanned, dates sent should not make any different as it is unplanned and hence there would be no date associated
+        } else {
+            // if all status is selected we would have to show unplanned as well as planned with date range
+            let dateFilter = undefined
+            if (criteria.startDate && criteria.endDate) {
+                // Release plan should have planned between this
+                let startMoment = U.momentInUTC(criteria.startDate)
+                let endMoment = U.momentInUTC(criteria.endDate)
+                dateFilter = {'$and': [{'planning.maxPlanningDate': {$gte: startMoment}}, {'planning.minPlanningDate': {$lte: endMoment}}]}
+            } else if (criteria.startDate) {
+                let startMoment = U.momentInUTC(criteria.startDate)
+                dateFilter = {'planning.minPlanningDate': {$gte: startMoment}}
+            } else if (criteria.endDate) {
+                let endMoment = U.momentInUTC(criteria.endDate)
+                dateFilter = {'planning.maxPlanningDate': {$lte: endMoment}}
+            }
+
+            if (dateFilter) {
+                if (!criteria.status)
+                    filter['$or'] = [{'report.finalStatus': null}, dateFilter]
+                else
+                    filter = Object.assign({}, filter, dateFilter)
+            }
         }
 
-        if (criteria.status) {
-            if (criteria.status == SC.STATUS_UNPLANNED)
-                filter['report.finalStatus'] = null
-            else
-                filter['report.finalStatus'] = criteria.status
+        if (criteria.status && criteria.status != SC.STATUS_UNPLANNED) {
+            filter['report.finalStatus'] = criteria.status
         }
 
         if (criteria.flag) {

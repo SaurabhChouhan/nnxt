@@ -172,8 +172,7 @@ TaskPlanDateNavBar = reduxForm({
     form: 'task-filter'
 })(TaskPlanDateNavBar)
 
-const
-    selector = formValueSelector('task-filter')
+const selector = formValueSelector('task-filter')
 
 TaskPlanDateNavBar = connect(
     state => {
