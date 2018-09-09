@@ -23,7 +23,7 @@ class ReleaseList extends Component {
     }
 
     componentDidMount() {
-        this.props.onLoad()
+        this.props.search(this.props.releaseFilters)
     }
 
     onRowClick(row) {
