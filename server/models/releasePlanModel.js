@@ -396,14 +396,14 @@ releasePlanSchema.statics.search = async (criteria, user) => {
                 let endMoment = U.momentInUTC(criteria.endDate)
                 dateFilter = {'planning.maxPlanningDate': {$lte: endMoment}}
             } else if (criteria.status == SC.STATUS_PLANNED) {
-                dateFilter = {
-                    'planning.minPlanningDate': {$ne: null}
-                }
+                // Planned but not reported even once
+                dateFilter['planning.minPlanningDate'] = {$ne: null}
+                dateFilter['report.finalStatus'] = null
             }
 
             if (dateFilter) {
                 if (!criteria.status)
-                    filter['$or'] = [{'report.finalStatus': null}, dateFilter]
+                    filter['$or'] = [{'planning.minPlanningDate': null}, dateFilter]
                 else
                     filter = Object.assign({}, filter, dateFilter)
             }
