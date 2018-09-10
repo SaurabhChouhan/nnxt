@@ -755,9 +755,10 @@ export const getSearchTaskPlanResultFromServer = (formInput) => {
             })
     }
 }
+
 export const searchReleasePlansOnServer = (formInput) => {
     return (dispatch) => {
-        return fetch('/api/releases/release-plans/search', {
+        return fetch('/api/release-plans/search', {
                 method: 'post',
                 credentials: "include",
                 headers: {
@@ -803,5 +804,3 @@ export const searchReleaseFromServer = (formInput) => {
             })
     }
 }
-
-

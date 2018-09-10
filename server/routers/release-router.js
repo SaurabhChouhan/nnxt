@@ -4,7 +4,6 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import * as U from '../utils'
 import AppError from '../AppError'
-import _ from 'lodash'
 
 /***
  * Added prefix
@@ -59,7 +58,6 @@ releaseRouter.get("/release/:releaseID", async ctx => {
     return await MDL.ReleaseModel.getFullReleaseDetailsById(ctx.params.releaseID, ctx.state.user)
 })
 
-
 /***
  * Get release plan details by release plan Id
  ***/
@@ -92,10 +90,6 @@ releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", asyn
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
     return await MDL.ReleasePlanModel.getReleasePlansByReleaseID(ctx.params, ctx.state.user)
-})
-
-releaseRouter.post("/release-plans/search", async ctx => {
-    return await MDL.ReleasePlanModel.search(ctx.request.body, ctx.state.user)
 })
 
 releaseRouter.get("/estimation/:estimationID", async ctx => {
