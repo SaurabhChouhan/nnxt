@@ -5,6 +5,7 @@ import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {initialize} from 'redux-form'
+import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     releasePlanSelected: (releasePlan, roles) => {
@@ -33,6 +34,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             iteration_type: SC.ITERATION_TYPE_PLANNED,
             type: SC.TYPE_DEVELOPMENT
         }))
+    },
+    removeReleasePlan: (releasePlanID) => {
+        dispatch(A.deleteReleasePlanFromServer(releasePlanID)).then((json)=>{
+            if(json.success){
+                NotificationManager.success('Release-Task removed successfully')
+                dispatch(A.getReleaseFromServer(json.data.release._id))
+            } else {
+                NotificationManager.error(json.message)
+            }
+        })
     }
 })
 

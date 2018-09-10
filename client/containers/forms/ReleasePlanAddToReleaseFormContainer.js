@@ -17,7 +17,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     NotificationManager.success("Release Plan Added")
                     dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
                     dispatch(A.getReleaseFromServer(values.release._id))
-                    // hide dialog
                     dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
                 }
 
