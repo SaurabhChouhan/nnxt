@@ -6,7 +6,6 @@ import * as MDL from '../models'
 import logger from '../logger'
 import * as V from "../validation";
 import * as U from '../utils'
-import TaskPlanningModel from "./taskPlanningModel";
 
 mongoose.Promise = global.Promise
 
@@ -396,14 +395,14 @@ releasePlanSchema.statics.search = async (criteria, user) => {
                 let endMoment = U.momentInUTC(criteria.endDate)
                 dateFilter = {'planning.maxPlanningDate': {$lte: endMoment}}
             } else if (criteria.status == SC.STATUS_PLANNED) {
-                dateFilter = {
-                    'planning.minPlanningDate': {$ne: null}
-                }
+                // Planned but not reported even once
+                dateFilter['planning.minPlanningDate'] = {$ne: null}
+                dateFilter['report.finalStatus'] = null
             }
 
             if (dateFilter) {
                 if (!criteria.status)
-                    filter['$or'] = [{'report.finalStatus': null}, dateFilter]
+                    filter['$or'] = [{'planning.minPlanningDate': null}, dateFilter]
                 else
                     filter = Object.assign({}, filter, dateFilter)
             }
@@ -469,6 +468,73 @@ releasePlanSchema.statics.getReleasePlansByIDs = async (releasePlanIDs, select) 
         releasePlans.push(releasePlan)
     }
     return releasePlans
+}
+
+releasePlanSchema.statics.removeReleasePlanById = async (releasePlanID, user) => {
+    let releasePlan = await ReleasePlanModel.findById(releasePlanID)
+    if (!releasePlan)
+        throw new AppError('Release Task not found ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (releasePlan.release.iteration.type == SC.ITERATION_TYPE_ESTIMATED)
+        throw new AppError('Release-Task from estimation cannot be deleted.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id)
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+    if (!U.includeAny([SC.ROLE_MANAGER, SC.ROLE_LEADER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ', ' + SC.ROLE_LEADER + '] can remove "planned/unplanned" Release-Task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    // check to see if there are Day-Task assigned against this Release-Task if so it cannot be removed
+
+    let count = await MDL.TaskPlanningModel.count({
+        'releasePlan._id': releasePlan._id
+    })
+
+    if (count > 0) {
+        throw new AppError('Please delete all Day-Tasks first before removing this Release-Task.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
+    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
+
+    if (iterationIndex <= -1)
+        throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+
+    // Progress of iteration would also be impacted due to addition of this task
+
+    // Current progress estimated hours
+    let sumProgressEstimatedHours = release.iterations[iterationIndex].estimatedHours * release.iterations[iterationIndex].progress
+
+
+    // update 'planned' iteration to add estimated hours and estimated billed hours of this release plan
+    release.iterations[iterationIndex].expectedBilledHours -= releasePlan.task.estimatedBilledHours
+    release.iterations[iterationIndex].estimatedHours -= releasePlan.task.estimatedHours
+
+
+    // Please note here sum progress estimated hours is divided by new estimated hours (after removing estimated hours of deleted task)
+
+
+    if (release.iterations[iterationIndex].estimatedHours == 0) {
+        // all tasks have been deleted
+        release.iterations[iterationIndex].progress = 0
+    } else {
+        release.iterations[iterationIndex].progress = sumProgressEstimatedHours / release.iterations[iterationIndex].estimatedHours
+    }
+
+    let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
+    console.log("######### STATS IDX ", idx)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        release.iterations[iterationIndex].stats[idx].estimatedHours -= releasePlan.task.estimatedHours
+    } else {
+        throw new AppError("Development type [" + releasePlan.task.type + "] section should have found in release as we are deleting Release-Task")
+    }
+
+    await release.save()
+    return await releasePlan.remove()
 }
 
 const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)
