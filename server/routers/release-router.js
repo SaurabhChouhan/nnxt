@@ -59,14 +59,6 @@ releaseRouter.get("/release/:releaseID", async ctx => {
 })
 
 /***
- * Get release plan details by release plan Id
- ***/
-releaseRouter.get("/:releasePlanID/release-plan", async ctx => {
-    return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
-
-})
-
-/***
  * Get release developer team details by using release Id
  ***/
 releaseRouter.get("/release-plan/:releasePlanID/role/developers", async ctx => {
