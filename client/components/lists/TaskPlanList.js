@@ -25,7 +25,7 @@ class TaskPlanList extends Component {
                 text: '50', value: 50
             }],
             sizePerPage,  // which size per page you want to locate as default
-
+            onRowClick: this.onRowClick.bind(this)
         }
     }
 
@@ -37,7 +37,19 @@ class TaskPlanList extends Component {
     onRowDoubleClick(row) {
 
     }
+    onRowClick(row) {
 
+
+        this.props.taskPlanSelectedForRelease(row).then(json => {
+            console.log("get the data at the task plan list",json)
+            if (json.success) {
+                console.log("get the data at the task plan list... if ",json)
+                this.props.history.push('/app-home/task-plan-detail')
+                this.props.showTaskDetailPage()
+            }
+            return json
+        })
+    }
     formatDeveloperName(employee) {
         if (employee)
             return employee.name
