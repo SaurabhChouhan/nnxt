@@ -538,5 +538,140 @@ releasePlanSchema.statics.removeReleasePlanById = async (releasePlanID, user) =>
     return await releasePlan.remove()
 }
 
+/**
+ * This operation would allow user to update release plan after it has been created.
+ * Manager would be able to update description/estimated hours of task using this operation
+ */
+
+releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, user) => {
+    V.validate(releasePlanInput, V.plannedReleasePlanUpdateStruct)
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(releasePlanInput._id)
+
+    if (!releasePlan)
+        throw new AppError('Release-Task that is updated is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    if (releasePlan.release.iteration && releasePlan.release.iteration.iterationType != SC.ITERATION_TYPE_PLANNED)
+        throw new AppError('Release-Task that is updated does not belong to "planned iteration"', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    // Find index of iteration with type as 'planned'
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release) {
+        throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+    if (!U.includeAny([SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + '] can add a "planned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
+
+    //logger.debug("updatePlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
+
+    if (iterationIndex <= -1)
+        throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    //logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+
+    // Calculate various diffs due to this update
+    let estimatedHoursDiff = releasePlanInput.estimatedHours - releasePlan.task.estimatedHours
+    let oldProgressEstimatedHours = release.iterations[iterationIndex].estimatedHours * release.iterations[iterationIndex].progress
+    let oldProgressEstimatedHoursReleasePlan = releasePlan.report.progress * releasePlan.task.estimatedHours
+    let othersProgressEstimatedHours = oldProgressEstimatedHours - oldProgressEstimatedHoursReleasePlan
+
+    releasePlan.task.name = releasePlanInput.name
+    releasePlan.task.description = releasePlanInput.description
+    releasePlan.task.estimatedHours = releasePlanInput.estimatedHours
+    releasePlan.task.estimatedBilledHours = releasePlanInput.estimatedBilledHours
+    // Get new progress after modifying estimated hours
+    let newReleasePlanProgress = ReleasePlanModel.getNewProgressPercentage(releasePlan)
+    let newProgressEstimatedHoursReleasePlans = Math.round(newReleasePlanProgress * releasePlan.task.estimatedHours)
+
+    let newEstimatedHours = release.iterations[iterationIndex].estimatedHours + estimatedHoursDiff
+    let newProgressEstimatedHours = Math.round(othersProgressEstimatedHours + newProgressEstimatedHoursReleasePlans)
+    let newReleaseProgress = (newProgressEstimatedHours/newEstimatedHours).toFixed(2)
+
+    logger.debug("updateTaskReportPlannedUpdateRelease(): ", {
+        oldProgressEstimatedHours,
+        oldProgressEstimatedHoursReleasePlan,
+        newProgressEstimatedHoursReleasePlans,
+        newEstimatedHours,
+        newProgressEstimatedHours,
+        newReleaseProgress,
+        newReleasePlanProgress
+    })
+
+    release.iterations[iterationIndex].progress = newReleaseProgress
+    releasePlan.report.progress = newReleasePlanProgress
+    //release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
+
+    logger.debug("new release progress is ", {newReleaseProgress: release.iterations[iterationIndex].progress})
+
+
+    /*
+    let sumProgressEstimatedHours = release.iterations[iterationIndex].estimatedHours * release.iterations[iterationIndex].progress
+
+
+    // update 'planned' iteration to add estimated hours and estimated billed hours of this release plan
+    release.iterations[iterationIndex].expectedBilledHours += estimatedBilledHoursDiff
+    release.iterations[iterationIndex].estimatedHours += estimatedHoursDiff
+    // Please note here sum progress estimated hours is divided by new estimated hours (after adding estimated hours of new task)
+    release.iterations[iterationIndex].progress = sumProgressEstimatedHours / release.iterations[iterationIndex].estimatedHours
+
+    let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlanInput.type)
+    console.log("######### STATS IDX ", idx)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        release.iterations[iterationIndex].stats[idx].estimatedHours += releasePlanInput.estimatedHours
+    } else {
+        // Push new element to stats for keeping details of this type of task
+        release.iterations[iterationIndex].stats.push({
+            type: releasePlanInput.type,
+            estimatedHours: releasePlanInput.estimatedHours
+        })
+    }
+
+    await release.save()
+    return await releasePlan.save()
+    */
+    return {}
+}
+
+/**
+ * Calculates new progress percentage based on updated data in release plan, would not modify release plan rather just return progress
+ * @param releasePlan
+ * @returns {string}
+ */
+releasePlanSchema.statics.getNewProgressPercentage = (releasePlan) => {
+
+    let finalStatus = releasePlan.report.finalStatus
+
+    let progress = 0
+    if (finalStatus && finalStatus == SC.STATUS_COMPLETED) {
+        // As status of this release plan is completed progress would be 1
+        progress = 100
+        logger.debug('getNewProgressPercentage(): reported status is completed progress would be 100 percent')
+    } else {
+        let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+        // see if base hours crossed estimated hours, only then it would be considered as new base hours to calculate progress
+        if (baseHours < releasePlan.task.estimatedHours) {
+            baseHours = releasePlan.task.estimatedHours
+        }
+        logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
+        // now that we have base hours we would calculate progress by comparing it against reported hours
+        if (baseHours > 0)
+            progress = releasePlan.report.reportedHours * 100 / baseHours
+        else {
+            // In a special case where estimated hours of task is 0 hours and no planning is added yet then it would be considered to be complete
+            progress = 100
+        }
+        logger.debug('getNewProgressPercentage(): [progress] ', {progress})
+    }
+    return progress.toFixed(2)
+}
+
+
 const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)
 export default ReleasePlanModel
