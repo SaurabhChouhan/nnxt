@@ -1,6 +1,5 @@
 import {connect} from 'react-redux'
 import {UpdateReleasePlanForm} from "../../components"
-import * as logger from '../../clientLogger'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
@@ -15,12 +14,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.releasePlanPlannedUpdateOnServer(values)).then(json => {
                 if (json.success) {
                     dispatch(A.hideComponent(COC.UPDATE_RELEASE_PLAN_FORM_DIALOG))
-                    /*
-                    NotificationManager.success("Release Plan Added")
-                    dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
+                    dispatch(A.searchReleasePlansOnServer())
                     dispatch(A.getReleaseFromServer(values.release._id))
-
-                    */
+                    NotificationManager.success("Release Plan Updated")
                 }
 
             })

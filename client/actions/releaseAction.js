@@ -288,7 +288,6 @@ export const getReleasePlansFromServer = (releaseID, status, empFlag) => {
     }
 }
 
-
 export const getReleasePlanDetailsFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
         return fetch('/api/release-plans/' + releasePlanID, {
@@ -811,7 +810,13 @@ export const getSearchTaskPlanResultFromServer = (formInput) => {
 }
 
 export const searchReleasePlansOnServer = (formInput) => {
-    return (dispatch) => {
+    return (dispatch, getState) => {
+
+        if(!formInput){
+            let state = getState()
+            formInput = state.release.releasePlanFilters
+        }
+
         return fetch('/api/release-plans/search', {
                 method: 'post',
                 credentials: "include",
