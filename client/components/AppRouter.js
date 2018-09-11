@@ -5,7 +5,8 @@ import {
     AdminHomeContainer,
     AppHomeContainer,
     HomeContainer,
-    SuperAdminHomeContainer
+    SuperAdminHomeContainer,
+    ForgotPasswordFormContainer
 } from '../containers'
 
 class AppRouter extends Component {
@@ -24,6 +25,21 @@ class AppRouter extends Component {
                     }
 
                     return <HomeContainer/>
+
+                }
+                }/>,
+                <Route key="forgot_password_route" exact path="/forgot-password" render={(props) => {
+
+                    if (this.props.isAuthenticated && this.props.loggedInUser) {
+                        if (this.props.loggedInUser.isSuperAdmin)
+                            return <Redirect to="/super-admin"/>
+                        else if (this.props.loggedInUser.isAdmin)
+                            return <Redirect to="/admin"/>
+                        else
+                            return <Redirect to="/forgot-password"/>
+
+                    }
+                    return <ForgotPasswordFormContainer/>
 
                 }
                 }/>,

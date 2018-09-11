@@ -1,5 +1,5 @@
 import {connect} from 'react-redux'
-import {LoginForm} from "../../components"
+import {ForgotPasswordForm} from "../../components"
 import * as A from "../../actions"
 import * as COC from "../../components/componentConsts"
 
@@ -13,9 +13,9 @@ const mapStateToProps = (state, ownProps) => {
     }
 }
 
-const LoginFormContainer = connect(
+const ForgotPasswordFormContainer = connect(
     mapStateToProps,
     mapDispatchToProps
-)(LoginForm)
+)(ForgotPasswordForm)
 
-export default LoginFormContainer
+export default ForgotPasswordFormContainer

@@ -19,6 +19,7 @@ export {default as EmployeeSettingForm} from './forms/EmployeeSettingForm'
 export {default as EmailTemplateForm} from './forms/EmailTemplateForm'
 export {default as EmailTemplateList} from './lists/EmailTemplateList'
 export {default as EmailTypeForm} from './forms/EmailTypeForm'
+export {default as ForgotPasswordForm} from './forms/ForgotPasswordForm'
 
 
 //Common Dialoge

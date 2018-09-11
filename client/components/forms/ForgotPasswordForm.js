@@ -4,7 +4,7 @@ import {email, required} from './validation'
 import {renderLoginField} from "./fields"
 import {Link} from 'react-router-dom'
 
-let LoginForm = (props) => {
+let ForgotPasswordForm = (props) => {
     const {handleSubmit, errorMsg} = props
     return <div>
         <div className="col-md-12 loginsection">
@@ -21,22 +21,15 @@ let LoginForm = (props) => {
                     </ul>
             </div>
             <div className="col-md-7 loginform">
-                <header>LOGIN TO <span><b>NNXT</b></span> DASHBOARD</header>
+                <header>FORGOT PASSWORD <span><b>NNXT</b></span></header>
                 <Form onSubmit={handleSubmit}>
                     {errorMsg &&
                     <div style={{width: "100%", textAlign: "center"}}>
                         <span className="validation-error"
                               style={{fontSize: '20px'}}>{errorMsg}</span>
                     </div>}
-                    <Field name="username" component={renderLoginField} label="Username :"
+                    <Field name="email" component={renderLoginField} label="Email :"
                            validate={[required, email]}/>
-                    <Field style={{marginBottom: "7px"}} name="password" component={renderLoginField} type="password"
-                           label="Password :" validate={[required]}/>
-                    <br/>
-
-                    <div className="col-md-12">
-                        <span className="pull-right"> <Link to="/forgot-password"><u>Forgot password ?</u></Link><br/></span>
-                    </div>
 
                     <div className="col-md-12">
                         <button type="submit" className="btn  login-btn">Submit
@@ -53,8 +46,8 @@ let LoginForm = (props) => {
     </div>
 }
 
-LoginForm = reduxForm({
-    form: "LoginForm"
-})(LoginForm)
+ForgotPasswordForm = reduxForm({
+    form: "ForgotPasswordForm"
+})(ForgotPasswordForm)
 
-export default LoginForm
+export default ForgotPasswordForm
