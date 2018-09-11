@@ -5,6 +5,7 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
+import generateOTPUtil from '../notifications/generateOTP'
 
 
 mongoose.Promise = global.Promise
@@ -357,13 +358,18 @@ userSchema.statics.changePassword = async (changePasswordInfo) => {
     return isPasswordChanged
 }
 
-userSchema.statics.forgotPasswordRequest = async (forgotPasswordInfo) => {
+userSchema.statics.forgotPasswordRequest = async (email) => {
     let isUpdatedNewOtpToResetPass = false
-    let storedUser = await UserModel.findById(forgotPasswordInfo._id)
+    let storedUser = await UserModel.findOne({email:email})
     if (!storedUser) {
-        throw new AppError("User not found.", EC.NOT_FOUND)
+        //throw new AppError("User not found.", EC.NOT_FOUND)
+        return isUpdatedNewOtpToResetPass
     }
-    let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:forgotPasswordInfo.newOTP}}, {new: true}).exec()
+    let newOTP = await generateOTPUtil.generateNewOTP()
+    if(!newOTP) {
+        return isUpdatedNewOtpToResetPass
+    }
+    let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:newOTP}}, {new: true}).exec()
     if(updatedNewOtpToResetPass)
         isUpdatedNewOtpToResetPass = true
     return isUpdatedNewOtpToResetPass
@@ -371,7 +377,7 @@ userSchema.statics.forgotPasswordRequest = async (forgotPasswordInfo) => {
 
 userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
     let isResetNewPassword = false
-    let storedUser = await UserModel.findById(updateNewPasswordInfo._id)
+    let storedUser = await UserModel.findOne({email:updateNewPasswordInfo.email})
     if (!storedUser) {
         throw new AppError("User not found.", EC.NOT_FOUND)
     }

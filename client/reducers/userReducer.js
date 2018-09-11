@@ -111,6 +111,8 @@ export const userReducer = (state = initialState, action) => {
 
             })
 
+        case AC.FORGOT_PASSWORD_REQUEST_INFO:
+            return Object.assign({}, state, {forgotPasswordRequestInfo: action.forgetPasswordInfo})
 
         default:
             return state

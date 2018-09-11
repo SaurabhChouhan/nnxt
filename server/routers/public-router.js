@@ -48,4 +48,14 @@ publicRouter.get('/execute', async ctx => {
     return await MDL.YearlyHolidaysModel.getAllHolidayMoments('2018-06-02', '2018-08-01')
 })
 
+publicRouter.get('/forgot-password-request/:email', async (ctx) => {
+    let  isForgotPassReqSuccess = await MDL.UserModel.forgotPasswordRequest(ctx.params.email)
+    return isForgotPassReqSuccess
+})
+
+publicRouter.put('/update-new-password', async (ctx) => {
+    let  isUpdatedNewPassReqSuccess = await MDL.UserModel.updateNewPasswordWithOTP(ctx.params.body)
+    return isUpdatedNewPassReqSuccess
+})
+
 export default publicRouter

@@ -52,6 +52,11 @@ export const updateUserProfileState = (user) => ({
     user: user
 })
 
+export const setForgotPasswordRequestInfo = (forgetPasswordInfo) => ({
+    type: AC.FORGOT_PASSWORD_REQUEST_INFO,
+    forgetPasswordInfo
+})
+
 export const addUserOnServer = (formInput) => {
     return function (dispatch, getState) {
         return fetch('/api/users',
@@ -297,6 +302,31 @@ export const updateUserSettingsOnServer = (user) => {
         ).then(json => {
                 if (json.success) {
                     dispatch(updateUserProfileState(json.data))
+                }
+                return json
+            }
+        )
+    }
+}
+
+export const forgotPasswordRequest = (email) => {
+    return function (dispatch, getState) {
+        return fetch('/api/public/forgot-password-request/'+email,
+            {
+                method: "get",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(setForgotPasswordRequestInfo({status:json.data, email:email}))
                 }
                 return json
             }
