@@ -4,14 +4,16 @@ import * as CONSTANT from '../../serverconstants'
 import EmailTemplatesModel from '../../models/emailTemplatesModel'
 import NotificationModel from '../../models/notificationModel'
 
-//Send email
-const sendEmail = async (emailData,templateName) =>{
+//Send sendNotification
+const sendNotification = async (emailData,templateName) =>{
     console.log("Please wait...")
     console.log("Email is sending.....")
     return new Promise(async (res, rej) => {
+
         let emailTemplate = await EmailTemplatesModel.findOne({"templateName": templateName, "status": "Approved", "isDeleted": false})
         if (emailTemplate && emailTemplate.templateName == templateName) {
 
+            //Set template json
             let templateUpdateWithDataJson = {
                 userName: emailData.user.firstName + ' ' + emailData.user.lastName,
                 userWelcomeMessage: emailData.userWelcomeMessage,
@@ -27,6 +29,7 @@ const sendEmail = async (emailData,templateName) =>{
                 let message = welcomeEmailTemplate
                 let sent_type = 'Welcome to nnxt'
 
+                //set notification json
                 let notificationData ={
                     from:CONSTANT.NNXT_SELF_USER_AND_EMAIL_INFO,
                     to:emailData.user,
@@ -39,7 +42,7 @@ const sendEmail = async (emailData,templateName) =>{
                 //Save email notification into DB
                 let notificationObj = await NotificationModel.addNotification(notificationData)
 
-                //send Email method
+                //send Email request method to AWS SES
                 EmailSendBySES.sendEmailByAWSsES(to, subject, message, sent_type).then(async emailSendResult => {
                     console.log("WELCOME_EMAIL_TEMPLATE status = ", emailSendResult); // Success!
                     if (emailSendResult) {
@@ -71,5 +74,5 @@ const sendEmail = async (emailData,templateName) =>{
 
 
 module.exports = {
-    sendEmail
+    sendNotification
 }

@@ -72,6 +72,6 @@ dashboardRouter.get('/send-email-template', async (ctx) => {
         },
         userWelcomeMessage:"Welcome to nnxt"
     }
-    return NotificationUtil.sendEmail(emailData,"Welcome-Template")
+    return NotificationUtil.sendNotification(emailData,"Welcome-Template")
 })
 export default dashboardRouter
