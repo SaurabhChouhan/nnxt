@@ -118,6 +118,15 @@ class ReleasePlanList extends Component {
         this.props.removeReleasePlan(this.state.row._id)
     }
 
+    editCellButton(cell, row) {
+        return (<button className=" pull-left btn btn-custom" type="button"
+                        onClick={() => {
+                            this.props.showUpdateReleasePlanForm(row)
+                        }}>
+            <i className="fa fa-pencil"></i>
+        </button>)
+    }
+
     formatFlags(flags) {
         let flagImageArray = []
         flagImageArray = flags && flags.length ? flags.map((flag, idx) => {
@@ -269,7 +278,7 @@ class ReleasePlanList extends Component {
                             <TableHeaderColumn width="12%" columnTitle dataField='report'
                                                dataFormat={this.formatProgress.bind(this)}
                                                dataAlign={"right"}>Progress</TableHeaderColumn>
-                            <TableHeaderColumn width="20%" dataField='flags'
+                            <TableHeaderColumn width="15%" dataField='flags'
                                                dataFormat={this.formatFlags.bind(this)}>
                                 Flag</TableHeaderColumn>
                             <TableHeaderColumn width="12%" columnTitle dataField='task'
@@ -283,6 +292,9 @@ class ReleasePlanList extends Component {
                             </TableHeaderColumn>
                             <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="5%" columnTitle dataField='_id'
+                                               dataFormat={this.editCellButton.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>
                             <TableHeaderColumn width="5%" columnTitle dataField='_id'
                                                dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}>Status

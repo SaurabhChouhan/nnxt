@@ -47,6 +47,7 @@ import {
     UpdateReleaseDatesFormDialog,
     EstimationAddToReleaseDialog,
     ReleasePlanAddToReleaseDialog,
+    UpdateReleasePlanDialog,
     TaskShiftDialog,
     ReportTaskDescriptionFormDialog,
     CreateReleaseDialog,
@@ -323,6 +324,12 @@ class ContentMain extends Component {
                                                    close={
                                                        () => {
                                                            this.props.dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
+                                                       }
+                                                   }/>
+                    <UpdateReleasePlanDialog name={COC.UPDATE_RELEASE_PLAN_FORM_DIALOG} show={true}
+                                                   close={
+                                                       () => {
+                                                           this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_PLAN_FORM_DIALOG))
                                                        }
                                                    }/>
                 </ContentSection>
