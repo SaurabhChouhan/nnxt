@@ -566,47 +566,62 @@ releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, us
     }
 
     let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
-
-    //logger.debug("updatePlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
-
     if (iterationIndex <= -1)
         throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
-    //logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+    let iteration = release.iterations[iterationIndex]
+    let progressEstimatedHoursOtherReleasePlans = iteration.estimatedHours * iteration.progress - releasePlan.report.progress * releasePlan.task.estimatedHours
 
-    // Calculate various diffs due to this update
-    let estimatedHoursDiff = releasePlanInput.estimatedHours - releasePlan.task.estimatedHours
-    let oldProgressEstimatedHours = release.iterations[iterationIndex].estimatedHours * release.iterations[iterationIndex].progress
-    let oldProgressEstimatedHoursReleasePlan = releasePlan.report.progress * releasePlan.task.estimatedHours
-    let othersProgressEstimatedHours = oldProgressEstimatedHours - oldProgressEstimatedHoursReleasePlan
+    let diffEstimatedHours = releasePlanInput.estimatedHours - releasePlan.task.estimatedHours
+    let diffBilledHours = releasePlanInput.estimatedBilledHours - releasePlan.task.estimatedBilledHours
+
+    // Calculate new estimated hours of release after this update
+
 
     releasePlan.task.name = releasePlanInput.name
     releasePlan.task.description = releasePlanInput.description
     releasePlan.task.estimatedHours = releasePlanInput.estimatedHours
     releasePlan.task.estimatedBilledHours = releasePlanInput.estimatedBilledHours
-    // Get new progress after modifying estimated hours
+    // Get new progress estimated hours of release plan after updating estimated hours of it
     let newReleasePlanProgress = ReleasePlanModel.getNewProgressPercentage(releasePlan)
-    let newProgressEstimatedHoursReleasePlans = Math.round(newReleasePlanProgress * releasePlan.task.estimatedHours)
+    let newProgressEstimatedHoursReleasePlans = newReleasePlanProgress * releasePlan.task.estimatedHours
 
-    let newEstimatedHours = release.iterations[iterationIndex].estimatedHours + estimatedHoursDiff
-    let newProgressEstimatedHours = Math.round(othersProgressEstimatedHours + newProgressEstimatedHoursReleasePlans)
-    let newReleaseProgress = (newProgressEstimatedHours/newEstimatedHours).toFixed(2)
+    let newEstimatedHours = iteration.estimatedHours + diffEstimatedHours
+
+    // New progress estimated hours of release would be other progress estimated hours + new progress release planes
+    let newProgressEstimatedHours = progressEstimatedHoursOtherReleasePlans + newProgressEstimatedHoursReleasePlans
+
+    let newReleaseProgress = 0
+
+    if (newEstimatedHours != 0)
+        newReleaseProgress = (newProgressEstimatedHours / newEstimatedHours).toFixed(2)
 
     logger.debug("updateTaskReportPlannedUpdateRelease(): ", {
-        oldProgressEstimatedHours,
-        oldProgressEstimatedHoursReleasePlan,
         newProgressEstimatedHoursReleasePlans,
-        newEstimatedHours,
         newProgressEstimatedHours,
-        newReleaseProgress,
-        newReleasePlanProgress
+        newEstimatedHours,
+        newReleasePlanProgress,
+        newReleaseProgress
     })
 
     release.iterations[iterationIndex].progress = newReleaseProgress
+    release.iterations[iterationIndex].estimatedHours = newEstimatedHours
+    release.iterations[iterationIndex].estimatedBilledHours += diffBilledHours
     releasePlan.report.progress = newReleasePlanProgress
-    //release.iterations[iterationIndex].progress = release.iterations[iterationIndex].progress.toFixed(2)
-
     logger.debug("new release progress is ", {newReleaseProgress: release.iterations[iterationIndex].progress})
+
+    let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        release.iterations[iterationIndex].stats[idx].estimatedHours += diffEstimatedHours
+    } else {
+        throw new AppError("We should have found STATS index inside planned iteration for updateReleasePlan() operation")
+    }
+
+    await release.save()
+    await releasePlan.save()
+    return release
 
 
     /*
@@ -619,24 +634,11 @@ releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, us
     // Please note here sum progress estimated hours is divided by new estimated hours (after adding estimated hours of new task)
     release.iterations[iterationIndex].progress = sumProgressEstimatedHours / release.iterations[iterationIndex].estimatedHours
 
-    let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlanInput.type)
-    console.log("######### STATS IDX ", idx)
-
-    if (idx > -1) {
-        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
-        release.iterations[iterationIndex].stats[idx].estimatedHours += releasePlanInput.estimatedHours
-    } else {
-        // Push new element to stats for keeping details of this type of task
-        release.iterations[iterationIndex].stats.push({
-            type: releasePlanInput.type,
-            estimatedHours: releasePlanInput.estimatedHours
-        })
-    }
 
     await release.save()
     return await releasePlan.save()
     */
-    return {}
+
 }
 
 /**
