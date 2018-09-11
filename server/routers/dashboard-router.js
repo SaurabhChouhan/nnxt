@@ -1,6 +1,7 @@
 import Router from 'koa-router'
 import * as MDL from '../models'
 import NotificationUtil from '../notifications/byemail/notificationUtil'
+import generateOTPUtil from '../notifications/generateOTP'
 /**
  * This router would contain all API routes
  * @type {Router}
@@ -72,6 +73,12 @@ dashboardRouter.get('/send-email-template', async (ctx) => {
         },
         userWelcomeMessage:"Welcome to nnxt"
     }
-    return NotificationUtil.sendEmail(emailData,"Welcome-Template")
+    return NotificationUtil.sendNotification(emailData,"Welcome-Template")
 })
+
+dashboardRouter.get('/forgot-password-request', async (ctx) => {
+    let newOTP = await generateOTPUtil.generateNewOTP()
+    let  isForgotPassReqSuccess = await MDL.UserModel.forgotPasswordRequest({_id:ctx.state.user._id,newOTP:newOTP})
+})
+
 export default dashboardRouter

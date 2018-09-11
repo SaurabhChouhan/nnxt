@@ -28,7 +28,8 @@ let userSchema = mongoose.Schema({
     lastWorkingDay: Date,
     deviceUniqueID: String,
     dob: Date,
-    profileImageURL: String
+    profileImageURL: String,
+    otp:{type: Number, default:0}
 })
 
 
@@ -321,6 +322,74 @@ userSchema.statics.deleteAddedRole = async (roleID) => {
         throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     let userRoleDelete = await UserModel.updateMany({'roles._id': roleID}, {$pull: {"roles": {_id: roleID}}}, {multi: true})
     return userRoleDelete
+}
+
+userSchema.statics.changePassword = async (changePasswordInfo) => {
+    let isPasswordChanged = false
+    let oldPassword = changePasswordInfo.oldPassword
+    let newPassword = changePasswordInfo.newPassword
+    let confirmPassword = changePasswordInfo.confirmPassword
+
+    let storedUser = await UserModel.findById(changePasswordInfo._id)
+    if (!storedUser) {
+            throw new AppError("User not found.", EC.NOT_FOUND)
+    }
+
+    let isValidUser = await UserModel.verifyUser(storedUser.email,oldPassword)
+    if(!isValidUser){
+        throw new AppError("Invalid old password.", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (confirmPassword && newPassword) {
+        // this means password is changed
+        if (newPassword == confirmPassword) {
+            let bcrypt_password = await bcrypt.hash(newPassword, 10)
+            let userPassIsChanged = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {password:bcrypt_password}}, {new: true}).exec()
+            if(userPassIsChanged)
+                isPasswordChanged = true
+        } else {
+            throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
+        }
+    }else {
+        throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
+    }
+
+    return isPasswordChanged
+}
+
+userSchema.statics.forgotPasswordRequest = async (forgotPasswordInfo) => {
+    let isUpdatedNewOtpToResetPass = false
+    let storedUser = await UserModel.findById(forgotPasswordInfo._id)
+    if (!storedUser) {
+        throw new AppError("User not found.", EC.NOT_FOUND)
+    }
+    let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:forgotPasswordInfo.newOTP}}, {new: true}).exec()
+    if(updatedNewOtpToResetPass)
+        isUpdatedNewOtpToResetPass = true
+    return isUpdatedNewOtpToResetPass
+}
+
+userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
+    let isResetNewPassword = false
+    let storedUser = await UserModel.findById(updateNewPasswordInfo._id)
+    if (!storedUser) {
+        throw new AppError("User not found.", EC.NOT_FOUND)
+    }
+    if (!updateNewPasswordInfo.otp) {
+        throw new AppError("OTP not found.", EC.NOT_FOUND)
+    }
+    if (!updateNewPasswordInfo.newPassword) {
+        throw new AppError("New Pass not found.", EC.NOT_FOUND)
+    }
+    if(updateNewPasswordInfo.otp != 0 && storedUser.otp == updateNewPasswordInfo.otp){
+        let bcrypt_password = await bcrypt.hash(updateNewPasswordInfo.newPassword, 10)
+        let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:0,password:bcrypt_password}}, {new: true}).exec()
+        if(updatedNewOtpToResetPass)
+            isResetNewPassword = true
+    }else{
+        throw new AppError("Invalid OTP.", EC.INVALID_OPERATION)
+    }
+    return isResetNewPassword
 }
 
 const UserModel = mongoose.model("User", userSchema)
