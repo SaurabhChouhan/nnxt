@@ -396,6 +396,7 @@ releasePlanSchema.statics.search = async (criteria, user) => {
                 dateFilter = {'planning.maxPlanningDate': {$lte: endMoment}}
             } else if (criteria.status == SC.STATUS_PLANNED) {
                 // Planned but not reported even once
+                dateFilter = {}
                 dateFilter['planning.minPlanningDate'] = {$ne: null}
                 dateFilter['report.finalStatus'] = null
             }

@@ -125,10 +125,13 @@ const getEmployeeWorkCalendar = async (employee, startMonth, endMonth, startDay)
 
             if (e.reportedHours > 0) {
                 schedule[date - 1].hours = e.reportedHours
+                schedule[date - 1].reportedHours = e.reportedHours
+                schedule[date - 1].plannedHours = e.plannedHours
                 schedule[date - 1].reported = true
             }
             else {
                 schedule[date - 1].hours = e.plannedHours
+                schedule[date - 1].plannedHours = e.plannedHours
             }
         })
     }
