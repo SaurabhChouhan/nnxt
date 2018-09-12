@@ -3,6 +3,7 @@ import passport from 'koa-passport'
 import * as MDL from "../models"
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
+import * as SC from '../serverconstants'
 
 /**
  * All authentication releated APIs would go here
@@ -49,7 +50,7 @@ publicRouter.get('/execute', async ctx => {
 })
 
 publicRouter.get('/forgot-password-request/:email', async (ctx) => {
-    let  isForgotPassReqSuccess = await MDL.UserModel.forgotPasswordRequest(ctx.params.email)
+    let  isForgotPassReqSuccess = await MDL.UserModel.forgotPasswordRequestM(ctx.params.email)
     return isForgotPassReqSuccess
 })
 

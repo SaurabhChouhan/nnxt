@@ -6,7 +6,7 @@ import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
 import generateOTPUtil from '../notifications/generateOTP'
-
+import NotificationUtil from '../notifications/byemail/notificationUtil'
 
 mongoose.Promise = global.Promise
 
@@ -148,7 +148,15 @@ userSchema.statics.saveUser = async usrObj => {
           throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
   */
-    return await UserModel.create(usrObj)
+    let createdUser =  await UserModel.create(usrObj)
+    if(createdUser) {
+        let emailData = {
+            user: createdUser,
+            resetPasswordMessage: SC.RESET_PASSWORD_TEMPLATE_MESSAGE
+        }
+        NotificationUtil.sendNotification(emailData, SC.RESET_PASSWORD_TEMPLATE)
+    }
+    return createdUser
 }
 
 
@@ -358,7 +366,7 @@ userSchema.statics.changePassword = async (changePasswordInfo) => {
     return isPasswordChanged
 }
 
-userSchema.statics.forgotPasswordRequest = async (email) => {
+userSchema.statics.forgotPasswordRequestM = async (email) => {
     let isUpdatedNewOtpToResetPass = false
     let storedUser = await UserModel.findOne({email:email})
     if (!storedUser) {
@@ -370,8 +378,14 @@ userSchema.statics.forgotPasswordRequest = async (email) => {
         return isUpdatedNewOtpToResetPass
     }
     let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:newOTP}}, {new: true}).exec()
-    if(updatedNewOtpToResetPass)
+    if(updatedNewOtpToResetPass) {
         isUpdatedNewOtpToResetPass = true
+        let emailData = {
+            user:storedUser,
+            OTPMessage:SC.OTP_TEMPLATE_MESSAGE +" : "+ newOTP
+        }
+        NotificationUtil.sendNotification(emailData,SC.OTP_TEMPLATE)
+    }
     return isUpdatedNewOtpToResetPass
 }
 
@@ -390,8 +404,14 @@ userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
     if(updateNewPasswordInfo.otp != 0 && storedUser.otp == updateNewPasswordInfo.otp){
         let bcrypt_password = await bcrypt.hash(updateNewPasswordInfo.newPassword, 10)
         let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:0,password:bcrypt_password}}, {new: true}).exec()
-        if(updatedNewOtpToResetPass)
+        if(updatedNewOtpToResetPass) {
             isResetNewPassword = true
+            let emailData = {
+                user:storedUser,
+                resetPasswordMessage:SC.RESET_PASSWORD_TEMPLATE_MESSAGE
+            }
+            NotificationUtil.sendNotification(emailData,SC.RESET_PASSWORD_TEMPLATE)
+        }
     }else{
         throw new AppError("Invalid OTP.", EC.INVALID_OPERATION)
     }

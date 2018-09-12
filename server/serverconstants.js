@@ -351,9 +351,17 @@ export const MODE_DEVELOPMENT = "development"
 export const MODE_PRODUCTION = "production"
 
 /* Email Notifications Configuration Settings */
-
+/* Email Settings */
 export const NNXT_SELF_USER_AND_EMAIL_INFO = {"_id" : "5b87dea2749236069ce69430","email":"nnxt@aripratech.com"}
 export const SENDER_EMAIL_ADDRESS = "nnxt@aripratech.com"
 export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.png"
 export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
 export const COPY_RIGHT_FOOTER_MESSAGE = "Copyright 2018 : All right reserved."
+
+/* Email Templates Name */
+export const WELCOME_TEMPLATE = "Welcome-Template"
+export const WELCOME_TEMPLATE_MESSAGE = "Welcome To NNXT"
+export const OTP_TEMPLATE = "OTP-Template"
+export const OTP_TEMPLATE_MESSAGE = "Your NNXT OTP is "
+export const RESET_PASSWORD_TEMPLATE = "Reset-Password-Template"
+export const RESET_PASSWORD_TEMPLATE_MESSAGE = "Your password has been reset successfully."
