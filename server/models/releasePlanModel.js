@@ -6,6 +6,7 @@ import * as MDL from '../models'
 import logger from '../logger'
 import * as V from "../validation";
 import * as U from '../utils'
+import TaskPlanningModel from "./taskPlanningModel";
 
 mongoose.Promise = global.Promise
 
@@ -575,6 +576,8 @@ releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, us
     let diffEstimatedHours = releasePlanInput.estimatedHours - releasePlan.task.estimatedHours
     let diffBilledHours = releasePlanInput.estimatedBilledHours - releasePlan.task.estimatedBilledHours
 
+    let oldEstimatedHours = releasePlan.task.estimatedHours
+
     // Calculate new estimated hours of release after this update
 
 
@@ -619,26 +622,15 @@ releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, us
         throw new AppError("We should have found STATS index inside planned iteration for updateReleasePlan() operation")
     }
 
+    let warningResponse = await MDL.WarningModel.releasePlanUpdated(releasePlan, release, {
+        oldEstimatedHours
+    })
+
+    await MDL.TaskPlanningModel.updateFlags(warningResponse, releasePlan)
+
     await release.save()
     await releasePlan.save()
     return release
-
-
-    /*
-    let sumProgressEstimatedHours = release.iterations[iterationIndex].estimatedHours * release.iterations[iterationIndex].progress
-
-
-    // update 'planned' iteration to add estimated hours and estimated billed hours of this release plan
-    release.iterations[iterationIndex].expectedBilledHours += estimatedBilledHoursDiff
-    release.iterations[iterationIndex].estimatedHours += estimatedHoursDiff
-    // Please note here sum progress estimated hours is divided by new estimated hours (after adding estimated hours of new task)
-    release.iterations[iterationIndex].progress = sumProgressEstimatedHours / release.iterations[iterationIndex].estimatedHours
-
-
-    await release.save()
-    return await releasePlan.save()
-    */
-
 }
 
 /**

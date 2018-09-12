@@ -294,10 +294,10 @@ class ReleasePlanList extends Component {
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>
                             <TableHeaderColumn width="5%" columnTitle dataField='_id'
-                                               dataFormat={this.editCellButton.bind(this)} dataAlign={"center"}>Status
+                                               dataFormat={this.editCellButton.bind(this)} dataAlign={"center"}>
                             </TableHeaderColumn>
                             <TableHeaderColumn width="5%" columnTitle dataField='_id'
-                                               dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}>Status
+                                               dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}>
                             </TableHeaderColumn>
                         </BootstrapTable>
 
