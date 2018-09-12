@@ -333,13 +333,13 @@ userSchema.statics.deleteAddedRole = async (roleID) => {
     return userRoleDelete
 }
 
-userSchema.statics.changePassword = async (changePasswordInfo) => {
+userSchema.statics.changePassword = async (user,changePasswordInfo) => {
     let isPasswordChanged = false
     let oldPassword = changePasswordInfo.oldPassword
     let newPassword = changePasswordInfo.newPassword
     let confirmPassword = changePasswordInfo.confirmPassword
 
-    let storedUser = await UserModel.findById(changePasswordInfo._id)
+    let storedUser = await UserModel.findById(user._id)
     if (!storedUser) {
             throw new AppError("User not found.", EC.NOT_FOUND)
     }
