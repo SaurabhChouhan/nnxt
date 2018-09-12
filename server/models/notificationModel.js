@@ -35,12 +35,12 @@ let notificationSchema = mongoose.Schema({
     isDeleted:{type:Boolean,default:false}
 })
 
-notificationSchema.statics.getAllNotificationsByUser = async (user,conditionObj) => {
+notificationSchema.statics.getAllNotificationsByUser = async (user,sendType) => {
     //by default call api for received notifications
     let condition = { "to._id":user._id}
-    if(conditionObj.sendType == "sent"){
+    if(sendType == "sent"){
         condition = { "from._id":user._id}
-    }else if(conditionObj.sendType == "received"){
+    }else if(sendType == "received"){
         condition = { "to._id":user._id}
     }
     return await NotificationModel.find(condition)

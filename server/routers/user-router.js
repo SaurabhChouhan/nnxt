@@ -54,8 +54,8 @@ userRouter.del('/:id', async (ctx, next) => {
     }
 })
 
-userRouter.get('/notifications', async (ctx) => {
-  return await MDL.NotificationModel.getAllNotificationsByUser(ctx.state.user)
+userRouter.get('/notifications/type/:sendType', async (ctx) => {
+  return await MDL.NotificationModel.getAllNotificationsByUser(ctx.state.user,ctx.params.sendType)
 })
 
 userRouter.post('/delete-notifications', async (ctx) => {
