@@ -326,7 +326,33 @@ export const forgotPasswordRequest = (email) => {
             }
         ).then(json => {
                 if (json.success) {
-                    dispatch(setForgotPasswordRequestInfo({status:json.data, email:email}))
+                    dispatch(setForgotPasswordRequestInfo({forgotPasswordRequestStatus:json.data, email:email}))
+                }
+                return json
+            }
+        )
+    }
+}
+
+export const updateNewPasswordOnServer = (resetPassInfo) => {
+    return function (dispatch, getState) {
+        return fetch('/api/public/update-new-password/',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(resetPassInfo)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+                    dispatch(setForgotPasswordRequestInfo({resetPasswordStatus:json.data, email:resetPassInfo.email}))
                 }
                 return json
             }

@@ -31,7 +31,7 @@ let ForgotPasswordForm = (props) => {
                         <span className="validation-error"
                               style={{fontSize: '20px'}}>{errorMsg}</span>
                     </div>}
-                    {props.forgotPasswordRequestInfo && props.forgotPasswordRequestInfo.status == true ?
+                    {props.forgotPasswordRequestInfo && props.forgotPasswordRequestInfo.forgotPasswordRequestStatus == true ?
                         [<Field name="email" component={renderLoginField}
                                 validate={[required, email]} type="hidden"/>,
                             <Field name="otp" label={"OTP :"} placeholder={"Enter OTP"}

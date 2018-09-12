@@ -398,11 +398,11 @@ userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
     if (!updateNewPasswordInfo.otp) {
         throw new AppError("OTP not found.", EC.NOT_FOUND)
     }
-    if (!updateNewPasswordInfo.newPassword) {
+    if (!updateNewPasswordInfo.password) {
         throw new AppError("New Pass not found.", EC.NOT_FOUND)
     }
     if(updateNewPasswordInfo.otp != 0 && storedUser.otp == updateNewPasswordInfo.otp){
-        let bcrypt_password = await bcrypt.hash(updateNewPasswordInfo.newPassword, 10)
+        let bcrypt_password = await bcrypt.hash(updateNewPasswordInfo.password, 10)
         let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:0,password:bcrypt_password}}, {new: true}).exec()
         if(updatedNewOtpToResetPass) {
             isResetNewPassword = true

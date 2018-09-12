@@ -5,12 +5,16 @@ import * as COC from "../../components/componentConsts"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formData) => {
-        dispatch(A.forgotPasswordRequest(formData.email))
+        if(formData.email && formData.otp && formData.password){
+            dispatch(A.updateNewPasswordOnServer(formData))
+        }else{
+            dispatch(A.forgotPasswordRequest(formData.email))
+        }
     },
 })
 
 const mapStateToProps = (state, ownProps) => ({
-        errorMsg: state.user.forgotPasswordRequestInfo && state.user.forgotPasswordRequestInfo.status == false ? "Invalid Email Address" : null,
+        errorMsg: state.user.forgotPasswordRequestInfo && state.user.forgotPasswordRequestInfo.forgotPasswordRequestStatus == false ? "Invalid Email Address" : null,
         forgotPasswordRequestInfo: state.user.forgotPasswordRequestInfo
 })
 
