@@ -335,6 +335,7 @@ export const forgotPasswordRequest = (email) => {
 }
 
 export const updateNewPasswordOnServer = (resetPassInfo) => {
+    console.log("updateNewPasswordOnServer ",resetPassInfo)
     return function (dispatch, getState) {
         return fetch('/api/public/update-new-password/',
             {

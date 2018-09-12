@@ -55,7 +55,8 @@ publicRouter.get('/forgot-password-request/:email', async (ctx) => {
 })
 
 publicRouter.put('/update-new-password', async (ctx) => {
-    let  isUpdatedNewPassReqSuccess = await MDL.UserModel.updateNewPasswordWithOTP(ctx.params.body)
+    //console.log("update-new-password  ", ctx.request.body);
+    let  isUpdatedNewPassReqSuccess = await MDL.UserModel.updateNewPasswordWithOTP(ctx.request.body)
     return isUpdatedNewPassReqSuccess
 })
 
