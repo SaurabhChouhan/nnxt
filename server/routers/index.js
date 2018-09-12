@@ -21,6 +21,7 @@ export {default as taskPlanRouter} from './taskplan-router'
 export {default as developmentTypeRouter} from './developmenttype-router'
 export {default as moduleRouter} from './module-router'
 export {default as releasePlanRouter} from './releaseplan-router'
+export {default as databaseChangesRouter} from './databasechanges-router'
 
 // Please export all routers above this router
 export {default as apiRouter} from './api-router'
