@@ -1,14 +1,26 @@
 import {connect} from 'react-redux'
 import {ForgotPasswordForm} from "../../components"
 import * as A from "../../actions"
-import * as COC from "../../components/componentConsts"
+import {NotificationManager} from "react-notifications"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (formData) => {
         if(formData.email && formData.otp && formData.password){
-            dispatch(A.updateNewPasswordOnServer(formData))
+            dispatch(A.updateNewPasswordOnServer(formData)).then((json) => {
+                if (json.success) {
+                    NotificationManager.success('Password has been updated successfully')
+                } else {
+                    NotificationManager.error('Error in password updation or please enter OTP again!')
+                }
+            })
         }else{
-            dispatch(A.forgotPasswordRequest(formData.email))
+            dispatch(A.forgotPasswordRequest(formData.email)).then((json) => {
+                if (json.data) {
+                    NotificationManager.success('OTP has been sent on email.')
+                } else {
+                    NotificationManager.error('Error in OTP sending!')
+                }
+            })
         }
     },
 })

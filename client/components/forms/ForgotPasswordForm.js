@@ -32,8 +32,7 @@ let ForgotPasswordForm = (props) => {
                               style={{fontSize: '20px'}}>{errorMsg}</span>
                     </div>}
                     {props.forgotPasswordRequestInfo && props.forgotPasswordRequestInfo.forgotPasswordRequestStatus == true ?
-                        [<Field name="email" component={renderLoginField}
-                                validate={[required, email]} type="hidden"/>,
+                        [<Field name="email" component={renderLoginField} type="hidden"/>,
                             <Field name="otp" label={"OTP :"} placeholder={"Enter OTP"}
                                    component={renderText} validate={[required]}/>,
                             <Field name="password" label={"New Password :"} placeholder={"new Password"}
@@ -48,6 +47,10 @@ let ForgotPasswordForm = (props) => {
                         <Field name="email" component={renderLoginField} label="Email :"
                                validate={[required, email]}/>
                     }
+
+                    <div className="col-md-12">
+                        <span className="pull-right"> <Link to="/login"><u>Already Registered! Login Here?</u></Link><br/></span>
+                    </div>
 
                     <div className="col-md-12">
                         <button type="submit" className="btn  login-btn">Submit
