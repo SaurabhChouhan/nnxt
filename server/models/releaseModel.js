@@ -923,5 +923,102 @@ releaseSchema.statics.getReleaseEmployees = async (releaseID) => {
 }
 
 
+const fixReleaseStatsIterateReleasePlans = async (releasePlans, release) => {
+    let sumPlannedHoursEstimatedTasks = 0
+
+    for (const rp of releasePlans) {
+        // get sum of all planned hours for this release plan
+        let taskPlansSummary = await MDL.TaskPlanningModel.aggregate({
+                $match: {
+                    "releasePlan._id": rp._id
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    plannedHours: {$sum: "$planning.plannedHours"},
+                    reportedHours: {$sum: "$report.reportedHours"}
+                }
+            })
+
+        let plannedHours = 0
+
+
+        if (taskPlansSummary && taskPlansSummary.length && rp.task.estimatedHours > taskPlansSummary[0].plannedHours)
+            plannedHours = taskPlansSummary[0].plannedHours
+        else if (taskPlansSummary && taskPlansSummary.length)
+            plannedHours = rp.task.estimatedHours
+
+        logger.debug("rp entry ==> ", {
+            plannedHours,
+            estimatedHours: rp.task.estimatedHours,
+            taskPlanSummary: taskPlansSummary && taskPlansSummary.length ? taskPlansSummary[0].plannedHours : -1
+        })
+
+        sumPlannedHoursEstimatedTasks += plannedHours
+    }
+
+    return {
+        sumPlannedHoursEstimatedTasks
+    }
+
+
+}
+
+releaseSchema.statics.fixReleaseStats = async (releaseID) => {
+    let release = await ReleaseModel.findById(releaseID)
+    // Find all task plans of this release
+
+    logger.debug("************* RELEASE STATS ANALYSIS ***********")
+
+    let taskPlansSummary = await MDL.TaskPlanningModel.aggregate({
+            $match: {
+                "release._id": release._id
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                plannedHours: {$sum: "$planning.plannedHours"},
+                reportedHours: {$sum: "$report.reportedHours"}
+            }
+        })
+
+    let plannedHours = taskPlansSummary[0].plannedHours
+    let reportedHours = taskPlansSummary[0].reportedHours
+
+    let sumEstimatedHoursCompleted = await MDL.ReleasePlanModel.aggregate({
+            $match: {
+                "report.finalStatus": SC.STATUS_COMPLETED,
+                "release._id": release._id
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                estimatedHours: {$sum: "$task.estimatedHours"}
+            }
+        })
+
+    let estimatedHoursCompletedTasks = sumEstimatedHoursCompleted[0].estimatedHours
+
+    let releasePlans = await MDL.ReleasePlanModel.find({"release._id": release._id})
+
+    let releasePlanStats = await fixReleaseStatsIterateReleasePlans(releasePlans)
+
+    // find out release plans
+
+    logger.debug("fixReleaseStats(): ", {iterations: release.iterations})
+    logger.debug("fixReleaseStats(): ", {
+        plannedHours,
+        reportedHours,
+        estimatedHoursCompletedTasks,
+        plannedHoursEstimatedTasks: releasePlanStats.sumPlannedHoursEstimatedTasks
+    })
+
+    return {success: true}
+}
+
+
 const ReleaseModel = mongoose.model('Release', releaseSchema)
 export default ReleaseModel

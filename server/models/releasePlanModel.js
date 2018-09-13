@@ -6,6 +6,7 @@ import * as MDL from '../models'
 import logger from '../logger'
 import * as V from "../validation";
 import * as U from '../utils'
+import TaskPlanningModel from "./taskPlanningModel";
 
 mongoose.Promise = global.Promise
 
@@ -534,9 +535,176 @@ releasePlanSchema.statics.removeReleasePlanById = async (releasePlanID, user) =>
         throw new AppError("Development type [" + releasePlan.task.type + "] section should have found in release as we are deleting Release-Task")
     }
 
+    await MDL.WarningModel.releasePlanRemoved(releasePlan)
+
     await release.save()
     return await releasePlan.remove()
 }
+
+/**
+ * This operation would allow user to update release plan after it has been created.
+ * Manager would be able to update description/estimated hours of task using this operation
+ */
+
+releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, user) => {
+    V.validate(releasePlanInput, V.plannedReleasePlanUpdateStruct)
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(releasePlanInput._id)
+
+    if (!releasePlan)
+        throw new AppError('Release-Task that is updated is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    if (releasePlan.release.iteration && releasePlan.release.iteration.iterationType != SC.ITERATION_TYPE_PLANNED)
+        throw new AppError('Release-Task that is updated does not belong to "planned iteration"', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    // Find index of iteration with type as 'planned'
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release) {
+        throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+    if (!U.includeAny([SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + '] can update a "planned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
+    if (iterationIndex <= -1)
+        throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    let iteration = release.iterations[iterationIndex]
+    let progressEstimatedHoursOtherReleasePlans = iteration.estimatedHours * iteration.progress - releasePlan.report.progress * releasePlan.task.estimatedHours
+
+    let diffEstimatedHours = releasePlanInput.estimatedHours - releasePlan.task.estimatedHours
+    let diffBilledHours = releasePlanInput.estimatedBilledHours - releasePlan.task.estimatedBilledHours
+
+    let oldEstimatedHours = releasePlan.task.estimatedHours
+
+    // Calculate new estimated hours of release after this update
+
+
+    releasePlan.task.name = releasePlanInput.name
+    releasePlan.task.description = releasePlanInput.description
+    releasePlan.task.estimatedHours = releasePlanInput.estimatedHours
+    releasePlan.task.estimatedBilledHours = releasePlanInput.estimatedBilledHours
+    // Get new progress estimated hours of release plan after updating estimated hours of it
+    let newReleasePlanProgress = ReleasePlanModel.getNewProgressPercentage(releasePlan)
+    let newProgressEstimatedHoursReleasePlans = newReleasePlanProgress * releasePlan.task.estimatedHours
+
+    let newEstimatedHours = iteration.estimatedHours + diffEstimatedHours
+
+    // New progress estimated hours of release would be other progress estimated hours + new progress release planes
+    let newProgressEstimatedHours = progressEstimatedHoursOtherReleasePlans + newProgressEstimatedHoursReleasePlans
+
+    let newReleaseProgress = 0
+
+    if (newEstimatedHours != 0)
+        newReleaseProgress = (newProgressEstimatedHours / newEstimatedHours).toFixed(2)
+
+    logger.debug("updateTaskReportPlannedUpdateRelease(): ", {
+        newProgressEstimatedHoursReleasePlans,
+        newProgressEstimatedHours,
+        newEstimatedHours,
+        newReleasePlanProgress,
+        newReleaseProgress
+    })
+
+    release.iterations[iterationIndex].progress = newReleaseProgress
+    release.iterations[iterationIndex].estimatedHours = newEstimatedHours
+    release.iterations[iterationIndex].estimatedBilledHours += diffBilledHours
+    releasePlan.report.progress = newReleasePlanProgress
+    logger.debug("new release progress is ", {newReleaseProgress: release.iterations[iterationIndex].progress})
+
+    let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
+
+    if (idx > -1) {
+        // In case of following task type, negotiators hours are considered as estimated hours of final estimation
+        release.iterations[iterationIndex].stats[idx].estimatedHours += diffEstimatedHours
+    } else {
+        throw new AppError("We should have found STATS index inside planned iteration for updateReleasePlan() operation")
+    }
+
+    let warningResponse = await MDL.WarningModel.releasePlanUpdated(releasePlan, release, {
+        oldEstimatedHours
+    })
+
+    await MDL.TaskPlanningModel.updateFlags(warningResponse, releasePlan)
+
+    await release.save()
+    await releasePlan.save()
+    return release
+}
+
+/**
+ * This operation would allow user to update unplanned release plan after it has been created.
+ *
+ */
+
+releasePlanSchema.statics.updateUnplannedReleasePlan = async (releasePlanInput, user) => {
+    V.validate(releasePlanInput, V.plannedReleasePlanUpdateStruct)
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(releasePlanInput._id)
+
+    if (!releasePlan)
+        throw new AppError('Release-Task that is updated is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    if (releasePlan.release.iteration && releasePlan.release.iteration.iterationType != SC.ITERATION_TYPE_UNPLANNED)
+        throw new AppError('Release-Task that is updated does not belong to "unplanned iteration"', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    // Find index of iteration with type as 'unplanned'
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release) {
+        throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+    if (!U.includeAny([SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + '] can update a "unplanned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_UNPLANNED)
+    if (iterationIndex <= -1)
+        throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_UNPLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    releasePlan.task.name = releasePlanInput.name
+    releasePlan.task.description = releasePlanInput.description
+    await releasePlan.save()
+    return release
+}
+
+/**
+ * Calculates new progress percentage based on updated data in release plan, would not modify release plan rather just return progress
+ * @param releasePlan
+ * @returns {string}
+ */
+releasePlanSchema.statics.getNewProgressPercentage = (releasePlan) => {
+
+    let finalStatus = releasePlan.report.finalStatus
+
+    let progress = 0
+    if (finalStatus && finalStatus == SC.STATUS_COMPLETED) {
+        // As status of this release plan is completed progress would be 1
+        progress = 100
+        logger.debug('getNewProgressPercentage(): reported status is completed progress would be 100 percent')
+    } else {
+        let baseHours = releasePlan.report.reportedHours + releasePlan.planning.plannedHours - releasePlan.report.plannedHoursReportedTasks
+        // see if base hours crossed estimated hours, only then it would be considered as new base hours to calculate progress
+        if (baseHours < releasePlan.task.estimatedHours) {
+            baseHours = releasePlan.task.estimatedHours
+        }
+        logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
+        // now that we have base hours we would calculate progress by comparing it against reported hours
+        if (baseHours > 0)
+            progress = releasePlan.report.reportedHours * 100 / baseHours
+        else {
+            // In a special case where estimated hours of task is 0 hours and no planning is added yet then it would be considered to be complete
+            progress = 100
+        }
+        logger.debug('getNewProgressPercentage(): [progress] ', {progress})
+    }
+    return progress.toFixed(2)
+}
+
 
 const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)
 export default ReleasePlanModel

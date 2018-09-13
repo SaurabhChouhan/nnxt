@@ -152,4 +152,8 @@ releaseRouter.get("/release-plan/:releasePlanID/iteration-data", async ctx => {
     })
 })
 
+releaseRouter.get('/fix-release-stats/:releaseID', async ctx => {
+    return await MDL.ReleaseModel.fixReleaseStats(ctx.params.releaseID)
+})
+
 export default releaseRouter

@@ -33,4 +33,12 @@ releasePlanRouter.del('/:releasePlanID', async ctx => {
     return await MDL.ReleasePlanModel.removeReleasePlanById(ctx.params.releasePlanID, ctx.state.user)
 })
 
+releasePlanRouter.put('/update-planned-task', async ctx=>{
+    return await MDL.ReleasePlanModel.updatePlannedReleasePlan(ctx.request.body, ctx.state.user)
+})
+
+releasePlanRouter.put('/update-unplanned-task', async ctx=>{
+    return await MDL.ReleasePlanModel.updateUnplannedReleasePlan(ctx.request.body, ctx.state.user)
+})
+
 export default releasePlanRouter

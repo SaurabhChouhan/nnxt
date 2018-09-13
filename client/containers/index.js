@@ -114,6 +114,7 @@ export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPl
 export {default as ReleaseMoveTaskPlanFormContainer} from './forms/ReleaseMoveTaskPlanFormContainer'
 export {default as UpdateReleaseDatesFormContainer} from './forms/UpdateReleaseDatesFormContainer'
 export {default as ReleasePlanAddToReleaseFormContainer} from './forms/ReleasePlanAddToReleaseFormContainer'
+export {default as UpdateReleasePlanFormContainer} from './forms/UpdateReleasePlanFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleasePlanListContainer} from './lists/ReleasePlanListContainer'
 export {default as ReleasePlanSectionContainer} from './sections/ReleasePlanSectionContainer'
