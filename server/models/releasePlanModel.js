@@ -535,6 +535,8 @@ releasePlanSchema.statics.removeReleasePlanById = async (releasePlanID, user) =>
         throw new AppError("Development type [" + releasePlan.task.type + "] section should have found in release as we are deleting Release-Task")
     }
 
+    await MDL.WarningModel.releasePlanRemoved(releasePlan)
+
     await release.save()
     return await releasePlan.remove()
 }
