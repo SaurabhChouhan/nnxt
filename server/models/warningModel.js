@@ -3493,6 +3493,9 @@ warningSchema.statics.releasePlanUpdated = async (releasePlan, release, extra) =
         }
     }
 
+    let moreReportedWarnings = await updateMoreReportedHours(releasePlan, release)
+    copyWarnings(moreReportedWarnings, warningResponse)
+
     return warningResponse
 }
 
