@@ -665,7 +665,7 @@ export const releasePlanPlannedAddToReleaseOnServer = (formInput) => {
 
 export const releasePlanPlannedUpdateOnServer = (formInput) => {
     return function (dispatch) {
-        return fetch('/api/release-plans/update-planned_task',
+        return fetch('/api/release-plans/update-planned-task',
             {
                 method: "put",
                 credentials: "include",
@@ -688,6 +688,30 @@ export const releasePlanPlannedUpdateOnServer = (formInput) => {
         )
     }
 }
+
+export const releasePlanUnplannedUpdateOnServer = (formInput) => {
+    return function (dispatch) {
+        return fetch('/api/release-plans/update-unplanned-task',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                return json
+            }
+        )
+    }
+}
+
 
 
 export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {

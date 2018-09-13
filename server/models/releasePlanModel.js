@@ -565,7 +565,7 @@ releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, us
 
     let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     if (!U.includeAny([SC.ROLE_MANAGER], userRolesInThisRelease)) {
-        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + '] can add a "planned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + '] can update a "planned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
     let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
@@ -631,6 +631,43 @@ releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, us
     await MDL.TaskPlanningModel.updateFlags(warningResponse, releasePlan)
 
     await release.save()
+    await releasePlan.save()
+    return release
+}
+
+/**
+ * This operation would allow user to update unplanned release plan after it has been created.
+ *
+ */
+
+releasePlanSchema.statics.updateUnplannedReleasePlan = async (releasePlanInput, user) => {
+    V.validate(releasePlanInput, V.plannedReleasePlanUpdateStruct)
+
+    let releasePlan = await MDL.ReleasePlanModel.findById(releasePlanInput._id)
+
+    if (!releasePlan)
+        throw new AppError('Release-Task that is updated is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    if (releasePlan.release.iteration && releasePlan.release.iteration.iterationType != SC.ITERATION_TYPE_UNPLANNED)
+        throw new AppError('Release-Task that is updated does not belong to "unplanned iteration"', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+
+    // Find index of iteration with type as 'unplanned'
+    let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releasePlan.release._id))
+    if (!release) {
+        throw new AppError('Release this Task is added against is not found', EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
+    }
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+    if (!U.includeAny([SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + '] can update a "unplanned" release plan', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_UNPLANNED)
+    if (iterationIndex <= -1)
+        throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_UNPLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    releasePlan.task.name = releasePlanInput.name
+    releasePlan.task.description = releasePlanInput.description
     await releasePlan.save()
     return release
 }

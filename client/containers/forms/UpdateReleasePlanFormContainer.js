@@ -5,9 +5,8 @@ import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 import * as SC from '../../../server/serverconstants'
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
     onSubmit: (values) => {
-        console.log("values", values)
         if (values.iteration_type === SC.ITERATION_TYPE_PLANNED) {
             values.estimatedHours = Number(values.estimatedHours)
             values.estimatedBilledHours = Number(values.estimatedBilledHours)
@@ -16,25 +15,19 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     dispatch(A.hideComponent(COC.UPDATE_RELEASE_PLAN_FORM_DIALOG))
                     dispatch(A.searchReleasePlansOnServer())
                     dispatch(A.getReleaseFromServer(values.release._id))
-                    NotificationManager.success("Release Plan Updated")
+                    NotificationManager.success("Release-Task Updated")
                 }
-
             })
         }
-        else {
-            /*
-            dispatch(A.releasePlanUnplannedAddToReleaseOnServer(values)).then(json => {
+        else if(values.iteration_type === SC.ITERATION_TYPE_UNPLANNED){
+            dispatch(A.releasePlanUnplannedUpdateOnServer(values)).then(json => {
                 if (json.success) {
-                    NotificationManager.success("Added Unplanned To Release")
-                    // hide dialog
-                    dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
+                    dispatch(A.hideComponent(COC.UPDATE_RELEASE_PLAN_FORM_DIALOG))
+                    dispatch(A.searchReleasePlansOnServer())
+                    NotificationManager.success("Release-Task updated")
                 }
-                dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
             })
-            */
         }
-
-
     }
 })
 
