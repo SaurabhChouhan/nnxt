@@ -58,15 +58,11 @@ class ReleaseTaskPlanningPage extends Component {
         </button>)
     }
 
-    editCellButton(cell, row, enumObject, rowIndex) {
-        let now = new Date()
-        let nowMomentString = moment(now).format(SC.DATE_FORMAT)
-        let nowMoment = moment(nowMomentString)
-        let planningMoment = moment(row.planningDateString)
+    editCellButton(cell, row) {
         return ''
     }
 
-    reopenCellButton(cell, row, enumObject, rowIndex) {
+    reopenCellButton(cell, row) {
 
         // Manager/leader can reopen task having status as completed if they think work is still pending
         if (row.report.status == SC.STATUS_COMPLETED) {

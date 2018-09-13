@@ -63,6 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 })
 
 const mapStateToProps = (state) => ({
+    loggedInUser: state.user.loggedIn,
     release: state.release.selectedRelease,
     releasePlans: state.release.releasePlans,
     releasePlanFilters: state.release.releasePlanFilters
