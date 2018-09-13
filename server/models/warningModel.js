@@ -119,18 +119,21 @@ const deleteMorePlannedHours = async (releasePlan) => {
         'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
     })
     if (morePlannedHoursWarning) {
-        /*more planned hour warning available need to delete it*/
-        let deleteWarningResponse = await deleteWarningWithResponse(morePlannedHoursWarning, SC.WARNING_MORE_PLANNED_HOURS)
-        if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-            warningResponse.added.push(...deleteWarningResponse.added)
-        if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-            warningResponse.removed.push(...deleteWarningResponse.removed)
+        if (morePlannedHoursWarning) {
+            warningResponse.removed.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_MORE_PLANNED_HOURS
+            })
+
+            await morePlannedHoursWarning.remove()
+        }
     }
 
     return warningResponse
 }
 
-const addMorePlannedHourrs = async (releasePlan, release) => {
+const addMorePlannedHours = async (releasePlan, release) => {
     let warningResponse = {
         added: [],
         removed: []
@@ -157,6 +160,35 @@ const addMorePlannedHourrs = async (releasePlan, release) => {
 
     return warningResponse
 }
+
+const addLessPlannedHours = async (releasePlan, release) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    let lessPlannedHoursWarning = await WarningModel.findOne({
+        type: SC.WARNING_LESS_PLANNED_HOURS,
+        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
+    })
+    // check to see if there is already a more planned hours warning
+    if (!lessPlannedHoursWarning) {
+        let newLessPlannedHoursWarning = new WarningModel()
+        newLessPlannedHoursWarning.type = SC.WARNING_LESS_PLANNED_HOURS
+        newLessPlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+        newLessPlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
+        warningResponse.added.push({
+            _id: releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_LESS_PLANNED_HOURS,
+            source: true
+        })
+        await newLessPlannedHoursWarning.save()
+    }
+
+    return warningResponse
+}
+
 
 /*-------------------------------------------------------------------GET_WARNINGS_SECTION_START---------------------------------------------------------------------*/
 warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
@@ -3400,7 +3432,11 @@ warningSchema.statics.releasePlanRemoved = async (releasePlan) => {
 warningSchema.statics.releasePlanUpdated = async (releasePlan, release, extra) => {
     const {oldEstimatedHours} = extra
 
-    logger.debug("WarningModel.releasePlanUpdated() ", {oldEstimatedHours})
+    logger.debug("WarningModel.releasePlanUpdated() ", {
+        oldEstimatedHours,
+        plannedHours: releasePlan.planning.plannedHours,
+        newEstimated: releasePlan.task.estimatedHours
+    })
     // Handling less planned hours
 
     // Find out if less planned hours is associated with this release plan
@@ -3410,20 +3446,53 @@ warningSchema.statics.releasePlanUpdated = async (releasePlan, release, extra) =
         removed: []
     }
 
-    if (oldEstimatedHours > releasePlan.planning.plannedHours && releasePlan.task.estimatedHours <= releasePlan.planning.plannedHours) {
-        logger.debug("WarningModel.releasePlanUpdated() planned hours were less than estimated hours and now it is equal or more")
-        // Remove less planned hours warning
-        let lessPlannedWarning = await deleteLessPlannedHours(releasePlan)
-        logger.debug("releasePlanUpdated(): ", {lessPlannedWarning})
-        copyWarnings(lessPlannedWarning, warningResponse)
+    if (releasePlan.task.estimatedHours < releasePlan.planning.plannedHours) {
+        // this means new estimation is less than planned hours
+        if (oldEstimatedHours > releasePlan.planning.plannedHours) {
+            // there should be a less planned hours warning that should now be removed
+            let lessPlannedWarning = await deleteLessPlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {lessPlannedWarning})
+            copyWarnings(lessPlannedWarning, warningResponse)
+        }
 
-
-        if (releasePlan.task.estimatedHours < releasePlan.planning.plannedHours) {
-            let morePlannedWarnings = await addMorePlannedHourrs(releasePlan, release)
+        if (oldEstimatedHours >= releasePlan.planning.plannedHours) {
+            // More planned hours warning should be added
+            let morePlannedWarnings = await addMorePlannedHours(releasePlan, release)
             logger.debug("releasePlanUpdated(): ", {morePlannedWarnings})
             copyWarnings(morePlannedWarnings, warningResponse)
         }
     }
+
+    if (releasePlan.task.estimatedHours > releasePlan.planning.plannedHours) {
+        // this means estimation is greater than planned hours following case would arise
+        if (oldEstimatedHours < releasePlan.planning.plannedHours) {
+            let morePlannedWarning = await deleteMorePlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {morePlannedWarning})
+            copyWarnings(morePlannedWarning, warningResponse)
+        }
+
+        if (oldEstimatedHours <= releasePlan.planning.plannedHours) {
+            let lessPlannedWarnings = await addLessPlannedHours(releasePlan, release)
+            logger.debug("releasePlanUpdated(): ", {lessPlannedWarnings})
+            copyWarnings(lessPlannedWarnings, warningResponse)
+        }
+    }
+
+    if (releasePlan.task.estimatedHours == releasePlan.planning.plannedHours) {
+        if (oldEstimatedHours < releasePlan.planning.plannedHours) {
+            let morePlannedWarning = await deleteMorePlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {morePlannedWarning})
+            copyWarnings(morePlannedWarning, warningResponse)
+        }
+
+        if (oldEstimatedHours > releasePlan.planning.plannedHours) {
+            // there should be a less planned hours warning that should now be removed
+            let lessPlannedWarning = await deleteLessPlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {lessPlannedWarning})
+            copyWarnings(lessPlannedWarning, warningResponse)
+        }
+    }
+
     return warningResponse
 }
 
