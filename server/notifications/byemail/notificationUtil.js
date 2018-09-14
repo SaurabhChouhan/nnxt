@@ -41,6 +41,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Welcome",
                         notificationBody: welcomeEmailTemplate,
+                        notificationBodyText: emailTemplate.templateBody,
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -93,6 +94,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "OTP",
                         notificationBody: welcomeEmailTemplate,
+                        notificationBodyText: emailTemplate.templateBody,
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -145,6 +147,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Reset-Password",
                         notificationBody: welcomeEmailTemplate,
+                        notificationBodyText: emailTemplate.templateBody,
                         status: "Pending"
                     }
                     //Save email notification into DB

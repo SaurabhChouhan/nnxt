@@ -29,6 +29,8 @@ let notificationSchema = mongoose.Schema({
     notificationType:String,    //Reason of sending like(Estimation created, review-requested task assigned ect.)
     notificationBody:String,  // Ready to send
 
+    notificationBodyText:String,  // This use for NNXT Notifications view
+
     status:String, //Pending, Sent, Failed
     created:{type: Date,default:new Date()},
     updated:{type: Date,default:new Date()},
@@ -57,6 +59,8 @@ notificationSchema.statics.addNotification = async (notificationObj) => {
         notificationSubject: notificationObj.notificationSubject,
         notificationType: notificationObj.notificationType,
         notificationBody: notificationObj.notificationBody,
+
+        notificationBodyText: notificationObj.notificationBodyText,
 
         status:notificationObj.status,
         created:new Date(),
