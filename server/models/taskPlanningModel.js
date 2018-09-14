@@ -3010,6 +3010,34 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 }
 
 
+const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, extra) => {
+    const {
+        taskPlanMoment, employee, reportedHoursToIncrement
+    } = extra
+
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': employee._id.toString(),
+        'date': taskPlanMoment.toDate()
+    })
+
+    if (!employeeDay) {
+        employeeDay = new MDL.EmployeeDaysModel()
+        employeeDay.employee = {
+            _id: mongoose.Types.ObjectId(employee._id),
+            name: employee.firstName + ' ' + employee.lastName
+        }
+        employeeDay.date = taskPlanMoment.toDate()
+        employeeDay.dateString = taskPlanMoment.format(SC.DATE_FORMAT)
+        employeeDay.plannedHours = reportedHoursToIncrement
+        employeeDay.reportedHours = reportedHoursToIncrement
+    } else {
+        // add reported hours into employee day, in case on unplanned reporting both reported and planned hours would be same
+        employeeDay.plannedHours += reportedHoursToIncrement
+        employeeDay.reportedHours += reportedHoursToIncrement
+    }
+    return employeeDay
+}
+
 const addTaskReportUnplannedUpdateEmployeeRelease = async (release, employee, extra) => {
 
     const {reportedHoursToIncrement, reReport} = extra
@@ -3099,6 +3127,12 @@ const addTaskReportUnplannedUpdateReleasePlan = async (taskPlan, releasePlan, ex
         }
     }
 
+    let employeePlanningIdx = -1
+    if (releasePlan.planning.employees) {
+        employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+            return e._id.toString() == employee._id.toString()
+        })
+    }
     // 'unplanned'
     releasePlan.report.finalStatus = SC.REPORT_PENDING
     return releasePlan
@@ -3214,6 +3248,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
     }
     // as we have calculated reported hours to increment we can set new reported hours in task plan
     taskPlan.report.reportedHours = reportInput.reportedHours
+    taskPlan.planning.plannedHours = reportInput.reportedHours // planned hours would be same as reported hours in unplanned task report
     taskPlan.report.description = reportInput.reportDescription
     taskPlan.description = reportInput.reportDescription
 
@@ -3225,6 +3260,14 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
         reportedHoursToIncrement
     })
 
+    let taskPlanMoment = U.momentInUTC(taskPlan.planningDateString)
+
+    let employeeDay = await addTaskReportUnplannedUpdateEmployeeDays(taskPlan, {
+        taskPlanMoment,
+        employee,
+        reportedHoursToIncrement,
+        reReport
+    })
 
     /******************************** RELEASE PLAN UPDATES **************************************************/
     releasePlan = await addTaskReportUnplannedUpdateReleasePlan(taskPlan, releasePlan, {
@@ -3246,6 +3289,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 
 
     // No warning handling would be done for unplanned release plans
+    await employeeDay.save()
     await employeeRelease.save()
     await release.save()
     await releasePlan.save()
