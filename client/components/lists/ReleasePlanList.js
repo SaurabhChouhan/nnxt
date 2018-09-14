@@ -118,13 +118,13 @@ class ReleasePlanList extends Component {
         this.props.removeReleasePlan(this.state.row._id)
     }
 
-    editCellButton(cell, row) {
-        return (<button className=" pull-left btn btn-custom" type="button"
-                        onClick={() => {
-                            this.props.showUpdateReleasePlanForm(row)
-                        }}>
+    editCellButton(cell, row, extra) {
+        return (extra ? <button className=" pull-left btn btn-custom" type="button"
+                                onClick={() => {
+                                    this.props.showUpdateReleasePlanForm(row)
+                                }}>
             <i className="fa fa-pencil"></i>
-        </button>)
+        </button> : '')
     }
 
     formatFlags(flags) {
@@ -213,7 +213,9 @@ class ReleasePlanList extends Component {
 
     render() {
         let team = 0
-        const {release, releasePlans, releasePlanFilters} = this.props
+        const {release, releasePlans, releasePlanFilters, loggedInUser} = this.props
+        let isManager = loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ? true : false
+
         //console.log("releasePlans..........", releasePlans)
         //console.log("releasePlans..........expandDescriptionTaskReportList", this.props.expandDescriptionTaskReportList)
         return (
@@ -294,10 +296,14 @@ class ReleasePlanList extends Component {
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>
                             <TableHeaderColumn width="5%" columnTitle dataField='_id'
-                                               dataFormat={this.editCellButton.bind(this)} dataAlign={"center"}>
+                                               formatExtraData={isManager} dataFormat={this.editCellButton.bind(this)}
+                                               dataAlign={"center"} dateField={"button"}>
+                                <i className="fa fa-pencil"></i>
                             </TableHeaderColumn>
                             <TableHeaderColumn width="5%" columnTitle dataField='_id'
-                                               dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}>
+                                               dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}
+                                               dataField={"button"}>
+                                <i className="fa fa-trash"></i>
                             </TableHeaderColumn>
                         </BootstrapTable>
 
