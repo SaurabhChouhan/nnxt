@@ -2,6 +2,7 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CompressionPlugin = require('compression-webpack-plugin');
 
 var publicPath = path.resolve(__dirname, 'public', 'dist')
 
@@ -49,6 +50,10 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "[name].css",
             chunkFilename: "[id].css"
+        }),
+        new CompressionPlugin({
+            filename: '[path].gz[query]',
+            test: /\.js(\?.*)?$/i
         })
     ],
     optimization: {
