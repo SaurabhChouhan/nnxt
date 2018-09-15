@@ -2,7 +2,7 @@ import Router from 'koa-router'
 import * as MDL from "../models";
 
 let releasePlanRouter = new Router({
-    prefix: "release-plans"
+    prefix: "/release-plans"
 })
 
 releasePlanRouter.post("/add-planned-task", async ctx => {

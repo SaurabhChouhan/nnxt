@@ -6,7 +6,7 @@ import AppError from '../AppError'
 import _ from 'lodash'
 
 const roleRouter = new Router({
-    prefix: "roles"
+    prefix: "/roles"
 })
 
 /**

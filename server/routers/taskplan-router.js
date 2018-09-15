@@ -7,7 +7,7 @@ import releaseRouter from "./release-router";
  */
 
 let taskPlanRouter = new Router({
-    prefix: "task-plans"
+    prefix: "/task-plans"
 })
 
 /***
