@@ -8,7 +8,7 @@ import logger from '../logger'
 
 
 const leaveRouter = new Router({
-    prefix: "leave"
+    prefix: "/leave"
 })
 
 

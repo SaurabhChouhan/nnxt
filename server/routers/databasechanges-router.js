@@ -4,7 +4,7 @@ import * as U from "../utils";
 import logger from '../logger'
 
 const databaseChangesRouter = new Router({
-    prefix: "database-changes"
+    prefix: "/database-changes"
 })
 
 

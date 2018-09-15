@@ -7,7 +7,7 @@ import AppError from '../AppError'
 import * as V from '../validation'
 
 let estimationRouter = new Router({
-    prefix: "estimations"
+    prefix: "/estimations"
 })
 
 

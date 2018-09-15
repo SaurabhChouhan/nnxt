@@ -2,7 +2,7 @@ import Router from 'koa-router'
 import * as MDL from "../models"
 
 let repositoryRouter = new Router({
-    prefix: 'repositories'
+    prefix: '/repositories'
 })
 
 repositoryRouter.post("/search", async ctx => {

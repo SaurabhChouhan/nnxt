@@ -6,7 +6,7 @@ import * as EC from '../errorcodes'
 
 
 const holidayRouter = new Router({
-    prefix: "holiday"
+    prefix: "/holiday"
 })
 
 /**

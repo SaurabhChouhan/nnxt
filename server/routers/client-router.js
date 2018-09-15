@@ -5,7 +5,7 @@ import projectRouter from "./project-router";
 
 
 let clientRouter = new Router({
-    prefix: "clients"
+    prefix: "/clients"
 })
 
 clientRouter.post('/', async ctx => {

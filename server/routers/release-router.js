@@ -10,7 +10,7 @@ import AppError from '../AppError'
  */
 
 let releaseRouter = new Router({
-    prefix: "releases"
+    prefix: "/releases"
 })
 
 /***

@@ -8,7 +8,7 @@ import * as MDL from '../models'
 
 
 const dashboardRouter = new Router({
-    prefix: 'dashboard'
+    prefix: '/dashboard'
 })
 
 dashboardRouter.get('/', (ctx) => {

@@ -10,7 +10,7 @@ import _ from 'lodash'
  */
 
 let warningRouter = new Router({
-    prefix: "warning"
+    prefix: "/warning"
 })
 
 /***

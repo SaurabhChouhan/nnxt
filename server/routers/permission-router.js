@@ -2,7 +2,7 @@ import Router from 'koa-router'
 import * as  MDL from '../models'
 
 const permissionRouter = new Router({
-    prefix: "permissions"
+    prefix: "/permissions"
 })
 
 permissionRouter.get('/', async ctx => {

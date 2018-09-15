@@ -4,7 +4,7 @@ import * as V from "../validation"
 
 
 let moduleRouter = new Router({
-    prefix: "modules"
+    prefix: "/modules"
 })
 
 
