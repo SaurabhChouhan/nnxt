@@ -1,7 +1,12 @@
-const HtmlWebPackPlugin = require("html-webpack-plugin");
+const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
+    entry: {
+        app: './client/client.js'
+    },
     module: {
         rules: [
             {
@@ -27,13 +32,18 @@ module.exports = {
         ]
     },
     plugins: [
-        new HtmlWebPackPlugin({
+        new CleanWebpackPlugin(['dist']),
+        new HtmlWebpackPlugin({
             template: "./server/views/index-tmpl.mustache",
-            filename: "server/views/index.mustache"
+            filename: "./server/views/index.mustache"
         }),
         new MiniCssExtractPlugin({
             filename: "[name].css",
             chunkFilename: "[id].css"
         })
-    ]
+    ],
+    output: {
+        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'dist')
+    }
 };

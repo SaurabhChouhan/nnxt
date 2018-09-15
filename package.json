@@ -17,7 +17,7 @@
     "start.ravi": "cross-env BABEL_ENV=server NODE_ENV=ravi nodemon ./server/server.js --exec babel-node",
     "start.ratnesh": "cross-env BABEL_ENV=server NODE_ENV=ratnesh nodemon ./server/server.js --exec babel-node",
     "client.dev.build": "cross-env BABEL_ENV=client webpack --mode development ./client/client.js",
-    "client.prod.build": "cross-env BABEL_ENV=client webpack --mode production  ./client/client.js --progress --profile --colors",
+    "client.prod.build": "cross-env BABEL_ENV=client webpack --config webpack.prod.js ./client/client.js --progress --profile --colors",
     "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node"
   },
   "dependencies": {
@@ -91,6 +91,7 @@
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.2",
     "babel-plugin-css-modules-transform": "^1.3.1",
+    "clean-webpack-plugin": "^0.1.19",
     "compression-webpack-plugin": "^1.0.1",
     "cross-env": "^5.1.3",
     "css-loader": "^0.28.11",
@@ -107,6 +108,7 @@
     "style-loader": "^0.19.0",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.8"
+    "webpack-dev-server": "^3.1.8",
+    "webpack-merge": "^4.1.4"
   }
 }
