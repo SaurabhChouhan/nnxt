@@ -35,6 +35,7 @@ export {default as EmployeeSettingFormContainer} from './forms/EmployeeSettingFo
 export {default as RepositoryTaskDetailPageContainer} from './pages/RepositoryTaskDetailPageContainer'
 export {default as RepositoryFeatureDetailPageContainer} from './pages/RepositoryFeatureDetailPageContainer'
 export {default as RepositorySearchContainer} from './pages/RepositorySearchContainer'
+export {default as DemoHomeContainer} from './pages/DemoHomeContainer'
 
 
 //Estimation pages
