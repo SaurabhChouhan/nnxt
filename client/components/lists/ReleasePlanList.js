@@ -4,13 +4,13 @@ import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {NotificationManager} from 'react-notifications'
 import {ReleasePlanDateNavBarContainer} from "../../containers/index";
+import {ConfirmationDialog} from "../index";
 
 class ReleasePlanList extends Component {
 
     constructor(props) {
         super(props);
         this.options = {
-            onRowClick: this.onRowClick.bind(this),
             sizePerPageList: [{
                 text: '6', value: 6
             }, {
@@ -21,24 +21,14 @@ class ReleasePlanList extends Component {
                 text: '50', value: 50
             }],
             sizePerPage: 6,  // which size per page you want to locate as default
+        }
 
+        this.state = {
+            showTaskDeleteConfirmationDialog: false
         }
     }
 
     componentDidMount() {
-
-    }
-
-
-    onRowClick(row) {
-        console.log("row", row)
-        if (row.release.iteration.iterationType === SC.ITERATION_TYPE_UNPLANNED) {
-            NotificationManager.error("Cannot add tasks to 'unplanned' release plans")
-        }
-        else {
-            this.props.history.push("/app-home/release-task-planning")
-            this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
-        }
 
     }
 
@@ -76,16 +66,30 @@ class ReleasePlanList extends Component {
 
     formatTaskName(task, row) {
 
-        if (task) {
-            if (row.release.iteration.iterationType == SC.ITERATION_TYPE_PLANNED)
-                return <span style={{color: '#4172c1'}}>{task.name}</span>
-            else if (row.release.iteration.iterationType == SC.ITERATION_TYPE_UNPLANNED)
-                return <span style={{color: '#e52d8c'}}>{task.name}</span>
-            else
-                return <span>{task.name}</span>
-        }
+        let name = ''
+        let color = ''
 
-        return ''
+
+        if (row.release.iteration.iterationType == SC.ITERATION_TYPE_PLANNED) {
+            color = '#4172c1'
+            name = task.name
+        }
+        else if (row.release.iteration.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
+            name = task.name
+            color = '#e52d8c'
+        }
+        else
+            name = task.name
+
+        return <span style={{color: color, display: 'block'}} onClick={() => {
+            if (row.release.iteration.iterationType === SC.ITERATION_TYPE_UNPLANNED) {
+                NotificationManager.error("Cannot add tasks to 'unplanned' release plans")
+            }
+            else {
+                this.props.history.push("/app-home/release-task-planning")
+                this.props.releasePlanSelected(row, this.props.release.rolesInThisRelease)
+            }
+        }}>{name} </span>
     }
 
     formatProgress(report) {
@@ -94,6 +98,34 @@ class ReleasePlanList extends Component {
         return ''
     }
 
+    onDeleteDialogClose() {
+        this.setState({
+            showTaskDeleteConfirmationDialog: false
+        })
+    }
+
+    deleteCellButton(cell, row) {
+        return (<button className=" pull-left btn btn-custom" type="button"
+                        onClick={() => {
+                            this.setState({showTaskDeleteConfirmationDialog: true, row: row})
+                        }}>
+            <i className="fa fa-trash"></i>
+        </button>)
+    }
+
+    onConfirmDeleteRequest() {
+        this.setState({showTaskDeleteConfirmationDialog: false})
+        this.props.removeReleasePlan(this.state.row._id)
+    }
+
+    editCellButton(cell, row, extra) {
+        return (extra ? <button className=" pull-left btn btn-custom" type="button"
+                                onClick={() => {
+                                    this.props.showUpdateReleasePlanForm(row)
+                                }}>
+            <i className="fa fa-pencil"></i>
+        </button> : '')
+    }
 
     formatFlags(flags) {
         let flagImageArray = []
@@ -181,11 +213,19 @@ class ReleasePlanList extends Component {
 
     render() {
         let team = 0
-        const {release, releasePlans, releasePlanFilters} = this.props
+        const {release, releasePlans, releasePlanFilters, loggedInUser} = this.props
+        let isManager = loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ? true : false
+
         //console.log("releasePlans..........", releasePlans)
         //console.log("releasePlans..........expandDescriptionTaskReportList", this.props.expandDescriptionTaskReportList)
         return (
             <div>
+
+                <ConfirmationDialog show={this.state.showTaskDeleteConfirmationDialog}
+                                    onConfirm={this.onConfirmDeleteRequest.bind(this)}
+                                    title="Release-Task Delete" onClose={this.onDeleteDialogClose.bind(this)}
+                                    body="Are you sure you want to delete this task plan. Please confirm!"/>
+
                 <div key={"release-plan-search"} className="col-md-12 release-options">
                     <button type="button" className="col-md-2 btn customBtn" onClick={
                         () => {
@@ -240,22 +280,31 @@ class ReleasePlanList extends Component {
                             <TableHeaderColumn width="12%" columnTitle dataField='report'
                                                dataFormat={this.formatProgress.bind(this)}
                                                dataAlign={"right"}>Progress</TableHeaderColumn>
-                            <TableHeaderColumn width="20%" dataField='flags'
+                            <TableHeaderColumn width="15%" dataField='flags'
                                                dataFormat={this.formatFlags.bind(this)}>
                                 Flag</TableHeaderColumn>
                             <TableHeaderColumn width="12%" columnTitle dataField='task'
-                                               dataFormat={this.formatEstimatedHours.bind(this)} dataAlign={"right"}>Estimated
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle dataField='planning'
+                                               dataFormat={this.formatEstimatedHours.bind(this)}
+                                               dataAlign={"right"}>Estimated </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='planning'
                                                dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle dataField='report'
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                                Hours</TableHeaderColumn>
-                            <TableHeaderColumn width="12%" columnTitle dataField='report'
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="8%" columnTitle dataField='report'
                                                dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
                             </TableHeaderColumn>
-
+                            <TableHeaderColumn width="5%" columnTitle dataField='_id'
+                                               formatExtraData={isManager} dataFormat={this.editCellButton.bind(this)}
+                                               dataAlign={"center"} dateField={"button"}>
+                                <i className="fa fa-pencil"></i>
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="5%" columnTitle dataField='_id'
+                                               dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}
+                                               dataField={"button"}>
+                                <i className="fa fa-trash"></i>
+                            </TableHeaderColumn>
                         </BootstrapTable>
 
                     </div>}

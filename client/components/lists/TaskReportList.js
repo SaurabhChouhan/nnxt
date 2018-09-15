@@ -189,7 +189,7 @@ class TaskReportList extends Component {
                             </TableHeaderColumn>
                             <TableHeaderColumn width={"32%"} columnTitle={this.reportDescriptionHover.bind(this)}
                                                dataField='report'
-                                               dataFormat={this.formatTaskDescription.bind(this)}>Task Description
+                                               dataFormat={this.formatTaskDescription.bind(this)}>Reported Description
                             </TableHeaderColumn>
                             <TableHeaderColumn width={"10%"} columnTitle dataField='employee'
                                                dataFormat={this.formatDeveloperName.bind(this)} dataAlign={"center"}>Developer

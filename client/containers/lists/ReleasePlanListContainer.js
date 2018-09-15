@@ -5,6 +5,7 @@ import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {initialize} from 'redux-form'
+import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     releasePlanSelected: (releasePlan, roles) => {
@@ -33,10 +34,36 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             iteration_type: SC.ITERATION_TYPE_PLANNED,
             type: SC.TYPE_DEVELOPMENT
         }))
+    },
+    showUpdateReleasePlanForm: (releasePlan) => {
+        dispatch(A.showComponent(COC.UPDATE_RELEASE_PLAN_FORM_DIALOG))
+        // initialize
+        dispatch(initialize('update-release-plan', {
+            _id: releasePlan._id,
+            release: {
+                _id: releasePlan.release._id
+            },
+            name: releasePlan.task.name,
+            description: releasePlan.task.description,
+            estimatedBilledHours: releasePlan.task.estimatedBilledHours,
+            iteration_type: releasePlan.release.iteration.iterationType,
+            estimatedHours: releasePlan.task.estimatedHours
+        }))
+    },
+    removeReleasePlan: (releasePlanID) => {
+        dispatch(A.deleteReleasePlanFromServer(releasePlanID)).then((json) => {
+            if (json.success) {
+                NotificationManager.success('Release-Task removed successfully')
+                dispatch(A.getReleaseFromServer(json.data.release._id))
+            } else {
+                NotificationManager.error(json.message)
+            }
+        })
     }
 })
 
 const mapStateToProps = (state) => ({
+    loggedInUser: state.user.loggedIn,
     release: state.release.selectedRelease,
     releasePlans: state.release.releasePlans,
     releasePlanFilters: state.release.releasePlanFilters

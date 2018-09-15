@@ -164,16 +164,18 @@ const releaseReducer = (state = initialState, action) => {
                 teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam],
                 releasePlanFilters: {
                     releaseID: release._id,
-                    startDate,
-                    endDate,
+                    startDate:'',
+                    endDate:'',
                     status: '',
-                    flag: ''
+                    flag: '',
+                    updated: false
                 }
             })
-
         case AC.ADD_RELEASE_PLANS:
             // adding release plan li
             return Object.assign({}, state, {releasePlans: action.releasePlans})
+        case AC.DELETE_RELEASE_PLAN:
+            return Object.assign({}, state, {releasePlans: state.releasePlans.filter(rp=> rp._id.toString() != action.releasePlanID)})
         case AC.RELEASE_PLAN_SELECTED:
             // selecting release plan and its initial data
             return Object.assign({}, state, {

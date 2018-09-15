@@ -120,10 +120,12 @@ export {default as ReleaseTaskPlanningForm} from './forms/ReleaseTaskPlanningFor
 export {default as ReleaseMoveTaskPlanForm} from './forms/ReleaseMoveTaskPlanForm'
 export {default as UpdateReleaseDatesForm} from './forms/UpdateReleaseDatesForm'
 export {default as ReleasePlanAddToReleaseForm} from './forms/ReleasePlanAddToReleaseForm'
+export {default as UpdateReleasePlanForm} from './forms/UpdateReleasePlanForm'
 export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPlanningFormDialog'
 export {default as ReleaseMoveTaskPlanFormDialog} from './dialogs/ReleaseMoveTaskPlanFormDialog'
 export {default as UpdateReleaseDatesFormDialog} from './dialogs/UpdateReleaseDatesFormDialog'
 export {default as ReleasePlanAddToReleaseDialog} from './dialogs/ReleasePlanAddToReleaseDialog'
+export {default as UpdateReleasePlanDialog} from './dialogs/UpdateReleasePlanDialog'
 export {default as TaskShiftDialog} from './dialogs/TaskShiftDialog'
 //Release Pages
 export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSchedules'
