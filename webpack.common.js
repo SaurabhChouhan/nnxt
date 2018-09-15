@@ -3,9 +3,17 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
+var publicPath = path.resolve(__dirname, 'dist')
+
 module.exports = {
     entry: {
-        app: './client/client.js'
+        client: './client/client.js'
+    },
+    output: {
+        filename: '[name].bundle.js',
+        path: publicPath,
+        chunkFilename: './public/js/[name].[chunkhash].bundle.js',
+        publicPath: '/'
     },
     module: {
         rules: [
@@ -32,18 +40,21 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
+        new CleanWebpackPlugin([publicPath]),
         new HtmlWebpackPlugin({
             template: "./server/views/index-tmpl.mustache",
-            filename: "./server/views/index.mustache"
+            filename: path.resolve(__dirname, 'server', 'views', 'index.mustache')
         }),
         new MiniCssExtractPlugin({
             filename: "[name].css",
             chunkFilename: "[id].css"
         })
     ],
-    output: {
-        filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'dist')
+    optimization: {
+        splitChunks: {
+            chunks: 'all'
+        },
+        runtimeChunk: true
     }
+
 };
