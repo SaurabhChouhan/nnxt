@@ -16,7 +16,7 @@
     "start.anup": "cross-env BABEL_ENV=server NODE_ENV=anup nodemon ./server/server.js --exec babel-node",
     "start.ravi": "cross-env BABEL_ENV=server NODE_ENV=ravi nodemon ./server/server.js --exec babel-node",
     "start.ratnesh": "cross-env BABEL_ENV=server NODE_ENV=ratnesh nodemon ./server/server.js --exec babel-node",
-    "client.dev.build": "cross-env BABEL_ENV=client webpack --mode development ./client/client.js",
+    "client.dev.build": "cross-env BABEL_ENV=client webpack -w --config webpack.dev.js",
     "client.prod.build": "cross-env BABEL_ENV=client webpack --config webpack.prod.js --progress --profile --colors",
     "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node"
   },
