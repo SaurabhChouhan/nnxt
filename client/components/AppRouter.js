@@ -5,7 +5,8 @@ import {
     AdminHomeContainer,
     AppHomeContainer,
     HomeContainer,
-    SuperAdminHomeContainer
+    SuperAdminHomeContainer,
+    DemoHomeContainer
 } from '../containers'
 
 class AppRouter extends Component {
@@ -37,6 +38,13 @@ class AppRouter extends Component {
                 }/>,
                 <Route key="app_home_route" path="/app-home" render={(props) => {
                     return <AppHomeContainer/>
+                }
+                }/>,
+                <Route key="demo_home_route" path="/demo-home" render={(props) => {
+                    if (this.props.isAuthenticated && this.props.loggedInUser) {
+                        return <Redirect to="/app-home"/>
+                    }
+                    return <DemoHomeContainer/>
                 }
                 }/>
             ]

@@ -2,7 +2,9 @@ import * as MDL from "../models"
 import * as CC from '../../client/clientconstants'
 import * as SC from '../serverconstants'
 import momentTZ from 'moment-timezone'
+import moment from 'moment'
 import logger from '../logger'
+import * as U from '../utils'
 
 export const addInitialData = async () => {
     try {
@@ -212,6 +214,7 @@ export const addNNXTData = async () => {
     await addEmployeeSettings()
     await addLeaveSettings()
     await addEvents()
+    await addReleases()
 
 }
 
@@ -954,4 +957,301 @@ const addUnreportedWarningEvent = async () => {
         increment: 1,
         incrementUnit: SC.MOMENT_DAYS
     })
+}
+
+const addReleases = async () => {
+
+    console.log("SETTING UP RELEASES ...")
+
+    let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'})
+    let careersIRLProject = await MDL.ProjectModel.findOne({name: 'Careers IRL'})
+    let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'})
+    let nodeWeb = await MDL.DevelopmentModel.findOne({
+        name: 'Node Web Development'
+    })
+
+    let saurabh = await MDL.UserModel.findOne({email: 'schouhan@aripratech.com'}).lean()
+    let ratnesh = await MDL.UserModel.findOne({email: 'rjain@aripratech.com'}).lean()
+    let anup = await MDL.UserModel.findOne({email: 'asharma@aripratech.com'}).lean()
+    let murtaza = await MDL.UserModel.findOne({email: 'murtaza.aripra@gmail.com'}).lean()
+    let bhuvan = await MDL.UserModel.findOne({email: 'bparashar@aripratech.com'}).lean()
+    let huzefa = await MDL.UserModel.findOne({email: 'huzefa786r@gmail.com'}).lean()
+
+    saurabh.name = U.getFullName(saurabh)
+    ratnesh.name = U.getFullName(ratnesh)
+    anup.name = U.getFullName(anup)
+    murtaza.name = U.getFullName(murtaza)
+    bhuvan.name = U.getFullName(bhuvan)
+    huzefa.name = U.getFullName(huzefa)
+    let now = moment()
+    // we will create release that starts 5 days back and will run for next 5 days
+    now.subtract(5, 'days')
+
+    let devStart = now.format(SC.DATE_FORMAT)
+    now.add(10, 'days')
+    let devEnd = now.format(SC.DATE_FORMAT)
+    now.add(2, 'days')
+    let clientRelease = now.format(SC.DATE_FORMAT)
+
+    let releaseData = {
+        releaseVersionName: '1st Phase',
+        developmentType: nodeWeb,
+        project: fflProject,
+        technologies: [nodeTech],
+        devStartDate: devStart,
+        devReleaseDate: devEnd,
+        clientReleaseDate: clientRelease,
+        manager: saurabh,
+        leader: anup,
+        team: [
+            saurabh, huzefa
+        ]
+    }
+
+    let fflRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+    try {
+        await addPlannedReleasePlansFFL(fflRelease, saurabh, [saurabh, huzefa])
+    } catch (e) {
+        console.log("error caught ", e)
+    }
+
+    now = moment()
+
+    // we will create release that starts 5 days back and will run for next 5 days
+    now.subtract(8, 'days')
+
+    devStart = now.format(SC.DATE_FORMAT)
+    now.add(15, 'days')
+    devEnd = now.format(SC.DATE_FORMAT)
+    now.add(4, 'days')
+    clientRelease = now.format(SC.DATE_FORMAT)
+
+    releaseData = {
+        releaseVersionName: '1st Phase',
+        developmentType: nodeWeb,
+        project: careersIRLProject,
+        technologies: [nodeTech],
+        devStartDate: devStart,
+        devReleaseDate: devEnd,
+        clientReleaseDate: clientRelease,
+        manager: saurabh,
+        leader: ratnesh,
+        team: [
+            anup, huzefa, bhuvan
+        ]
+    }
+    let careersIRLRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+    await addPlannedReleasePlansCareers(careersIRLRelease, saurabh, [anup, bhuvan, huzefa])
+}
+
+const addPlannedReleasePlansFFL = async (release, creator, team) => {
+
+    let releaseTask = {
+        name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
+        description: `Create an API that uses passport.js to authenticate against local database (mongodb)
+            - On success API should return user details 
+            - On failure API should failure code
+            - Use bcrypt to encrypt/decrypt passwords
+            - Use koa-passport as a middleware
+            `,
+        estimatedBilledHours: 40,
+        estimatedHours: 40,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    let rp1 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
+    let planMoment = moment()
+    // Add task plans two day before and two day after
+    planMoment.subtract(2, 'days')
+    let planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 8, 8, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 6, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 8, 8.5, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 8, 8, SC.STATUS_COMPLETED, 'Please do the needful', creator)
+
+    releaseTask = {
+        name: 'Registration API (Node/Koa) basic details',
+        description: `Create an API that takes basic details of user (name/email etc) and store details 
+            - Create an user model that would contain basic details of user
+            - Create a public API to receive details from front end
+            - encrypt passwords using bcrypt before storing them
+            `,
+        estimatedBilledHours: 24,
+        estimatedHours: 24,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    let rp2 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
+
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+
+    // Add task plans two day before and two day after
+    await addDayTask(rp2, team[0], planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp2, team[0], planDate, 8, -1, SC.STATUS_PENDING, 'Please do the needful', creator)
+
+    releaseTask = {
+        name: 'Login page (username/password) - React',
+        description: `Create a login page using React 
+            - Create a login component with a redux form having two fields username/password
+            - Create redux reducer for keeping logged in user details
+            - Create thunk action to call login API to validate logged in user
+            - Call thunk action from login component and handle success/failure scenario
+            - On success user details should be added into redux state
+            - On failure user should appropriately be told about authentication failure
+            `,
+        estimatedBilledHours: 16,
+        estimatedHours: 16,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    let rp3 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
+
+    planMoment = moment()
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    // Add task plans two day before and two day after
+    await addDayTask(rp3, team[1], planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp3, team[1], planDate, 8, -1, SC.STATUS_PENDING, 'Please do the needful', creator)
+}
+
+const addPlannedReleasePlansCareers = async (release, creator, team) => {
+
+    let releaseTask = {
+        name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
+        description: `Create an API that uses passport.js to authenticate against local database (mongodb)
+            - On success API should return user details 
+            - On failure API should failure code
+            - Use bcrypt to encrypt/decrypt passwords
+            - Use koa-passport as a middleware
+            `,
+        estimatedBilledHours: 40,
+        estimatedHours: 40,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    let rp1 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
+
+    let planMoment = moment()
+    // Add task plans two day before and two day after
+    planMoment.subtract(2, 'days')
+    let planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 5, 5, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 4, 3, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 8, 9, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 10, 10, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 2, 1, SC.STATUS_COMPLETED, 'Please do the needful', creator)
+
+
+    releaseTask = {
+        name: 'Registration API (Node/Koa) basic details',
+        description: `Create an API that takes basic details of user (name/email etc) and store details 
+            - Create an user model that would contain basic details of user
+            - Create a public API to receive details from front end
+            - encrypt passwords using bcrypt before storing them
+            `,
+        estimatedBilledHours: 8,
+        estimatedHours: 8,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
+
+    releaseTask = {
+        name: 'Login page (username/password) - React',
+        description: `Create a login page using React 
+            - Create a login component with a redux form having two fields username/password
+            - Create redux reducer for keeping logged in user details
+            - Create thunk action to call login API to validate logged in user
+            - Call thunk action from login component and handle success/failure scenario
+            - On success user details should be added into redux state
+            - On failure user should appropriately be told about authentication failure
+            `,
+        estimatedBilledHours: 24,
+        estimatedHours: 24,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
+
+}
+
+const addDayTask = async (releasePlan, employee, planningDate, plannedHours, reportedHours, reportedStatus, description, creator) => {
+    let dayTask = {
+        employee: {
+            _id: employee._id.toString()
+        },
+        planning: {
+            plannedHours: plannedHours
+        },
+        planningDate: planningDate,
+        description: description,
+        releasePlan: {
+            _id: releasePlan._id.toString()
+        },
+        release: {
+            _id: releasePlan.release._id.toString(),
+            iteration: {
+                iterationType: 'planned'
+            }
+        }
+    }
+
+    let dt1 = await MDL.TaskPlanningModel.addTaskPlan(dayTask, creator, false)
+    dt1 = dt1.taskPlan
+    if (reportedHours > -1) {
+        let reportDayTask = {
+            iterationType: 'planned',
+            reportDescription: "This task is still pending",
+            reportedDate: planningDate,
+            reportedHours: reportedHours,
+            status: reportedStatus,
+            _id: dt1._id.toString()
+        }
+        await MDL.TaskPlanningModel.addTaskReport(reportDayTask, employee, SC.MODE_DEVELOPMENT)
+    }
 }

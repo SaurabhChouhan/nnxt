@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "startdev": "webpack-dev-server --mode development --open",
-    "start": "cross-env BABEL_ENV=server babel-node ./server/server.js",
+    "start": "cross-env BABEL_ENV=server NODE_ENV=development nodemon --watch server ./server/server.js --exec babel-node",
     "start.setupData": "cross-env BABEL_ENV=server NODE_ENV=setupData nodemon --watch server --verbose ./server/server.js --exec babel-node",
     "start.prod": "cross-env BABEL_ENV=server NODE_ENV=production nodemon --watch server ./server/server.js --exec babel-node",
     "start.khushboo": "cross-env BABEL_ENV=server NODE_ENV=khushboo nodemon --watch server --verbose ./server/server.js --exec babel-node",

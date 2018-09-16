@@ -24,6 +24,9 @@ pageRouter.get('/logout', ctx => {
     ctx.redirect('/')
 })
 
+pageRouter.get('/demo-home', async ctx => {
+    return ctx.render("index", {preloadedState: JSON.stringify({})})
+})
 
 pageRouter.get('/super-admin', async ctx => {
 
