@@ -1007,7 +1007,7 @@ const addReleases = async () => {
 
     let fflRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
     try {
-        await addPlannedReleasePlans(fflRelease, saurabh)
+        await addPlannedReleasePlansFFL(fflRelease, saurabh)
     } catch (e) {
         console.log("error caught ", e)
     }
@@ -1038,9 +1038,10 @@ const addReleases = async () => {
         ]
     }
     let careersIRLRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+    await addPlannedReleasePlansCareers(careersIRLRelease, saurabh)
 }
 
-const addPlannedReleasePlans = async (release, user) => {
+const addPlannedReleasePlansFFL = async (release, user) => {
 
     let releaseTask = {
         name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
@@ -1059,7 +1060,9 @@ const addPlannedReleasePlans = async (release, user) => {
         }
     }
 
-    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+    let rp1 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+
+    await addDayTask(rp1, user, 8, '2018-09-12', 'Please do the needful', user)
 
     releaseTask = {
         name: 'Registration API (Node/Koa) basic details',
@@ -1099,5 +1102,92 @@ const addPlannedReleasePlans = async (release, user) => {
     }
 
     await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+
+}
+
+const addPlannedReleasePlansCareers = async (release, user) => {
+
+    let releaseTask = {
+        name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
+        description: `Create an API that uses passport.js to authenticate against local database (mongodb)
+            - On success API should return user details 
+            - On failure API should failure code
+            - Use bcrypt to encrypt/decrypt passwords
+            - Use koa-passport as a middleware
+            `,
+        estimatedBilledHours: 20,
+        estimatedHours: 20,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+
+    releaseTask = {
+        name: 'Registration API (Node/Koa) basic details',
+        description: `Create an API that takes basic details of user (name/email etc) and store details 
+            - Create an user model that would contain basic details of user
+            - Create a public API to receive details from front end
+            - encrypt passwords using bcrypt before storing them
+            `,
+        estimatedBilledHours: 8,
+        estimatedHours: 8,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+
+    releaseTask = {
+        name: 'Login page (username/password) - React',
+        description: `Create a login page using React 
+            - Create a login component with a redux form having two fields username/password
+            - Create redux reducer for keeping logged in user details
+            - Create thunk action to call login API to validate logged in user
+            - Call thunk action from login component and handle success/failure scenario
+            - On success user details should be added into redux state
+            - On failure user should appropriately be told about authentication failure
+            `,
+        estimatedBilledHours: 24,
+        estimatedHours: 24,
+        iteration_type: 'planned',
+        type: 'development',
+        release: {
+            _id: release._id.toString()
+        }
+    }
+
+    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+
+}
+
+const addDayTask = async (releasePlan, employee, plannedHours, planningDate, description, creator) => {
+    let dayTask = {
+        employee: {
+            _id: employee._id.toString()
+        },
+        planning: {
+            plannedHours: plannedHours
+        },
+        planningDate: planningDate,
+        description: description,
+        releasePlan: {
+            _id: releasePlan._id.toString()
+        },
+        release: {
+            _id: releasePlan.release._id.toString(),
+            iteration: {
+                iterationType: 'planned'
+            }
+        }
+    }
+
+    await MDL.TaskPlanningModel.addTaskPlan(dayTask, creator, false)
 
 }
