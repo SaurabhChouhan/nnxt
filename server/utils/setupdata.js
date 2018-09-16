@@ -2,7 +2,9 @@ import * as MDL from "../models"
 import * as CC from '../../client/clientconstants'
 import * as SC from '../serverconstants'
 import momentTZ from 'moment-timezone'
+import moment from 'moment'
 import logger from '../logger'
+import * as U from '../utils'
 
 export const addInitialData = async () => {
     try {
@@ -212,6 +214,7 @@ export const addNNXTData = async () => {
     await addEmployeeSettings()
     await addLeaveSettings()
     await addEvents()
+    await addReleases()
 
 }
 
@@ -954,4 +957,53 @@ const addUnreportedWarningEvent = async () => {
         increment: 1,
         incrementUnit: SC.MOMENT_DAYS
     })
+}
+
+const addReleases = async () => {
+
+    console.log("SETTING UP RELEASES ...")
+
+    let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'})
+    let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'})
+    let nodeWeb = await MDL.DevelopmentModel.findOne({
+        name: 'Node Web Development'
+    })
+
+    let saurabh = await MDL.UserModel.findOne({email: 'schouhan@aripratech.com'}).lean()
+    let ratnesh = await MDL.UserModel.findOne({email: 'rjain@aripratech.com'}).lean()
+
+    saurabh.name = U.getFullName(saurabh)
+    ratnesh.name = U.getFullName(ratnesh)
+
+    let now = moment()
+
+    // we will create release that starts 5 days back and will run for next 5 days
+    now.subtract(5, 'days')
+
+    let devStart = now.format(SC.DATE_FORMAT)
+    now.add(10, 'days')
+    let devEnd = now.format(SC.DATE_FORMAT)
+    now.add(2, 'days')
+    let clientRelease = now.format(SC.DATE_FORMAT)
+
+    let releaseData = {
+        releaseVersionName: '1st Phase',
+        developmentType: nodeWeb,
+        project: fflProject,
+        technologies: [nodeTech],
+        devStartDate: devStart,
+        devReleaseDate: devEnd,
+        clientReleaseDate: clientRelease,
+        manager: saurabh,
+        leader: ratnesh,
+        team: [
+            saurabh, ratnesh
+        ]
+    }
+
+    console.log("release data is ", releaseData)
+
+    await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+
+
 }

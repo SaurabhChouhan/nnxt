@@ -10,13 +10,13 @@
             "targets": {
               "node": "8.11"
             },
-            "debug": true
+            "debug": false
           }
         ],
         [
           "@babel/env",
           {
-            "debug": true,
+            "debug": false,
             "useBuiltIns": "false",
             "targets": {
               "node": "8.11"
