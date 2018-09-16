@@ -974,13 +974,16 @@ const addReleases = async () => {
     let ratnesh = await MDL.UserModel.findOne({email: 'rjain@aripratech.com'}).lean()
     let anup = await MDL.UserModel.findOne({email: 'asharma@aripratech.com'}).lean()
     let murtaza = await MDL.UserModel.findOne({email: 'murtaza.aripra@gmail.com'}).lean()
+    let bhuvan = await MDL.UserModel.findOne({email: 'bparashar@aripratech.com'}).lean()
+    let huzefa = await MDL.UserModel.findOne({email: 'huzefa786r@gmail.com'}).lean()
 
     saurabh.name = U.getFullName(saurabh)
     ratnesh.name = U.getFullName(ratnesh)
     anup.name = U.getFullName(anup)
     murtaza.name = U.getFullName(murtaza)
+    bhuvan.name = U.getFullName(bhuvan)
+    huzefa.name = U.getFullName(huzefa)
     let now = moment()
-
     // we will create release that starts 5 days back and will run for next 5 days
     now.subtract(5, 'days')
 
@@ -1001,13 +1004,13 @@ const addReleases = async () => {
         manager: saurabh,
         leader: anup,
         team: [
-            saurabh, anup
+            saurabh, huzefa
         ]
     }
 
     let fflRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
     try {
-        await addPlannedReleasePlansFFL(fflRelease, saurabh, saurabh, anup)
+        await addPlannedReleasePlansFFL(fflRelease, saurabh, [saurabh, huzefa])
     } catch (e) {
         console.log("error caught ", e)
     }
@@ -1034,14 +1037,14 @@ const addReleases = async () => {
         manager: saurabh,
         leader: ratnesh,
         team: [
-            saurabh, murtaza
+            anup, huzefa, bhuvan
         ]
     }
     let careersIRLRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
-    await addPlannedReleasePlansCareers(careersIRLRelease, saurabh)
+    await addPlannedReleasePlansCareers(careersIRLRelease, saurabh, [anup, bhuvan, huzefa])
 }
 
-const addPlannedReleasePlansFFL = async (release, creator, employee, employee1) => {
+const addPlannedReleasePlansFFL = async (release, creator, team) => {
 
     let releaseTask = {
         name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
@@ -1061,26 +1064,23 @@ const addPlannedReleasePlansFFL = async (release, creator, employee, employee1) 
     }
 
     let rp1 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
-
     let planMoment = moment()
-
     // Add task plans two day before and two day after
-
     planMoment.subtract(2, 'days')
     let planDate = planMoment.format(SC.DATE_FORMAT)
-    await addDayTask(rp1, employee, planDate, 8, 8, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp1, team[0], planDate, 8, 8, SC.STATUS_PENDING, 'Please do the needful', creator)
     planMoment.add(1, 'days')
     planDate = planMoment.format(SC.DATE_FORMAT)
-    await addDayTask(rp1, employee, planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp1, team[0], planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
     planMoment.add(1, 'days')
     planDate = planMoment.format(SC.DATE_FORMAT)
-    await addDayTask(rp1, employee, planDate, 6, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp1, team[0], planDate, 6, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
     planMoment.add(1, 'days')
     planDate = planMoment.format(SC.DATE_FORMAT)
-    await addDayTask(rp1, employee, planDate, 8, 8.5, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp1, team[0], planDate, 8, 8.5, SC.STATUS_PENDING, 'Please do the needful', creator)
     planMoment.add(1, 'days')
     planDate = planMoment.format(SC.DATE_FORMAT)
-    await addDayTask(rp1, employee, planDate, 8, 8, SC.STATUS_COMPLETED, 'Please do the needful', creator)
+    await addDayTask(rp1, team[0], planDate, 8, 8, SC.STATUS_COMPLETED, 'Please do the needful', creator)
 
     releaseTask = {
         name: 'Registration API (Node/Koa) basic details',
@@ -1104,10 +1104,10 @@ const addPlannedReleasePlansFFL = async (release, creator, employee, employee1) 
     planDate = planMoment.format(SC.DATE_FORMAT)
 
     // Add task plans two day before and two day after
-    await addDayTask(rp2, employee, planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp2, team[0], planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
     planMoment.add(1, 'days')
     planDate = planMoment.format(SC.DATE_FORMAT)
-    await addDayTask(rp2, employee, planDate, 8, -1, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp2, team[0], planDate, 8, -1, SC.STATUS_PENDING, 'Please do the needful', creator)
 
     releaseTask = {
         name: 'Login page (username/password) - React',
@@ -1133,13 +1133,13 @@ const addPlannedReleasePlansFFL = async (release, creator, employee, employee1) 
     planMoment = moment()
     planDate = planMoment.format(SC.DATE_FORMAT)
     // Add task plans two day before and two day after
-    await addDayTask(rp3, employee1, planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp3, team[1], planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', creator)
     planMoment.add(1, 'days')
     planDate = planMoment.format(SC.DATE_FORMAT)
-    await addDayTask(rp3, employee1, planDate, 8, -1, SC.STATUS_PENDING, 'Please do the needful', creator)
+    await addDayTask(rp3, team[1], planDate, 8, -1, SC.STATUS_PENDING, 'Please do the needful', creator)
 }
 
-const addPlannedReleasePlansCareers = async (release, user) => {
+const addPlannedReleasePlansCareers = async (release, creator, team) => {
 
     let releaseTask = {
         name: 'Simple Login (AJAX) using Passport.js API (Node/Koa)',
@@ -1149,8 +1149,8 @@ const addPlannedReleasePlansCareers = async (release, user) => {
             - Use bcrypt to encrypt/decrypt passwords
             - Use koa-passport as a middleware
             `,
-        estimatedBilledHours: 20,
-        estimatedHours: 20,
+        estimatedBilledHours: 40,
+        estimatedHours: 40,
         iteration_type: 'planned',
         type: 'development',
         release: {
@@ -1158,7 +1158,26 @@ const addPlannedReleasePlansCareers = async (release, user) => {
         }
     }
 
-    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+    let rp1 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
+
+    let planMoment = moment()
+    // Add task plans two day before and two day after
+    planMoment.subtract(2, 'days')
+    let planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 5, 5, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 4, 3, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 8, 9, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 10, 10, SC.STATUS_PENDING, 'Please do the needful', creator)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, team[0], planDate, 2, 1, SC.STATUS_COMPLETED, 'Please do the needful', creator)
+
 
     releaseTask = {
         name: 'Registration API (Node/Koa) basic details',
@@ -1176,7 +1195,7 @@ const addPlannedReleasePlansCareers = async (release, user) => {
         }
     }
 
-    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
 
     releaseTask = {
         name: 'Login page (username/password) - React',
@@ -1197,7 +1216,7 @@ const addPlannedReleasePlansCareers = async (release, user) => {
         }
     }
 
-    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
+    await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, creator)
 
 }
 
