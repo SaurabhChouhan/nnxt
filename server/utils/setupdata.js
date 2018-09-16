@@ -1051,8 +1051,8 @@ const addPlannedReleasePlansFFL = async (release, user) => {
             - Use bcrypt to encrypt/decrypt passwords
             - Use koa-passport as a middleware
             `,
-        estimatedBilledHours: 16,
-        estimatedHours: 16,
+        estimatedBilledHours: 40,
+        estimatedHours: 40,
         iteration_type: 'planned',
         type: 'development',
         release: {
@@ -1062,7 +1062,25 @@ const addPlannedReleasePlansFFL = async (release, user) => {
 
     let rp1 = await MDL.ReleasePlanModel.addPlannedReleasePlan(releaseTask, user)
 
-    await addDayTask(rp1, user, 8, '2018-09-12', 'Please do the needful', user)
+    let planMoment = moment()
+
+    // Add task plans two day before and two day after
+
+    planMoment.subtract(2, 'days')
+    let planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, user, planDate, 8, 8, SC.STATUS_PENDING, 'Please do the needful', user)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, user, planDate, 8, 7, SC.STATUS_PENDING, 'Please do the needful', user)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, user, planDate, 6, 7, SC.STATUS_PENDING, 'Please do the needful', user)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, user, planDate, 8, 8.5, SC.STATUS_PENDING, 'Please do the needful', user)
+    planMoment.add(1, 'days')
+    planDate = planMoment.format(SC.DATE_FORMAT)
+    await addDayTask(rp1, user, planDate, 8, 8, SC.STATUS_COMPLETED, 'Please do the needful', user)
 
     releaseTask = {
         name: 'Registration API (Node/Koa) basic details',
@@ -1167,7 +1185,7 @@ const addPlannedReleasePlansCareers = async (release, user) => {
 
 }
 
-const addDayTask = async (releasePlan, employee, plannedHours, planningDate, description, creator) => {
+const addDayTask = async (releasePlan, employee, planningDate, plannedHours, reportedHours, reportedStatus, description, creator) => {
     let dayTask = {
         employee: {
             _id: employee._id.toString()
@@ -1188,6 +1206,17 @@ const addDayTask = async (releasePlan, employee, plannedHours, planningDate, des
         }
     }
 
-    await MDL.TaskPlanningModel.addTaskPlan(dayTask, creator, false)
-
+    let dt1 = await MDL.TaskPlanningModel.addTaskPlan(dayTask, creator, false)
+    dt1 = dt1.taskPlan
+    if (reportedHours > -1) {
+        let reportDayTask = {
+            iterationType: 'planned',
+            reportDescription: "This task is still pending",
+            reportedDate: planningDate,
+            reportedHours: reportedHours,
+            status: reportedStatus,
+            _id: dt1._id.toString()
+        }
+        await MDL.TaskPlanningModel.addTaskReport(reportDayTask, employee, SC.MODE_DEVELOPMENT)
+    }
 }
