@@ -964,6 +964,7 @@ const addReleases = async () => {
     console.log("SETTING UP RELEASES ...")
 
     let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'})
+    let careersIRLProject = await MDL.ProjectModel.findOne({name: 'Careers IRL'})
     let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'})
     let nodeWeb = await MDL.DevelopmentModel.findOne({
         name: 'Node Web Development'
@@ -971,10 +972,13 @@ const addReleases = async () => {
 
     let saurabh = await MDL.UserModel.findOne({email: 'schouhan@aripratech.com'}).lean()
     let ratnesh = await MDL.UserModel.findOne({email: 'rjain@aripratech.com'}).lean()
+    let anup = await MDL.UserModel.findOne({email: 'asharma@aripratech.com'}).lean()
+    let murtaza = await MDL.UserModel.findOne({email: 'murtaza.aripra@gmail.com'}).lean()
 
     saurabh.name = U.getFullName(saurabh)
     ratnesh.name = U.getFullName(ratnesh)
-
+    anup.name = U.getFullName(anup)
+    murtaza.name = U.getFullName(murtaza)
     let now = moment()
 
     // we will create release that starts 5 days back and will run for next 5 days
@@ -1001,9 +1005,32 @@ const addReleases = async () => {
         ]
     }
 
-    console.log("release data is ", releaseData)
-
     await MDL.ReleaseModel.createRelease(releaseData, saurabh)
 
+    now = moment()
 
+    // we will create release that starts 5 days back and will run for next 5 days
+    now.subtract(8, 'days')
+
+    devStart = now.format(SC.DATE_FORMAT)
+    now.add(15, 'days')
+    devEnd = now.format(SC.DATE_FORMAT)
+    now.add(4, 'days')
+    clientRelease = now.format(SC.DATE_FORMAT)
+
+    releaseData = {
+        releaseVersionName: '1st Phase',
+        developmentType: nodeWeb,
+        project: careersIRLProject,
+        technologies: [nodeTech],
+        devStartDate: devStart,
+        devReleaseDate: devEnd,
+        clientReleaseDate: clientRelease,
+        manager: saurabh,
+        leader: anup,
+        team: [
+            saurabh, anup, murtaza
+        ]
+    }
+    await MDL.ReleaseModel.createRelease(releaseData, saurabh)
 }
