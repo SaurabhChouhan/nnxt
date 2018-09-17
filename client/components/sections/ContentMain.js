@@ -20,7 +20,8 @@ import {
     LeaveDetailPageContainer,
     DashboardSectionContainer,
     TaskReportDetailPageContainer,
-    CompanySectionContainer
+    CompanySectionContainer,
+    NotificationsPageContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -407,8 +408,17 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/edit-profile: props:", props)
                 return <ContentSection>
-                    <UserProfileFormContainer name={COC.USER_PROFILE_FORM}
-                    />
+                    <UserProfileFormContainer name={COC.USER_PROFILE_FORM}/>
+                </ContentSection>
+
+            }
+        })
+
+        routes.push({
+            url: "/notifications-inbox",
+            render: (props) => {
+                return <ContentSection>
+                    <NotificationsPageContainer name={COC.NOTIFICATIONS_PAGE}/>
                 </ContentSection>
 
             }

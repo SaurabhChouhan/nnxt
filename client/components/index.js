@@ -151,3 +151,7 @@ export {default as WarningList} from './lists/WarningList'
 // Holiday
 export {default as HolidayForm} from './forms/HolidayForm'
 export {default as HolidayList} from './lists/HolidayList'
+
+// Notifications
+
+export {default as NotificationsPage} from './pages/NotificationsPage'
