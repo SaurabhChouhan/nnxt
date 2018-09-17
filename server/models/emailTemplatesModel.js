@@ -108,8 +108,10 @@ emailTemplatesSchema.statics.approvedTemplate = async (user,templateID) => {
 
 emailTemplatesSchema.statics.getAllTemplates = async (user,type) => {
     let condition = {isDeleted : false}
-    if(type)
+    if(type && type !='undefined')
         condition.templateType = type
+
+    console.log("getAllTemplates with condition ",condition)
     return await EmailTemplatesModel.find(condition)
 }
 

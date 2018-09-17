@@ -51,7 +51,7 @@ export const deleteEmailTemplate = (templateID) => ({
 
 export const getAllEmailTemplatesFromServer = (type) => {
     return function (dispatch, getState) {
-        return fetch('/api/dashboard/email-template/type'+type,
+        return fetch('/api/dashboard/email-template/type/'+type,
             {
                 method: "get",
                 credentials: "include",
