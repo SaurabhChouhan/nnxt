@@ -49,9 +49,9 @@ export const deleteEmailTemplate = (templateID) => ({
 
 /* GET , ADD , UPDATE All email templates from server APIs  BLOCK */
 
-export const getAllEmailTemplatesFromServer = () => {
+export const getAllEmailTemplatesFromServer = (type) => {
     return function (dispatch, getState) {
-        return fetch('/api/dashboard/email-template',
+        return fetch('/api/dashboard/email-template/type/'+type,
             {
                 method: "get",
                 credentials: "include",

@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import Dialog from 'react-bootstrap-dialog'
 import {CREATE_USER, DELETE_USER, EDIT_EMAIL_TEMPLATE, DELETE_EMAIL_TEMPLATE, EDIT_USER} from "../../clientconstants"
+import {renderSelect} from '../forms/fields'
+import {Field,reduxForm} from 'redux-form'
 
 class EmailTemplateList extends Component {
 
@@ -100,7 +102,13 @@ class EmailTemplateList extends Component {
                     <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showEmailTemplateForm()}>
                         Create Template
                     </button>
-
+                    <form>
+                    <div className="col-md-6">
+                        <Field name="_id" component={renderSelect} label={"Template Type:"}
+                               options={this.props.allEmailTemplatesTypes}
+                               displayField={"name"} />
+                    </div>
+                    </form>
                     <BootstrapTable striped={true} hoveNR={true} options={this.options} data={this.props.emailTemplates}>
                         <TableHeaderColumn isKey dataField='_id' hidden={true}>ID</TableHeaderColumn>
                         <TableHeaderColumn width="20%" dataField="templateName">Name</TableHeaderColumn>
@@ -116,5 +124,9 @@ class EmailTemplateList extends Component {
         )
     }
 }
+
+EmailTemplateList = reduxForm({
+    form: 'emailTemplateList'
+})(EmailTemplateList)
 
 export default EmailTemplateList

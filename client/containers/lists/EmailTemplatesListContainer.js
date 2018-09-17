@@ -36,7 +36,8 @@ const mapStateToProps = (state, ownProps) => {
     return {
         loggedInUser: state.user.loggedIn,
         emailTemplates: state.emailTemplate.allEmailTemplates,
-        editTemplateInfo: state.emailTemplate && state.emailTemplate.editTemplateInfo ? state.emailTemplate.editTemplateInfo : null
+        editTemplateInfo: state.emailTemplate && state.emailTemplate.editTemplateInfo ? state.emailTemplate.editTemplateInfo : null,
+        allEmailTemplatesTypes: state.emailTemplate.allEmailTemplatesTypes,
     }
 }
 

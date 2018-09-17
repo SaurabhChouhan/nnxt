@@ -24,9 +24,9 @@ let emailTemplatesSchema = mongoose.Schema({
         employeeCode: String,
     },
     templateSubject:String,
-    templateHeader: String,
+    //templateHeader: String,
     templateBody: String,
-    templateFooter: String,
+    //templateFooter: String,
     templateType: String,
     status:String, //Pending, Approved
     isDeleted: {type: Boolean,default:false},
@@ -47,9 +47,9 @@ emailTemplatesSchema.statics.addTemplate = async (user,templateInfoDataObj) => {
         createdBy: user,
         templateName:templateInfoDataObj.templateName,
         templateSubject:templateInfoDataObj.templateSubject,
-        templateHeader:templateInfoDataObj.templateHeader,
+        //templateHeader:templateInfoDataObj.templateHeader,
         templateBody: templateInfoDataObj.templateBody,
-        templateFooter : templateInfoDataObj.templateFooter,
+       // templateFooter : templateInfoDataObj.templateFooter,
         templateType : templateType.name,
         status:"Pending",
         isDeleted:false,
@@ -75,9 +75,9 @@ emailTemplatesSchema.statics.updateTemplate = async (user,templateInfoDataObj) =
     //emailTemplate.createdBy =  user,
     emailTemplate.templateName = templateInfoDataObj.templateName,
     emailTemplate.templateSubject = templateInfoDataObj.templateSubject
-    emailTemplate.templateHeader = templateInfoDataObj.templateHeader
+    //emailTemplate.templateHeader = templateInfoDataObj.templateHeader
     emailTemplate.templateBody = templateInfoDataObj.templateBody
-    emailTemplate.templateFooter = templateInfoDataObj.templateFooter
+    //emailTemplate.templateFooter = templateInfoDataObj.templateFooter
     emailTemplate.templateType = templateType.name
     emailTemplate.status = "Pending"
     emailTemplate.isDeleted = false
@@ -106,8 +106,13 @@ emailTemplatesSchema.statics.approvedTemplate = async (user,templateID) => {
     return await emailTemplate.save()
 }
 
-emailTemplatesSchema.statics.getAllTemplates = async (user) => {
-    return await EmailTemplatesModel.find({isDeleted : false})
+emailTemplatesSchema.statics.getAllTemplates = async (user,type) => {
+    let condition = {isDeleted : false}
+    if(type && type !='undefined')
+        condition.templateType = type
+
+    console.log("getAllTemplates with condition ",condition)
+    return await EmailTemplatesModel.find(condition)
 }
 
 emailTemplatesSchema.statics.isExistThisTemplateName = async (templateName) => {
