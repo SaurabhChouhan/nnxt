@@ -106,8 +106,11 @@ emailTemplatesSchema.statics.approvedTemplate = async (user,templateID) => {
     return await emailTemplate.save()
 }
 
-emailTemplatesSchema.statics.getAllTemplates = async (user) => {
-    return await EmailTemplatesModel.find({isDeleted : false})
+emailTemplatesSchema.statics.getAllTemplates = async (user,type) => {
+    let condition = {isDeleted : false}
+    if(type)
+        condition.templateType = type
+    return await EmailTemplatesModel.find(condition)
 }
 
 emailTemplatesSchema.statics.isExistThisTemplateName = async (templateName) => {

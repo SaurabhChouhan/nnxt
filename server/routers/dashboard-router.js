@@ -43,8 +43,8 @@ dashboardRouter.get('/verify-email-template-name/:templatename', async (ctx) => 
     return MDL.EmailTemplatesModel.isExistThisTemplateName(ctx.params.templatename)
 })
 
-dashboardRouter.get('/email-template', async (ctx) => {
-    return MDL.EmailTemplatesModel.getAllTemplates(ctx.state.user)
+dashboardRouter.get('/email-template/type/:type', async (ctx) => {
+    return MDL.EmailTemplatesModel.getAllTemplates(ctx.state.user,ctx.params.type)
 })
 
 dashboardRouter.post('/email-template', async (ctx) => {
