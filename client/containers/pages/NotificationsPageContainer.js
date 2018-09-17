@@ -19,7 +19,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             logger.debug(logger.USER_PROFILE_FORM_CONNECT, "onSubmit():", values)
     },
     deleteNotifications: (id) => {
-        console.log("id is ", id)
+        let ids = [{_id: id}]
+        dispatch(A.deleteNotificationsFromServer(ids)).then(json => {
+            if (json.success) {
+                NotificationManager.success('Notification Deleted Successfully')
+                dispatch(A.getAllNotificationsFromServer())
+            }
+            else {
+                NotificationManager.error('Notification Deletion Failed');
+            }
+        })
     }
 
 })

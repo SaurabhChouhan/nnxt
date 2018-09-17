@@ -59,7 +59,7 @@ userRouter.get('/notifications/type/:sendType', async (ctx) => {
 })
 
 userRouter.post('/delete-notifications', async (ctx) => {
-    return await MDL.NotificationModel.deleteNotificationByUserAndIDs(ctx.state.user,ctx.request.body)
+    return await MDL.NotificationModel.deleteNotificationByUserAndIDs(ctx.state.user,ctx.request.body.ids)
 })
 
 userRouter.get('/today-notifications/', async (ctx) => {
