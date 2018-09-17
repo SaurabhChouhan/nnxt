@@ -34,8 +34,16 @@ let notificationSchema = mongoose.Schema({
     status:String, //Pending, Sent, Failed
     created:{type: Date,default:new Date()},
     updated:{type: Date,default:new Date()},
-    isDeleted:{type:Boolean,default:false}
+    isDeleted:{type:Boolean,default:false},
+    isVisited:{type:Boolean,default:false}
 })
+
+notificationSchema.statics.getAllTodayNotificationsByUser = async (user) => {
+    let currentMoment = moment()
+    let startOfDateMoment = currentMoment.startOf('day')
+    let endOfDateMoment = startOfDateMoment.clone().endOf('day')
+    return await NotificationModel.count({isVisited:false,createdDate:startOfDateMoment.toDate(),createdDate:endOfDateMoment.toDate()})
+}
 
 notificationSchema.statics.getAllNotificationsByUser = async (user,sendType) => {
     //by default call api for received notifications
