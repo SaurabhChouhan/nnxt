@@ -359,6 +359,10 @@ export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
 export const COPY_RIGHT_FOOTER_MESSAGE = "Copyright 2018 : All right reserved."
 
 /* Email Templates Name and Messages*/
+export const EMAIl_HEADR_TEMPLATE = '<div style = "height: 42px;color: white;background: #333;padding-top: 15px;font-weight: bold;font-size: 25px;padding-left: 10px;">' +
+    '<img src="{NNXT_LOGO_URL}/img/logo.png" title="NNXT" alt="NNXT"/> </div>'
+export const EMAIl_TEMPLATE_FOOTER = '<div style = "height: 37px;color: white;background: #333;padding-top: 18px;font-weight: bold;font-size:14px;text-align: center;"> {COPY_RIGHT_FOOTER_MESSAGE} </div>'
+
 export const WELCOME_TEMPLATE = "Welcome-Template"
 export const WELCOME_TEMPLATE_MESSAGE = "Welcome To NNXT"
 export const OTP_TEMPLATE = "OTP-Template"

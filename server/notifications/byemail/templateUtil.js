@@ -1,10 +1,12 @@
 import fs  from 'fs'
 import path  from 'path'
 import emailTemplateReplaceAll from 'string-template'
+import * as CONSTANT from '../../serverconstants'
+
 
 const getEmailTemplateAfterReplaceEmailData = async (emailTemplate,emailData) =>{
     return new Promise((res, rej) => {
-       let emailTemplateString = '<div>' +emailTemplate.templateHeader + emailTemplate.templateBody + emailTemplate.templateFooter+ '</div>'
+       let emailTemplateString = '<div>' +CONSTANT.EMAIl_HEADR_TEMPLATE + emailTemplate.templateBody + CONSTANT.EMAIl_TEMPLATE_FOOTER+ '</div>'
        let afterReplaceEmailTemplate = emailTemplateReplaceAll(emailTemplateString, emailData)
        if(afterReplaceEmailTemplate) {
            res(afterReplaceEmailTemplate)
