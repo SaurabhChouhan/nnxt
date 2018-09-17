@@ -2232,3 +2232,16 @@ hr {
 div.notificationTable table tr[width="100%"] td {
     white-space: normal;
 }
+
+.templateTypes {
+    margin-top: 1%;
+}
+
+.templateTypes label {
+    float: left;
+    margin-right: 10px;
+}
+
+.templateTypes select {
+    width: 40%;
+}

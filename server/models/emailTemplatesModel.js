@@ -106,10 +106,13 @@ emailTemplatesSchema.statics.approvedTemplate = async (user,templateID) => {
     return await emailTemplate.save()
 }
 
-emailTemplatesSchema.statics.getAllTemplates = async (user,type) => {
+emailTemplatesSchema.statics.getAllTemplates = async (user,typeID) => {
     let condition = {isDeleted : false}
-    if(type && type !='undefined')
-        condition.templateType = type
+    if(typeID && typeID !='undefined'){
+        let templateTypeObj = await MDL.EmailTemplateTypeModel.findOne({_id:typeID.toString()})
+        if(templateTypeObj)
+        condition.templateType = templateTypeObj.name
+    }
 
     console.log("getAllTemplates with condition ",condition)
     return await EmailTemplatesModel.find(condition)

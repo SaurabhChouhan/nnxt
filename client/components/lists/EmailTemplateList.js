@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import Dialog from 'react-bootstrap-dialog'
 import {CREATE_USER, DELETE_USER, EDIT_EMAIL_TEMPLATE, DELETE_EMAIL_TEMPLATE, EDIT_USER} from "../../clientconstants"
-import {renderSelect} from '../forms/fields'
+import {renderSelectForEmailTemplateType} from '../forms/fields'
 import {Field,reduxForm} from 'redux-form'
 
 class EmailTemplateList extends Component {
@@ -92,6 +92,12 @@ class EmailTemplateList extends Component {
         )
     }
 
+    changeTemplateType(event) {
+        let type = event.target.value
+        this.props.getTemplateOnChange(type)
+    }
+
+
     render() {
         return (
             <div className="row">
@@ -102,9 +108,9 @@ class EmailTemplateList extends Component {
                     <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showEmailTemplateForm()}>
                         Create Template
                     </button>
-                    <form>
-                    <div className="col-md-6">
-                        <Field name="_id" component={renderSelect} label={"Template Type:"}
+                    <form style={{float:'left', width:'100%'}}>
+                    <div className="col-md-4 col-md-offset-4 templateTypes">
+                        <Field name="name" onChange={this.changeTemplateType.bind(this)} component={renderSelectForEmailTemplateType} label={"Template Type:"}
                                options={this.props.allEmailTemplatesTypes}
                                displayField={"name"} />
                     </div>

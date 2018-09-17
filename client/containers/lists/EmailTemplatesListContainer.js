@@ -29,6 +29,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     showEmailTemplateForm: () => {
         dispatch(A.showComponentHideOthers(COC.EMAIL_TEMPLATE_FORM))
         dispatch(A.getAllEmailTemplatesTypesFromServer())
+    },
+    getTemplateOnChange: (type) => {
+        dispatch(A.getAllEmailTemplatesFromServer(type))
     }
 })
 
