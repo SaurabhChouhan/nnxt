@@ -358,7 +358,7 @@ export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.
 export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
 export const COPY_RIGHT_FOOTER_MESSAGE = "Copyright 2018 : All right reserved."
 
-/* Email Templates Name */
+/* Email Templates Name and Messages*/
 export const WELCOME_TEMPLATE = "Welcome-Template"
 export const WELCOME_TEMPLATE_MESSAGE = "Welcome To NNXT"
 export const OTP_TEMPLATE = "OTP-Template"
