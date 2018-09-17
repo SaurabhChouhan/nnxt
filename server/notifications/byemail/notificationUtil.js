@@ -174,7 +174,169 @@ const sendNotification = async (emailData,templateName) =>{
                     console.log("RESET_PASSWORD_TEMPLATE ", reason); // Error!
                     rej(false)
                 });
-            } else {
+            } else if (templateName == CONSTANT.RAISE_LEAVE_TEMPLATE) {
+
+                //Set template json
+                let templateUpdateWithDataJson = {
+                    userName: emailData.user.firstName + ' ' + emailData.user.lastName,
+                    raiseLeaveMessage: CONSTANT.RAISE_LEAVE_TEMPLATE_MESSAGE + emailData.raiseLeaveMessage,
+                    NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
+                    COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
+                }
+
+                //Template data replace method
+                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                    templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
+                    let to = [emailData.user.email]
+                    let subject = emailTemplate.templateSubject
+                    let message = welcomeEmailTemplate
+                    let sent_type = 'Raise-Leave'
+
+                    //set notification json
+                    let notificationData = {
+                        from: CONSTANT.NNXT_SELF_USER_AND_EMAIL_INFO,
+                        to: emailData.user,
+                        notificationSendBy: "Email",
+                        notificationSubject: emailTemplate.templateSubject,
+                        notificationType: "Raise-Leave",
+                        notificationBody: welcomeEmailTemplate,
+                        notificationBodyText: emailTemplate.templateBody,
+                        status: "Pending"
+                    }
+                    //Save email notification into DB
+                    let notificationObj = await NotificationModel.addNotification(notificationData)
+
+                    //send Email request method to AWS SES
+                    EmailSendBySES.sendEmailByAWSsES(to, subject, message, sent_type).then(async emailSendResult => {
+                        console.log("RAISE_LEAVE_TEMPLATE status = ", emailSendResult); // Success!
+                        if (emailSendResult) {
+                            await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Sent")
+                            res(true)
+                        } else {
+                            await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Failed")
+                            res(false)
+                        }
+                    }, async reason => {
+                        await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Failed")
+                        console.log("RAISE_LEAVE_TEMPLATE ", reason); // Error!
+                        rej(false)
+                    });
+
+
+                }, reason => {
+                    console.log("RAISE_LEAVE_TEMPLATE ", reason); // Error!
+                    rej(false)
+                });
+            } else if (templateName == CONSTANT.APPROVED_LEAVE_TEMPLATE) {
+
+                //Set template json
+                let templateUpdateWithDataJson = {
+                    userName: emailData.user.firstName + ' ' + emailData.user.lastName,
+                    approvedLeaveMessage: CONSTANT.APPROVED_LEAVE_TEMPLATE_MESSAGE + emailData.approvedLeaveMessage,
+                    NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
+                    COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
+                }
+
+                //Template data replace method
+                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                    templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
+                    let to = [emailData.user.email]
+                    let subject = emailTemplate.templateSubject
+                    let message = welcomeEmailTemplate
+                    let sent_type = 'Approved-Raise-Leave'
+
+                    //set notification json
+                    let notificationData = {
+                        from: CONSTANT.NNXT_SELF_USER_AND_EMAIL_INFO,
+                        to: emailData.user,
+                        notificationSendBy: "Email",
+                        notificationSubject: emailTemplate.templateSubject,
+                        notificationType: "Approved-Raise-Leave",
+                        notificationBody: welcomeEmailTemplate,
+                        notificationBodyText: emailTemplate.templateBody,
+                        status: "Pending"
+                    }
+                    //Save email notification into DB
+                    let notificationObj = await NotificationModel.addNotification(notificationData)
+
+                    //send Email request method to AWS SES
+                    EmailSendBySES.sendEmailByAWSsES(to, subject, message, sent_type).then(async emailSendResult => {
+                        console.log("APPROVED_LEAVE_TEMPLATE status = ", emailSendResult); // Success!
+                        if (emailSendResult) {
+                            await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Sent")
+                            res(true)
+                        } else {
+                            await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Failed")
+                            res(false)
+                        }
+                    }, async reason => {
+                        await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Failed")
+                        console.log("APPROVED_LEAVE_TEMPLATE ", reason); // Error!
+                        rej(false)
+                    });
+
+
+                }, reason => {
+                    console.log("APPROVED_LEAVE_TEMPLATE ", reason); // Error!
+                    rej(false)
+                });
+            } else if (templateName == CONSTANT.REJECT_RAISED_LEAVE_TEMPLATE) {
+
+                //Set template json
+                let templateUpdateWithDataJson = {
+                    userName: emailData.user.firstName + ' ' + emailData.user.lastName,
+                    rejectRaisedLeaveMessage: CONSTANT.REJECT_RAISED_LEAVE_TEMPLATE_MESSAGE + emailData.rejectRaisedLeaveMessage,
+                    NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
+                    COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
+                }
+
+                //Template data replace method
+                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                    templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
+                    let to = [emailData.user.email]
+                    let subject = emailTemplate.templateSubject
+                    let message = welcomeEmailTemplate
+                    let sent_type = 'Reject-Raise-Leave'
+
+                    //set notification json
+                    let notificationData = {
+                        from: CONSTANT.NNXT_SELF_USER_AND_EMAIL_INFO,
+                        to: emailData.user,
+                        notificationSendBy: "Email",
+                        notificationSubject: emailTemplate.templateSubject,
+                        notificationType: "Reject-Raise-Leave",
+                        notificationBody: welcomeEmailTemplate,
+                        notificationBodyText: emailTemplate.templateBody,
+                        status: "Pending"
+                    }
+                    //Save email notification into DB
+                    let notificationObj = await NotificationModel.addNotification(notificationData)
+
+                    //send Email request method to AWS SES
+                    EmailSendBySES.sendEmailByAWSsES(to, subject, message, sent_type).then(async emailSendResult => {
+                        console.log("REJECT_RAISED_LEAVE_TEMPLATE status = ", emailSendResult); // Success!
+                        if (emailSendResult) {
+                            await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Sent")
+                            res(true)
+                        } else {
+                            await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Failed")
+                            res(false)
+                        }
+                    }, async reason => {
+                        await NotificationModel.updateNotificationStatusByID(notificationObj._id, "Failed")
+                        console.log("REJECT_RAISED_LEAVE_TEMPLATE ", reason); // Error!
+                        rej(false)
+                    });
+
+
+                }, reason => {
+                    console.log("REJECT_RAISED_LEAVE_TEMPLATE ", reason); // Error!
+                    rej(false)
+                });
+            }
+
+
+            else {
                 console.log("Template not found in DB.")
                 rej(false)
             }
