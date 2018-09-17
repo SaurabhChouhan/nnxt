@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 if (json.data) {
                     NotificationManager.success('OTP has been sent on email.')
                 } else {
-                    NotificationManager.error('Error in OTP sending!')
+                    NotificationManager.error('Error in sending OTP!')
                 }
             })
         }

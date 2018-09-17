@@ -20,9 +20,11 @@
     "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node"
   },
   "dependencies": {
+    "aws-sdk": "^2.178.0",
     "babel-preset-stage-2": "^6.24.1",
     "bcryptjs": "^2.4.3",
     "co": "^4.6.0",
+    "html-react-parser": "^0.4.6",
     "import-lazy": "^3.1.0",
     "koa": "^2.4.1",
     "koa-body": "^2.5.0",
@@ -73,14 +75,13 @@
     "snapdragon": "^0.11.0",
     "snapdragon-node": "^2.1.1",
     "split-string": "^5.0.3",
+    "string-template": "^1.0.0",
     "tcomb": "^3.2.24",
     "tcomb-doc": "^0.5.2",
     "tcomb-validation": "^3.4.1",
     "to-regex": "^3.0.1",
     "to-regex-range": "^3.0.0",
-    "winston": "^3.0.0-rc1",
-    "aws-sdk": "^2.178.0",
-    "string-template": "^1.0.0"
+    "winston": "^3.0.0-rc1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

@@ -138,3 +138,7 @@ export {default as WarningListContainer} from './lists/WarningListContainer'
 //
 export {default as HolidayFormContainer} from './forms/HolidayFormContainer'
 export {default as HolidayListContainer} from './lists/HolidayListContainer'
+
+// Notifications
+
+export {default as NotificationsPageContainer} from './pages/NotificationsPageContainer'

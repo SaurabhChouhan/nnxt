@@ -47,11 +47,11 @@ notificationSchema.statics.getAllTodayNotificationsByUser = async (user) => {
 
 notificationSchema.statics.getAllNotificationsByUser = async (user,sendType) => {
     //by default call api for received notifications
-    user._id = '5b87dea2749236069ce69430'
+    user._id = '5b87dea5749236069ce6943f'
     let condition = { "to._id":user._id}
     if(sendType == "sent"){
         condition = { "from._id":user._id}
-    }else if(sendType == "received"){
+    }else if(!sendType || sendType == "received"){
         condition = { "to._id":user._id}
     }
     return await NotificationModel.find(condition)
