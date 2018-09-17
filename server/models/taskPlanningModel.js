@@ -1920,8 +1920,6 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         selectedEmployee
     })
 
-    logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
-
     const oldPlannedFor = await moveTaskUpdateTaskPlan(taskPlan, {
         rePlanningDateUtc,
         taskPlanningInput,
@@ -1945,6 +1943,8 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         rePlannedDateEmployeeDays,
         selectedEmployee
     })
+
+    //logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
     // update flags
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
 
