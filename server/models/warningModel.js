@@ -2087,6 +2087,11 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
             source: true
         })
     }
+
+    // Remove unreported warning as task is now deleted
+    let unreportedWarning = await removeUnreported(taskPlan)
+    copyWarnings(unreportedWarning, warningResponse)
+
     //TOO MANY HOURS UPDATE
     let warningsTooManyHours = await updateTooManyHoursOnTaskPlanDeleted(taskPlan, releasePlan, release, plannedDateUTC)
     copyWarnings(warningsTooManyHours, warningResponse)
@@ -2803,6 +2808,14 @@ warningSchema.statics.taskMoved = async (taskPlan, releasePlan, release, extra) 
 
     // If current moment if before this date unreported warning should be removed from this day task
 
+    if (momentNewMovedDateIndia.isAfter(new Date())) {
+        let unreportedWarning = await removeUnreported(taskPlan)
+        copyWarnings(unreportedWarning, warningResponse)
+    } else {
+        // unreported warning may be added
+        let unreportedWarning = await WarningModel.addUnreported(taskPlan)
+        copyWarnings(unreportedWarning, warningResponse)
+    }
 
     /*TOO_MANY_HOURS WARNING UPDATE SECTION*/
 
@@ -3206,6 +3219,13 @@ const removeUnreported = async (taskPlan) => {
                 warningType: SC.WARNING_TYPE_RELEASE_PLAN,
                 type: SC.WARNING_UNREPORTED
             })
+        })
+    } else {
+        // just remove it from task
+        warningResponse.removed.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_UNREPORTED
         })
     }
 
