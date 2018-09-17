@@ -119,12 +119,13 @@ class ReleasePlanList extends Component {
     }
 
     editCellButton(cell, row, extra) {
-        return (extra ? <button className=" pull-left btn btn-custom" type="button"
-                                onClick={() => {
-                                    this.props.showUpdateReleasePlanForm(row)
-                                }}>
-            <i className="fa fa-pencil"></i>
-        </button> : '')
+        return (extra && row.release.iteration.iterationType != SC.ITERATION_TYPE_ESTIMATED ?
+            <button className=" pull-left btn btn-custom" type="button"
+                    onClick={() => {
+                        this.props.showUpdateReleasePlanForm(row)
+                    }}>
+                <i className="fa fa-pencil"></i>
+            </button> : '')
     }
 
     formatFlags(flags) {
@@ -215,6 +216,7 @@ class ReleasePlanList extends Component {
         let team = 0
         const {release, releasePlans, releasePlanFilters, loggedInUser} = this.props
         let isManager = loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ? true : false
+
 
         //console.log("releasePlans..........", releasePlans)
         //console.log("releasePlans..........expandDescriptionTaskReportList", this.props.expandDescriptionTaskReportList)
