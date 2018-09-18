@@ -288,8 +288,9 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
     newLeave.canApprove = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
 
+    let userNNXTAdmin = await MDL.UserModel.findOne({name : SC.ROLE_ADMIN})
     let emailData = {
-        user:user,
+        user:userNNXTAdmin,
         startDate:leaveInput.startDate,
         endDate:leaveInput.endDate,
         leaveType:leaveType.name,
