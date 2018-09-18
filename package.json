@@ -24,7 +24,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "bcryptjs": "^2.4.3",
     "co": "^4.6.0",
-    "html-react-parser": "^0.4.6",
+    "html-react-parser": "^0.4.7",
     "import-lazy": "^3.1.0",
     "koa": "^2.4.1",
     "koa-body": "^2.5.0",

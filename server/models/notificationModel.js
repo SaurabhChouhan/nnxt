@@ -38,11 +38,24 @@ let notificationSchema = mongoose.Schema({
     isVisited:{type:Boolean,default:false}
 })
 
+notificationSchema.statics.isVisitedNotificationByID = async (user,notificationID) => {
+    let isVisitedNotification = false
+    let notification = await NotificationModel.findOne({"_id" : notificationID})
+    if(notification){
+        notification.isVisited = true
+        notification.updated = new Date()
+        let result =  await notification.save()
+        if(result)
+            isVisitedNotification = true
+    }
+    return isVisitedNotification
+}
+
 notificationSchema.statics.getAllTodayNotificationsByUser = async (user) => {
     let currentMoment = moment()
     let startOfDateMoment = currentMoment.startOf('day')
     let endOfDateMoment = startOfDateMoment.clone().endOf('day')
-    return await NotificationModel.count({isVisited:false,createdDate:startOfDateMoment.toDate(),createdDate:endOfDateMoment.toDate()})
+    return await NotificationModel.count({isVisited:false,created:{$gte:startOfDateMoment,$lte:endOfDateMoment}})
 }
 
 notificationSchema.statics.getAllNotificationsByUser = async (user,sendType) => {
@@ -54,7 +67,7 @@ notificationSchema.statics.getAllNotificationsByUser = async (user,sendType) => 
     }else if(!sendType || sendType == "received"){
         condition = { "to._id":user._id}
     }
-    return await NotificationModel.find(condition)
+    return await NotificationModel.find(condition).sort({created:-1})
 }
 
 notificationSchema.statics.addNotification = async (notificationObj) => {

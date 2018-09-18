@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import Dialog from 'react-bootstrap-dialog'
 import Parser from 'html-react-parser'
+import moment from "moment";
 
 /*const products = [
     {
@@ -59,17 +60,21 @@ class NotificationsPage extends Component {
         );
     }
 
-    /*notificationBody(cell, row, enumObject, rowIndex){
+    notificationTextFormated(cell, row, enumObject, rowIndex){
         return(
             <div> {Parser(row.notificationBodyText)}</div>
         )
-    }*/
+    }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
         return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
                         onClick={() => this.onClickEmailDeleteSelected(cell, row, rowIndex)}>
             </button>
         )
+    }
+
+    dateFormated(cell, row, enumObject, rowIndex){
+        return moment(row.created).format('YYYY-MM-DD HH:mm:ss')
     }
 
     onClickEmailDeleteSelected(cell, row, rowIndex) {
@@ -103,10 +108,10 @@ class NotificationsPage extends Component {
                             expandableRow={ this.isExpandableRow }
                             expandComponent={ this.expandComponent }
                             expandColumnOptions={ { expandColumnVisible: true } }>
-                <TableHeaderColumn dataField='_id' isKey={ true }>ID</TableHeaderColumn>
-                {/*<TableHeaderColumn dataField='notificationBodyText'dataFormat={this.notificationBody.bind(this)}>Body</TableHeaderColumn>*/}
-                <TableHeaderColumn dataField='created'>Date</TableHeaderColumn>
-                <TableHeaderColumn width="8%" dataField='button'
+                <TableHeaderColumn width="25%" dataField='notificationSubject' isKey={ true }>Subject</TableHeaderColumn>
+                <TableHeaderColumn width="55%" height="50px" dataField='notificationBodyText' dataFormat={this.notificationTextFormated.bind(this)}>Email Text</TableHeaderColumn>
+                <TableHeaderColumn width="15%" dataField='created' dataFormat={this.dateFormated.bind(this)}>Date</TableHeaderColumn>
+                <TableHeaderColumn width="5%" dataField='button'
                                    dataFormat={this.deleteCellButton.bind(this)}><i className="fa fa-trash"></i></TableHeaderColumn>
             </BootstrapTable>
         </div>)

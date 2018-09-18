@@ -66,6 +66,10 @@ userRouter.get('/today-notifications/', async (ctx) => {
     return await MDL.NotificationModel.getAllTodayNotificationsByUser(ctx.state.user)
 })
 
+userRouter.get('/visited-notification/:id', async (ctx) => {
+    return await MDL.NotificationModel.isVisitedNotificationByID(ctx.state.user,ctx.params.id)
+})
+
 userRouter.put('/change-password', async (ctx) => {
     //console.log("change-password ", ctx.request.body);
     let  isUpdatedNewPassReqSuccess = await MDL.UserModel.changePassword(ctx.state.user,ctx.request.body)
