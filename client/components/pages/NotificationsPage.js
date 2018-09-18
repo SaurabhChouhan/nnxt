@@ -104,6 +104,7 @@ class NotificationsPage extends Component {
             <Dialog ref={(el) => {
                 this.dialog = el
             }}/>
+            <h4><b>Today's Notifications:</b> <span className="validation-error">{this.props.todayAllNotifications}</span></h4>
             <BootstrapTable className={"notificationTable"} data={this.props.allNotifications}
                             expandableRow={ this.isExpandableRow }
                             expandComponent={ this.expandComponent }

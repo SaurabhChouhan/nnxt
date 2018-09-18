@@ -201,7 +201,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: GetTextMessages.getRaisedLeaveMessage({userName:templateUpdateWithDataJson.userName,leaveType:emailData.leaveType,startDate:emailData.startDate,endDate:emailData.endDate,leaveDescription:emailData.leaveDescription}),
+                        notificationBodyText: GetTextMessages.getRaisedLeaveMessage({userName:emailData.admin.firstName + ' ' + emailData.admin.lastName,leaveType:emailData.leaveType,startDate:emailData.startDate,endDate:emailData.endDate,leaveDescription:emailData.leaveDescription}),
                         status: "Pending"
                     }
                     //Save email notification into DB

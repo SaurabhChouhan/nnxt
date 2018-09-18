@@ -55,7 +55,7 @@ notificationSchema.statics.getAllTodayNotificationsByUser = async (user) => {
     let currentMoment = moment()
     let startOfDateMoment = currentMoment.startOf('day')
     let endOfDateMoment = startOfDateMoment.clone().endOf('day')
-    return await NotificationModel.count({isVisited:false,created:{$gte:startOfDateMoment,$lte:endOfDateMoment}})
+    return await NotificationModel.count({$or:[{'to._id':user._id},{'from._id':user._id}],isVisited:false,created:{$gte:startOfDateMoment,$lte:endOfDateMoment}})
 }
 
 notificationSchema.statics.getAllNotificationsByUser = async (user,sendType) => {

@@ -35,7 +35,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
 const mapStateToProps = (state, ownProps) => ({
     loggedInUser: state.user.loggedIn,
-    allNotifications: state.notification.allNotifications
+    allNotifications: state.notification.allNotifications,
+    todayAllNotifications: state.notification && state.notification.todayAllNotifications ? state.notification.todayAllNotifications : 0
 })
 
 const NotificationsPageContainer = connect(
