@@ -8,6 +8,7 @@ import * as SC from "../serverconstants";
 import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
+import NotificationUtil from '../notifications/byemail/notificationUtil'
 
 mongoose.Promise = global.Promise
 
@@ -286,6 +287,15 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.canDelete = true
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
     newLeave.canApprove = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
+
+    let emailData = {
+        user:user,
+        startDate:leaveInput.startDate,
+        endDate:leaveInput.endDate,
+        leaveType:leaveType.name,
+        leaveDescription:leaveInput.description
+    }
+    NotificationUtil.sendNotification(emailData,SC.RAISE_LEAVE_TEMPLATE)
 
     return {
         leave: newLeave,

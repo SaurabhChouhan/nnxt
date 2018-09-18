@@ -3,6 +3,7 @@ import EmailSendBySES from './emailSendSesUtil'
 import * as CONSTANT from '../../serverconstants'
 import EmailTemplatesModel from '../../models/emailTemplatesModel'
 import NotificationModel from '../../models/notificationModel'
+import * as GetTextMessages from '../../textMessages'
 
 //Send sendNotification
 const sendNotification = async (emailData,templateName) =>{
@@ -20,7 +21,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    userWelcomeMessage: emailData.userWelcomeMessage,
+                    userWelcomeMessage: GetTextMessages.getWelcomeTemplateMessage(),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -41,7 +42,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Welcome",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.userWelcomeMessage,
+                        notificationBodyText: GetTextMessages.getWelcomeTemplateMessage(),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -73,7 +74,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    OTPMessage: emailData.OTPMessage,
+                    OTPMessage: GetTextMessages.getOTPmessage({otp:emailData.OTP}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -94,7 +95,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "OTP",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.OTPMessage,
+                        notificationBodyText: GetTextMessages.getOTPmessage({otp:emailData.OTP}),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -126,7 +127,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    resetPasswordMessage: emailData.resetPasswordMessage,
+                    resetPasswordMessage: GetTextMessages.getResetPasswordMessage(),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -147,7 +148,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Reset-Password",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.resetPasswordMessage,
+                        notificationBodyText: GetTextMessages.getResetPasswordMessage(),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -179,7 +180,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    raiseLeaveMessage: CONSTANT.RAISE_LEAVE_TEMPLATE_MESSAGE + emailData.raiseLeaveMessage,
+                    raiseLeaveMessage: GetTextMessages.getRaisedLeaveMessage({userName:emailData.user.firstName + ' ' + emailData.user.lastName,leaveType:emailData.leaveType,startDate:emailData.startDate,endDate:emailData.endDate,leaveDescription:emailData.leaveDescription}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -200,7 +201,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.raiseLeaveMessage,
+                        notificationBodyText: GetTextMessages.getRaisedLeaveMessage({userName:templateUpdateWithDataJson.userName,leaveType:emailData.leaveType,startDate:emailData.startDate,endDate:emailData.endDate,leaveDescription:emailData.leaveDescription}),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -232,7 +233,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    approvedLeaveMessage: CONSTANT.APPROVED_LEAVE_TEMPLATE_MESSAGE + emailData.approvedLeaveMessage,
+                    approvedLeaveMessage: GetTextMessages.getApprovedLeaveMessage(),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -253,7 +254,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Approved-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.approvedLeaveMessage,
+                        notificationBodyText: GetTextMessages.getApprovedLeaveMessage(),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -285,7 +286,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    rejectRaisedLeaveMessage: CONSTANT.REJECT_RAISED_LEAVE_TEMPLATE_MESSAGE + emailData.rejectRaisedLeaveMessage,
+                    rejectRaisedLeaveMessage: GetTextMessages.getRejectLeaveMessage(),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -306,7 +307,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Reject-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.rejectRaisedLeaveMessage,
+                        notificationBodyText: GetTextMessages.getRejectLeaveMessage(),
                         status: "Pending"
                     }
                     //Save email notification into DB

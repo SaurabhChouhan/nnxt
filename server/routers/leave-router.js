@@ -59,11 +59,6 @@ leaveRouter.get("/:status", async ctx => {
  */
 leaveRouter.post("/", async ctx => {
    let  leavesInfo =  await MDL.LeaveModel.raiseLeaveRequest(ctx.request.body, ctx.state.user, ctx.schemaRequested)
-    let emailData = {
-        user:ctx.state.user,
-        raiseLeaveMessage:""
-    }
-    NotificationUtil.sendNotification(emailData,SC.RAISE_LEAVE_TEMPLATE)
     return leavesInfo
 })
 

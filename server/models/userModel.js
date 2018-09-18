@@ -382,7 +382,7 @@ userSchema.statics.forgotPasswordRequestM = async (email) => {
         isUpdatedNewOtpToResetPass = true
         let emailData = {
             user:storedUser,
-            OTPMessage:SC.OTP_TEMPLATE_MESSAGE +" : "+ newOTP
+            OTP:newOTP
         }
         NotificationUtil.sendNotification(emailData,SC.OTP_TEMPLATE)
     }

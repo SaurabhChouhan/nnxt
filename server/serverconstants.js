@@ -363,23 +363,17 @@ export const EMAIl_HEADR_TEMPLATE = '<div style = "height: 42px;color: white;bac
     '<img src="{NNXT_LOGO_URL}/img/logo.png" title="NNXT" alt="NNXT"/> </div>'
 export const EMAIl_TEMPLATE_FOOTER = '<div style = "height: 37px;color: white;background: #333;padding-top: 18px;font-weight: bold;font-size:14px;text-align: center;"> {COPY_RIGHT_FOOTER_MESSAGE} </div>'
 
+/* Basic Email Templates Name */
 export const WELCOME_TEMPLATE = "Welcome-Template"
-export const WELCOME_TEMPLATE_MESSAGE = "Welcome To NNXT"
 export const OTP_TEMPLATE = "OTP-Template"
-export const OTP_TEMPLATE_MESSAGE = "Your NNXT OTP is "
 export const RESET_PASSWORD_TEMPLATE = "Reset-Password-Template"
-export const RESET_PASSWORD_TEMPLATE_MESSAGE = "Your password has been reset successfully."
 
+/* Leaves Email Templates Name */
 export const RAISE_LEAVE_TEMPLATE = "Raise-Leave-Template"
-export const RAISE_LEAVE_TEMPLATE_MESSAGE = " employee want to leaves. Leaves details are as follows."
 export const APPROVED_LEAVE_TEMPLATE = "Approved-Leave-Template"
-export const APPROVED_LEAVE_TEMPLATE_MESSAGE = "Your leave has been approved by Aripra Management Team."
 export const REJECT_RAISED_LEAVE_TEMPLATE = "Reject-Raised-Leave-Template"
-export const REJECT_RAISED_LEAVE_TEMPLATE_MESSAGE = "Your leave has been rejected due to some reason. Please contact to Aripra Management Team."
 
+/* Reporting Email Templates Name */
 export const REPORTING_COMPLETE_MARK_TEMPLATE = "Reporting-Complete-Mark-Template"
-export const REPORTING_COMPLETE_MARK_MESSAGE = "NNXT Tasks reported Completed and tasks details are as follows..."
 export const REPORTING_PENDING_MARK_TEMPLATE = "Reporting-Pending-Mark-Template"
-export const REPORTING_PENDING_MARK_TEMPLATE_MESSAGE = "NNXT Tasks reported pending and tasks details are as follows..."
 export const REPORTING_UN_REPORTED_TEMPLATE = "Reporting-Un-Reported-Template"
-export const REPORTING_UN_REPORTED_TEMPLATE_MESSAGE = "Please report your Un-Reported tasks. If already reported then ignore it."
