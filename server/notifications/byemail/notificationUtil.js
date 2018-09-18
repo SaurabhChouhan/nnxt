@@ -233,7 +233,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    approvedLeaveMessage: GetTextMessages.getApprovedLeaveMessage(),
+                    approvedLeaveMessage: GetTextMessages.getApprovedLeaveMessage({reason:emailData.reason}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -254,7 +254,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Approved-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: GetTextMessages.getApprovedLeaveMessage(),
+                        notificationBodyText: GetTextMessages.getApprovedLeaveMessage({reason:emailData.reason}),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -286,7 +286,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    rejectRaisedLeaveMessage: GetTextMessages.getRejectLeaveMessage(),
+                    rejectRaisedLeaveMessage: GetTextMessages.getRejectLeaveMessage({reason:emailData.reason}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
@@ -307,7 +307,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Reject-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: GetTextMessages.getRejectLeaveMessage(),
+                        notificationBodyText: GetTextMessages.getRejectLeaveMessage({reason:emailData.reason}),
                         status: "Pending"
                     }
                     //Save email notification into DB

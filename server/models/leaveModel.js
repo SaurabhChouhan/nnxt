@@ -464,6 +464,12 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
     leave.canCancel = false
     leave.canApprove = false
 
+    let emailData = {
+        user:user,
+        reason:reason
+    }
+    NotificationUtil.sendNotification(emailData,SC.APPROVED_LEAVE_TEMPLATE)
+
     return {
         leave: leave,
         warnings: generatedWarnings,
@@ -507,6 +513,12 @@ leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
+
+    let emailData = {
+        user:user,
+        reason:reason
+    }
+    NotificationUtil.sendNotification(emailData,SC.REJECT_RAISED_LEAVE_TEMPLATE)
 
     return {
         leave: leaveRequest,
