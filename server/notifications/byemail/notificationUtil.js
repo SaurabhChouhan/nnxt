@@ -41,7 +41,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Welcome",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: emailTemplate.templateBody,
+                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.userWelcomeMessage,
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -94,7 +94,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "OTP",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: emailTemplate.templateBody,
+                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.OTPMessage,
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -147,7 +147,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Reset-Password",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: emailTemplate.templateBody,
+                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.resetPasswordMessage,
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -200,7 +200,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: emailTemplate.templateBody,
+                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.raiseLeaveMessage,
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -253,7 +253,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Approved-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: emailTemplate.templateBody,
+                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.approvedLeaveMessage,
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -306,7 +306,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Reject-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: emailTemplate.templateBody,
+                        notificationBodyText: templateUpdateWithDataJson.userName +'\n'+templateUpdateWithDataJson.rejectRaisedLeaveMessage,
                         status: "Pending"
                     }
                     //Save email notification into DB

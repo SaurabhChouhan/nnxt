@@ -371,7 +371,7 @@ export const RESET_PASSWORD_TEMPLATE = "Reset-Password-Template"
 export const RESET_PASSWORD_TEMPLATE_MESSAGE = "Your password has been reset successfully."
 
 export const RAISE_LEAVE_TEMPLATE = "Raise-Leave-Template"
-export const RAISE_LEAVE_TEMPLATE_MESSAGE = "NNXT Alert you thet some employee are raised leaves. Leaves details are as follows."
+export const RAISE_LEAVE_TEMPLATE_MESSAGE = " employee want to leaves. Leaves details are as follows."
 export const APPROVED_LEAVE_TEMPLATE = "Approved-Leave-Template"
 export const APPROVED_LEAVE_TEMPLATE_MESSAGE = "Your leave has been approved by Aripra Management Team."
 export const REJECT_RAISED_LEAVE_TEMPLATE = "Reject-Raised-Leave-Template"
