@@ -357,6 +357,7 @@ export const SENDER_EMAIL_ADDRESS = "nnxt@aripratech.com"
 export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.png"
 export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
 export const COPY_RIGHT_FOOTER_MESSAGE = "Copyright 2018 : All right reserved."
+export const NNXT_ADMIN = "schouhan@aripratech.com"//"mpogra@aripratech.com" or "schouhan@aripratech.com"
 
 /* Email Templates Name and Messages*/
 export const EMAIl_HEADR_TEMPLATE = '<div style = "height: 42px;color: white;background: #333;padding-top: 15px;font-weight: bold;font-size: 25px;padding-left: 10px;">' +

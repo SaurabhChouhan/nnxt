@@ -179,7 +179,7 @@ const sendNotification = async (emailData,templateName) =>{
 
                 //Set template json
                 let templateUpdateWithDataJson = {
-                    userName: emailData.user.firstName + ' ' + emailData.user.lastName,
+                    userName: emailData.admin.firstName + ' ' + emailData.admin.lastName,
                     raiseLeaveMessage: GetTextMessages.getRaisedLeaveMessage({userName:emailData.user.firstName + ' ' + emailData.user.lastName,leaveType:emailData.leaveType,startDate:emailData.startDate,endDate:emailData.endDate,leaveDescription:emailData.leaveDescription}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
@@ -188,7 +188,7 @@ const sendNotification = async (emailData,templateName) =>{
                 //Template data replace method
                 TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
                     templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
-                    let to = [emailData.user.email]
+                    let to = [emailData.admin.email]
                     let subject = emailTemplate.templateSubject
                     let message = welcomeEmailTemplate
                     let sent_type = 'Raise-Leave'
@@ -196,7 +196,7 @@ const sendNotification = async (emailData,templateName) =>{
                     //set notification json
                     let notificationData = {
                         from: CONSTANT.NNXT_SELF_USER_AND_EMAIL_INFO,
-                        to: emailData.user,
+                        to: emailData.admin,
                         notificationSendBy: "Email",
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Raise-Leave",
