@@ -8,7 +8,7 @@ import * as SC from "../serverconstants";
 import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
-import NotificationUtil from '../notifications/byemail/notificationUtil'
+import {sendNotificationNew} from "../notifications/byemail/notificationUtil";
 
 mongoose.Promise = global.Promise
 
@@ -288,16 +288,20 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
     newLeave.canApprove = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
 
-    let NNXTadmin = await MDL.UserModel.findOne({email:SC.NNXT_ADMIN})
+
+    /**
+     * Send appropriate email notification
+     */
+    let NNXTadmin = await MDL.UserModel.findOne({email: SC.NNXT_ADMIN})
     let emailData = {
-        admin:NNXTadmin,
-        user:user,
-        startDate:leaveInput.startDate,
-        endDate:leaveInput.endDate,
-        leaveType:leaveType.name,
-        leaveDescription:leaveInput.description
+        admin: NNXTadmin,
+        user: user,
+        startDate: leaveInput.startDate,
+        endDate: leaveInput.endDate,
+        leaveType: leaveType.name,
+        leaveDescription: leaveInput.description
     }
-    NotificationUtil.sendNotification(emailData,SC.RAISE_LEAVE_TEMPLATE)
+    await sendNotificationNew(emailData, SC.RAISE_LEAVE_TEMPLATE)
 
     return {
         leave: newLeave,
@@ -467,10 +471,13 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
     leave.canApprove = false
 
     let emailData = {
-        user:await MDL.UserModel.findOne({_id:leave.user._id}),
-        reason:reason
+        user: await MDL.UserModel.findOne({_id: leave.user._id}),
+        reason: reason
     }
-    NotificationUtil.sendNotification(emailData,SC.APPROVED_LEAVE_TEMPLATE)
+
+    sendNotificationNew(emailData, SC.APPROVED_LEAVE_TEMPLATE).then(() => {
+
+    })
 
     return {
         leave: leave,
@@ -517,10 +524,13 @@ leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
     leaveRequest.canApprove = false
 
     let emailData = {
-        user:user,
-        reason:reason
+        user: user,
+        reason: reason
     }
-    NotificationUtil.sendNotification(emailData,SC.REJECT_RAISED_LEAVE_TEMPLATE)
+
+    sendNotificationNew(emailData, SC.REJECT_RAISED_LEAVE_TEMPLATE).then(() => {
+
+    })
 
     return {
         leave: leaveRequest,
@@ -597,7 +607,7 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
 
     /*--------------------------------EMPLOYEE RELEASE UPDATES---------------------------*/
 
-    if(leave.status == SC.LEAVE_STATUS_APPROVED){
+    if (leave.status == SC.LEAVE_STATUS_APPROVED) {
         // Revoking leave request after its approval would change employee release leave statistics
 
         // Find out all the release IDs that this leave has impact on
@@ -615,7 +625,6 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
             await updateEmployeeReleaseRevokeLeave(releases, leave)
         }
     }
-
 
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/

@@ -4,8 +4,6 @@ import * as SC from "../serverconstants"
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
 import * as U from '../utils'
-import logger from '../logger'
-import NotificationUtil from '../notifications/byemail/notificationUtil'
 
 const leaveRouter = new Router({
     prefix: "/leave"

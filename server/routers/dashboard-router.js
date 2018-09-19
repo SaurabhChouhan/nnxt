@@ -1,7 +1,7 @@
 import Router from 'koa-router'
 import * as MDL from '../models'
-import NotificationUtil from '../notifications/byemail/notificationUtil'
-import generateOTPUtil from '../notifications/generateOTP'
+import {sendNotificationNew} from '../notifications/byemail/notificationUtil'
+
 /**
  * This router would contain all API routes
  * @type {Router}
@@ -73,7 +73,7 @@ dashboardRouter.get('/send-email-template', async (ctx) => {
         },
         userWelcomeMessage:"Welcome to nnxt"
     }
-    return NotificationUtil.sendNotification(emailData,"Welcome-Template")
+    return await sendNotificationNew(emailData,"Welcome-Template")
 })
 
 export default dashboardRouter
