@@ -8,6 +8,7 @@ import * as SC from "../serverconstants";
 import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
+import NotificationUtil from '../notifications/byemail/notificationUtil'
 
 mongoose.Promise = global.Promise
 
@@ -287,6 +288,17 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
     newLeave.canApprove = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
 
+    let NNXTadmin = await MDL.UserModel.findOne({email:SC.NNXT_ADMIN})
+    let emailData = {
+        admin:NNXTadmin,
+        user:user,
+        startDate:leaveInput.startDate,
+        endDate:leaveInput.endDate,
+        leaveType:leaveType.name,
+        leaveDescription:leaveInput.description
+    }
+    NotificationUtil.sendNotification(emailData,SC.RAISE_LEAVE_TEMPLATE)
+
     return {
         leave: newLeave,
         warnings: generatedWarnings,
@@ -454,6 +466,12 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
     leave.canCancel = false
     leave.canApprove = false
 
+    let emailData = {
+        user:await MDL.UserModel.findOne({_id:leave.user._id}),
+        reason:reason
+    }
+    NotificationUtil.sendNotification(emailData,SC.APPROVED_LEAVE_TEMPLATE)
+
     return {
         leave: leave,
         warnings: generatedWarnings,
@@ -497,6 +515,12 @@ leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
     leaveRequest.canDelete = user._id.toString() === leaveRequest.user._id.toString()
     leaveRequest.canCancel = false
     leaveRequest.canApprove = false
+
+    let emailData = {
+        user:user,
+        reason:reason
+    }
+    NotificationUtil.sendNotification(emailData,SC.REJECT_RAISED_LEAVE_TEMPLATE)
 
     return {
         leave: leaveRequest,

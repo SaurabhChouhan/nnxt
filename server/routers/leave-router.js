@@ -5,7 +5,7 @@ import AppError from '../AppError'
 import * as EC from '../errorcodes'
 import * as U from '../utils'
 import logger from '../logger'
-
+import NotificationUtil from '../notifications/byemail/notificationUtil'
 
 const leaveRouter = new Router({
     prefix: "/leave"
@@ -58,7 +58,8 @@ leaveRouter.get("/:status", async ctx => {
  * Add all Leave  requested
  */
 leaveRouter.post("/", async ctx => {
-    return await MDL.LeaveModel.raiseLeaveRequest(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+   let  leavesInfo =  await MDL.LeaveModel.raiseLeaveRequest(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return leavesInfo
 })
 
 /**

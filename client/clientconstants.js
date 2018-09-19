@@ -14,7 +14,11 @@ export const MANAGE_ROLES = 'Manage Roles'
 export const CREATE_USER = 'Create User'
 export const EDIT_USER = 'Edit User'
 export const DELETE_USER = 'Delete User'
+export const EDIT_EMAIL_TEMPLATE = 'Edit Email Template'
+export const DELETE_EMAIL_TEMPLATE = 'Delete Email Template'
+export const CREATE_TEMPLATE = 'Create Template'
 export const LIST_USERS = 'List Users'
+export const LIST_TEMPLATES = 'List Templates'
 export const EDIT_ROLE_PERMISSIONS = 'Edit Role Permissions'
 
 

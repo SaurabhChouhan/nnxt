@@ -1,0 +1,198 @@
+{ 
+    "_id" : ObjectId("5b921539f6b576249ce5f047"), 
+    "templateName" : "Welcome-Template", 
+    "templateSubject" : "NNXT Welcome Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {userWelcomeMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Welcome", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-07T11:11:25.902+0000"), 
+    "created" : ISODate("2018-09-07T06:05:45.341+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b98a9c4c58d981140238068"), 
+    "templateName" : "Reset-Password-Template", 
+    "templateSubject" : "NNXT Reset Password Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {resetPasswordMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Reset-Password", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-12T10:08:44.023+0000"), 
+    "created" : ISODate("2018-09-12T05:53:08.296+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b98ad05c58d98114023806a"), 
+    "templateName" : "OTP-Template", 
+    "templateSubject" : "NNXT OTP Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {OTPMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "OTP", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-12T10:08:25.913+0000"), 
+    "created" : ISODate("2018-09-12T06:07:01.261+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b9f81a19f55f22ff445d290"), 
+    "templateName" : "Raise-Leave-Template", 
+    "templateSubject" : "NNXT Raise Leave  Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Hello, </div>\n\n    <div style=\"height:20px;\">\n        {raiseLeaveMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Leaves", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-17T10:37:52.446+0000"), 
+    "created" : ISODate("2018-09-17T10:27:45.894+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b9f821a9f55f22ff445d291"), 
+    "templateName" : "Approved-Leave-Template", 
+    "templateSubject" : "NNXT Approved Leave Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {approvedLeaveMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Leaves", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-17T10:37:55.073+0000"), 
+    "created" : ISODate("2018-09-17T10:29:46.396+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b9f82639f55f22ff445d292"), 
+    "templateName" : "Reject-Raised-Leave-Template", 
+    "templateSubject" : "NNXT Reject Raised Leave Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {rejectRaisedLeaveMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Leaves", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-17T10:37:57.411+0000"), 
+    "created" : ISODate("2018-09-17T10:30:59.250+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b9f83089f55f22ff445d293"), 
+    "templateName" : "Reporting-Complete-Mark-Template", 
+    "templateSubject" : "NNXT Task Reporting Complete Mark Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {completeMarkReportingMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Reporting", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-17T10:37:59.479+0000"), 
+    "created" : ISODate("2018-09-17T10:33:44.655+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b9f835b9f55f22ff445d294"), 
+    "templateName" : "Reporting-Pending-Mark-Template", 
+    "templateSubject" : "NNXT Pending Reporting Mark Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {pendingMarkReportingMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Reporting", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-17T10:38:01.966+0000"), 
+    "created" : ISODate("2018-09-17T10:35:07.032+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}
+{ 
+    "_id" : ObjectId("5b9f83e69f55f22ff445d295"), 
+    "templateName" : "Reporting-Un-Reported-Template", 
+    "templateSubject" : "NNXT Un-Reported Reporting Mark Alert", 
+    "templateBody" : "<div style=\"height:10px;\">   </div>\n    <div style=\"height:20px;\"> Dear {userName}, </div>\n\n    <div style=\"height:20px;\">\n        {unReportedReportingMessage}\n    </div>\n\n    <div style=\"height:20px;\">   </div>\n\n    <div style=\"height:20px;\"> Thanks  </div>\n    <div style=\"height:20px;\"> NNXT Team  </div>", 
+    "templateType" : "Reporting", 
+    "status" : "Approved", 
+    "updated" : ISODate("2018-09-17T10:38:04.133+0000"), 
+    "created" : ISODate("2018-09-17T10:37:26.335+0000"), 
+    "isDeleted" : false, 
+    "createdBy" : {
+        "_id" : ObjectId("5b87dea3749236069ce69439"), 
+        "firstName" : "admin", 
+        "lastName" : "one"
+    }, 
+    "__v" : NumberInt(0), 
+    "approvedBy" : {
+        "lastName" : "one", 
+        "firstName" : "admin", 
+        "_id" : ObjectId("5b87dea3749236069ce69439")
+    }
+}

@@ -6,7 +6,8 @@ import {CALENDAR_TASK_PAGE} from "../../components/componentConsts";
 import * as A from "../../actions";
 
 const mapStateToProps = (state) => ({
-    loggedInUser: state.user.loggedIn
+    loggedInUser: state.user.loggedIn,
+    todayAllNotifications: state.notification && state.notification.todayAllNotifications ? state.notification.todayAllNotifications : null
 })
 
 const mapDispatchToProps = (dispatch) => ({

@@ -6,6 +6,8 @@ import {
     AppHomeContainer,
     HomeContainer,
     SuperAdminHomeContainer,
+    ForgotPasswordFormContainer,
+    LoginFormContainer,
     DemoHomeContainer
 } from '../containers'
 
@@ -26,6 +28,14 @@ class AppRouter extends Component {
 
                     return <HomeContainer/>
 
+                }
+                }/>,
+                <Route key="login_route" exact path="/login" render={(props) => {
+                    return <LoginFormContainer/>
+                }
+                }/>,
+                <Route key="forgot_password_route" exact path="/forgot-password" render={(props) => {
+                    return <ForgotPasswordFormContainer/>
                 }
                 }/>,
                 <Route key="super_admin_route" path="/super-admin" render={(props) => {

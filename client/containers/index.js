@@ -21,11 +21,15 @@ export {default as RoleListContainer} from './lists/RoleListContainer'
 //Users
 export {default as UserFormContainer} from './forms/UserFormContainer'
 export {default as UserListContainer} from './lists/UserListContainer'
+export {default as EmailTemplateFormContainer} from './forms/EmailTemplateFormContainer'
+export {default as EmailTypeFormContainer} from './forms/EmailTypeFormContainer'
+export {default as EmailTemplatesListContainer} from './lists/EmailTemplatesListContainer'
 export {default as AdminUserFormContainer} from './forms/AdminUserFormContainer'
 export {default as AdminUserListContainer} from './lists/AdminUserListContainer'
 export {default as UserProfileFormContainer} from './forms/UserProfileFormContainer'
 export {default as AdminRoleFormContainer} from './forms/AdminRoleFormContainer'
 export {default as AdminRoleListContainer} from './lists/AdminRoleListContainer'
+export {default as ForgotPasswordFormContainer} from './forms/ForgotPasswordFormContainer'
 
 //Employee Setting
 export {default as EmployeeSettingFormContainer} from './forms/EmployeeSettingFormContainer'
@@ -137,6 +141,10 @@ export {default as WarningListContainer} from './lists/WarningListContainer'
 //
 export {default as HolidayFormContainer} from './forms/HolidayFormContainer'
 export {default as HolidayListContainer} from './lists/HolidayListContainer'
+
+// Notifications
+
+export {default as NotificationsPageContainer} from './pages/NotificationsPageContainer'
 
 //Release Task filters
 export {default as TaskPlanDateNavBarContainer} from './forms/TaskPlanDateNavBarContainer'

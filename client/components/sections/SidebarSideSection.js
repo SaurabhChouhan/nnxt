@@ -7,7 +7,13 @@ import {connect} from 'react-redux'
 const SidebarSideSection = (props) => <div className="sidebarSideSection">
     <ul className="list-unstyled">
         <li><a href=""><i className="fa fa-th-large"></i></a></li>
-        <li><a href=""><i className="fa fa-bell-o"></i></a></li>
+        <li><Link to="/app-home/notifications-inbox" onClick={() => {
+            props.dispatch(A.getAllNotificationsFromServer())
+            props.dispatch(A.getTodayNotifications())
+            props.dispatch(A.showComponent(COC.NOTIFICATIONS_PAGE))}}>
+            <i className="fa fa-bell-o"></i>
+            <span>{console.log("props are: ", props.todayAllNotifications)}</span>
+        </Link></li>
         <li><a href=""><i className="fa fa-clock-o"></i></a></li>
     </ul>
     <ul className="list-unstyled bottom-option">

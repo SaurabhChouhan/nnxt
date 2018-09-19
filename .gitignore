@@ -12,3 +12,4 @@ dbDmp
 server/public/js/
 server/views/index.mustache
 dist/
+aws_for_ses.json

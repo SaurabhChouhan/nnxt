@@ -371,3 +371,32 @@ export const ALL_RELEASE_STATUS = [
     STATUS_ISSUE_FIXING,
     STATUS_STABLE
 ]
+
+/* Email Notifications Configuration Settings */
+/* Email Settings */
+export const NNXT_SELF_USER_AND_EMAIL_INFO = {"_id" : "5b87dea2749236069ce69430","email":"nnxt@aripratech.com"}
+export const SENDER_EMAIL_ADDRESS = "nnxt@aripratech.com"
+export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.png"
+export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
+export const COPY_RIGHT_FOOTER_MESSAGE = "Copyright 2018 : All right reserved."
+export const NNXT_ADMIN = "schouhan@aripratech.com"//"mpogra@aripratech.com" or "schouhan@aripratech.com"
+
+/* Email Templates Name and Messages*/
+export const EMAIl_HEADR_TEMPLATE = '<div style = "height: 42px;color: white;background: #333;padding-top: 15px;font-weight: bold;font-size: 25px;padding-left: 10px;">' +
+    '<img src="{NNXT_LOGO_URL}/img/logo.png" title="NNXT" alt="NNXT"/> </div>'
+export const EMAIl_TEMPLATE_FOOTER = '<div style = "height: 37px;color: white;background: #333;padding-top: 18px;font-weight: bold;font-size:14px;text-align: center;"> {COPY_RIGHT_FOOTER_MESSAGE} </div>'
+
+/* Basic Email Templates Name */
+export const WELCOME_TEMPLATE = "Welcome-Template"
+export const OTP_TEMPLATE = "OTP-Template"
+export const RESET_PASSWORD_TEMPLATE = "Reset-Password-Template"
+
+/* Leaves Email Templates Name */
+export const RAISE_LEAVE_TEMPLATE = "Raise-Leave-Template"
+export const APPROVED_LEAVE_TEMPLATE = "Approved-Leave-Template"
+export const REJECT_RAISED_LEAVE_TEMPLATE = "Reject-Raised-Leave-Template"
+
+/* Reporting Email Templates Name */
+export const REPORTING_COMPLETE_MARK_TEMPLATE = "Reporting-Complete-Mark-Template"
+export const REPORTING_PENDING_MARK_TEMPLATE = "Reporting-Pending-Mark-Template"
+export const REPORTING_UN_REPORTED_TEMPLATE = "Reporting-Un-Reported-Template"

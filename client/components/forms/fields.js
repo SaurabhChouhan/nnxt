@@ -111,6 +111,48 @@ export const renderSelect = ({
     </div>
 }
 
+export const renderSelectForEmailTemplateType = ({
+                                 input,
+                                 onChange,
+                                 label,
+                                 options,
+                                 readOnly = false,
+                                 noneOptionText = 'Select All',
+                                 noneOptionValue = 'undefined',
+                                 showNoneOption = true,
+                                 displayField = 'name',
+                                 optionalDisplayField = 'name',
+                                 disabled = false,
+                                 valueField = "_id",
+                                 hoverEnabledMsg,
+                                 hoverDisabledMsg,
+                                 meta: {touched, error, warning}
+                             }) => {
+
+    return <div className="form-group" style={{position: "relative"}}>
+        <label htmlFor={input.name}>{label} {touched &&
+        ((error &&
+            <span className="validation-error">
+            {error}
+          </span>))
+        }</label>
+        <select {...input}
+                className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
+                disabled={disabled} readOnly={readOnly}>
+            {showNoneOption && <option value={noneOptionValue}>{noneOptionText}</option>}
+            {
+                options && options.map(option => {
+                        return <option value={_.get(option, valueField)}
+                                       key={option[valueField]}>{_.get(option, displayField) ? _.get(option, displayField) : _.get(option, optionalDisplayField)}</option>
+                    }
+                )
+            }
+        </select>
+        {hoverEnabledMsg && <span className="enabledMsg">{hoverEnabledMsg}</span>}
+        {hoverDisabledMsg && <span className="disabledMsg">{hoverDisabledMsg}</span>}
+    </div>
+}
+
 
 export const renderTextArea = ({
                                    input,

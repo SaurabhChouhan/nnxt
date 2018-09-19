@@ -313,7 +313,7 @@ button.secondaryBtn:hover {
     left: 0;
     width: 100%;
     transform: translatex(-3em);
-    z-index: -1;
+    z-index: 1;
     transition: opacity ease-in-out 0.8s;
     background: #1e202c;
 }
@@ -385,6 +385,8 @@ button.secondaryBtn:hover {
     float: left;
     width: 100%;
     min-height: 200px;
+    overflow: auto;
+    height: 76%;
 }
 
 .sidebarContent a {
@@ -2274,6 +2276,23 @@ hr {
 
 .warningSource .source {
     color: red;
+}
+
+div.notificationTable table tr[width="100%"] td {
+    white-space: normal;
+}
+
+.templateTypes {
+    margin-top: 1%;
+}
+
+.templateTypes label {
+    float: left;
+    margin-right: 10px;
+}
+
+.templateTypes select {
+    width: 40%;
 }
 
 .planFilterTaskForm {
