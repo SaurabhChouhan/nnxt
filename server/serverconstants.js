@@ -400,3 +400,19 @@ export const REJECT_RAISED_LEAVE_TEMPLATE = "Reject-Raised-Leave-Template"
 export const REPORTING_COMPLETE_MARK_TEMPLATE = "Reporting-Complete-Mark-Template"
 export const REPORTING_PENDING_MARK_TEMPLATE = "Reporting-Pending-Mark-Template"
 export const REPORTING_UN_REPORTED_TEMPLATE = "Reporting-Un-Reported-Template"
+
+/* Notification types */
+export const NOTIFICATION_TYPE_LEAVE_RAISED = "Leave Raised"
+export const NOTIFICATION_TYPE_LEAVE_APPROVED = "Leave Approved"
+export const NOTIFICATION_TYPE_LEAVE_REJECTED = "Leave Rejected"
+export const NOTIFICATION_TYPE_LEAVE_REMOVED = "Leave Removed"
+export const NOTIFICATION_TYPE_TASK_ASSIGNED = "Task Assigned"
+export const NOTIFICATION_TYPE_TASK_UNASSIGNED = "Task Unassigned"
+export const NOTIFICATION_TYPE_TASK_MOVED = "Task Moved"
+export const NOTIFICATION_TYPE_TASK_REMOVED = "Task Removed"
+export const NOTIFICATION_TYPE_TASK_REPORTED = "Task Reported"
+export const NOTIFICATION_TYPE_TASK_UNREPORTED = "Task Unreported"
+export const NOTIFICATION_TYPE_TASK_REREPORTED = "Task Report Updated"
+export const NOTIFICATION_TYPE_TASK_SHIFTED = "Task Shifted"
+
+
