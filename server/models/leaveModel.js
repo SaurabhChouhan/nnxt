@@ -212,6 +212,30 @@ const updateFlags = async (generatedWarnings) => {
     }
 }
 
+const sendRaiseLeaveNotification = async (leaveInput, leaveType, user) => {
+
+    let managementUsers = await MDL.UserModel.find({
+        "roles.name": SC.ROLE_TOP_MANAGEMENT
+    }, {
+        email: 1
+    }).lean()
+
+    let data = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        startDate: leaveInput.startDate,
+        endDate: leaveInput.endDate,
+        leaveType: leaveType.name,
+        leaveDescription: leaveInput.description
+
+    }
+
+    let toList = [user.email, ...managementUsers.map(u => u.email)]
+
+    // Not waiting on this promise as this could run in background
+    sendNotificationNew(toList, SC.RAISE_LEAVE_TEMPLATE, data)
+}
+
 leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.leaveRequestAdditionStruct)
@@ -290,18 +314,9 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
 
 
     /**
-     * Send appropriate email notification
+     * Send appropriate email notification, no need to wait for email to send
      */
-    let NNXTadmin = await MDL.UserModel.findOne({email: SC.NNXT_ADMIN})
-    let emailData = {
-        admin: NNXTadmin,
-        user: user,
-        startDate: leaveInput.startDate,
-        endDate: leaveInput.endDate,
-        leaveType: leaveType.name,
-        leaveDescription: leaveInput.description
-    }
-    await sendNotificationNew(emailData, SC.RAISE_LEAVE_TEMPLATE)
+    sendRaiseLeaveNotification(leaveInput, leaveType, user)
 
     return {
         leave: newLeave,
@@ -309,58 +324,6 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
         affectedReleasePlans: affected.affectedReleasePlans,
         affectedTaskPlans: affected.affectedTaskPlans
     }
-}
-
-const updateEmployeeStatisticsOnLeaveApprove = async (leave, requester, approver) => {
-    /*  let startDateMoment = U.momentInUTC(leave.startDateString)
-      let endDateMoment = U.momentInUTC(leave.endDateString)
-      let singleDateMoment = startDateMoment.clone()
-      let employeeStatisticsOfEmployee = await MDL.EmployeeStatisticsModel.findOne({
-          'employee._id': requester._id,
-      })
-      if (employeeStatisticsOfEmployee) {
-          while (singleDateMoment.isSameOrBefore(endDateMoment)) {
-              let esIdx = employeeStatisticsOfEmployee.leaves && employeeStatisticsOfEmployee.leaves.length > 0 ? employeeStatisticsOfEmployee.leaves.findIndex(l => U.momentInUTC(l.dateString).isSame(singleDateMoment)) : -1
-              if (esIdx == -1) {
-                  employeeStatisticsOfEmployee.leaves.push({
-                      date: singleDateMoment.toDate(),
-                      dateString: U.formatDateInUTC(singleDateMoment.toDate()),
-                      reason: [{
-                          type: String,
-                          enum: [SC.REASON_MEDICAL, SC.REASON_PERSONAL, SC.REASON_OCCASION, SC.REASON_FESTIVAL]
-                      }],
-                      plannedHours: {type: Number, default: 0},
-                      isLastMinuteLeave: {type: Boolean, default: false},
-                  })
-              }
-
-              singleDateMoment = singleDateMoment.add(1, 'days')
-          }
-          return await employeeStatisticsOfEmployee.save()
-      } else {
-          let newEmployeeStatisticsOfEmployee = new MDL.EmployeeStatisticsModel()
-          newEmployeeStatisticsOfEmployee.employee = {}
-          newEmployeeStatisticsOfEmployee.employee._id = requester._id
-          newEmployeeStatisticsOfEmployee.employee.name = requester.firstName + ' ' + requester.lastName
-          newEmployeeStatisticsOfEmployee.leaves = []
-
-          while (singleDateMoment.isSameOrBefore(endDateMoment)) {
-              employeeStatisticsOfEmployee.leaves.push({
-                  date: singleDateMoment.toDate(),
-                  dateString: U.formatDateInUTC(singleDateMoment.toDate()),
-                  reason: [{
-                      type: String,
-                      enum: [SC.REASON_MEDICAL, SC.REASON_PERSONAL, SC.REASON_OCCASION, SC.REASON_FESTIVAL]
-                  }],
-                  plannedHours: {type: Number, default: 0},
-                  isLastMinuteLeave: {type: Boolean, default: false},
-              })
-
-              singleDateMoment = singleDateMoment.add(1, 'days')
-          }
-          return await newEmployeeStatisticsOfEmployee.save()
-      }
-  */
 }
 
 const updateEmployeeReleaseApproveLeave = async (releases, leave) => {
