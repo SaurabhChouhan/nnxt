@@ -8,7 +8,7 @@ import * as SC from "../serverconstants";
 import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
-import {sendNotificationNew} from "../notifications/byemail/notificationUtil";
+import {sendEmailNotification} from "../notifications/byemail/notificationUtil";
 
 mongoose.Promise = global.Promise
 
@@ -233,7 +233,7 @@ const sendRaiseLeaveNotification = async (leaveInput, leaveType, user) => {
     let toList = [user.email, ...managementUsers.map(u => u.email)]
 
     // Not waiting on this promise as this could run in background
-    sendNotificationNew(toList, SC.RAISE_LEAVE_TEMPLATE, data)
+    sendEmailNotification(toList, SC.RAISE_LEAVE_TEMPLATE, data)
 }
 
 leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested) => {
@@ -438,7 +438,7 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
         reason: reason
     }
 
-    sendNotificationNew(emailData, SC.APPROVED_LEAVE_TEMPLATE).then(() => {
+    sendEmailNotification(emailData, SC.APPROVED_LEAVE_TEMPLATE).then(() => {
 
     })
 
@@ -491,7 +491,7 @@ leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
         reason: reason
     }
 
-    sendNotificationNew(emailData, SC.REJECT_RAISED_LEAVE_TEMPLATE).then(() => {
+    sendEmailNotification(emailData, SC.REJECT_RAISED_LEAVE_TEMPLATE).then(() => {
 
     })
 

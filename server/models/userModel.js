@@ -6,7 +6,7 @@ import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
 import generateOTPUtil from '../notifications/generateOTP'
-import {sendNotificationNew} from '../notifications/byemail/notificationUtil'
+import {sendEmailNotification} from '../notifications/byemail/notificationUtil'
 
 mongoose.Promise = global.Promise
 
@@ -173,7 +173,7 @@ userSchema.statics.saveUser = async usrObj => {
             resetPasswordMessage: SC.RESET_PASSWORD_TEMPLATE_MESSAGE
         }
 
-        sendNotificationNew(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
+        sendEmailNotification(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
 
         })
     }
@@ -406,7 +406,7 @@ userSchema.statics.forgotPasswordRequestM = async (email) => {
             OTP: newOTP
         }
 
-        sendNotificationNew(emailData, SC.OTP_TEMPLATE).then(() => {
+        sendEmailNotification(emailData, SC.OTP_TEMPLATE).then(() => {
 
         })
     }
@@ -439,7 +439,7 @@ userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
                 user: storedUser,
                 resetPasswordMessage: SC.RESET_PASSWORD_TEMPLATE_MESSAGE
             }
-            sendNotificationNew(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
+            sendEmailNotification(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
 
             })
         }

@@ -7,7 +7,7 @@ import * as GetTextMessages from '../../textMessages'
 
 import logger from '../../logger'
 
-export const sendNotificationNew = async (toList, templateName, data) => {
+export const sendEmailNotification = async (toList, templateName, data) => {
     let emailTemplate = await EmailTemplatesModel.findOne({
         "templateName": templateName,
         "status": "Approved",
@@ -15,12 +15,8 @@ export const sendNotificationNew = async (toList, templateName, data) => {
     })
 
     if (emailTemplate) {
-        logger.debug("emailtemplate.template body is ", {body: emailTemplate.templateBody})
-
         let body = await TemplateUtil.getEmailBodyWithHeaderFooter(emailTemplate.templateBody, data);
         let subject = await TemplateUtil.performTokenReplacement(emailTemplate.templateSubject, data);
-        logger.debug("sendNotification New " + templateName, {body, subject})
-
         // Not waiting for anything as error while sending notifications would just be noted
         EmailSendBySES.sendEmailByAWSsES(toList, subject, body).catch(() => {
             logger.error("Problem sending email with template as [" + templateName)
