@@ -311,7 +311,7 @@ export const updateUserSettingsOnServer = (user) => {
 
 export const forgotPasswordRequest = (email) => {
     return function (dispatch, getState) {
-        return fetch('/api/public/forgot-password-request/'+email,
+        return fetch('/api/forgot-password-request/'+email,
             {
                 method: "get",
                 credentials: "include",
@@ -336,7 +336,7 @@ export const forgotPasswordRequest = (email) => {
 
 export const updateNewPasswordOnServer = (resetPassInfo) => {
     return function (dispatch, getState) {
-        return fetch('/api/public/update-new-password/',
+        return fetch('/api/update-new-password/',
             {
                 method: "put",
                 credentials: "include",

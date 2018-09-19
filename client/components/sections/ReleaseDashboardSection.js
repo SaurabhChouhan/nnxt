@@ -15,6 +15,8 @@ import {
     Label
 } from 'recharts'
 import moment from "moment";
+import momentTZ from 'moment-timezone'
+import {DATE_FORMAT} from "../../../server/serverconstants";
 
 
 const addPercentage = (value) => {
@@ -93,16 +95,61 @@ const getProgressAngles = (actualProgress, plannedProgress, reportedProgress) =>
 
 const renderPieCenter = ({cx, cy, value}) => {
     return (
-        <text x={cx} y={cy} fill="#4172c1" fontSize={"20"} fontWeight={"bold"} textAnchor={'middle'}
+        <text x={cx} y={cy} fill="#4172c1" fontSize={"18"} fontWeight={"bold"} textAnchor={'middle'}
               dominantBaseline="middle">
             {`${value}`}
         </text>
     );
 };
 
+const renderPieTopLeft = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index, value}) => {
+    console.log("renderPercentagePieOutside(): ", cx, cy, midAngle, innerRadius, outerRadius, percent, index, value)
+    return (
+        <text x={cx - outerRadius} y={cy - outerRadius} fill="#ffa75b" fontSize={"16"} fontWeight={"bold"}
+              textAnchor={'middle'}
+              dominantBaseline="middle">
+            {`${value}`}
+        </text>
+    );
+};
+
+const renderPieTopRight = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index, value}) => {
+    console.log("renderPercentagePieOutside(): ", cx, cy, midAngle, innerRadius, outerRadius, percent, index, value)
+    return (
+        <text x={cx + outerRadius - 10} y={cy - outerRadius + 10} fill="#e52d8c" fontSize={"16"} fontWeight={"bold"}
+              textAnchor={'middle'}
+              dominantBaseline="middle">
+            {`${value}`}
+        </text>
+    );
+};
+
+
 const renderPercentagePieCenter = ({cx, cy, value}) => {
     return (
-        <text x={cx} y={cy} fill="#4172c1" fontSize={"20"} fontWeight={"bold"} textAnchor={'middle'}
+        <text x={cx} y={cy} fill="#4172c1" fontSize={"18"} fontWeight={"bold"} textAnchor={'middle'}
+              dominantBaseline="middle">
+            {`${value}%`}
+        </text>
+    );
+};
+
+const renderPercentagePieTopLeft = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index, value}) => {
+    console.log("renderPercentagePieOutside(): ", cx, cy, midAngle, innerRadius, outerRadius, percent, index, value)
+    return (
+        <text x={cx - outerRadius - 5} y={cy - outerRadius} fill="#ffa75b" fontSize={"16"} fontWeight={"bold"}
+              textAnchor={'middle'}
+              dominantBaseline="middle">
+            {`${value}%`}
+        </text>
+    );
+};
+
+const renderPercentagePieTopRight = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index, value}) => {
+    console.log("renderPercentagePieOutside(): ", cx, cy, midAngle, innerRadius, outerRadius, percent, index, value)
+    return (
+        <text x={cx + outerRadius - 5} y={cy - outerRadius + 10} fill="#e52d8c" fontSize={"16"} fontWeight={"bold"}
+              textAnchor={'middle'}
               dominantBaseline="middle">
             {`${value}%`}
         </text>
@@ -154,8 +201,8 @@ class DashboardSection extends Component {
             this.state.monthMoment = moment()
         }
 
-        let releaseStartMonth = moment(this.props.release.devStartDate)
-        let releaseEndMonth = moment(this.props.release.devEndDate)
+        let releaseStartMonth = moment(momentTZ.utc(this.props.release.devStartDate).format(DATE_FORMAT))
+        let releaseEndMonth = moment(momentTZ.utc(this.props.release.devEndDate).format(DATE_FORMAT))
 
         let beforeOrSameAsStartMonth = false
         let afterOrSameAsLastMonth = false
@@ -221,14 +268,16 @@ class DashboardSection extends Component {
                              cx={barWidth / 2}
                              cy={80} outerRadius={70} innerRadius={62} startAngle={plannedProgressStartAngle}
                              endAngle={plannedProgressEndAngle} fill={plannedColor}
-                             label={renderPercentage}/>
+                             label={renderPercentagePieTopLeft}
+                             labelLine={false}/>
                         <Pie isAnimationActive={false}
                              dataKey={"value"}
                              data={[{name: 'Reported Progress', value: this.props.progress.reported}]}
                              cx={barWidth / 2}
                              cy={80} outerRadius={80} innerRadius={72} startAngle={reportedProgressStartAngle}
                              endAngle={reportedProgressEndAngle} fill={reportedColor}
-                             label={renderPercentage}/>/>
+                             labelLine={false}
+                             label={renderPercentagePieTopRight}/>
                         <Legend/>
                         <Tooltip/>
                     </PieChart>
@@ -287,14 +336,18 @@ class DashboardSection extends Component {
                              cx={barWidth / 2}
                              cy={80} outerRadius={70} innerRadius={62} startAngle={plannedStartAngle}
                              endAngle={plannedEndAngle} fill={plannedColor}
-                             label/>
+                             label={renderPieTopLeft}
+                             labelLine={false}
+                        />
                         <Pie isAnimationActive={false}
                              dataKey={"value"}
                              data={[{name: 'Reported Hours', value: this.props.hoursData.reportedHours}]}
                              cx={barWidth / 2}
                              cy={80} outerRadius={80} innerRadius={72} startAngle={reportedStartAngle}
                              endAngle={reportedEndAngle} fill={reportedColor}
-                             label/>
+                             label={renderPieTopRight}
+                             labelLine={false}
+                        />
                         <Legend/>
                         <Tooltip/>
                     </PieChart>

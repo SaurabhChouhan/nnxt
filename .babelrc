@@ -4,26 +4,32 @@
   "env": {
     "server": {
       "presets": [
-        "react",
-        "es2015"
-      ],
-      "plugins": [
         [
-          "css-modules-transform",
+          "@babel/react",
           {
-            "generateScopedName": "[hash:8]",
-            "extensions": [
-              ".scss"
-            ]
+            "targets": {
+              "node": "8.11"
+            },
+            "debug": false
+          }
+        ],
+        [
+          "@babel/env",
+          {
+            "debug": false,
+            "useBuiltIns": "false",
+            "targets": {
+              "node": "8.11"
+            }
           }
         ]
-      ]
+      ],
+      "plugins": ["transform-es2015-modules-commonjs"]
     },
     "client": {
       "presets": [
-        "es2015",
-        "react",
-        "stage-2"
+        "@babel/react",
+        "@babel/env"
       ],
       "plugins": []
     }

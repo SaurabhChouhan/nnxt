@@ -58,38 +58,56 @@ userSchema.statics.getAllActive = async (loggedInUser) => {
 userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
     if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR) || userHasRole(loggedInUser, SC.ROLE_MANAGER) || userHasRole(loggedInUser, SC.ROLE_LEADER)) {
 
+        let leaders = undefined
+
+        if (!userHasRole(loggedInUser, SC.ROLE_MANAGER) && !userHasRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT)) {
+            // User would only be able to see himself as leader
+            leaders = await UserModel.find({
+                    "roles.name": {
+                        $in: [SC.ROLE_LEADER],
+                        $ne: SC.ROLE_SUPER_ADMIN
+                    }, isDeleted: false,
+                    _id: loggedInUser._id
+                }, {password: 0}
+            ).exec()
+
+        } else {
+            leaders = await UserModel.find({
+                    "roles.name": {
+                        $in: [SC.ROLE_LEADER],
+                        $ne: SC.ROLE_SUPER_ADMIN
+                    }, isDeleted: false
+                }, {password: 0}
+            ).exec()
+        }
+
         // Negotiator can see estimators (Estimation Initiate), developers, leaders (company cost approximations)
-        let Leaders = await UserModel.find({
-                "roles.name": {
-                    $in: [SC.ROLE_LEADER],
-                    $ne: SC.ROLE_SUPER_ADMIN
-                }, isDeleted: false
-            }, {password: 0}
-        ).exec()
-        let Managers = await UserModel.find({
+        let managers = await UserModel.find({
                 "roles.name": {
                     $in: [SC.ROLE_MANAGER]
                 }, isDeleted: false
             }, {password: 0}
         ).exec()
-        let Developers = await UserModel.find({
+
+        let developers = await UserModel.find({
                 "roles.name": {
                     $in: [SC.ROLE_DEVELOPER]
                 }, isDeleted: false
             }, {password: 0}
         ).exec()
+
         let userList = {
-            managers: Managers && Managers.length ? Managers.map(m => {
+            managers: managers && managers.length ? managers.map(m => {
                 m = m.toObject()
                 m.name = m.firstName + ' ' + m.lastName
                 return m
             }) : [],
-            leaders: Leaders && Leaders.length ? Leaders.map(l => {
+            leaders: leaders && leaders.length ? leaders.map(l => {
                 l = l.toObject()
                 l.name = l.firstName + ' ' + l.lastName
                 return l
             }) : [],
-            team: Developers && Developers.length ? Developers.map(t => {
+            team: developers && developers.length ? developers.map(t => {
                 t = t.toObject()
                 t.name = t.firstName + ' ' + t.lastName
                 return t

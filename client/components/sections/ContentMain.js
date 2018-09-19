@@ -48,9 +48,11 @@ import {
     UpdateReleaseDatesFormDialog,
     EstimationAddToReleaseDialog,
     ReleasePlanAddToReleaseDialog,
+    UpdateReleasePlanDialog,
     TaskShiftDialog,
     ReportTaskDescriptionFormDialog,
-    CreateReleaseDialog
+    CreateReleaseDialog,
+    UpdateReleaseDialog
 
 } from "../index"
 import {Route} from 'react-router-dom'
@@ -292,11 +294,11 @@ class ContentMain extends Component {
                 return <ContentSection>
                     <ReleaseListContainer name={COC.RELEASE_LIST}/>
                     <CreateReleaseDialog name={COC.CREATE_RELEASE_FORM_DIALOG} show={true}
-                                                   close={
-                                                       () => {
-                                                           this.props.dispatch(A.hideComponent(COC.CREATE_RELEASE_FORM_DIALOG))
-                                                       }
-                    }/>
+                                         close={
+                                             () => {
+                                                 this.props.dispatch(A.hideComponent(COC.CREATE_RELEASE_FORM_DIALOG))
+                                             }
+                                         }/>
                 </ContentSection>
 
             }
@@ -307,16 +309,28 @@ class ContentMain extends Component {
             render: (props) => {
                 logger.debug(logger.CONTENT_MAIN_RENDER, "/release: props:", props)
                 return <ContentSection>
-                    <ReleasePlanSectionContainer name={COC.RELEASE_PLAN_LIST}/>
+                    <ReleasePlanSectionContainer name={COC.RELEASE_PLAN_SECTION}/>
                     <UpdateReleaseDatesFormDialog name={COC.UPDATE_RELEASE_DATES_DIALOG} show={true} close={
                         () => {
                             this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_DATES_DIALOG))
                         }
                     }/>
+                    <UpdateReleaseDialog name={COC.UPDATE_RELEASE_FORM_DIALOG} show={true}
+                                         close={
+                                             () => {
+                                                 this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_FORM_DIALOG))
+                                             }
+                                         }/>
                     <ReleasePlanAddToReleaseDialog name={COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG} show={true}
                                                    close={
                                                        () => {
                                                            this.props.dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
+                                                       }
+                                                   }/>
+                    <UpdateReleasePlanDialog name={COC.UPDATE_RELEASE_PLAN_FORM_DIALOG} show={true}
+                                                   close={
+                                                       () => {
+                                                           this.props.dispatch(A.hideComponent(COC.UPDATE_RELEASE_PLAN_FORM_DIALOG))
                                                        }
                                                    }/>
                 </ContentSection>
@@ -429,13 +443,23 @@ class ContentMain extends Component {
         }
     }
 
+    componentDidMount() {
+        this.props.showLaunchComponent()
+
+    }
+
     render() {
         logger.debug(logger.CONTENT_MAIN_RENDER, this.props)
         return <div>
             {
                 this.state.routes.length > 0 &&
                 <Route key={"app_home_route"} dispatch={this.props.dispatch} exact path={this.props.match.url}
-                       render={this.state.routes[0].render}/>
+                       render={(props) => {
+                           return <ContentSection>
+                               <CalendarTaskPageContainer name={COC.CALENDAR_TASK_PAGE}/>
+                           </ContentSection>
+
+                       }}/>
             }
             {
                 this.state.routes.map((route, idx) => <Route key={"app_route" + idx}

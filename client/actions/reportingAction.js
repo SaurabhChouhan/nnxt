@@ -211,10 +211,9 @@ export const addCommentToServer = (comment) => {
     }
 }
 
-
 export const getReleasePlanByIdFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
+        return fetch('/api/release-plans/' + releasePlanID, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -233,7 +232,34 @@ export const getReleasePlanByIdFromServer = (releasePlanID) => {
             })
     }
 }
+export const getReleaseTaskReportsResultFromServer = (formInput) => {
+    console.log("get the release result from server getReleaseTaskReportsResultFromServer ", formInput)
 
+    // Add reported true flag in order to get only those task plans that are reported
+
+    formInput.reportedOnly = true
+
+    return (dispatch) => {
+        return fetch('/api/task-plans/search', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(setReportsOfRelease(json.data))
+                }
+                return json
+            })
+    }
+}
 
 
 

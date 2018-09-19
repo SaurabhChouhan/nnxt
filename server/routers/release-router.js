@@ -4,14 +4,13 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import * as U from '../utils'
 import AppError from '../AppError'
-import _ from 'lodash'
 
 /***
  * Added prefix
  */
 
 let releaseRouter = new Router({
-    prefix: "releases"
+    prefix: "/releases"
 })
 
 /***
@@ -26,6 +25,9 @@ releaseRouter.post("/", async ctx => {
     return await MDL.ReleaseModel.createRelease(ctx.request.body, ctx.state.user)
 })
 
+releaseRouter.put("/", async ctx => {
+    return await MDL.ReleaseModel.updateRelease(ctx.request.body, ctx.state.user)
+})
 
 /***
  * Get all releases
@@ -36,6 +38,10 @@ releaseRouter.get("/mine/status/:status", async ctx => {
 
 releaseRouter.get("/all/status/:status", async ctx => {
     return await MDL.ReleaseModel.getAllReleases(ctx.params.status, ctx.state.user)
+})
+
+releaseRouter.post('/search', async ctx => {
+    return await MDL.ReleaseModel.search(ctx.request.body, ctx.state.user)
 })
 
 /***
@@ -50,15 +56,6 @@ releaseRouter.put("/release-date", async ctx => {
  ***/
 releaseRouter.get("/release/:releaseID", async ctx => {
     return await MDL.ReleaseModel.getFullReleaseDetailsById(ctx.params.releaseID, ctx.state.user)
-})
-
-
-/***
- * Get release plan details by release plan Id
- ***/
-releaseRouter.get("/:releasePlanID/release-plan", async ctx => {
-    return await MDL.ReleasePlanModel.getReleasePlanByID(ctx.params.releasePlanID, ctx.state.user)
-
 })
 
 /***
@@ -80,7 +77,7 @@ releaseRouter.get("/:releaseID/details-for-reporting", async ctx => {
  * Get release Plan list in which logged in user is involved as a manager or leader or developer or non project developer  by release ID and release plan status
  ***/
 releaseRouter.get("/:releaseID/status/:status/flag/:empflag/release-plans", async ctx => {
-    let roleInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(ctx.params.releaseID, ctx.state.user)
+    let roleInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(ctx.params.releaseID, ctx.state.user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], roleInRelease)) {
         throw new AppError("Only user with role [" + SC.ROLE_MANAGER + " or " + SC.ROLE_LEADER + "] can see Release task list", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -149,18 +146,14 @@ releaseRouter.get("/employee-statistics/:id", async ctx => {
     return await MDL.EmployeeStatisticsModel.getActiveEmployeeStatistics(ctx.state.user)
 })
 
-releaseRouter.post("/add-planned-task", async ctx => {
-    return await MDL.ReleasePlanModel.addPlannedReleasePlan(ctx.request.body, ctx.state.user)
-})
-
-releaseRouter.post("/add-unplanned-task", async ctx => {
-    return await MDL.ReleasePlanModel.addUnplannedReleasePlan(ctx.request.body, ctx.state.user)
-})
-
 releaseRouter.get("/release-plan/:releasePlanID/iteration-data", async ctx => {
     return await MDL.ReleasePlanModel.findById(ctx.params.releasePlanID, {
         "release.iteration": 1
     })
+})
+
+releaseRouter.get('/fix-release-stats/:releaseID', async ctx => {
+    return await MDL.ReleaseModel.fixReleaseStats(ctx.params.releaseID)
 })
 
 export default releaseRouter

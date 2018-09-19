@@ -7,8 +7,10 @@ import {createStore, applyMiddleware} from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import logger from 'redux-logger'
 import reducers from './reducers'
+import {setScreenSize} from "./actions";
 
 let store = createStore(reducers, __PRELOADED_STATE__, applyMiddleware(thunkMiddleware, logger))
+store.dispatch(setScreenSize(window.innerHeight, window.innerWidth))
 //let store = createStore(reducers, __PRELOADED_STATE__, applyMiddleware(thunkMiddleware))
 const App = props =>
     <Provider store={store}>

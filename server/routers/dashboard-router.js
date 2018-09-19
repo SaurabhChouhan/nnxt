@@ -9,7 +9,7 @@ import generateOTPUtil from '../notifications/generateOTP'
 
 
 const dashboardRouter = new Router({
-    prefix: 'dashboard'
+    prefix: '/dashboard'
 })
 
 dashboardRouter.get('/', (ctx) => {

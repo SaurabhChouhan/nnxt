@@ -39,6 +39,7 @@ export {default as EmployeeSettingFormContainer} from './forms/EmployeeSettingFo
 export {default as RepositoryTaskDetailPageContainer} from './pages/RepositoryTaskDetailPageContainer'
 export {default as RepositoryFeatureDetailPageContainer} from './pages/RepositoryFeatureDetailPageContainer'
 export {default as RepositorySearchContainer} from './pages/RepositorySearchContainer'
+export {default as DemoHomeContainer} from './pages/DemoHomeContainer'
 
 
 //Estimation pages
@@ -69,6 +70,7 @@ export {default as ReportTaskDescriptionFormContainer} from './forms/ReportTaskD
 
 // Release forms
 export {default as CreateReleaseFormContainer} from './forms/CreateReleaseFormContainer'
+export {default as UpdateReleaseFormContainer} from './forms/UpdateReleaseFormContainer'
 
 //Projects
 export {default as ProjectListContainer} from './lists/ProjectListContainer'
@@ -117,6 +119,7 @@ export {default as ReleaseTaskPlanningFormContainer} from './forms/ReleaseTaskPl
 export {default as ReleaseMoveTaskPlanFormContainer} from './forms/ReleaseMoveTaskPlanFormContainer'
 export {default as UpdateReleaseDatesFormContainer} from './forms/UpdateReleaseDatesFormContainer'
 export {default as ReleasePlanAddToReleaseFormContainer} from './forms/ReleasePlanAddToReleaseFormContainer'
+export {default as UpdateReleasePlanFormContainer} from './forms/UpdateReleasePlanFormContainer'
 export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleasePlanListContainer} from './lists/ReleasePlanListContainer'
 export {default as ReleasePlanSectionContainer} from './sections/ReleasePlanSectionContainer'
@@ -142,3 +145,8 @@ export {default as HolidayListContainer} from './lists/HolidayListContainer'
 // Notifications
 
 export {default as NotificationsPageContainer} from './pages/NotificationsPageContainer'
+
+//Release Task filters
+export {default as TaskPlanDateNavBarContainer} from './forms/TaskPlanDateNavBarContainer'
+export {default as TaskReportDateNavBarContainer} from './forms/TaskReportDateNavBarContainer'
+export {default as ReleasePlanDateNavBarContainer} from './forms/ReleasePlanDateNavBarContainer'

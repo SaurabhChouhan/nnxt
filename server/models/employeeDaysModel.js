@@ -23,7 +23,8 @@ let employeeDaysSchema = mongoose.Schema({
     },
     date: {type: Date, default: Date.now()},
     dateString: String,
-    plannedHours: {type: Number, default: 0}
+    plannedHours: {type: Number, default: 0},
+    reportedHours: {type: Number, default: 0}
 })
 
 
@@ -121,7 +122,17 @@ const getEmployeeWorkCalendar = async (employee, startMonth, endMonth, startDay)
         employeeDays.forEach(e => {
             let date = U.momentInUTC(e.dateString).date()
             // place planned hours against this date
-            schedule[date - 1].hours = e.plannedHours
+
+            if (e.reportedHours > 0) {
+                schedule[date - 1].hours = e.reportedHours
+                schedule[date - 1].reportedHours = e.reportedHours
+                schedule[date - 1].plannedHours = e.plannedHours
+                schedule[date - 1].reported = true
+            }
+            else {
+                schedule[date - 1].hours = e.plannedHours
+                schedule[date - 1].plannedHours = e.plannedHours
+            }
         })
     }
 
@@ -159,7 +170,7 @@ const getAllEmployeesWorkCalendar = async (employees, startMonth, endMonth, star
 employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, year, user, releaseID) => {
 
     if (releaseID) {
-        let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+        let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(releaseID, user)
         if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
             throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see employee schedules of that release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
         }
@@ -316,6 +327,13 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
             }]
         }
     }
+}
+
+/**
+ * This method would update employee days of all the employees to add reported hours against them
+ */
+employeeDaysSchema.statics.updateEmployeeDays = async () => {
+
 }
 
 

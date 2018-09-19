@@ -2,13 +2,18 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
-import moment from 'moment'
 import {ReleaseTaskSearchFormContainer} from '../../containers'
+import {TaskPlanDateNavBarContainer} from '../../containers'
+import momentTZ from 'moment-timezone'
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {NotificationManager} from "react-notifications";
 
 class TaskPlanList extends Component {
 
     constructor(props) {
         super(props);
+        let sizePerPage = Math.floor((props.screenHeight - 320)/25)
+
         this.options = {
             sizePerPageList: [{
                 text: '6', value: 6
@@ -19,13 +24,25 @@ class TaskPlanList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage: 6,  // which size per page you want to locate as default
+            sizePerPage,  // which size per page you want to locate as default
 
         }
+
+        this.state = {
+            value: '',
+            copied: false,
+        };
+
+
     }
 
     componentDidMount() {
-        this.props.getAllTaskPlans(this.props.release)
+        //this.props.getAllTaskPlans(this.props.release)
+    }
+
+
+    onRowDoubleClick(row) {
+
     }
 
     formatDeveloperName(employee) {
@@ -55,7 +72,7 @@ class TaskPlanList extends Component {
 
     formatPlannedDate(row) {
         if (row) {
-            return moment(row).format(SC.DATE_DISPLAY_FORMAT)
+            return momentTZ.utc(row).format(SC.DATE_DISPLAY_FORMAT)
         }
         return ''
     }
@@ -70,6 +87,24 @@ class TaskPlanList extends Component {
         if (report)
             return report.reportedHours
         return 0
+    }
+
+    formatCopyButton(cell, row, enumObject, rowIndex){
+        return (
+            <div>
+                <CopyToClipboard text={row.description} onCopy={() => this.props.onCopy()}>
+                    <button id={row._id} className="fa fa-copy pull-left btn btn-custom" type="button">
+                    </button>
+                </CopyToClipboard>
+            </div>
+        )
+    }
+
+
+    formatReportDescription(report) {
+        if (report)
+            return report.description
+        return ''
     }
 
     formatFlags(flags) {
@@ -158,46 +193,93 @@ class TaskPlanList extends Component {
 
 
     render() {
-        const {taskPlans} = this.props
-        console.log("taskPlans------------------", taskPlans)
+        const {taskPlans, screenHeight} = this.props
+        console.log("taskPlans------------------", taskPlans, this.props.expandDescription)
+
+        let tableHeight = screenHeight - 335
 
         return (
-            <div className="col-md-12 estimation release-plan-table">
-                <BootstrapTable options={this.options} data={taskPlans}
-                                multiColumnSearch={true}
-                                search={false}
-                                striped={true}
-                                pagination
-                                hover={true}
-                                height={"300px"}>
-                    <TableHeaderColumn columnTitle isKey dataField='_id'
-                                       hidden={true}>ID
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width={"20%"} columnTitle dataField='task'
-                                       dataFormat={this.formatTaskName.bind(this)}>Tasks
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width={"20%"} columnTitle dataField='employee'
-                                       dataFormat={this.formatDeveloperName.bind(this)}>Developer
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width="18%" dataField='flags'
-                                       dataFormat={this.formatFlags.bind(this)}>
-                        Flag</TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"12%"} dataField='planningDate'
-                                       dataFormat={this.formatPlannedDate.bind(this)}>Planning
-                        Date
-                    </TableHeaderColumn>
-                    <TableHeaderColumn columnTitle width={"10%"} dataField='planning'
-                                       dataFormat={this.formatPlannedHours.bind(this)}>Planned
-                        Hours
-                    </TableHeaderColumn>
-                    <TableHeaderColumn width="10%" columnTitle dataField='report'
-                                       dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
-                        Hours</TableHeaderColumn>
-                    <TableHeaderColumn width="10%" columnTitle dataField='report'
-                                       dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
-                    </TableHeaderColumn>
+            <div>
+                <div>
+                    <TaskPlanDateNavBarContainer/>
+                </div>
 
-                </BootstrapTable>
+                {this.props.expandDescription ?
+                    <div
+                        className={"col-md-12 wrapTextTable"}>
+                        <BootstrapTable options={this.options} data={taskPlans}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={tableHeight+"px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planningDate'
+                                               dataFormat={this.formatPlannedDate.bind(this)}>Planning
+                                Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"20%"} dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Tasks
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
+                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                            </TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                            </TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatReportedStatus.bind(this)} dataAlign={"center"}>Status
+                            </TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"42%"} dataField='description'>Day Requirement
+                            </TableHeaderColumn>
+
+
+
+                        </BootstrapTable>
+                    </div> :
+                    <div className={"col-md-12"}>
+                        <BootstrapTable options={this.options} data={taskPlans}
+                                        search={false}
+                                        striped={true}
+                                        pagination
+                                        hover={true}
+                                        height={tableHeight+"px"}>
+                            <TableHeaderColumn columnTitle isKey dataField='_id'
+                                               hidden={true}>ID
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planningDate'
+                                               dataFormat={this.formatPlannedDate.bind(this)}>Planning
+                                Date
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"20%"} dataField='task'
+                                               dataFormat={this.formatTaskName.bind(this)}>Tasks
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width={"14%"} columnTitle dataField='employee'
+                                               dataFormat={this.formatDeveloperName.bind(this)}>Developer
+                            </TableHeaderColumn>
+                            <TableHeaderColumn width="14%" dataField='flags'
+                                               dataFormat={this.formatFlags.bind(this)}>
+                                Flag</TableHeaderColumn>
+
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='planning'
+                                               dataFormat={this.formatPlannedHours.bind(this)} dataAlign={"right"}>Planned
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatReportedHours.bind(this)} dataAlign={"right"}>Reported
+                            </TableHeaderColumn>
+                            <TableHeaderColumn className="description" columnTitle width={"20%"} dataField='description'>Day Requirement
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle width={"8%"} dataField='report'
+                                               dataFormat={this.formatCopyButton.bind(this)} dataAlign={"center"}>Copy
+                            </TableHeaderColumn>
+                        </BootstrapTable>
+                    </div>
+                }
             </div>
         )
     }

@@ -8,7 +8,7 @@ import * as MDL from "../models"
 
 
 const calendarRouter = new Router({
-    prefix: "calendars"
+    prefix: "/calendars"
 })
 
 calendarRouter.get("/holidays", async ctx => {

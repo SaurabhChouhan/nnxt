@@ -1,6 +1,8 @@
 import * as AC from "../actions/actionConsts"
 import * as SC from "../../server/serverconstants"
 import moment from 'moment'
+import momentTZ from "moment-timezone";
+import {DATE_FORMAT} from "../../server/serverconstants";
 
 let now = new Date()
 let nowString = moment(now).format(SC.DATE_FORMAT)
@@ -14,20 +16,38 @@ let initialState = {
     taskPlans: [],
     developerPlans: [],
     expanded: false,
+    expandDescriptionTaskList: false,
     fromSchedule: nowString,
     schedules: [],
     employeeSetting: {},
     selectedIteration: undefined,
     from: nowString,
     selectedTab: SC.RELEASE_DASHBOARD_TAB,
-    taskPlansOfReleasePlanDeveloper: []
+    taskPlansOfReleasePlanDeveloper: [],
+    expandDescriptionTaskReportList: false,
+    expandDescriptionReleaseTaskList: false,
+    releasePlanFilters: {
+        updated: false,
+        releaseID: undefined,
+        startDate: undefined,
+        endDate: undefined,
+        status: '',
+        flag: '',
+        expandDescription: false
+    },
+    releaseFilters: {
+        updated: false,
+        manager: undefined,
+        leader: undefined,
+        status: undefined,
+        showActive: true
+    }
 }
 
 const releaseReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_AVAILABLE_RELEASES:
             // add all releases from server
-
             return Object.assign({}, state, {allAvailableReleases: action.releases && Array.isArray(action.releases) && action.releases.length ? action.releases : []})
 
         case AC.ADD_RELEASES:
@@ -98,6 +118,22 @@ const releaseReducer = (state = initialState, action) => {
 
             let release = action.release
 
+            let releaseStartMoment = moment(momentTZ.utc(release.devStartDate).format(DATE_FORMAT))
+            let releaseEndMoment = moment(momentTZ.utc(release.devEndDate).format(DATE_FORMAT))
+            let now = moment(moment().format(DATE_FORMAT), DATE_FORMAT)
+
+            let startDate = undefined
+            let endDate = undefined
+            if (now.isAfter(releaseEndMoment) || now.isBefore(releaseStartMoment))
+                startDate = releaseStartMoment.format(DATE_FORMAT)
+            else
+                startDate = now.format(DATE_FORMAT)
+
+            if (now.isAfter(releaseEndMoment) || now.isBefore(releaseStartMoment)) {
+                // Show task plans of release date range
+                endDate = releaseEndMoment.format(DATE_FORMAT)
+            }
+
             let plannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
             let sm = {
                 sumPlannedHours: 0,
@@ -125,14 +161,21 @@ const releaseReducer = (state = initialState, action) => {
             release.plannedStats = sm
             return Object.assign({}, state, {
                 selectedRelease: release,
-                teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam]
+                teamOfRelease: [...action.release.team, ...action.release.nonProjectTeam],
+                releasePlanFilters: {
+                    releaseID: release._id,
+                    startDate:'',
+                    endDate:'',
+                    status: '',
+                    flag: '',
+                    updated: false
+                }
             })
-
         case AC.ADD_RELEASE_PLANS:
             // adding release plan li
             return Object.assign({}, state, {releasePlans: action.releasePlans})
-
-
+        case AC.DELETE_RELEASE_PLAN:
+            return Object.assign({}, state, {releasePlans: state.releasePlans.filter(rp=> rp._id.toString() != action.releasePlanID)})
         case AC.RELEASE_PLAN_SELECTED:
             // selecting release plan and its initial data
             return Object.assign({}, state, {
@@ -252,6 +295,30 @@ const releaseReducer = (state = initialState, action) => {
         case AC.ITERATION_SELECTED:
             return Object.assign({}, state, {
                 selectedIteration: action.iteration
+            })
+        case AC.EXPAND_DESCRIPTION_TASK_LIST:
+            return Object.assign({}, state, {
+                expandDescriptionTaskList: action.flag
+            })
+        case AC.EXPAND_DESCRIPTION_TASK_REPORT_LIST:
+            return Object.assign({}, state, {
+                expandDescriptionTaskReportList: action.flag
+            })
+        case AC.EXPAND_DESCRIPTION_RELEASE_PLAN_LIST:
+            return Object.assign({}, state, {
+                releasePlanFilters: Object.assign({}, state.releasePlanFilters, {expandDescription: action.flag})
+            })
+        case AC.CHANGE_RELEASEPLAN_FILTERS:
+            return Object.assign({}, state, {
+                releasePlanFilters: Object.assign({}, action.filters, {
+                    updated: true
+                })
+            })
+        case AC.CHANGE_RELEASE_FILTERS:
+            return Object.assign({}, state, {
+                releaseFilters: Object.assign({}, action.filters, {
+                    updated: true
+                })
             })
         default:
             return state

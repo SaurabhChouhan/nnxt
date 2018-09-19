@@ -350,6 +350,28 @@ export const EVENT_INTERVAL = 1000 * 3600
 export const MODE_DEVELOPMENT = "development"
 export const MODE_PRODUCTION = "production"
 
+//Task Plan Search Status
+export const ALL_TASK_STATUS = [
+    STATUS_UNREPORTED,
+    STATUS_PENDING,
+    STATUS_COMPLETED
+]
+
+export const ALL_REPORTED_STATUS = [
+    STATUS_PENDING,
+    STATUS_COMPLETED
+]
+
+export const ALL_RELEASE_STATUS = [
+    STATUS_AWARDED,
+    STATUS_DEV_IN_PROGRESS,
+    STATUS_DEV_COMPLETED,
+    STATUS_TEST_COMPLETED,
+    STATUS_DEPLOYED,
+    STATUS_ISSUE_FIXING,
+    STATUS_STABLE
+]
+
 /* Email Notifications Configuration Settings */
 /* Email Settings */
 export const NNXT_SELF_USER_AND_EMAIL_INFO = {"_id" : "5b87dea2749236069ce69430","email":"nnxt@aripratech.com"}

@@ -5,7 +5,7 @@ import {isAdmin, isAuthenticated, isSuperAdmin} from "../utils"
 import AppError from '../AppError'
 
 const userRouter = new Router({
-    prefix: "users"
+    prefix: "/users"
 })
 
 

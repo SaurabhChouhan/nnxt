@@ -3,7 +3,7 @@ import * as V from "../validation"
 import * as MDL from "../models"
 
 let technologyRouter = new Router({
-    prefix: 'technologies'
+    prefix: '/technologies'
 })
 
 

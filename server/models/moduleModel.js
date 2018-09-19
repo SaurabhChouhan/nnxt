@@ -24,14 +24,8 @@ let moduleSchema = mongoose.Schema({
 
 
 moduleSchema.statics.getAllActive = async (loggedInUser) => {
-    if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR)) {
-        // Negotiator can see all modules (Estimation Initiate)
-        return await ModuleModel.find({isDeleted: false, isArchived: false}).exec()
-    } else {
-        throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
-    }
+    return await ModuleModel.find({isDeleted: false, isArchived: false}).exec()
 }
-
 
 moduleSchema.statics.saveModule = async moduleInput => {
     if (await ModuleModel.exists(moduleInput.name, moduleInput.project._id))

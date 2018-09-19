@@ -174,5 +174,4 @@ CreateReleaseForm = connect(
     }
 )(CreateReleaseForm)
 
-
 export default CreateReleaseForm

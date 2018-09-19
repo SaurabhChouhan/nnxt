@@ -15,7 +15,7 @@ import AppRouterContainer from '../../client/containers/AppRouterContainer'
  */
 
 let appHomePageRouter = new Router({
-    prefix: "app-home"
+    prefix: "/app-home"
 })
 
 appHomePageRouter.get('*', async ctx => {

@@ -2,11 +2,12 @@ import React, {Component} from 'react'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import {withRouter} from 'react-router-dom'
-
+import {Field, formValueSelector, reduxForm} from 'redux-form'
+import {renderSelect,} from '../forms/fields'
 
 class ReleaseList extends Component {
-
     constructor(props) {
         super(props);
         this.options = {
@@ -21,10 +22,13 @@ class ReleaseList extends Component {
         this.handleStatusChange = this.handleStatusChange.bind(this)
     }
 
+    componentDidMount() {
+        this.props.search(this.props.releaseFilters)
+    }
+
     onRowClick(row) {
         this.props.history.push("/app-home/release-plan")
         this.props.releaseSelected(row)
-
     }
 
     formatCreatedDate(row) {
@@ -80,14 +84,14 @@ class ReleaseList extends Component {
 
     formatStartDate(column, row) {
         if (row.iterations[0]) {
-            return moment(row.iterations[0].devStartDate).format("DD-MM-YYYY")
+            return momentTZ.utc(row.iterations[0].devStartDate).format("DD-MM-YYYY")
         }
         return ''
     }
 
     formatEndDate(column, row) {
         if (row.iterations[0]) {
-            return moment(row.iterations[0].devEndDate).format("DD-MM-YYYY")
+            return momentTZ.utc(row.iterations[0].devEndDate).format("DD-MM-YYYY")
         }
         return ''
     }
@@ -95,7 +99,7 @@ class ReleaseList extends Component {
 
     formatReleaseDate(column, row) {
         if (row.iterations[0]) {
-            return moment(row.iterations[0].clientReleaseDate).format("DD-MM-YYYY")
+            return momentTZ.utc(row.iterations[0].clientReleaseDate).format("DD-MM-YYYY")
         }
         return ''
     }
@@ -120,40 +124,77 @@ class ReleaseList extends Component {
     }
 
     render() {
-        const {releases} = this.props
+        const {releases, handleSubmit, leaders, managers, initialValues, releaseFilters} = this.props
+
         return ([
-                <div key={"release-search"} className="col-md-12 release-options">
-                    <button type="button" className="col-md-2 btn customBtn" onClick={
-                        () => {
-                            this.props.showCreateReleaseDialog()
-                        }}>Create Release
-                    </button>
+                <form key={"release-form"} onSubmit={handleSubmit}>
+                    <div key={"release-search"} className="col-md-12 release-options">
+                        <button type="button" className="col-md-2 btn customBtn" onClick={
+                            () => {
+                                this.props.showCreateReleaseDialog()
+                            }}>Create Release
+                        </button>
 
-                    <div className="search-btn-container">
-                        <select className="col-md-4 form-control" title="Select Status"
-                                value={this.state.releaseStatus}
-                                onChange={this.handleStatusChange}>
-                            <option value={SC.ALL}>All Status</option>
-                            <option value={SC.STATUS_AWARDED}>{SC.STATUS_AWARDED}</option>
-                            <option value={SC.STATUS_DEV_IN_PROGRESS}>{SC.STATUS_DEV_IN_PROGRESS}</option>
-                            <option value={SC.STATUS_DEV_COMPLETED}>{SC.STATUS_DEV_COMPLETED}</option>
-                            <option value={SC.STATUS_TEST_COMPLETED}>{SC.STATUS_TEST_COMPLETED}</option>
-                            <option value={SC.STATUS_DEPLOYED}>{SC.STATUS_DEPLOYED}</option>
-                            <option value={SC.STATUS_ISSUE_FIXING}>{SC.STATUS_ISSUE_FIXING}</option>
-                            <option value={SC.STATUS_STABLE}>{SC.STATUS_STABLE}</option>
-                        </select>
-                    </div>
-                    <div className="search-btn-container">
-                        <div className={"input checkbox col-md-4"} style={{width: "100%"}}>
-                            <label>
-                                <input checked={this.state.showAllReleases} onChange={this.handleAllReleasesCheckBox}
-                                       type="checkbox"/>
-                                Show All Releases
-                            </label>
+                        <div className="release-button-container">
+
+                            <Field name="status" component={renderSelect} label={"Status"} options={
+                                SC.ALL_RELEASE_STATUS.map((status, idx) =>
+                                    ({
+                                        _id: status,
+                                        name: status
+                                    })
+                                )
+                            } onChange={(event, newValue) => {
+                                console.log("get the value of status", newValue)
+                                this.props.fetchReleases(
+                                    Object.assign({}, releaseFilters, {
+                                        status: newValue
+                                    })
+                                )
+                            }} noneOptionText='All'/>
+
                         </div>
-                    </div>
 
-                </div>,
+                        <div className="release-button-container">
+                            <Field name="leader" component={renderSelect} label={"Leaders:"} options={leaders}
+                                   onChange={(event, newValue) => {
+                                       console.log("get the value of status", newValue)
+                                       this.props.fetchReleases(Object.assign({}, releaseFilters, {
+                                           leader: newValue
+                                       }))
+                                   }} noneOptionText='All'/>
+
+                        </div>
+
+                        <div className="release-button-container">
+                            <Field name="manager" component={renderSelect} label={"Managers:"} options={managers}
+                                   onChange={(event, newValue) => {
+                                       console.log("get the value of status", newValue)
+                                       this.props.fetchReleases(Object.assign({}, releaseFilters, {
+                                           manager: newValue
+                                       }))
+                                   }} noneOptionText='All'/>
+
+                        </div>
+
+                        <div className="search-btn-container">
+                            <div className={"input checkbox col-md-4"} style={{width: "100%", marginTop: 15}}>
+                                <label>
+                                    <Field name={"showActive"} component={"input"}
+                                           onChange={(event, newValue) => {
+                                               this.props.fetchReleases(Object.assign({}, releaseFilters, {
+                                                   showActive: newValue
+                                               }))
+                                           }
+                                           }
+                                           type="checkbox"/>
+                                    Show In Progress
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>,
                 <div key={"release-table"} className="col-md-12">
                     <div className="estimation release-plan-table">
                         <BootstrapTable options={this.options} data={releases}
@@ -208,5 +249,9 @@ class ReleaseList extends Component {
         )
     }
 }
+
+ReleaseList = reduxForm({
+    form: 'release-list'
+})(ReleaseList)
 
 export default withRouter(ReleaseList)

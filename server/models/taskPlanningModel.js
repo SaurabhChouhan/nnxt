@@ -14,10 +14,9 @@ import _ from 'lodash'
 mongoose.Promise = global.Promise
 
 let taskPlanningSchema = mongoose.Schema({
-    user: {
+    creator: {
         _id: mongoose.Schema.ObjectId,
-        name: {type: String},
-        role: {type: String},
+        name: {type: String}
     },
     plannedOnDate: {type: Date, default: Date.now()},
     updatedOnDate: {type: Date, default: Date.now()},
@@ -95,7 +94,7 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
         throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
     // Get all roles user have in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -104,6 +103,97 @@ taskPlanningSchema.statics.getAllTaskPlannings = async (releaseID, user) => {
 
 }
 
+taskPlanningSchema.statics.searchTaskPlans = async (criteria, user) => {
+    if (criteria) {
+        let filter = {}
+        if (criteria.releaseID) {
+            // Search is based on release ID
+            filter['release._id'] = mongoose.Types.ObjectId(criteria.releaseID)
+            let release = await MDL.ReleaseModel.findById(criteria.releaseID)
+            if (!release) {
+                throw new AppError('Release not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+            }
+
+            let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInRelease(release, user)
+            if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+                throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can see TaskPlan of any release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+            }
+        } else {
+            // As release is not supplied complete task plans are searched
+            if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+                throw new AppError('Only user with role [' + SC.ROLE_TOP_MANAGEMENT + '] can see Task Plans spanning multiple releases', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+            }
+        }
+
+        if (criteria.startDate) {
+            //
+            if (criteria.reportedOnly) {
+                let startMoment = U.momentInTimeZone(criteria.startDate, SC.INDIAN_TIMEZONE)
+                filter['$and'] = [{'report.reportedOnDate': {$gte: startMoment}}]
+            } else {
+                let startMoment = U.momentInUTC(criteria.startDate)
+                filter['$and'] = [{'planningDate': {$gte: startMoment}}]
+            }
+        }
+
+        if (criteria.endDate) {
+            if (filter.hasOwnProperty('$and')) {
+                if (criteria.reportedOnly) {
+                    let endMoment = U.momentInTimeZone(criteria.endDate, SC.INDIAN_TIMEZONE)
+                    endMoment.endOf('day')
+                    filter['$and'].push({
+                        'report.reportedOnDate': {$lte: endMoment}
+                    })
+                } else {
+                    let endMoment = U.momentInUTC(criteria.endDate)
+                    filter['$and'].push({
+                        'planningDate': {$lte: endMoment}
+                    })
+                }
+
+            } else {
+                if (criteria.reportedOnly) {
+                    filter['$and'] = [{'report.reportedOnDate': {$lte: endMoment}}]
+                } else {
+                    filter['$and'] = [{'planningDate': {$lte: endMoment}}]
+                }
+            }
+        }
+
+        if (criteria.status) {
+            filter['report.status'] = criteria.status
+        } else {
+            if (criteria.reportedOnly) {
+                filter['report.status'] = {$in: [SC.REPORT_PENDING, SC.REPORT_COMPLETED]}
+            }
+        }
+
+        if (criteria.flag) {
+            filter['flags'] = criteria.flag
+        }
+
+        if (criteria.developer) {
+            filter['employee._id'] = mongoose.Types.ObjectId(criteria.developer)
+        }
+
+
+        logger.debug("searchTaskPlans() ", {filter})
+
+        let sort = {}
+
+        if (criteria.reportedOnly) {
+            sort['report.reportedOnDate'] = 0;
+        } else {
+            sort['planningDate'] = 1;
+        }
+
+        return await TaskPlanningModel.find(filter)
+    }
+
+    return []
+
+
+}
 
 /* get all task plannings according to developers and date range */
 taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = async (employeeId, releaseID, fromDate, toDate, user) => {
@@ -118,7 +208,7 @@ taskPlanningSchema.statics.getTaskPlanningDetailsByEmpIdAndFromDateToDate = asyn
     if (!isExists)
         throw new AppError("Release not found ", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
-    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, {
+    let rolesInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(releaseID, {
         _id: employeeId
     })
 
@@ -201,7 +291,7 @@ taskPlanningSchema.statics.getTaskPlansOfReleasePlan = async (releasePlanID, use
     }
 
     /*check user highest role in this release*/
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
 
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can fetch', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -266,7 +356,7 @@ taskPlanningSchema.statics.getTaskAndProjectDetailForCalenderOfUser = async (tas
     })
 
     /* user Role in this release to see task detail */
-    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     /* user assumes no role in this release */
     if (userRolesInRelease.length == 0)
         throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -681,35 +771,27 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
-    if (await MDL.EmployeeDaysModel.count({
+
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
         'employee._id': employee._id.toString(),
         'date': momentPlanningDate
-    }) > 0) {
+    })
 
-        /* Update already added employee days details with increment of planned hours   */
-        let EmployeeDaysModelInput = {
-            plannedHours: plannedHourNumber,
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
+    if (!employeeDay) {
+        employeeDay = new MDL.EmployeeDaysModel()
+        employeeDay.plannedHours = plannedHourNumber
+        employeeDay.employee = {
+            _id: employee._id,
+            name: U.getFullName(employee)
         }
-        return await MDL.EmployeeDaysModel.increasePlannedHoursOnEmployeeDaysDetails(EmployeeDaysModelInput)
+        employeeDay.dateString = momentPlanningDate.format(SC.DATE_FORMAT)
+        employeeDay.date = U.momentInUTC(employeeDay.dateString)
     } else {
-
-        /*  Add employee days details with planned hour  if not added */
-        let EmployeeDaysModelInput = {
-            employee: {
-                _id: employee._id.toString(),
-                name: employee.firstName + ' ' + employee.lastName
-            },
-            plannedHours: plannedHourNumber,
-            dateString: momentPlanningDate.format(SC.DATE_FORMAT),
-        }
-
-        return await MDL.EmployeeDaysModel.addEmployeeDaysDetails(EmployeeDaysModelInput)
+        employeeDay.plannedHours += plannedHourNumber
     }
+
+    return await employeeDay.save()
+
 }
 
 const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, extra) => {
@@ -887,7 +969,8 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
         plannedHourNumber,
         momentPlanningDate,
         taskPlanningInput,
-        momentPlanningDateIndia
+        momentPlanningDateIndia,
+        creator
     } = extra
 
     let taskPlan = new TaskPlanningModel()
@@ -899,6 +982,10 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
     taskPlan.releasePlan = releasePlan
     taskPlan.employee = Object.assign({}, selectedEmployee.toObject(), {name: ((selectedEmployee.firstName ? selectedEmployee.firstName + ' ' : '') + (selectedEmployee.lastName ? selectedEmployee.lastName : ''))})
     taskPlan.planning = {plannedHours: plannedHourNumber}
+    taskPlan.creator = {
+        _id: creator._id,
+        name: U.getFullName(creator)
+    }
 
     // Add 10 to get to 10am in India so that anything planned before that is considered as past
     momentPlanningDateIndia = momentPlanningDateIndia.clone().add(10, 'hour')
@@ -928,7 +1015,7 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
 /***
  * Create new task planning  in which logged in user is involved as a manager or leader
  ***/
-taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaRequested) => {
+taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.releaseTaskPlanningStruct)
 
@@ -944,7 +1031,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
         throw new AppError('Release Plan not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
     // Get all roles user have in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, creator)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can plan task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -980,7 +1067,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
     }
 
     /* Get employee roles in this project that this task is planned against*/
-    let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, selectedEmployee)
+    let employeeRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, selectedEmployee)
 
     if (!U.includeAny(SC.ROLE_DEVELOPER, employeeRolesInThisRelease)) {
         /* This means that employee is not a developer in this release, so this is extra employee being arranged outside of release
@@ -1041,14 +1128,15 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, user, schemaR
         plannedHourNumber,
         momentPlanningDate,
         taskPlanningInput,
-        momentPlanningDateIndia
+        momentPlanningDateIndia,
+        creator
     })
 
     // This method is intentionally kept after create release plan as it used details added there
     let employeeReleaseManagerLeader = await addTaskPlanUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, selectedEmployee, {
         plannedHours: plannedHourNumber,
         momentPlanningDateIndia,
-        user
+        user: creator
     })
 
     /*--------------------------------- WARNING UPDATE SECTION ---------------------------------------------*/
@@ -1085,9 +1173,9 @@ const deleteTaskUpdateEmployeeRelease = async (taskPlan, releasePlan, release, e
 
     // Reduce planned hours
     employeeRelease.planning.plannedHours -= taskPlan.planning.plannedHours
+    employeeRelease.planning.plannedCount -= 1
     return employeeRelease
 }
-
 
 const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePlan, release, leaderManager) => {
 
@@ -1114,16 +1202,17 @@ const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePla
 
 const deleteTaskUpdateEmployeeDays = async (taskPlan, employee, plannedHourNumber, user) => {
 
-    /* when task plan is removed we have to decrease employee days  planned hours */
-    let oldEmployeeDaysModelInput = {
-        plannedHours: plannedHourNumber,
-        employee: {
-            _id: employee._id.toString(),
-            name: taskPlan.employee.name
-        },
-        dateString: taskPlan.planningDateString,
-    }
-    return await MDL.EmployeeDaysModel.decreasePlannedHoursOnEmployeeDaysDetails(oldEmployeeDaysModelInput, user)
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': employee._id.toString(),
+        'date': U.momentInUTC(taskPlan.planningDateString)
+    })
+
+    if (!employeeDay)
+        throw new AppError('We should have found employee day', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    employeeDay.plannedHours -= plannedHourNumber
+    return employeeDay
+
 }
 
 
@@ -1368,7 +1457,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
     }
 
     //check user highest role in this release
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(taskPlan.release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(taskPlan.release._id, user)
     if (!userRolesInThisRelease) {
         throw new AppError('User is not part of this release.', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -1395,7 +1484,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
     let employeeReleaseLeaderManager = await deleteTaskUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, user)
 
     /*------------------------------ EMPLOYEE DAYS UPDATES --------------------------------------------*/
-    await deleteTaskUpdateEmployeeDays(taskPlan, employee, plannedHourNumber, user)
+    let employeeDay = await deleteTaskUpdateEmployeeDays(taskPlan, employee, plannedHourNumber, user)
 
     /*------------------------------- RELEASE PLAN UPDATES ------------------------------------------------------*/
     releasePlan = await deleteTaskUpdateReleasePlan(taskPlan, releasePlan, employee, plannedHourNumber)
@@ -1409,6 +1498,11 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
 
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
     await taskPlan.remove()
+
+    if (employeeDay.plannedHours > 0)
+        await employeeDay.save()
+    else
+        await employeeDay.remove()
 
     await employeeRelease.save()
     await employeeReleaseLeaderManager.save()
@@ -1801,7 +1895,7 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         throw new AppError('Employee Not Found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     }
 
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can merge task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
@@ -1826,8 +1920,6 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         selectedEmployee
     })
 
-    logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
-
     const oldPlannedFor = await moveTaskUpdateTaskPlan(taskPlan, {
         rePlanningDateUtc,
         taskPlanningInput,
@@ -1851,6 +1943,8 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
         rePlannedDateEmployeeDays,
         selectedEmployee
     })
+
+    //logger.debug("[ taskMoved ]:()=> generatedWarnings ", {generatedWarnings})
     // update flags
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(generatedWarnings, releasePlan, taskPlan)
 
@@ -2173,7 +2267,7 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
         throw new AppError('Not a valid release', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* checking user role in this release */
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
 
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -2427,7 +2521,7 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
         throw new AppError('Operation is causing shift of reported tasks. Operation not allowed!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     /* checking user role in this release */
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
 
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can shift', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -2485,6 +2579,26 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
 }
 
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
+
+
+const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, extra) => {
+    const {
+        taskPlanMoment, employee, reportedHoursToIncrement
+    } = extra
+
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': employee._id.toString(),
+        'date': taskPlanMoment.toDate()
+    })
+
+    if (!employeeDay) {
+        throw new AppError("We should have found employee day during planned task reporting ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    // add reported hours into employee day
+    employeeDay.reportedHours += reportedHoursToIncrement
+    return employeeDay
+}
 
 const addTaskReportPlannedUpdateEmployeeRelease = async (taskPlan, release, employee, extra) => {
     const {reportedHoursToIncrement, reReport} = extra
@@ -2858,6 +2972,13 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         reReport
     })
 
+    let employeeDay = await addTaskReportPlannedUpdateEmployeeDays(taskPlan, {
+        taskPlanMoment,
+        employee,
+        reportedHoursToIncrement,
+        reReport
+    })
+
     // Need to add/update reporting warnings.
 
     let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
@@ -2870,6 +2991,8 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
     })
 
     let {affectedTaskPlans} = await TaskPlanningModel.updateFlags(warningsTaskReported, releasePlan, taskPlan)
+
+    await employeeDay.save()
 
     await employeeRelease.save()
     //logger.debug('release before save ', {release})
@@ -2887,20 +3010,64 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 }
 
 
+const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, extra) => {
+    const {
+        taskPlanMoment, employee, reportedHoursToIncrement
+    } = extra
+
+    let employeeDay = await MDL.EmployeeDaysModel.findOne({
+        'employee._id': employee._id.toString(),
+        'date': taskPlanMoment.toDate()
+    })
+
+    if (!employeeDay) {
+        employeeDay = new MDL.EmployeeDaysModel()
+        employeeDay.employee = {
+            _id: mongoose.Types.ObjectId(employee._id),
+            name: employee.firstName + ' ' + employee.lastName
+        }
+        employeeDay.date = taskPlanMoment.toDate()
+        employeeDay.dateString = taskPlanMoment.format(SC.DATE_FORMAT)
+        employeeDay.plannedHours = reportedHoursToIncrement
+        employeeDay.reportedHours = reportedHoursToIncrement
+    } else {
+        // add reported hours into employee day, in case on unplanned reporting both reported and planned hours would be same
+        employeeDay.plannedHours += reportedHoursToIncrement
+        employeeDay.reportedHours += reportedHoursToIncrement
+    }
+    return employeeDay
+}
+
 const addTaskReportUnplannedUpdateEmployeeRelease = async (release, employee, extra) => {
 
-    const {reportedHoursToIncrement} = extra
+    const {reportedHoursToIncrement, reReport} = extra
 
     let employeeRelease = await MDL.EmployeeReleasesModel.findOne({
         'employee._id': mongoose.Types.ObjectId(employee._id),
         'release._id': mongoose.Types.ObjectId(release._id)
     })
 
-    if (!employeeRelease)
-        throw new AppError("We should have found employee release ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    if (!employeeRelease) {
+        // For unplanned reporting it is possible that there is no employee release
+        employeeRelease = new MDL.EmployeeReleasesModel()
+        employeeRelease.employee = {
+            _id: mongoose.Types.ObjectId(employee._id),
+            name: employee.firstName + ' ' + employee.lastName
+        }
 
-    employeeRelease.report.reportedHours += reportedHoursToIncrement
+        employeeRelease.release = {
+            _id: mongoose.Types.ObjectId(release._id),
+            name: release.name
+        }
+    }
 
+    if (!reReport) {
+        employeeRelease.report.reportedHours += reportedHoursToIncrement
+        employeeRelease.report.reportedCount += 1
+        employeeRelease.report.plannedHoursReportedTasks += reportedHoursToIncrement
+        employeeRelease.planning.plannedHours += reportedHoursToIncrement
+        employeeRelease.planning.plannedCount += 1
+    }
     return employeeRelease
 }
 
@@ -2960,6 +3127,12 @@ const addTaskReportUnplannedUpdateReleasePlan = async (taskPlan, releasePlan, ex
         }
     }
 
+    let employeePlanningIdx = -1
+    if (releasePlan.planning.employees) {
+        employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+            return e._id.toString() == employee._id.toString()
+        })
+    }
     // 'unplanned'
     releasePlan.report.finalStatus = SC.REPORT_PENDING
     return releasePlan
@@ -3019,6 +3192,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
         taskPlan.releasePlan = releasePlan
         taskPlan.employee = Object.assign({}, employee, {name: ((employee.firstName ? employee.firstName + ' ' : '') + (employee.lastName ? employee.lastName : ''))})
         taskPlan.task = releasePlan.task
+        taskPlan.planning.plannedHours = reportInput.reportedHours
         taskPlan.iterationType = SC.ITERATION_TYPE_UNPLANNED
         taskPlan.report = {
             status: SC.REPORT_PENDING
@@ -3074,6 +3248,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
     }
     // as we have calculated reported hours to increment we can set new reported hours in task plan
     taskPlan.report.reportedHours = reportInput.reportedHours
+    taskPlan.planning.plannedHours = reportInput.reportedHours // planned hours would be same as reported hours in unplanned task report
     taskPlan.report.description = reportInput.reportDescription
     taskPlan.description = reportInput.reportDescription
 
@@ -3085,6 +3260,14 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
         reportedHoursToIncrement
     })
 
+    let taskPlanMoment = U.momentInUTC(taskPlan.planningDateString)
+
+    let employeeDay = await addTaskReportUnplannedUpdateEmployeeDays(taskPlan, {
+        taskPlanMoment,
+        employee,
+        reportedHoursToIncrement,
+        reReport
+    })
 
     /******************************** RELEASE PLAN UPDATES **************************************************/
     releasePlan = await addTaskReportUnplannedUpdateReleasePlan(taskPlan, releasePlan, {
@@ -3106,6 +3289,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 
 
     // No warning handling would be done for unplanned release plans
+    await employeeDay.save()
     await employeeRelease.save()
     await release.save()
     await releasePlan.save()
@@ -3147,7 +3331,7 @@ taskPlanningSchema.statics.reopenTask = async (taskPlanID, user) => {
     if (!release)
         throw new AppError('No release associated with this task , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
 
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can re-open task', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -3238,7 +3422,7 @@ taskPlanningSchema.statics.addComment = async (commentInput, user, schemaRequest
 
 
     /* checking user role in this release */
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
 
     if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER, SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], userRolesInThisRelease)) {
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + ' or ' + SC.ROLE_DEVELOPER + ' or ' + SC.ROLE_NON_PROJECT_DEVELOPER + '] can add comment', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
@@ -3282,7 +3466,15 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
                     devStartDate: {$lte: dateUTC},
                     devEndDate: {$gte: dateUTC}
                 }
-            }
+            },
+            '$or': [
+                {
+                    'team._id': user._id
+                },
+                {
+                    'nonProjectTeam._id': user._id
+                }
+            ]
         }
     } else if (iterationType == SC.ITERATION_TYPE_UNPLANNED) {
         releaseCriteria = {
@@ -3292,7 +3484,15 @@ taskPlanningSchema.statics.getReportTasks = async (releaseID, dateString, iterat
                     devStartDate: {$lte: dateUTC},
                     devEndDate: {$gte: dateUTC}
                 }
-            }
+            },
+            '$or': [
+                {
+                    'team._id': user._id
+                },
+                {
+                    'nonProjectTeam._id': user._id
+                }
+            ]
         }
     }
 
@@ -3482,7 +3682,7 @@ taskPlanningSchema.statics.getDataReportTaskDetailPage = async (taskPlanID, user
     })
 
     /* user Role in this release to see task detail */
-    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     /* user assumes no role in this release */
     if (userRolesInRelease.length == 0)
         throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -3552,7 +3752,7 @@ taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
 
 
     /* user Role in this release to see task detail */
-    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(release._id, user)
+    const userRolesInRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
     /* user assumes no role in this release */
     if (userRolesInRelease.length == 0)
         throw new AppError('Not a user of this release', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
@@ -3597,7 +3797,7 @@ taskPlanningSchema.statics.getTaskPlanDetails = async (taskPlanID, user) => {
 
 taskPlanningSchema.statics.getReleaseDayPlannings = async (releaseID, month, year, user) => {
 
-    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInThisRelease(releaseID, user)
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(releaseID, user)
 
     let release = await MDL.ReleaseModel.findById(releaseID, {devStartDate: 1, devEndDate: 1})
 
@@ -3661,8 +3861,8 @@ taskPlanningSchema.statics.getReleaseDayPlannings = async (releaseID, month, yea
 
     // We would now insert week days where there are no planning
 
-    let startMoment = moment(release.devStartDate)
-    let endMoment = moment(release.devEndDate)
+    let startMoment = momentTZ.utc(release.devStartDate)
+    let endMoment = momentTZ.utc(release.devEndDate)
 
     if (startMoment.isBefore(monthStartMoment))
         startMoment = monthStartMoment

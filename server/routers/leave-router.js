@@ -8,7 +8,7 @@ import logger from '../logger'
 import NotificationUtil from '../notifications/byemail/notificationUtil'
 
 const leaveRouter = new Router({
-    prefix: "leave"
+    prefix: "/leave"
 })
 
 

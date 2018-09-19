@@ -1,6 +1,5 @@
 import * as AC from './actionConsts'
 import * as A from '../actions'
-import {updateSelectedEstimation} from "./estimationAction";
 
 export const addReleases = (releases) => ({
     type: AC.ADD_RELEASES,
@@ -21,6 +20,11 @@ export const addAvailableReleases = (releases) => ({
 export const addReleasePlans = (releasePlans) => ({
     type: AC.ADD_RELEASE_PLANS,
     releasePlans: releasePlans
+})
+
+export const deleteReleasePlan = (releasePlanID) => ({
+    type: AC.DELETE_RELEASE_PLAN,
+    releasePlanID: releasePlanID
 })
 
 export const addReleaseTaskPlannings = (taskPlans) => ({
@@ -89,6 +93,11 @@ export const expandDescription = (flag) => ({
     flag: flag
 })
 
+export const expandDescriptionTaskList = (flag) => ({
+    type: AC.EXPAND_DESCRIPTION_TASK_LIST,
+    flag: flag
+})
+
 export const setEmployeeSettings = (empSetting) => ({
     type: AC.SET_EMPLOYEE_SETTINGS,
     empSetting: empSetting
@@ -111,7 +120,30 @@ export const selectIteration = (iteration) => ({
     type: AC.ITERATION_SELECTED,
     iteration
 })
+export const searchReleaseTaskPlans = (data) => ({
+    type: AC.SEARCH_TASK_PLANS_IN_RELEASE,
+    taskPlans: data
+})
 
+export const expandDescriptionTaskReportList = (flag) => ({
+    type: AC.EXPAND_DESCRIPTION_TASK_REPORT_LIST,
+    flag: flag
+})
+
+export const expandDescriptionReleasePlanList = (flag) => ({
+    type: AC.EXPAND_DESCRIPTION_RELEASE_PLAN_LIST,
+    flag: flag
+})
+
+export const changeReleasePlanFilters = (filters) => ({
+    type: AC.CHANGE_RELEASEPLAN_FILTERS,
+    filters
+})
+
+export const changeReleaseFilters = (filters) => ({
+    type: AC.CHANGE_RELEASE_FILTERS,
+    filters
+})
 
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
@@ -256,10 +288,9 @@ export const getReleasePlansFromServer = (releaseID, status, empFlag) => {
     }
 }
 
-
 export const getReleasePlanDetailsFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
+        return fetch('/api/release-plans/' + releasePlanID, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -279,10 +310,32 @@ export const getReleasePlanDetailsFromServer = (releasePlanID) => {
     }
 }
 
+export const deleteReleasePlanFromServer = (releasePlanID) => {
+    return (dispatch) => {
+        return fetch('/api/release-plans/' + releasePlanID, {
+                method: 'delete',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(deleteReleasePlan(releasePlanID))
+                }
+                return json
+            })
+    }
+}
+
 
 export const getUpdatedReleasePlanFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
+        return fetch('/api/release-plans/' + releasePlanID, {
                 method: 'get',
                 credentials: "include",
                 headers: {
@@ -586,7 +639,7 @@ export const changeReleaseDateOfIteration = (iterationData) => {
 
 export const releasePlanPlannedAddToReleaseOnServer = (formInput) => {
     return function (dispatch, getState) {
-        return fetch('/api/releases/add-planned-task ',
+        return fetch('/api/release-plans/add-planned-task ',
             {
                 method: "post",
                 credentials: "include",
@@ -610,9 +663,60 @@ export const releasePlanPlannedAddToReleaseOnServer = (formInput) => {
     }
 }
 
+export const releasePlanPlannedUpdateOnServer = (formInput) => {
+    return function (dispatch) {
+        return fetch('/api/release-plans/update-planned-task',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                if (json.success) {
+
+                }
+                return json
+            }
+        )
+    }
+}
+
+export const releasePlanUnplannedUpdateOnServer = (formInput) => {
+    return function (dispatch) {
+        return fetch('/api/release-plans/update-unplanned-task',
+            {
+                method: "put",
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => {
+                return response.json()
+            }
+        ).then(json => {
+                return json
+            }
+        )
+    }
+}
+
+
+
 export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {
-    return function (dispatch, getState) {
-        return fetch('/api/releases/add-unplanned-task ',
+    return function (dispatch) {
+        return fetch('/api/release-plans/add-unplanned-task ',
             {
                 method: "post",
                 credentials: "include",
@@ -637,7 +741,7 @@ export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {
 }
 
 export const createReleaseOnServer = (formInput) => {
-    return (dispatch, getState) => {
+    return (dispatch) => {
         return fetch('/api/releases', {
                 method: 'post',
                 credentials: "include",
@@ -658,6 +762,30 @@ export const createReleaseOnServer = (formInput) => {
             })
     }
 }
+
+export const updateReleaseOnServer = (formInput) => {
+    return (dispatch) => {
+        return fetch('/api/releases', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(releaseSelected(json.data))
+                }
+                return json
+            })
+    }
+}
+
 
 export const getIterationDatesReleasePlansFromServer = (releasePlanId) => {
     return (dispatch) => {
@@ -681,5 +809,81 @@ export const getIterationDatesReleasePlansFromServer = (releasePlanId) => {
             })
     }
 }
+export const getSearchTaskPlanResultFromServer = (formInput) => {
+    console.log("get the release result from server getSearchTaskPlanResultFromServer ", formInput)
+    return (dispatch) => {
+        return fetch('/api/task-plans/search', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addReleaseTaskPlannings(json.data))
+                }
+                return json
+            })
+    }
+}
 
+export const searchReleasePlansOnServer = (formInput) => {
+    return (dispatch, getState) => {
 
+        if(!formInput){
+            let state = getState()
+            formInput = state.release.releasePlanFilters
+        }
+
+        return fetch('/api/release-plans/search', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addReleasePlans(json.data))
+                    dispatch(changeReleasePlanFilters(formInput))
+                }
+                return json
+            })
+    }
+}
+
+export const searchReleaseFromServer = (formInput) => {
+    console.log("get the release result from server getSearchReleasesFromServerByFlags ", formInput)
+    return (dispatch) => {
+        return fetch('/api/releases/search', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addReleases(json.data))
+                    dispatch(changeReleaseFilters(formInput))
+                }
+                return json
+            })
+    }
+}

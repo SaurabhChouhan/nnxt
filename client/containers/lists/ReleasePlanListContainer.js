@@ -5,6 +5,7 @@ import * as COC from '../../components/componentConsts'
 import {withRouter} from 'react-router-dom'
 import * as SC from '../../../server/serverconstants'
 import {initialize} from 'redux-form'
+import {NotificationManager} from 'react-notifications'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     releasePlanSelected: (releasePlan, roles) => {
@@ -23,9 +24,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
         }
     },
-
-    changeReleaseFlag: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
-    changeReleaseStatus: (release, status, flag) => dispatch(A.getReleasePlansFromServer(release._id, status, flag)),
     showAddToReleasePlanForm: (release) => {
         dispatch(A.showComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
         // initialize
@@ -37,12 +35,38 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             type: SC.TYPE_DEVELOPMENT
         }))
     },
-    getAllReleasePlans: (release) => dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
+    showUpdateReleasePlanForm: (releasePlan) => {
+        dispatch(A.showComponent(COC.UPDATE_RELEASE_PLAN_FORM_DIALOG))
+        // initialize
+        dispatch(initialize('update-release-plan', {
+            _id: releasePlan._id,
+            release: {
+                _id: releasePlan.release._id
+            },
+            name: releasePlan.task.name,
+            description: releasePlan.task.description,
+            estimatedBilledHours: releasePlan.task.estimatedBilledHours,
+            iteration_type: releasePlan.release.iteration.iterationType,
+            estimatedHours: releasePlan.task.estimatedHours
+        }))
+    },
+    removeReleasePlan: (releasePlanID) => {
+        dispatch(A.deleteReleasePlanFromServer(releasePlanID)).then((json) => {
+            if (json.success) {
+                NotificationManager.success('Release-Task removed successfully')
+                dispatch(A.getReleaseFromServer(json.data.release._id))
+            } else {
+                NotificationManager.error(json.message)
+            }
+        })
+    }
 })
 
 const mapStateToProps = (state) => ({
+    loggedInUser: state.user.loggedIn,
     release: state.release.selectedRelease,
-    releasePlans: state.release.releasePlans
+    releasePlans: state.release.releasePlans,
+    releasePlanFilters: state.release.releasePlanFilters
 })
 
 const ReleasePlanListContainer = withRouter(connect(
