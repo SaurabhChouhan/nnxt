@@ -68,11 +68,12 @@ notificationSchema.statics.getAllActiveNotifications = async (user) => {
 
 
 notificationSchema.statics.getCountOfTodaysNotifications = async (user) => {
-    let startOfDateMoment = momentTZ.tz(SC.INDIAN_TIMEZONE).startOf('day')
+    let startOfDateMoment = momentTZ.utc().startOf('day')
     let endOfDateMoment = startOfDateMoment.clone().endOf('day')
+    logger.debug("getcount", {startOfDateMoment, endOfDateMoment})
     return await NotificationModel.count({
-        "receivers_id": user._id,
-        activeOn: {$gte: startOfDateMoment, $lte: endOfDateMoment}
+        "receivers._id": user._id,
+        activeOn: {$gte: startOfDateMoment.toDate(), $lte: endOfDateMoment.toDate()}
     })
 }
 
