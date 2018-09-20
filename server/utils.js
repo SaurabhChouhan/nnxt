@@ -89,9 +89,34 @@ export const convertUTCDateMomentToTZ = (utcMoment, timeZone) => {
 
 }
 
+
+/**
+ * Parses string in date/time format in UTC
+ * @param dateTimeInStringInTZ
+ * @param otherTZ
+ * @returns {*}
+ */
+export const dateTimeInUTC = (dateTimeInString) => {
+    return moment.tz(dateTimeInString, SC.DATE_TIME_FORMAT, SC.UTC_TIMEZONE)
+}
+
+
+/**
+ * Return that moment in UTC when time was same as time is in other time zone (so if time in 5:00 AM in other time zone), returned
+ * moment would be moment when it is 5:00 AM in UTC. As all dates are kept in UTC in database it is a good way to get data based on
+ * current date/time in that particular time zone by first converting date using this method and then use that as a comparison with
+ * database date field
+ * @param otherTZ
+ * @returns {*}
+ */
+export const getNowMomentInUTC = (otherTZ) => {
+    return moment.tz(moment.tz(otherTZ).format(SC.DATE_TIME_FORMAT), SC.DATE_TIME_FORMAT, SC.UTC_TIMEZONE)
+}
+
 export const sameMomentInUTC = (d) => {
     return moment.utc().startOf('day').minute(d.getMinutes()).hour(d.getHours()).date(d.getDate()).month(d.getMonth()).year(d.getFullYear())
 }
+
 
 export const momentInUTCFromMoment = (m) => {
     return moment.utc().startOf('day').minute(m.minute()).hour(m.hour()).date(m.date()).month(m.month()).year(m.year())
@@ -135,15 +160,6 @@ export const momentInTimeZone = (dateString, timeZone) => {
     let momentDate = moment.tz(dateString, SC.DATE_FORMAT, timeZone)
     if (momentDate.isValid())
         return momentDate
-    return undefined
-}
-
-export const nowMomentInTimeZone = (timeZone) => {
-    let now = new Date()
-    let nowString = formatDateInTimezone(now, timeZone)
-    let nowMoment = moment.tz(nowString, SC.DATE_FORMAT, timeZone)
-    if (nowMoment.isValid())
-        return nowMoment
     return undefined
 }
 

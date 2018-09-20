@@ -1,10 +1,8 @@
 import mongoose from 'mongoose'
-import AppError from '../AppError'
-import * as EC from '../errorcodes'
-import * as MDL from "../models"
 import momentTZ from 'moment-timezone'
 import * as SC from '../serverconstants'
 import * as U from '../utils'
+import logger from '../logger'
 
 mongoose.Promise = global.Promise
 
@@ -14,6 +12,7 @@ let notificationSchema = mongoose.Schema({
     // Is this notification is for all employees
     broadcast: {type: Boolean, default: false},
     message: {type: String}, // with tokens
+    templateName: {type: String},
     type: {type: String, enum: SC.ALL_NOTIFICATION_TYPES},
     category: {
         type: String, enum: SC.ALL_NOTIFICATION_CATEGORIES
@@ -38,8 +37,8 @@ let notificationSchema = mongoose.Schema({
 
 notificationSchema.statics.addNotification = async (notificationObj) => {
     let notification = new NotificationModel()
-    notification.activeOn = U.momentInUTC(notificationObj.activeOn)
-    notification.activeTill = U.momentInUTC(notificationObj.activeTill)
+    notification.activeOn = momentTZ.tz(notificationObj.activeOn, SC.DATE_TIME_FORMAT, SC.UTC_TIMEZONE)
+    notification.activeTill = momentTZ.tz(notificationObj.activeTill, SC.DATE_TIME_FORMAT, SC.UTC_TIMEZONE)
     notification.created = new Date()
     notification.updated = new Date()
     notification.receivers = notificationObj.receivers
@@ -49,8 +48,32 @@ notificationSchema.statics.addNotification = async (notificationObj) => {
     notification.type = notificationObj.type
     notification.category = notificationObj.category
     notification.message = notificationObj.message
+    notification.templateName = notificationObj.templateName
     notification.data = notificationObj.data
     return await notification.save()
+}
+
+
+notificationSchema.statics.getAllActiveNotifications = async (user) => {
+    // current date/time in utc for comparison
+    // First formatted current date time in indian time zone and then parsed it again in UTC to get same date/time in UTC for comparison
+    let sameTimeInUTC = U.getNowMomentInUTC(SC.INDIAN_TIMEZONE)
+    logger.debug("getAllActiveNotifications() ", {sameTimeInUTC})
+
+    return await NotificationModel.find({
+        activeOn: {$lte: sameTimeInUTC},
+        "receivers._id": user._id
+    }).sort({activeOn: -1})
+}
+
+
+notificationSchema.statics.getCountOfTodaysNotifications = async (user) => {
+    let startOfDateMoment = momentTZ.tz(SC.INDIAN_TIMEZONE).startOf('day')
+    let endOfDateMoment = startOfDateMoment.clone().endOf('day')
+    return await NotificationModel.count({
+        "receivers_id": user._id,
+        activeOn: {$gte: startOfDateMoment, $lte: endOfDateMoment}
+    })
 }
 
 

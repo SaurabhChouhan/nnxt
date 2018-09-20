@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(A.deleteNotificationsFromServer(ids)).then(json => {
             if (json.success) {
                 NotificationManager.success('Notification Deleted Successfully')
-                dispatch(A.getAllNotificationsFromServer())
+                dispatch(A.getAllActiveNotificationsFromServer())
             }
             else {
                 NotificationManager.error('Notification Deletion Failed');

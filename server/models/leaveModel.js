@@ -9,6 +9,7 @@ import * as TC from '../templateconsts'
 import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
+import momentTZ from 'moment-timezone'
 import {sendEmailNotification} from "../notifications/byemail/notificationUtil";
 import * as GetTextMessages from "../textMessages";
 import NotificationModel from "./notificationModel";
@@ -235,15 +236,22 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
 
     let toList = [user.email, ...managementUsers.map(u => u.email)]
     // Not waiting on this promise as this could run in background
+    /*
     sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {
 
     }).catch(e => {
 
     })
+    */
 
     let notificationTemplate = await TemplatesModel.findOne({
         "name": TC.NOTIFICATION_LEAVE_RAISED
     })
+
+    let nowMoment = U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT)
+
+    logger.debug("now moment in UTC", {now: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE)})
+    logger.debug("now moment in UTC STRING", {now: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT)})
 
     if (notificationTemplate) {
         let notificationData = {
@@ -251,6 +259,7 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
             category: SC.NOTIFICATION_CATEGORY_LEAVES,
             refId: leave._id,
             message: notificationTemplate.body,
+            templateName: TC.NOTIFICATION_LEAVE_RAISED,
             data: [{
                 key: 'firstName',
                 value: user.firstName ? user.firstName : ''
@@ -287,8 +296,8 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
                 _id: u._id,
                 name: U.getFullName(u)
             }))],
-            activeOn: new Date(),
-            activeTill: U.momentInUTC(leave.endDateString)
+            activeOn: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT),
+            activeTill: U.momentInUTC(leave.endDateString).add(1, 'day').format(SC.DATE_TIME_FORMAT)
         }
         //Save email notification into DB
         NotificationModel.addNotification(notificationData).then(() => {

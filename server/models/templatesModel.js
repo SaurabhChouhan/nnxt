@@ -59,7 +59,6 @@ templatesSchema.statics.updateTemplate = async (user, templateData) => {
     if (!emailTemplate) {
         throw new AppError("Template not found.", EC.NOT_FOUND)
     }
-    emailTemplate.name = templateData.name
     emailTemplate.body = templateData.body
     emailTemplate.updated = new Date()
     emailTemplate.updateBy = user
