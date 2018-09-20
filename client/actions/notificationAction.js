@@ -17,7 +17,7 @@ export const addAllTodayNotifications = (todayAllNotifications) => ({
 
 export const getAllNotificationsFromServer = (type) => {
     return function (dispatch, getState) {
-        return fetch('/api/users/notifications/type/'+type,
+        return fetch('/api/notifications/type/'+type,
             {
                 method: "get",
                 credentials: "include",

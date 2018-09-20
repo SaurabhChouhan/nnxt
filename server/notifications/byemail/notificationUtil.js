@@ -15,7 +15,7 @@ export const sendEmailNotification = async (toList, templateName, data) => {
     })
 
     if (emailTemplate) {
-        let body = await TemplateUtil.getEmailBodyWithHeaderFooter(emailTemplate.templateBody, data);
+        let body = await TemplateUtil.performTokenReplacement(emailTemplate.templateBody, data);
         let subject = await TemplateUtil.performTokenReplacement(emailTemplate.templateSubject, data);
         // Not waiting for anything as error while sending notifications would just be noted
         EmailSendBySES.sendEmailByAWSsES(toList, subject, body).catch(() => {

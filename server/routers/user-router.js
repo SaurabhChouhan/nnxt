@@ -54,21 +54,20 @@ userRouter.del('/:id', async (ctx, next) => {
     }
 })
 
-userRouter.get('/notifications/type/:sendType', async (ctx) => {
-  return await MDL.NotificationModel.getAllNotificationsByUser(ctx.state.user,ctx.params.sendType)
-})
-
+/*
 userRouter.post('/delete-notifications', async (ctx) => {
     return await MDL.NotificationModel.deleteNotificationByUserAndIDs(ctx.state.user,ctx.request.body.ids)
 })
 
 userRouter.get('/today-notifications/', async (ctx) => {
-    return await MDL.NotificationModel.getAllTodayNotificationsByUser(ctx.state.user)
+    return await MDL.NotificationModel.getTodaysNotifications(ctx.state.user)
 })
+
 
 userRouter.get('/visited-notification/:id', async (ctx) => {
     return await MDL.NotificationModel.isVisitedNotificationByID(ctx.state.user,ctx.params.id)
 })
+*/
 
 userRouter.put('/change-password', async (ctx) => {
     //console.log("change-password ", ctx.request.body);

@@ -9,6 +9,9 @@ import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
 import {sendEmailNotification} from "../notifications/byemail/notificationUtil";
+import * as GetTextMessages from "../textMessages";
+import NotificationModel from "./notificationModel";
+import * as nMessage from '../notificationMessages'
 
 mongoose.Promise = global.Promise
 
@@ -212,8 +215,7 @@ const updateFlags = async (generatedWarnings) => {
     }
 }
 
-const sendRaiseLeaveNotification = async (leaveInput, leaveType, user) => {
-
+const sendRaiseLeaveNotifications = async (leave, user) => {
     let managementUsers = await MDL.UserModel.find({
         "roles.name": SC.ROLE_TOP_MANAGEMENT
     }, {
@@ -223,17 +225,55 @@ const sendRaiseLeaveNotification = async (leaveInput, leaveType, user) => {
     let data = {
         firstName: user.firstName,
         lastName: user.lastName,
-        startDate: leaveInput.startDate,
-        endDate: leaveInput.endDate,
-        leaveType: leaveType.name,
-        leaveDescription: leaveInput.description
-
+        startDate: U.momentInTimeZone(leave.startDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
+        endDate: U.momentInTimeZone(leave.endDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
+        leaveType: leave.leaveType.name,
+        leaveDescription: leave.description
     }
 
     let toList = [user.email, ...managementUsers.map(u => u.email)]
-
     // Not waiting on this promise as this could run in background
     sendEmailNotification(toList, SC.RAISE_LEAVE_TEMPLATE, data)
+
+    let notificationData = {
+        type: SC.NOTIFICATION_TYPE_LEAVE_RAISED,
+        category: SC.NOTIFICATION_CATEGORY_LEAVES,
+        refId: leave._id,
+        message: nMessage.LEAVE_RAISE_MESSAGE,
+        data: [{
+            key: 'employeeName',
+            value: U.getFullName(user)
+        }, {
+            key: 'from',
+            value: data.startDate
+        }, {
+            key: 'to',
+            value: data.endDate
+        }, {
+            key: 'leaveID',
+            value: leave._id.toString()
+        }, {
+            key: 'employeeID',
+            value: user._id.toString()
+        }],
+        source: {
+            _id: user._id,
+            name: U.getFullName(user)
+        },
+        receivers: [{
+            _id: user._id,
+            name: U.getFullName(user)
+        }, ...managementUsers.map(u => ({
+            _id: u._id,
+            name: U.getFullName(u)
+        }))],
+        activeOn: new Date(),
+        activeTill: U.momentInUTC(leave.endDateString)
+    }
+    //Save email notification into DB
+    NotificationModel.addNotification(notificationData).then(() => {
+        logger.debug("Leave raised notification added")
+    })
 }
 
 leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested) => {
@@ -316,7 +356,7 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     /**
      * Send appropriate email notification, no need to wait for email to send
      */
-    sendRaiseLeaveNotification(leaveInput, leaveType, user)
+    sendRaiseLeaveNotifications(newLeave, user)
 
     return {
         leave: newLeave,
