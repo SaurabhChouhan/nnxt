@@ -7,22 +7,24 @@ import * as GetTextMessages from '../../textMessages'
 
 import logger from '../../logger'
 
-export const sendEmailNotification = async (toList, templateName, data) => {
-    let emailTemplate = await TemplatesModel.findOne({
-        "templateName": templateName,
-        "status": "Approved",
-        "isDeleted": false
+export const sendEmailNotification = async (toList, bodyTemplateName, subjectTemplateName, data) => {
+    let emailBodyTemplate = await TemplatesModel.findOne({
+        "name": bodyTemplateName
     })
 
-    if (emailTemplate) {
-        let body = await TemplateUtil.performTokenReplacement(emailTemplate.templateBody, data);
-        let subject = await TemplateUtil.performTokenReplacement(emailTemplate.templateSubject, data);
+    let emailSubjectTemplate = await TemplatesModel.findOne({
+        "name": subjectTemplateName
+    })
+
+    if (emailBodyTemplate && emailSubjectTemplate) {
+        let body = await TemplateUtil.performTokenReplacement(emailBodyTemplate.body, data);
+        let subject = await TemplateUtil.performTokenReplacement(emailSubjectTemplate.body, data);
         // Not waiting for anything as error while sending notifications would just be noted
-        EmailSendBySES.sendEmailByAWSsES(toList, subject, body).catch(() => {
-            logger.error("Problem sending email with template as [" + templateName)
+        EmailSendBySES.sendEmailByAWSsES(toList, subject, body).catch((e) => {
+            logger.error("Problem sending email by AWS ", {e})
         })
     } else {
-        logger.error("Template [" + templateName + "] not found or is not approved yet.")
+        logger.error("At least one of the templates with name [" + bodyTemplateName + ", " + subjectTemplateName + "] not found")
     }
 }
 

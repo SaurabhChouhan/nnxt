@@ -5,6 +5,7 @@ import * as V from "../validation"
 import * as U from "../utils"
 import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
+import * as TC from '../templateconsts'
 import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
@@ -12,6 +13,7 @@ import {sendEmailNotification} from "../notifications/byemail/notificationUtil";
 import * as GetTextMessages from "../textMessages";
 import NotificationModel from "./notificationModel";
 import * as nMessage from '../notificationMessages'
+import TemplatesModel from "./templatesModel";
 
 mongoose.Promise = global.Promise
 
@@ -225,55 +227,75 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
     let data = {
         firstName: user.firstName,
         lastName: user.lastName,
-        startDate: U.momentInTimeZone(leave.startDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
-        endDate: U.momentInTimeZone(leave.endDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
+        fromDate: U.momentInTimeZone(leave.startDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
+        toDate: U.momentInTimeZone(leave.endDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
         leaveType: leave.leaveType.name,
         leaveDescription: leave.description
     }
 
     let toList = [user.email, ...managementUsers.map(u => u.email)]
     // Not waiting on this promise as this could run in background
-    sendEmailNotification(toList, SC.RAISE_LEAVE_TEMPLATE, data)
+    sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {
 
-    let notificationData = {
-        type: SC.NOTIFICATION_TYPE_LEAVE_RAISED,
-        category: SC.NOTIFICATION_CATEGORY_LEAVES,
-        refId: leave._id,
-        message: nMessage.LEAVE_RAISE_MESSAGE,
-        data: [{
-            key: 'employeeName',
-            value: U.getFullName(user)
-        }, {
-            key: 'from',
-            value: data.startDate
-        }, {
-            key: 'to',
-            value: data.endDate
-        }, {
-            key: 'leaveID',
-            value: leave._id.toString()
-        }, {
-            key: 'employeeID',
-            value: user._id.toString()
-        }],
-        source: {
-            _id: user._id,
-            name: U.getFullName(user)
-        },
-        receivers: [{
-            _id: user._id,
-            name: U.getFullName(user)
-        }, ...managementUsers.map(u => ({
-            _id: u._id,
-            name: U.getFullName(u)
-        }))],
-        activeOn: new Date(),
-        activeTill: U.momentInUTC(leave.endDateString)
-    }
-    //Save email notification into DB
-    NotificationModel.addNotification(notificationData).then(() => {
-        logger.debug("Leave raised notification added")
+    }).catch(e => {
+
     })
+
+    let notificationTemplate = await TemplatesModel.findOne({
+        "name": TC.NOTIFICATION_LEAVE_RAISED
+    })
+
+    if (notificationTemplate) {
+        let notificationData = {
+            type: SC.NOTIFICATION_TYPE_LEAVE_RAISED,
+            category: SC.NOTIFICATION_CATEGORY_LEAVES,
+            refId: leave._id,
+            message: notificationTemplate.body,
+            data: [{
+                key: 'firstName',
+                value: user.firstName ? user.firstName : ''
+            }, {
+                key: 'lastName',
+                value: user.lastName ? user.lastName : ''
+            }, {
+                key: 'fromDate',
+                value: data.startDate
+            }, {
+                key: 'toDate',
+                value: data.endDate
+            }, {
+                key: 'leaveType',
+                value: leave.leaveType.name
+            }, {
+                key: 'leaveDescription',
+                value: leave.description
+            }, {
+                key: 'leaveID',
+                value: leave._id.toString()
+            }, {
+                key: 'employeeID',
+                value: user._id.toString()
+            }],
+            source: {
+                _id: user._id,
+                name: U.getFullName(user)
+            },
+            receivers: [{
+                _id: user._id,
+                name: U.getFullName(user)
+            }, ...managementUsers.map(u => ({
+                _id: u._id,
+                name: U.getFullName(u)
+            }))],
+            activeOn: new Date(),
+            activeTill: U.momentInUTC(leave.endDateString)
+        }
+        //Save email notification into DB
+        NotificationModel.addNotification(notificationData).then(() => {
+            logger.debug("Leave raised notification added")
+        })
+    }
+
 }
 
 leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested) => {

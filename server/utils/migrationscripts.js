@@ -12,8 +12,8 @@ export const addNNXTTemplates = async () => {
         if (!await MDL.TemplateModel.exists(TC.EMAIL_BODY_LEAVE_RAISED)) {
             await MDL.TemplateModel.addTemplate(superAdminUser, {
                 name: TC.EMAIL_BODY_LEAVE_RAISED,
-                body: `{firstName} {lastName} has raised a leave from {fromDate} to {toDate}. Leave type is chosen as '{leaveType}' with description given as 
-                     '{leaveDescription}
+                body: `<p>Hi,</p><p>{firstName} {lastName} has raised a leave from {fromDate} to {toDate}.</p> <p>Leave type is chosen as '{leaveType}' with description given as 
+                     '{leaveDescription}</p><p>Regards, <br/>NNXT Team.</p>
                         `,
                 supportedTokens: [
                     'firstName', 'lastName', 'fromDate', 'toDate', 'leaveType', 'leaveDescription'
@@ -26,7 +26,7 @@ export const addNNXTTemplates = async () => {
                 name: TC.EMAIL_SUBJECT_LEAVE_RAISED,
                 body: `{firstName} has raised a leave`,
                 supportedTokens: [
-                    'firstName', 'lastName', 'fromDate', 'toDate', 'leaveType', 'leaveDescription'
+                    'firstName', 'lastName', 'fromDate', 'toDate', 'leaveType', 'leaveDescription', 'leaveID', 'employeeID'
                 ]
             })
         }
