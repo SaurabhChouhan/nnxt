@@ -236,13 +236,8 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
 
     let toList = [user.email, ...managementUsers.map(u => u.email)]
     // Not waiting on this promise as this could run in background
-    /*
-    sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {
 
-    }).catch(e => {
-
-    })
-    */
+    sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {}).catch(e => {})
 
     let notificationTemplate = await TemplatesModel.findOne({
         "name": TC.NOTIFICATION_LEAVE_RAISED

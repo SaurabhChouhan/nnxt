@@ -23,7 +23,7 @@ class NotificationsPage extends Component {
 
     notificationTextFormated(cell, row, enumObject, rowIndex) {
         if (cell)
-            return <div> {cell}</div>
+            return <div> {Parser(cell)}</div>
         else
             return ""
 

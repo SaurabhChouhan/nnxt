@@ -36,18 +36,26 @@ let notificationSchema = mongoose.Schema({
     updated: {type: Date, default: new Date()}
 })
 
-notificationSchema.methods.templateData = function () {
+notificationSchema.methods.templateData = function (userID) {
     let tData = {}
     //console.log("data,", this.data)
     if (this.data && this.data.length) {
         this.data.forEach(d => {
-            console.log("iterating on ", d)
             tData[d.key] = d.value
         })
-        //console.log("tData ", tData)
+
     }
 
-    console.log("returning t data ", tData)
+    // Name phrase would allow proper phrase to use when You or name is used in sentence
+    let namePhrase = ''
+    if (this.source && this.source._id.toString() == userID) {
+        namePhrase = 'You have'
+    } else {
+        if (tData['firstName']) {
+            namePhrase = tData['firstName'] + ' has'
+        }
+    }
+    tData['namePhrase'] = namePhrase
     return tData
 }
 
@@ -83,7 +91,7 @@ notificationSchema.statics.getAllActiveNotifications = async (user) => {
     if (notifications && notifications.length) {
         return notifications.map(n => {
             //console.log("n.templateData ", n.templateData())
-            n.message = TemplateUtil.performTokenReplacement(n.message, n.templateData())
+            n.message = TemplateUtil.performTokenReplacement(n.message, n.templateData(user._id.toString()))
             return n
         })
     }

@@ -34,9 +34,9 @@ export const addNNXTTemplates = async () => {
         if (!await MDL.TemplateModel.exists(TC.NOTIFICATION_LEAVE_RAISED)) {
             await MDL.TemplateModel.addTemplate(superAdminUser, {
                 name: TC.NOTIFICATION_LEAVE_RAISED,
-                body: `{firstName} has raised a leave from {fromDate} to {toDate}`,
+                body: `{namePhrase} raised a leave from {fromDate} to {toDate}`,
                 supportedTokens: [
-                    'firstName', 'lastName', 'fromDate', 'toDate', 'leaveType', 'leaveDescription'
+                    'firstName', 'lastName', 'fromDate', 'toDate', 'leaveType', 'leaveDescription', 'namePhrase'
                 ]
             })
         }
