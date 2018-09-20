@@ -12,12 +12,11 @@ export const addAllTodayNotifications = (todayAllNotifications) => ({
 })
 
 
-
 /* GET , ADD , UPDATE All notifications from server APIs  BLOCK */
 
-export const getAllNotificationsFromServer = (type) => {
-    return function (dispatch, getState) {
-        return fetch('/api/users/notifications/type/'+type,
+export const getAllActiveNotificationsFromServer = () => {
+    return function (dispatch) {
+        return fetch('/api/notifications/active',
             {
                 method: "get",
                 credentials: "include",
@@ -41,7 +40,7 @@ export const getAllNotificationsFromServer = (type) => {
 }
 export const getTodayNotifications = () => {
     return function (dispatch, getState) {
-        return fetch('/api/users/today-notifications',
+        return fetch('/api/notifications/notification-count-today',
             {
                 method: "get",
                 credentials: "include",
@@ -74,7 +73,7 @@ export const deleteNotificationsFromServer = (ids) => {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ids:ids})
+                body: JSON.stringify({ids: ids})
             }
         ).then(
             response => {
@@ -82,7 +81,7 @@ export const deleteNotificationsFromServer = (ids) => {
             }
         ).then(json => {
                 if (json.success) {
-                   // dispatch(addAllNotifications(json.data))
+                    // dispatch(addAllNotifications(json.data))
                 }
                 return json
             }

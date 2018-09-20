@@ -1,21 +1,47 @@
-import TemplateUtilObj  from './templateUtil'
+import * as TemplateUtil from './templateUtil'
 import EmailSendBySES from './emailSendSesUtil'
 import * as CONSTANT from '../../serverconstants'
-import EmailTemplatesModel from '../../models/emailTemplatesModel'
+import TemplatesModel from '../../models/templatesModel'
 import NotificationModel from '../../models/notificationModel'
 import * as GetTextMessages from '../../textMessages'
 
+import logger from '../../logger'
+
+export const sendEmailNotification = async (toList, bodyTemplateName, subjectTemplateName, data) => {
+    let emailBodyTemplate = await TemplatesModel.findOne({
+        "name": bodyTemplateName
+    })
+
+    let emailSubjectTemplate = await TemplatesModel.findOne({
+        "name": subjectTemplateName
+    })
+
+    if (emailBodyTemplate && emailSubjectTemplate) {
+        let body = TemplateUtil.performTokenReplacement(emailBodyTemplate.body, data);
+        let subject = TemplateUtil.performTokenReplacement(emailSubjectTemplate.body, data);
+        // Not waiting for anything as error while sending notifications would just be noted
+        EmailSendBySES.sendEmailByAWSsES(toList, subject, body).catch((e) => {
+            logger.error("Problem sending email by AWS ", {e})
+        })
+    } else {
+        logger.error("At least one of the templates with name [" + bodyTemplateName + ", " + subjectTemplateName + "] not found")
+    }
+}
+
 //Send sendNotification
-const sendNotification = async (emailData,templateName) =>{
+export const sendNotification = async (emailData, templateName) => {
     console.log("Please wait...")
     console.log("Email is sending.....")
     return new Promise(async (res, rej) => {
-
-        let emailTemplate = await EmailTemplatesModel.findOne({"templateName": templateName, "status": "Approved", "isDeleted": false})
+        let emailTemplate = await TemplatesModel.findOne({
+            "templateName": templateName,
+            "status": "Approved",
+            "isDeleted": false
+        })
         if (!emailTemplate) {
             console.log("Template not found in DB.")
             rej(false)
-        }else {
+        } else {
 
             if (templateName == CONSTANT.WELCOME_TEMPLATE) {
                 //Set template json
@@ -27,7 +53,7 @@ const sendNotification = async (emailData,templateName) =>{
                 }
 
                 //Template data replace method
-                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                TemplateUtil.performTokenReplacement(emailTemplate,
                     templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
                     let to = [emailData.user.email]
                     let subject = emailTemplate.templateSubject
@@ -74,13 +100,13 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    OTPMessage: GetTextMessages.getOTPmessage({otp:emailData.OTP}),
+                    OTPMessage: GetTextMessages.getOTPmessage({otp: emailData.OTP}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
 
                 //Template data replace method
-                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                TemplateUtil.performTokenReplacement(emailTemplate,
                     templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
                     let to = [emailData.user.email]
                     let subject = emailTemplate.templateSubject
@@ -95,7 +121,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "OTP",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: GetTextMessages.getOTPmessage({otp:emailData.OTP}),
+                        notificationBodyText: GetTextMessages.getOTPmessage({otp: emailData.OTP}),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -133,7 +159,7 @@ const sendNotification = async (emailData,templateName) =>{
                 }
 
                 //Template data replace method
-                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                TemplateUtil.performTokenReplacement(emailTemplate,
                     templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
                     let to = [emailData.user.email]
                     let subject = emailTemplate.templateSubject
@@ -180,13 +206,19 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.admin.firstName + ' ' + emailData.admin.lastName,
-                    raiseLeaveMessage: GetTextMessages.getRaisedLeaveMessage({userName:emailData.user.firstName + ' ' + emailData.user.lastName,leaveType:emailData.leaveType,startDate:emailData.startDate,endDate:emailData.endDate,leaveDescription:emailData.leaveDescription}),
+                    raiseLeaveMessage: GetTextMessages.getRaisedLeaveMessage({
+                        userName: emailData.user.firstName + ' ' + emailData.user.lastName,
+                        leaveType: emailData.leaveType,
+                        startDate: emailData.startDate,
+                        endDate: emailData.endDate,
+                        leaveDescription: emailData.leaveDescription
+                    }),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
 
                 //Template data replace method
-                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                TemplateUtil.performTokenReplacement(emailTemplate,
                     templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
                     let to = [emailData.admin.email]
                     let subject = emailTemplate.templateSubject
@@ -201,7 +233,13 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: GetTextMessages.getRaisedLeaveMessage({userName:emailData.admin.firstName + ' ' + emailData.admin.lastName,leaveType:emailData.leaveType,startDate:emailData.startDate,endDate:emailData.endDate,leaveDescription:emailData.leaveDescription}),
+                        notificationBodyText: GetTextMessages.getRaisedLeaveMessage({
+                            userName: emailData.admin.firstName + ' ' + emailData.admin.lastName,
+                            leaveType: emailData.leaveType,
+                            startDate: emailData.startDate,
+                            endDate: emailData.endDate,
+                            leaveDescription: emailData.leaveDescription
+                        }),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -233,13 +271,13 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    approvedLeaveMessage: GetTextMessages.getApprovedLeaveMessage({reason:emailData.reason}),
+                    approvedLeaveMessage: GetTextMessages.getApprovedLeaveMessage({reason: emailData.reason}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
 
                 //Template data replace method
-                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                TemplateUtil.performTokenReplacement(emailTemplate,
                     templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
                     let to = [emailData.user.email]
                     let subject = emailTemplate.templateSubject
@@ -254,7 +292,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Approved-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: GetTextMessages.getApprovedLeaveMessage({reason:emailData.reason}),
+                        notificationBodyText: GetTextMessages.getApprovedLeaveMessage({reason: emailData.reason}),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -286,13 +324,13 @@ const sendNotification = async (emailData,templateName) =>{
                 //Set template json
                 let templateUpdateWithDataJson = {
                     userName: emailData.user.firstName + ' ' + emailData.user.lastName,
-                    rejectRaisedLeaveMessage: GetTextMessages.getRejectLeaveMessage({reason:emailData.reason}),
+                    rejectRaisedLeaveMessage: GetTextMessages.getRejectLeaveMessage({reason: emailData.reason}),
                     NNXT_LOGO_URL: CONSTANT.NNXT_LOGO_URL,
                     COPY_RIGHT_FOOTER_MESSAGE: CONSTANT.COPY_RIGHT_FOOTER_MESSAGE
                 }
 
                 //Template data replace method
-                TemplateUtilObj.getEmailTemplateAfterReplaceEmailData(emailTemplate,
+                TemplateUtil.performTokenReplacement(emailTemplate,
                     templateUpdateWithDataJson).then(async welcomeEmailTemplate => {
                     let to = [emailData.user.email]
                     let subject = emailTemplate.templateSubject
@@ -307,7 +345,7 @@ const sendNotification = async (emailData,templateName) =>{
                         notificationSubject: emailTemplate.templateSubject,
                         notificationType: "Reject-Raise-Leave",
                         notificationBody: welcomeEmailTemplate,
-                        notificationBodyText: GetTextMessages.getRejectLeaveMessage({reason:emailData.reason}),
+                        notificationBodyText: GetTextMessages.getRejectLeaveMessage({reason: emailData.reason}),
                         status: "Pending"
                     }
                     //Save email notification into DB
@@ -343,11 +381,4 @@ const sendNotification = async (emailData,templateName) =>{
             }
         }//end of else
     })
-}
-
-
-
-
-module.exports = {
-    sendNotification
 }

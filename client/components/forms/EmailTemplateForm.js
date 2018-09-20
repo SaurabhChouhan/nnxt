@@ -41,7 +41,7 @@ class EmailTemplateForm extends Component {
                                validate={[required]}/>
 
                         <Field name="templateBody" label="Body:" component={renderTextArea}
-                               validate={[required]}/>
+                               validate={[required]} rows={10}/>
 
                                 <button type="submit" className="btn btn-submit"> Save
                                 </button>

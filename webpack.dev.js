@@ -2,10 +2,12 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const webpack = require('webpack')
 
 var publicPath = path.resolve(__dirname, 'public', 'dist')
 
 module.exports = {
+    devtool:false,
     mode: 'development',
     entry: {
         client: './client/client.js'
@@ -48,6 +50,10 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "[name].css",
             chunkFilename: "[id].css"
+        }),
+        new webpack.SourceMapDevToolPlugin({
+            filename: '[name].js.map',
+            exclude: ['vendor.js']
         })
     ],
     optimization: {

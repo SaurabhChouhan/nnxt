@@ -6,7 +6,7 @@ import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
 import generateOTPUtil from '../notifications/generateOTP'
-import NotificationUtil from '../notifications/byemail/notificationUtil'
+import {sendEmailNotification} from '../notifications/byemail/notificationUtil'
 
 mongoose.Promise = global.Promise
 
@@ -30,7 +30,7 @@ let userSchema = mongoose.Schema({
     deviceUniqueID: String,
     dob: Date,
     profileImageURL: String,
-    otp:{type: Number, default:0}
+    otp: {type: Number, default: 0}
 })
 
 
@@ -166,13 +166,16 @@ userSchema.statics.saveUser = async usrObj => {
           throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
   */
-    let createdUser =  await UserModel.create(usrObj)
-    if(createdUser) {
+    let createdUser = await UserModel.create(usrObj)
+    if (createdUser) {
         let emailData = {
             user: createdUser,
             resetPasswordMessage: SC.RESET_PASSWORD_TEMPLATE_MESSAGE
         }
-        NotificationUtil.sendNotification(emailData, SC.RESET_PASSWORD_TEMPLATE)
+
+        sendEmailNotification(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
+
+        })
     }
     return createdUser
 }
@@ -351,7 +354,7 @@ userSchema.statics.deleteAddedRole = async (roleID) => {
     return userRoleDelete
 }
 
-userSchema.statics.changePassword = async (user,changePasswordInfo) => {
+userSchema.statics.changePassword = async (user, changePasswordInfo) => {
     let isPasswordChanged = false
     let oldPassword = changePasswordInfo.oldPassword
     let newPassword = changePasswordInfo.newPassword
@@ -359,11 +362,11 @@ userSchema.statics.changePassword = async (user,changePasswordInfo) => {
 
     let storedUser = await UserModel.findById(user._id)
     if (!storedUser) {
-            throw new AppError("User not found.", EC.NOT_FOUND)
+        throw new AppError("User not found.", EC.NOT_FOUND)
     }
 
-    let isValidUser = await UserModel.verifyUser(storedUser.email,oldPassword)
-    if(!isValidUser){
+    let isValidUser = await UserModel.verifyUser(storedUser.email, oldPassword)
+    if (!isValidUser) {
         throw new AppError("Invalid old password.", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
     }
 
@@ -371,13 +374,13 @@ userSchema.statics.changePassword = async (user,changePasswordInfo) => {
         // this means password is changed
         if (newPassword == confirmPassword) {
             let bcrypt_password = await bcrypt.hash(newPassword, 10)
-            let userPassIsChanged = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {password:bcrypt_password}}, {new: true}).exec()
-            if(userPassIsChanged)
+            let userPassIsChanged = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {password: bcrypt_password}}, {new: true}).exec()
+            if (userPassIsChanged)
                 isPasswordChanged = true
         } else {
             throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
         }
-    }else {
+    } else {
         throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
     }
 
@@ -386,30 +389,33 @@ userSchema.statics.changePassword = async (user,changePasswordInfo) => {
 
 userSchema.statics.forgotPasswordRequestM = async (email) => {
     let isUpdatedNewOtpToResetPass = false
-    let storedUser = await UserModel.findOne({email:email})
+    let storedUser = await UserModel.findOne({email: email})
     if (!storedUser) {
         //throw new AppError("User not found.", EC.NOT_FOUND)
         return isUpdatedNewOtpToResetPass
     }
     let newOTP = await generateOTPUtil.generateNewOTP()
-    if(!newOTP) {
+    if (!newOTP) {
         return isUpdatedNewOtpToResetPass
     }
-    let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:newOTP}}, {new: true}).exec()
-    if(updatedNewOtpToResetPass) {
+    let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp: newOTP}}, {new: true}).exec()
+    if (updatedNewOtpToResetPass) {
         isUpdatedNewOtpToResetPass = true
         let emailData = {
-            user:storedUser,
-            OTP:newOTP
+            user: storedUser,
+            OTP: newOTP
         }
-        NotificationUtil.sendNotification(emailData,SC.OTP_TEMPLATE)
+
+        sendEmailNotification(emailData, SC.OTP_TEMPLATE).then(() => {
+
+        })
     }
     return isUpdatedNewOtpToResetPass
 }
 
 userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
     let isResetNewPassword = false
-    let storedUser = await UserModel.findOne({email:updateNewPasswordInfo.email})
+    let storedUser = await UserModel.findOne({email: updateNewPasswordInfo.email})
     if (!storedUser) {
         throw new AppError("User not found.", EC.NOT_FOUND)
     }
@@ -419,18 +425,25 @@ userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
     if (!updateNewPasswordInfo.password) {
         throw new AppError("New Pass not found.", EC.NOT_FOUND)
     }
-    if(updateNewPasswordInfo.otp != 0 && storedUser.otp == updateNewPasswordInfo.otp){
+    if (updateNewPasswordInfo.otp != 0 && storedUser.otp == updateNewPasswordInfo.otp) {
         let bcrypt_password = await bcrypt.hash(updateNewPasswordInfo.password, 10)
-        let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp:0,password:bcrypt_password}}, {new: true}).exec()
-        if(updatedNewOtpToResetPass) {
+        let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {
+            $set: {
+                otp: 0,
+                password: bcrypt_password
+            }
+        }, {new: true}).exec()
+        if (updatedNewOtpToResetPass) {
             isResetNewPassword = true
             let emailData = {
-                user:storedUser,
-                resetPasswordMessage:SC.RESET_PASSWORD_TEMPLATE_MESSAGE
+                user: storedUser,
+                resetPasswordMessage: SC.RESET_PASSWORD_TEMPLATE_MESSAGE
             }
-            NotificationUtil.sendNotification(emailData,SC.RESET_PASSWORD_TEMPLATE)
+            sendEmailNotification(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
+
+            })
         }
-    }else{
+    } else {
         throw new AppError("Invalid OTP.", EC.INVALID_OPERATION)
     }
     return isResetNewPassword

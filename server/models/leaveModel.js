@@ -5,10 +5,16 @@ import * as V from "../validation"
 import * as U from "../utils"
 import * as EC from "../errorcodes";
 import * as SC from "../serverconstants";
+import * as TC from '../templateconsts'
 import * as MDL from "../models";
 import _ from "lodash"
 import moment from 'moment'
-import NotificationUtil from '../notifications/byemail/notificationUtil'
+import momentTZ from 'moment-timezone'
+import {sendEmailNotification} from "../notifications/byemail/notificationUtil";
+import * as GetTextMessages from "../textMessages";
+import NotificationModel from "./notificationModel";
+import * as nMessage from '../notificationMessages'
+import TemplatesModel from "./templatesModel";
 
 mongoose.Promise = global.Promise
 
@@ -212,6 +218,90 @@ const updateFlags = async (generatedWarnings) => {
     }
 }
 
+const sendRaiseLeaveNotifications = async (leave, user) => {
+    let managementUsers = await MDL.UserModel.find({
+        "roles.name": SC.ROLE_TOP_MANAGEMENT
+    }, {
+        email: 1
+    }).lean()
+
+    let data = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        fromDate: U.momentInTimeZone(leave.startDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
+        toDate: U.momentInTimeZone(leave.endDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
+        leaveType: leave.leaveType.name,
+        leaveDescription: leave.description
+    }
+
+    let toList = [user.email, ...managementUsers.map(u => u.email)]
+    // Not waiting on this promise as this could run in background
+
+    sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {}).catch(e => {})
+
+    let notificationTemplate = await TemplatesModel.findOne({
+        "name": TC.NOTIFICATION_LEAVE_RAISED
+    })
+
+    let nowMoment = U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT)
+
+    logger.debug("now moment in UTC", {now: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE)})
+    logger.debug("now moment in UTC STRING", {now: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT)})
+
+    if (notificationTemplate) {
+        let notificationData = {
+            type: SC.NOTIFICATION_TYPE_LEAVE_RAISED,
+            category: SC.NOTIFICATION_CATEGORY_LEAVES,
+            refId: leave._id,
+            message: notificationTemplate.body,
+            templateName: TC.NOTIFICATION_LEAVE_RAISED,
+            data: [{
+                key: 'firstName',
+                value: user.firstName ? user.firstName : ''
+            }, {
+                key: 'lastName',
+                value: user.lastName ? user.lastName : ''
+            }, {
+                key: 'fromDate',
+                value: data.fromDate
+            }, {
+                key: 'toDate',
+                value: data.toDate
+            }, {
+                key: 'leaveType',
+                value: leave.leaveType.name
+            }, {
+                key: 'leaveDescription',
+                value: leave.description
+            }, {
+                key: 'leaveID',
+                value: leave._id.toString()
+            }, {
+                key: 'employeeID',
+                value: user._id.toString()
+            }],
+            source: {
+                _id: user._id,
+                name: U.getFullName(user)
+            },
+            receivers: [{
+                _id: user._id,
+                name: U.getFullName(user)
+            }, ...managementUsers.map(u => ({
+                _id: u._id,
+                name: U.getFullName(u)
+            }))],
+            activeOn: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT),
+            activeTill: U.momentInUTC(leave.endDateString).add(1, 'day').format(SC.DATE_TIME_FORMAT)
+        }
+        //Save email notification into DB
+        NotificationModel.addNotification(notificationData).then(() => {
+            logger.debug("Leave raised notification added")
+        })
+    }
+
+}
+
 leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested) => {
     if (schemaRequested)
         return V.generateSchema(V.leaveRequestAdditionStruct)
@@ -288,16 +378,11 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
     newLeave.canCancel = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
     newLeave.canApprove = U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)
 
-    let NNXTadmin = await MDL.UserModel.findOne({email:SC.NNXT_ADMIN})
-    let emailData = {
-        admin:NNXTadmin,
-        user:user,
-        startDate:leaveInput.startDate,
-        endDate:leaveInput.endDate,
-        leaveType:leaveType.name,
-        leaveDescription:leaveInput.description
-    }
-    NotificationUtil.sendNotification(emailData,SC.RAISE_LEAVE_TEMPLATE)
+
+    /**
+     * Send appropriate email notification, no need to wait for email to send
+     */
+    sendRaiseLeaveNotifications(newLeave, user)
 
     return {
         leave: newLeave,
@@ -305,58 +390,6 @@ leaveSchema.statics.raiseLeaveRequest = async (leaveInput, user, schemaRequested
         affectedReleasePlans: affected.affectedReleasePlans,
         affectedTaskPlans: affected.affectedTaskPlans
     }
-}
-
-const updateEmployeeStatisticsOnLeaveApprove = async (leave, requester, approver) => {
-    /*  let startDateMoment = U.momentInUTC(leave.startDateString)
-      let endDateMoment = U.momentInUTC(leave.endDateString)
-      let singleDateMoment = startDateMoment.clone()
-      let employeeStatisticsOfEmployee = await MDL.EmployeeStatisticsModel.findOne({
-          'employee._id': requester._id,
-      })
-      if (employeeStatisticsOfEmployee) {
-          while (singleDateMoment.isSameOrBefore(endDateMoment)) {
-              let esIdx = employeeStatisticsOfEmployee.leaves && employeeStatisticsOfEmployee.leaves.length > 0 ? employeeStatisticsOfEmployee.leaves.findIndex(l => U.momentInUTC(l.dateString).isSame(singleDateMoment)) : -1
-              if (esIdx == -1) {
-                  employeeStatisticsOfEmployee.leaves.push({
-                      date: singleDateMoment.toDate(),
-                      dateString: U.formatDateInUTC(singleDateMoment.toDate()),
-                      reason: [{
-                          type: String,
-                          enum: [SC.REASON_MEDICAL, SC.REASON_PERSONAL, SC.REASON_OCCASION, SC.REASON_FESTIVAL]
-                      }],
-                      plannedHours: {type: Number, default: 0},
-                      isLastMinuteLeave: {type: Boolean, default: false},
-                  })
-              }
-
-              singleDateMoment = singleDateMoment.add(1, 'days')
-          }
-          return await employeeStatisticsOfEmployee.save()
-      } else {
-          let newEmployeeStatisticsOfEmployee = new MDL.EmployeeStatisticsModel()
-          newEmployeeStatisticsOfEmployee.employee = {}
-          newEmployeeStatisticsOfEmployee.employee._id = requester._id
-          newEmployeeStatisticsOfEmployee.employee.name = requester.firstName + ' ' + requester.lastName
-          newEmployeeStatisticsOfEmployee.leaves = []
-
-          while (singleDateMoment.isSameOrBefore(endDateMoment)) {
-              employeeStatisticsOfEmployee.leaves.push({
-                  date: singleDateMoment.toDate(),
-                  dateString: U.formatDateInUTC(singleDateMoment.toDate()),
-                  reason: [{
-                      type: String,
-                      enum: [SC.REASON_MEDICAL, SC.REASON_PERSONAL, SC.REASON_OCCASION, SC.REASON_FESTIVAL]
-                  }],
-                  plannedHours: {type: Number, default: 0},
-                  isLastMinuteLeave: {type: Boolean, default: false},
-              })
-
-              singleDateMoment = singleDateMoment.add(1, 'days')
-          }
-          return await newEmployeeStatisticsOfEmployee.save()
-      }
-  */
 }
 
 const updateEmployeeReleaseApproveLeave = async (releases, leave) => {
@@ -467,10 +500,13 @@ leaveSchema.statics.approveLeave = async (leaveID, reason, approver) => {
     leave.canApprove = false
 
     let emailData = {
-        user:await MDL.UserModel.findOne({_id:leave.user._id}),
-        reason:reason
+        user: await MDL.UserModel.findOne({_id: leave.user._id}),
+        reason: reason
     }
-    NotificationUtil.sendNotification(emailData,SC.APPROVED_LEAVE_TEMPLATE)
+
+    sendEmailNotification(emailData, SC.APPROVED_LEAVE_TEMPLATE).then(() => {
+
+    })
 
     return {
         leave: leave,
@@ -517,10 +553,13 @@ leaveSchema.statics.rejectLeave = async (leaveID, reason, user) => {
     leaveRequest.canApprove = false
 
     let emailData = {
-        user:user,
-        reason:reason
+        user: user,
+        reason: reason
     }
-    NotificationUtil.sendNotification(emailData,SC.REJECT_RAISED_LEAVE_TEMPLATE)
+
+    sendEmailNotification(emailData, SC.REJECT_RAISED_LEAVE_TEMPLATE).then(() => {
+
+    })
 
     return {
         leave: leaveRequest,
@@ -597,7 +636,7 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
 
     /*--------------------------------EMPLOYEE RELEASE UPDATES---------------------------*/
 
-    if(leave.status == SC.LEAVE_STATUS_APPROVED){
+    if (leave.status == SC.LEAVE_STATUS_APPROVED) {
         // Revoking leave request after its approval would change employee release leave statistics
 
         // Find out all the release IDs that this leave has impact on
@@ -615,7 +654,6 @@ leaveSchema.statics.revokeLeave = async (leaveID, user) => {
             await updateEmployeeReleaseRevokeLeave(releases, leave)
         }
     }
-
 
 
     /*--------------------------------WARNING UPDATE SECTION ----------------------------------------*/
