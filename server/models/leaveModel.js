@@ -268,10 +268,10 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
                 value: user.lastName ? user.lastName : ''
             }, {
                 key: 'fromDate',
-                value: data.startDate
+                value: data.fromDate
             }, {
                 key: 'toDate',
-                value: data.endDate
+                value: data.toDate
             }, {
                 key: 'leaveType',
                 value: leave.leaveType.name

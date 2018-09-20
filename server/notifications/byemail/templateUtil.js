@@ -1,11 +1,11 @@
 import emailTemplateReplaceAll from 'string-template'
 import * as CONSTANT from '../../serverconstants'
 
-export const performTokenReplacement = async (template, data) => {
+export const performTokenReplacement = (template, data) => {
     return emailTemplateReplaceAll(template, data)
 }
 
-export const getEmailBodyWithHeaderFooter = async (template, data) => {
+export const getEmailBodyWithHeaderFooter = (template, data) => {
     let emailTemplateString = '<div>' + CONSTANT.EMAIl_HEADR_TEMPLATE + template + CONSTANT.EMAIl_TEMPLATE_FOOTER + '</div>'
     let afterReplaceEmailTemplate = emailTemplateReplaceAll(emailTemplateString, data)
     if (afterReplaceEmailTemplate) {

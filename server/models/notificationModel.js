@@ -3,6 +3,7 @@ import momentTZ from 'moment-timezone'
 import * as SC from '../serverconstants'
 import * as U from '../utils'
 import logger from '../logger'
+import * as TemplateUtil from "../notifications/byemail/templateUtil";
 
 mongoose.Promise = global.Promise
 
@@ -35,6 +36,21 @@ let notificationSchema = mongoose.Schema({
     updated: {type: Date, default: new Date()}
 })
 
+notificationSchema.methods.templateData = function () {
+    let tData = {}
+    //console.log("data,", this.data)
+    if (this.data && this.data.length) {
+        this.data.forEach(d => {
+            console.log("iterating on ", d)
+            tData[d.key] = d.value
+        })
+        //console.log("tData ", tData)
+    }
+
+    console.log("returning t data ", tData)
+    return tData
+}
+
 notificationSchema.statics.addNotification = async (notificationObj) => {
     let notification = new NotificationModel()
     notification.activeOn = momentTZ.tz(notificationObj.activeOn, SC.DATE_TIME_FORMAT, SC.UTC_TIMEZONE)
@@ -59,11 +75,18 @@ notificationSchema.statics.getAllActiveNotifications = async (user) => {
     // First formatted current date time in indian time zone and then parsed it again in UTC to get same date/time in UTC for comparison
     let sameTimeInUTC = U.getNowMomentInUTC(SC.INDIAN_TIMEZONE)
     logger.debug("getAllActiveNotifications() ", {sameTimeInUTC})
-
-    return await NotificationModel.find({
+    let notifications = await NotificationModel.find({
         activeOn: {$lte: sameTimeInUTC},
         "receivers._id": user._id
     }).sort({activeOn: -1})
+
+    if (notifications && notifications.length) {
+        return notifications.map(n => {
+            //console.log("n.templateData ", n.templateData())
+            n.message = TemplateUtil.performTokenReplacement(n.message, n.templateData())
+            return n
+        })
+    }
 }
 
 
