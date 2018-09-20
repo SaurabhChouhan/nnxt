@@ -9,7 +9,7 @@ const config = {
         },
         development: {
             port: 3000,
-            setupData: false,
+            setupData: true,
             dropDatabase: false
         },
         setupData: {

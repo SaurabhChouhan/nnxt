@@ -1,14 +1,14 @@
 import * as TemplateUtil from './templateUtil'
 import EmailSendBySES from './emailSendSesUtil'
 import * as CONSTANT from '../../serverconstants'
-import EmailTemplatesModel from '../../models/emailTemplatesModel'
+import TemplatesModel from '../../models/templatesModel'
 import NotificationModel from '../../models/notificationModel'
 import * as GetTextMessages from '../../textMessages'
 
 import logger from '../../logger'
 
 export const sendEmailNotification = async (toList, templateName, data) => {
-    let emailTemplate = await EmailTemplatesModel.findOne({
+    let emailTemplate = await TemplatesModel.findOne({
         "templateName": templateName,
         "status": "Approved",
         "isDeleted": false
@@ -31,7 +31,7 @@ export const sendNotification = async (emailData, templateName) => {
     console.log("Please wait...")
     console.log("Email is sending.....")
     return new Promise(async (res, rej) => {
-        let emailTemplate = await EmailTemplatesModel.findOne({
+        let emailTemplate = await TemplatesModel.findOne({
             "templateName": templateName,
             "status": "Approved",
             "isDeleted": false
