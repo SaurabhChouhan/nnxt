@@ -54,9 +54,9 @@ class TaskReportList extends Component {
     formatTaskName(task, row) {
         if (task) {
             if (row.iterationType == SC.ITERATION_TYPE_PLANNED)
-                return <span style={{color: '#4172c1'}}>{task.name}</span>
+                return <span style={{color: '#4172c1',cursor:'pointer'}}>{task.name}</span>
             else if (row.iterationType == SC.ITERATION_TYPE_UNPLANNED)
-                return <span style={{color: '#e52d8c'}}>{task.name}</span>
+                return <span style={{color: '#e52d8c',cursor:'pointer'}}>{task.name}</span>
             else
                 return <span>{task.name}</span>
         }
