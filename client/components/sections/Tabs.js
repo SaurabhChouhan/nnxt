@@ -26,7 +26,7 @@ import {
     HOLIDAY_TAB,
     LEAVE_SETTING_FORM,
     HOLIDAY_FORM,
-    HOLIDAY_LIST
+    HOLIDAY_LIST, EMAIL_TAB, EMAIL_TEMPLATE_FORM, EMAIL_TEMPLATE_LIST
 } from "../componentConsts"
 
 import {
@@ -51,7 +51,9 @@ import {
     EmployeeSettingFormContainer,
     LeaveSettingFormContainer,
     HolidayFormContainer,
-    HolidayListContainer
+    HolidayListContainer,
+    EmailTemplateFormContainer,
+    EmailTemplatesListContainer
 
 } from "../../containers"
 import * as A from "../../actions";
@@ -163,6 +165,18 @@ class Tabs extends Component {
                 }
             })
         }
+        if (permissions.includes(CREATE_USER)) {
+            this.tabData.push({
+                name: EMAIL_TAB,
+                url: "/email-templates",
+                render: (props) => {
+                    return <TabSectionContainer>
+                        <EmailTemplateFormContainer name={EMAIL_TEMPLATE_FORM}/>
+                        <EmailTemplatesListContainer name={EMAIL_TEMPLATE_LIST}/>
+                    </TabSectionContainer>
+                }
+            })
+        }
         if (permissions.includes(LIST_USERS)) {
             this.tabData.push({
                 name: HOLIDAY_TAB,
@@ -230,6 +244,12 @@ class Tabs extends Component {
             case LEAVE_SETTING_TAB:
                 store.dispatch(A.getLeaveSettingFromServer())
                 store.dispatch(A.showComponentHideOthers(LEAVE_SETTING_FORM))
+                break;
+
+            case EMAIL_TAB:
+                store.dispatch(A.getAllEmailTemplatesFromServer())
+                store.dispatch(A.getAllEmailTemplatesTypesFromServer())
+                store.dispatch(A.showComponentHideOthers(EMAIL_TEMPLATE_LIST))
                 break;
 
             case HOLIDAY_TAB:

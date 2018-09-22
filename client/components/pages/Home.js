@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import {LoginFormContainer} from '../../containers'
 
-class AdminHome extends Component {
+class Home extends Component {
     render() {
         return ([<LoginFormContainer/>])
     }
 }
 
-export default AdminHome
+export default Home

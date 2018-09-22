@@ -17,7 +17,6 @@ let initialState = {
 const dashboardReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.CALCULATE_RELEASE_STATS:
-
             let plannedVsUnplannedWork = {}
             let overallProgress = {}
             let completedPendingProgress = {}
@@ -25,18 +24,15 @@ const dashboardReducer = (state = initialState, action) => {
             let hoursData = {}
             let estimatedProgress = {}
             let progress = {}
-
             let release = Object.assign({}, action.release)
 
             // To calculate percentage of planned work we need to iterate on all iterations of type 'planned' and then
             // sum all plannedHoursEstimatedTasks and then compare them against sum of all estimated hours
             let plannedIterations = release.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
-
             // there should only be one unplanned iteration
             let unPlannedIteration = release.iterations.find(i => i.type == SC.ITERATION_TYPE_UNPLANNED)
 
             if (plannedIterations && plannedIterations.length) {
-
                 let s = {
                     sumPlannedHours: 0,
                     sumEstimatedHours: 0,
@@ -57,6 +53,9 @@ const dashboardReducer = (state = initialState, action) => {
                     s.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
                 })
 
+                console.log('planned iterations ', s)
+
+
                 /**
                  * Overall progress
                  */
@@ -69,13 +68,25 @@ const dashboardReducer = (state = initialState, action) => {
                     remaining: parseFloat((100 - progress['actual']).toFixed(2))
                 }
 
+                console.log("overall progress ", overallProgress['actual'])
+
                 /**
                  * Progress Completed/Pending tasks
                  */
 
                 let progressCompletedTasks = s.sumEstimatedHours != 0 ? parseFloat(((s.sumEstimatedHoursCompletedTasks * 100) / s.sumEstimatedHours).toFixed(2)) : 0
+                console.log("progress completed tasks", progressCompletedTasks)
+
+                if (progress['actual'] < progressCompletedTasks) {
+                    // this happens when all progress is due to completed tasks but there is slight difference of floating point
+                    progress['actual'] = progressCompletedTasks
+                }
+
+                console.log("progress completed tasks 2", progressCompletedTasks)
+
                 //progressCompletedTasks = parseFloat(progressCompletedTasks.toFixed(2))
                 let progressPendingTasks = parseFloat((progress['actual'] - progressCompletedTasks).toFixed(2))
+
 
                 completedPendingProgress = {
                     ran: Math.random(),

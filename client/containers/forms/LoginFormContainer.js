@@ -1,9 +1,14 @@
 import {connect} from 'react-redux'
 import {LoginForm} from "../../components"
-import {loginUserOnServer} from "../../actions"
+import * as A from "../../actions"
+import * as COC from "../../components/componentConsts"
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: (values) => dispatch(loginUserOnServer(values))
+    onSubmit: (values) => dispatch(A.loginUserOnServer(values)).then(json => {
+        if (json.success) {
+            dispatch(A.getTodayNotifications())
+        }
+    })
 })
 
 const mapStateToProps = (state, ownProps) => {

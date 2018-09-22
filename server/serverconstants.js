@@ -371,3 +371,78 @@ export const ALL_RELEASE_STATUS = [
     STATUS_ISSUE_FIXING,
     STATUS_STABLE
 ]
+
+/* Email Notifications Configuration Settings */
+/* Email Settings */
+export const NNXT_SELF_USER_AND_EMAIL_INFO = {"_id": "5b87dea2749236069ce69430", "email": "nnxt@aripratech.com"}
+export const SENDER_EMAIL_ADDRESS = "nnxt@aripratech.com"
+export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.png"
+export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
+export const COPY_RIGHT_FOOTER_MESSAGE = "Copyright 2018 : All right reserved."
+export const NNXT_ADMIN = "schouhan@aripratech.com"//"mpogra@aripratech.com" or "schouhan@aripratech.com"
+
+/* Email Templates Name and Messages*/
+export const EMAIl_HEADR_TEMPLATE = '<div style = "height: 42px;color: white;background: #333;padding-top: 15px;font-weight: bold;font-size: 25px;padding-left: 10px;">' +
+    '<img src="{NNXT_LOGO_URL}/img/logo.png" title="NNXT" alt="NNXT"/> </div>'
+export const EMAIl_TEMPLATE_FOOTER = '<div style = "height: 37px;color: white;background: #333;padding-top: 18px;font-weight: bold;font-size:14px;text-align: center;"> {COPY_RIGHT_FOOTER_MESSAGE} </div>'
+
+/* Basic Email Templates Name */
+export const WELCOME_TEMPLATE = "Welcome-Template"
+export const OTP_TEMPLATE = "OTP-Template"
+export const RESET_PASSWORD_TEMPLATE = "Reset-Password-Template"
+
+/* Leaves Email Templates Name */
+export const RAISE_LEAVE_TEMPLATE = "Raise-Leave-Template"
+export const APPROVED_LEAVE_TEMPLATE = "Approved-Leave-Template"
+export const REJECT_RAISED_LEAVE_TEMPLATE = "Reject-Raised-Leave-Template"
+
+/* Reporting Email Templates Name */
+export const REPORTING_COMPLETE_MARK_TEMPLATE = "Reporting-Complete-Mark-Template"
+export const REPORTING_PENDING_MARK_TEMPLATE = "Reporting-Pending-Mark-Template"
+export const REPORTING_UN_REPORTED_TEMPLATE = "Reporting-Un-Reported-Template"
+
+/* Notification types */
+export const NOTIFICATION_TYPE_LEAVE_RAISED = "LEAVE_RAISED"
+export const NOTIFICATION_TYPE_LEAVE_APPROVED = "LEAVE_APPROVED"
+export const NOTIFICATION_TYPE_LEAVE_REJECTED = "LEAVE_REJECTED"
+export const NOTIFICATION_TYPE_LEAVE_REMOVED = "LEAVE_REMOVED"
+export const NOTIFICATION_TYPE_TASK_ASSIGNED = "TASK_ASSIGNED"
+export const NOTIFICATION_TYPE_TASK_UNASSIGNED = "TASK_UNASSIGNED"
+export const NOTIFICATION_TYPE_TASK_MOVED = "TASK_MOVED"
+export const NOTIFICATION_TYPE_TASK_REMOVED = "TASK_REMOVED"
+export const NOTIFICATION_TYPE_TASK_REPORTED = "TASK_REPORTED"
+export const NOTIFICATION_TYPE_TASK_UNREPORTED = "TASK_UNREPORTED"
+export const NOTIFICATION_TYPE_TASK_REREPORTED = "TASK_UPDATED"
+export const NOTIFICATION_TYPE_TASK_SHIFTED = "TASK_SHIFTED"
+
+export const ALL_NOTIFICATION_TYPES = [
+    NOTIFICATION_TYPE_LEAVE_RAISED,
+    NOTIFICATION_TYPE_LEAVE_APPROVED,
+    NOTIFICATION_TYPE_LEAVE_REJECTED,
+    NOTIFICATION_TYPE_LEAVE_REMOVED,
+    NOTIFICATION_TYPE_TASK_ASSIGNED,
+    NOTIFICATION_TYPE_TASK_UNASSIGNED,
+    NOTIFICATION_TYPE_TASK_MOVED,
+    NOTIFICATION_TYPE_TASK_REMOVED,
+    NOTIFICATION_TYPE_TASK_REPORTED,
+    NOTIFICATION_TYPE_TASK_UNREPORTED,
+    NOTIFICATION_TYPE_TASK_REREPORTED,
+    NOTIFICATION_TYPE_TASK_SHIFTED
+]
+
+
+export const NOTIFICATION_CATEGORY_LEAVES = "Leaves"
+export const NOTIFICATION_CATEGORY_ESTIMATION = "Estimation"
+export const NOTIFICATION_CATEGORY_RELEASE = "Release"
+export const NOTIFICATION_CATEGORY_TASK_ASSIGNMENT = "Task Assignment"
+export const NOTIFICATION_CATEGORY_REPORT = "Report"
+export const NOTIFICATION_CATEGORY_WARNINGS = "Warnings"
+
+export const ALL_NOTIFICATION_CATEGORIES = [
+    NOTIFICATION_CATEGORY_LEAVES,
+    NOTIFICATION_CATEGORY_ESTIMATION,
+    NOTIFICATION_CATEGORY_RELEASE,
+    NOTIFICATION_CATEGORY_TASK_ASSIGNMENT,
+    NOTIFICATION_CATEGORY_REPORT,
+    NOTIFICATION_CATEGORY_WARNINGS
+]

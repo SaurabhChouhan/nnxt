@@ -6,7 +6,7 @@ import {hasRole} from "../utils"
 import AppError from '../AppError'
 
 const employeeRouter = new Router({
-    prefix: "employees"
+    prefix: "/employees"
 })
 /**
  * Get all Employee setting  by ID

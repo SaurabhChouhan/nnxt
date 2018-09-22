@@ -212,10 +212,9 @@ export const addCommentToServer = (comment) => {
     }
 }
 
-
 export const getReleasePlanByIdFromServer = (releasePlanID) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/' + releasePlanID + '/release-plan', {
+        return fetch('/api/release-plans/' + releasePlanID, {
                 method: 'get',
                 credentials: "include",
                 headers: {

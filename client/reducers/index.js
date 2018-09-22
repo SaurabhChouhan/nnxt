@@ -20,6 +20,8 @@ import dashboardReducer from './dashboardReducer'
 import employeeReducer from './employeeReducer'
 import developmentTypeReducer from './developmentTypeReducer'
 import moduleReducer from './moduleReducer'
+import emailReducer from './emailReducer'
+import notificationReducer from './notificationReducer'
 
 
 const reducers = combineReducers({
@@ -43,6 +45,8 @@ const reducers = combineReducers({
     dashboard: dashboardReducer,
     employee: employeeReducer,
     developmentType: developmentTypeReducer,
-    module: moduleReducer
+    module: moduleReducer,
+    emailTemplate: emailReducer,
+    notification: notificationReducer
 })
 export default reducers

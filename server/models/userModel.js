@@ -5,7 +5,8 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import AppError from '../AppError'
 import {userHasRole} from "../utils"
-
+import generateOTPUtil from '../notifications/generateOTP'
+import {sendEmailNotification} from '../notifications/byemail/notificationUtil'
 
 mongoose.Promise = global.Promise
 
@@ -28,7 +29,8 @@ let userSchema = mongoose.Schema({
     lastWorkingDay: Date,
     deviceUniqueID: String,
     dob: Date,
-    profileImageURL: String
+    profileImageURL: String,
+    otp: {type: Number, default: 0}
 })
 
 
@@ -56,38 +58,56 @@ userSchema.statics.getAllActive = async (loggedInUser) => {
 userSchema.statics.getAllActiveWithRoleCategory = async (loggedInUser) => {
     if (userHasRole(loggedInUser, SC.ROLE_NEGOTIATOR) || userHasRole(loggedInUser, SC.ROLE_MANAGER) || userHasRole(loggedInUser, SC.ROLE_LEADER)) {
 
+        let leaders = undefined
+
+        if (!userHasRole(loggedInUser, SC.ROLE_MANAGER) && !userHasRole(loggedInUser, SC.ROLE_TOP_MANAGEMENT)) {
+            // User would only be able to see himself as leader
+            leaders = await UserModel.find({
+                    "roles.name": {
+                        $in: [SC.ROLE_LEADER],
+                        $ne: SC.ROLE_SUPER_ADMIN
+                    }, isDeleted: false,
+                    _id: loggedInUser._id
+                }, {password: 0}
+            ).exec()
+
+        } else {
+            leaders = await UserModel.find({
+                    "roles.name": {
+                        $in: [SC.ROLE_LEADER],
+                        $ne: SC.ROLE_SUPER_ADMIN
+                    }, isDeleted: false
+                }, {password: 0}
+            ).exec()
+        }
+
         // Negotiator can see estimators (Estimation Initiate), developers, leaders (company cost approximations)
-        let Leaders = await UserModel.find({
-                "roles.name": {
-                    $in: [SC.ROLE_LEADER],
-                    $ne: SC.ROLE_SUPER_ADMIN
-                }, isDeleted: false
-            }, {password: 0}
-        ).exec()
-        let Managers = await UserModel.find({
+        let managers = await UserModel.find({
                 "roles.name": {
                     $in: [SC.ROLE_MANAGER]
                 }, isDeleted: false
             }, {password: 0}
         ).exec()
-        let Developers = await UserModel.find({
+
+        let developers = await UserModel.find({
                 "roles.name": {
                     $in: [SC.ROLE_DEVELOPER]
                 }, isDeleted: false
             }, {password: 0}
         ).exec()
+
         let userList = {
-            managers: Managers && Managers.length ? Managers.map(m => {
+            managers: managers && managers.length ? managers.map(m => {
                 m = m.toObject()
                 m.name = m.firstName + ' ' + m.lastName
                 return m
             }) : [],
-            leaders: Leaders && Leaders.length ? Leaders.map(l => {
+            leaders: leaders && leaders.length ? leaders.map(l => {
                 l = l.toObject()
                 l.name = l.firstName + ' ' + l.lastName
                 return l
             }) : [],
-            team: Developers && Developers.length ? Developers.map(t => {
+            team: developers && developers.length ? developers.map(t => {
                 t = t.toObject()
                 t.name = t.firstName + ' ' + t.lastName
                 return t
@@ -146,7 +166,18 @@ userSchema.statics.saveUser = async usrObj => {
           throw new AppError("Designation is required to save employee", EC.BAD_ARGUMENTS, EC.HTTP_BAD_REQUEST)
 
   */
-    return await UserModel.create(usrObj)
+    let createdUser = await UserModel.create(usrObj)
+    if (createdUser) {
+        let emailData = {
+            user: createdUser,
+            resetPasswordMessage: SC.RESET_PASSWORD_TEMPLATE_MESSAGE
+        }
+
+        sendEmailNotification(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
+
+        })
+    }
+    return createdUser
 }
 
 
@@ -321,6 +352,101 @@ userSchema.statics.deleteAddedRole = async (roleID) => {
         throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
     let userRoleDelete = await UserModel.updateMany({'roles._id': roleID}, {$pull: {"roles": {_id: roleID}}}, {multi: true})
     return userRoleDelete
+}
+
+userSchema.statics.changePassword = async (user, changePasswordInfo) => {
+    let isPasswordChanged = false
+    let oldPassword = changePasswordInfo.oldPassword
+    let newPassword = changePasswordInfo.newPassword
+    let confirmPassword = changePasswordInfo.confirmPassword
+
+    let storedUser = await UserModel.findById(user._id)
+    if (!storedUser) {
+        throw new AppError("User not found.", EC.NOT_FOUND)
+    }
+
+    let isValidUser = await UserModel.verifyUser(storedUser.email, oldPassword)
+    if (!isValidUser) {
+        throw new AppError("Invalid old password.", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (confirmPassword && newPassword) {
+        // this means password is changed
+        if (newPassword == confirmPassword) {
+            let bcrypt_password = await bcrypt.hash(newPassword, 10)
+            let userPassIsChanged = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {password: bcrypt_password}}, {new: true}).exec()
+            if (userPassIsChanged)
+                isPasswordChanged = true
+        } else {
+            throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
+        }
+    } else {
+        throw new AppError("Password/Confirm password not matched ", EC.PASSWORD_NOT_MATCHED, EC.HTTP_BAD_REQUEST)
+    }
+
+    return isPasswordChanged
+}
+
+userSchema.statics.forgotPasswordRequestM = async (email) => {
+    let isUpdatedNewOtpToResetPass = false
+    let storedUser = await UserModel.findOne({email: email})
+    if (!storedUser) {
+        //throw new AppError("User not found.", EC.NOT_FOUND)
+        return isUpdatedNewOtpToResetPass
+    }
+    let newOTP = await generateOTPUtil.generateNewOTP()
+    if (!newOTP) {
+        return isUpdatedNewOtpToResetPass
+    }
+    let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {$set: {otp: newOTP}}, {new: true}).exec()
+    if (updatedNewOtpToResetPass) {
+        isUpdatedNewOtpToResetPass = true
+        let emailData = {
+            user: storedUser,
+            OTP: newOTP
+        }
+
+        sendEmailNotification(emailData, SC.OTP_TEMPLATE).then(() => {
+
+        })
+    }
+    return isUpdatedNewOtpToResetPass
+}
+
+userSchema.statics.updateNewPasswordWithOTP = async (updateNewPasswordInfo) => {
+    let isResetNewPassword = false
+    let storedUser = await UserModel.findOne({email: updateNewPasswordInfo.email})
+    if (!storedUser) {
+        throw new AppError("User not found.", EC.NOT_FOUND)
+    }
+    if (!updateNewPasswordInfo.otp) {
+        throw new AppError("OTP not found.", EC.NOT_FOUND)
+    }
+    if (!updateNewPasswordInfo.password) {
+        throw new AppError("New Pass not found.", EC.NOT_FOUND)
+    }
+    if (updateNewPasswordInfo.otp != 0 && storedUser.otp == updateNewPasswordInfo.otp) {
+        let bcrypt_password = await bcrypt.hash(updateNewPasswordInfo.password, 10)
+        let updatedNewOtpToResetPass = await UserModel.findByIdAndUpdate(storedUser._id, {
+            $set: {
+                otp: 0,
+                password: bcrypt_password
+            }
+        }, {new: true}).exec()
+        if (updatedNewOtpToResetPass) {
+            isResetNewPassword = true
+            let emailData = {
+                user: storedUser,
+                resetPasswordMessage: SC.RESET_PASSWORD_TEMPLATE_MESSAGE
+            }
+            sendEmailNotification(emailData, SC.RESET_PASSWORD_TEMPLATE).then(() => {
+
+            })
+        }
+    } else {
+        throw new AppError("Invalid OTP.", EC.INVALID_OPERATION)
+    }
+    return isResetNewPassword
 }
 
 const UserModel = mongoose.model("User", userSchema)

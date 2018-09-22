@@ -10,7 +10,7 @@ import confFile from './config'
 import co from 'co'
 import mongoose from 'mongoose'
 import {apiRouter, pageRouter} from "./routers"
-import {addInitialData, addNNXTData} from "./utils/setupdata"
+import {runSetupInstructions} from "./utils/setupdata"
 import {PROD_ENV} from "./serverconstants"
 import path from 'path'
 import logger from './logger'
@@ -56,8 +56,7 @@ co(async () => {
 
     if (conf.server.setupData) {
         console.log("SETUP DATA CONFIGURATION IS ON! In case you don't want to run setup instructions please set that config to false")
-        await addInitialData()
-        await addNNXTData()
+        await runSetupInstructions()
     }
     let app = new Koa()
 
@@ -82,12 +81,12 @@ co(async () => {
     app.use(passport.session())
 
 // Mustache would be used as a template engine to render pages
-    app.use(views(__dirname + '/views',
+    app.use(views(__dirname + '/../public/dist',
         {
             map: {
                 html: 'mustache'
             },
-            extension: 'mustache',
+            extension: 'html',
             debug: true,
             options: {
                 partials: {}
@@ -100,12 +99,12 @@ co(async () => {
 
     if (process.env.NODE_ENV && process.env.NODE_ENV == PROD_ENV) {
         // Public files would be served from public folder (js,css, images etc), with max age as 1 year
-        app.use(staticCache(path.join(__dirname, 'public'), {
+        app.use(staticCache(path.join(__dirname, '../public'), {
             maxAge: 365 * 24 * 60 * 60
         }))
     } else {
         // For dev environment no caching of files would be done
-        app.use(staticCache(path.join(__dirname, 'public'), {
+        app.use(staticCache(path.join(__dirname, '../public'), {
             maxAge: 0
         }))
     }

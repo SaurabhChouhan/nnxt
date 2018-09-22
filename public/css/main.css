@@ -1,0 +1,2324 @@
+/* style css NNXT */
+@font-face {
+    font-family: 'TwCenMTStd-Light';
+    src: url('../fonts/TwCenMTStd-Light.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd-Light.otf') format('opentype'),
+    url('../fonts/TwCenMTStd-Light.woff') format('woff'), url('../fonts/TwCenMTStd-Light.ttf') format('truetype'), url('../fonts/TwCenMTStd-Light.svg#TwCenMTStd-Light') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'TwCenMTStd';
+    src: url('../fonts/TwCenMTStd.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd.otf') format('opentype'),
+    url('../fonts/TwCenMTStd.woff') format('woff'), url('../fonts/TwCenMTStd.ttf') format('truetype'), url('../fonts/TwCenMTStd.svg#TwCenMTStd') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'TwCenMTStd-Light' !important;
+}
+
+/* scrollbar css */
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+:hover {
+    -webkit-transition: 0.8s;
+    -moz-transition: 0.8s;
+    -ms-transition: 0.8s;
+    -o-transition: 0.8s;
+    transition: 0.8s;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+    cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 130px;
+    background-color: #ff534f;
+    color: #ffffff;
+    text-align: center;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 94%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #ff534f transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+img {
+    max-width: 100% !important;
+}
+
+.pad {
+    padding: 0 !important;
+}
+
+/*#login {
+    position: absolute;
+    top: 37%;
+    left: 48%;
+    margin-top: -115px;
+    margin-left: -150px;
+    width: 370px;
+    min-height: 230px;
+    padding: 10px 40px;
+    background: #F5F0EC;
+    box-shadow: 2px 2px 4px #bcb6b0;
+    border-radius: 5px;
+}*/
+
+.navbar-brand {
+    padding: 0 !important;
+}
+
+.span-hover .fa-user {
+    font-size: 18px;
+}
+
+.modal-header {
+    padding: 5px !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+    background: #1E202C;
+    float: left;
+    position: relative;
+    width: 100%;
+    color: #fff;
+    text-align: center;
+}
+
+.modal-footer {
+    padding: 5px !important;
+    border-top: 1px solid #e5e5e5 !important;
+    background: white !important;
+    float: left;
+    width: 100%;
+}
+
+.main-footer {
+    padding: 5px !important;
+    border-top: 1px solid #e5e5e5 !important;
+
+}
+
+.modal-body {
+    position: relative;
+    float: left;
+    padding: 15px;
+    min-height: 100px;
+    width: 100%;
+    background: #FFFFFF;
+    padding-bottom: 0px !important;
+}
+
+.form-control, .rw-widget-container {
+    border-radius: 0;
+    border: 1px solid #C7CACD;
+    background: #F0F0F2;
+}
+
+.validation-error {
+    color: red
+}
+
+.no-gutter > [class*='col-md-9'] {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.login-footer {
+    padding-top: 10px;
+    float: right;
+    width: 100%;
+}
+
+.login-btn {
+    float: right;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.customBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 0.5% 7%;
+    border: 2px solid #FF534F;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    transition: 0.8s;
+    border-radius: 0;
+}
+
+button.customBtn, button.customBtn:focus {
+    background: #FF534F;
+    color: #fff;
+    padding: 1px 12px;
+    font-size: 20px;
+    border: 2px solid #FF534F;
+    margin: 5px;
+    transition: 0.8s;
+    border-radius: 0;
+}
+
+button.customBtn:hover {
+    background: #FFFFFF;
+    color: #FF534F;
+    border: 2px solid #FF534F;
+}
+
+button.filterBtn, button.filterBtn:focus {
+    background: #FF534F;
+    color: #fff;
+    padding: 1px 12px;
+    font-size: 14px;
+    border: 2px solid #FF534F;
+    margin: 5px;
+    height: 30px;
+    transition: 0.8s;
+    border-radius: 0;
+    top: 26px;
+    position: absolute;
+    left: 0;
+
+}
+
+button.filterBtn:hover {
+    background: #FFFFFF;
+    color: #FF534F;
+    border: 2px solid #FF534F;
+}
+
+button.secondaryBtn, button.secondaryBtn:focus {
+    background: #75acf1;
+    color: #fff;
+    padding: 1px 12px;
+    font-size: 20px;
+    border: 2px solid #75acf1;
+    /* margin: 5px; */
+    transition: 0.8s;
+    border-radius: 0;
+}
+
+button.secondaryBtn:hover {
+    background: #fff;
+    color: #75acf1;
+    border: 2px solid #75acf1;
+}
+
+.sidebar-wrapper {
+    float: left;
+    width: 20%;
+    background: #1e202c;
+}
+
+.web_logo {
+    text-align: center;
+    padding: 10px 0px;
+}
+
+.web_logo img {
+    max-width: 57% !important;
+}
+
+.user_name {
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+    padding: 10px;
+    box-shadow: -5px -2px 20px #303440;
+}
+
+.sidebar {
+    position: fixed;
+    background-color: #303440;
+    height: 100%;
+    padding: 0;
+    width: 20%;
+    padding-left: 50px;
+    padding-top: 5px;
+}
+
+.sidebarSideSection {
+    position: fixed;
+    height: 100%;
+    float: left;
+    background: #343946f2;
+    padding: 0px 10px;
+    width: 50px;
+    margin-top: 4px;
+    z-index: 9;
+    box-shadow: 2px 0px 7px -3px #00000036;
+}
+
+.sidebarSideSection ul {
+    padding: 0;
+}
+
+.bottom-option {
+    position: absolute;
+    bottom: 25%;
+}
+
+.bottom-option li {
+    position: relative;
+}
+
+.sub-menu {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: -108px;
+    left: 0;
+    width: 100%;
+    transform: translatex(-3em);
+    z-index: 1;
+    transition: opacity ease-in-out 0.8s;
+    background: #1e202c;
+}
+
+.sub-menu li {
+    padding: 0 !important;
+    float: left;
+    width: 100%;
+}
+
+.sub-menu-parent:focus .sub-menu, .sub-menu-parent:focus-within .sub-menu, .sub-menu-parent:hover .sub-menu {
+    visibility: visible;
+    opacity: 1;
+    z-index: 1;
+    transform: translateY(0%);
+    transition-delay: 0s, 0s, 0.3s;
+    width: 115px;
+    border: 1px solid #1e202c;
+}
+
+.sub-menu i {
+    border: solid #1e202c;
+    border-width: 0 7px 7px 0;
+    display: inline-block;
+    padding: 3px;
+    position: absolute;
+    bottom: -5px;
+    left: 5px;
+}
+
+.sub-menu li {
+    padding: 0 !important;
+}
+
+.sub-menu a {
+    color: #F0F0F2 !important;
+    text-decoration: none;
+    font-size: 22px !important;
+    padding: 10px 10px;
+    float: left;
+    width: 100%;
+}
+
+.sub-menu a:hover {
+    color: #ff534e !important;
+    background: #303440;
+}
+
+.down-arrow {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+.sidebarSideSection li {
+    padding: 10px 0px;
+}
+
+.sidebarSideSection li a {
+    color: #fff !important;
+    font-size: 25px;
+    text-shadow: 1px 2px 1px #0000007a;
+}
+
+.sidebarSideSection li a:hover i.fa {
+    color: #ff534e !important;
+}
+
+.sidebarContent {
+    float: left;
+    width: 100%;
+    min-height: 200px;
+    overflow: auto;
+    height: 76%;
+}
+
+.sidebarContent a {
+    color: #F0F0F2;
+    text-decoration: none;
+    font-size: 22px;
+    padding: 10px 10px;
+    float: left;
+    width: 100%;
+}
+
+.sidebarContent a:hover {
+    color: #ff534e;
+    background: #1e202c;
+}
+
+.Expandedlist {
+    max-height: 0;
+    overflow: hidden;
+    transition: 0.5s linear;
+}
+
+a:focus + .Expandedlist, a:active + .Expandedlist {
+    max-height: 15em;
+}
+
+.Expandlist a:focus {
+    pointer-events: none;
+}
+
+.sidebarContent li a > i.fa {
+    margin-right: 7%;
+}
+
+.Expandedlist li:nth-child(1) {
+    margin-top: 6%;
+}
+
+.Expandedlist li:hover {
+    background-color: #283E4B;
+}
+
+.rightContent {
+    float: right;
+    position: fixed;
+    right: 0;
+    width: 80%;
+    padding-left: 0;
+}
+
+.featuretask {
+    color: #6FB9FA;
+
+}
+
+.featuresubtask {
+    border: 1px solid #182939;
+    margin-top: 10px;
+    float: right !important;
+
+}
+
+.feature {
+    background: #E3E6ED;
+}
+
+.feature-expanded {
+    background: #E3E6ED;
+    overflow-y: scroll;
+    max-height: 500px;
+}
+
+.task {
+    background: #F6E5DD;
+}
+
+.task-expanded {
+    background: #F6E5DD;
+    overflow-y: scroll;
+    max-height: 500px;
+}
+
+.feature, .task, .feature-expanded, .task-expanded {
+    border: 2px solid #D4D5D8;
+    margin-top: 5px;
+    width: 100%;
+    float: left;
+    position: relative;
+    box-shadow: 0px 5px 8px #D2D2D2;
+    margin-bottom: 2%;
+    padding-bottom: 10px;
+}
+
+.task div[class^='col-md'], .feature div[class^='col-md'], .feature-expanded div[class^='col-md'], .task-expanded div[class^='col-md'] {
+    padding: 0px;
+}
+
+.feature h4, .task h4, .feature-expanded h4, .task-expanded h4 {
+    float: left;
+    margin: 10px 0px 0px 10px;
+    font-weight: bolder;
+}
+
+.feature p, .task p {
+    float: left;
+    font-size: 1.3em;
+    margin: 5px 0px 20px 10px;
+    line-height: 1.3em;
+    height: 2.6em;
+    overflow: hidden;
+    white-space: pre-line;
+}
+
+.feature-expanded p, .task-expanded p {
+    font-size: 1.3em;
+    margin: 5px 0px 20px 10px;
+    line-height: 1.3em;
+    white-space: pre-line;
+}
+
+.task .short-description:after {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(246, 229, 221) 90%);
+}
+
+.feature .short-description:after {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(227, 230, 237) 90%);
+}
+
+.task .short-description:after, .feature .short-description:after {
+    content: "";
+    text-align: right;
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    width: 50%;
+    height: 1.3em;
+
+}
+
+.repoSections {
+    border: 2px solid #D4D5D8;
+    margin-top: 5px;
+    float: left;
+    width: 100%;
+}
+
+.estimation {
+    border: none;
+    margin-top: 15px;
+    display: inline-block;
+    float: left;
+    width: 100%;
+}
+
+.estimationfooter {
+    padding-top: 5px;
+    border-top: 1px dashed #ccc;
+}
+
+.search {
+    margin-top: 15px;
+    display: inline-block;
+    float: left;
+    width: 100%;
+    position: relative;
+}
+
+.searchRelease {
+    margin-top: -4px;
+}
+
+.searchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 1.2% 2%;
+    font-size: 20px;
+    position: absolute;
+    right: 0;
+    top: 0px;
+    transition: 0.8s;
+}
+
+.estimationSearchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 1.4% 2%;
+    font-size: 18px;
+    position: absolute;
+    right: 0;
+    top: 4px;
+    transition: 0.8s;
+}
+
+.searchBtn:hover {
+    background: none;
+    color: #FF534F;
+    border: 1px solid #FF534F;
+}
+
+.search i {
+    font-size: 20px;
+}
+
+table th {
+    background-color: #303440;
+    color: #EAEEF3;
+}
+
+.tablebtn {
+    background-color: #1BCCC7;
+    color: #EAEEF3;
+}
+
+.tblcolor {
+    border: none !important;
+    width: 10px;
+}
+
+.rowparrotcolor {
+    background-color: #00FF3D;
+}
+
+.rowgreencolor {
+    background-color: #4F7E5A;
+}
+
+.rowbluecolor {
+    background-color: #02BCCB;
+}
+
+.rowyellowcolor {
+    background-color: #DFD30D;
+}
+
+.rowbrowncolor {
+    background-color: #2A2C43;
+}
+
+.estimateheader {
+    border-bottom: 1px solid #182939;
+    margin-bottom: 9px;
+}
+
+.estimationActions {
+    padding: 0px 10px 0px 0px;
+
+}
+
+.estimationActions img {
+    margin-left: 10px;
+}
+
+.estimationActions img:last-child {
+    margin-right: 10px;
+}
+
+.flagStrip {
+    float: right;
+    margin-left: 4px;
+}
+
+.estimateheader i {
+    color: #F65A4F;
+
+}
+
+.estimationfileoption {
+    padding-top: 0px;
+}
+
+.estimationfileoption ul {
+    text-align: right;
+    margin-bottom: 0px;
+}
+
+.estimationfileoption li {
+    display: inline-block;
+    margin-right: 4%;
+}
+
+.estimationfileoption li:nth-last-child(1) {
+    margin: 0;
+}
+
+.estimationfileoption li a {
+    font-size: 18px;
+}
+
+.backarrow b {
+    font-size: 19px;
+    padding: 3px;
+}
+
+.dropdownoption {
+    margin-top: 5px;
+}
+
+.featuretask b {
+    font-size: 17px;
+}
+
+span.tag {
+    background-color: #FF534F;
+    color: #E2E5EE;
+    font-size: 12px;
+    margin: 1px;
+    float: right;
+    padding: 5px 10px;
+    margin-right: -14.6%;
+}
+
+span.tag.new {
+    background-color: #FF534F;
+    color: #E2E5EE;
+    font-size: 12px;
+    margin: 1px;
+    padding: 5px 10px;
+    margin-right: 4%;
+}
+
+.estimationuser {
+    background-color: #1CCBD0;
+    width: 30px;
+    height: 30px;
+    position: relative;
+    float: left;
+    margin-right: 5%;
+    margin-bottom: 10px;
+    opacity: 1;
+    border: 0;
+}
+
+.estimationuser span {
+    position: absolute;
+    left: 30%;
+    top: 20%;
+    color: #fff;
+}
+
+.feature .estimationfileoption li a i, .task .estimationfileoption li a i {
+    background: #ff534f;
+    float: left;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 12px;
+    padding-top: 4px;
+    text-align: center;
+}
+
+.logo {
+    margin-bottom: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+.logo img {
+    height: 30px;
+}
+
+.clock i {
+    font-size: 24px;
+    color: #29CAC8;
+    float: right;
+    position: absolute;
+    margin-left: -25px;
+}
+
+.suggestedclock i {
+    font-size: 24px;
+    color: #F3B54B;
+    float: right;
+    position: absolute;
+    margin-left: -25px;
+}
+
+.esTime b {
+    font-size: 15px;
+    float: right;
+    margin-left: -36%;
+    padding-top: 2px;
+}
+
+/* initiate estimation form */
+
+.initiatEstimation button.customBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 2% 25%;
+    font-size: 20px;
+    border: 2px solid #FF534F;
+    margin-bottom: 10px;
+    transition: 0.8s;
+}
+
+.estimationModal .ModalSideLabel {
+    background: #56f9ff;
+    position: absolute;
+    width: 10px;
+    padding: 0;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+.estimationModal .ModalHeading h3 {
+    color: #56f9ff;
+}
+
+.estimationModal .modal-header .close {
+    opacity: 1 !important;
+    color: #56f9ff !important;
+}
+
+/* Estimator list css */
+
+.estimationListUser div {
+    background-color: #1CCBD0;
+    width: auto;
+    height: 30px;
+    position: relative;
+    padding: 5px;
+    text-align: center;
+    color: #fff;
+}
+
+.estimation .table-bordered > thead > tr > th:nth-child(1) {
+    border-right: 1px solid #303440 !important;
+}
+
+.estimation table tbody tr {
+    cursor: pointer;
+}
+
+/* estimation detals pages */
+button.taskbtn {
+    background-color: #fff;
+    color: #F6B841;
+    font-size: 19px;
+    float: right;
+    margin-top: -7px;
+
+}
+
+button.releasePlanTaskbtn {
+    background-color: #fff;
+    color: #F6B841;
+    font-size: 22px;
+    float: right;
+    margin-top: -7px;
+    margin-right: 40px;
+}
+
+button.featurebtn {
+    float: right;
+    font-size: 19px;
+    background-color: #fff;
+    color: #6F7888;
+    margin-top: -7px;
+}
+
+/* estimation td row background color */
+
+td.erRowColor {
+    background: #00FF3D;
+}
+
+td.inRowColor {
+    background: #4F7E5A;
+}
+
+td.penRowColor {
+    background: #02BCCB;
+}
+
+td.appRowColor {
+    background: #2A2C43;
+}
+
+td.rrRowColor {
+    background: #DFD30D;
+}
+
+td.crRowColor {
+    background: #3F2A1D;
+}
+
+td.roRowColor {
+    background: #FD9974;
+}
+
+td.paRowColor {
+    background: #4C7A3A;
+}
+
+td.rejRowColor {
+    background: #ED4D52;
+}
+
+.loginform {
+    padding: 0.5% 10%;
+    background-color: #F0F0F2;
+    position: fixed;
+    right: 0;
+    overflow: scroll;
+    height: 100%;
+}
+
+.loginform label {
+    color: #9CA6A8;
+    font-weight: normal;
+
+}
+
+.loginform input {
+    width: 100%;
+    height: 60px;
+    margin-bottom: 15px;
+}
+
+.loginform button, .loginform button:focus {
+    background-color: #FF534F;
+    color: #fff;
+    width: 100%;
+    padding: 15px 20px;
+    margin: 25px 0;
+    border: 2px solid #FF534F;
+    display: inline-block;
+    font-size: 25px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    transition: 0.8s;
+}
+
+.loginform button:hover {
+    background: none;
+    color: #FF534F;
+    border: 2px solid #FF534F;
+}
+
+.loginform a {
+    color: #FF534F;
+}
+
+.loginform header {
+    font-size: 28px;
+    padding: 1em;
+    clear: left;
+    text-align: center;
+
+}
+
+.loginform footer {
+    color: #848C90;
+    font-size: 17px;
+    padding: 1em;
+    clear: left;
+    text-align: center;
+    margin-top: 100px;
+}
+
+.loginform header span {
+    color: #FF534F;
+}
+
+.loginform p {
+    margin-bottom: 5%;
+    font-size: 18px;
+    color: #ADB6B9;
+}
+
+.signupoption {
+    text-align: center;
+    font-size: 18px;
+    font-weight: normal;
+    width: 100%;
+    float: left;
+}
+
+.signupoption a {
+    position: relative;
+}
+
+.login_img {
+    background-image: url(../images/login_page_bg.jpg);
+    position: fixed;
+    left: 0;
+    height: 100%;
+    background-size: cover;
+}
+
+.login_img h1 {
+    color: #ECE9ED;
+    margin: 35% 5%;
+    letter-spacing: 8px;
+    font-size: 32px;
+    text-align: center;
+}
+
+.login_img p {
+    color: #C5C7C9;
+    font-size: 24px;
+    text-align: center;
+    padding-left: 22px;
+    padding-right: 22px;
+    padding-top: 40px;
+    font-style: normal;
+
+    /*margin: 180px 138px;*/
+}
+
+.login_img li {
+    color: #C5C7C9;
+    font-size: 18px;
+}
+
+.textcentered {
+    position: absolute;
+
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+
+}
+
+.loginsection {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.content-section {
+    max-height: calc(100vh);
+    height: calc(100vh);
+    overflow-y: scroll;
+}
+
+/* Repository section */
+
+.repositorybtn {
+    margin: -10px;
+    margin-top: 11px;
+}
+
+.technologytagNew {
+    min-width: 12%;
+    min-height: 10px;
+    background-color: #303440;
+    float: left;
+    padding: 6px;
+    padding-right: 1px;
+    margin-right: 3%;
+    margin-bottom: 10px;
+    color: white;
+    bottom: -52px;
+    position: relative;
+}
+
+.removeClass {
+    float: right;
+    font-size: 8px;
+    color: #ff534f;
+    margin-top: -4px;
+    padding: 1px 3px;
+    background: #fff;
+    border-radius: 50%;
+    margin-left: 2px;
+    margin-right: 2px;
+    cursor: pointer;
+}
+
+.suggestionsClass ul {
+    list-style-type: none;
+}
+
+.suggestionsClass ul li {
+    float: left;
+}
+
+.repository {
+    width: 100%;
+    min-height: 50px;
+    float: left;
+    box-shadow: 2px 2px 5px #ccccccb8;
+    margin-bottom: 2%;
+}
+
+.repositoryFeature {
+    background-color: #ffffff;
+}
+
+.repositoryTask {
+    background-color: #ffffff;
+}
+
+.repositoryFeature .RepositoryHeading {
+    border: 1px solid #CBCED5;
+    background-color: #E3E6ED;
+    width: 100%;
+    position: relative;
+    min-height: 10px;
+    padding: 6px;
+    padding-left: 15px;
+    margin: 0;
+    float: left;
+}
+
+.repositoryTask .RepositoryHeading {
+    border: 1px solid #CBCED5;
+    width: 100%;
+    position: relative;
+    min-height: 10px;
+    padding: 6px;
+    padding-left: 15px;
+    float: left;
+    background-color: #F6E5DD;
+}
+
+.RepositoryHeading i {
+    float: right;
+    color: #FE4744
+}
+
+.RepositoryHeading {
+    position: relative;
+}
+
+.RepositorySideHeight {
+    min-height: 43px;
+}
+
+.col-md-12.repositoryHeading {
+    border-bottom: 1px solid #182939;
+}
+
+.estimation-container {
+    max-height: 600px;
+}
+
+.estimationsection .technologytag {
+    margin-top: 10px;
+}
+
+.estimationsection {
+    border-left: 1px solid #182939;
+    min-height: 660px;
+}
+
+.repositoryFeatureLable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    background: #6D798A;
+}
+
+.repositoryTaskLable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    background: #F3B54B;
+}
+
+.RepositoryHeading h5 {
+    float: left;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.RepositoryHeading h4 {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.RepositoryHeading span {
+    padding-right: 5%;
+    font-weight: bold;
+    /* padding-top: 6px;*/
+}
+
+.repositoryModalPara {
+    height: 120px;
+    overflow-y: scroll;
+}
+
+.repository .RepositoryContent {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.RepositoryContent p {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.dropdownoptionRepository {
+    margin-top: 17px;
+}
+
+.suggestDialog .modal-dialog {
+    width: 80%;
+}
+
+.filterDialog .modal-dialog {
+    width: 40%;
+}
+
+.releaseDialog .modal-dialog {
+    width: 50%;
+}
+
+.tagInputFieldClass {
+    height: 35px;
+    width: 100%;
+    /*position: absolute;*/
+    /*left: 10px;*/
+}
+
+.tagInputClass {
+    position: absolute;
+    width: 98%;
+    top: 5px;
+}
+
+::placeholder {
+    color: red;
+
+}
+
+.selectedClass {
+    overflow-y: scroll;
+    height: 120px;
+    position: relative;
+    padding-right: 10px;
+}
+
+/*Release Section*/
+
+.releaseTeam span {
+
+    width: 30px;
+    height: 30px;
+    float: left;
+    margin-right: 3%;
+    margin-top: 2px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.releaseTeamManager span {
+
+    width: 30px;
+    height: 30px;
+    float: left;
+    margin-right: 25%;
+    margin-top: 2px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.releaseTeamLeader span {
+
+    width: 30px;
+    height: 30px;
+    float: left;
+    margin-right: 18%;
+    margin-top: 2px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.releaseOption {
+    margin-bottom: 15px;
+}
+
+.release-options {
+    margin-top: 15px;
+}
+
+.release-content:after {
+    content: "";
+    text-align: right;
+    position: absolute;
+    bottom: 44px;
+    right: 0;
+    width: 90%;
+    height: 1.3em;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(255, 255, 255) 75%);
+}
+
+p.task-description {
+    font-size: 17px;
+    height: 3em;
+    overflow: hidden;
+    white-space: pre-line;
+}
+
+.expanded-release-content p {
+    height: auto;
+}
+
+.releaseTitle {
+    font-size: 14px;
+    font-style: initial;
+}
+
+.releaseHeader {
+    border-bottom: 1px solid #182939;
+    margin-bottom: 1%;
+    margin-top: 1%;
+}
+
+.releaseHeader i {
+    color: #F65A4F;
+}
+
+.releaseHeader .backarrow {
+    font-size: 26px;
+}
+
+.releasefileoption li {
+    display: inline-block;
+    margin-right: 15%;
+    font-size: 26px;
+    margin-top: 13px;
+}
+
+.search .searchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 1.2% 2%;
+    font-size: 18px;
+    position: absolute;
+    right: 0;
+    top: 4px;
+    transition: 0.8s;
+}
+
+.searchRelease .searchBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 1.6% 2%;
+    font-size: 17px;
+    position: absolute;
+    right: 0;
+    top: 0px;
+    transition: 0.8s;
+}
+
+.Repo-padding {
+    padding-top: 10px;
+}
+
+.searchText input {
+    margin-top: 7px;
+}
+
+.dropdownoptionRepo {
+    margin-top: 7px;
+    margin-left: -15px;
+    width: 36%;
+}
+
+.repoArrow {
+    margin-left: 5px;
+}
+
+.div-hover {
+    cursor: pointer;
+}
+
+.repo-detail {
+    font-size: 1.3em;
+    margin: 5px 0px 20px 10px;
+    line-height: 1.3em;
+    white-space: pre-line;
+}
+
+.repo-detail-header {
+    font-weight: bold;
+    font-size: 1.3em;
+    margin: 5px 0px 20px 10px;
+    line-height: 1.3em;
+    white-space: pre-line;
+}
+
+.repo-detail-hour {
+    margin: 5px 0px 20px 4px;
+
+}
+
+/*release Detail page*/
+.releaseClock {
+    margin-top: 5px;
+
+}
+
+.releaseClock i {
+    font-size: 32px;
+    color: #29CAC8;
+    /*margin-left: 124px;*/
+}
+
+.releaseClock b {
+    font-size: 16px;
+    position: absolute;
+    /*left: 80%;*/
+    left: 45%;
+    top: 11%;
+}
+
+.planBtn .customBtn {
+    float: right;
+    margin-top: 3px;
+}
+
+.planBtn .taskbtn {
+    margin-top: 3px;
+}
+
+.planchk input {
+    zoom: 2.3;
+    margin-top: 1px;
+}
+
+.planchk label {
+    font-size: 20px;
+    margin-left: 27px;
+    margin-top: 2px;
+    font-weight: bold;
+}
+
+.planDivider {
+    background-color: #ADADAD;
+    height: 70px;
+    border-bottom: 2px solid #34343C;
+    border-top: 2px solid #34343C;
+    margin-top: 10px;
+}
+
+.planFilterDivider {
+    background-color: #c7c2c2;
+    height: 70px;
+    border-bottom: 2px solid #34343C;
+    border-top: 2px solid #34343C;
+    margin-top: 10px;
+}
+
+.planDividerBtn .Past {
+    margin-top: 29px;
+    margin-left: -24px;
+}
+
+.planDividerBtn .Future {
+    margin-left: 14px;
+    margin-top: 29px;
+}
+
+.planDividerDate span {
+    color: white;
+    font-weight: 700;
+}
+
+.planDividerDate label {
+    color: white;
+}
+
+.planDateSlct {
+    margin-top: 20px;
+
+}
+
+.planDateSlct input {
+    height: 34px;
+}
+
+.planDateSlct span {
+    font-size: 16px;
+    color: #989C9F;
+}
+
+.planDateSlctFrom {
+    left: 19%;
+}
+
+.planDateSlctTo {
+    left: 14%;
+}
+
+.planchkSchedule span {
+    font-size: 15px;
+    position: absolute;
+    margin-top: 40px;
+}
+
+.planchkSchedule input {
+    zoom: 2;
+    margin-right: 3px;
+    margin-top: 19px;
+
+}
+
+.planSchedule {
+    margin-top: 12px;
+}
+
+.div-overflow {
+    height: 100%;
+    overflow: auto;
+}
+
+.releaseDevInfo {
+    background-color: #ECECEC;
+}
+
+.releaseDevInfo .releaseDevHeading {
+    border: 1px solid #CBCED5;
+    width: 100%;
+    position: relative;
+    height: 30px;
+    padding: 6px;
+    padding-left: 15px;
+    background-color: #ADADAD;
+}
+
+.releaseSchedule {
+    margin-top: 10px;
+
+}
+
+.releaseDevHeading b {
+    margin-top: 5px;
+    font-size: 20px;
+}
+
+.releaseDevHeading i {
+    float: right;
+    color: #fff
+}
+
+.releaseDevHeading {
+    position: relative;
+}
+
+.col-md-12.releaseDevHeading {
+    border-bottom: 1px solid #182939;
+}
+
+.releaseDevHeading h5 {
+    float: left;
+    font-weight: bold;
+    margin: 0;
+    color: #fff;
+}
+
+.releaseDevHeading span {
+    padding-right: 5%;
+    color: #fff;
+}
+
+.estimation table i {
+    color: #FF534F;
+    font-size: 20px;
+}
+
+.schCalendar {
+    width: 100%;
+    min-height: 50px;
+    float: left;
+    box-shadow: 2px 2px 5px #ccccccb8;
+    margin-bottom: 2%;
+    padding-bottom: 10px;
+}
+
+.schCalendarDates {
+    background-color: #ECECEC;
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.schCalendarHour {
+    display: inline-block;
+    width: 50%;
+    text-align: center;
+}
+
+.schCalendarHour:hover {
+    cursor: pointer;
+}
+
+.schCalendarHeadingRow {
+    display: table-row;
+}
+
+.schCalendarHeadingRow h5 {
+    font-size: 18px;
+}
+
+.schCalendarHeadingCell {
+    display: table-cell;
+    column-span: all;
+}
+
+.schCalendarDayRow {
+    display: table-row;
+}
+
+.schCalendarDateRow {
+    display: table-row;
+}
+
+.schCalendarCell {
+    display: table-cell;
+    text-align: center;
+}
+
+.releaseDayRow {
+    display: table-row;
+}
+
+.releaseDayCell {
+    display: table-cell;
+}
+
+.releaseDayRow .releaseEmployee {
+    margin-right: 9px;
+    margin-left: 8px;
+    margin-bottom: 10px;
+}
+
+.releaseDayCell h5 {
+    padding: 10px;
+}
+
+.searchReleasePlan {
+    margin-top: 10px;
+    font-size: 25px;
+}
+
+.repotext h5 {
+    font-size: 14px;
+    font-weight: bold;
+    float: left;
+    margin: 3px;
+    width: 16em;
+}
+
+.estimationForm {
+    margin-top: 16px;
+}
+
+.releaseSelect {
+    margin-top: 20px;
+}
+
+.suggestCopy {
+    margin-top: 150px;
+    margin-left: 40px;
+}
+
+.suggestCopy i {
+    color: #F65A4F;
+    font-size: 21px;
+}
+
+.approveBtn {
+    background: #26C16F;
+    color: #fff;
+    padding: 0.5% 7%;
+    font-size: 20px;
+    border: 2px solid #26C16F;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    transition: 0.8s;
+    border-radius: 0;
+    margin-left: -30px;
+}
+
+button.approveBtn:hover {
+    background: none;
+    color: #26C16F;
+    border: 2px solid #26C16F;
+}
+
+.reopenBtn {
+    background: #ECA51D;
+    color: #fff;
+    padding: 0.5% 7%;
+    font-size: 20px;
+    border: 2px solid #ECA51D;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    transition: 0.8s;
+    border-radius: 0;
+    margin-left: -30px;
+}
+
+button.reopenBtn:hover {
+    background: none;
+    color: #ECA51D;
+    border: 2px solid #ECA51D;
+}
+
+.estimationBackArrow {
+    padding: 0px;
+}
+
+.moveInBtnSpace {
+    margin-right: 30px;
+}
+
+label {
+    font-size: 17px;
+}
+
+.col-lg-4 {
+    width: 40%;
+    margin-left: -27px;
+    margin-bottom: 25px;
+}
+
+.col-lg-8 {
+
+    width: 0%;
+}
+
+.estimationSearchSection {
+    right: 0%;
+    position: absolute;
+    margin-top: -7px;
+}
+
+.estimationSearchProject {
+    margin-left: 52px;
+    margin-top: 20px;
+}
+
+.estimationSearchStatus {
+    margin-top: 20px;
+    margin-left: 45px;
+
+}
+
+.estimationSearchInitiateBtn {
+    margin-left: 36px !important;
+
+}
+
+.releaseSearchStatus {
+    position: absolute;
+
+}
+
+.releaseSearchContent {
+    float: right;
+    margin-right: 296px;
+    margin-top: -8px;
+
+}
+
+.releaseDetailSearchFlag {
+    margin-left: 98px;
+    margin-top: 29px;
+    position: absolute;
+    width: 79%;
+}
+
+.releaseDetailSearchContent {
+    float: right;
+}
+
+.releaseDetailSearchStatus {
+    margin-top: 29px;
+    position: absolute;
+    width: 79%;
+    margin-left: 58px;
+}
+
+.infoHighliter {
+    color: red;
+}
+
+.suggestionUser {
+    height: 75px;
+}
+
+.errorClass {
+    margin: 10px 0px 0px 10px;
+}
+
+.filterFlag {
+    margin-top: -32px;
+    margin-left: -30px;
+    width: 3%;
+}
+
+.filterTextWithFlag {
+    left: 24%;
+}
+
+.FilterBtn {
+    margin: 6px 48px;
+}
+
+.suggestionRepo {
+
+    margin-left: 48px;
+    margin-top: 120px;
+    position: absolute;
+}
+
+.deleteEstimationBtn {
+    margin-top: 5px;
+    font-size: 29px !important;
+}
+
+.iconClr {
+    color: #FFFFFF !important;
+}
+
+.filterAlign {
+    margin-right: 13px;
+}
+
+i.iconClr:hover {
+    color: #F65A4F !important;
+}
+
+.estimatorClr {
+    color: #5243D4;
+    text-decoration: underline;
+    font-weight: bold;
+    text-underline-position: under;
+    margin-top: 0px;
+
+}
+
+.negotiatorClr {
+    color: #EE7E4E;
+    text-decoration: underline;
+    font-weight: bold;
+    text-underline-position: under;
+    margin-top: 0px;
+}
+
+.div-disable {
+
+    cursor: not-allowed;
+}
+
+.futureArrow {
+    margin-top: 35px;
+    position: absolute;
+    margin-left: 11px;
+    font-size: 18px;
+}
+
+.pastArrow {
+    margin-top: 35px;
+    position: absolute;
+    font-size: 18px;
+}
+
+.devMargin {
+    margin-left: -17px;
+}
+
+.reportingArrow {
+    margin-top: 10px;
+    background-color: #F66E65;
+    color: #ffffff;
+}
+
+.releaseDevArrowDisable {
+    margin-top: 10px;
+    background-color: #cccccc;
+    color: #ffffff;
+    cursor: not-allowed;
+}
+
+.reportingDatePicker {
+    margin-left: 150px;
+    margin-top: 5px;
+
+}
+
+.calArrow {
+    font-size: 20px;
+    color: #FF534F;
+}
+
+hr {
+    width: 100%;
+}
+
+.releaseAlign {
+    left: 20%;
+}
+
+.releasePlanBtn {
+    margin-left: 20px;
+}
+
+.releaseResetBtn {
+    margin-left: -50px;
+}
+
+.reportingCommentBtn {
+    margin-top: 27px;
+}
+
+.ReportingCommentTable th {
+    background-color: #343946e8;
+    color: #ffffff;
+}
+
+.reportingCommentForm {
+    margin-top: 0px;
+}
+
+.releaseReadMoreLabel {
+    color: #FE4744;
+    float: right;
+    position: relative;
+    top: -36px;
+    z-index: 2;
+
+}
+
+.releaseReadLessLabel {
+    color: #FE4744;
+    float: right;
+    position: relative;
+    top: -36px;
+    z-index: 2;
+
+}
+
+.releaseReadLessLabelClick {
+    margin-top: 30px;
+}
+
+.ReportingCommentTable .react-bs-table table td, .ReportingCommentTable .react-bs-table table th {
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
+}
+
+.wrapTextTable .react-bs-table table td, .wrapTextTable .react-bs-table table th {
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
+}
+
+.top-label-checkbox {
+    display: table;
+}
+
+.top-label-checkbox label {
+    display: table-row;
+    width: 100%;
+}
+
+.top-label-checkbox input[type=checkbox] {
+    width: 30px; /*Desired width*/
+    height: 30px; /*Desired height*/
+    cursor: pointer;
+}
+
+.releasePlanChkBtn {
+    margin-top: -32px;
+}
+
+.releasePlannedHrs i {
+    color: #003c79;
+}
+
+.releaseProjectPlannedHours b {
+    margin-left: 15px;
+    margin-top: -4px;
+}
+
+.releaseProjectPlannedHours i {
+    margin-top: -6px;
+}
+
+.releaseEmployeeMsgText label {
+    margin-left: 92px;
+    color: #F66E65;
+    font-size: 20px;
+}
+
+.leaveRaiseContent {
+    font-size: 16px;
+}
+
+.leaveRaiseTitle {
+    font-size: 18px;
+
+}
+
+.leaveRaiseDetail {
+    min-height: 37%;
+}
+
+.btnReleasePlan {
+    float: right;
+    margin-right: 30px;
+    background-color: #003C79;
+    color: #FFFFFF;
+}
+
+.btnWarning {
+    float: right;
+    background-color: red;
+    color: #FFFFFF;
+}
+
+.releaseWarningAndPlanBtnSection {
+    margin-bottom: -11px;
+}
+
+.btnReleasePlan:hover {
+    background: #FFFFFF;
+    color: #003C79;
+    border: 2px solid #003C79;
+}
+
+.btnWarning:hover {
+    background: #FFFFFF;
+    color: red;
+    border: 2px solid red;
+}
+
+.btnWarningSelected {
+    float: right;
+    background: #FFFFFF;
+    color: red;
+    border: 2px solid red;
+}
+
+.btnReleasePlanSelected {
+    float: right;
+    margin-right: 30px;
+    background: #FFFFFF;
+    color: #003C79;
+    border: 2px solid #003C79;
+}
+
+.confirmationDialogReviewRequestHasError {
+    background-color: #FF0000;
+}
+
+.confirmationDialogReviewRequestNoError {
+    background-color: green;
+}
+
+.confirmationDialogErrorImg {
+    background-color: #FFFFFF;
+    float: right;
+    margin-top: -30px;
+    padding: 6px;
+    margin-bottom: -2px;
+}
+
+.confirmationDialogFooterNoError {
+    border-bottom: 5px solid green;
+    border-left: 5px solid green;
+    border-right: 5px solid green;
+}
+
+.confirmationDialogBodyNoError {
+    border-left: 5px solid green;
+    border-right: 5px solid green;
+}
+
+.confirmationDialogFooterHasError {
+    border-bottom: 5px solid #FF0000;
+    border-left: 5px solid #FF0000;
+    border-right: 5px solid #FF0000;
+}
+
+.confirmationDialogBodyHasError {
+    border-left: 5px solid #FF0000;
+    border-right: 5px solid #FF0000;
+}
+
+.releasePlanFlagImg {
+    width: 25px;
+    margin-right: 5px;
+}
+
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+.tab span {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+.tab span:hover {
+    background-color: #ddd;
+}
+
+.tab span.active {
+    background-color: #ccc;
+}
+
+.leaveSelect {
+    margin-left: 502px !important;
+    width: 288px;
+    margin-top: -31px;
+}
+
+.leaveBtn {
+    margin-left: 830px !important;
+    margin-top: 10px !important;
+}
+
+.leave {
+    margin-top: -37px;
+}
+
+.leaveSelectHighestRole {
+    margin-left: 502px !important;
+    width: 288px;
+    margin-top: 22px;
+}
+
+.approveLeave {
+    color: #2fda2f !important;
+}
+
+.td-row-approved {
+    background-color: #7ffb7f6b !important;
+}
+
+.td-row-cancelled {
+    background-color: #e8080859 !important;
+}
+
+.td-row-unreported {
+    background-color: #ffffff !important;
+}
+
+.td-row-pending {
+    background-color: #fffee0 !important;
+}
+
+.td-row-completed {
+    background-color: #c0f9cf !important;
+}
+
+.td-row-changed {
+    background-color: #d6898c !important;
+}
+
+.modal-body b {
+
+    color: red;
+    font-size: 23px;
+
+}
+
+.modal-body h4 span {
+
+    color: #2fda2f;
+    font-size: 23px;
+
+}
+
+.btn-size {
+    font-size: 20px;
+}
+
+.container-width {
+    width: 1070px;
+}
+
+.refreshBtn {
+    font-size: 23px;
+    margin-top: 2px;
+}
+
+.mergeBtn {
+    margin: 0px !important;
+    padding: 1px 7px !important;
+}
+
+.addToReleaseBtn {
+    margin-top: 29px !important;
+    margin-left: 46px !important;
+    position: absolute;
+
+}
+
+.react-bs-table .table-bordered > thead > tr:first-child > th {
+    text-align: center !important;
+}
+
+.react-bs-table-bordered {
+    margin-bottom: 15px;
+    border: none;
+}
+
+.reporting {
+    height: 40%;
+}
+
+.reporting label {
+    color: #F66E65;
+    font-size: 30px;
+    padding: 70px 370px;
+}
+
+.description {
+    white-space: pre-line;
+}
+
+.highlightText {
+    color: #F66E65
+}
+
+.pagination > .active > a, .pagination > .active > a:focus, .pagination > .active > a:hover {
+    z-index: 3;
+    color: #ddd;
+    cursor: default;
+    background-color: #303440;
+    border-color: #303440;
+}
+
+.pagination > li > a, .pagination > li > span {
+    position: relative;
+    float: left;
+    padding: 6px 12px;
+    margin-left: -1px;
+    line-height: 1.42857143;
+    color: #ddd;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.commentInputPadding {
+    padding-left: 3px;
+}
+
+.chartSection {
+    background: #f5f5f6;
+    margin-top: 15px
+}
+
+.DeveloperTasksTable :read-only {
+    cursor: not-allowed;
+}
+
+.add-to-release-dialog .modal-dialog {
+    width: 60%;
+    left: 80px;
+}
+
+.search-btn-container {
+    margin-top: 5px;
+    float: right;
+}
+
+.backBtnMarginTop {
+    margin-top: 10px;
+}
+
+.warningSource span + span:before, .noWarningSource span + span:before {
+    content: " | ";
+}
+
+.warningSource .source {
+    color: red;
+}
+
+div.notificationTable table tr[width="100%"] td {
+    white-space: normal;
+}
+
+.templateTypes {
+    margin-top: 1%;
+}
+
+.templateTypes label {
+    float: left;
+    margin-right: 10px;
+}
+
+.templateTypes select {
+    width: 40%;
+}
+
+.planFilterTaskForm {
+    background-color: #f1f1f1;
+    height: 80px;
+    border-bottom: 2px solid #34343C;
+    border-top: 2px solid #34343C;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    padding-top: 3px;
+}
+
+.search-btn-taskplan-list {
+    margin-top: 22px;
+}
+
+.ordered-button li {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 26px;
+    margin-top: 13px;
+    list-style: none;
+}
+
+.release-button-container {
+    margin-top: 5px;
+    float: right;
+    padding-left: 15px;
+}

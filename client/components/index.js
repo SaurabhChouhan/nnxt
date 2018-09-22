@@ -16,6 +16,10 @@ export {default as AdminUserForm} from './forms/AdminUserForm'
 export {default as AdminRoleForm} from './forms/AdminRoleForm'
 export {default as AdminRoleList} from './lists/AdminRoleList'
 export {default as EmployeeSettingForm} from './forms/EmployeeSettingForm'
+export {default as EmailTemplateForm} from './forms/EmailTemplateForm'
+export {default as EmailTemplateList} from './lists/EmailTemplateList'
+export {default as EmailTypeForm} from './forms/EmailTypeForm'
+export {default as ForgotPasswordForm} from './forms/ForgotPasswordForm'
 
 
 //Common Dialoge
@@ -120,10 +124,12 @@ export {default as ReleaseTaskPlanningForm} from './forms/ReleaseTaskPlanningFor
 export {default as ReleaseMoveTaskPlanForm} from './forms/ReleaseMoveTaskPlanForm'
 export {default as UpdateReleaseDatesForm} from './forms/UpdateReleaseDatesForm'
 export {default as ReleasePlanAddToReleaseForm} from './forms/ReleasePlanAddToReleaseForm'
+export {default as UpdateReleasePlanForm} from './forms/UpdateReleasePlanForm'
 export {default as ReleaseTaskPlanningFormDialog} from './dialogs/ReleaseTaskPlanningFormDialog'
 export {default as ReleaseMoveTaskPlanFormDialog} from './dialogs/ReleaseMoveTaskPlanFormDialog'
 export {default as UpdateReleaseDatesFormDialog} from './dialogs/UpdateReleaseDatesFormDialog'
 export {default as ReleasePlanAddToReleaseDialog} from './dialogs/ReleasePlanAddToReleaseDialog'
+export {default as UpdateReleasePlanDialog} from './dialogs/UpdateReleasePlanDialog'
 export {default as TaskShiftDialog} from './dialogs/TaskShiftDialog'
 //Release Pages
 export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSchedules'
@@ -151,6 +157,10 @@ export {default as WarningList} from './lists/WarningList'
 // Holiday
 export {default as HolidayForm} from './forms/HolidayForm'
 export {default as HolidayList} from './lists/HolidayList'
+
+// Notifications
+
+export {default as NotificationsPage} from './pages/NotificationsPage'
 
 //Task Search Form with start and End date
 export {default as TaskPlanDateNavBar} from './forms/TaskPlanDateNavBar'

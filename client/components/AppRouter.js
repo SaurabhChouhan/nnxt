@@ -5,7 +5,10 @@ import {
     AdminHomeContainer,
     AppHomeContainer,
     HomeContainer,
-    SuperAdminHomeContainer
+    SuperAdminHomeContainer,
+    ForgotPasswordFormContainer,
+    LoginFormContainer,
+    DemoHomeContainer
 } from '../containers'
 
 class AppRouter extends Component {
@@ -27,6 +30,14 @@ class AppRouter extends Component {
 
                 }
                 }/>,
+                <Route key="login_route" exact path="/login" render={(props) => {
+                    return <LoginFormContainer/>
+                }
+                }/>,
+                <Route key="forgot_password_route" exact path="/forgot-password" render={(props) => {
+                    return <ForgotPasswordFormContainer/>
+                }
+                }/>,
                 <Route key="super_admin_route" path="/super-admin" render={(props) => {
                     return <SuperAdminHomeContainer/>
                 }
@@ -37,6 +48,13 @@ class AppRouter extends Component {
                 }/>,
                 <Route key="app_home_route" path="/app-home" render={(props) => {
                     return <AppHomeContainer/>
+                }
+                }/>,
+                <Route key="demo_home_route" path="/demo-home" render={(props) => {
+                    if (this.props.isAuthenticated && this.props.loggedInUser) {
+                        return <Redirect to="/app-home"/>
+                    }
+                    return <DemoHomeContainer/>
                 }
                 }/>
             ]

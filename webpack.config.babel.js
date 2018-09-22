@@ -12,7 +12,7 @@ const config = {
     },
     output: {
         path: buildPath,
-        filename: 'app.bundle.5.js',
+        filename: 'app.bundle.13.js',
         publicPath: '/js'
     },
     module: {
@@ -43,7 +43,7 @@ const config = {
         new webpack.optimize.ModuleConcatenationPlugin(),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            filename: 'vendor.bundle.1.js',
+            filename: 'vendor.bundle.2.js',
             minChunks(module) {
                 return module.context &&
                     module.context.indexOf('node_modules') >= 0;

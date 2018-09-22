@@ -4,7 +4,7 @@ import * as V from '../validation'
 
 // Added prefix
 let reportingRouter = new Router({
-    prefix: "reporting"
+    prefix: "/reporting"
 })
 
 

@@ -44,7 +44,7 @@ class TaskPlanDateNavBar extends Component {
 
 
     render() {
-        const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting, status, flag} = this.props
+        const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting, status, flag,developers,developer} = this.props
         let releaseStartMoment = moment(momentTZ.utc(devStartDate).format(DATE_FORMAT))
         let releaseEndMoment = moment(momentTZ.utc(devEndDate).format(DATE_FORMAT))
         let filterStartMoment = startDate ? moment(startDate) : undefined
@@ -55,7 +55,7 @@ class TaskPlanDateNavBar extends Component {
 
         return <form onSubmit={handleSubmit}>
             <div className="col-md-12 planFilterTaskForm">
-                <div className="col-md-6">
+                <div className="col-md-4">
                     <div className="col-md-6">
                         <Field name="startDate"
                                placeholder={"Start Date"}
@@ -67,7 +67,8 @@ class TaskPlanDateNavBar extends Component {
                                        startDate: newValue,
                                        endDate,
                                        status,
-                                       flag
+                                       flag,
+                                       developer
                                    })
 
                                }}
@@ -84,7 +85,8 @@ class TaskPlanDateNavBar extends Component {
                                        startDate,
                                        endDate: newValue,
                                        status,
-                                       flag
+                                       flag,
+                                       developer
                                    })
                                }}
                                showTime={false}
@@ -110,7 +112,8 @@ class TaskPlanDateNavBar extends Component {
                             startDate,
                             endDate,
                             status: newValue,
-                            flag
+                            flag,
+                            developer
                         })
                     }} noneOptionText='All'/>
                 </div>
@@ -128,10 +131,26 @@ class TaskPlanDateNavBar extends Component {
                             startDate,
                             endDate,
                             status,
-                            flag: newValue
+                            flag: newValue,
+                            developer
                         })
                     }} noneOptionText='All'/>
                 </div>
+                <div className="col-md-2">
+                        <Field name="developer" component={renderSelect} label={"Developer"} options={ developers} onChange={(event, newValue, oldValue) => {
+
+                            console.log("get the new value of developer",newValue)
+                            this.props.fetchTasks({
+                                releaseID,
+                                startDate,
+                                endDate,
+                                status,
+                                flag,
+                                developer: newValue
+                            })
+                        }} noneOptionText='All'/>
+                </div>
+
                 <div className={"col-md-2 top-label-checkbox"}>
                     <label>
                         Expand Requirement
@@ -153,19 +172,19 @@ TaskPlanDateNavBar = reduxForm({
     form: 'task-filter'
 })(TaskPlanDateNavBar)
 
-const
-    selector = formValueSelector('task-filter')
+const selector = formValueSelector('task-filter')
 
 TaskPlanDateNavBar = connect(
     state => {
-        const {releaseId, startDate, endDate, status, flag} = selector(state, 'releaseId', 'startDate', 'endDate', 'status', 'flag')
+        const {releaseId, startDate, endDate, status, flag,developer} = selector(state, 'releaseId', 'startDate', 'endDate', 'status', 'flag','developer')
         console.log("TaskPlanDateNaveBar->connect ", startDate)
         return {
             releaseId,
             startDate,
             endDate,
             status,
-            flag
+            flag,
+            developer
         }
     }
 )(TaskPlanDateNavBar)

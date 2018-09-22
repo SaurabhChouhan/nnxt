@@ -1,9 +1,0 @@
-import {ObjectId, RequiredString} from "./index";
-import t from 'tcomb-validation';
-import * as SC from '../serverconstants';
-
-
-export const warningAddStruct = t.struct({
-    _id: t.Nil,
-    type: t.enums.of(SC.ALL_WARNING_NAME_ARRAY)
-});

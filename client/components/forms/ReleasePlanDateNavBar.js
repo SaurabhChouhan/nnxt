@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderDateTimePickerString, renderSelect,} from './fields'
 import moment from 'moment'
-import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
 import * as SC from '../../../server/serverconstants'
 import momentTZ from "moment-timezone";
@@ -17,19 +16,12 @@ class ReleasePlanDateNavBar extends Component {
         this.state = {
             expandDescription: false
         }
-
     }
 
     componentDidMount() {
         // On task plan load view user would be shown tasks of today's day and beyond
         console.log("componentDidMount ", this.props)
-        this.props.fetchReleasePlans({
-            releaseID: this.props.releaseID,
-            startDate: this.props.initialValues.startDate,
-            endDate: this.props.initialValues.endDate
-        })
-
-
+        this.props.fetchReleasePlans(this.props.initialValues)
         this.handleExpandDescriptionCheckBox = this.handleExpandDescriptionCheckBox.bind(this);
     }
 
@@ -44,32 +36,41 @@ class ReleasePlanDateNavBar extends Component {
 
 
     render() {
-        const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, pristine, submitting, status, flag} = this.props
+        const {handleSubmit, startDate, devStartDate, devEndDate, endDate, releaseID, change, formValues} = this.props
         let releaseStartMoment = moment(momentTZ.utc(devStartDate).format(DATE_FORMAT))
         let releaseEndMoment = moment(momentTZ.utc(devEndDate).format(DATE_FORMAT))
         let filterStartMoment = startDate ? moment(startDate) : undefined
         let filterEndMoment = endDate ? moment(endDate) : undefined
+
+        console.log("ReleasePlan date nav bar Initial values ", formValues)
 
         let maxStartMoment = filterEndMoment && filterEndMoment.isValid() ? filterEndMoment : releaseEndMoment
         let minEndMoment = filterStartMoment && filterStartMoment.isValid() ? filterStartMoment : releaseStartMoment
 
         return <form onSubmit={handleSubmit}>
             <div className="col-md-12 planFilterTaskForm">
-                <div className="col-md-6">
+                <div className={"col-md-1"}>
+                    <button type="button" className="btn filterBtn"
+                            onClick={() => {
+                                change('startDate', '')
+                                change('endDate', '')
+                                this.props.fetchReleasePlans(Object.assign({}, formValues, {
+                                    startDate: '',
+                                    endDate: ''
+                                }))
+                            }}>Clear Dates
+                    </button>
+                </div>
+                <div className="col-md-5">
                     <div className="col-md-6">
                         <Field name="startDate"
                                placeholder={"Start Date"}
                                component={renderDateTimePickerString}
                                onChange={(event, newValue, oldValue) => {
                                    console.log("onChange() ", releaseID, startDate)
-                                   this.props.fetchReleasePlans({
-                                       releaseID,
-                                       startDate: newValue,
-                                       endDate,
-                                       status,
-                                       flag
-                                   })
-
+                                   this.props.fetchReleasePlans(Object.assign({}, formValues, {
+                                       startDate: newValue
+                                   }))
                                }}
                                showTime={false}
                                min={releaseStartMoment.toDate()}
@@ -79,13 +80,9 @@ class ReleasePlanDateNavBar extends Component {
                     <div className="col-md-6">
                         <Field name="endDate" placeholder={" End Date"} component={renderDateTimePickerString}
                                onChange={(event, newValue, oldValue) => {
-                                   this.props.fetchReleasePlans({
-                                       releaseID,
-                                       startDate,
-                                       endDate: newValue,
-                                       status,
-                                       flag
-                                   })
+                                   this.props.fetchReleasePlans(Object.assign({}, formValues, {
+                                       endDate: newValue
+                                   }))
                                }}
                                showTime={false}
                                min={minEndMoment.toDate()}
@@ -98,20 +95,16 @@ class ReleasePlanDateNavBar extends Component {
                 <div className="col-md-2">
 
                     <Field name="status" component={renderSelect} label={"Status"} options={
-                        SC.ALL_TASK_STATUS.map((status, idx) =>
-                            ({
-                                _id: status,
-                                name: status
-                            })
-                        )
+                        [
+                            {_id: SC.STATUS_UNPLANNED, name: SC.STATUS_UNPLANNED},
+                            {_id: SC.STATUS_PLANNED, name: SC.STATUS_PLANNED},
+                            {_id: SC.STATUS_PENDING, name: SC.STATUS_PENDING},
+                            {_id: SC.STATUS_COMPLETED, name: SC.STATUS_COMPLETED}
+                        ]
                     } onChange={(event, newValue) => {
-                        this.props.fetchReleasePlans({
-                            releaseID,
-                            startDate,
-                            endDate,
-                            status: newValue,
-                            flag
-                        })
+                        this.props.fetchReleasePlans(Object.assign({}, formValues, {
+                            status: newValue
+                        }))
                     }} noneOptionText='All'/>
                 </div>
                 <div className="col-md-2">
@@ -123,13 +116,9 @@ class ReleasePlanDateNavBar extends Component {
                             })
                         )
                     } onChange={(event, newValue, oldValue) => {
-                        this.props.fetchReleasePlans({
-                            releaseID,
-                            startDate,
-                            endDate,
-                            status,
+                        this.props.fetchReleasePlans(Object.assign({}, formValues, {
                             flag: newValue
-                        })
+                        }))
                     }} noneOptionText='All'/>
                 </div>
                 <div className={"col-md-2 top-label-checkbox"}>
@@ -150,25 +139,19 @@ class ReleasePlanDateNavBar extends Component {
 }
 
 ReleasePlanDateNavBar = reduxForm({
-    form: 'task-filter'
+    form: 'releaseplan-filter'
 })(ReleasePlanDateNavBar)
 
-const
-    selector = formValueSelector('task-filter')
+
+const selector = formValueSelector('releaseplan-filter')
 
 ReleasePlanDateNavBar = connect(
     state => {
-        const {releaseId, startDate, endDate, status, flag} = selector(state, 'releaseId', 'startDate', 'endDate', 'status', 'flag')
-        console.log("TaskPlanDateNaveBar->connect ", startDate)
+        const formValues = selector(state, 'startDate', 'endDate', 'status', 'flag', 'expandDescription', 'releaseID')
         return {
-            releaseId,
-            startDate,
-            endDate,
-            status,
-            flag
+            formValues
         }
     }
 )(ReleasePlanDateNavBar)
-
 
 export default ReleasePlanDateNavBar

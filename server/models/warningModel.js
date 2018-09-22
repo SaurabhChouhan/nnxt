@@ -79,14 +79,116 @@ let warningSchema = mongoose.Schema({
 const copyWarnings = (source, target) => {
     if (!source || !target || !Array.isArray(target.added) || !Array.isArray(target.removed))
         return
-
-
     if (source.added && source.added.length)
         target.added.push(...source.added)
     if (source.removed && source.removed.length)
         target.removed.push(...source.removed)
 
 }
+
+const deleteLessPlannedHours = async (releasePlan) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+    // less planned hours warning if present would be removed
+    let lessPlannedHoursWarning = await WarningModel.findOne({
+        type: SC.WARNING_LESS_PLANNED_HOURS,
+        "releasePlans._id": releasePlan._id
+    })
+
+    if (lessPlannedHoursWarning) {
+        warningResponse.removed.push({
+            _id: releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_LESS_PLANNED_HOURS
+        })
+
+        await lessPlannedHoursWarning.remove()
+    }
+    return warningResponse
+}
+
+const deleteMorePlannedHours = async (releasePlan) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+    let morePlannedHoursWarning = await WarningModel.findOne({
+        type: SC.WARNING_MORE_PLANNED_HOURS,
+        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
+    })
+    if (morePlannedHoursWarning) {
+        if (morePlannedHoursWarning) {
+            warningResponse.removed.push({
+                _id: releasePlan._id,
+                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+                type: SC.WARNING_MORE_PLANNED_HOURS
+            })
+
+            await morePlannedHoursWarning.remove()
+        }
+    }
+
+    return warningResponse
+}
+
+const addMorePlannedHours = async (releasePlan, release) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    let morePlannedHoursWarning = await WarningModel.findOne({
+        type: SC.WARNING_MORE_PLANNED_HOURS,
+        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
+    })
+    // check to see if there is already a more planned hours warning
+    if (!morePlannedHoursWarning) {
+        let newMorePlannedHoursWarning = new WarningModel()
+        newMorePlannedHoursWarning.type = SC.WARNING_MORE_PLANNED_HOURS
+        newMorePlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+        newMorePlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
+        warningResponse.added.push({
+            _id: releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_MORE_PLANNED_HOURS,
+            source: true
+        })
+        await newMorePlannedHoursWarning.save()
+    }
+
+    return warningResponse
+}
+
+const addLessPlannedHours = async (releasePlan, release) => {
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    let lessPlannedHoursWarning = await WarningModel.findOne({
+        type: SC.WARNING_LESS_PLANNED_HOURS,
+        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
+    })
+    // check to see if there is already a more planned hours warning
+    if (!lessPlannedHoursWarning) {
+        let newLessPlannedHoursWarning = new WarningModel()
+        newLessPlannedHoursWarning.type = SC.WARNING_LESS_PLANNED_HOURS
+        newLessPlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
+        newLessPlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
+        warningResponse.added.push({
+            _id: releasePlan._id,
+            warningType: SC.WARNING_TYPE_RELEASE_PLAN,
+            type: SC.WARNING_LESS_PLANNED_HOURS,
+            source: true
+        })
+        await newLessPlannedHoursWarning.save()
+    }
+
+    return warningResponse
+}
+
 
 /*-------------------------------------------------------------------GET_WARNINGS_SECTION_START---------------------------------------------------------------------*/
 warningSchema.statics.getWarnings = async (releaseID, warningType, user) => {
@@ -1296,42 +1398,6 @@ const addMorePlannedHoursOnTaskAdd = async (taskPlan, releasePlan, release) => {
     })
 
     if (morePlannedHoursWarning) {
-
-        /*
-        // For release check
-        if (morePlannedHoursWarning.releases.findIndex(r => r._id.toString() === release._id.toString()) === -1) {
-            morePlannedHoursWarning.releases.push(Object.assign({}, release.toObject(), {source: true}))
-            logger.debug('WARNING_MORE_PLANNED_HOURS release', {release})
-            warningResponse.added.push({
-                _id: release._id,
-                warningType: SC.WARNING_TYPE_RELEASE,
-                type: SC.WARNING_MORE_PLANNED_HOURS,
-                source: true
-            })
-        }
-        // For releasePlan check
-        if (morePlannedHoursWarning.releasePlans.findIndex(rp => rp && rp._id && releasePlan.toObject()._id && rp._id.toString() === releasePlan.toObject()._id.toString()) === -1) {
-            morePlannedHoursWarning.releasePlans.push(Object.assign({}, releasePlan.toObject(), {source: true}))
-            warningResponse.added.push({
-                _id: releasePlan._id,
-                warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-                type: SC.WARNING_MORE_PLANNED_HOURS,
-                source: true
-            })
-        }
-
-
-
-        //No need to check for task plan it will always be a new task plan
-        morePlannedHoursWarning.taskPlans.push(Object.assign({}, taskPlan.toObject(), {source: true}))
-        warningResponse.added.push({
-            _id: taskPlan._id,
-            warningType: SC.WARNING_TYPE_TASK_PLAN,
-            type: SC.WARNING_MORE_PLANNED_HOURS,
-            source: true
-        })
-        */
-        await morePlannedHoursWarning.save()
         return warningResponse
     }
     else {
@@ -1347,33 +1413,6 @@ const addMorePlannedHoursOnTaskAdd = async (taskPlan, releasePlan, release) => {
         let newMorePlannedHoursWarning = new WarningModel()
         newMorePlannedHoursWarning.type = SC.WARNING_MORE_PLANNED_HOURS
 
-        let taskPlans = await MDL.TaskPlanningModel.find({
-            'releasePlan._id': mongoose.Types.ObjectId(releasePlan._id),
-        })
-
-        /*
-                if (taskPlans && taskPlans.length) {
-                    taskPlans.findIndex(tp => tp._id.toString() === taskPlan._id.toString()) === -1 && taskPlans.push(taskPlan.toObject())
-                } else {
-                    taskPlans = [taskPlan.toObject()]
-                }
-                taskPlans.forEach(t => {
-                    if (t._id.toString() === taskPlan._id.toString())
-                        warningResponse.added.push({
-                            _id: t._id,
-                            warningType: SC.WARNING_TYPE_TASK_PLAN,
-                            type: SC.WARNING_MORE_PLANNED_HOURS,
-                            source: true
-                        })
-                    else warningResponse.added.push({
-                        _id: t._id,
-                        warningType: SC.WARNING_TYPE_TASK_PLAN,
-                        type: SC.WARNING_MORE_PLANNED_HOURS,
-                        source: false
-                    })
-                })
-                newMorePlannedHoursWarning.taskPlans = taskPlans && taskPlans.length ? taskPlans.map(tp => tp._id.toString() === taskPlan._id.toString() ? Object.assign({}, taskPlan.toObject(), {source: true}) : tp) : []
-               */
         newMorePlannedHoursWarning.releasePlans = [Object.assign({}, releasePlan.toObject(), {source: true})]
         newMorePlannedHoursWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
         warningResponse.added.push({
@@ -1394,50 +1433,6 @@ const addMorePlannedHoursOnTaskAdd = async (taskPlan, releasePlan, release) => {
     return warningResponse
 }
 
-const deleteMorePlannedHours = async (releasePlan) => {
-    let warningResponse = {
-        added: [],
-        removed: []
-    }
-    let morePlannedHoursWarning = await WarningModel.findOne({
-        type: SC.WARNING_MORE_PLANNED_HOURS,
-        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
-    })
-    if (morePlannedHoursWarning) {
-        /*more planned hour warning available need to delete it*/
-        let deleteWarningResponse = await deleteWarningWithResponse(morePlannedHoursWarning, SC.WARNING_MORE_PLANNED_HOURS)
-        if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-            warningResponse.added.push(...deleteWarningResponse.added)
-        if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-            warningResponse.removed.push(...deleteWarningResponse.removed)
-    }
-
-    return warningResponse
-}
-
-
-const deleteLessPlannedHours = async (releasePlan) => {
-
-
-    let warningResponse = {
-        added: [],
-        removed: []
-    }
-    let lessPlannedHoursWarning = await WarningModel.findOne({
-        type: SC.WARNING_LESS_PLANNED_HOURS,
-        'releasePlans._id': mongoose.Types.ObjectId(releasePlan._id)
-    })
-    if (lessPlannedHoursWarning) {
-        /*less planned hour warning available need to delete it*/
-        let deleteWarningResponse = await deleteWarningWithResponse(lessPlannedHoursWarning, SC.WARNING_LESS_PLANNED_HOURS)
-        if (deleteWarningResponse.added && deleteWarningResponse.added.length)
-            warningResponse.added.push(...deleteWarningResponse.added)
-        if (deleteWarningResponse.removed && deleteWarningResponse.removed.length)
-            warningResponse.removed.push(...deleteWarningResponse.removed)
-    }
-
-    return warningResponse
-}
 
 /**
  * Called when any task is planned
@@ -1483,6 +1478,20 @@ warningSchema.statics.taskAdded = async (taskPlan, releasePlan, release, employe
             type: SC.WARNING_UNPLANNED
         })
     }
+
+
+    // UNREPORTED WARNING FOR TASKS ADDED IN PAST
+    let plannedMomentIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
+    plannedMomentIndia.add(1, 'days')
+
+    // In case this task is planned in past we would add unreported warning
+    if (plannedMomentIndia.isBefore(new Date())) {
+        let unreportedWarning = await WarningModel.addUnreported(taskPlan)
+        logger.debug("WarningModel.taskAdded(): ", {unreportedWarning})
+        copyWarnings(unreportedWarning, warningResponse)
+    }
+
+    //let unreportedWarnings = await WarningModel.addUnreported()
 
     //PENDING ON END DATE UPDATE
     if (addedAfterMaxDate) {
@@ -2078,6 +2087,11 @@ warningSchema.statics.taskPlanDeleted = async (taskPlan, releasePlan, release) =
             source: true
         })
     }
+
+    // Remove unreported warning as task is now deleted
+    let unreportedWarning = await removeUnreported(taskPlan)
+    copyWarnings(unreportedWarning, warningResponse)
+
     //TOO MANY HOURS UPDATE
     let warningsTooManyHours = await updateTooManyHoursOnTaskPlanDeleted(taskPlan, releasePlan, release, plannedDateUTC)
     copyWarnings(warningsTooManyHours, warningResponse)
@@ -2783,6 +2797,26 @@ warningSchema.statics.taskMoved = async (taskPlan, releasePlan, release, extra) 
     let employeeSetting = await MDL.EmployeeSettingModel.findOne({})
     let maxPlannedHoursNumber = Number(employeeSetting.maxPlannedHours)
     let momentRePlan = U.sameMomentInUTC(rePlannedDateEmployeeDays.date)
+
+    // Get moment in india for replanning date if
+
+    let momentNewMovedDateIndia = U.momentInTimeZone(rePlannedDateEmployeeDays.dateString, SC.INDIAN_TIMEZONE)
+
+    logger.debug("WarningModel.taskMoved(): moment moved in india ", {momentNewMovedDateIndia})
+    // add 1 day to this to get next midnight
+    momentNewMovedDateIndia.add(1, 'days')
+
+    // If current moment if before this date unreported warning should be removed from this day task
+
+    if (momentNewMovedDateIndia.isAfter(new Date())) {
+        let unreportedWarning = await removeUnreported(taskPlan)
+        copyWarnings(unreportedWarning, warningResponse)
+    } else {
+        // unreported warning may be added
+        let unreportedWarning = await WarningModel.addUnreported(taskPlan)
+        copyWarnings(unreportedWarning, warningResponse)
+    }
+
     /*TOO_MANY_HOURS WARNING UPDATE SECTION*/
 
     // as task is moved there is possibility of removal of too many hours warning if not removed then also task plan will be removed from warning`s task plan list
@@ -3098,7 +3132,6 @@ warningSchema.statics.addUnreported = async (taskPlan) => {
         'releasePlans._id': taskPlan.releasePlan._id
     })
 
-
     if (!unreportedWarning) {
         // Add warning
         unreportedWarning = new WarningModel()
@@ -3111,7 +3144,7 @@ warningSchema.statics.addUnreported = async (taskPlan) => {
             name: 1,
             project: 1
         })
-        //logger.debug('taskReportedAsCompleted(): ', {release})
+
         unreportedWarning.releases = [Object.assign({}, release.toObject(), {source: true})]
 
         warningResponse.added.push({
@@ -3123,13 +3156,6 @@ warningSchema.statics.addUnreported = async (taskPlan) => {
         warningResponse.added.push({
             _id: releasePlan._id,
             warningType: SC.WARNING_TYPE_RELEASE_PLAN,
-            type: SC.WARNING_UNREPORTED,
-            source: true
-        })
-
-        warningResponse.added.push({
-            _id: release._id,
-            warningType: SC.WARNING_TYPE_RELEASE,
             type: SC.WARNING_UNREPORTED,
             source: true
         })
@@ -3178,9 +3204,7 @@ const removeUnreported = async (taskPlan) => {
 
 
     if (updatedUnreportedWarning && !updatedUnreportedWarning.taskPlans.length) {
-
         logger.debug("removeUnreported(): ", {updatedUnreportedWarning})
-
         warningResponse.removed.push({
             _id: taskPlan._id,
             warningType: SC.WARNING_TYPE_TASK_PLAN,
@@ -3195,6 +3219,13 @@ const removeUnreported = async (taskPlan) => {
                 warningType: SC.WARNING_TYPE_RELEASE_PLAN,
                 type: SC.WARNING_UNREPORTED
             })
+        })
+    } else {
+        // just remove it from task
+        warningResponse.removed.push({
+            _id: taskPlan._id,
+            warningType: SC.WARNING_TYPE_TASK_PLAN,
+            type: SC.WARNING_UNREPORTED
         })
     }
 
@@ -3393,8 +3424,6 @@ const taskReopenedPendingOnEndDate = async (taskPlan, releasePlan) => {
  */
 
 warningSchema.statics.taskReopened = async (taskPlan, releasePlan, extra) => {
-    //logger.debug('taskReportedAsPendingOnEndDate(): taskplan ', {taskPlan})
-
     let {onEndDate, beforeEndDate} = extra
 
     let warningResponse = {
@@ -3412,6 +3441,96 @@ warningSchema.statics.taskReopened = async (taskPlan, releasePlan, extra) => {
         let completedBeforeEndDateWarning = await deleteCompletedBeforeEndDate(taskPlan, releasePlan)
         copyWarnings(completedBeforeEndDateWarning, warningResponse)
     }
+
+    return warningResponse
+}
+
+warningSchema.statics.releasePlanRemoved = async (releasePlan) => {
+    // As release plan is removed we need to remove all warnings that is associated with this release plan
+
+    let removeWarnings = await WarningModel.remove({
+        'releasePlans._id': releasePlan._id
+    })
+
+    // Return empty warning response as release plan is already removed which means task plan and release plan would not be there and hence
+    // no need to update their flags
+    return {
+        added: [],
+        removed: []
+    }
+}
+
+/**
+ * Called to handle warnings generated due to update of release plan
+ * @param releasePlan
+ * @param extra
+ */
+warningSchema.statics.releasePlanUpdated = async (releasePlan, release, extra) => {
+    const {oldEstimatedHours} = extra
+
+    logger.debug("WarningModel.releasePlanUpdated() ", {
+        oldEstimatedHours,
+        plannedHours: releasePlan.planning.plannedHours,
+        newEstimated: releasePlan.task.estimatedHours
+    })
+    // Handling less planned hours
+
+    // Find out if less planned hours is associated with this release plan
+
+    let warningResponse = {
+        added: [],
+        removed: []
+    }
+
+    if (releasePlan.task.estimatedHours < releasePlan.planning.plannedHours) {
+        // this means new estimation is less than planned hours
+        if (oldEstimatedHours > releasePlan.planning.plannedHours) {
+            // there should be a less planned hours warning that should now be removed
+            let lessPlannedWarning = await deleteLessPlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {lessPlannedWarning})
+            copyWarnings(lessPlannedWarning, warningResponse)
+        }
+
+        if (oldEstimatedHours >= releasePlan.planning.plannedHours) {
+            // More planned hours warning should be added
+            let morePlannedWarnings = await addMorePlannedHours(releasePlan, release)
+            logger.debug("releasePlanUpdated(): ", {morePlannedWarnings})
+            copyWarnings(morePlannedWarnings, warningResponse)
+        }
+    }
+
+    if (releasePlan.task.estimatedHours > releasePlan.planning.plannedHours) {
+        // this means estimation is greater than planned hours following case would arise
+        if (oldEstimatedHours < releasePlan.planning.plannedHours) {
+            let morePlannedWarning = await deleteMorePlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {morePlannedWarning})
+            copyWarnings(morePlannedWarning, warningResponse)
+        }
+
+        if (oldEstimatedHours <= releasePlan.planning.plannedHours) {
+            let lessPlannedWarnings = await addLessPlannedHours(releasePlan, release)
+            logger.debug("releasePlanUpdated(): ", {lessPlannedWarnings})
+            copyWarnings(lessPlannedWarnings, warningResponse)
+        }
+    }
+
+    if (releasePlan.task.estimatedHours == releasePlan.planning.plannedHours) {
+        if (oldEstimatedHours < releasePlan.planning.plannedHours) {
+            let morePlannedWarning = await deleteMorePlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {morePlannedWarning})
+            copyWarnings(morePlannedWarning, warningResponse)
+        }
+
+        if (oldEstimatedHours > releasePlan.planning.plannedHours) {
+            // there should be a less planned hours warning that should now be removed
+            let lessPlannedWarning = await deleteLessPlannedHours(releasePlan)
+            logger.debug("releasePlanUpdated(): ", {lessPlannedWarning})
+            copyWarnings(lessPlannedWarning, warningResponse)
+        }
+    }
+
+    let moreReportedWarnings = await updateMoreReportedHours(releasePlan, release)
+    copyWarnings(moreReportedWarnings, warningResponse)
 
     return warningResponse
 }

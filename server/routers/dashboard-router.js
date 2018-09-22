@@ -1,5 +1,6 @@
 import Router from 'koa-router'
 import * as MDL from '../models'
+import {sendEmailNotification} from '../notifications/byemail/notificationUtil'
 
 /**
  * This router would contain all API routes
@@ -8,7 +9,7 @@ import * as MDL from '../models'
 
 
 const dashboardRouter = new Router({
-    prefix: 'dashboard'
+    prefix: '/dashboard'
 })
 
 dashboardRouter.get('/', (ctx) => {
@@ -22,6 +23,5 @@ dashboardRouter.get('/day-plannings/:releaseID/month/:month/year/:year', async (
 dashboardRouter.post('/release-data', async (ctx) => {
     return MDL.ReleaseModel.getReleaseDataForDashboard(ctx.request.body, ctx.state.user)
 })
-
 
 export default dashboardRouter

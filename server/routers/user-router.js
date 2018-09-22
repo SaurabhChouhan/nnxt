@@ -5,7 +5,7 @@ import {isAdmin, isAuthenticated, isSuperAdmin} from "../utils"
 import AppError from '../AppError'
 
 const userRouter = new Router({
-    prefix: "users"
+    prefix: "/users"
 })
 
 
@@ -52,6 +52,24 @@ userRouter.del('/:id', async (ctx, next) => {
     } else {
         throw new AppError("Access Denied", EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
+})
+
+/*
+userRouter.post('/delete-notifications', async (ctx) => {
+    return await MDL.NotificationModel.deleteNotificationByUserAndIDs(ctx.state.user,ctx.request.body.ids)
+})
+
+
+
+userRouter.get('/visited-notification/:id', async (ctx) => {
+    return await MDL.NotificationModel.isVisitedNotificationByID(ctx.state.user,ctx.params.id)
+})
+*/
+
+userRouter.put('/change-password', async (ctx) => {
+    //console.log("change-password ", ctx.request.body);
+    let  isUpdatedNewPassReqSuccess = await MDL.UserModel.changePassword(ctx.state.user,ctx.request.body)
+    return isUpdatedNewPassReqSuccess
 })
 
 export default userRouter

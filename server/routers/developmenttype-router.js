@@ -2,7 +2,7 @@ import Router from 'koa-router'
 import * as MDL from "../models"
 
 let developmentTypeRouter = new Router({
-    prefix: 'developmentTypes'
+    prefix: '/developmentTypes'
 })
 
 developmentTypeRouter.get("/", async ctx => {

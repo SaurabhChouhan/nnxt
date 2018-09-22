@@ -9,6 +9,7 @@ import moment from 'moment'
 import * as U from '../utils'
 import EstimationModel from "./estimationModel";
 import logger from '../logger'
+import ReleasePlanModel from "./releasePlanModel";
 
 mongoose.Promise = global.Promise
 
@@ -142,6 +143,58 @@ releaseSchema.statics.getAllReleases = async (status, user) => {
     return await ReleaseModel.find(filter)
 }
 
+releaseSchema.statics.search = async (criteria, user) => {
+
+    if (!U.userHasRole(user, SC.ROLE_MANAGER) && !U.userHasRole(user, SC.ROLE_LEADER) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT))
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can search releases', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+
+    if (criteria) {
+        let filter = {}
+
+        if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
+            // user would only be able to see releases where he is manager or leader
+            filter['$or'] = [
+                {'manager._id': user._id},
+                {'leader._id': user._id}
+            ]
+
+            if (criteria.leader && user._id.toString() != criteria.leader) {
+                if (criteria.leader) {
+                    filter['leader._id'] = criteria.leader
+                }
+            }
+
+            if (criteria.manager && user._id.toString() != criteria.manager) {
+                filter['manager._id'] = criteria.manager
+            }
+
+        } else {
+            if (criteria.leader) {
+                filter['leader._id'] = criteria.leader
+            }
+
+            if (criteria.manager) {
+                filter['manager._id'] = criteria.manager
+            }
+        }
+
+        if (criteria.showActive) {
+            // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
+            let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
+            filter['$and'] = [{'devStartDate': {$lte: todaysMoment.toDate()}}, {'devEndDate': {$gte: todaysMoment.toDate()}}]
+        }
+
+        if (criteria.status) {
+            filter['status'] = criteria.status
+        }
+
+
+        logger.debug("searchRelease() ", {filter})
+        return await ReleaseModel.find(filter)
+    }
+
+    return []
+}
 
 releaseSchema.statics.getUserHighestRoleInThisRelease = async (releaseID, user) => {
     let release = await MDL.ReleaseModel.findById(mongoose.Types.ObjectId(releaseID), {
@@ -867,6 +920,103 @@ releaseSchema.statics.getReleaseEmployees = async (releaseID) => {
         return []
 
     return [...release.team, ...release.nonProjectTeam]
+}
+
+
+const fixReleaseStatsIterateReleasePlans = async (releasePlans, release) => {
+    let sumPlannedHoursEstimatedTasks = 0
+
+    for (const rp of releasePlans) {
+        // get sum of all planned hours for this release plan
+        let taskPlansSummary = await MDL.TaskPlanningModel.aggregate({
+                $match: {
+                    "releasePlan._id": rp._id
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    plannedHours: {$sum: "$planning.plannedHours"},
+                    reportedHours: {$sum: "$report.reportedHours"}
+                }
+            })
+
+        let plannedHours = 0
+
+
+        if (taskPlansSummary && taskPlansSummary.length && rp.task.estimatedHours > taskPlansSummary[0].plannedHours)
+            plannedHours = taskPlansSummary[0].plannedHours
+        else if (taskPlansSummary && taskPlansSummary.length)
+            plannedHours = rp.task.estimatedHours
+
+        logger.debug("rp entry ==> ", {
+            plannedHours,
+            estimatedHours: rp.task.estimatedHours,
+            taskPlanSummary: taskPlansSummary && taskPlansSummary.length ? taskPlansSummary[0].plannedHours : -1
+        })
+
+        sumPlannedHoursEstimatedTasks += plannedHours
+    }
+
+    return {
+        sumPlannedHoursEstimatedTasks
+    }
+
+
+}
+
+releaseSchema.statics.fixReleaseStats = async (releaseID) => {
+    let release = await ReleaseModel.findById(releaseID)
+    // Find all task plans of this release
+
+    logger.debug("************* RELEASE STATS ANALYSIS ***********")
+
+    let taskPlansSummary = await MDL.TaskPlanningModel.aggregate({
+            $match: {
+                "release._id": release._id
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                plannedHours: {$sum: "$planning.plannedHours"},
+                reportedHours: {$sum: "$report.reportedHours"}
+            }
+        })
+
+    let plannedHours = taskPlansSummary[0].plannedHours
+    let reportedHours = taskPlansSummary[0].reportedHours
+
+    let sumEstimatedHoursCompleted = await MDL.ReleasePlanModel.aggregate({
+            $match: {
+                "report.finalStatus": SC.STATUS_COMPLETED,
+                "release._id": release._id
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                estimatedHours: {$sum: "$task.estimatedHours"}
+            }
+        })
+
+    let estimatedHoursCompletedTasks = sumEstimatedHoursCompleted[0].estimatedHours
+
+    let releasePlans = await MDL.ReleasePlanModel.find({"release._id": release._id})
+
+    let releasePlanStats = await fixReleaseStatsIterateReleasePlans(releasePlans)
+
+    // find out release plans
+
+    logger.debug("fixReleaseStats(): ", {iterations: release.iterations})
+    logger.debug("fixReleaseStats(): ", {
+        plannedHours,
+        reportedHours,
+        estimatedHoursCompletedTasks,
+        plannedHoursEstimatedTasks: releasePlanStats.sumPlannedHoursEstimatedTasks
+    })
+
+    return {success: true}
 }
 
 

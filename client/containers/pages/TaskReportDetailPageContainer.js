@@ -7,7 +7,7 @@ import * as U from '../../../server/utils'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     ReportGoBack: (event) => {
-        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
+        dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_SECTION))
 
     }
 })

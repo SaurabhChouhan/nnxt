@@ -3,6 +3,7 @@ import passport from 'koa-passport'
 import * as MDL from "../models"
 import AppError from '../AppError'
 import * as EC from '../errorcodes'
+import * as SC from '../serverconstants'
 
 /**
  * All authentication releated APIs would go here
@@ -46,6 +47,17 @@ publicRouter.post('/create_dummy_attendance_entry', async (ctx, next) => {
 publicRouter.get('/execute', async ctx => {
     console.log("execute query")
     return await MDL.YearlyHolidaysModel.getAllHolidayMoments('2018-06-02', '2018-08-01')
+})
+
+publicRouter.get('/forgot-password-request/:email', async (ctx) => {
+    let  isForgotPassReqSuccess = await MDL.UserModel.forgotPasswordRequestM(ctx.params.email)
+    return isForgotPassReqSuccess
+})
+
+publicRouter.put('/update-new-password', async (ctx) => {
+    //console.log("update-new-password  ", ctx.request.body);
+    let  isUpdatedNewPassReqSuccess = await MDL.UserModel.updateNewPasswordWithOTP(ctx.request.body)
+    return isUpdatedNewPassReqSuccess
 })
 
 export default publicRouter

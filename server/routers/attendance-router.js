@@ -8,7 +8,7 @@ import * as MDL from "../models"
 
 
 const attendanceRouter = new Router({
-    prefix: "attendance"
+    prefix: "/attendance"
 })
 
 attendanceRouter.get("/attendance-settings", async ctx => {

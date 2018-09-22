@@ -82,7 +82,12 @@ class ReleaseDevelopersSchedules extends React.Component {
                                             return <div key={'week_' + idx} className="schCalendarDayRow">
                                                 {
                                                     week.map((day, dayIdx) => {
-                                                        let color = day.hours >= employeeSetting.superBusy ?
+                                                        let color = day.reported && day.hours > 0 ? 'white' : 'black'
+                                                        let title = ''
+                                                        if(day.plannedHours) title+= 'Planned: '+day.plannedHours
+                                                        if(day.reportedHours != undefined) title+= ', Reported: '+day.reportedHours
+
+                                                        let backgroundColor = day.hours >= employeeSetting.superBusy ?
                                                             '#dd6c6c'
                                                             : day.hours >= employeeSetting.busy ?
                                                                 '#91d861'
@@ -91,17 +96,20 @@ class ReleaseDevelopersSchedules extends React.Component {
                                                                     : day.hours >= employeeSetting.relativelyFree ?
                                                                         '#76c0e2'
                                                                         : day.hours != 0 ?
-                                                                            '#fffcc1'
+                                                                            '#e8e387'
                                                                             : day.hours == 0 && (dayIdx == 5 || dayIdx == 6) ?
                                                                                 'white' :
                                                                                 '#e8c392'
                                                         return <div key={'day_' + dayIdx} className="schCalendarCell">
                                                             <h5>{day.date > 0 ? day.date : ''}</h5>
                                                             <div className="releaseEmployee">
-                                                        <span className={"schCalendarHour"} style={{
-                                                            backgroundColor: color
+                                                        <span
+                                                            title={title}
+                                                            className={"schCalendarHour"} style={{
+                                                            backgroundColor: backgroundColor,
+                                                            color: color
                                                         }}
-                                                              onClick={that.calendarDateClicked.bind(that, day, employee)}>{day.hours >= 0 ? day.hours : ''}</span>
+                                                            onClick={that.calendarDateClicked.bind(that, day, employee)}>{day.hours >= 0 ? day.hours : ''}</span>
                                                             </div>
                                                         </div>
                                                     })

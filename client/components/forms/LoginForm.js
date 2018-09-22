@@ -1,7 +1,8 @@
 import {Field, Form, reduxForm} from 'redux-form'
 import React from 'react'
 import {email, required} from './validation'
-import {renderLoginField} from "./fields";
+import {renderLoginField} from "./fields"
+import {Link} from 'react-router-dom'
 
 let LoginForm = (props) => {
     const {handleSubmit, errorMsg} = props
@@ -32,11 +33,11 @@ let LoginForm = (props) => {
                     <Field style={{marginBottom: "7px"}} name="password" component={renderLoginField} type="password"
                            label="Password :" validate={[required]}/>
                     <br/>
-                    {/*
+
                     <div className="col-md-12">
-                        <span className="pull-right"> <a href="#"><u>Forgot password ?</u></a><br/></span>
+                        <span className="pull-right"> <Link to="/forgot-password"><u>Forgot password ?</u></Link><br/></span>
                     </div>
-                    */}
+
                     <div className="col-md-12">
                         <button type="submit" className="btn  login-btn">Submit
                         </button>

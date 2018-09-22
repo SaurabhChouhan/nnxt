@@ -83,6 +83,14 @@ export const plannedReleasePlanAddStruct = t.struct({
     })
 })
 
+export const plannedReleasePlanUpdateStruct = t.struct({
+    _id: ObjectId,
+    name: RequiredString,
+    description: RequiredString,
+    estimatedHours: t.Number,
+    estimatedBilledHours: t.Number
+})
+
 export const unplannedReleasePlanAddStruct = t.struct({
     name: RequiredString,
     description: RequiredString,

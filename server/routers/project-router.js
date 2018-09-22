@@ -3,7 +3,7 @@ import * as MDL from "../models"
 import * as V from "../validation"
 
 let projectRouter = new Router({
-    prefix: "projects"
+    prefix: "/projects"
 })
 
 projectRouter.post("/", async ctx => {
