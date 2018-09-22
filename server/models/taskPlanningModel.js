@@ -1047,37 +1047,13 @@ const sendTaskAssignedNotifications = async (taskPlan, releasePlan, release, emp
             refId: taskPlan._id,
             message: notificationTemplate.body,
             templateName: TC.NOTIFICATION_TASK_ASSIGNED,
-            data: [{
-                key: 'firstName',
-                value: employee.firstName ? employee.firstName : ''
-            }, {
-                key: 'lastName',
-                value: employee.lastName ? employee.lastName : ''
-            }, {
-                key: 'taskDate',
-                value: data.taskDate
-            }, {
-                key: 'taskName',
-                value: data.taskName
-            }, {
-                key: 'receiverFirstName',
-                value: data.assigneeName
-            }, {
-                key: 'projectName',
-                value: data.projectName
-            }, {
-                key: 'taskPlanID',
-                value: taskPlan._id.toString()
-            }, {
-                key: 'assigneeID',
-                value: assignee._id.toString()
-            }, {
-                key: 'employeeID',
-                value: employee._id.toString()
-            }],
-            source: {
+            initiator: {
                 _id: assignee._id,
                 name: U.getFullName(assignee)
+            },
+            target: {
+                _id: employee._id,
+                name: U.getFullName(employee)
             },
             receivers: [{
                 _id: employee._id,
@@ -1087,7 +1063,19 @@ const sendTaskAssignedNotifications = async (taskPlan, releasePlan, release, emp
                 release.manager
             ],
             activeOn: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT),
-            activeTill: U.momentInUTC(taskPlan.planningDateString).add(1, 'day').format(SC.DATE_TIME_FORMAT)
+            activeTill: U.momentInUTC(taskPlan.planningDateString).add(1, 'day').format(SC.DATE_TIME_FORMAT),
+            data: {
+                firstName: assignee.firstName,
+                lastName: assignee.lastName,
+                targetFirstName: employee.firstName,
+                targetLastName: employee.lastName,
+                taskDate: data.taskDate,
+                taskName: data.taskName,
+                projectName: data.projectName,
+                taskPlanID: taskPlan._id.toString(),
+                assigneeID: assignee._id.toString(),
+                employeeID: employee._id.toString()
+            }
         }
         //Save email notification into DB
         NotificationModel.addNotification(notificationData).then(() => {

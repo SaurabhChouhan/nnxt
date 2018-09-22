@@ -234,10 +234,13 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
         leaveDescription: leave.description
     }
 
-    let toList = [user.email, ...managementUsers.map(u => u.email)]
+    //let toList = [user.email, ...managementUsers.map(u => u.email)]
+    let toList = [user.email]
     // Not waiting on this promise as this could run in background
 
-    sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {}).catch(e => {})
+    sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {
+    }).catch(e => {
+    })
 
     let notificationTemplate = await TemplatesModel.findOne({
         "name": TC.NOTIFICATION_LEAVE_RAISED
@@ -255,32 +258,17 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
             refId: leave._id,
             message: notificationTemplate.body,
             templateName: TC.NOTIFICATION_LEAVE_RAISED,
-            data: [{
-                key: 'firstName',
-                value: user.firstName ? user.firstName : ''
-            }, {
-                key: 'lastName',
-                value: user.lastName ? user.lastName : ''
-            }, {
-                key: 'fromDate',
-                value: data.fromDate
-            }, {
-                key: 'toDate',
-                value: data.toDate
-            }, {
-                key: 'leaveType',
-                value: leave.leaveType.name
-            }, {
-                key: 'leaveDescription',
-                value: leave.description
-            }, {
-                key: 'leaveID',
-                value: leave._id.toString()
-            }, {
-                key: 'employeeID',
-                value: user._id.toString()
-            }],
-            source: {
+            data: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                fromDate: data.fromDate,
+                toDate: data.toDate,
+                leaveType: leave.leaveType.name,
+                leaveDescription: leave.description,
+                leaveID: leave._id.toString(),
+                employeeID: user._id.toString()
+            },
+            initiator: {
                 _id: user._id,
                 name: U.getFullName(user)
             },

@@ -23,7 +23,11 @@ let notificationSchema = mongoose.Schema({
         key: {type: String},
         value: {type: String}
     }],
-    source: {
+    initiator: {
+        _id: mongoose.Schema.ObjectId,
+        name: {type: String}
+    },
+    target: {
         _id: mongoose.Schema.ObjectId,
         name: {type: String}
     },
@@ -43,29 +47,44 @@ notificationSchema.methods.templateData = function (userID) {
         this.data.forEach(d => {
             tData[d.key] = d.value
         })
-
     }
 
     // Name phrase would allow proper phrase to use when You or name is used in sentence
     let initiatorPhrase = ''
-    let receiver = ''
-    if (this.source && this.source._id.toString() == userID) {
+    let targetName = ''
+    if (this.initiator && this.initiator._id.toString() == userID) {
         initiatorPhrase = 'You have'
-        if (tData['receiverFirstName'])
-            receiver = tData['receiverFirstName']
-
+        if (tData['targetFirstName'])
+            targetName = U.getCompleteName(tData['targetFirstName'], tData['targetLastName'])
     } else {
         if (tData['firstName']) {
-            initiatorPhrase = tData['firstName'] + ' has'
+            initiatorPhrase = U.getCompleteName(tData['firstName'], tData['lastName']) + ' has'
         }
 
-        if (tData['receiverFirstName'])
-            receiver = 'You'
+        if (tData['targetFirstName'])
+            targetName = 'You'
     }
 
     tData['initiatorPhrase'] = initiatorPhrase
-    tData['receiver'] = receiver
+    tData['targetName'] = targetName
     return tData
+}
+
+const convertToKeyValue = (dataObj) => {
+
+    let dataArray = []
+
+    if (dataObj) {
+        for (const prop in dataObj) {
+            dataArray.push({
+                key: prop,
+                value: dataObj[prop]
+            })
+        }
+    }
+
+    logger.debug("convertToKeyValue", {dataObj, dataArray})
+    return dataArray
 }
 
 notificationSchema.statics.addNotification = async (notificationObj) => {
@@ -75,14 +94,15 @@ notificationSchema.statics.addNotification = async (notificationObj) => {
     notification.created = new Date()
     notification.updated = new Date()
     notification.receivers = notificationObj.receivers
-    notification.source = notificationObj.source
+    notification.initiator = notificationObj.initiator
+    notification.target = notificationObj.target
     notification.broadcast = notificationObj.broadcast
     notification.refId = notificationObj.refId
     notification.type = notificationObj.type
     notification.category = notificationObj.category
     notification.message = notificationObj.message
     notification.templateName = notificationObj.templateName
-    notification.data = notificationObj.data
+    notification.data = convertToKeyValue(notificationObj.data)
     return await notification.save()
 }
 
