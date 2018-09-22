@@ -3,6 +3,8 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import Dialog from 'react-bootstrap-dialog'
 import Parser from 'html-react-parser'
 import moment from "moment";
+import momentTZ from 'moment-timezone'
+import {DATE_TIME_FORMAT, INDIAN_TIMEZONE} from "../../../server/serverconstants";
 
 class NotificationsPage extends Component {
     constructor(props) {
@@ -31,7 +33,7 @@ class NotificationsPage extends Component {
 
     dateFormated(cell, row, enumObject, rowIndex) {
         if (cell)
-            return moment(cell).format('YYYY-MM-DD HH:mm:ss')
+            return moment.utc(cell).format(DATE_TIME_FORMAT)
         else
             return ""
     }

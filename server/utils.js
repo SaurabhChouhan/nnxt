@@ -235,6 +235,10 @@ export const getFullName = (user) => {
     return user ? user.firstName && user.lastName ? user.firstName + ' ' + user.lastName : user.firstName ? user.firstName : user.lastName ? user.lastName : '' : ''
 }
 
+export const getCompleteName = (firstName, lastName) => {
+    return firstName && lastName ? firstName + ' ' + lastName : firstName ? firstName : lastName ? lastName : ''
+}
+
 export const twoDecimalHours = (hours) => {
     return parseFloat(hours.toFixed(2))
 }

@@ -4,6 +4,9 @@ import logger from '../logger'
 
 // For email/notification template feature
 export const addNNXTTemplates = async () => {
+    // Delete all notifications
+    await MDL.NotificationModel.remove({})
+
     // Find super admin user as only he can create templates
     let superAdminUser = await MDL.UserModel.findOne({email: 'superadmin@aripratech.com'})
     logger.debug("addTemplate: ", {superAdminUser: superAdminUser.roles})
@@ -73,17 +76,18 @@ export const addNNXTTemplates = async () => {
             })
         }
 
-        if (!await MDL.TemplateModel.exists(TC.NOTIFICATION_TASK_ASSIGNED)) {
-            await MDL.TemplateModel.addTemplate(superAdminUser, {
-                name: TC.NOTIFICATION_TASK_ASSIGNED,
-                body: `{initiatorPhrase} assigned a Task '{taskName}' of project '{projectName}' against {receiver}`,
-                supportedTokens: [
-                    'firstName', 'lastName', 'initiatorPhrase', 'receiver', 'taskName', 'receiverFirstName', 'taskDate', 'projectName',
-                    'taskPlanID', 'employeeID', 'assigneeID'
-                ]
-            })
+        if (await MDL.TemplateModel.exists(TC.NOTIFICATION_TASK_ASSIGNED)) {
+            // remove this template as there are changes
+            await MDL.TemplateModel.remove({name: TC.NOTIFICATION_TASK_ASSIGNED})
         }
-
+        await MDL.TemplateModel.addTemplate(superAdminUser, {
+            name: TC.NOTIFICATION_TASK_ASSIGNED,
+            body: `{initiatorPhrase} assigned a Task '{taskName}' of project '{projectName}' against {targetName}`,
+            supportedTokens: [
+                'firstName', 'lastName', 'initiatorPhrase', 'targetName', 'taskName', 'receiverFirstName', 'taskDate', 'projectName',
+                'taskPlanID', 'employeeID', 'assigneeID'
+            ]
+        })
     } else {
         logger.error("No super admin user found")
     }
