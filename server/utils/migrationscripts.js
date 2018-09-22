@@ -34,9 +34,52 @@ export const addNNXTTemplates = async () => {
         if (!await MDL.TemplateModel.exists(TC.NOTIFICATION_LEAVE_RAISED)) {
             await MDL.TemplateModel.addTemplate(superAdminUser, {
                 name: TC.NOTIFICATION_LEAVE_RAISED,
-                body: `{namePhrase} raised a leave from {fromDate} to {toDate}`,
+                body: `{initiatorPhrase} raised a leave from {fromDate} to {toDate}`,
                 supportedTokens: [
-                    'firstName', 'lastName', 'fromDate', 'toDate', 'leaveType', 'leaveDescription', 'namePhrase'
+                    'firstName', 'lastName', 'fromDate', 'toDate', 'leaveType', 'leaveDescription', 'initiatorPhrase',
+                    'leaveID', 'employeeID'
+                ]
+            })
+        }
+
+        if (!await MDL.TemplateModel.exists(TC.EMAIL_BODY_TASK_ASSIGNED)) {
+            await MDL.TemplateModel.addTemplate(superAdminUser, {
+                name: TC.EMAIL_BODY_TASK_ASSIGNED,
+                body: `<p>Hi {firstName} {lastName},</p>
+                    <p>
+                    <b>{assigneeName}</b> has assigned a task <u>{taskName}</u> of project <b>{projectName}</b> against you. 
+                    </p>
+                    <p>Other Task Details Below:</p>
+                    <p>
+                    <u>Task Date:</u><br/>{taskDate}<br/>
+                    <u>Task Day Description:</u><br/>{taskDayDescription}<br/>
+                    <u>Task Description:</u> <br/>{taskDescription}
+                    </p>
+                    <p>Regards, <br/>NNXT Team.</p> 
+                        `,
+                supportedTokens: [
+                    'firstName', 'lastName', 'taskName', 'assigneeName', 'taskDate', 'projectName', 'taskDescription', 'taskDayDescription'
+                ]
+            })
+        }
+
+        if (!await MDL.TemplateModel.exists(TC.EMAIL_SUBJECT_TASK_ASSIGNED)) {
+            await MDL.TemplateModel.addTemplate(superAdminUser, {
+                name: TC.EMAIL_SUBJECT_TASK_ASSIGNED,
+                body: `Task Assigned: {taskName}`,
+                supportedTokens: [
+                    'firstName', 'lastName', 'taskName', 'assigneeName', 'taskDate', 'projectName'
+                ]
+            })
+        }
+
+        if (!await MDL.TemplateModel.exists(TC.NOTIFICATION_TASK_ASSIGNED)) {
+            await MDL.TemplateModel.addTemplate(superAdminUser, {
+                name: TC.NOTIFICATION_TASK_ASSIGNED,
+                body: `{initiatorPhrase} assigned a Task '{taskName}' of project '{projectName}' against {receiver}`,
+                supportedTokens: [
+                    'firstName', 'lastName', 'initiatorPhrase', 'receiver', 'taskName', 'receiverFirstName', 'taskDate', 'projectName',
+                    'taskPlanID', 'employeeID', 'assigneeID'
                 ]
             })
         }

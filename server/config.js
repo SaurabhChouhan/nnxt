@@ -29,6 +29,12 @@ const config = {
             mode: 'production',
             eventInterval: 1800000
         },
+        migration: {
+            port: 3000,
+            setupData: true,
+            dropDatabase: false,
+            mode: 'production'
+        },
         kamlesh: {
             port: 3002,
             setupData: false,
@@ -82,6 +88,11 @@ const config = {
             useMongoClient: true
         },
         production: {
+            dbname: 'nnxt',
+            url: 'mongodb://nnxtadmin:1nn0cu0us@localhost/nnxt',
+            useMongoClient: true
+        },
+        migration: {
             dbname: 'nnxt',
             url: 'mongodb://nnxtadmin:1nn0cu0us@localhost/nnxt',
             useMongoClient: true

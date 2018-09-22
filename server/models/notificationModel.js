@@ -47,15 +47,24 @@ notificationSchema.methods.templateData = function (userID) {
     }
 
     // Name phrase would allow proper phrase to use when You or name is used in sentence
-    let namePhrase = ''
+    let initiatorPhrase = ''
+    let receiver = ''
     if (this.source && this.source._id.toString() == userID) {
-        namePhrase = 'You have'
+        initiatorPhrase = 'You have'
+        if (tData['receiverFirstName'])
+            receiver = tData['receiverFirstName']
+
     } else {
         if (tData['firstName']) {
-            namePhrase = tData['firstName'] + ' has'
+            initiatorPhrase = tData['firstName'] + ' has'
         }
+
+        if (tData['receiverFirstName'])
+            receiver = 'You'
     }
-    tData['namePhrase'] = namePhrase
+
+    tData['initiatorPhrase'] = initiatorPhrase
+    tData['receiver'] = receiver
     return tData
 }
 
