@@ -131,6 +131,7 @@ export const getDataForReportTaskDetailPageFromServer = (taskPlanID) => {
         ).then(
             json => {
                 if (json.success) {
+                    console.log("get the data for the taskk",json.data)
                     dispatch(setReportTaskPlanDetail(json.data))
                 }
                 return json

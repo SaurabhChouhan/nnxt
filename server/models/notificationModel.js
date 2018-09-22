@@ -94,6 +94,8 @@ notificationSchema.statics.getAllActiveNotifications = async (user) => {
             n.message = TemplateUtil.performTokenReplacement(n.message, n.templateData(user._id.toString()))
             return n
         })
+    } else {
+        return []
     }
 }
 

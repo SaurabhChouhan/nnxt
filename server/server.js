@@ -10,8 +10,7 @@ import confFile from './config'
 import co from 'co'
 import mongoose from 'mongoose'
 import {apiRouter, pageRouter} from "./routers"
-import {addInitialData, addNNXTData} from "./utils/setupdata"
-import {addNNXTTemplates} from './utils/migrationscripts'
+import {runSetupInstructions} from "./utils/setupdata"
 import {PROD_ENV} from "./serverconstants"
 import path from 'path'
 import logger from './logger'
@@ -57,7 +56,7 @@ co(async () => {
 
     if (conf.server.setupData) {
         console.log("SETUP DATA CONFIGURATION IS ON! In case you don't want to run setup instructions please set that config to false")
-        await addNNXTTemplates()
+        await runSetupInstructions()
     }
     let app = new Koa()
 

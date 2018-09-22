@@ -124,6 +124,7 @@ export {default as ReleaseListContainer} from './lists/ReleaseListContainer'
 export {default as ReleasePlanListContainer} from './lists/ReleasePlanListContainer'
 export {default as ReleasePlanSectionContainer} from './sections/ReleasePlanSectionContainer'
 export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPlanningPageContainer'
+export {default as TaskPlanDetailPageContainer} from './pages/TaskPlanDetailPageContainer'
 
 //Calendar
 export {default as CalendarTaskPageContainer} from './pages/CalendarTaskPageContainer'

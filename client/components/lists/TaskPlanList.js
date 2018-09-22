@@ -25,7 +25,7 @@ class TaskPlanList extends Component {
                 text: '50', value: 50
             }],
             sizePerPage,  // which size per page you want to locate as default
-
+            onRowClick: this.onRowClick.bind(this)
         }
 
         this.state = {
@@ -44,7 +44,19 @@ class TaskPlanList extends Component {
     onRowDoubleClick(row) {
 
     }
+    onRowClick(row) {
 
+
+        this.props.taskPlanSelectedForRelease(row).then(json => {
+            console.log("get the data at the task plan list",json)
+            if (json.success) {
+                console.log("get the data at the task plan list... if ",json)
+                this.props.history.push('/app-home/task-plan-detail')
+                this.props.showTaskDetailPage()
+            }
+            return json
+        })
+    }
     formatDeveloperName(employee) {
         if (employee)
             return employee.name
@@ -54,9 +66,9 @@ class TaskPlanList extends Component {
     formatTaskName(task, row) {
         if (task) {
             if (row.iterationType == SC.ITERATION_TYPE_PLANNED)
-                return <span style={{color: '#4172c1'}}>{task.name}</span>
+                return <span style={{color: '#4172c1',cursor:'pointer'}}>{task.name}</span>
             else if (row.iterationType == SC.ITERATION_TYPE_UNPLANNED)
-                return <span style={{color: '#e52d8c'}}>{task.name}</span>
+                return <span style={{color: '#e52d8c',cursor:'pointer'}}>{task.name}</span>
             else
                 return <span>{task.name}</span>
         }

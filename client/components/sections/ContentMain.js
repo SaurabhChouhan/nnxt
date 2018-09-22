@@ -57,6 +57,7 @@ import {
 } from "../index"
 import {Route} from 'react-router-dom'
 import * as logger from '../../clientLogger'
+import {TaskPlanDetailPageContainer} from "../../containers/index";
 
 class ContentMain extends Component {
     constructor(props) {
@@ -437,7 +438,15 @@ class ContentMain extends Component {
 
             }
         })
+        routes.push({
+            url: "/task-plan-detail",
+            render: (props) => {
+                return <ContentSection>
+                    <TaskPlanDetailPageContainer name={COC.TASK_PLAN_DETAIL_PAGE}/>
+                </ContentSection>
 
+            }
+        })
         this.state = {
             routes: routes
         }

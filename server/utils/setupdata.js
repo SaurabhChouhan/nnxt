@@ -5,6 +5,14 @@ import momentTZ from 'moment-timezone'
 import moment from 'moment'
 import logger from '../logger'
 import * as U from '../utils'
+import {addNNXTTemplates} from "./migrationscripts";
+
+
+export const runSetupInstructions = async () => {
+    await addInitialData()
+    await addNNXTData()
+    await addNNXTTemplates()
+}
 
 export const addInitialData = async () => {
     try {
