@@ -9,8 +9,8 @@ import {addNNXTTemplates} from "./migrationscripts";
 
 
 export const runSetupInstructions = async () => {
-    await addInitialData()
-    await addNNXTData()
+    //await addInitialData()
+    //await addNNXTData()
     await addNNXTTemplates()
 }
 

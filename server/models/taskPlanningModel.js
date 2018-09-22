@@ -10,6 +10,10 @@ import * as V from '../validation'
 import * as U from '../utils'
 import * as EM from '../errormessages'
 import _ from 'lodash'
+import {sendEmailNotification} from "../notifications/byemail/notificationUtil";
+import * as TC from "../templateconsts";
+import TemplatesModel from "./templatesModel";
+import NotificationModel from "./notificationModel";
 
 mongoose.Promise = global.Promise
 
@@ -1012,6 +1016,88 @@ const addTaskPlanCreateTaskPlan = async (releasePlan, release, extra) => {
     return taskPlan
 }
 
+const sendTaskAssignedNotifications = async (taskPlan, releasePlan, release, employee, assignee) => {
+
+    let data = {
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        taskDate: U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE).format(SC.DATE_DISPLAY_FORMAT),
+        taskName: releasePlan.task.name,
+        taskDescription: releasePlan.task.description,
+        taskDayDescription: taskPlan.description,
+        projectName: release.project.name,
+        assigneeName: assignee.firstName
+    }
+
+    let toList = [employee.email, release.leader.email, release.manager.email]
+    // Not waiting on this promise as this could run in background
+
+    sendEmailNotification(toList, TC.EMAIL_BODY_TASK_ASSIGNED, TC.EMAIL_SUBJECT_TASK_ASSIGNED, data).then(() => {
+    }).catch(e => {
+    })
+
+    let notificationTemplate = await TemplatesModel.findOne({
+        "name": TC.NOTIFICATION_TASK_ASSIGNED
+    })
+
+    if (notificationTemplate) {
+        let notificationData = {
+            type: SC.NOTIFICATION_TYPE_TASK_ASSIGNED,
+            category: SC.NOTIFICATION_CATEGORY_TASK_ASSIGNMENT,
+            refId: taskPlan._id,
+            message: notificationTemplate.body,
+            templateName: TC.NOTIFICATION_TASK_ASSIGNED,
+            data: [{
+                key: 'firstName',
+                value: employee.firstName ? employee.firstName : ''
+            }, {
+                key: 'lastName',
+                value: employee.lastName ? employee.lastName : ''
+            }, {
+                key: 'taskDate',
+                value: data.taskDate
+            }, {
+                key: 'taskName',
+                value: data.taskName
+            }, {
+                key: 'receiverFirstName',
+                value: data.assigneeName
+            }, {
+                key: 'projectName',
+                value: data.projectName
+            }, {
+                key: 'taskPlanID',
+                value: taskPlan._id.toString()
+            }, {
+                key: 'assigneeID',
+                value: assignee._id.toString()
+            }, {
+                key: 'employeeID',
+                value: employee._id.toString()
+            }],
+            source: {
+                _id: assignee._id,
+                name: U.getFullName(assignee)
+            },
+            receivers: [{
+                _id: employee._id,
+                name: U.getFullName(employee)
+            },
+                release.leader,
+                release.manager
+            ],
+            activeOn: U.getNowMomentInUTC(SC.INDIAN_TIMEZONE).format(SC.DATE_TIME_FORMAT),
+            activeTill: U.momentInUTC(taskPlan.planningDateString).add(1, 'day').format(SC.DATE_TIME_FORMAT)
+        }
+        //Save email notification into DB
+        NotificationModel.addNotification(notificationData).then(() => {
+            logger.debug("Task assigned notification raised")
+        })
+    }
+
+}
+
+
 /***
  * Create new task planning  in which logged in user is involved as a manager or leader
  ***/
@@ -1150,7 +1236,9 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     await release.save()
     await releasePlan.save()
     await taskPlan.save()
-
+    sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
+        // do nothing
+    })
     return {
         taskPlan,
         warnings: generatedWarnings,
