@@ -86,6 +86,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
         }
     },
+    addDescription: (flag) => dispatch(A.addDescriptionInTable(flag)),
+
 })
 
 
@@ -99,6 +101,7 @@ const mapStateToProps = (state) => ({
         name: 'All Employees'
     }, ...state.release.teamOfRelease],
     expanded: state.release.expanded,
+    descriptionFlag: state.release.descriptionFlag,
     workCalendarEmployeeIDs: state.employee.workCalendar.employees && state.employee.workCalendar.employees.length ? state.employee.workCalendar.employees.map(e => e._id) : []
 })
 

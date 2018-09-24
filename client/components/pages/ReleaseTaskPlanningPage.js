@@ -22,18 +22,31 @@ class ReleaseTaskPlanningPage extends Component {
         this.state = {
             showTaskDeleteConfirmationDialog: false,
             showTaskReopenConfirmationDialog: false,
-            row: {}
+            row: {},
+            showDescription: true,
         };
 
         this.taskListPageOptions = {
             sizePerPageList: [{
                 text: '5', value: 5
             }],
-            sizePerPage: 5  // which size per page you want to locate as default
+            sizePerPage: 5,  // which size per page you want to locate as default
+            onRowClick: this.onRowClick.bind(this)
         }
+
 
     }
 
+    onRowClick(row) {
+        console.log("value of description Flag", this.props.descriptionFlag)
+        if (this.props.descriptionFlag) {
+            this.props.addDescription(false)
+        }
+        else {
+            this.props.addDescription(true)
+        }
+
+    }
 
     onClose() {
         this.setState({
@@ -139,6 +152,13 @@ class ReleaseTaskPlanningPage extends Component {
         return ''
     }
 
+    formatDescription(description) {
+        if (description) {
+            return description
+        }
+        return ''
+    }
+
     onConfirmDeleteRequest() {
         this.setState({showTaskDeleteConfirmationDialog: false})
         this.props.deleteTaskPlanningRow(this.state.row, this.props.workCalendarEmployeeIDs)
@@ -234,176 +254,354 @@ class ReleaseTaskPlanningPage extends Component {
 
     render() {
 
-        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeIDs, developers} = this.props
+        const {releasePlan, taskPlans, developerPlans, expanded, release, workCalendarEmployeeIDs, developers, descriptionFlag} = this.props
         return (
             <div>
-                <div className="col-md-8 pad">
-                    <div className="col-md-12 estimateheader">
-                        <div className="col-md-6 pad">
-                            <div className="backarrow">
-                                <h5>
-                                    <button className="btn-link" title="Go Back" onClick={() => {
-                                        this.props.history.push("/app-home/release-plan")
-                                        this.props.ReleaseTaskGoBack(release)
-                                    }}><i className="glyphicon glyphicon-arrow-left"></i></button>
-                                    <b title={releasePlan && releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
-                                </h5>
+                {descriptionFlag ? <div>
+                        <div className="col-md-12 pad">
+                            <div className="col-md-12 estimateheader">
+                                <div className="col-md-6 pad">
+                                    <div className="backarrow">
+                                        <h5>
+                                            <button className="btn-link" title="Go Back" onClick={() => {
+                                                this.props.history.push("/app-home/release-plan")
+                                                this.props.ReleaseTaskGoBack(release)
+                                            }}><i className="glyphicon glyphicon-arrow-left"></i></button>
+                                            <b title={releasePlan && releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div className="col-md-2 ">
+                                    <button
+                                        className=" btn refreshBtn "
+                                        type="button"
+                                        onClick={() => {
+                                            this.props.refreshSelectedTaskPlan(releasePlan, releasePlan.rolesInThisRelease)
+                                        }}>
+                                        <i className="fa fa-refresh "></i>
+                                    </button>
+                                </div>
+                                <div className="col-md-2  releaseClock ">
+                                    <i className="fa fa-clock-o "
+                                       title="Estimated Hours"></i><b>{releasePlan && releasePlan.task ? releasePlan.task.estimatedHours : ''}
+                                    Hrs</b>
+                                </div>
+                                <div className="col-md-2  releaseClock releasePlannedHrs">
+                                    <i className="fa fa-clock-o "
+                                       title="Planned Hours"></i><b>{releasePlan && releasePlan.planning ? releasePlan.planning.plannedHours : ''}
+                                    Hrs</b>
+                                </div>
+                            </div>
+                            <div className="col-md-12 ">
+                                <div className={expanded ? "expanded-release-content" : 'release-content'}>
+                                    <p className="task-description ">{releasePlan && releasePlan.task ? releasePlan.task.description : ''}</p>
+                                    {expanded ? <label className="div-hover releaseReadLessLabel releaseReadLessLabelClick"
+                                                       onClick={() => this.props.expandDescription(false)}>...Read
+                                        Less</label> : <label className="div-hover releaseReadMoreLabel"
+                                                              onClick={() => this.props.expandDescription(true)}>...Read
+                                        More</label>}
+                                </div>
+                            </div>
+                            <div className="col-md-12 releasePlanChkBtn">
+                                <div className="col-md-4 planchk">
+                                </div>
+                                <div className="col-md-4 planBtn">
+                                    <button type="button" className="btn releasePlanTaskbtn"
+                                            onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeIDs)}>
+                                        <i className="fa fa-plus-circle"></i>
+                                        Plan Task
+                                    </button>
+                                </div>
+
+                            </div>
+                            <div className="col-md-12">
+                                <div className="estimation">
+                                    <BootstrapTable options={this.options} data={taskPlans}
+                                                    striped={true}
+                                                    hover={true}
+                                                    height={"300px"}
+                                                    options={this.taskListPageOptions}
+                                                    pagination
+                                    >
+                                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                           hidden={true}>ID</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planningDateString'
+                                                           width={"8%"}
+                                                           dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planning'
+                                                           width={"8%"}
+                                                           dataFormat={this.formatPlannedHours.bind(this)}
+                                                           dataAlign={"center"}>Planned</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='employee'
+                                                           dataFormat={this.formatDeveloper.bind(this)}
+                                                           width={"10%"}>Developer</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='description'
+                                                           dataFormat={this.formatDescription.bind(this)}
+                                                           width={"30%"}>description</TableHeaderColumn>
+
+                                        <TableHeaderColumn dataField='flags'
+                                                           dataFormat={this.formatFlags.bind(this)} width={"8%"}>Flags
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='report'
+                                                           dataFormat={this.formatReport.bind(this)} width={"8%"}
+                                                           dataAlign={"center"}>Status
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='report'
+                                                           dataFormat={this.formatReportHours.bind(this)} width={"8%"}
+                                                           dataAlign={"center"}>Reported
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Delete Task"} width="5%" dataField='button'
+                                                           dataFormat={this.deleteCellButton.bind(this)}
+                                                           dataAlign={"center"}><i
+                                            className="fa fa-trash"></i>
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Edit Task"} width="5%" dataField='button'
+                                                           dataFormat={this.editCellButton.bind(this)} dataAlign={"center"}><i
+                                            className="fa fa-pencil"></i>
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Move"} width="5%" dataField='button'
+                                                           dataFormat={this.moveCellButton.bind(this)} dataAlign={"center"}><i
+                                            className="fa fa-cut"></i>
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Reopen Task"} width="5%" dataField='button'
+                                                           dataFormat={this.reopenCellButton.bind(this)}
+                                                           dataAlign={"center"}><i
+                                            className="fa fa-unlock"></i>
+                                        </TableHeaderColumn>
+
+
+                                    </BootstrapTable>
+                                    {
+                                        this.state && this.state.showTaskDeleteConfirmationDialog &&
+                                        <ConfirmationDialog show={true}
+                                                            onConfirm={this.onConfirmDeleteRequest.bind(this)}
+                                                            title="Task Delete" onClose={this.onClose.bind(this)}
+                                                            body="Are you sure you want to delete this task plan. Please confirm!"/>
+                                    }
+                                    {
+                                        this.state && this.state.showTaskReopenConfirmationDialog &&
+                                        <ConfirmationDialog show={true}
+                                                            onConfirm={this.reopenTask.bind(this)}
+                                                            title="Task Reopen"
+                                                            onClose={this.closeReopenTaskDialog.bind(this)}
+                                                            body="This will mark task as 'pending' again. Please confirm."/>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <ReleaseDeveloperFilterFormContainer/>
+                            </div>
+                            <div className="col-md-12">
+                                <div className="estimation">
+                                    <BootstrapTable options={this.options} data={developerPlans}
+                                                    striped={true}
+                                                    hover={true}>
+                                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                           hidden={true}>ID</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planningDateString'
+                                                           dataFormat={this.formatPlanningDate.bind(this)}>
+                                            Date
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='task'
+                                                           dataFormat={this.formatTaskName.bind(this)}>
+                                            Task Name
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn width="25%" columnTitle dataField='employee'
+                                                           dataFormat={this.formatDeveloper.bind(this)}>
+                                            Developer
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planning'
+                                                           dataFormat={this.formatPlannedHours.bind(this)}>
+                                            Planned Effort
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='report'
+                                                           dataFormat={this.formatReport.bind(this)}>
+                                            Reported
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn width="12%" dataField='button'
+                                                           dataFormat={this.actionCellButton.bind(this)}>
+                                            <i className="fa fa-plus"></i>
+                                        </TableHeaderColumn>
+                                    </BootstrapTable>
+                                </div>
                             </div>
                         </div>
-                        <div className="col-md-2 ">
-                            <button
-                                className=" btn refreshBtn "
-                                type="button"
-                                onClick={() => {
-                                    this.props.refreshSelectedTaskPlan(releasePlan, releasePlan.rolesInThisRelease)
-                                }}>
-                                <i className="fa fa-refresh "></i>
-                            </button>
-                        </div>
-                        <div className="col-md-2  releaseClock ">
-                            <i className="fa fa-clock-o "
-                               title="Estimated Hours"></i><b>{releasePlan && releasePlan.task ? releasePlan.task.estimatedHours : ''}
-                            Hrs</b>
-                        </div>
-                        <div className="col-md-2  releaseClock releasePlannedHrs">
-                            <i className="fa fa-clock-o "
-                               title="Planned Hours"></i><b>{releasePlan && releasePlan.planning ? releasePlan.planning.plannedHours : ''}
-                            Hrs</b>
-                        </div>
-                    </div>
-                    <div className="col-md-12 ">
-                        <div className={expanded ? "expanded-release-content" : 'release-content'}>
-                            <p className="task-description ">{releasePlan && releasePlan.task ? releasePlan.task.description : ''}</p>
-                            {expanded ? <label className="div-hover releaseReadLessLabel releaseReadLessLabelClick"
+                    </div> :
+                    <div>
+                        <div className="col-md-8 pad">
+                            <div className="col-md-12 estimateheader">
+                                <div className="col-md-6 pad">
+                                    <div className="backarrow">
+                                        <h5>
+                                            <button className="btn-link" title="Go Back" onClick={() => {
+                                                this.props.history.push("/app-home/release-plan")
+                                                this.props.ReleaseTaskGoBack(release)
+                                            }}><i className="glyphicon glyphicon-arrow-left"></i></button>
+                                            <b title={releasePlan && releasePlan.task ? releasePlan.task.name : ''}>{releasePlan.task ? releasePlan.task.name : ''} </b>
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div className="col-md-2 ">
+                                    <button
+                                        className=" btn refreshBtn "
+                                        type="button"
+                                        onClick={() => {
+                                            this.props.refreshSelectedTaskPlan(releasePlan, releasePlan.rolesInThisRelease)
+                                        }}>
+                                        <i className="fa fa-refresh "></i>
+                                    </button>
+                                </div>
+                                <div className="col-md-2  releaseClock ">
+                                    <i className="fa fa-clock-o "
+                                       title="Estimated Hours"></i><b>{releasePlan && releasePlan.task ? releasePlan.task.estimatedHours : ''}
+                                    Hrs</b>
+                                </div>
+                                <div className="col-md-2  releaseClock releasePlannedHrs">
+                                    <i className="fa fa-clock-o "
+                                       title="Planned Hours"></i><b>{releasePlan && releasePlan.planning ? releasePlan.planning.plannedHours : ''}
+                                    Hrs</b>
+                                </div>
+                            </div>
+                            <div className="col-md-12 ">
+                                <div className={expanded ? "expanded-release-content" : 'release-content'}>
+                                    <p className="task-description ">{releasePlan && releasePlan.task ? releasePlan.task.description : ''}</p>
+                                    {expanded ?
+                                        <label className="div-hover releaseReadLessLabel releaseReadLessLabelClick"
                                                onClick={() => this.props.expandDescription(false)}>...Read
-                                Less</label> : <label className="div-hover releaseReadMoreLabel"
-                                                      onClick={() => this.props.expandDescription(true)}>...Read
-                                More</label>}
-                        </div>
-                    </div>
-                    <div className="col-md-12 releasePlanChkBtn">
-                        <div className="col-md-4 planchk">
-                        </div>
-                        <div className="col-md-4 planBtn">
-                            <button type="button" className="btn releasePlanTaskbtn"
-                                    onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeIDs)}>
-                                <i className="fa fa-plus-circle"></i>
-                                Plan Task
-                            </button>
-                        </div>
+                                            Less</label> : <label className="div-hover releaseReadMoreLabel"
+                                                                  onClick={() => this.props.expandDescription(true)}>...Read
+                                            More</label>}
+                                </div>
+                            </div>
+                            <div className="col-md-12 releasePlanChkBtn">
+                                <div className="col-md-4 planchk">
+                                </div>
+                                <div className="col-md-4 planBtn">
+                                    <button type="button" className="btn releasePlanTaskbtn"
+                                            onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeIDs)}>
+                                        <i className="fa fa-plus-circle"></i>
+                                        Plan Task
+                                    </button>
+                                </div>
 
-                    </div>
-                    <div className="col-md-12">
-                        <div className="estimation">
-                            <BootstrapTable options={this.options} data={taskPlans}
-                                            striped={true}
-                                            hover={true}
-                                            height={"300px"}
-                                            options={this.taskListPageOptions}
-                                            pagination
-                            >
-                                <TableHeaderColumn columnTitle isKey dataField='_id'
-                                                   hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planningDateString'
-                                                   width={"10%"}
-                                                   dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planning'
-                                                   width={"9%"}
-                                                   dataFormat={this.formatPlannedHours.bind(this)}
-                                                   dataAlign={"center"}>Planned</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='employee'
-                                                   dataFormat={this.formatDeveloper.bind(this)}
-                                                   width={"18%"}>Developer</TableHeaderColumn>
-                                <TableHeaderColumn dataField='flags'
-                                                   dataFormat={this.formatFlags.bind(this)} width={"12%"}>Flags
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReport.bind(this)} width={"12%"}
-                                                   dataAlign={"center"}>Status
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReportHours.bind(this)} width={"9%"}
-                                                   dataAlign={"center"}>Reported
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle={"Delete Task"} width="7%" dataField='button'
-                                                   dataFormat={this.deleteCellButton.bind(this)} dataAlign={"center"}><i
-                                    className="fa fa-trash"></i>
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle={"Edit Task"} width="7%" dataField='button'
-                                                   dataFormat={this.editCellButton.bind(this)} dataAlign={"center"}><i
-                                    className="fa fa-pencil"></i>
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle={"Move"} width="9%" dataField='button'
-                                                   dataFormat={this.moveCellButton.bind(this)} dataAlign={"center"}><i
-                                    className="fa fa-cut"></i>
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle={"Reopen Task"} width="7%" dataField='button'
-                                                   dataFormat={this.reopenCellButton.bind(this)} dataAlign={"center"}><i
-                                    className="fa fa-unlock"></i>
-                                </TableHeaderColumn>
+                            </div>
+                            <div className="col-md-12">
+                                <div className="estimation">
+                                    <BootstrapTable data={taskPlans}
+                                                    striped={true}
+                                                    hover={true}
+                                                    height={"300px"}
+                                                    options={this.taskListPageOptions}
+                                                    pagination
+                                    >
+                                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                           hidden={true}>ID</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planningDateString'
+                                                           width={"10%"}
+                                                           dataFormat={this.formatPlanningDate.bind(this)}>Date</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planning'
+                                                           width={"9%"}
+                                                           dataFormat={this.formatPlannedHours.bind(this)}
+                                                           dataAlign={"center"}>Planned</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='employee'
+                                                           dataFormat={this.formatDeveloper.bind(this)}
+                                                           width={"18%"}>Developer</TableHeaderColumn>
+                                        <TableHeaderColumn dataField='flags'
+                                                           dataFormat={this.formatFlags.bind(this)} width={"12%"}>Flags
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='report'
+                                                           dataFormat={this.formatReport.bind(this)} width={"12%"}
+                                                           dataAlign={"center"}>Status
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='report'
+                                                           dataFormat={this.formatReportHours.bind(this)} width={"9%"}
+                                                           dataAlign={"center"}>Reported
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Delete Task"} width="7%" dataField='button'
+                                                           dataFormat={this.deleteCellButton.bind(this)}
+                                                           dataAlign={"center"}><i
+                                            className="fa fa-trash"></i>
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Edit Task"} width="7%" dataField='button'
+                                                           dataFormat={this.editCellButton.bind(this)}
+                                                           dataAlign={"center"}><i
+                                            className="fa fa-pencil"></i>
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Move"} width="9%" dataField='button'
+                                                           dataFormat={this.moveCellButton.bind(this)}
+                                                           dataAlign={"center"}><i
+                                            className="fa fa-cut"></i>
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle={"Reopen Task"} width="7%" dataField='button'
+                                                           dataFormat={this.reopenCellButton.bind(this)}
+                                                           dataAlign={"center"}><i
+                                            className="fa fa-unlock"></i>
+                                        </TableHeaderColumn>
 
 
-                            </BootstrapTable>
-                            {
-                                this.state && this.state.showTaskDeleteConfirmationDialog &&
-                                <ConfirmationDialog show={true}
-                                                    onConfirm={this.onConfirmDeleteRequest.bind(this)}
-                                                    title="Task Delete" onClose={this.onClose.bind(this)}
-                                                    body="Are you sure you want to delete this task plan. Please confirm!"/>
-                            }
-                            {
-                                this.state && this.state.showTaskReopenConfirmationDialog &&
-                                <ConfirmationDialog show={true}
-                                                    onConfirm={this.reopenTask.bind(this)}
-                                                    title="Task Reopen" onClose={this.closeReopenTaskDialog.bind(this)}
-                                                    body="This will mark task as 'pending' again. Please confirm."/>
-                            }
+                                    </BootstrapTable>
+                                    {
+                                        this.state && this.state.showTaskDeleteConfirmationDialog &&
+                                        <ConfirmationDialog show={true}
+                                                            onConfirm={this.onConfirmDeleteRequest.bind(this)}
+                                                            title="Task Delete" onClose={this.onClose.bind(this)}
+                                                            body="Are you sure you want to delete this task plan. Please confirm!"/>
+                                    }
+                                    {
+                                        this.state && this.state.showTaskReopenConfirmationDialog &&
+                                        <ConfirmationDialog show={true}
+                                                            onConfirm={this.reopenTask.bind(this)}
+                                                            title="Task Reopen"
+                                                            onClose={this.closeReopenTaskDialog.bind(this)}
+                                                            body="This will mark task as 'pending' again. Please confirm."/>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <ReleaseDeveloperFilterFormContainer/>
+                            </div>
+                            <div className="col-md-12">
+                                <div className="estimation">
+                                    <BootstrapTable options={this.options} data={developerPlans}
+                                                    striped={true}
+                                                    hover={true}>
+                                        <TableHeaderColumn columnTitle isKey dataField='_id'
+                                                           hidden={true}>ID</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planningDateString'
+                                                           dataFormat={this.formatPlanningDate.bind(this)}>
+                                            Date
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='task'
+                                                           dataFormat={this.formatTaskName.bind(this)}>
+                                            Task Name
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn width="25%" columnTitle dataField='employee'
+                                                           dataFormat={this.formatDeveloper.bind(this)}>
+                                            Developer
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='planning'
+                                                           dataFormat={this.formatPlannedHours.bind(this)}>
+                                            Planned Effort
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='report'
+                                                           dataFormat={this.formatReport.bind(this)}>
+                                            Reported
+                                        </TableHeaderColumn>
+                                        <TableHeaderColumn width="12%" dataField='button'
+                                                           dataFormat={this.actionCellButton.bind(this)}>
+                                            <i className="fa fa-plus"></i>
+                                        </TableHeaderColumn>
+                                    </BootstrapTable>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <ReleaseDeveloperFilterFormContainer/>
-                    </div>
-                    <div className="col-md-12">
-                        <div className="estimation">
-                            <BootstrapTable options={this.options} data={developerPlans}
-                                            striped={true}
-                                            hover={true}>
-                                <TableHeaderColumn columnTitle isKey dataField='_id'
-                                                   hidden={true}>ID</TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planningDateString'
-                                                   dataFormat={this.formatPlanningDate.bind(this)}>
-                                    Date
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='task'
-                                                   dataFormat={this.formatTaskName.bind(this)}>
-                                    Task Name
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width="25%" columnTitle dataField='employee'
-                                                   dataFormat={this.formatDeveloper.bind(this)}>
-                                    Developer
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='planning'
-                                                   dataFormat={this.formatPlannedHours.bind(this)}>
-                                    Planned Effort
-                                </TableHeaderColumn>
-                                <TableHeaderColumn columnTitle dataField='report'
-                                                   dataFormat={this.formatReport.bind(this)}>
-                                    Reported
-                                </TableHeaderColumn>
-                                <TableHeaderColumn width="12%" dataField='button'
-                                                   dataFormat={this.actionCellButton.bind(this)}>
-                                    <i className="fa fa-plus"></i>
-                                </TableHeaderColumn>
-                            </BootstrapTable>
+                        <div className="col-md-4 estimationsection pad">
+                            <div>
+                                <ReleaseDeveloperScheduleFormContainer developers={developers} releaseID={release._id}/>
+                            </div>
+                            <ReleaseDevelopersSchedulesContainer colMdClass={"col-md-12"}/>
                         </div>
-                    </div>
-                </div>
-                <div className="col-md-4 estimationsection pad">
-                    <div>
-                        <ReleaseDeveloperScheduleFormContainer developers={developers} releaseID={release._id}/>
-                    </div>
-                    <ReleaseDevelopersSchedulesContainer colMdClass={"col-md-12"}/>
-                </div>
+                    </div>}
             </div>
         )
     }

@@ -144,7 +144,10 @@ export const changeReleaseFilters = (filters) => ({
     type: AC.CHANGE_RELEASE_FILTERS,
     filters
 })
-
+export const addDescriptionInTable = (flag) => ({
+    type: AC.ADD_DESCRIPTION_IN_TABLE,
+    flag: flag
+})
 export const getAllReleasesFromServer = (status, flag) => {
     return (dispatch, getState) => {
         let api = '';
