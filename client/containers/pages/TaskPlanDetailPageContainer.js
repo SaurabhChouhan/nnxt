@@ -2,8 +2,6 @@ import {connect} from 'react-redux'
 import {TaskPlanDetailPage} from '../../components/index'
 import * as A from '../../actions/index'
 import * as COC from '../../components/componentConsts'
-import * as SC from '../../../server/serverconstants'
-import * as U from '../../../server/utils'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     ReportGoBack: (event) => {
