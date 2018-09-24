@@ -4,7 +4,6 @@ import {initialize} from 'redux-form'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
-import * as EC from '../../../server/errorcodes'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -59,16 +58,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     ReleaseTaskGoBack: (release) => {
-
         dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_SECTION))
-        /*
-        dispatch(A.getReleaseFromServer(release._id)).then(json => {
-            if (json.success) {
-                dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_LIST))
-            }
-        })
-        dispatch(A.getReleasePlansFromServer(release._id, SC.ALL, SC.ALL))
-        */
     },
     expandDescription: (flag) => dispatch(A.expandDescription(flag)),
     refreshSelectedTaskPlan: (releasePlan, role) => {
@@ -86,6 +76,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             dispatch(A.getReleaseDevelopersFromServer(releasePlan._id))
         }
     },
+    addDescription: (flag) => dispatch(A.addDescriptionInTable(flag)),
+
 })
 
 
@@ -99,6 +91,7 @@ const mapStateToProps = (state) => ({
         name: 'All Employees'
     }, ...state.release.teamOfRelease],
     expanded: state.release.expanded,
+    descriptionFlag: state.release.descriptionFlag,
     workCalendarEmployeeIDs: state.employee.workCalendar.employees && state.employee.workCalendar.employees.length ? state.employee.workCalendar.employees.map(e => e._id) : []
 })
 

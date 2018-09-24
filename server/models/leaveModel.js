@@ -234,8 +234,7 @@ const sendRaiseLeaveNotifications = async (leave, user) => {
         leaveDescription: leave.description
     }
 
-    //let toList = [user.email, ...managementUsers.map(u => u.email)]
-    let toList = [user.email]
+    let toList = [user.email, ...managementUsers.map(u => u.email)]
     // Not waiting on this promise as this could run in background
 
     sendEmailNotification(toList, TC.EMAIL_BODY_LEAVE_RAISED, TC.EMAIL_SUBJECT_LEAVE_RAISED, data).then(() => {

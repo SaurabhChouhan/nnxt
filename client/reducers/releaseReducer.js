@@ -41,7 +41,8 @@ let initialState = {
         leader: undefined,
         status: undefined,
         showActive: true
-    }
+    },
+    descriptionFlag:false
 }
 
 const releaseReducer = (state = initialState, action) => {
@@ -319,6 +320,10 @@ const releaseReducer = (state = initialState, action) => {
                 releaseFilters: Object.assign({}, action.filters, {
                     updated: true
                 })
+            })
+        case AC.ADD_DESCRIPTION_IN_TABLE:
+            return Object.assign({}, state, {
+                descriptionFlag: action.flag
             })
         default:
             return state
