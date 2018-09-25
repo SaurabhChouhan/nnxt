@@ -1,6 +1,7 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
 import * as V from "../validation"
+import {CLIENT_ARIPRA} from "../serverconstants";
 
 let projectRouter = new Router({
     prefix: "/projects"
@@ -12,6 +13,10 @@ projectRouter.post("/", async ctx => {
 
     V.validate(ctx.request.body, V.projectAdditionStruct)
     return await MDL.ProjectModel.saveProject(ctx.request.body)
+})
+
+projectRouter.post("/search", async ctx => {
+    return await MDL.ProjectModel.search(ctx.request.body, ctx.state.user)
 })
 
 projectRouter.get("/", async ctx => {

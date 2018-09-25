@@ -26,6 +26,7 @@ export const LIST_USERS = 'List Users'
 export const LIST_TEMPLATES = 'List Templates'
 export const EDIT_ROLE_PERMISSIONS = 'Edit Role Permissions'
 
+export const CLIENT_ARIPRA = 'Aripra'
 
 export const TYPE_DEVELOPMENT = 'development'
 export const TYPE_TESTING = 'testing'

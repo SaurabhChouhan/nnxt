@@ -455,4 +455,5 @@ export const RELEASE_TYPE_CLIENT = 'Client'
 export const RELEASE_TYPE_INTERNAL = 'Internal'
 export const RELEASE_TYPE_TRAINING = 'Training'
 export const RELEATE_TYPE_SESSIONS = 'Sessions'
+export const CLIENT_ARIPRA = 'Aripra'
 

@@ -6,6 +6,12 @@ export const addProjects = (projects) => ({
     projects: projects
 })
 
+export const addFilteredProjects = (projects) => ({
+    type: AC.ADD_FILTERED_PROJECTS,
+    projects: projects
+})
+
+
 export const addProject = (project) => ({
     type: AC.ADD_PROJECT,
     project: project
@@ -48,6 +54,31 @@ export const getAllProjectsFromServer = () => {
             })
     }
 }
+
+export const searchProjectsFromServer = (searchInput) => {
+    return (dispatch) => {
+        return fetch('/api/projects/search', {
+                method: 'post',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(searchInput)
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addFilteredProjects(json.data))
+                }
+
+                return json
+            })
+    }
+}
+
 
 export const getAllProjectsUserReleasesFromServer = () => {
     return (dispatch, getState) => {

@@ -2,8 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as MDL from "../models"
 import * as EC from '../errorcodes'
-import * as SC from '../serverconstants'
-import {userHasRole} from "../utils"
+import logger from "../logger";
 
 
 mongoose.Promise = global.Promise
@@ -25,6 +24,30 @@ let projectSchema = mongoose.Schema({
 projectSchema.statics.getAllActive = async (loggedInUser) => {
     // Negotiator can see all projects (Estimation Initiate)
     return await ProjectModel.find({isDeleted: false, isArchived: false}).exec()
+}
+
+projectSchema.statics.search = async (criteria) => {
+    console.log("search called ", criteria)
+    if (criteria) {
+        let filter = {}
+
+        if (criteria.isActive != undefined) {
+            filter['isActive'] = criteria.isActive
+        }
+
+        if (criteria.name) {
+            filter['client.name'] = criteria.name
+        }
+
+        if (criteria._id) {
+            filter['client._id'] = criteria._id
+        }
+
+        logger.debug("searchRelease() ", {filter})
+        return await ProjectModel.find(filter)
+    }
+
+    return []
 }
 
 projectSchema.statics.getProjectsOfReleasesInvolved = async (loggedInUser) => {

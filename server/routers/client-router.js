@@ -1,8 +1,6 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
 import * as V from "../validation"
-import projectRouter from "./project-router";
-
 
 let clientRouter = new Router({
     prefix: "/clients"

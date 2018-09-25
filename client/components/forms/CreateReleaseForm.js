@@ -13,7 +13,7 @@ momentLocalizer()
 
 let CreateReleaseForm = (props) => {
     const {pristine, submitting, reset, change} = props
-    const {team, managers, leaders, devStartDate, devReleaseDate, releaseType} = props
+    const {team, managers, leaders, devStartDate, devReleaseDate, releaseType, client} = props
     const {clientReleaseDate, manager, leader, project, module, projects, modules, developmentTypes, technologies, clients} = props
     let max = !_.isEmpty(devReleaseDate) ? moment(devReleaseDate).toDate() : !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
     let maxRelease = !_.isEmpty(clientReleaseDate) ? moment(clientReleaseDate).toDate() : undefined
@@ -35,21 +35,53 @@ let CreateReleaseForm = (props) => {
     let updatedManagerList = leader && leader._id ? managers.filter(m => m._id.toString() !== leader._id.toString()) : managers
     let updatedLeaderList = manager && manager._id ? leaders.filter(l => l._id.toString() !== manager._id.toString()) : leaders
     let now = new Date()
+
+    let showRemainingForm = false
+
+    if (releaseType && releaseType == CC.RELEASE_TYPE_CLIENT) {
+        if (client && client._id) {
+            // client is selected after selecting release type as client we will show remaining fields
+            showRemainingForm = true
+        }
+    } else if (releaseType) {
+        // Since release type is not client we will just show remaining projects
+        showRemainingForm = true
+    }
+
     return <form onSubmit={props.handleSubmit}>
         <div className="row">
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="releaseType" component={renderSelect} label={"Release Type:"}
                            options={CC.RELEASE_TYPES}
-                           validate={[required]}/>
+                           validate={[required]}
+                           onChange={(event, newValue) => {
+                               if (newValue == CC.RELEASE_TYPE_INTERNAL) {
+                                   // release type is internal, fetch all the projects of Aripra only
+                                   props.fetchProjects(CC.CLIENT_ARIPRA)
+                               } else if (newValue == CC.RELEASE_TYPE_CLIENT) {
+                                   // In this case we will just show client drop down and on selection of appropriate client we will show its project
+
+                               }
+                           }}
+                    />
                 </div>
+
+                {releaseType && releaseType == CC.RELEASE_TYPE_CLIENT &&
                 <div className="col-md-6">
                     <Field name="client._id" component={renderSelect} label={"Client :"} options={clients}
-                           validate={[required]}/>
+                           validate={[required]}
+                           onChange={(event, newValue) => {
+                               console.log("new value ", newValue)
+                               props.fetchProjects(newValue)
+                           }}
+                    />
                 </div>
+                }
             </div>
 
-            {releaseType && <div className="col-md-12">
+            {showRemainingForm && (releaseType == CC.RELEASE_TYPE_CLIENT || releaseType == CC.RELEASE_TYPE_INTERNAL || releaseType == CC.RELEASE_TYPE_TRAINING) &&
+            <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="releaseVersionName" component={renderText} validate={[required]}
                            label={"Name (Release Version):"}/>
@@ -62,7 +94,7 @@ let CreateReleaseForm = (props) => {
             </div>
             }
 
-            {releaseType && (releaseType == CC.RELEASE_TYPE_INTERNAL || releaseType == CC.RELEASE_TYPE_CLIENT) &&
+            {showRemainingForm && (releaseType == CC.RELEASE_TYPE_INTERNAL || releaseType == CC.RELEASE_TYPE_CLIENT) &&
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="project._id"
@@ -83,7 +115,7 @@ let CreateReleaseForm = (props) => {
             </div>
             }
 
-            {releaseType &&
+            {showRemainingForm && (releaseType == CC.RELEASE_TYPE_CLIENT || releaseType == CC.RELEASE_TYPE_INTERNAL || releaseType == CC.RELEASE_TYPE_TRAINING) &&
             <div className="col-md-12">
                 <div className="col-md-12">
                     <Field name="technologies" component={renderMultiSelect} label="technologies:"
@@ -92,7 +124,7 @@ let CreateReleaseForm = (props) => {
             </div>
             }
 
-            {releaseType && (releaseType == CC.RELEASE_TYPE_CLIENT || releaseType == CC.RELEASE_TYPE_INTERNAL) &&
+            {showRemainingForm && (releaseType == CC.RELEASE_TYPE_CLIENT || releaseType == CC.RELEASE_TYPE_INTERNAL) &&
             <div className="col-md-12">
                 <div className="col-md-4">
                     <Field name="devStartDate" component={renderDateTimePickerString}
@@ -119,7 +151,7 @@ let CreateReleaseForm = (props) => {
             </div>
             }
 
-            {releaseType && (releaseType == CC.RELEASE_TYPE_TRAINING) &&
+            {showRemainingForm && (releaseType == CC.RELEASE_TYPE_TRAINING || releaseType == CC.RELEASE_TYPE_JOBS) &&
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="devStartDate" component={renderDateTimePickerString}
@@ -138,8 +170,7 @@ let CreateReleaseForm = (props) => {
             </div>
             }
 
-
-            {releaseType &&
+            {showRemainingForm &&
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="manager._id"
@@ -164,7 +195,7 @@ let CreateReleaseForm = (props) => {
             </div>
             }
 
-            {releaseType &&
+            {showRemainingForm &&
             <div className="col-md-12">
                 <div className="col-md-12">
                     <Field name="team"
@@ -201,9 +232,9 @@ const selector = formValueSelector('create-release')
 
 CreateReleaseForm = connect(
     state => {
-        const {devStartDate, devReleaseDate, clientReleaseDate, releaseType, manager, leader, project, module, _id}
+        const {devStartDate, devReleaseDate, clientReleaseDate, releaseType, manager, leader, project, module, _id, client}
             =
-            selector(state, 'devStartDate', 'devReleaseDate', 'clientReleaseDate', 'releaseType', 'manager', 'leader', 'project', 'module', '_id')
+            selector(state, 'devStartDate', 'devReleaseDate', 'clientReleaseDate', 'releaseType', 'manager', 'leader', 'project', 'module', '_id', 'client')
 
         return {
             _id,
@@ -214,7 +245,8 @@ CreateReleaseForm = connect(
             clientReleaseDate,
             manager,
             leader,
-            releaseType
+            releaseType,
+            client
         }
     }
 )(CreateReleaseForm)

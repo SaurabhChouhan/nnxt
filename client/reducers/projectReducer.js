@@ -2,6 +2,7 @@ import * as AC from "../actions/actionConsts"
 
 let initialState = {
     all: [],
+    filtered: [],
     selected: {}
 }
 
@@ -9,6 +10,8 @@ let projectReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_PROJECTS:
             return Object.assign({}, state, {all: action.projects})
+        case AC.ADD_FILTERED_PROJECTS:
+            return Object.assign({}, state, {filtered: action.projects})
         case AC.ADD_PROJECT:
             return Object.assign({}, state, {all: [...state.all, action.project]})
         case AC.EDIT_PROJECT:

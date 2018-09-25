@@ -1,15 +1,21 @@
 import * as AC from "../actions/actionConsts"
+import {CLIENT_ARIPRA} from "../clientconstants";
 
 
 let initialState = {
     all: [],
+    billable: [],
     selected: {}
 }
 
 const clientReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_CLIENTS:
-            return Object.assign({}, state, {all: action.clients})
+            return Object.assign({}, state, {
+                all: action.clients
+                ,
+                billable: action.clients && action.clients.length ? action.clients.filter(c => c.name !== CLIENT_ARIPRA) : []
+            })
 
         case AC.ADD_CLIENT:
             return Object.assign({}, state, {all: [...state.all, action.client]})

@@ -19,6 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     showCreateReleaseDialog: () => {
+        dispatch(A.getAllClientsFromServer())
         dispatch(A.getAllProjectsFromServer())
         dispatch(A.getAllModulesFromServer())
         dispatch(A.getUsersWithRoleCategoryFromServer())
