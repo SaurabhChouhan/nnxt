@@ -6,6 +6,10 @@ export const DEV_ENV = 'development'
 export const ALL = 'all'
 export const NONE = 'none'
 
+export const PROJECT_ARIPRA_TRAINING = 'Aripra Internal'
+export const PROJECT_ARIPRA_PROJECTS = 'Aripra Projects'
+export const PROJECT_ARIPRA_JOBS = 'Aripra Jobs'
+
 // User Role
 export const ROLE_ADMIN = 'Admin'
 export const ROLE_SUPER_ADMIN = 'Super Admin'
@@ -446,3 +450,9 @@ export const ALL_NOTIFICATION_CATEGORIES = [
     NOTIFICATION_CATEGORY_REPORT,
     NOTIFICATION_CATEGORY_WARNINGS
 ]
+
+export const RELEASE_TYPE_CLIENT = 'Client'
+export const RELEASE_TYPE_INTERNAL = 'Internal'
+export const RELEASE_TYPE_TRAINING = 'Training'
+export const RELEATE_TYPE_SESSIONS = 'Sessions'
+

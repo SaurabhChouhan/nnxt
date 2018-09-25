@@ -14,7 +14,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 // hide dialog
                 dispatch(A.hideComponent(COC.CREATE_RELEASE_FORM_DIALOG))
             } else {
-                NotificationManager.error("Release Creation Failed")
+                NotificationManager.error(json.message)
             }
         })
     }
@@ -47,7 +47,10 @@ const mapStateToProps = (state) => {
         ) : [],
         technologies: state.technology.all,
         developmentTypes: state.developmentType.all,
-        modules: state.module.all
+        modules: state.module.all,
+        clients: state.client.all && Array.isArray(state.client.all) && state.client.all.length ? state.client.all.filter(client =>
+            client.isActive === true
+        ) : []
     }
 }
 

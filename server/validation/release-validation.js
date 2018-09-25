@@ -58,6 +58,55 @@ export const releaseTaskPlanningShiftStruct = t.struct({
     year: t.Number
 })
 
+export const releaseCreateStructNonTraining = t.struct({
+    releaseType: RequiredString,
+    releaseVersionName: RequiredString,
+    devReleaseDate: validDate,
+    devStartDate: validDate,
+    developmentType: t.struct({
+        _id: ObjectId
+    }),
+    leader: t.struct({
+        _id: ObjectId
+    }),
+    manager: t.struct({
+        _id: ObjectId
+    }),
+    team: t.list(t.struct({
+        _id: ObjectId,
+        name: RequiredString,
+        email: RequiredString
+    })),
+    technologies: t.list(t.struct({
+        _id: ObjectId,
+        name: RequiredString
+    }))
+})
+
+export const releaseCreateStructTraining = t.struct({
+    releaseType: RequiredString,
+    releaseVersionName: RequiredString,
+    devReleaseDate: validDate,
+    devStartDate: validDate,
+    developmentType: t.struct({
+        _id: ObjectId
+    }),
+    leader: t.struct({
+        _id: ObjectId
+    }),
+    manager: t.struct({
+        _id: ObjectId
+    }),
+    team: t.list(t.struct({
+        _id: ObjectId,
+        name: RequiredString,
+        email: RequiredString
+    })),
+    technologies: t.list(t.struct({
+        _id: ObjectId,
+        name: RequiredString
+    }))
+})
 
 export const releaseUpdateDatesStruct = t.struct({
     _id: ObjectId,
@@ -69,9 +118,6 @@ export const releaseUpdateDatesStruct = t.struct({
     })
 })
 
-export const releaseUpdateStruct = t.struct({
-    _id: ObjectId
-})
 
 export const plannedReleasePlanAddStruct = t.struct({
     name: RequiredString,

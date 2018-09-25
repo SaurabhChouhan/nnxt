@@ -9,7 +9,6 @@ import moment from 'moment'
 import * as U from '../utils'
 import EstimationModel from "./estimationModel";
 import logger from '../logger'
-import ReleasePlanModel from "./releasePlanModel";
 
 mongoose.Promise = global.Promise
 
@@ -273,6 +272,14 @@ releaseSchema.statics.getUserRolesInReleaseById = async (releaseID, user) => {
  */
 
 releaseSchema.statics.createRelease = async (releaseData, user) => {
+    if (!releaseData.releaseType)
+        throw new AppError('Release Type is required to create release.', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (releaseData.releaseType == SC.RELEASE_TYPE_INTERNAL || releaseData.releaseType == SC.RELEASE_TYPE_CLIENT)
+        V.validate(releaseData, V.releaseCreateStructNonTraining)
+    else
+        V.validate(releaseData, V.releaseCreateStructTraining)
+
     let release = new MDL.ReleaseModel()
     logger.debug("createRelease(): ", {releaseData})
 
@@ -300,7 +307,14 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
         throw new AppError('At least one developer should be assigned to a release', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.project._id), {name: 1})
+    let project;
+
+    if (releaseData.releaseType == SC.RELEASE_TYPE_TRAINING) {
+
+    } else {
+        project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.project._id), {name: 1})
+    }
+
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 

@@ -4,6 +4,11 @@ Validation Rules
 export const required = value => {
     return (value ? undefined : 'This field is required')
 }
+
+export const requiredMulti = value => {
+    return (value && value.length) ? undefined : 'Please select at least one option'
+}
+
 export const number = value => value && isNaN(Number(value)) ? 'Must be a number' : undefined
 
 export const email = value =>

@@ -1,3 +1,8 @@
+import {
+    ROLE_DEVELOPER, ROLE_ESTIMATOR, ROLE_LEADER, ROLE_MANAGER, ROLE_NEGOTIATOR,
+    ROLE_TOP_MANAGEMENT
+} from "../server/serverconstants";
+
 export const ROLE_ADMIN = 'admin'
 export const ROLE_SUPER_ADMIN = 'super_admin'
 export const ROLE_APP_USER = 'app_user'
@@ -28,3 +33,27 @@ export const TYPE_REVIEW = 'review'
 export const TYPE_MANAGEMENT = 'management'
 export const TYPE_COMPANY = 'company'
 
+export const RELEASE_TYPE_CLIENT = 'Client'
+export const RELEASE_TYPE_INTERNAL = 'Internal'
+export const RELEASE_TYPE_TRAINING = 'Training'
+export const RELEASE_TYPE_JOBS = 'Jobs'
+
+export const RELEASE_TYPES = [
+    {
+        _id: RELEASE_TYPE_CLIENT,
+        name: "Client Projects"
+    },
+    {
+        _id: RELEASE_TYPE_INTERNAL,
+        name: "Aripra Projects"
+    },
+    {
+        _id: RELEASE_TYPE_TRAINING,
+        name: "Training & Sessions"
+    },
+    {
+        _id: RELEASE_TYPE_JOBS,
+        name: "Bidding & Estimations"
+
+    }
+]
