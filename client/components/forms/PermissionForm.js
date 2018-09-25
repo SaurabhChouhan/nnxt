@@ -8,9 +8,8 @@ class PermissionForm extends Component {
         const {handleSubmit} = this.props
         return [
             <div key="PermissionFormBackButton">
-                <button type="button"
+                <button className="glyphicon glyphicon-arrow-left customBtn pull-left btn" type="button" style={{margin:'10px 0px'}}
                         onClick={() => this.props.showPermissionList()}>
-                    <i className="glyphicon glyphicon-arrow-left"></i>
                 </button>
             </div>,
             <form key="PermissionForm" onSubmit={handleSubmit}>
@@ -18,7 +17,7 @@ class PermissionForm extends Component {
                     <div className="col-md-4">
                         <Field name="name" placeholder={"Name of permission"} component={renderText}
                                label={"Permission"} validate={[required]}/>
-                        <button type="submit" className="btn btn-submit">Submit</button>
+                        <button type="submit" className="btn customBtn">Submit</button>
                     </div>
                 </div>
             </form>]

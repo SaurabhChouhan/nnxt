@@ -12,7 +12,7 @@ class EmailTemplateList extends Component {
     }
 
     editCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-pencil pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-pencil pull-left btn customBtn" type="button"
                         onClick={() =>this.props.editEmailTemplate(row)}>
             </button>
         )
@@ -21,7 +21,7 @@ class EmailTemplateList extends Component {
 
 
     statusCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className={row.status=="Approved"?"fa fa-lock pull-left btn btn-custom":"fa fa-unlock pull-left btn btn-custom"}
+        return (<button className={row.status=="Approved"?"fa fa-lock pull-left btn customBtn":"fa fa-unlock pull-left btn customBtn"}
                         title={row.status=="Approved"?"Click To Block/Pending Template" : "Click To Unblock/Approve Template"}
                         type="button"
                         onClick={() => this.onClickEmailTemplateApproveSelected(cell, row, rowIndex)}>
@@ -37,11 +37,11 @@ class EmailTemplateList extends Component {
                 actions: [
                     Dialog.DefaultAction('Block/Pending', () => {
                         this.props.emailTemplateApproveFLag(row);
-                    },'btn-custom'),
+                    },'customBtn'),
 
                     Dialog.DefaultAction('Close', () => {
                         this.dialog.hide()
-                    }, 'btn-custom')
+                    }, 'customBtn')
                 ],
                 bsSize: 'small',
                 onHide: (dialog) => {
@@ -54,11 +54,11 @@ class EmailTemplateList extends Component {
                 actions: [
                     Dialog.DefaultAction('Unblock/Approve', () => {
                         this.props.emailTemplateApproveFLag(row);
-                    },'btn-custom'),
+                    },'customBtn'),
 
                     Dialog.DefaultAction('Close', () => {
                         this.dialog.hide()
-                    }, 'btn-custom')
+                    }, 'customBtn')
                 ],
                 bsSize: 'small',
                 onHide: (dialog) => {
@@ -69,7 +69,7 @@ class EmailTemplateList extends Component {
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-trash pull-left btn customBtn" type="button"
                         onClick={() => {
                             this.dialog.show({
                                 title: "Delete Template",
@@ -77,10 +77,10 @@ class EmailTemplateList extends Component {
                                 actions: [
                                     Dialog.DefaultAction('Delete', () => {
                                         this.props.deleteEmailTemplate(row._id)
-                                    }, 'btn-custom'),
+                                    }, 'customBtn'),
                                     Dialog.DefaultAction('Close', () => {
                                         this.dialog.hide()
-                                    }, 'btn-custom')
+                                    }, 'customBtn')
                                 ],
                                 bsSize: 'small',
                                 onHide: (dialog) => {
@@ -100,12 +100,12 @@ class EmailTemplateList extends Component {
 
     render() {
         return (
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-10">
                     <Dialog ref={(el) => {
                         this.dialog = el
                     }}/>
-                    <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showEmailTemplateForm()}>
+                    <button className="btn btn-default customBtn addBtn" style={{margin:'10px 0px'}} onClick={() => this.props.showEmailTemplateForm()}>
                         Create Template
                     </button>
                     <form style={{float:'left', width:'100%'}}>

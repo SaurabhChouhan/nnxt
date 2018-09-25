@@ -2322,3 +2322,19 @@ div.notificationTable table tr[width="100%"] td {
     float: right;
     padding-left: 15px;
 }
+
+/* admin side css */
+
+.col-md-12.adminTabs {
+    margin-bottom: 1%;
+}
+
+.col-md-12.adminTabs ul li.active a {
+    background: #FF534E;
+    color: #fff;
+}
+
+.col-md-12.adminTabs ul li a {
+    background: #303440;
+    color: #fff;
+}

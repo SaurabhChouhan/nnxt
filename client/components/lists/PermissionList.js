@@ -9,14 +9,14 @@ class PermissionList extends Component {
     }
 
     editCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-pencil pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-pencil pull-left btn customBtn" type="button"
                         onClick={() => this.props.editPermission(row, rowIndex)}>
             </button>
         )
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-trash pull-left btn customBtn" type="button"
                         onClick={() => {
                             this.dialog.show({
                                 title: "Delete User",
@@ -42,14 +42,14 @@ class PermissionList extends Component {
 
     render() {
         return (
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-6">
                     <Dialog ref={(el) => {
                         this.dialog = el
                     }}/>
 
                     {(this.props.loggedInUser.isSuperAdmin) ?
-                        <button className="btn btn-default btn-submit addBtn"
+                        <button className="btn customBtn btn-submit addBtn" style={{margin:'10px 0px'}}
                                 onClick={() => this.props.showPermissionForm()}>
                             Add
                             Permission</button> : <div style={{height: '10px'}}></div>}

@@ -20,14 +20,13 @@ class UserForm extends Component {
         const {_id, changeCredentials} = this.props;
 
         return [
-            <div key="UserFormBackButton">
-                <button type="button"
+            <div key="UserFormBackButton" className="col-md-12">
+                <button className="glyphicon glyphicon-arrow-left customBtn pull-left btn" type="button" style={{margin:'10px 0px'}}
                         onClick={() => this.props.showUserList()}>
-                    <i className="glyphicon glyphicon-arrow-left"></i>
                 </button>
             </div>,
             <form key="UserForm" onSubmit={this.props.handleSubmit}>
-                <div className="row">
+                <div className="clearfix">
                     <div className="col-md-4">
                         <Field name="_id" component="input" className="form-control" type="hidden"></Field>
                         <Field name="firstName" label="First Name:" component={renderText} type="text"
@@ -58,8 +57,8 @@ class UserForm extends Component {
                         <Field name="confirmPassword" label="Confirm Password:" component={renderText} type="password"
                                validate={[required, passwordLength, passwordMatch]}/>}
 
-                        <button type="submit"
-                                className="btn btn-submit"> {(!this.props._id && "Add") || (this.props._id && "Update")} </button>
+                        <button type="submit" style={{margin:'10px 0px'}}
+                                className="btn customBtn"> {(!this.props._id && "Add") || (this.props._id && "Update")} </button>
                     </div>
                 </div>
             </form>]

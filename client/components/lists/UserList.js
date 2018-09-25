@@ -10,14 +10,14 @@ class UserList extends Component {
     }
 
     editCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-pencil pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-pencil pull-left btn customBtn" type="button"
                         onClick={() => this.props.editUser(row)}>
             </button>
         )
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-trash pull-left btn customBtn" type="button"
                         onClick={() => {
                             this.dialog.show({
                                 title: "Delete User",
@@ -51,14 +51,14 @@ class UserList extends Component {
 
     render() {
         return (
-            <div className="row">
-                <div className="col-md-10">
+            <div className="clearfix">
+                <div className="col-md-12">
                     <Dialog ref={(el) => {
                         this.dialog = el
                     }}/>
 
                     {this.props.loggedInUser.permissions.includes(CREATE_USER) &&
-                    <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showUserForm()}>
+                    <button className="btn customBtn btn-submit addBtn" style={{margin:'10px 0px'}} onClick={() => this.props.showUserForm()}>
                         Create
                         User
                     </button>

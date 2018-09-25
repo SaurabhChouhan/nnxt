@@ -13,31 +13,31 @@ class EmployeeSettingForm extends Component {
     render() {
         const {handleSubmit, pristine, submitting, _id} = this.props;
         return (
-            <form key="EmployeeSettingForm" onSubmit={this.props.handleSubmit}>
-                <div className="row">
-                    <div className="col-md-4">
+                <form key="EmployeeSettingForm" onSubmit={this.props.handleSubmit}>
+                    <div className="clearfix">
+                        <div className="col-md-4">
 
-                        <Field name="_id" component="input" type="hidden"/>
-                        <Field name="minPlannedHours" label="Min Planned Hours:" component={renderField}
-                               validate={[required, number]}/>
-                        <Field name="maxPlannedHours" label="Max Planned Hours:" component={renderField}
-                               validate={[required, number]}/>
-                        <Field name="free" label="Free:" component={renderField} validate={[required]}/>
-                        <Field name="relativelyFree" label="Relatively Free:" component={renderField}
-                               validate={[required, number]}/>
-                        <Field name="someWhatBusy" label="Somewhat Busy:" component={renderField}
-                               validate={[required, number]}/>
-                        <Field name="busy" label="Busy:" component={renderField} validate={[required, number]}/>
-                        <Field name="superBusy" label="Super Busy:" component={renderField}
-                               validate={[required, number]}/>
-                        <button type="submit"
-                                disabled={pristine || submitting}
-                                className="btn btn-submit">{(!this.props._id && "Create") || (this.props._id && "Update")}
-                        </button>
+                            <Field name="_id" component="input" type="hidden"/>
+                            <Field name="minPlannedHours" label="Min Planned Hours:" component={renderField}
+                                   validate={[required, number]}/>
+                            <Field name="maxPlannedHours" label="Max Planned Hours:" component={renderField}
+                                   validate={[required, number]}/>
+                            <Field name="free" label="Free:" component={renderField} validate={[required]}/>
+                            <Field name="relativelyFree" label="Relatively Free:" component={renderField}
+                                   validate={[required, number]}/>
+                            <Field name="someWhatBusy" label="Somewhat Busy:" component={renderField}
+                                   validate={[required, number]}/>
+                            <Field name="busy" label="Busy:" component={renderField} validate={[required, number]}/>
+                            <Field name="superBusy" label="Super Busy:" component={renderField}
+                                   validate={[required, number]}/>
+                            <button type="submit" style={{margin:'10px 0px'}}
+                                    disabled={pristine || submitting}
+                                    className="btn customBtn">{(!this.props._id && "Create") || (this.props._id && "Update")}
+                            </button>
 
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
         )
     }
 }

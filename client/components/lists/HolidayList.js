@@ -10,14 +10,14 @@ class HolidayList extends Component {
     }
 
     editCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-pencil pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-pencil pull-left btn customBtn" type="button"
                         onClick={() => this.props.editHoliday(row)}>
             </button>
         )
     }
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-trash pull-left btn customBtn" type="button"
                         onClick={() => {
                             this.props.deleteHoliday(row)
                         }}>
@@ -29,9 +29,9 @@ class HolidayList extends Component {
     render() {
         const {allYears, holidays} = this.props
         return (
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-10">
-                    <button className="btn btn-default btn-submit addBtn" onClick={() => this.props.showHolidayForm()}>
+                    <button className="btn btn-default customBtn addBtn" style={{margin:'10px 0px'}} onClick={() => this.props.showHolidayForm()}>
                         Create Holiday
                     </button>
                     <div className="tab">
