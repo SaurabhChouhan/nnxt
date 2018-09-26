@@ -10,7 +10,7 @@ class RoleList extends Component {
     }
 
     editCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-pencil pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-pencil pull-left btn customBtn" type="button"
                         onClick={() => this.props.editRole(row, rowIndex)}>
             </button>
         )
@@ -22,18 +22,18 @@ class RoleList extends Component {
 
 
     deleteCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-trash pull-left btn customBtn" type="button"
                         onClick={() => {
                             this.dialog.show({
                                 title: "Delete Role",
-                                body: "",
+                                body: "Are You Sure want to delete this role",
                                 actions: [
                                     Dialog.DefaultAction('Delete', () => {
                                         this.props.deleteRole(row._id)
-                                    }, 'btn-custom'),
+                                    }, 'customBtn'),
                                     Dialog.DefaultAction('Close', () => {
                                         this.dialog.hide()
-                                    }, 'btn-custom')
+                                    }, 'customBtn')
                                 ],
                                 bsSize: 'small',
                                 onHide: (dialog) => {
@@ -54,13 +54,13 @@ class RoleList extends Component {
 
     render() {
         return (
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-10">
                     <Dialog ref={(el) => {
                         this.dialog = el
                     }}/>
 
-                    <button className="btn btn-default btn-submit addBtn"
+                    <button className="btn customBtn addBtn" style={{margin:'10px 0px'}}
                             onClick={() => this.props.showRoleForm()}>
                         Add
                         Role

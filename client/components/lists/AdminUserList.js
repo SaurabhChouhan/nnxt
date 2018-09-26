@@ -62,7 +62,7 @@ class AdminUserList extends Component {
                 }}/>
 
                 {//(this.props.loggedInUser.isSuperAdmin) ?
-                    <button className="btn btn-default btn-submit" onClick={() => this.props.showAdminUserForm()}>Create
+                    <button className="btn customBtn btn-submit" style={{margin:'10px 0px'}} onClick={() => this.props.showAdminUserForm()}>Create
                         User</button>
                     //: <div style={{height: '10px'}}></div>
                 }

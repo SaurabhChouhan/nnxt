@@ -5,9 +5,10 @@ import {Link} from 'react-router-dom'
 class Header extends Component {
 
     render() {
-        return <nav key="headerNav" className="navbar navbar-default">
+        return <nav key="headerNav" className="admin navbar navbar-default">
             <div className="container">
-                <div className="navbar-header"><Link className="navbar-brand" to="/"></Link>
+                <div className="navbar-header">
+                    <div class="web_logo"><img src="/images/logo.png"></img></div>
                     <button type="button" className="navbar-toggle collapsed" data-toggle="collapse"
                             aria-expanded="false"><span
                         className="sr-only">Toggle navigation</span> <span className="icon-bar"></span> <span
@@ -15,7 +16,6 @@ class Header extends Component {
                 </div>
                 <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <div className="navbar-right">
-
                         {this.props.loggedInUser ?
                             <span className="pull-right user-icon">
                                 <div className="dropdown" key={'1'}>

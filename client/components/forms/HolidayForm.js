@@ -14,14 +14,14 @@ class HolidayForm extends Component {
     render() {
         const {handleSubmit, pristine, submitting, reset, _id} = this.props;
         return [
-            <div key="HolidayFormBackButton">
-                <button type="button"
+            <div key="HolidayFormBackButton" className="col-md-12">
+                <button className="glyphicon glyphicon-arrow-left btn customBtn" style={{margin: '10px 0px'}}
+                        type="button"
                         onClick={() => this.props.showHolidayList()}>
-                    <i className="glyphicon glyphicon-arrow-left"></i>
                 </button>
             </div>,
             <form key="HolidayForm" onSubmit={handleSubmit}>
-                <div className="row">
+                <div className="clearfix">
                     <div className="col-md-4">
 
                         <Field name="_id" component="input" type="hidden"/>
@@ -42,14 +42,18 @@ class HolidayForm extends Component {
                                label="Description:"/>
 
                         <div>
-                            <button type="submit"
-                                    className="btn btn-submit">
-                                {(!_id && "Add") || (_id && "Update")}
-                            </button>
-                            <button type="button"
-                                    disabled={pristine || submitting}
-                                    className="btn btn-submit" onClick={reset}>Reset
-                            </button>
+                            <div className="col-md-2 pad">
+                                <button type="submit" style={{margin: '10px 0px'}}
+                                        className="btn customBtn">
+                                    {(!_id && "Add") || (_id && "Update")}
+                                </button>
+                            </div>
+                            <div className="col-md-2 pad">
+                                <button type="button" style={{margin: '10px 0px'}}
+                                        disabled={pristine || submitting}
+                                        className="btn customBtn" onClick={reset}>Reset
+                                </button>
+                            </div>
                         </div>
 
                     </div>

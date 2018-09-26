@@ -14,7 +14,7 @@ class LeaveSettingForm extends Component {
         const {handleSubmit, pristine, submitting, _id} = this.props;
         return (
             <form key="LeaveSettingForm" onSubmit={this.props.handleSubmit}>
-                <div className="row">
+                <div className="clearfix">
                     <div className="col-md-4">
 
                         <Field name="_id" component="input" type="hidden"/>
@@ -28,9 +28,9 @@ class LeaveSettingForm extends Component {
                                validate={[required, number]}/>
                         <Field name="specialLeaves" label="Special Leaves:" component={renderField}
                                validate={[required, number]}/>
-                        <button type="submit"
+                        <button type="submit" style={{margin:'10px 0px'}}
                                 disabled={pristine || submitting}
-                                className="btn btn-submit">{(!this.props._id && "Create") || (this.props._id && "Update")}
+                                className="btn customBtn">{(!this.props._id && "Create") || (this.props._id && "Update")}
                         </button>
 
                     </div>

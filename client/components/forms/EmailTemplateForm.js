@@ -19,16 +19,15 @@ class EmailTemplateForm extends Component {
     render() {
         console.log("allEmailTemplatesTypes", this.props.allEmailTemplatesTypes)
         return [
-            <div key="UserFormBackButton">
-                <button type="button"
+            <div key="UserFormBackButton" className="col-md-12">
+                <button className="glyphicon glyphicon-arrow-left customBtn pull-left btn" type="button" style={{margin:'10px 0px'}}
                         onClick={() => this.props.showEmailTemplateList()}>
-                    <i className="glyphicon glyphicon-arrow-left"></i>
                 </button>
             </div>,
             <div className="col-md-5">
             <form key="EmailTemplateForm" onSubmit={this.props.handleSubmit}>
-                <div className="row">
-                    <div className="col-md-12">
+                <div className="clearfix">
+                    <div className="col-md-12 pad">
                         <Field name="_id" component="input" className="form-control" type="hidden"></Field>
                         <Field name="templateName" label="Name:" component={renderText} type="text"
                                validate={[required]} onkeyup={this.checkTemplateName(this.props.templateName)}/>
@@ -43,7 +42,7 @@ class EmailTemplateForm extends Component {
                         <Field name="templateBody" label="Body:" component={renderTextArea}
                                validate={[required]} rows={10}/>
 
-                                <button type="submit" className="btn btn-submit"> Save
+                                <button type="submit" style={{margin:'10px 0px'}} className="btn customBtn"> Save
                                 </button>
                     </div>
                 </div>
