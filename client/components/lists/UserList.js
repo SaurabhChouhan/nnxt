@@ -21,14 +21,14 @@ class UserList extends Component {
                         onClick={() => {
                             this.dialog.show({
                                 title: "Delete User",
-                                body: "",
+                                body: "Are You Sure want to delete this user",
                                 actions: [
                                     Dialog.DefaultAction('Delete', () => {
                                         this.props.deleteUser(row._id)
-                                    }, 'btn-custom'),
+                                    }, 'customBtn'),
                                     Dialog.DefaultAction('Close', () => {
                                         this.dialog.hide()
-                                    }, 'btn-custom')
+                                    }, 'customBtn')
                                 ],
                                 bsSize: 'small',
                                 onHide: (dialog) => {

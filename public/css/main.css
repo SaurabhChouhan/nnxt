@@ -2338,3 +2338,7 @@ div.notificationTable table tr[width="100%"] td {
     background: #303440;
     color: #fff;
 }
+
+.modal-footer .btn+.btn {
+    margin-bottom: 5px;
+}

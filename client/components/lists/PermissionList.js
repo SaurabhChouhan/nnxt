@@ -19,15 +19,15 @@ class PermissionList extends Component {
         return (<button className="glyphicon glyphicon-trash pull-left btn customBtn" type="button"
                         onClick={() => {
                             this.dialog.show({
-                                title: "Delete User",
-                                body: "",
+                                title: "Delete Permission",
+                                body: "Are You Sure want to delete this permission",
                                 actions: [
                                     Dialog.DefaultAction('Delete', () => {
                                         this.props.deleteUser(row._id)
-                                    }, 'btn-custom'),
+                                    }, 'customBtn'),
                                     Dialog.DefaultAction('Close', () => {
                                         this.dialog.hide()
-                                    }, 'btn-custom')
+                                    }, 'customBtn')
                                 ],
                                 bsSize: 'small',
                                 onHide: (dialog) => {
