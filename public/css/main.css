@@ -2342,3 +2342,22 @@ div.notificationTable table tr[width="100%"] td {
 .modal-footer .btn+.btn {
     margin-bottom: 5px;
 }
+
+.admin.navbar-default {
+    background-color: #303440;
+    border-color: #303440;
+    border-radius: 0;
+}
+
+.admin.navbar-default span.pull-right.user-icon {
+    color: #fff;
+    position: absolute;
+    top: 30%;
+}
+
+.admin .web_logo {
+    width: 85px;
+    text-align: center;
+    padding: 10px 0px;
+    float: left;
+}
