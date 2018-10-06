@@ -61,7 +61,7 @@ let CreateReleaseForm = (props) => {
                                    props.fetchProjects(CC.CLIENT_ARIPRA)
                                } else if (newValue == CC.RELEASE_TYPE_CLIENT) {
                                    // In this case we will just show client drop down and on selection of appropriate client we will show its project
-
+                                   change('client._id', null)
                                }
                            }}
                     />

@@ -454,6 +454,7 @@ export const ALL_NOTIFICATION_CATEGORIES = [
 export const RELEASE_TYPE_CLIENT = 'Client'
 export const RELEASE_TYPE_INTERNAL = 'Internal'
 export const RELEASE_TYPE_TRAINING = 'Training'
-export const RELEATE_TYPE_SESSIONS = 'Sessions'
-export const CLIENT_ARIPRA = 'Aripra'
+export const RELEASE_TYPE_JOBS = 'Jobs'
 
+export const RELEASE_TYPES = [RELEASE_TYPE_CLIENT, RELEASE_TYPE_INTERNAL, RELEASE_TYPE_JOBS, RELEASE_TYPE_TRAINING]
+export const CLIENT_ARIPRA = 'Aripra'
