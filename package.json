@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "startdev": "webpack-dev-server --mode development --open",
-    "start": "cross-env BABEL_ENV=server NODE_ENV=development nodemon --watch server ./server/server.js --exec babel-node",
+    "start": "concurrently \"cross-env BABEL_ENV=server NODE_ENV=development nodemon --watch server ./server/server.js --exec babel-node\" \"npm run client.dev.build\"",
     "start.demoData": "cross-env BABEL_ENV=server NODE_ENV=demoData nodemon --watch server --verbose ./server/server.js --exec babel-node",
     "start.setupData": "cross-env BABEL_ENV=server NODE_ENV=setupData nodemon --watch server --verbose ./server/server.js --exec babel-node",
     "start.prod": "cross-env BABEL_ENV=server NODE_ENV=production nodemon --watch server ./server/server.js --exec babel-node",
@@ -23,11 +23,12 @@
     "start.pogras": "cross-env BABEL_ENV=server NODE_ENV=pogras nodemon ./server/server.js --exec babel-node"
   },
   "dependencies": {
-    "aws-sdk": "^2.178.0",
     "@babel/polyfill": "^7.0.0",
+    "aws-sdk": "^2.178.0",
     "babel-preset-stage-2": "^6.24.1",
     "bcryptjs": "^2.4.3",
     "co": "^4.6.0",
+    "concurrently": "^4.0.1",
     "core-js": "^2.5.7",
     "html-react-parser": "^0.4.7",
     "import-lazy": "^3.1.0",

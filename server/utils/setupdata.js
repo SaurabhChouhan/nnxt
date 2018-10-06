@@ -9,8 +9,8 @@ import {addNNXTTemplates} from "./migrationscripts";
 
 
 export const runSetupInstructions = async () => {
-    //await addInitialData()
-    //await addNNXTData()
+    await addInitialData()
+    await addNNXTData()
     await addNNXTTemplates()
 }
 
@@ -642,7 +642,7 @@ const addLeaveTypes = async () => {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Casual leave (CL)',
             description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calendar year.\n' +
-                'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
+            'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
         })
     }
     let les = await MDL.LeaveTypeModel.findOne({name: 'Leave for Emergency Services (LES)'})
@@ -664,8 +664,8 @@ const addLeaveTypes = async () => {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Annual Leave (AL)',
             description: 'Employees in full-time positions of a continuing or permanent nature shall be entitled to accumulate annual leave as follows:\n' +
-                '\n' +
-                'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
+            '\n' +
+            'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
         })
     }
 }
@@ -967,16 +967,23 @@ const addUnreportedWarningEvent = async () => {
     })
 }
 
+const convertToStringID = (obj) => {
+    return Object.assign({}, obj, {
+        _id: obj._id.toString()
+    })
+
+}
+
 const addReleases = async () => {
 
     console.log("SETTING UP RELEASES ...")
 
-    let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'})
-    let careersIRLProject = await MDL.ProjectModel.findOne({name: 'Careers IRL'})
-    let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'})
+    let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'}).lean()
+    let careersIRLProject = await MDL.ProjectModel.findOne({name: 'Careers IRL'}).lean()
+    let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'}).lean()
     let nodeWeb = await MDL.DevelopmentModel.findOne({
         name: 'Node Web Development'
-    })
+    }).lean()
 
     let saurabh = await MDL.UserModel.findOne({email: 'schouhan@aripratech.com'}).lean()
     let ratnesh = await MDL.UserModel.findOne({email: 'rjain@aripratech.com'}).lean()
@@ -1001,23 +1008,28 @@ const addReleases = async () => {
     now.add(2, 'days')
     let clientRelease = now.format(SC.DATE_FORMAT)
 
+    console.log("technologies node tech ", convertToStringID(nodeTech))
+
     let releaseData = {
         releaseVersionName: '1st Phase',
-        developmentType: nodeWeb,
+        developmentType: convertToStringID(nodeWeb),
         project: fflProject,
-        technologies: [nodeTech],
+        technologies: [convertToStringID(nodeTech)],
         devStartDate: devStart,
         devReleaseDate: devEnd,
+        technologies: [convertToStringID(nodeTech)],
         clientReleaseDate: clientRelease,
-        manager: saurabh,
-        leader: anup,
+        releaseType: SC.RELEASE_TYPE_CLIENT,
+        manager: convertToStringID(saurabh),
+        leader: convertToStringID(anup),
         team: [
-            saurabh, huzefa
+            convertToStringID(saurabh), convertToStringID(huzefa)
         ]
     }
 
-    let fflRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+
     try {
+        let fflRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
         await addPlannedReleasePlansFFL(fflRelease, saurabh, [saurabh, huzefa])
     } catch (e) {
         console.log("error caught ", e)
@@ -1036,20 +1048,25 @@ const addReleases = async () => {
 
     releaseData = {
         releaseVersionName: '1st Phase',
-        developmentType: nodeWeb,
+        developmentType: convertToStringID(nodeWeb),
         project: careersIRLProject,
-        technologies: [nodeTech],
+        technologies: [convertToStringID(nodeTech)],
         devStartDate: devStart,
         devReleaseDate: devEnd,
         clientReleaseDate: clientRelease,
-        manager: saurabh,
-        leader: ratnesh,
+        releaseType: SC.RELEASE_TYPE_CLIENT,
+        manager: convertToStringID(saurabh),
+        leader: convertToStringID(ratnesh),
         team: [
-            anup, huzefa, bhuvan
+            convertToStringID(anup), convertToStringID(huzefa), convertToStringID(bhuvan)
         ]
     }
-    let careersIRLRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
-    await addPlannedReleasePlansCareers(careersIRLRelease, saurabh, [anup, bhuvan, huzefa])
+    try {
+        let careersIRLRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+        await addPlannedReleasePlansCareers(careersIRLRelease, saurabh, [anup, bhuvan, huzefa])
+    } catch (e) {
+        console.log("error caught ", e)
+    }
 }
 
 const addPlannedReleasePlansFFL = async (release, creator, team) => {

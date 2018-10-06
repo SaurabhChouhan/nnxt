@@ -311,11 +311,13 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
     let project;
 
 
-    if(releaseData.releaseType == SC.RELEASE_TYPE_INTERNAL){
+    if (releaseData.releaseType == SC.RELEASE_TYPE_INTERNAL) {
         // this project would be part of Aripra client
-        let client = await MDL.ClientModel.findOne({name:SC.CLIENT_ARIPRA})
-        if(client){
+        let client = await MDL.ClientModel.findOne({name: SC.CLIENT_ARIPRA})
+        if (client) {
             release.client = client
+        } else {
+            throw new AppError('Client [' + SC.CLIENT_ARIPRA + '] not found, please add for release of types [' + SC.RELEASE_TYPE_INTERNAL + ']', EC.DATA_INCONSISTENT)
         }
     }
 
