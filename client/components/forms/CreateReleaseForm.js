@@ -80,7 +80,7 @@ let CreateReleaseForm = (props) => {
                 }
             </div>
 
-            {showRemainingForm && (releaseType == CC.RELEASE_TYPE_CLIENT || releaseType == CC.RELEASE_TYPE_INTERNAL || releaseType == CC.RELEASE_TYPE_TRAINING) &&
+            {showRemainingForm &&
             <div className="col-md-12">
                 <div className="col-md-6">
                     <Field name="releaseVersionName" component={renderText} validate={[required]}

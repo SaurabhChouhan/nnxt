@@ -11,6 +11,8 @@ let projectSchema = mongoose.Schema({
     name: {
         type: String, required: [true, 'Project name is required']
     },
+    code: {type: String, required: [true, 'Code is required']},
+    codeCounter: {type: Number, default: 0},
     client: {
         _id: mongoose.Schema.ObjectId,
         name: String
@@ -90,6 +92,11 @@ projectSchema.statics.saveProject = async projectInput => {
     let client = await MDL.ClientModel.findById(projectInput.client._id)
     if (!client)
         throw new AppError("No such client", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let count = await MDL.ProjectModel.count({code: projectInput.code})
+
+    if (count > 0)
+        throw AppError('Code [' + projectInput.code + '] already taken');
 
     projectInput.client = client
     return await ProjectModel.create(projectInput)

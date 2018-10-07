@@ -6,9 +6,9 @@ export const DEV_ENV = 'development'
 export const ALL = 'all'
 export const NONE = 'none'
 
-export const PROJECT_ARIPRA_TRAINING = 'Aripra Internal'
-export const PROJECT_ARIPRA_PROJECTS = 'Aripra Projects'
-export const PROJECT_ARIPRA_JOBS = 'Aripra Jobs'
+export const PROJECT_ARIPRA_TRAINING = 'Aripra Training'
+export const PROJECT_ARIPRA_BIDDING = 'Aripra Bidding'
+
 
 // User Role
 export const ROLE_ADMIN = 'Admin'
@@ -458,3 +458,4 @@ export const RELEASE_TYPE_JOBS = 'Jobs'
 
 export const RELEASE_TYPES = [RELEASE_TYPE_CLIENT, RELEASE_TYPE_INTERNAL, RELEASE_TYPE_JOBS, RELEASE_TYPE_TRAINING]
 export const CLIENT_ARIPRA = 'Aripra'
+

@@ -12,6 +12,7 @@ export const runSetupInstructions = async () => {
     await addInitialData()
     await addNNXTData()
     await addNNXTTemplates()
+    await addAripraProjects()
 }
 
 export const addInitialData = async () => {
@@ -487,21 +488,6 @@ const addNNXTUsers = async () => {
         })
     }
 
-    /*
-    if (!await MDL.UserModel.exists('contactus@aripratech.com')) {
-        await MDL.UserModel.createUser({
-            email: 'contactus@aripratech.com',
-            firstName: "Saurabh",
-            lastName: "Chouhan",
-            roles: [topManagementRoles],
-            password: "password",
-            employeeCode: 'emp-002',
-            designation: SC.DESIGNATION_OWNER,
-            dateJoined: '01-01-2012'
-        })
-    }
-    */
-
     if (!await MDL.UserModel.exists('apogra@gmail.com')) {
         await MDL.UserModel.createUser({
             email: 'apogra@gmail.com',
@@ -571,7 +557,8 @@ const addProjects = async () => {
         if (!await MDL.ProjectModel.exists('FFL', carl._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'FFL',
-                client: carl
+                client: carl,
+                code: 'FFL'
             })
         }
     }
@@ -582,14 +569,16 @@ const addProjects = async () => {
         if (!await MDL.ProjectModel.exists('Careers IRL', randy._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'Careers IRL',
-                client: randy
+                client: randy,
+                code: 'CIRL'
             })
         }
 
         if (!await MDL.ProjectModel.exists('Careerify', randy._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'Careerify',
-                client: randy
+                client: randy,
+                code: 'CRFY'
             })
         }
     }
@@ -600,7 +589,8 @@ const addProjects = async () => {
         if (!await MDL.ProjectModel.exists('Synapse', erich._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'Synapse',
-                client: erich
+                client: erich,
+                code: 'SYNP'
             })
         }
     }
@@ -1279,4 +1269,31 @@ const addDayTask = async (releasePlan, employee, planningDate, plannedHours, rep
         }
         await MDL.TaskPlanningModel.addTaskReport(reportDayTask, employee, SC.MODE_DEVELOPMENT)
     }
+}
+
+const addAripraProjects = async () => {
+
+    console.log("SETTING UP PROJECTS ...")
+    let aripra = await MDL.ClientModel.findOne({name: SC.CLIENT_ARIPRA})
+
+    if (aripra) {
+        if (!await MDL.ProjectModel.exists(SC.PROJECT_ARIPRA_TRAINING, aripra._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: SC.PROJECT_ARIPRA_TRAINING,
+                client: aripra,
+                code: 'ARPTRN'
+            })
+        }
+    }
+
+    if (aripra) {
+        if (!await MDL.ProjectModel.exists(SC.PROJECT_ARIPRA_BIDDING, aripra._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: SC.PROJECT_ARIPRA_BIDDING,
+                client: aripra,
+                code: 'ARPBID'
+            })
+        }
+    }
+
 }
