@@ -24,7 +24,12 @@ let CreateReleaseForm = (props) => {
         let selectedModule = modules.find(m => m._id.toString() === module._id.toString())
         moduleProjects = projects.filter(p => p._id.toString() === selectedModule.project._id.toString())
     } else {
-        moduleProjects = projects
+        if (releaseType == CC.RELEASE_TYPE_INTERNAL) {
+            // if this is an internal reelease (aripra release), we would not show training and bidding projects
+            moduleProjects = projects ? projects.filter(p => p.name != CC.PROJECT_ARIPRA_BIDDING && p.name != CC.PROJECT_ARIPRA_TRAINING) : []
+        } else {
+            moduleProjects = projects
+        }
     }
 
     /*

@@ -55,6 +55,8 @@ const mapStateToProps = (state) => {
 
     }
 
+
+
     return {
         team,
         managers,

@@ -1,4 +1,4 @@
-import {required} from "./validation"
+import {required, projectCodeMin, projectCodeMax} from "./validation"
 import {renderSelect, renderText} from "./fields"
 import {Field, reduxForm} from 'redux-form'
 import React from 'react'
@@ -15,6 +15,13 @@ let ProjectForm = (props) => {
                 <div className="col-md-6">
                     <Field name="client._id" component={renderSelect} label={"Client :"} options={clients}
                            validate={[required]}/>
+                </div>
+            </div>
+
+            <div className="col-md-12">
+                <div className="col-md-6">
+                    <Field name="code" placeholder={"Project Code (Unique)"} component={renderText}
+                           label={"Project Code:"} validate={[required, projectCodeMin, projectCodeMax]}/>
                 </div>
             </div>
 

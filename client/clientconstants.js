@@ -39,6 +39,10 @@ export const RELEASE_TYPE_INTERNAL = 'Internal'
 export const RELEASE_TYPE_TRAINING = 'Training'
 export const RELEASE_TYPE_JOBS = 'Jobs'
 
+export const PROJECT_ARIPRA_TRAINING = 'Aripra Training'
+export const PROJECT_ARIPRA_BIDDING = 'Aripra Bidding'
+
+
 export const RELEASE_TYPES = [
     {
         _id: RELEASE_TYPE_CLIENT,

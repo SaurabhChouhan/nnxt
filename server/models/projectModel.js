@@ -96,7 +96,7 @@ projectSchema.statics.saveProject = async projectInput => {
     let count = await MDL.ProjectModel.count({code: projectInput.code})
 
     if (count > 0)
-        throw AppError('Code [' + projectInput.code + '] already taken');
+        throw new AppError('Code [' + projectInput.code + '] already taken');
 
     projectInput.client = client
     return await ProjectModel.create(projectInput)
