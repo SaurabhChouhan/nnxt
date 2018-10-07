@@ -11,6 +11,7 @@ import {addNNXTTemplates} from "./migrationscripts";
 export const runSetupInstructions = async () => {
     await addInitialData()
     await addNNXTData()
+    //await addSampleData()
     await addNNXTTemplates()
     await addAripraProjects()
 }
@@ -223,7 +224,7 @@ export const addNNXTData = async () => {
     await addEmployeeSettings()
     await addLeaveSettings()
     await addEvents()
-    await addReleases()
+
 
 }
 
@@ -964,7 +965,7 @@ const convertToStringID = (obj) => {
 
 }
 
-const addReleases = async () => {
+const addSampleData = async () => {
 
     console.log("SETTING UP RELEASES ...")
 

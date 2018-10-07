@@ -24,9 +24,15 @@ let employeeDaysSchema = mongoose.Schema({
     date: {type: Date, default: Date.now()},
     dateString: String,
     plannedHours: {type: Number, default: 0},
-    reportedHours: {type: Number, default: 0}
+    reportedHours: {type: Number, default: 0},
+    releaseTypes: [{
+        releaseType: {type: String, enum: SC.RELEASE_TYPES},
+        plannedHours: {type: Number, default: 0},
+        reportedHours: {type: Number, default: 0}
+    }]
+}, {
+    usePushEach: true
 })
-
 
 employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) => {
     V.validate(EmployeeDaysInput, V.employeeAddEmployeeDaysStruct)
@@ -41,39 +47,6 @@ employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) =>
         throw new AppError('Employee days detail is already available on this date ' + EmployeeDaysInput.date + ' with employee ' + EmployeeDaysInput.employee.name + 'can not create another', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
     return await EmployeeDaysModel.create(EmployeeDaysInput)
-}
-
-employeeDaysSchema.statics.increasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput) => {
-    V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
-    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
-    EmployeeDaysInput.date = momentEmployeeDate.toDate()
-    let count = await EmployeeDaysModel.count({"date": EmployeeDaysInput.date})
-    if (count <= 0) {
-        throw new AppError('Employee days detail is not available on this date ' + EmployeeDaysInput.date + 'with employee ' + EmployeeDaysInput.employee.name + ' can not update ', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-    }
-    return await EmployeeDaysModel.update({
-        "date": EmployeeDaysInput.date,
-        "employee._id": mongoose.Types.ObjectId(EmployeeDaysInput.employee._id)
-    }, {
-        $inc: {"plannedHours": EmployeeDaysInput.plannedHours}
-    })
-}
-
-employeeDaysSchema.statics.decreasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput, user) => {
-    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
-    EmployeeDaysInput.date = momentEmployeeDate
-
-    V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
-    let count = await EmployeeDaysModel.count({"date": EmployeeDaysInput.date})
-    if (count <= 0) {
-        throw new AppError('Employee days detail is not available on this date ' + EmployeeDaysInput.date + 'with employee ' + EmployeeDaysInput.employee.name + ' can not update ', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-    }
-    return await EmployeeDaysModel.update({
-        "date": EmployeeDaysInput.date,
-        "employee._id": mongoose.Types.ObjectId(EmployeeDaysInput.employee._id)
-    }, {
-        $inc: {"plannedHours": -EmployeeDaysInput.plannedHours}
-    })
 }
 
 employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
@@ -328,14 +301,6 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
         }
     }
 }
-
-/**
- * This method would update employee days of all the employees to add reported hours against them
- */
-employeeDaysSchema.statics.updateEmployeeDays = async () => {
-
-}
-
 
 const EmployeeDaysModel = mongoose.model("EmployeeDay", employeeDaysSchema)
 export default EmployeeDaysModel

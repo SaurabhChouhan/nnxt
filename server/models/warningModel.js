@@ -333,16 +333,13 @@ const updateMoreReportedHours = async (releasePlan, release) => {
     if (moreReportedWarnings) {
         // warningResponse.removed.push(releasePlanWarnings)
         if (addedType) {
-            console.log("Need to update  warning as it is  available in warning model");
             moreReportedWarnings.type = addedType
             await moreReportedWarnings.save()
         } else {
             // Need to remove warning as reported hour updated (reportedHour<estimatedHour)
-            console.log("Need to remove warning as reported hour updated (reportedHour<estimatedHour)");
             await await WarningModel.findByIdAndRemove(mongoose.Types.ObjectId(moreReportedWarnings._id))
         }
     } else {
-        console.log("Need to add new warning as it is not available in warning model");
         let moreHoursWarning = new WarningModel()
         if (addedType) {
             moreHoursWarning.type = addedType

@@ -771,7 +771,7 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlanningDates) => {
 
 /*-------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_END---------------------------------------------------------------*/
 
-const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, momentPlanningDate) => {
+const addTaskPlanUpdateEmployeeDays = async (release, employee, plannedHourNumber, momentPlanningDate) => {
 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
@@ -784,6 +784,7 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
     if (!employeeDay) {
         employeeDay = new MDL.EmployeeDaysModel()
         employeeDay.plannedHours = plannedHourNumber
+        employeeDay.releaseTypes = [{releaseType: release.releaseType, plannedHours: plannedHourNumber}]
         employeeDay.employee = {
             _id: employee._id,
             name: U.getFullName(employee)
@@ -792,6 +793,15 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
         employeeDay.date = U.momentInUTC(employeeDay.dateString)
     } else {
         employeeDay.plannedHours += plannedHourNumber
+        let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        if (typeIdx > -1) {
+            employeeDay.releaseTypes[typeIdx].plannedHours += plannedHourNumber
+        } else {
+            employeeDay.releaseTypes.push({
+                releaseType: release.releaseType,
+                plannedHours: plannedHourNumber
+            })
+        }
     }
 
     return await employeeDay.save()
@@ -1177,7 +1187,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     }
 
     /*-------------------------------- EMPLOYEE DAYS UPDATE SECTION -------------------------------------------*/
-    await addTaskPlanUpdateEmployeeDays(selectedEmployee, plannedHourNumber, momentPlanningDate)
+    await addTaskPlanUpdateEmployeeDays(release, selectedEmployee, plannedHourNumber, momentPlanningDate)
 
     /*-------------------------------- EMPLOYEE RELEASE UPDATE SECTION -------------------------------------------*/
     let employeeRelease = await addTaskPlanUpdateEmployeeRelease(releasePlan, release, selectedEmployee, {
@@ -1224,9 +1234,14 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     await release.save()
     await releasePlan.save()
     await taskPlan.save()
+
+
+    /*
     sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
         // do nothing
     })
+    */
+
     return {
         taskPlan,
         warnings: generatedWarnings,
