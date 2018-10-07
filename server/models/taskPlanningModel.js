@@ -1291,7 +1291,7 @@ const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePla
 }
 
 
-const deleteTaskUpdateEmployeeDays = async (taskPlan, employee, plannedHourNumber, user) => {
+const deleteTaskUpdateEmployeeDays = async (release, taskPlan, employee, plannedHourNumber, user) => {
 
     let employeeDay = await MDL.EmployeeDaysModel.findOne({
         'employee._id': employee._id.toString(),
@@ -1302,6 +1302,15 @@ const deleteTaskUpdateEmployeeDays = async (taskPlan, employee, plannedHourNumbe
         throw new AppError('We should have found employee day', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
     employeeDay.plannedHours -= plannedHourNumber
+
+    // update release types stats as well
+    let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+    if (typeIdx > -1) {
+        employeeDay.releaseTypes[typeIdx].plannedHours -= plannedHourNumber
+    } else {
+        throw new AppError('Employee days: we should have found entry of release type [' + release.releaseType + ']', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
     return employeeDay
 
 }
@@ -1575,7 +1584,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
     let employeeReleaseLeaderManager = await deleteTaskUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, user)
 
     /*------------------------------ EMPLOYEE DAYS UPDATES --------------------------------------------*/
-    let employeeDay = await deleteTaskUpdateEmployeeDays(taskPlan, employee, plannedHourNumber, user)
+    let employeeDay = await deleteTaskUpdateEmployeeDays(release, taskPlan, employee, plannedHourNumber, user)
 
     /*------------------------------- RELEASE PLAN UPDATES ------------------------------------------------------*/
     releasePlan = await deleteTaskUpdateReleasePlan(taskPlan, releasePlan, employee, plannedHourNumber)
