@@ -64,6 +64,20 @@ class NotificationsPage extends Component {
                 <Dialog ref={(el) => {
                     this.dialog = el
                 }}/>
+            <h4><b>Today's Notifications:</b> <span className="validation-error"> {this.props.todayAllNotifications}</span></h4>
+        <BootstrapTable className={"notificationTable"} data={this.props.allNotifications}
+                        expandableRow={this.isExpandableRow}
+                        expandComponent={this.expandComponent}
+                        expandColumnOptions={{expandColumnVisible: true}}>
+            <TableHeaderColumn hidden={true} dataField='_id' isKey={true}>Subject</TableHeaderColumn>
+            <TableHeaderColumn width="15%" dataField='type'>Type</TableHeaderColumn>
+            <TableHeaderColumn width="70%" height="50px" dataField='message'
+                               dataFormat={this.notificationTextFormated.bind(this)}>Email Text</TableHeaderColumn>
+            <TableHeaderColumn width="15%" dataField='activeOn'
+                               dataFormat={this.dateFormated.bind(this)}>Date</TableHeaderColumn>
+
+        </BootstrapTable>
+            {/*
                 <div className="activitySectionsWrapper">
                     <div className="col-md-12 pad">
                         <div className="col-md-7 pad">
@@ -219,19 +233,7 @@ class NotificationsPage extends Component {
                         </div>
                     </div>
                 </div>
-            <h4><b>Today's Notifications:</b> <span className="validation-error"> {this.props.todayAllNotifications}</span></h4>
-        <BootstrapTable className={"notificationTable"} data={this.props.allNotifications}
-                        expandableRow={this.isExpandableRow}
-                        expandComponent={this.expandComponent}
-                        expandColumnOptions={{expandColumnVisible: true}}>
-            <TableHeaderColumn hidden={true} dataField='_id' isKey={true}>Subject</TableHeaderColumn>
-            <TableHeaderColumn width="15%" dataField='type'>Type</TableHeaderColumn>
-            <TableHeaderColumn width="70%" height="50px" dataField='message'
-                               dataFormat={this.notificationTextFormated.bind(this)}>Email Text</TableHeaderColumn>
-            <TableHeaderColumn width="15%" dataField='activeOn'
-                               dataFormat={this.dateFormated.bind(this)}>Date</TableHeaderColumn>
-
-        </BootstrapTable>
+            */}
     </div>)
 
     }
