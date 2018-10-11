@@ -2198,11 +2198,14 @@ hr {
 
 .react-bs-table .table-bordered > thead > tr:first-child > th {
     text-align: center !important;
+    width:100%;
 }
 
 .react-bs-table-bordered {
-    margin-bottom: 15px;
-    border: none;
+    margin-bottom: 3%;
+    border: 1px solid #ccc;
+    height: inherit !important;
+    width: 101%;
 }
 
 .reporting {
