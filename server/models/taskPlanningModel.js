@@ -1615,7 +1615,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
 
 /*-------------------------------------------------MOVE TASK PLAN----------------------------------------------------------*/
 
-const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
+const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, release, extra) => {
 
     const {rePlanningDateUtc, selectedEmployee, plannedHourNumber} = extra
 
@@ -1631,15 +1631,26 @@ const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
         'date': rePlanningDateUtc
     })
 
+
     if (existingDateEmployeeDays) {
         // Total hours would be reduced
         existingDateEmployeeDays.plannedHours -= plannedHourNumber
+        let typeIdx = existingDateEmployeeDays.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        if (typeIdx > -1) {
+            existingDateEmployeeDays.releaseTypes[typeIdx].plannedHours -= plannedHourNumber
+        } else {
+            throw new AppError('There should be an entry in employee days for release type [' + release.releaseType + '] ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+        }
     } else {
         throw new AppError('There should be an employee days entry for task that is merged', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
     if (rePlannedDateEmployeeDays) {
         rePlannedDateEmployeeDays.plannedHours += plannedHourNumber
+        let typeIdx = rePlannedDateEmployeeDays.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        if (typeIdx > -1) {
+            rePlannedDateEmployeeDays.releaseTypes[typeIdx].plannedHours += plannedHourNumber
+        }
     } else {
         // create employee days as not exists
         rePlannedDateEmployeeDays = new MDL.EmployeeDaysModel()
@@ -1647,6 +1658,10 @@ const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
         rePlannedDateEmployeeDays.dateString = U.formatDateInUTC(rePlanningDateUtc)
         rePlannedDateEmployeeDays.employee = taskPlan.employee
         rePlannedDateEmployeeDays.plannedHours = plannedHourNumber
+        rePlannedDateEmployeeDays.releaseTypes = [{
+            releaseType: release.releaseType,
+            plannedHours: plannedHourNumber
+        }]
     }
     return {existingDateEmployeeDays, rePlannedDateEmployeeDays}
 }
@@ -2006,7 +2021,7 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     /******************************** EMPLOYEE DAYS UPDATE **************************************************/
 
 
-    let {existingDateEmployeeDays, rePlannedDateEmployeeDays} = await moveTaskUpdateEmployeeDays(taskPlan, releasePlan, {
+    let {existingDateEmployeeDays, rePlannedDateEmployeeDays} = await moveTaskUpdateEmployeeDays(taskPlan, releasePlan, release, {
         rePlanningDateUtc,
         selectedEmployee,
         plannedHourNumber
