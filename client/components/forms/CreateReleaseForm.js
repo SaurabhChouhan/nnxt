@@ -136,14 +136,19 @@ let CreateReleaseForm = (props) => {
                            min={now}
                            max={max}
                            showTime={false}
-                           label={"Start Date:"} validate={[required]}/>
+                           label={"Start Date:"} 
+                           validate={[required]}
+                           dropUp={true}
+                           />
                 </div>
                 <div className="col-md-4">
                     <Field name="devReleaseDate" component={renderDateTimePickerString}
                            min={moment(devStartDate).toDate()}
                            max={maxRelease}
                            showTime={false}
-                           label={"End Date:"} validate={[required]}/>
+                           label={"End Date:"} validate={[required]}
+                           dropUp={true}
+                           />
                 </div>
 
                 <div className="col-md-4">
@@ -151,7 +156,9 @@ let CreateReleaseForm = (props) => {
                            min={moment(devReleaseDate).toDate()}
                            showTime={false}
                            label={"Release Date:"}
-                           validate={required}/>
+                           validate={required}
+                           dropUp={true}
+                           />
                 </div>
             </div>
             }

@@ -39,7 +39,8 @@ let taskPlanningSchema = mongoose.Schema({
         }
     },
     release: {
-        _id: mongoose.Schema.ObjectId
+        _id: mongoose.Schema.ObjectId,
+        releaseType: {type: String, enum: SC.RELEASE_TYPES}
     },
     releasePlan: {
         _id: mongoose.Schema.ObjectId,
@@ -2135,17 +2136,22 @@ const shiftTasksUpdateEmployeeDays = async (affectedMoments, employee) => {
                 employee: 1,
                 planning: {
                     plannedHours: 1
-                }
+                },
+                release: 1
             }
         }, {
             $group: {
-                _id: null, // Grouping all records
+                _id: "$release.releaseType", // Grouping all records
                 plannedHours: {$sum: '$planning.plannedHours'}
             }
         }])
 
+        logger.debug("daySums: ", {daySums})
+
         if (daySums.length) {
-            let daySum = daySums[0]
+            let totalPlannedHours = daySums.reduce((s, ds)=> s + ds.plannedHours, 0)    
+            logger.debug("total planned hours ", {totalPlannedHours})
+
             let ed = await MDL.EmployeeDaysModel.findOne({
                 date: dayMoment.toDate(),
                 'employee._id': employee._id
@@ -2160,13 +2166,28 @@ const shiftTasksUpdateEmployeeDays = async (affectedMoments, employee) => {
                     _id: employee._id,
                     name: U.getFullName(employee)
                 }
-                employeeDays.plannedHours = daySum.plannedHours
+                employeeDays.plannedHours = totalPlannedHours
+                employeeDays.releaseTypes = []
+                daySums.forEach(ds=>{
+                    employeeDays.releaseTypes.push({
+                        releaseType: ds._id,
+                        plannedHours: ds.plannedHours
+                    })
+                })
+                
                 await employeeDays.save()
                 result.push(employeeDays)
 
             } else {
-                //logger.debug('Employee days found for [' + U.formatDateInUTC(dayMoment) + ',' + employee._id + '], updating... employee days ', {ed})
-                ed.plannedHours = daySum.plannedHours
+                ed.plannedHours = totalPlannedHours
+                ed.releaseTypes = []
+                daySums.forEach(ds=>{
+                    ed.releaseTypes.push({
+                        releaseType: ds._id,
+                        plannedHours: ds.plannedHours
+                    })
+                })
+
                 await ed.save()
                 result.push(ed)
             }
@@ -2412,7 +2433,7 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
     })
 
     if (count == 0)
-        throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Cannot start shifting from date where there are no tasks of chosen release!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     // See if there are any reported tasks from this planning date, if yes shifting couldn't occur
 

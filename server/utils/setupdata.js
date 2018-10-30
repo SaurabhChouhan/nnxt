@@ -14,6 +14,8 @@ export const runSetupInstructions = async () => {
     //await addSampleData()
     await addNNXTTemplates()
     await addAripraProjects()
+    await addDevelopmentTypes()
+    await addAripraProjects()
 }
 
 export const addInitialData = async () => {
@@ -768,6 +770,18 @@ const addDevelopmentTypes = async () => {
     if (!await MDL.DevelopmentModel.exists('React Native Development')) {
         await MDL.DevelopmentModel.saveDevelopmentType({
             name: 'React Native Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('PHP Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'PHP Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('Bigdata Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'Bigdata Development'
         })
     }
 }
