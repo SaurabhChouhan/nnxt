@@ -14,9 +14,14 @@ export const runSetupInstructions = async () => {
     //await addSampleData()
     //await addNNXTTemplates()
     //await addAripraProjects()
+    
+    
     await addDevelopmentTypes()
+    await addMoreTechnologies()
     await addAripraProjects()
     await addCodeToExistingProjects()
+    await addReleaseTypeToExistingReleases()
+    await deleteUnusedProjects()
 }
 
 export const addInitialData = async () => {
@@ -780,9 +785,9 @@ const addDevelopmentTypes = async () => {
         })
     }
 
-    if (!await MDL.DevelopmentModel.exists('Bigdata Development')) {
+    if (!await MDL.DevelopmentModel.exists('Python Development')) {
         await MDL.DevelopmentModel.saveDevelopmentType({
-            name: 'Bigdata Development'
+            name: 'Python Development'
         })
     }
 }
@@ -1314,6 +1319,8 @@ const addAripraProjects = async () => {
 
 }
 
+
+
 const addCodeToExistingProjects = async() => {
 
     console.log('ADDING CODE TO EXISTING PROJECTS ...')
@@ -1443,10 +1450,119 @@ const addCodeToExistingProjects = async() => {
         prj.code = 'WFPIOS'
         await prj.save()
     }
+}
 
 
+const addMoreTechnologies = async() => {
+    console.log("SETTING UP MORE TECHNOLOGIES ...")
 
+    if (!await MDL.TechnologyModel.exists('Python')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Python'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('PHP')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'PHP'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('AngularJS')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'AngularJS'
+        })
+    }
+
+}
+
+const deleteUnusedProjects = async () => {
+    let estimations = await MDL.EstimationModel.find({'client.name': 'Larry'})
+
+    for(const estimation of estimations){
+        await estimation.remove()
+    }
+
+    let project = await MDL.ProjectModel.findOne({'client.name':'Larry'})
+
+    if(project)
+       await project.remove()
+
+    let client = await MDL.ClientModel.findOne({'name': 'Larry'})
+
+    if(client)
+       await client.remove()
+
+}
+
+const processReleasesUpdateReleaseType = async(releases) => {
+
+}
+
+const addReleaseTypeToExistingReleases = async() => { 
+    let clientProjects = await MDL.ProjectModel.find({'client.name': {$ne:SC.CLIENT_ARIPRA}})
+
+    if(clientProjects){
+        for(const project of clientProjects){
+            let releases = await MDL.ReleaseModel.find({'project._id':project._id})
+            for(const release of releases){
+                release.releaseType = SC.RELEASE_TYPE_CLIENT
+                release.client = project.client
+                await release.save()
+            }
+        }
+    }
+
+    let aripra = await MDL.ClientModel.findOne({name:SC.CLIENT_ARIPRA})
     
+    let release = await MDL.ReleaseModel.findById('5b8cd46f7f409364023e0b9f')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
 
+    release = await MDL.ReleaseModel.findById('5b8d38807f409364023e0c17')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
 
+    release = await MDL.ReleaseModel.findById('5b8e298ad861b77307e56afc')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5ba1e95399278b77a1ec3693')
+    release.releaseType = SC.RELEASE_TYPE_TRAINING
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5b8fc8845c7ffc0348eb9353')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5ba9d4fb84094e643a0ade44')
+    release.releaseType = SC.RELEASE_TYPE_TRAINING
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5baa31c284094e643a0ade9f')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5bcebd0f84094e643a0ae5e6')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5b979fdf4910d27ffbcef5a5')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5ba996de84094e643a0ade2c')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
+    
 }

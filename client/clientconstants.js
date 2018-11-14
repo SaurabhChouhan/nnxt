@@ -58,7 +58,7 @@ export const RELEASE_TYPES = [
     },
     {
         _id: RELEASE_TYPE_JOBS,
-        name: "Bidding & Estimations"
+        name: "Bidding, Estimations & Management"
 
     }
 ]
