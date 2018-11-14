@@ -9,13 +9,14 @@ import {addNNXTTemplates} from "./migrationscripts";
 
 
 export const runSetupInstructions = async () => {
-    await addInitialData()
-    await addNNXTData()
+    //await addInitialData()
+    //await addNNXTData()
     //await addSampleData()
-    await addNNXTTemplates()
-    await addAripraProjects()
+    //await addNNXTTemplates()
+    //await addAripraProjects()
     await addDevelopmentTypes()
     await addAripraProjects()
+    await addCodeToExistingProjects()
 }
 
 export const addInitialData = async () => {
@@ -1310,5 +1311,142 @@ const addAripraProjects = async () => {
             })
         }
     }
+
+}
+
+const addCodeToExistingProjects = async() => {
+
+    console.log('ADDING CODE TO EXISTING PROJECTS ...')
+
+    let prj = await MDL.ProjectModel.findOne({name:'Iconoland', 'client.name': 'Brian'})
+    if(prj){
+        prj.code = 'ICONO'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'NNXT', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'NNXT'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'dslrBooth', 'client.name': 'Mike'})
+    if(prj){
+        prj.code = 'DSLRBT'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'lumaBooth', 'client.name': 'Mike'})
+    if(prj){
+        prj.code = 'LUMABT'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WiFiSurvey', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFSURV'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Optifi', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'OPTIF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'JCI', 'client.name': 'Jawaid'})
+    if(prj){
+        prj.code = 'JCI'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WFS-macOS', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFSMAC'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'BridgeChecker', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'BRGCHK'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'casebreifsco', 'client.name': 'Dean'})
+    if(prj){
+        prj.code = 'CASBRF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Survey Agent Dashboard', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'SRVAGN'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'MobiAR', 'client.name': 'Jovan'})
+    if(prj){
+        prj.code = 'MOBAR'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Management', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'ARPMGM'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Aripra Website', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'ARPWS'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Property Information', 'client.name': 'Larry'})
+    if(prj){
+        prj.code = 'PRPINF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'fotoShare-iOS', 'client.name': 'Mike'})
+    if(prj){
+        prj.code = 'FTSIOS'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Personal Expense Tracker', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'EXPTRK'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Minecraft CE AddOn Maker', 'client.name': 'Hoai Li'})
+    if(prj){
+        prj.code = 'MINCRF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'AA Utility Projects', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'AAUTL'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WiFiPerf-iOS', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFPIOS'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WiFiPerf-iOS', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFPIOS'
+        await prj.save()
+    }
+
+
+
+    
+
 
 }
