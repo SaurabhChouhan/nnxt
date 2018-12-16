@@ -1566,3 +1566,17 @@ const addReleaseTypeToExistingReleases = async() => {
     await release.save()
     
 }
+
+const updateTaskPlansAddReleaseType = async () => {
+    let releases = await MDL.ReleaseModel.find({name:'ongoing'})
+
+    for(const release of releases){
+        await processReleaseToUpdateTaskPlan(release)
+    }
+
+}
+
+const processReleaseToUpdateTaskPlan = async () => {
+
+}
+
