@@ -323,6 +323,13 @@ const updateFeatureByNegotiator = async (featureInput, negotiator) => {
     estimationFeature.canApprove = false
     estimationFeature.negotiator.description = featureInput.description
     estimationFeature.negotiator.changeSuggested = true // This will allow estimator to see updated changes as suggestions
+
+    if(estimationFeature.addedInThisIteration){
+        // Since negotiator added this feature in this iteration we would copy name/desc to estimator section as well
+        estimationFeature.estimator.description = featureInput.description
+        estimationFeature.estimator.name = featureInput.name
+    }
+
     estimationFeature.updated = Date.now()
     /*if ((!estimationFeature.estimator.estimatedHours || estimationFeature.estimator.estimatedHours == 0)
         || _.isEmpty(featureInput.name)
