@@ -804,9 +804,7 @@ const addTaskPlanUpdateEmployeeDays = async (release, employee, plannedHourNumbe
             })
         }
     }
-
     return await employeeDay.save()
-
 }
 
 const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, extra) => {
@@ -2717,7 +2715,7 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
 
-const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, extra) => {
+const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, release, extra) => {
     const {
         taskPlanMoment, employee, reportedHoursToIncrement
     } = extra
@@ -2733,6 +2731,19 @@ const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, extra) => {
 
     // add reported hours into employee day
     employeeDay.reportedHours += reportedHoursToIncrement
+
+    logger.info("addTaskReportPlannedUpdateEmployeeDays() ", {employeeDay, release})
+
+    let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+    if (typeIdx > -1) {
+        employeeDay.releaseTypes[typeIdx].reportedHours += reportedHoursToIncrement
+    } else {
+        employeeDay.releaseTypes.push({
+            releaseType: release.releaseType,
+            reportedHours: reportedHoursToIncrement
+        })
+    }
+
     return employeeDay
 }
 
@@ -2969,7 +2980,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1, releaseType: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -3108,7 +3119,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         reReport
     })
 
-    let employeeDay = await addTaskReportPlannedUpdateEmployeeDays(taskPlan, {
+    let employeeDay = await addTaskReportPlannedUpdateEmployeeDays(taskPlan, release, {
         taskPlanMoment,
         employee,
         reportedHoursToIncrement,
@@ -3116,7 +3127,6 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
     })
 
     // Need to add/update reporting warnings.
-
     let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
         reportedMoment: taskPlanMoment,
         employeePlanningIdx,
@@ -3146,7 +3156,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 }
 
 
-const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, extra) => {
+const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, release, extra) => {
     const {
         taskPlanMoment, employee, reportedHoursToIncrement
     } = extra
@@ -3166,10 +3176,29 @@ const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, extra) => {
         employeeDay.dateString = taskPlanMoment.format(SC.DATE_FORMAT)
         employeeDay.plannedHours = reportedHoursToIncrement
         employeeDay.reportedHours = reportedHoursToIncrement
+        employeeDay.releaseTypes = [{
+            releaseType: release.releaseType,
+            reportedHours: reportedHoursToIncrement,
+            plannedHours: reportedHoursToIncrement
+        }]
+
     } else {
         // add reported hours into employee day, in case on unplanned reporting both reported and planned hours would be same
         employeeDay.plannedHours += reportedHoursToIncrement
         employeeDay.reportedHours += reportedHoursToIncrement
+        
+        let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        
+        if (typeIdx > -1) {
+            employeeDay.releaseTypes[typeIdx].reportedHours += reportedHoursToIncrement
+            employeeDay.releaseTypes[typeIdx].plannedHours += reportedHoursToIncrement
+        } else {
+            employeeDay.releaseTypes.push({
+                releaseType: release.releaseType,
+                reportedHours: reportedHoursToIncrement,
+                plannedHours: reportedHoursToIncrement
+            })
+        }
     }
     return employeeDay
 }
@@ -3335,7 +3364,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
         }
     }
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1, releaseType: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -3398,7 +3427,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 
     let taskPlanMoment = U.momentInUTC(taskPlan.planningDateString)
 
-    let employeeDay = await addTaskReportUnplannedUpdateEmployeeDays(taskPlan, {
+    let employeeDay = await addTaskReportUnplannedUpdateEmployeeDays(taskPlan, release, {
         taskPlanMoment,
         employee,
         reportedHoursToIncrement,
