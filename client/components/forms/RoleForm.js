@@ -11,7 +11,7 @@ let PermissionRow = (props) => {
             <td>{props.permission.configurable ? 'true' : 'false'}</td>
             <td>{props.permission.enabled ? 'true' : 'false'}</td>
             <td>
-                <button className="glyphicon glyphicon-pencil pull-left btn btn-custom" type="button"
+                <button className="glyphicon glyphicon-pencil pull-left btn customBtn" type="button"
                         onClick={() => {
                             props.editPermission(props.permission, props.idx)
 
@@ -19,7 +19,7 @@ let PermissionRow = (props) => {
                 </button>
             </td>
             <td>
-                <button className="glyphicon glyphicon-trash pull-left btn btn-custom" type="button"
+                <button className="glyphicon glyphicon-trash pull-left btn customBtn" type="button"
                         onClick={() => {
                             props.removePermission('permissions', props.idx)
                         }}>
@@ -35,7 +35,7 @@ let PermissionRow = (props) => {
 
 let PermissionForm = (props) => {
     return <Form onSubmit={props.handleSubmit}>
-        <div className="row">
+        <div className="clearfix">
             <div className="col-md-4">
                 <Field name="_id" component={renderSelect} options={props.options}
                        displayField="name" valueField="_id" label="Permissions:" validate={[required]} onChange={
@@ -52,15 +52,15 @@ let PermissionForm = (props) => {
                 <div className="col-md-2">
                     <Field name="enabled" component={renderCheckBox} type="checkbox" label="Enabled"/>
                 </div>
-                <div className="col-md-2">
-                    <button type="button" className="btn btn-submit" onClick={() => {
+                <div className="col-md-12">
+                    <button type="button" className="btn customBtn" onClick={() => {
                         props.submit()
                     }}>{props.selectedPermission ? 'Edit' : 'Add'}
                     </button>
                     <button style={{"marginLeft": "5px"}} type="button" onClick={() => {
                         props.initialize({})
                         props.changeFuncParent('selectedPermission', null)
-                    }} className="btn btn-submit">Reset
+                    }} className="btn customBtn">Reset
                     </button>
                 </div>
             </div>
@@ -94,14 +94,13 @@ let RoleForm = (props) => {
     const {roleSyncErrors, change, push, touch, array, untouch, submit, reset} = props
     const {permissions, permissionFormValues, permissionsAdded} = props
     return [
-        <div key="RoleFormBackButton">
-            <button type="button"
+        <div key="RoleFormBackButton" className="col-md-12">
+            <button type="button" className="glyphicon glyphicon-arrow-left customBtn"
                     onClick={() => props.showRoleList()}>
-                <i className="glyphicon glyphicon-arrow-left"></i>
             </button>
         </div>,
         <Form key="RoleForm" onSubmit={props.handleSubmit}>
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-4">
                     <Field name="name" placeholder={"Role name"} component={renderText}
                            label={"Role:"} validate={[required]}/>
@@ -109,7 +108,7 @@ let RoleForm = (props) => {
             </div>
             <PermissionForm key="RolePermissionForm" options={props.permissionOptions} permissions={props.permissions}
                             selectedPermission={props.selectedPermission} changeFuncParent={props.change}/>
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-8">
                     <table className="table">
                         <thead>
@@ -135,15 +134,15 @@ let RoleForm = (props) => {
             </div>
 
             {/*<FieldArray component={renderPermissionComponent} {...props} name="permissions"/>*/}
-            <div className="row" key="RoleFormSubmission">
-                <div className="col-md-6">
-                    <button type="button" onClick={() => {
+            <div className="clearfix" key="RoleFormSubmission">
+                <div className="col-md-12">
+                    <button type="button" style={{margin:'10px 0px'}} onClick={() => {
                         submit()
-                    }} className="btn btn-submit">Submit
+                    }} className="btn customBtn">Submit
                     </button>
-                    <button style={{"marginLeft": "5px"}} type="button" onClick={() => {
+                    <button style={{margin:'10px 5px'}} type="button" onClick={() => {
                         reset()
-                    }} className="btn btn-submit">Reset
+                    }} className="btn customBtn">Reset
                     </button>
                 </div>
             </div>

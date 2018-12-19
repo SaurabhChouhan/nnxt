@@ -590,6 +590,12 @@ const updateTaskByNegotiator = async (newTaskInput, estimationTask, estimation, 
     estimationTask.negotiator.description = newTaskInput.description
     estimationTask.negotiator.estimatedHours = newTaskInput.estimatedHours
 
+    if(estimationTask.addedInThisIteration){
+        // Since this task is added in this iteration by negotiator, description, name can be copied over to estimator as well
+        estimationTask.estimator.description = newTaskInput.description
+        estimationTask.estimator.name = newTaskInput.name
+    }
+
     if (!estimationTask.addedInThisIteration || estimationTask.owner !== SC.OWNER_NEGOTIATOR)
         estimationTask.negotiator.changedInThisIteration = true
     estimationTask.negotiator.changeSuggested = true

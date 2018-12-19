@@ -268,14 +268,16 @@ class Tabs extends Component {
         logger.debug(logger.TABS_RENDER, this.props)
         return <div>
             <Loader type="square-spin" active={this.props.showLoader}/>
-            <ul className="nav nav-tabs">
-                {this.tabData && this.tabData.length && this.tabData.map(function (tab, idx) {
-                    return (
-                        <Tab key={idx} data={tab} match={this.props.match} isActive={this.state.activeTab === tab}
-                             handleClick={(e) => this.changeTab(e, tab)} {...this.props}/>
-                    );
-                }.bind(this))}
-            </ul>
+            <div className="col-md-12 adminTabs">
+                <ul className="nav nav-tabs">
+                    {this.tabData && this.tabData.length && this.tabData.map(function (tab, idx) {
+                        return (
+                            <Tab key={idx} data={tab} match={this.props.match} isActive={this.state.activeTab === tab}
+                                 handleClick={(e) => this.changeTab(e, tab)} {...this.props}/>
+                        );
+                    }.bind(this))}
+                </ul>
+            </div>
             {this.tabData.length > 0 &&
             <Route key={"admin_idx_route"} exact path={this.props.match.url} render={this.tabData[0].render}/>}
             {

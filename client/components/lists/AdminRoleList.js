@@ -8,7 +8,7 @@ class AdminRoleList extends Component {
     }
 
     editCellButton(cell, row, enumObject, rowIndex) {
-        return (<button className="glyphicon glyphicon-pencil pull-left btn btn-custom" type="button"
+        return (<button className="glyphicon glyphicon-pencil pull-left btn customBtn" type="button"
                         onClick={() => this.props.editPermissionsOfRole(row)}>
             </button>
         )
@@ -25,7 +25,7 @@ class AdminRoleList extends Component {
 
     render() {
         return (
-            <div className="row">
+            <div className="clearfix">
                 <div className="col-md-10">
                     <Dialog ref={(el) => {
                         this.dialog = el
