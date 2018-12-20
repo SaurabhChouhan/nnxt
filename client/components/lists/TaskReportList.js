@@ -21,8 +21,7 @@ class TaskReportList extends Component {
             }, {
                 text: '50', value: 50
             }],
-            sizePerPage,  // which size per page you want to locate as default
-            onRowClick: this.onRowClick.bind(this)
+            sizePerPage
 
         }
     }
@@ -135,8 +134,6 @@ class TaskReportList extends Component {
 
 
     onRowClick(row, second, third) {
-        console.log("second is ", second)
-        console.log("third is ", third)
         this.props.taskPlanSelected(row).then(json => {
             if (json.success) {
                 this.props.history.push('/app-home/task-report-detail')
