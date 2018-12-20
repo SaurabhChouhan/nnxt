@@ -1,11 +1,12 @@
 import React, {Component} from 'react'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
-import {renderSelect} from './fields'
+import {renderSelect, renderMultiSelect} from './fields'
 import moment from 'moment'
 import momentLocalizer from 'react-widgets-moment'
 import {connect} from 'react-redux'
 import {NotificationManager} from 'react-notifications'
 import {ALL} from '../../../server/serverconstants'
+import {RELEASE_TYPES, RELEASE_TYPE_CLIENT} from '../../clientconstants'
 
 moment.locale('en')
 momentLocalizer()
@@ -20,26 +21,40 @@ class ReleaseDeveloperScheduleForm extends Component {
     }
 
     componentDidMount(){
-        this.props.getDeveloperSchedules(ALL, this.state.monthMoment.month(), this.state.monthMoment.year(), this.props.releaseID)
+        // RELEASE_TYPE_CLIENT is passed to ensure that initially client work calendars are shown
+        this.props.getDeveloperSchedules(ALL, [{_id:RELEASE_TYPE_CLIENT}], this.state.monthMoment.month(), this.state.monthMoment.year(), this.props.releaseID)
     }
 
     render() {
         let props = this.props
-        const {handleSubmit, employeeID, developers, releaseID} = props
+        const {handleSubmit, employeeID, developers, releaseID, releaseTypes} = props
         return <div>
             <form onSubmit={handleSubmit}>
                 <div className="col-md-offset-3 col-md-6 repositoryHeading releaseDevScheduleHeading">
                     <span className={"highlightText"}>Employee Work Calendar</span>
                 </div>
                 <div className="col-md-12">
-                    <div className="col-md-offset-3 col-md-6 pad">
+                    <div className="col-md-6">
                         <Field name="employeeID"
                                onChange={(event, newValue, oldValue) => {
-                                   props.getDeveloperSchedules(newValue, this.state.monthMoment.month(), this.state.monthMoment.year(), releaseID)
+                                   props.getDeveloperSchedules(newValue, releaseTypes, this.state.monthMoment.month(), this.state.monthMoment.year(), releaseID)
                                }}
+                               label={'Select Employee:'}
                                component={renderSelect}
                                showNoneOption={false}
                                options={developers}
+                        />
+                    </div>
+                    <div className="col-md-6">
+                        <Field name="releaseTypes"
+                               onChange={(event, newValue, oldValue) => {
+                                   console.log("New value is ", newValue)
+                                   props.getDeveloperSchedules(employeeID, newValue, this.state.monthMoment.month(), this.state.monthMoment.year(), releaseID)
+                               }}
+                               component={renderMultiSelect}
+                               data={RELEASE_TYPES}
+                               label={'Select Release Type:'}
+                               defaultValue={[RELEASE_TYPE_CLIENT]}
                         />
 
                     </div>
@@ -91,10 +106,11 @@ const selector = formValueSelector('developer-Schedule')
 
 ReleaseDeveloperScheduleForm = connect(
     state => {
-        const {fromSchedule, employeeID} = selector(state, 'fromSchedule', "employeeID")
+        const {fromSchedule, employeeID, releaseTypes} = selector(state, 'fromSchedule', "employeeID", "releaseTypes")
         return {
             fromSchedule,
-            employeeID
+            employeeID,
+            releaseTypes
         }
     }
 )(ReleaseDeveloperScheduleForm)

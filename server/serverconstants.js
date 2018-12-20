@@ -457,5 +457,27 @@ export const RELEASE_TYPE_TRAINING = 'Training'
 export const RELEASE_TYPE_JOBS = 'Jobs'
 
 export const RELEASE_TYPES = [RELEASE_TYPE_CLIENT, RELEASE_TYPE_INTERNAL, RELEASE_TYPE_JOBS, RELEASE_TYPE_TRAINING]
+
+export const RELEASE_TYPES_WITH_LABELS = [
+    {
+        _id: RELEASE_TYPE_CLIENT,
+        name: "Client Projects"
+    },
+    {
+        _id: RELEASE_TYPE_INTERNAL,
+        name: "Aripra Projects"
+    },
+    {
+        _id: RELEASE_TYPE_TRAINING,
+        name: "Training & Sessions"
+    },
+    {
+        _id: RELEASE_TYPE_JOBS,
+        name: "Bidding, Estimations & Management"
+
+    }
+]
+
+
 export const CLIENT_ARIPRA = 'Aripra'
 

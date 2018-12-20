@@ -156,4 +156,8 @@ releaseRouter.get('/fix-release-stats/:releaseID', async ctx => {
     return await MDL.ReleaseModel.fixReleaseStats(ctx.params.releaseID)
 })
 
+releaseRouter.get('/release-types', async ctx => {
+    return SC.RELEASE_TYPES_WITH_LABELS
+})
+
 export default releaseRouter
