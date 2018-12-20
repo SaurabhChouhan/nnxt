@@ -107,11 +107,8 @@ export const getEmployeeWorkCalendarFromServer = (employeeID, releaseTypes, mont
             year
         }
 
-        let api = '/api/employees/' + employeeID + "/employee-schedule/" + month + "/year/" + year
-
         if (releaseID) {
             params['releaseID'] = releaseID
-            api += '/release/' + releaseID
         }
 
         if(releaseTypes){

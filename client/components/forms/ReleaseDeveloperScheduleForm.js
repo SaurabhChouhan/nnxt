@@ -27,14 +27,11 @@ class ReleaseDeveloperScheduleForm extends Component {
 
     render() {
         let props = this.props
-        const {handleSubmit, employeeID, developers, releaseID, releaseTypes} = props
+        const {handleSubmit, employeeID, developers, releaseID, releaseTypes, totalPlannedHours, totalReportedHours} = props
         return <div>
             <form onSubmit={handleSubmit}>
-                <div className="col-md-offset-3 col-md-6 repositoryHeading releaseDevScheduleHeading">
-                    <span className={"highlightText"}>Employee Work Calendar</span>
-                </div>
                 <div className="col-md-12">
-                    <div className="col-md-6">
+                    <div className="col-md-4 pad">
                         <Field name="employeeID"
                                onChange={(event, newValue, oldValue) => {
                                    props.getDeveloperSchedules(newValue, releaseTypes, this.state.monthMoment.month(), this.state.monthMoment.year(), releaseID)
@@ -45,7 +42,7 @@ class ReleaseDeveloperScheduleForm extends Component {
                                options={developers}
                         />
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                         <Field name="releaseTypes"
                                onChange={(event, newValue, oldValue) => {
                                    console.log("New value is ", newValue)
@@ -56,7 +53,10 @@ class ReleaseDeveloperScheduleForm extends Component {
                                label={'Select Release Type:'}
                                defaultValue={[RELEASE_TYPE_CLIENT]}
                         />
-
+                    </div>
+                    <div className="col-md-4">
+                        <span className="work-calendar-label">Total Planned Hours: {totalPlannedHours}</span>
+                        <span style={{marginLeft:'30px'}} className="work-calendar-label">Total Reported Hours: {totalReportedHours}</span>
                     </div>
                 </div>
                 <div className="col-md-12">
