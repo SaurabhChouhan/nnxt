@@ -47,7 +47,7 @@ class ReleaseDevelopersSchedules extends React.Component {
                     return <div key={'schedule_' + employee._id} className={colMdClass + " releaseSchedule"}>
                         <div className="schCalendar releaseDevInfo">
                             <div className="releaseDevHeading">
-                                <h5>{employee.name}</h5>
+                                <h5>{employee.name} [PH: {employee.totalPlannedHours} | RH: {employee.totalReportedHours}]</h5>
                                 <i className="glyphicon glyphicon-resize-full pull-right"></i>
                                 <span
                                     className="pull-right">{workCalendar.heading}</span>

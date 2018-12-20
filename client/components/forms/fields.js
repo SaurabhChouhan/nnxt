@@ -208,9 +208,12 @@ export const renderMultiSelect = ({
                                       textField = "name",
                                       label,
                                       placeholder,
+                                      defaultValue,
                                       meta: {touched, error, warning}
-                                  }) =>
-    <div className="form-group">
+                                  }) => {
+                                      console.log("default value is ", defaultValue)
+                                      console.log("data is ", data)
+    return <div className="form-group">
         <label htmlFor={input.name}>{label} {touched &&
         ((error &&
             <span className="validation-error">
@@ -219,7 +222,7 @@ export const renderMultiSelect = ({
         }</label>
         <Multiselect {...input}
                      onBlur={() => input.onBlur()}
-                     value={input.value || []} // requires value to be an array
+                     value={input.value || defaultValue || []} // requires value to be an array
                      data={data}
                      disabled={disabled}
                      valueField={valueField}
@@ -228,6 +231,7 @@ export const renderMultiSelect = ({
                      placeholder={placeholder}
         />
     </div>
+                                  }
 
 export const renderField = ({
                                 input,

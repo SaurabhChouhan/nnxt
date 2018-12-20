@@ -1,15 +1,15 @@
-import {connect} from 'react-redux'
-import {ReleaseDeveloperScheduleForm} from '../../components'
+import { connect } from 'react-redux'
+import { ReleaseDeveloperScheduleForm } from '../../components'
 import * as A from '../../actions'
-import {NotificationManager} from 'react-notifications'
-import {ALL} from '../../../server/serverconstants'
+import { NotificationManager } from 'react-notifications'
+import { ALL } from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    getDeveloperSchedules: (employeeID, month, year, releaseID) => {
+    getDeveloperSchedules: (employeeID, releaseTypes, month, year, releaseID) => {
         if (employeeID !== undefined) {
-            return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), month, year, releaseID))
+            return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), releaseTypes, month, year, releaseID))
         } else if (employeeID == undefined) {
-            return dispatch(A.getEmployeeWorkCalendarFromServer(ALL, month, year, releaseID))
+            return dispatch(A.getEmployeeWorkCalendarFromServer(ALL, releaseTypes, month, year, releaseID))
         } else
             return NotificationManager.error('Date is not picked up properly!')
 
@@ -21,7 +21,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 const mapStateToProps = (state) => ({
     initialValues: {
         'employeeId': undefined
-    }
+    },
+    totalPlannedHours: state.employee.workCalendar.totalPlannedHours,
+    totalReportedHours: state.employee.workCalendar.totalReportedHours
 })
 
 const ReleaseDeveloperScheduleFormContainerContainer = connect(

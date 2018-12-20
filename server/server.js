@@ -134,6 +134,15 @@ co(async () => {
                 message = ctx.i18n.__(err.i18nkey)
             }
 
+
+            if (err.errors && err.errors.length) {
+                message = ''
+                err.errors.forEach(e => {
+                    message += e.path + '->' + e.message
+                    message += " | "
+                })
+            }
+
             ctx.body = ctx.body = {
                 success: false,
                 code: err.code,

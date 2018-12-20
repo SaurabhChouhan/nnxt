@@ -6,6 +6,10 @@ export const DEV_ENV = 'development'
 export const ALL = 'all'
 export const NONE = 'none'
 
+export const PROJECT_ARIPRA_TRAINING = 'Aripra Training'
+export const PROJECT_ARIPRA_BIDDING = 'Aripra Bidding'
+
+
 // User Role
 export const ROLE_ADMIN = 'Admin'
 export const ROLE_SUPER_ADMIN = 'Super Admin'
@@ -446,3 +450,34 @@ export const ALL_NOTIFICATION_CATEGORIES = [
     NOTIFICATION_CATEGORY_REPORT,
     NOTIFICATION_CATEGORY_WARNINGS
 ]
+
+export const RELEASE_TYPE_CLIENT = 'Client'
+export const RELEASE_TYPE_INTERNAL = 'Internal'
+export const RELEASE_TYPE_TRAINING = 'Training'
+export const RELEASE_TYPE_JOBS = 'Jobs'
+
+export const RELEASE_TYPES = [RELEASE_TYPE_CLIENT, RELEASE_TYPE_INTERNAL, RELEASE_TYPE_JOBS, RELEASE_TYPE_TRAINING]
+
+export const RELEASE_TYPES_WITH_LABELS = [
+    {
+        _id: RELEASE_TYPE_CLIENT,
+        name: "Client Projects"
+    },
+    {
+        _id: RELEASE_TYPE_INTERNAL,
+        name: "Aripra Projects"
+    },
+    {
+        _id: RELEASE_TYPE_TRAINING,
+        name: "Training & Sessions"
+    },
+    {
+        _id: RELEASE_TYPE_JOBS,
+        name: "Bidding, Estimations & Management"
+
+    }
+]
+
+
+export const CLIENT_ARIPRA = 'Aripra'
+

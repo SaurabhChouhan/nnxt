@@ -7,7 +7,7 @@ class CompanySection extends Component {
     }
 
     render() {
-        return [<div className={'col-md-6 col-md-offset-3'}><ReleaseDeveloperScheduleFormContainer key={"schedule-form"} developers={this.props.developers}/> </div>,
+        return [<ReleaseDeveloperScheduleFormContainer key={"schedule-form"} developers={this.props.developers}/>,
             <ReleaseDevelopersSchedulesContainer key={"schedules"} colMdClass={"col-md-4"}/>
         ]
     }

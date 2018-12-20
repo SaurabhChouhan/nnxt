@@ -2,10 +2,27 @@ import {connect} from 'react-redux'
 import {CreateReleaseForm} from "../../components"
 import * as logger from '../../clientLogger'
 import * as A from '../../actions'
+import {CLIENT_ARIPRA} from "../../clientconstants";
 import * as COC from '../../components/componentConsts'
 import {NotificationManager} from 'react-notifications'
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch) => ({
+    fetchProjects: (clientID) => {
+        console.log("fetchProjects() called ", clientID)
+        if (clientID == CLIENT_ARIPRA) {
+            return dispatch(A.searchProjectsFromServer({
+                name: CLIENT_ARIPRA,
+                isActive:true
+            }))
+
+        } else {
+            // fetch projects of this client
+            return dispatch(A.searchProjectsFromServer({
+                _id: clientID,
+                isActive:true
+            }))
+        }
+    },
     onSubmit: (formInput) => {
         logger.debug(logger.ESTIMATION_PROJECT_AWARD_FORM_SUBMIT, "formInput:", formInput)
         return dispatch(A.createReleaseOnServer(formInput)).then(json => {
@@ -14,7 +31,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 // hide dialog
                 dispatch(A.hideComponent(COC.CREATE_RELEASE_FORM_DIALOG))
             } else {
-                NotificationManager.error("Release Creation Failed")
+                NotificationManager.error(json.message)
             }
         })
     }
@@ -38,16 +55,19 @@ const mapStateToProps = (state) => {
 
     }
 
+
+
     return {
         team,
         managers,
         leaders,
-        projects: state.project.all && Array.isArray(state.project.all) && state.project.all.length ? state.project.all.filter(project =>
-            project.isActive === true
-        ) : [],
+        projects: state.project.filtered,
         technologies: state.technology.all,
         developmentTypes: state.developmentType.all,
-        modules: state.module.all
+        modules: state.module.all,
+        clients: state.client.billable && Array.isArray(state.client.billable) && state.client.billable.length ? state.client.billable.filter(client =>
+            client.isActive === true
+        ) : []
     }
 }
 

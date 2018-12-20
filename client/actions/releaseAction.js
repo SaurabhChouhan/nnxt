@@ -716,7 +716,6 @@ export const releasePlanUnplannedUpdateOnServer = (formInput) => {
 }
 
 
-
 export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {
     return function (dispatch) {
         return fetch('/api/release-plans/add-unplanned-task ',
@@ -745,6 +744,10 @@ export const releasePlanUnplannedAddToReleaseOnServer = (formInput) => {
 
 export const createReleaseOnServer = (formInput) => {
     return (dispatch) => {
+
+        if (!formInput.technologies)
+            formInput.technologies = []
+
         return fetch('/api/releases', {
                 method: 'post',
                 credentials: "include",
@@ -839,7 +842,7 @@ export const getSearchTaskPlanResultFromServer = (formInput) => {
 export const searchReleasePlansOnServer = (formInput) => {
     return (dispatch, getState) => {
 
-        if(!formInput){
+        if (!formInput) {
             let state = getState()
             formInput = state.release.releasePlanFilters
         }

@@ -8,6 +8,7 @@ import AppError from '../AppError'
 import * as MDL from '../models'
 import logger from '../logger'
 import * as U from '../utils'
+import { isArray } from 'util';
 
 mongoose.Promise = global.Promise
 
@@ -19,14 +20,20 @@ mongoose.Promise = global.Promise
 let employeeDaysSchema = mongoose.Schema({
     employee: {
         _id: mongoose.Schema.ObjectId,
-        name: {type: String, required: [true, 'Employee name is required']},
+        name: { type: String, required: [true, 'Employee name is required'] },
     },
-    date: {type: Date, default: Date.now()},
+    date: { type: Date, default: Date.now() },
     dateString: String,
-    plannedHours: {type: Number, default: 0},
-    reportedHours: {type: Number, default: 0}
-})
-
+    plannedHours: { type: Number, default: 0 },
+    reportedHours: { type: Number, default: 0 },
+    releaseTypes: [{
+        releaseType: { type: String, enum: SC.RELEASE_TYPES },
+        plannedHours: { type: Number, default: 0 },
+        reportedHours: { type: Number, default: 0 }
+    }]
+}, {
+        usePushEach: true
+    })
 
 employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) => {
     V.validate(EmployeeDaysInput, V.employeeAddEmployeeDaysStruct)
@@ -43,46 +50,21 @@ employeeDaysSchema.statics.addEmployeeDaysDetails = async (EmployeeDaysInput) =>
     return await EmployeeDaysModel.create(EmployeeDaysInput)
 }
 
-employeeDaysSchema.statics.increasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput) => {
-    V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
-    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
-    EmployeeDaysInput.date = momentEmployeeDate.toDate()
-    let count = await EmployeeDaysModel.count({"date": EmployeeDaysInput.date})
-    if (count <= 0) {
-        throw new AppError('Employee days detail is not available on this date ' + EmployeeDaysInput.date + 'with employee ' + EmployeeDaysInput.employee.name + ' can not update ', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-    }
-    return await EmployeeDaysModel.update({
-        "date": EmployeeDaysInput.date,
-        "employee._id": mongoose.Types.ObjectId(EmployeeDaysInput.employee._id)
-    }, {
-        $inc: {"plannedHours": EmployeeDaysInput.plannedHours}
-    })
-}
-
-employeeDaysSchema.statics.decreasePlannedHoursOnEmployeeDaysDetails = async (EmployeeDaysInput, user) => {
-    let momentEmployeeDate = momentTZ.tz(EmployeeDaysInput.dateString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).clone().hour(0).minute(0).second(0).millisecond(0)
-    EmployeeDaysInput.date = momentEmployeeDate
-
-    V.validate(EmployeeDaysInput, V.employeeUpdateEmployeeDaysStruct)
-    let count = await EmployeeDaysModel.count({"date": EmployeeDaysInput.date})
-    if (count <= 0) {
-        throw new AppError('Employee days detail is not available on this date ' + EmployeeDaysInput.date + 'with employee ' + EmployeeDaysInput.employee.name + ' can not update ', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
-    }
-    return await EmployeeDaysModel.update({
-        "date": EmployeeDaysInput.date,
-        "employee._id": mongoose.Types.ObjectId(EmployeeDaysInput.employee._id)
-    }, {
-        $inc: {"plannedHours": -EmployeeDaysInput.plannedHours}
-    })
-}
-
 employeeDaysSchema.statics.getActiveEmployeeDays = async (user) => {
     return await EmployeeDaysModel.find({})
 }
 
-const getEmployeeWorkCalendar = async (employee, startMonth, endMonth, startDay) => {
+const getEmployeeWorkCalendar = async (employee, releaseTypes, startMonth, endMonth, startDay) => {
 
     let schedule = []
+
+    let rtypes = undefined
+
+    if (isArray(releaseTypes) && releaseTypes.length) {
+        rtypes = releaseTypes.map(r => r._id)
+    }
+
+    console.log("*********** RTYPES ************** ", rtypes)
 
     // Fill each date with 0 hours so that days without work shows 0
     for (let i = 1; i <= endMonth.date(); i++) {
@@ -107,31 +89,65 @@ const getEmployeeWorkCalendar = async (employee, startMonth, endMonth, startDay)
     let employeeDays = await EmployeeDaysModel.aggregate([{
         $match: {
             $and: [
-                {date: {$gte: startMonth.toDate(), $lte: endMonth.toDate()}},
-                {"employee._id": employee._id}
+                { date: { $gte: startMonth.toDate(), $lte: endMonth.toDate() } },
+                { "employee._id": employee._id }
             ]
         }
     }, {
-        $sort: {date: 1}
+        $sort: { date: 1 }
     }]).exec()
 
     /*
         We will now iterate over employee days in order to fill proper planned hours against each date
     */
+
+    let totalPlannedHours = 0, totalReportedHours = 0;
+
     if (employeeDays && employeeDays.length) {
         employeeDays.forEach(e => {
             let date = U.momentInUTC(e.dateString).date()
             // place planned hours against this date
 
-            if (e.reportedHours > 0) {
-                schedule[date - 1].hours = e.reportedHours
-                schedule[date - 1].reportedHours = e.reportedHours
-                schedule[date - 1].plannedHours = e.plannedHours
-                schedule[date - 1].reported = true
-            }
-            else {
-                schedule[date - 1].hours = e.plannedHours
-                schedule[date - 1].plannedHours = e.plannedHours
+            if (!rtypes) {
+                // No release types are selected so show complete hours 
+                if (e.reportedHours > 0) {
+                    totalPlannedHours += e.plannedHours
+                    totalReportedHours += e.reportedHours
+                    schedule[date - 1].hours = e.reportedHours
+                    schedule[date - 1].reportedHours = e.reportedHours
+                    schedule[date - 1].plannedHours = e.plannedHours
+                    schedule[date - 1].reported = true
+                }
+                else {
+                    totalPlannedHours += e.plannedHours
+                    schedule[date - 1].hours = e.plannedHours
+                    schedule[date - 1].plannedHours = e.plannedHours
+                }
+            } else {
+                // release types is selected so we need to show hours specific to selected release types
+                schedule[date - 1].hours = 0
+                schedule[date - 1].reportedHours = 0
+                schedule[date - 1].plannedHours = 0
+                if (e.reportedHours > 0) {
+                    schedule[date - 1].reported = true
+                }
+
+                for (let rtype of rtypes) {
+                    let typeIdx = e.releaseTypes.findIndex(s => s.releaseType == rtype)
+                    if (typeIdx > -1) {
+                        if (e.reportedHours > 0) {
+                            totalPlannedHours += e.plannedHours
+                            totalReportedHours += e.reportedHours
+                            schedule[date - 1].hours += e.releaseTypes[typeIdx].reportedHours
+                            schedule[date - 1].reportedHours += e.releaseTypes[typeIdx].reportedHours
+                            schedule[date - 1].plannedHours += e.releaseTypes[typeIdx].plannedHours
+                        } else {
+                            totalPlannedHours += e.plannedHours
+                            schedule[date - 1].hours += e.releaseTypes[typeIdx].plannedHours
+                            schedule[date - 1].plannedHours += e.releaseTypes[typeIdx].plannedHours
+                        }
+                    }
+                }
             }
         })
     }
@@ -153,21 +169,30 @@ const getEmployeeWorkCalendar = async (employee, startMonth, endMonth, startDay)
     return {
         _id: employee._id,
         name: employee.name ? employee.name : U.getFullName(employee),
-        schedule: weeklySchedule
+        schedule: weeklySchedule,
+        totalPlannedHours,
+        totalReportedHours
     }
 }
 
-const getAllEmployeesWorkCalendar = async (employees, startMonth, endMonth, startDay) => {
+const getAllEmployeesWorkCalendar = async (employees, releaseTypes, startMonth, endMonth, startDay) => {
     let schedules = []
 
+    let totalPlannedHours = 0, totalReportedHours = 0
     for (const employee of employees) {
-        let employeeSchedule = await getEmployeeWorkCalendar(employee, startMonth, endMonth, startDay)
+        let employeeSchedule = await getEmployeeWorkCalendar(employee, releaseTypes, startMonth, endMonth, startDay)
+        totalPlannedHours += employeeSchedule.totalPlannedHours
+        totalReportedHours += employeeSchedule.totalReportedHours
         schedules.push(employeeSchedule)
     }
-    return schedules
+    return {
+        schedules,
+        totalPlannedHours,
+        totalReportedHours
+    }
 }
 
-employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, year, user, releaseID) => {
+employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, releaseTypes, month, year, user, releaseID) => {
 
     if (releaseID) {
         let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(releaseID, user)
@@ -187,15 +212,16 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, ye
     let endMonth = monthMoment.clone().endOf('month')
     let startDay = startMonth.day()
     if (startDay == 0)
-    // this is sunday so make it as 7 as it would come last and it would be easier for logic to run
+        // this is sunday so make it as 7 as it would come last and it would be easier for logic to run
         startDay = 7
 
-    logger.debug("getMonthlyWorkCalendar(): ", {startMonth})
-    logger.debug("getMonthlyWorkCalendar(): ", {endMonth})
+    logger.debug("getMonthlyWorkCalendar(): ", { startMonth })
+    logger.debug("getMonthlyWorkCalendar(): ", { endMonth })
 
     // Now we will divide schedule into week rows
 
     let employeeSchedules = []
+    let totalPlannedHours=0, totalReportedHours=0;
     if (employeeID == SC.ALL) {
 
         let developers;
@@ -207,18 +233,21 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, ye
         }
 
         // Get all developers from backend
-        employeeSchedules = await getAllEmployeesWorkCalendar(developers, startMonth, endMonth, startDay)
+        let result = await getAllEmployeesWorkCalendar(developers, releaseTypes, startMonth, endMonth, startDay)
+        employeeSchedules = result.schedules
+        totalPlannedHours = result.totalPlannedHours
+        totalReportedHours = result.totalReportedHours
 
     } else {
-
         let selectedEmployee = await MDL.UserModel.findById(mongoose.Types.ObjectId(employeeID)).exec()
-
         if (!selectedEmployee) {
             throw new AppError('Employee is not valid employee', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         }
 
-        let employeeSchedule = await getEmployeeWorkCalendar(selectedEmployee, startMonth, endMonth, startDay)
+        let employeeSchedule = await getEmployeeWorkCalendar(selectedEmployee, releaseTypes, startMonth, endMonth, startDay)
         employeeSchedules.push(employeeSchedule)
+        totalPlannedHours = employeeSchedule.totalPlannedHours
+        totalReportedHours = employeeSchedule.totalReportedHours
     }
 
     return {
@@ -226,7 +255,9 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, month, ye
         heading: startMonth.format('MMMM, YY'),
         month: startMonth.month(),
         year: startMonth.year(),
-        employees: employeeSchedules
+        employees: employeeSchedules,
+        totalPlannedHours,
+        totalReportedHours
     }
 }
 
@@ -251,20 +282,20 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
 
     let toMoment = momentTZ.tz(fromString, SC.DATE_FORMAT, SC.UTC_TIMEZONE).add(6, 'days').hour(0).minute(0).second(0).millisecond(0)
     if (employeeID && employeeID.toLowerCase() === SC.ALL) {
-        let allDevelopers = await MDL.UserModel.find({"roles.name": SC.ROLE_DEVELOPER}).exec()
+        let allDevelopers = await MDL.UserModel.find({ "roles.name": SC.ROLE_DEVELOPER }).exec()
         if (!allDevelopers || !allDevelopers.length) {
             throw new AppError('No developer is available ', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         }
 
         let employeeDays = await EmployeeDaysModel.aggregate([{
-            $match: {date: {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()}}
+            $match: { date: { $gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate() } }
         }, {
             $group: {
                 _id: {
                     "employeeID": "$employee._id"
                 },
-                employee: {$first: "$employee"},
-                days: {$push: {_id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date"}}
+                employee: { $first: "$employee" },
+                days: { $push: { _id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date" } }
             }
         }]).exec()
         if (employeeDays && employeeDays.length && allDevelopers.length == employeeDays.length) {
@@ -299,8 +330,8 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
         let employeeDays = await EmployeeDaysModel.aggregate([{
             $match: {
                 $and: [
-                    {date: {$gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate()}},
-                    {"employee._id": mongoose.Types.ObjectId(selectedEmployee._id)}
+                    { date: { $gte: fromMoment.clone().toDate(), $lte: toMoment.clone().toDate() } },
+                    { "employee._id": mongoose.Types.ObjectId(selectedEmployee._id) }
                 ]
             }
         }, {
@@ -308,8 +339,8 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
                 _id: {
                     "employeeID": "$employee._id"
                 },
-                employee: {$first: "$employee"},
-                days: {$push: {_id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date"}}
+                employee: { $first: "$employee" },
+                days: { $push: { _id: "$_id", dateString: "$dateString", plannedHours: "$plannedHours", date: "$date" } }
             }
         }]).exec()
         if (employeeDays && employeeDays.length) {
@@ -328,14 +359,6 @@ employeeDaysSchema.statics.getEmployeeSchedule = async (employeeID, from, user) 
         }
     }
 }
-
-/**
- * This method would update employee days of all the employees to add reported hours against them
- */
-employeeDaysSchema.statics.updateEmployeeDays = async () => {
-
-}
-
 
 const EmployeeDaysModel = mongoose.model("EmployeeDay", employeeDaysSchema)
 export default EmployeeDaysModel

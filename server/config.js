@@ -10,14 +10,15 @@ const config = {
         development: {
             port: 3000,
             setupData: false,
+            mode: 'development',
             dropDatabase: false
         },
         setupData: {
             port: 3000,
             setupData: true,
-            dropDatabase: true
+            dropDatabase: false
         },
-        demoData:{
+        demoData: {
             port: 3001,
             setupData: true,
             dropDatabase: true

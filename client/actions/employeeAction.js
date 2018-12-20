@@ -87,9 +87,12 @@ export const addWorkCalendar = (calendar) => ({
     calendar: calendar
 })
 
-export const getEmployeeWorkCalendarFromServer = (employeeID, month, year, releaseID) => {
+export const getEmployeeWorkCalendarFromServer = (employeeID, releaseTypes, month, year, releaseID) => {
 
     return function (dispatch, getState) {
+
+        let params = {}
+
         let state = getState()
         if (month == undefined) {
             month = state.employee.workCalendar.month
@@ -97,19 +100,30 @@ export const getEmployeeWorkCalendarFromServer = (employeeID, month, year, relea
         if (year == undefined)
             year = state.employee.workCalendar.year
 
-        let api = '/api/employees/' + employeeID + "/employee-schedule/" + month + "/year/" + year
 
-        if (releaseID)
-            api += '/release/' + releaseID
+        params = {
+            employeeID,
+            month,
+            year
+        }
 
-        return fetch(api,
+        if (releaseID) {
+            params['releaseID'] = releaseID
+        }
+
+        if(releaseTypes){
+            params['releaseTypes'] = releaseTypes
+        }
+
+        return fetch('/api/employees/work-calendar',
             {
-                method: "get",
+                method: "post",
                 credentials: "include",
                 headers: {
-                    'Accept': 'application/json, text/plain, */*',
+                    'Accept': 'application/json, text/plain, *!/!*',
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify(params)
             }
         ).then(
             response => {

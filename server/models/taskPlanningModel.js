@@ -39,7 +39,8 @@ let taskPlanningSchema = mongoose.Schema({
         }
     },
     release: {
-        _id: mongoose.Schema.ObjectId
+        _id: mongoose.Schema.ObjectId,
+        releaseType: {type: String, enum: SC.RELEASE_TYPES}
     },
     releasePlan: {
         _id: mongoose.Schema.ObjectId,
@@ -771,7 +772,7 @@ const getWorkingDaysAndHolidays = async (from, to, taskPlanningDates) => {
 
 /*-------------------------------------------------COMMON_FUNCTIONS_CALL_SECTION_END---------------------------------------------------------------*/
 
-const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, momentPlanningDate) => {
+const addTaskPlanUpdateEmployeeDays = async (release, employee, plannedHourNumber, momentPlanningDate) => {
 
     // Add or update employee days details when task is planned
     // Check already added employees day detail or not
@@ -784,6 +785,7 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
     if (!employeeDay) {
         employeeDay = new MDL.EmployeeDaysModel()
         employeeDay.plannedHours = plannedHourNumber
+        employeeDay.releaseTypes = [{releaseType: release.releaseType, plannedHours: plannedHourNumber}]
         employeeDay.employee = {
             _id: employee._id,
             name: U.getFullName(employee)
@@ -792,10 +794,17 @@ const addTaskPlanUpdateEmployeeDays = async (employee, plannedHourNumber, moment
         employeeDay.date = U.momentInUTC(employeeDay.dateString)
     } else {
         employeeDay.plannedHours += plannedHourNumber
+        let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        if (typeIdx > -1) {
+            employeeDay.releaseTypes[typeIdx].plannedHours += plannedHourNumber
+        } else {
+            employeeDay.releaseTypes.push({
+                releaseType: release.releaseType,
+                plannedHours: plannedHourNumber
+            })
+        }
     }
-
     return await employeeDay.save()
-
 }
 
 const addTaskPlanUpdateEmployeeRelease = async (releasePlan, release, employee, extra) => {
@@ -1177,7 +1186,7 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     }
 
     /*-------------------------------- EMPLOYEE DAYS UPDATE SECTION -------------------------------------------*/
-    await addTaskPlanUpdateEmployeeDays(selectedEmployee, plannedHourNumber, momentPlanningDate)
+    await addTaskPlanUpdateEmployeeDays(release, selectedEmployee, plannedHourNumber, momentPlanningDate)
 
     /*-------------------------------- EMPLOYEE RELEASE UPDATE SECTION -------------------------------------------*/
     let employeeRelease = await addTaskPlanUpdateEmployeeRelease(releasePlan, release, selectedEmployee, {
@@ -1224,9 +1233,14 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     await release.save()
     await releasePlan.save()
     await taskPlan.save()
+
+
+    /*
     sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
         // do nothing
     })
+    */
+
     return {
         taskPlan,
         warnings: generatedWarnings,
@@ -1276,7 +1290,7 @@ const deleteTaskUpdateEmployeeReleaseLeaderManager = async (taskPlan, releasePla
 }
 
 
-const deleteTaskUpdateEmployeeDays = async (taskPlan, employee, plannedHourNumber, user) => {
+const deleteTaskUpdateEmployeeDays = async (release, taskPlan, employee, plannedHourNumber, user) => {
 
     let employeeDay = await MDL.EmployeeDaysModel.findOne({
         'employee._id': employee._id.toString(),
@@ -1287,6 +1301,15 @@ const deleteTaskUpdateEmployeeDays = async (taskPlan, employee, plannedHourNumbe
         throw new AppError('We should have found employee day', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
     employeeDay.plannedHours -= plannedHourNumber
+
+    // update release types stats as well
+    let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+    if (typeIdx > -1) {
+        employeeDay.releaseTypes[typeIdx].plannedHours -= plannedHourNumber
+    } else {
+        throw new AppError('Employee days: we should have found entry of release type [' + release.releaseType + ']', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
     return employeeDay
 
 }
@@ -1560,7 +1583,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
     let employeeReleaseLeaderManager = await deleteTaskUpdateEmployeeReleaseLeaderManager(taskPlan, releasePlan, release, user)
 
     /*------------------------------ EMPLOYEE DAYS UPDATES --------------------------------------------*/
-    let employeeDay = await deleteTaskUpdateEmployeeDays(taskPlan, employee, plannedHourNumber, user)
+    let employeeDay = await deleteTaskUpdateEmployeeDays(release, taskPlan, employee, plannedHourNumber, user)
 
     /*------------------------------- RELEASE PLAN UPDATES ------------------------------------------------------*/
     releasePlan = await deleteTaskUpdateReleasePlan(taskPlan, releasePlan, employee, plannedHourNumber)
@@ -1591,7 +1614,7 @@ taskPlanningSchema.statics.deleteTask = async (taskPlanID, user) => {
 
 /*-------------------------------------------------MOVE TASK PLAN----------------------------------------------------------*/
 
-const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
+const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, release, extra) => {
 
     const {rePlanningDateUtc, selectedEmployee, plannedHourNumber} = extra
 
@@ -1607,15 +1630,26 @@ const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
         'date': rePlanningDateUtc
     })
 
+
     if (existingDateEmployeeDays) {
         // Total hours would be reduced
         existingDateEmployeeDays.plannedHours -= plannedHourNumber
+        let typeIdx = existingDateEmployeeDays.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        if (typeIdx > -1) {
+            existingDateEmployeeDays.releaseTypes[typeIdx].plannedHours -= plannedHourNumber
+        } else {
+            throw new AppError('There should be an entry in employee days for release type [' + release.releaseType + '] ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+        }
     } else {
         throw new AppError('There should be an employee days entry for task that is merged', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
     if (rePlannedDateEmployeeDays) {
         rePlannedDateEmployeeDays.plannedHours += plannedHourNumber
+        let typeIdx = rePlannedDateEmployeeDays.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        if (typeIdx > -1) {
+            rePlannedDateEmployeeDays.releaseTypes[typeIdx].plannedHours += plannedHourNumber
+        }
     } else {
         // create employee days as not exists
         rePlannedDateEmployeeDays = new MDL.EmployeeDaysModel()
@@ -1623,6 +1657,10 @@ const moveTaskUpdateEmployeeDays = async (taskPlan, releasePlan, extra) => {
         rePlannedDateEmployeeDays.dateString = U.formatDateInUTC(rePlanningDateUtc)
         rePlannedDateEmployeeDays.employee = taskPlan.employee
         rePlannedDateEmployeeDays.plannedHours = plannedHourNumber
+        rePlannedDateEmployeeDays.releaseTypes = [{
+            releaseType: release.releaseType,
+            plannedHours: plannedHourNumber
+        }]
     }
     return {existingDateEmployeeDays, rePlannedDateEmployeeDays}
 }
@@ -1982,7 +2020,7 @@ taskPlanningSchema.statics.moveTask = async (taskPlanningInput, user, schemaRequ
     /******************************** EMPLOYEE DAYS UPDATE **************************************************/
 
 
-    let {existingDateEmployeeDays, rePlannedDateEmployeeDays} = await moveTaskUpdateEmployeeDays(taskPlan, releasePlan, {
+    let {existingDateEmployeeDays, rePlannedDateEmployeeDays} = await moveTaskUpdateEmployeeDays(taskPlan, releasePlan, release, {
         rePlanningDateUtc,
         selectedEmployee,
         plannedHourNumber
@@ -2096,17 +2134,22 @@ const shiftTasksUpdateEmployeeDays = async (affectedMoments, employee) => {
                 employee: 1,
                 planning: {
                     plannedHours: 1
-                }
+                },
+                release: 1
             }
         }, {
             $group: {
-                _id: null, // Grouping all records
+                _id: "$release.releaseType", // Grouping all records
                 plannedHours: {$sum: '$planning.plannedHours'}
             }
         }])
 
+        logger.debug("daySums: ", {daySums})
+
         if (daySums.length) {
-            let daySum = daySums[0]
+            let totalPlannedHours = daySums.reduce((s, ds)=> s + ds.plannedHours, 0)    
+            logger.debug("total planned hours ", {totalPlannedHours})
+
             let ed = await MDL.EmployeeDaysModel.findOne({
                 date: dayMoment.toDate(),
                 'employee._id': employee._id
@@ -2121,13 +2164,28 @@ const shiftTasksUpdateEmployeeDays = async (affectedMoments, employee) => {
                     _id: employee._id,
                     name: U.getFullName(employee)
                 }
-                employeeDays.plannedHours = daySum.plannedHours
+                employeeDays.plannedHours = totalPlannedHours
+                employeeDays.releaseTypes = []
+                daySums.forEach(ds=>{
+                    employeeDays.releaseTypes.push({
+                        releaseType: ds._id,
+                        plannedHours: ds.plannedHours
+                    })
+                })
+                
                 await employeeDays.save()
                 result.push(employeeDays)
 
             } else {
-                //logger.debug('Employee days found for [' + U.formatDateInUTC(dayMoment) + ',' + employee._id + '], updating... employee days ', {ed})
-                ed.plannedHours = daySum.plannedHours
+                ed.plannedHours = totalPlannedHours
+                ed.releaseTypes = []
+                daySums.forEach(ds=>{
+                    ed.releaseTypes.push({
+                        releaseType: ds._id,
+                        plannedHours: ds.plannedHours
+                    })
+                })
+
                 await ed.save()
                 result.push(ed)
             }
@@ -2373,7 +2431,7 @@ taskPlanningSchema.statics.shiftTasksToFuture = async (shiftInput, user, schemaR
     })
 
     if (count == 0)
-        throw new AppError('Cannot start shifting from date where there are no tasks!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
+        throw new AppError('Cannot start shifting from date where there are no tasks of chosen release!', EC.ACCESS_DENIED, EC.HTTP_BAD_REQUEST)
 
     // See if there are any reported tasks from this planning date, if yes shifting couldn't occur
 
@@ -2657,7 +2715,7 @@ taskPlanningSchema.statics.shiftTasksToPast = async (shiftInput, user, schemaReq
 /*----------------------------------------------------------------------REPORTING_SECTION_START----------------------------------------------------------------------*/
 
 
-const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, extra) => {
+const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, release, extra) => {
     const {
         taskPlanMoment, employee, reportedHoursToIncrement
     } = extra
@@ -2673,6 +2731,19 @@ const addTaskReportPlannedUpdateEmployeeDays = async (taskPlan, extra) => {
 
     // add reported hours into employee day
     employeeDay.reportedHours += reportedHoursToIncrement
+
+    logger.info("addTaskReportPlannedUpdateEmployeeDays() ", {employeeDay, release})
+
+    let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+    if (typeIdx > -1) {
+        employeeDay.releaseTypes[typeIdx].reportedHours += reportedHoursToIncrement
+    } else {
+        employeeDay.releaseTypes.push({
+            releaseType: release.releaseType,
+            reportedHours: reportedHoursToIncrement
+        })
+    }
+
     return employeeDay
 }
 
@@ -2909,7 +2980,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
     if (!releasePlan)
         throw new AppError('No release plan associated with this task plan, data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1, releaseType: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -3048,7 +3119,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         reReport
     })
 
-    let employeeDay = await addTaskReportPlannedUpdateEmployeeDays(taskPlan, {
+    let employeeDay = await addTaskReportPlannedUpdateEmployeeDays(taskPlan, release, {
         taskPlanMoment,
         employee,
         reportedHoursToIncrement,
@@ -3056,7 +3127,6 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
     })
 
     // Need to add/update reporting warnings.
-
     let warningsTaskReported = await MDL.WarningModel.taskReported(taskPlan, releasePlan, release, {
         reportedMoment: taskPlanMoment,
         employeePlanningIdx,
@@ -3086,7 +3156,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 }
 
 
-const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, extra) => {
+const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, release, extra) => {
     const {
         taskPlanMoment, employee, reportedHoursToIncrement
     } = extra
@@ -3106,10 +3176,29 @@ const addTaskReportUnplannedUpdateEmployeeDays = async (taskPlan, extra) => {
         employeeDay.dateString = taskPlanMoment.format(SC.DATE_FORMAT)
         employeeDay.plannedHours = reportedHoursToIncrement
         employeeDay.reportedHours = reportedHoursToIncrement
+        employeeDay.releaseTypes = [{
+            releaseType: release.releaseType,
+            reportedHours: reportedHoursToIncrement,
+            plannedHours: reportedHoursToIncrement
+        }]
+
     } else {
         // add reported hours into employee day, in case on unplanned reporting both reported and planned hours would be same
         employeeDay.plannedHours += reportedHoursToIncrement
         employeeDay.reportedHours += reportedHoursToIncrement
+        
+        let typeIdx = employeeDay.releaseTypes.findIndex(s => s.releaseType == release.releaseType)
+        
+        if (typeIdx > -1) {
+            employeeDay.releaseTypes[typeIdx].reportedHours += reportedHoursToIncrement
+            employeeDay.releaseTypes[typeIdx].plannedHours += reportedHoursToIncrement
+        } else {
+            employeeDay.releaseTypes.push({
+                releaseType: release.releaseType,
+                reportedHours: reportedHoursToIncrement,
+                plannedHours: reportedHoursToIncrement
+            })
+        }
     }
     return employeeDay
 }
@@ -3275,7 +3364,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
         }
     }
 
-    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1})
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, {iterations: 1, name: 1, project: 1, releaseType: 1})
 
     if (!release)
         throw new AppError('Invalid release id , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
@@ -3338,7 +3427,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 
     let taskPlanMoment = U.momentInUTC(taskPlan.planningDateString)
 
-    let employeeDay = await addTaskReportUnplannedUpdateEmployeeDays(taskPlan, {
+    let employeeDay = await addTaskReportUnplannedUpdateEmployeeDays(taskPlan, release, {
         taskPlanMoment,
         employee,
         reportedHoursToIncrement,

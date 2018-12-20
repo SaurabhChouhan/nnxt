@@ -110,6 +110,7 @@ class ProjectList extends Component {
                                         <TableHeaderColumn columnTitle isKey dataField='_id'
                                                            hidden={true}>ID</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='name'>Project Name</TableHeaderColumn>
+                                        <TableHeaderColumn columnTitle dataField='code'>Code</TableHeaderColumn>
                                         <TableHeaderColumn columnTitle dataField='client'
                                                            dataFormat={this.formatClient.bind(this)}>Client
                                             Name</TableHeaderColumn>

@@ -2,8 +2,7 @@ import mongoose from 'mongoose'
 import AppError from '../AppError'
 import * as MDL from "../models"
 import * as EC from '../errorcodes'
-import * as SC from '../serverconstants'
-import {userHasRole} from "../utils"
+import logger from "../logger";
 
 
 mongoose.Promise = global.Promise
@@ -12,6 +11,8 @@ let projectSchema = mongoose.Schema({
     name: {
         type: String, required: [true, 'Project name is required']
     },
+    code: {type: String, required: [true, 'Code is required']},
+    codeCounter: {type: Number, default: 0},
     client: {
         _id: mongoose.Schema.ObjectId,
         name: String
@@ -25,6 +26,30 @@ let projectSchema = mongoose.Schema({
 projectSchema.statics.getAllActive = async (loggedInUser) => {
     // Negotiator can see all projects (Estimation Initiate)
     return await ProjectModel.find({isDeleted: false, isArchived: false}).exec()
+}
+
+projectSchema.statics.search = async (criteria) => {
+    console.log("search called ", criteria)
+    if (criteria) {
+        let filter = {}
+
+        if (criteria.isActive != undefined) {
+            filter['isActive'] = criteria.isActive
+        }
+
+        if (criteria.name) {
+            filter['client.name'] = criteria.name
+        }
+
+        if (criteria._id) {
+            filter['client._id'] = criteria._id
+        }
+
+        logger.debug("searchRelease() ", {filter})
+        return await ProjectModel.find(filter)
+    }
+
+    return []
 }
 
 projectSchema.statics.getProjectsOfReleasesInvolved = async (loggedInUser) => {
@@ -67,6 +92,11 @@ projectSchema.statics.saveProject = async projectInput => {
     let client = await MDL.ClientModel.findById(projectInput.client._id)
     if (!client)
         throw new AppError("No such client", EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let count = await MDL.ProjectModel.count({code: projectInput.code})
+
+    if (count > 0)
+        throw new AppError('Code [' + projectInput.code + '] already taken');
 
     projectInput.client = client
     return await ProjectModel.create(projectInput)

@@ -15,20 +15,20 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG))
 
                 } else {
-                    NotificationManager.error('Project Not Added!')
+                    NotificationManager.error(json.message)
                     if (json.code == EC.ALREADY_EXISTS)
                         throw new SubmissionError({name: "Project Already Exists"})
                 }
                 return json
             })
         } else {
-            return dispatch(A.editProjectOnServer(values)).then(response => {
-                if (response.success) {
+            return dispatch(A.editProjectOnServer(values)).then(json => {
+                if (json.success) {
                     dispatch(A.hideComponent(COC.PROJECT_FORM_DIALOG)),
                         NotificationManager.success('Project Updated Successfully')
                 } else {
-                    NotificationManager.error('Project Updated Failed');
-                    if (response.code == EC.ALREADY_EXISTS)
+                    NotificationManager.error(json.message);
+                    if (json.code == EC.ALREADY_EXISTS)
                         throw new SubmissionError({name: "Project Already Exists"})
                 }
                 return json

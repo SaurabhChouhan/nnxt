@@ -9,7 +9,7 @@ import moment from 'moment'
 import * as U from '../utils'
 import EstimationModel from "./estimationModel";
 import logger from '../logger'
-import ReleasePlanModel from "./releasePlanModel";
+import _ from 'lodash'
 
 mongoose.Promise = global.Promise
 
@@ -18,6 +18,7 @@ let releaseSchema = mongoose.Schema({
     devStartDate: Date, // Expected development start date
     devEndDate: Date, // Expected development end date
     clientReleaseDate: Date, // Client release date
+    releaseType: {type: String, enum: SC.RELEASE_TYPES},
     status: {
         type: String,
         enum: [SC.STATUS_AWARDED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_ISSUE_FIXING, SC.STATUS_TEST_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_STABLE]
@@ -29,6 +30,10 @@ let releaseSchema = mongoose.Schema({
     project: {
         _id: {type: mongoose.Schema.ObjectId, required: true},
         name: {type: String, required: [true, 'Project name is required']}
+    },
+    client: {
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Client name is required']}
     },
     module: {
         _id: {type: mongoose.Schema.ObjectId},
@@ -273,6 +278,14 @@ releaseSchema.statics.getUserRolesInReleaseById = async (releaseID, user) => {
  */
 
 releaseSchema.statics.createRelease = async (releaseData, user) => {
+    if (!releaseData.releaseType)
+        throw new AppError('Release Type is required to create release.', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (releaseData.releaseType == SC.RELEASE_TYPE_INTERNAL || releaseData.releaseType == SC.RELEASE_TYPE_CLIENT)
+        V.validate(releaseData, V.releaseCreateStructNonTraining)
+    else
+        V.validate(releaseData, V.releaseCreateStructTraining)
+
     let release = new MDL.ReleaseModel()
     logger.debug("createRelease(): ", {releaseData})
 
@@ -300,9 +313,55 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
         throw new AppError('At least one developer should be assigned to a release', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.project._id), {name: 1})
-    if (!project)
-        throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    let project, client;
+
+    if (_.includes([SC.RELEASE_TYPE_INTERNAL, SC.RELEASE_TYPE_JOBS, SC.RELEASE_TYPE_TRAINING], releaseData.releaseType)) {
+        // For all these release types client would be aripra
+        client = await MDL.ClientModel.findOne({name: SC.CLIENT_ARIPRA})
+        if (!client)
+            throw new AppError('Client [' + SC.CLIENT_ARIPRA + '] not found, please add for release of types [' + SC.RELEASE_TYPE_INTERNAL + "," + SC.RELEASE_TYPE_TRAINING + ", " + SC.RELEASE_TYPE_JOBS +
+                ']', EC.DATA_INCONSISTENT)
+        else {
+            release.client = client
+        }
+    }
+
+    if (_.includes([SC.RELEASE_TYPE_INTERNAL, SC.RELEASE_TYPE_CLIENT], releaseData.releaseType)) {
+        // Only release types internal (aripra projects) and client would have projects
+        project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(releaseData.project._id), {
+            name: 1,
+            client: 1
+        })
+
+        if (!project)
+            throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    } else if (releaseData.releaseType == SC.RELEASE_TYPE_TRAINING) {
+        // All releases of type training would go into project aripra training
+
+        project = await MDL.ProjectModel.findOne({'name': SC.PROJECT_ARIPRA_TRAINING, 'client._id': client._id}, {
+            name: 1,
+            client: 1
+        })
+        if (!project)
+            throw new AppError('Project with name [' + SC.PROJECT_ARIPRA_TRAINING + '] should exists to add releases of release type [' + SC.RELEASE_TYPE_TRAINING + ']', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    } else if (releaseData.releaseType == SC.RELEASE_TYPE_JOBS) {
+        project = await MDL.ProjectModel.findOne({'name': SC.PROJECT_ARIPRA_BIDDING, 'client._id': client._id}, {
+            name: 1,
+            client: 1
+        })
+
+        if (!project)
+            throw new AppError('Project with name [' + SC.PROJECT_ARIPRA_BIDDING + '] should exists to add releases of release type [' + SC.RELEASE_TYPE_JOBS + ']', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+    }
+
+    let releaseVersionCount = await ReleaseModel.count({
+        name: '/^' + releaseData.releaseVersionName + '$/i',
+        "project._id": project._id
+    })
+
+    if (releaseVersionCount > 0) {
+        throw new AppError('Release version name [' + releaseData.releaseVersionName + '] already used for this project');
+    }
 
     if (releaseData.module && releaseData.module._id) {
         const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(releaseData.module._id), {name: 1})
@@ -315,12 +374,14 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
     if (!developmentType)
         throw new AppError('Development type not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
+    release.releaseType = releaseData.releaseType
     release.developmentType = developmentType
     release.project = project
+    release.client = project.client
     release.manager = manager
     release.leader = leader
     release.team = releaseData.team
-    release.technologies = releaseData.technologies
+    release.technologies = releaseData.technologies ? releaseData.technologies : []
     release.clientReleaseDate = U.dateInUTC(releaseData.clientReleaseDate)
     release.devStartDate = U.dateInUTC(releaseData.devStartDate)
     release.devEndDate = U.dateInUTC(releaseData.devReleaseDate)

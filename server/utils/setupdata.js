@@ -11,7 +11,17 @@ import {addNNXTTemplates} from "./migrationscripts";
 export const runSetupInstructions = async () => {
     //await addInitialData()
     //await addNNXTData()
-    await addNNXTTemplates()
+    //await addSampleData()
+    //await addNNXTTemplates()
+    //await addAripraProjects()
+    
+    
+    await addDevelopmentTypes()
+    await addMoreTechnologies()
+    await addAripraProjects()
+    await addCodeToExistingProjects()
+    await addReleaseTypeToExistingReleases()
+    await deleteUnusedProjects()
 }
 
 export const addInitialData = async () => {
@@ -222,7 +232,7 @@ export const addNNXTData = async () => {
     await addEmployeeSettings()
     await addLeaveSettings()
     await addEvents()
-    await addReleases()
+
 
 }
 
@@ -487,21 +497,6 @@ const addNNXTUsers = async () => {
         })
     }
 
-    /*
-    if (!await MDL.UserModel.exists('contactus@aripratech.com')) {
-        await MDL.UserModel.createUser({
-            email: 'contactus@aripratech.com',
-            firstName: "Saurabh",
-            lastName: "Chouhan",
-            roles: [topManagementRoles],
-            password: "password",
-            employeeCode: 'emp-002',
-            designation: SC.DESIGNATION_OWNER,
-            dateJoined: '01-01-2012'
-        })
-    }
-    */
-
     if (!await MDL.UserModel.exists('apogra@gmail.com')) {
         await MDL.UserModel.createUser({
             email: 'apogra@gmail.com',
@@ -571,7 +566,8 @@ const addProjects = async () => {
         if (!await MDL.ProjectModel.exists('FFL', carl._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'FFL',
-                client: carl
+                client: carl,
+                code: 'FFL'
             })
         }
     }
@@ -582,14 +578,16 @@ const addProjects = async () => {
         if (!await MDL.ProjectModel.exists('Careers IRL', randy._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'Careers IRL',
-                client: randy
+                client: randy,
+                code: 'CIRL'
             })
         }
 
         if (!await MDL.ProjectModel.exists('Careerify', randy._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'Careerify',
-                client: randy
+                client: randy,
+                code: 'CRFY'
             })
         }
     }
@@ -600,7 +598,8 @@ const addProjects = async () => {
         if (!await MDL.ProjectModel.exists('Synapse', erich._id)) {
             await MDL.ProjectModel.saveProject({
                 name: 'Synapse',
-                client: erich
+                client: erich,
+                code: 'SYNP'
             })
         }
     }
@@ -642,7 +641,7 @@ const addLeaveTypes = async () => {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Casual leave (CL)',
             description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calendar year.\n' +
-                'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
+            'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
         })
     }
     let les = await MDL.LeaveTypeModel.findOne({name: 'Leave for Emergency Services (LES)'})
@@ -664,8 +663,8 @@ const addLeaveTypes = async () => {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Annual Leave (AL)',
             description: 'Employees in full-time positions of a continuing or permanent nature shall be entitled to accumulate annual leave as follows:\n' +
-                '\n' +
-                'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
+            '\n' +
+            'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
         })
     }
 }
@@ -777,6 +776,18 @@ const addDevelopmentTypes = async () => {
     if (!await MDL.DevelopmentModel.exists('React Native Development')) {
         await MDL.DevelopmentModel.saveDevelopmentType({
             name: 'React Native Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('PHP Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'PHP Development'
+        })
+    }
+
+    if (!await MDL.DevelopmentModel.exists('Python Development')) {
+        await MDL.DevelopmentModel.saveDevelopmentType({
+            name: 'Python Development'
         })
     }
 }
@@ -967,16 +978,23 @@ const addUnreportedWarningEvent = async () => {
     })
 }
 
-const addReleases = async () => {
+const convertToStringID = (obj) => {
+    return Object.assign({}, obj, {
+        _id: obj._id.toString()
+    })
+
+}
+
+const addSampleData = async () => {
 
     console.log("SETTING UP RELEASES ...")
 
-    let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'})
-    let careersIRLProject = await MDL.ProjectModel.findOne({name: 'Careers IRL'})
-    let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'})
+    let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'}).lean()
+    let careersIRLProject = await MDL.ProjectModel.findOne({name: 'Careers IRL'}).lean()
+    let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'}).lean()
     let nodeWeb = await MDL.DevelopmentModel.findOne({
         name: 'Node Web Development'
-    })
+    }).lean()
 
     let saurabh = await MDL.UserModel.findOne({email: 'schouhan@aripratech.com'}).lean()
     let ratnesh = await MDL.UserModel.findOne({email: 'rjain@aripratech.com'}).lean()
@@ -1001,23 +1019,28 @@ const addReleases = async () => {
     now.add(2, 'days')
     let clientRelease = now.format(SC.DATE_FORMAT)
 
+    console.log("technologies node tech ", convertToStringID(nodeTech))
+
     let releaseData = {
         releaseVersionName: '1st Phase',
-        developmentType: nodeWeb,
+        developmentType: convertToStringID(nodeWeb),
         project: fflProject,
-        technologies: [nodeTech],
+        technologies: [convertToStringID(nodeTech)],
         devStartDate: devStart,
         devReleaseDate: devEnd,
+        technologies: [convertToStringID(nodeTech)],
         clientReleaseDate: clientRelease,
-        manager: saurabh,
-        leader: anup,
+        releaseType: SC.RELEASE_TYPE_CLIENT,
+        manager: convertToStringID(saurabh),
+        leader: convertToStringID(anup),
         team: [
-            saurabh, huzefa
+            convertToStringID(saurabh), convertToStringID(huzefa)
         ]
     }
 
-    let fflRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+
     try {
+        let fflRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
         await addPlannedReleasePlansFFL(fflRelease, saurabh, [saurabh, huzefa])
     } catch (e) {
         console.log("error caught ", e)
@@ -1036,20 +1059,25 @@ const addReleases = async () => {
 
     releaseData = {
         releaseVersionName: '1st Phase',
-        developmentType: nodeWeb,
+        developmentType: convertToStringID(nodeWeb),
         project: careersIRLProject,
-        technologies: [nodeTech],
+        technologies: [convertToStringID(nodeTech)],
         devStartDate: devStart,
         devReleaseDate: devEnd,
         clientReleaseDate: clientRelease,
-        manager: saurabh,
-        leader: ratnesh,
+        releaseType: SC.RELEASE_TYPE_CLIENT,
+        manager: convertToStringID(saurabh),
+        leader: convertToStringID(ratnesh),
         team: [
-            anup, huzefa, bhuvan
+            convertToStringID(anup), convertToStringID(huzefa), convertToStringID(bhuvan)
         ]
     }
-    let careersIRLRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
-    await addPlannedReleasePlansCareers(careersIRLRelease, saurabh, [anup, bhuvan, huzefa])
+    try {
+        let careersIRLRelease = await MDL.ReleaseModel.createRelease(releaseData, saurabh)
+        await addPlannedReleasePlansCareers(careersIRLRelease, saurabh, [anup, bhuvan, huzefa])
+    } catch (e) {
+        console.log("error caught ", e)
+    }
 }
 
 const addPlannedReleasePlansFFL = async (release, creator, team) => {
@@ -1263,3 +1291,292 @@ const addDayTask = async (releasePlan, employee, planningDate, plannedHours, rep
         await MDL.TaskPlanningModel.addTaskReport(reportDayTask, employee, SC.MODE_DEVELOPMENT)
     }
 }
+
+const addAripraProjects = async () => {
+
+    console.log("SETTING UP PROJECTS ...")
+    let aripra = await MDL.ClientModel.findOne({name: SC.CLIENT_ARIPRA})
+
+    if (aripra) {
+        if (!await MDL.ProjectModel.exists(SC.PROJECT_ARIPRA_TRAINING, aripra._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: SC.PROJECT_ARIPRA_TRAINING,
+                client: aripra,
+                code: 'ARPTRN'
+            })
+        }
+    }
+
+    if (aripra) {
+        if (!await MDL.ProjectModel.exists(SC.PROJECT_ARIPRA_BIDDING, aripra._id)) {
+            await MDL.ProjectModel.saveProject({
+                name: SC.PROJECT_ARIPRA_BIDDING,
+                client: aripra,
+                code: 'ARPBID'
+            })
+        }
+    }
+
+}
+
+
+
+const addCodeToExistingProjects = async() => {
+
+    console.log('ADDING CODE TO EXISTING PROJECTS ...')
+
+    let prj = await MDL.ProjectModel.findOne({name:'Iconoland', 'client.name': 'Brian'})
+    if(prj){
+        prj.code = 'ICONO'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'NNXT', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'NNXT'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'dslrBooth', 'client.name': 'Mike'})
+    if(prj){
+        prj.code = 'DSLRBT'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'lumaBooth', 'client.name': 'Mike'})
+    if(prj){
+        prj.code = 'LUMABT'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WiFiSurvey', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFSURV'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Optifi', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'OPTIF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'JCI', 'client.name': 'Jawaid'})
+    if(prj){
+        prj.code = 'JCI'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WFS-macOS', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFSMAC'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'BridgeChecker', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'BRGCHK'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'casebreifsco', 'client.name': 'Dean'})
+    if(prj){
+        prj.code = 'CASBRF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Survey Agent Dashboard', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'SRVAGN'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'MobiAR', 'client.name': 'Jovan'})
+    if(prj){
+        prj.code = 'MOBAR'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Management', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'ARPMGM'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Aripra Website', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'ARPWS'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Property Information', 'client.name': 'Larry'})
+    if(prj){
+        prj.code = 'PRPINF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'fotoShare-iOS', 'client.name': 'Mike'})
+    if(prj){
+        prj.code = 'FTSIOS'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Personal Expense Tracker', 'client.name': 'Aripra'})
+    if(prj){
+        prj.code = 'EXPTRK'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'Minecraft CE AddOn Maker', 'client.name': 'Hoai Li'})
+    if(prj){
+        prj.code = 'MINCRF'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'AA Utility Projects', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'AAUTL'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WiFiPerf-iOS', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFPIOS'
+        await prj.save()
+    }
+
+    prj = await MDL.ProjectModel.findOne({name:'WiFiPerf-iOS', 'client.name': 'Zaib'})
+    if(prj){
+        prj.code = 'WFPIOS'
+        await prj.save()
+    }
+}
+
+
+const addMoreTechnologies = async() => {
+    console.log("SETTING UP MORE TECHNOLOGIES ...")
+
+    if (!await MDL.TechnologyModel.exists('Python')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'Python'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('PHP')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'PHP'
+        })
+    }
+
+    if (!await MDL.TechnologyModel.exists('AngularJS')) {
+        await MDL.TechnologyModel.saveTechnology({
+            name: 'AngularJS'
+        })
+    }
+
+}
+
+const deleteUnusedProjects = async () => {
+    let estimations = await MDL.EstimationModel.find({'client.name': 'Larry'})
+
+    for(const estimation of estimations){
+        await estimation.remove()
+    }
+
+    let project = await MDL.ProjectModel.findOne({'client.name':'Larry'})
+
+    if(project)
+       await project.remove()
+
+    let client = await MDL.ClientModel.findOne({'name': 'Larry'})
+
+    if(client)
+       await client.remove()
+
+}
+
+const processReleasesUpdateReleaseType = async(releases) => {
+
+}
+
+const addReleaseTypeToExistingReleases = async() => { 
+    let clientProjects = await MDL.ProjectModel.find({'client.name': {$ne:SC.CLIENT_ARIPRA}})
+
+    if(clientProjects){
+        for(const project of clientProjects){
+            let releases = await MDL.ReleaseModel.find({'project._id':project._id})
+            for(const release of releases){
+                release.releaseType = SC.RELEASE_TYPE_CLIENT
+                release.client = project.client
+                await release.save()
+            }
+        }
+    }
+
+    let aripra = await MDL.ClientModel.findOne({name:SC.CLIENT_ARIPRA})
+    
+    let release = await MDL.ReleaseModel.findById('5b8cd46f7f409364023e0b9f')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5b8d38807f409364023e0c17')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5b8e298ad861b77307e56afc')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5ba1e95399278b77a1ec3693')
+    release.releaseType = SC.RELEASE_TYPE_TRAINING
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5b8fc8845c7ffc0348eb9353')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5ba9d4fb84094e643a0ade44')
+    release.releaseType = SC.RELEASE_TYPE_TRAINING
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5baa31c284094e643a0ade9f')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5bcebd0f84094e643a0ae5e6')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5b979fdf4910d27ffbcef5a5')
+    release.releaseType = SC.RELEASE_TYPE_JOBS
+    release.client = aripra
+    await release.save()
+
+    release = await MDL.ReleaseModel.findById('5ba996de84094e643a0ade2c')
+    release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    release.client = aripra
+    await release.save()
+    
+}
+
+const updateTaskPlansAddReleaseType = async () => {
+    let releases = await MDL.ReleaseModel.find({name:'ongoing'})
+
+    for(const release of releases){
+        await processReleaseToUpdateTaskPlan(release)
+    }
+
+}
+
+const processReleaseToUpdateTaskPlan = async () => {
+
+}
+
