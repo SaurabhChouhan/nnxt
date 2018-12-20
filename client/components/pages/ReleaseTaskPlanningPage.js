@@ -16,7 +16,6 @@ moment.locale('en')
 momentLocalizer()
 
 class ReleaseTaskPlanningPage extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -30,11 +29,8 @@ class ReleaseTaskPlanningPage extends Component {
             sizePerPageList: [{
                 text: '5', value: 5
             }],
-            sizePerPage: 5,  // which size per page you want to locate as default
-            onRowClick: this.onRowClick.bind(this)
+            sizePerPage: 5
         }
-
-
     }
 
     onRowClick(row) {
@@ -313,6 +309,21 @@ class ReleaseTaskPlanningPage extends Component {
                                     </button>
                                 </div>
 
+                                <div className="col-md-4">
+                                    <button type="button" className="btn releasePlanTaskbtn" style={{marginRight:0}}
+                                            onClick={() => {
+                                                if (this.props.descriptionFlag) {
+                                                    this.props.addDescription(false)
+                                                }
+                                                else {
+                                                    this.props.addDescription(true)
+                                                }
+                                            }}>
+                                        <i className="fa fa-arrow-left"></i>
+                                        Hide Description
+                                    </button>
+                                </div>
+
                             </div>
                             <div className="col-md-12">
                                 <div className="estimation">
@@ -481,6 +492,20 @@ class ReleaseTaskPlanningPage extends Component {
                                             onClick={() => this.props.showTaskPlanningCreationForm(releasePlan, workCalendarEmployeeIDs)}>
                                         <i className="fa fa-plus-circle"></i>
                                         Plan Task
+                                    </button>
+                                </div>
+                                <div className="col-md-4">
+                                    <button type="button" className="btn releasePlanTaskbtn" style={{marginRight:0}}
+                                            onClick={() => {
+                                                if (this.props.descriptionFlag) {
+                                                    this.props.addDescription(false)
+                                                }
+                                                else {
+                                                    this.props.addDescription(true)
+                                                }
+                                            }}>
+                                        <i className="fa fa-arrow-right"></i>
+                                        Show Description
                                     </button>
                                 </div>
 
