@@ -110,6 +110,7 @@ const getEmployeeWorkCalendar = async (employee, releaseTypes, startMonth, endMo
 
             if (!rtypes) {
                 // No release types are selected so show complete hours 
+                console.log("no rtypes passed")
                 if (e.reportedHours > 0) {
                     totalPlannedHours += e.plannedHours
                     totalReportedHours += e.reportedHours
@@ -136,13 +137,14 @@ const getEmployeeWorkCalendar = async (employee, releaseTypes, startMonth, endMo
                     let typeIdx = e.releaseTypes.findIndex(s => s.releaseType == rtype)
                     if (typeIdx > -1) {
                         if (e.reportedHours > 0) {
-                            totalPlannedHours += e.plannedHours
-                            totalReportedHours += e.reportedHours
+                            console.log("r type ["+rtype+"] e is ", e)
+                            totalPlannedHours += e.releaseTypes[typeIdx].plannedHours
+                            totalReportedHours += e.releaseTypes[typeIdx].reportedHours
                             schedule[date - 1].hours += e.releaseTypes[typeIdx].reportedHours
                             schedule[date - 1].reportedHours += e.releaseTypes[typeIdx].reportedHours
                             schedule[date - 1].plannedHours += e.releaseTypes[typeIdx].plannedHours
                         } else {
-                            totalPlannedHours += e.plannedHours
+                            totalPlannedHours += e.releaseTypes[typeIdx].plannedHours
                             schedule[date - 1].hours += e.releaseTypes[typeIdx].plannedHours
                             schedule[date - 1].plannedHours += e.releaseTypes[typeIdx].plannedHours
                         }
