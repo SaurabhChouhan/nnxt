@@ -33,7 +33,6 @@ let releasePlanSchema = mongoose.Schema({
         description: String,
         estimatedHours: {type: Number, default: 0},
         estimatedBilledHours: {type: Number, default: 0},
-        alreadyBilledHours: {type: Number, default: 0},
         type: {
             type: String,
             enum: [SC.TYPE_DEVELOPMENT, SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW, SC.TYPE_COMPANY]
@@ -79,6 +78,9 @@ let releasePlanSchema = mongoose.Schema({
             plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
             finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]} // final status reported by employee
         }]
+    },
+    billing: {
+        totalBilledHours: { type: Number, default: 0 } // Total billed hours added against this release task so far
     },
     comments: [{
         name: {type: String, required: [true, 'Comment name is required']},

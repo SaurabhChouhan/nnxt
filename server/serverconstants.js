@@ -478,6 +478,13 @@ export const RELEASE_TYPES_WITH_LABELS = [
     }
 ]
 
-
 export const CLIENT_ARIPRA = 'Aripra'
+
+export const BILLING_STATUS_BILLED = 'billed'
+export const BILLING_STATUS_UNBILLED = 'unbilled'
+export const BILLING_SENT = 'sent'
+export const BILLING_PENDING = 'pending'
+export const BILLING_PAID = 'paid'
+
+
 
