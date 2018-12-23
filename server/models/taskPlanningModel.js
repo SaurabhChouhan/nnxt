@@ -3041,7 +3041,6 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
-
     let finalStatusFromCompleteToPending = false;
     let finalStatusStillCompleted = false;
     if (employeeReportIdx != -1) {
@@ -3060,7 +3059,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
             } else if (taskPlanMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED) {
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, task cannot be reported in future once it is ' +
                     'reported as [' + SC.REPORT_COMPLETED + ']')
-            } else if (taskPlanMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
+            } else if (taskPlanMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.employees[employeeReportIdx].finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
                 // This means task was reported as complete in another task plan of same date throw error
                 throw new AppError('You have reported this Release Plan as [' + SC.REPORT_COMPLETED + '] in another task, reporting release task as completed in more than one task is not allowed.')
             }
