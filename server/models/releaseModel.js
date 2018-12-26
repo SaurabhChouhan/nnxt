@@ -578,6 +578,7 @@ releaseSchema.statics.createReleaseFromEstimation = async (releaseData, user, es
     release.manager = manager
     release.leader = leader
     release.developmentType = estimation.developmentType
+    release.client = estimation.client
     release.team = releaseData.team
     release.estimations = estimation
     release.clientReleaseDate = U.dateInUTC(releaseData.clientReleaseDate)

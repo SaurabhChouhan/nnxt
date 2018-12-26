@@ -1243,11 +1243,10 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     await taskPlan.save()
 
 
-    /*
     sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
         // do nothing
     })
-    */
+    
 
     return {
         taskPlan,
