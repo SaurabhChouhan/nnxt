@@ -470,6 +470,26 @@ export const reopenTaskPlanOnServer = (taskPlanningID) => {
     }
 }
 
+export const markReleasePlanAsCompleteOnServer = (releasePlanID) => {
+    return (dispatch) => {
+        return fetch('/api/release-plans/' + releasePlanID + '/mark-as-complete', {
+                method: 'put',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                return json
+            })
+    }
+}
+
+
 export const getEmployeePlanDetailsForRelease = (employeeId, startDate, endDate, releaseID) => {
     return (dispatch, getState) => {
         return fetch('/api/task-plans/employee/' + employeeId + '/fromDate/' + startDate + '/toDate/' + endDate + '/release/' + releaseID, {

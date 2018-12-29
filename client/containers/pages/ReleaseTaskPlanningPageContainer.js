@@ -1,9 +1,9 @@
-import {connect} from 'react-redux'
-import {ReleaseTaskPlanningPage} from '../../components'
-import {initialize} from 'redux-form'
+import { connect } from 'react-redux'
+import { ReleaseTaskPlanningPage } from '../../components'
+import { initialize } from 'redux-form'
 import * as A from '../../actions'
 import * as COC from '../../components/componentConsts'
-import {NotificationManager} from 'react-notifications'
+import { NotificationManager } from 'react-notifications'
 import * as SC from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -49,6 +49,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     reopenTask: (task) => {
         dispatch(A.reopenTaskPlanOnServer(task._id))
 
+    },
+    markAsComplete: (releasePlan) => {
+        dispatch(A.markReleasePlanAsCompleteOnServer(releasePlan._id)).then(json => {
+            if (json.success) {
+                dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
+                NotificationManager.success("Whole Release-task is marked as 'Complete'")
+            } else {
+                NotificationManager.error(json.message)
+            }
+        })
     },
     openMoveTaskPlanForm: (taskPlan, workCalendarEmployeeIDs) => {
         taskPlan.workCalendarEmployeeIDs = workCalendarEmployeeIDs
