@@ -760,12 +760,10 @@ let markEmployeeTaskAsComplete = async (employee, releasePlan, user) => {
         iterationType: taskPlan.iterationType,
         reportDescription: taskPlan.report.description + "\\n\\n" + user.firstName + " has marked this task as completed"
     }
-    await MDL.TaskPlanningModel.addTaskReport(taskReport, employeeUser, SC.MODE_PRODUCTION)
+    // Set last parameter as true so that validations can be by passed
+    await MDL.TaskPlanningModel.addTaskReport(taskReport, employeeUser, SC.MODE_PRODUCTION, true)
 
 }
-
-
-
 
 const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)
 export default ReleasePlanModel

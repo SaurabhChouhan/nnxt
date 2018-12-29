@@ -51,7 +51,14 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 
     },
     markAsComplete: (releasePlan) => {
-        console.log("Marking release plan as complete ", releasePlan)
+        dispatch(A.markReleasePlanAsCompleteOnServer(releasePlan._id)).then(json => {
+            if (json.success) {
+                dispatch(A.getAllTaskPlannedFromServer(releasePlan._id))
+                NotificationManager.success("Whole Release-task is marked as 'Complete'")
+            } else {
+                NotificationManager.error(json.message)
+            }
+        })
     },
     openMoveTaskPlanForm: (taskPlan, workCalendarEmployeeIDs) => {
         taskPlan.workCalendarEmployeeIDs = workCalendarEmployeeIDs

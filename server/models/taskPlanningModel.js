@@ -1141,6 +1141,8 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
         return e._id.toString() === selectedEmployee._id.toString()
     })
 
+    logger.debug("employee reported idx is ", { employeeReportIdx })
+
     if (employeeReportIdx > -1) {
         // check to see if employee has reported this task as completed if 'yes', task cannot be planned against this employee
         let maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
@@ -2966,7 +2968,7 @@ const addTaskReportPlannedUpdateTaskPlan = async (taskPlan, releasePlan, release
     return taskPlan
 }
 
-const addTaskReportPlanned = async (reportInput, employee, mode) => {
+const addTaskReportPlanned = async (reportInput, employee, mode, reportedByLeaderManager) => {
     /* Get task plan */
     let taskPlan = await MDL.TaskPlanningModel.findById(reportInput._id)
 
@@ -2990,7 +2992,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 
     /* See if this is a re-report if yes then check if time for re-reporting is gone */
     let reReport = false
-    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+    if (taskPlan.report && taskPlan.report.reportedOnDate && !reportedByLeaderManager) {
         reReport = true
         // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
         let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
@@ -3005,7 +3007,6 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         //planningMomentInIndia.add(1, 'days')
         if (moment().isBefore(planningMomentInIndia) && mode == SC.MODE_PRODUCTION)
             throw new AppError('Reporting tasks planned in future is not allowed', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
-
     }
 
     let maxReportedMoment
@@ -3321,7 +3322,7 @@ const addTaskReportUnplannedUpdateRelease = async (taskPlan, releasePlan, releas
     return release
 }
 
-const addTaskReportUnplanned = async (reportInput, employee, mode) => {
+const addTaskReportUnplanned = async (reportInput, employee, mode, reportedByLeaderManager) => {
     /**
      * In 'unplanned' task reporting there would not be any corresponding task plan as case with 'planned' tasks,
      * rather it would have only release plan.
@@ -3371,7 +3372,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 
     /* See if this is a re-report if yes then check if time for re-reporting is gone */
     let reReport = false
-    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+    if (taskPlan.report && taskPlan.report.reportedOnDate && !reportedByLeaderManager) {
         reReport = true
         // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
         let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
@@ -3465,14 +3466,14 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 }
 
 
-taskPlanningSchema.statics.addTaskReport = async (taskReport, employee, mode) => {
-    logger.debug("Received task report as ", {taskReport})
+taskPlanningSchema.statics.addTaskReport = async (taskReport, employee, mode, reportedByLeaderManager) => {
+    logger.debug("Received task report as ", { taskReport })
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED) {
-        return await addTaskReportPlanned(taskReport, employee, mode)
+        return await addTaskReportPlanned(taskReport, employee, mode, reportedByLeaderManager)
     } else if (taskReport.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
-        return await addTaskReportUnplanned(taskReport, employee, mode)
+        return await addTaskReportUnplanned(taskReport, employee, mode, reportedByLeaderManager)
     }
 }
 
