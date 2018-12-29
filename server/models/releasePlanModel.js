@@ -13,27 +13,27 @@ mongoose.Promise = global.Promise
 let releasePlanSchema = mongoose.Schema({
     creator: {
         _id: mongoose.Schema.ObjectId,
-        name: {type: String}
+        name: { type: String }
     },
     estimation: {
-        _id: {type: mongoose.Schema.ObjectId}
+        _id: { type: mongoose.Schema.ObjectId }
     },
     release: {
-        _id: {type: mongoose.Schema.ObjectId, required: true},
-        name: {type: String, required: [true, 'Release name is required']},
+        _id: { type: mongoose.Schema.ObjectId, required: true },
+        name: { type: String, required: [true, 'Release name is required'] },
         iteration: {
-            _id: {type: mongoose.Schema.ObjectId, required: true},
+            _id: { type: mongoose.Schema.ObjectId, required: true },
             idx: Number,
-            iterationType: {type: String}
+            iterationType: { type: String }
         }
     },
     task: {
         _id: mongoose.Schema.ObjectId,
-        name: {type: String, required: [true, 'Task name is required']},
+        name: { type: String, required: [true, 'Task name is required'] },
         description: String,
-        estimatedHours: {type: Number, default: 0},
-        estimatedBilledHours: {type: Number, default: 0},
-        alreadyBilledHours: {type: Number, default: 0},
+        estimatedHours: { type: Number, default: 0 },
+        estimatedBilledHours: { type: Number, default: 0 },
+        alreadyBilledHours: { type: Number, default: 0 },
         type: {
             type: String,
             enum: [SC.TYPE_DEVELOPMENT, SC.TYPE_MANAGEMENT, SC.TYPE_TESTING, SC.TYPE_REVIEW, SC.TYPE_COMPANY]
@@ -43,58 +43,58 @@ let releasePlanSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: String
     },
-    owner: {type: String, enum: [SC.OWNER_LEADER, SC.OWNER_MANAGER]},
+    owner: { type: String, enum: [SC.OWNER_LEADER, SC.OWNER_MANAGER] },
     flags: [{
         type: String,
         enum: SC.ALL_WARNING_NAME_ARRAY
     }],
     planning: {
-        plannedHours: {type: Number, default: 0},
+        plannedHours: { type: Number, default: 0 },
         minPlanningDate: Date, // minimum planning date for this release plan
         maxPlanningDate: Date, // maximum planning for this release plan
-        plannedTaskCounts: {type: Number, default: 0},  // Number of tasks-plans against this release plan
-        plannedHoursEstimatedTasks: {type: Number, default: 0}, // sum of planned hours of all task plans but it will not cross estimated hours
+        plannedTaskCounts: { type: Number, default: 0 },  // Number of tasks-plans against this release plan
+        plannedHoursEstimatedTasks: { type: Number, default: 0 }, // sum of planned hours of all task plans but it will not cross estimated hours
         employees: [{
             _id: mongoose.Schema.ObjectId,
-            plannedHours: {type: Number, default: 0}, // Number of planned hours against this employee
+            plannedHours: { type: Number, default: 0 }, // Number of planned hours against this employee
             minPlanningDate: Date, // minimum planned date against this employee
             maxPlanningDate: Date, // maximum planned date against this employee
-            plannedTaskCounts: {type: Number, default: 0} // number of task plans against this employee
+            plannedTaskCounts: { type: Number, default: 0 } // number of task plans against this employee
         }]
     },
     report: {
-        reportedHours: {type: Number, default: 0},
+        reportedHours: { type: Number, default: 0 },
         minReportedDate: Date,
         maxReportedDate: Date,
-        reportedTaskCounts: {type: Number, default: 0}, // Number of tasks-plans that are reported till now
-        plannedHoursReportedTasks: {type: Number, default: 0}, // sum of planned hours of reported task plans
-        progress: {type: Number, default: 0.0}, // overall progress of this release plan in percentage
-        finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]},
+        reportedTaskCounts: { type: Number, default: 0 }, // Number of tasks-plans that are reported till now
+        plannedHoursReportedTasks: { type: Number, default: 0 }, // sum of planned hours of reported task plans
+        progress: { type: Number, default: 0.0 }, // overall progress of this release plan in percentage
+        finalStatus: { type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED] },
         employees: [{
             _id: mongoose.Schema.ObjectId,
-            reportedHours: {type: Number, default: 0}, // Number of reported hours by employee
+            reportedHours: { type: Number, default: 0 }, // Number of reported hours by employee
             minReportedDate: Date, // minimum reported date against this employee
             maxReportedDate: Date, // maximum reported date against this employee
-            reportedTaskCounts: {type: Number, default: 0}, // number of task reported this employee,
-            plannedHoursReportedTasks: {type: Number, default: 0}, // planned hours assigned against reported tasks, helps in tracking progress
-            finalStatus: {type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED]} // final status reported by employee
+            reportedTaskCounts: { type: Number, default: 0 }, // number of task reported this employee,
+            plannedHoursReportedTasks: { type: Number, default: 0 }, // planned hours assigned against reported tasks, helps in tracking progress
+            finalStatus: { type: String, enum: [SC.STATUS_PENDING, SC.STATUS_COMPLETED] } // final status reported by employee
         }]
     },
     comments: [{
-        name: {type: String, required: [true, 'Comment name is required']},
-        date: {type: Date, required: [true, 'Comment date is required']},
-        comment: {type: String, required: [true, 'Comment is required']},
+        name: { type: String, required: [true, 'Comment name is required'] },
+        date: { type: Date, required: [true, 'Comment date is required'] },
+        comment: { type: String, required: [true, 'Comment is required'] },
         dateString: String,
         commentType: {
             type: String,
             enum: [SC.TYPE_BLOCKING, SC.TYPE_INFORMATION, SC.TYPE_WAITING, SC.TYPE_CLARIFICATION, SC.TYPE_REPORT_COMMENT]
         },
     }],
-    created: {type: Date, default: Date.now()},
-    updated: {type: Date, default: Date.now()}
+    created: { type: Date, default: Date.now() },
+    updated: { type: Date, default: Date.now() }
 }, {
-    usePushEach: true
-})
+        usePushEach: true
+    })
 
 
 /**
@@ -167,12 +167,12 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
 
     let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
 
-    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
+    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", { iterationIndex })
 
     if (iterationIndex <= -1)
         throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
-    logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+    logger.debug("planned Iteration ", { "iteration": release.iterations[iterationIndex] })
 
     let releasePlan = new ReleasePlanModel()
 
@@ -200,7 +200,7 @@ releasePlanSchema.statics.addPlannedReleasePlan = async (releasePlanInput, user)
         name: U.getFullName(user)
     }
 
-    logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
+    logger.debug("addPlannedReleasePlan(): saving release plan ", { releasePlan: releasePlan.toObject() })
 
     //let releasePlan = await ReleasePlanModel.create(releasePlanInput)
     MDL.WarningModel.addUnplanned(release, releasePlan).then(() => {
@@ -266,12 +266,12 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
 
     let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_UNPLANNED)
 
-    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
+    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", { iterationIndex })
 
     if (iterationIndex <= -1)
         throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
 
-    logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+    logger.debug("planned Iteration ", { "iteration": release.iterations[iterationIndex] })
 
     let releasePlan = new ReleasePlanModel()
 
@@ -295,7 +295,7 @@ releasePlanSchema.statics.addUnplannedReleasePlan = async (releasePlanInput, use
         name: U.getFullName(user)
     }
 
-    logger.debug("addPlannedReleasePlan(): saving release plan ", {releasePlan: releasePlan.toObject()})
+    logger.debug("addPlannedReleasePlan(): saving release plan ", { releasePlan: releasePlan.toObject() })
 
     if (!release.iterations[iterationIndex].stats) {
         release.iterations[iterationIndex].stats = []
@@ -344,14 +344,14 @@ releasePlanSchema.statics.getReleasePlansByReleaseID = async (params, user) => {
         throw new AppError('Status not found ', EC.NOT_FOUND, EC.HTTP_FORBIDDEN)
     }
 
-    let filter = {'release._id': release._id}
+    let filter = { 'release._id': release._id }
 
     if (status && status.toLowerCase() !== SC.ALL && empflag && empflag.toLowerCase() !== SC.ALL)
-        filter = {'release._id': release._id, 'report.finalStatus': status, 'flags': empflag}
+        filter = { 'release._id': release._id, 'report.finalStatus': status, 'flags': empflag }
     else if (status && status.toLowerCase() !== SC.ALL)
-        filter = {'release._id': release._id, 'report.finalStatus': status}
+        filter = { 'release._id': release._id, 'report.finalStatus': status }
     else if (empflag && empflag.toLowerCase() !== SC.ALL)
-        filter = {'release._id': release._id, 'flags': empflag}
+        filter = { 'release._id': release._id, 'flags': empflag }
 
     return await ReleasePlanModel.find(filter)
 }
@@ -388,23 +388,23 @@ releasePlanSchema.statics.search = async (criteria, user) => {
                 // Release plan should have planned between this
                 let startMoment = U.momentInUTC(criteria.startDate)
                 let endMoment = U.momentInUTC(criteria.endDate)
-                dateFilter = {'$and': [{'planning.maxPlanningDate': {$gte: startMoment}}, {'planning.minPlanningDate': {$lte: endMoment}}]}
+                dateFilter = { '$and': [{ 'planning.maxPlanningDate': { $gte: startMoment } }, { 'planning.minPlanningDate': { $lte: endMoment } }] }
             } else if (criteria.startDate) {
                 let startMoment = U.momentInUTC(criteria.startDate)
-                dateFilter = {'planning.minPlanningDate': {$gte: startMoment}}
+                dateFilter = { 'planning.minPlanningDate': { $gte: startMoment } }
             } else if (criteria.endDate) {
                 let endMoment = U.momentInUTC(criteria.endDate)
-                dateFilter = {'planning.maxPlanningDate': {$lte: endMoment}}
+                dateFilter = { 'planning.maxPlanningDate': { $lte: endMoment } }
             } else if (criteria.status == SC.STATUS_PLANNED) {
                 // Planned but not reported even once
                 dateFilter = {}
-                dateFilter['planning.minPlanningDate'] = {$ne: null}
+                dateFilter['planning.minPlanningDate'] = { $ne: null }
                 dateFilter['report.finalStatus'] = null
             }
 
             if (dateFilter) {
                 if (!criteria.status)
-                    filter['$or'] = [{'planning.minPlanningDate': null}, dateFilter]
+                    filter['$or'] = [{ 'planning.minPlanningDate': null }, dateFilter]
                 else
                     filter = Object.assign({}, filter, dateFilter)
             }
@@ -418,8 +418,8 @@ releasePlanSchema.statics.search = async (criteria, user) => {
             filter['flags'] = criteria.flag
         }
 
-        logger.debug("searchReleasePlans() ", {filter})
-        return await ReleasePlanModel.find(filter).sort({'planning.minPlanningDate': 1})
+        logger.debug("searchReleasePlans() ", { filter })
+        return await ReleasePlanModel.find(filter).sort({ 'planning.minPlanningDate': 1 })
     }
 
     return []
@@ -498,11 +498,11 @@ releasePlanSchema.statics.removeReleasePlanById = async (releasePlanID, user) =>
     }
 
     let iterationIndex = release.iterations.findIndex(it => it.type == SC.ITERATION_TYPE_PLANNED)
-    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", {iterationIndex})
+    logger.debug("addPlannedReleasePlan(): iterationIndex found as ", { iterationIndex })
 
     if (iterationIndex <= -1)
         throw new AppError('Iteration with type [' + SC.ITERATION_TYPE_PLANNED + "] not found. ", EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
-    logger.debug("planned Iteration ", {"iteration": release.iterations[iterationIndex]})
+    logger.debug("planned Iteration ", { "iteration": release.iterations[iterationIndex] })
 
     // Progress of iteration would also be impacted due to addition of this task
 
@@ -613,7 +613,7 @@ releasePlanSchema.statics.updatePlannedReleasePlan = async (releasePlanInput, us
     release.iterations[iterationIndex].estimatedHours = newEstimatedHours
     release.iterations[iterationIndex].estimatedBilledHours += diffBilledHours
     releasePlan.report.progress = newReleasePlanProgress
-    logger.debug("new release progress is ", {newReleaseProgress: release.iterations[iterationIndex].progress})
+    logger.debug("new release progress is ", { newReleaseProgress: release.iterations[iterationIndex].progress })
 
     let idx = release.iterations[iterationIndex].stats.findIndex(s => s.type == releasePlan.task.type)
 
@@ -692,7 +692,7 @@ releasePlanSchema.statics.getNewProgressPercentage = (releasePlan) => {
         if (baseHours < releasePlan.task.estimatedHours) {
             baseHours = releasePlan.task.estimatedHours
         }
-        logger.debug('getNewProgressPercentage(): [baseHours] ', {baseHours})
+        logger.debug('getNewProgressPercentage(): [baseHours] ', { baseHours })
         // now that we have base hours we would calculate progress by comparing it against reported hours
         if (baseHours > 0)
             progress = releasePlan.report.reportedHours * 100 / baseHours
@@ -700,10 +700,71 @@ releasePlanSchema.statics.getNewProgressPercentage = (releasePlan) => {
             // In a special case where estimated hours of task is 0 hours and no planning is added yet then it would be considered to be complete
             progress = 100
         }
-        logger.debug('getNewProgressPercentage(): [progress] ', {progress})
+        logger.debug('getNewProgressPercentage(): [progress] ', { progress })
     }
     return progress.toFixed(2)
 }
+
+releasePlanSchema.statics.markAsComplete = async (releasePlanID, user) => {
+    /* find release plan associated with this task plan */
+    let releasePlan = await MDL.ReleasePlanModel.findById(releasePlanID, { report: 1, release: 1 })
+    if (!releasePlan)
+        throw new AppError('No release plan found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    let release = await MDL.ReleaseModel.findById(releasePlan.release._id, { iterations: 1, name: 1, project: 1 })
+
+    if (!release)
+        throw new AppError('No release associated with this task , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can mark task as completed', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    // Find out employee entries which have reported this task as pending
+    if (!releasePlan.report.finalStatus)
+        throw new AppError('This release-task is never reported, cannot mark as complete', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+
+    if (releasePlan.report.finalStatus == SC.STATUS_COMPLETED) {
+        throw new AppError('This release-task is already completed so no need to mark it as complete...', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
+    }
+
+    if (releasePlan.report.employees && releasePlan.report.employees.length) {
+        let employees = releasePlan.report.employees.filter(e => e.finalStatus == SC.STATUS_PENDING)
+        console.log("employees that reported this task as pending ", employees)
+        // Iterate on these employees and mark one pending tasks from their last reported date as completed
+        await markEmployeesTaskAsComplete(employees, releasePlan, user)
+    }
+    return []
+}
+
+let markEmployeesTaskAsComplete = async (employees, releasePlan, user) => {
+    for (let employee of employees) {
+        // Find out task plan for employee that can be marked as complete
+        await markEmployeeTaskAsComplete(employee, releasePlan, user)
+    }
+}
+
+let markEmployeeTaskAsComplete = async (employee, releasePlan, user) => {
+    // Find out task plan for employee that can be marked as complete
+    let taskPlan = await MDL.TaskPlanningModel.findOne({ "releasePlan._id": releasePlan._id, "employee._id": mongoose.Types.ObjectId(employee._id), "planningDate": employee.maxReportedDate, "report.status": SC.STATUS_PENDING })
+    console.log("found task plan as ", taskPlan._id, employee._id)
+
+    let employeeUser = await MDL.UserModel.findById(taskPlan.employee._id)
+    let taskReport = {
+        _id: taskPlan._id.toString(),
+        reportedHours: taskPlan.report.reportedHours,
+        status: SC.STATUS_COMPLETED,
+        reportedDate: taskPlan.planningDateString,
+        iterationType: taskPlan.iterationType,
+        reportDescription: taskPlan.report.description + "\\n\\n" + user.firstName + " has marked this task as completed"
+    }
+    await MDL.TaskPlanningModel.addTaskReport(taskReport, employeeUser, SC.MODE_PRODUCTION)
+
+}
+
+
 
 
 const ReleasePlanModel = mongoose.model('ReleasePlan', releasePlanSchema)

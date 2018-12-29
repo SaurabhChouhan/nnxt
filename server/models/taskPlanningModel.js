@@ -1235,9 +1235,11 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     await taskPlan.save()
 
 
+    /*
     sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
         // do nothing
     })
+    */
 
 
     return {
@@ -3464,7 +3466,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 
 
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee, mode) => {
-    logger.debug("addTaskReport() mode is " + mode)
+    logger.debug("Received task report as ", {taskReport})
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED) {
