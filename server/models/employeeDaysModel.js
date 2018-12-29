@@ -137,7 +137,7 @@ const getEmployeeWorkCalendar = async (employee, releaseTypes, startMonth, endMo
                     let typeIdx = e.releaseTypes.findIndex(s => s.releaseType == rtype)
                     if (typeIdx > -1) {
                         if (e.reportedHours > 0) {
-                            console.log("r type ["+rtype+"] e is ", e)
+                            console.log("r type [" + rtype + "] e is ", e)
                             totalPlannedHours += e.releaseTypes[typeIdx].plannedHours
                             totalReportedHours += e.releaseTypes[typeIdx].reportedHours
                             schedule[date - 1].hours += e.releaseTypes[typeIdx].reportedHours
@@ -223,7 +223,7 @@ employeeDaysSchema.statics.getMonthlyWorkCalendar = async (employeeID, releaseTy
     // Now we will divide schedule into week rows
 
     let employeeSchedules = []
-    let totalPlannedHours=0, totalReportedHours=0;
+    let totalPlannedHours = 0, totalReportedHours = 0;
     if (employeeID == SC.ALL) {
 
         let developers;

@@ -19,6 +19,7 @@ let releaseSchema = mongoose.Schema({
     devEndDate: Date, // Expected development end date
     clientReleaseDate: Date, // Client release date
     releaseType: { type: String, enum: SC.RELEASE_TYPES },
+    billingRate: { type: Number, default: 0 }, // Billing rate per hours
     status: {
         type: String,
         enum: [SC.STATUS_AWARDED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_ISSUE_FIXING, SC.STATUS_TEST_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_STABLE]
@@ -72,11 +73,11 @@ let releaseSchema = mongoose.Schema({
         },
         name: { type: String },
         expectedBilledHours: { type: Number, default: 0 }, // expected billed hours
-        billingRate: { type: Number, default: 0 }, // Billing rate per hours
         estimatedHours: { type: Number, default: 0 }, // sum of estimated hours of all release plan
         plannedHours: { type: Number, default: 0 }, // sum of planned hours of all task plans across this release
         reportedHours: { type: Number, default: 0 },// sum of reported hours of all task plans across this release
-        billedHours: { type: Number, default: 0 }, // sum of billed hours so far
+        billedHours: { type: Number, default: 0 }, // sum of billed hours already communicated to client
+        unbilledHours: { type: Number, default: 0 }, // sum of billed hours that are still unbilled
         // sum of planned hours of all release plans but maximum planned hours added per release plan would be estimated hours
         // Helps in finding out percentage of planned work
         plannedHoursEstimatedTasks: { type: Number, default: 0 },
@@ -109,9 +110,9 @@ let releaseSchema = mongoose.Schema({
     }],
     settings: {
         // following multiplier would be used to decide along with progress that what is earned billing for completed tasks
-        completedTasksBillingMultiplier: { type: Number, default: 1 }, 
+        completedTasksBillingMultiplier: { type: Number, default: 1 },
         // following multiplier would be used to decide along with progress made that what is earned billing for pending tasks
-        pendingTasksBillingMultiplier: { type: Number, default: 0.75 } 
+        pendingTasksBillingMultiplier: { type: Number, default: 0.75 }
 
     },
     created: { type: Date, default: Date.now() },

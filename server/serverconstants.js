@@ -480,11 +480,7 @@ export const RELEASE_TYPES_WITH_LABELS = [
 
 export const CLIENT_ARIPRA = 'Aripra'
 
-export const BILLING_STATUS_BILLED = 'billed'
-export const BILLING_STATUS_UNBILLED = 'unbilled'
-export const BILLING_SENT = 'sent'
-export const BILLING_PENDING = 'pending'
-export const BILLING_PAID = 'paid'
-
-
-
+export const BILLING_STATUS_UNBILLED = 'unbilled' // Billing task is created 
+export const BILLING_STATUS_ENTRY_CREATED = 'entry-created' // Billing task is now part of a timesheet
+export const BILLING_STATUS_BILLED = 'billed' // Timesheet with this entry is sent to client
+export const BILLING_STATUS_PAID = 'paid' // Timesheet where billing task entry is added is marked as paid
