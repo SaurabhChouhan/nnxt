@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 mongoose.Promise = global.Promise
+import {TIMESHEET_CREATED, TIMESHEET_SENT, TIMESHEET_PAID} from '../serverconstants'
 
 let billingTimeSheetSchema = mongoose.Schema({
     client: {
@@ -10,6 +11,7 @@ let billingTimeSheetSchema = mongoose.Schema({
         _id: mongoose.Schema.ObjectId,
         name: String
     },
+    status: {type:String, enum:[TIMESHEET_CREATED, TIMESHEET_SENT, TIMESHEET_PAID]},
     startDate: Date, // Start of timesheet
     endDate: Date, // end of timesheet
     billedHours: { type: Number, default: 0 }, // total billed hours billed in this timesheet

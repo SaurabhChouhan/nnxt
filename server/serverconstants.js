@@ -63,7 +63,7 @@ export const STATUS_PLANNED = 'planned'
 
 export const LEAVE_TYPE_FULL_DAY = 'Full'
 export const LEAVE_TYPE_HALF_DAY = 'Half'
-export const LEAVE_TYPE_DAY_WITH_NAME_ARRAY = [{name: LEAVE_TYPE_HALF_DAY}, {name: LEAVE_TYPE_FULL_DAY}]
+export const LEAVE_TYPE_DAY_WITH_NAME_ARRAY = [{ name: LEAVE_TYPE_HALF_DAY }, { name: LEAVE_TYPE_FULL_DAY }]
 export const LEAVE_TYPE_DAY_ARRAY = [LEAVE_TYPE_HALF_DAY, LEAVE_TYPE_FULL_DAY]
 
 
@@ -159,7 +159,7 @@ export const ITERATION_TYPE_PLANNED = 'planned'
 
 */
 export const ITERATION_TYPE_UNPLANNED = 'unplanned'
-export const ITERATION_TYPE_LIST_WITH_NAME = [{name: ITERATION_TYPE_PLANNED}, {name: ITERATION_TYPE_UNPLANNED}]
+export const ITERATION_TYPE_LIST_WITH_NAME = [{ name: ITERATION_TYPE_PLANNED }, { name: ITERATION_TYPE_UNPLANNED }]
 
 
 export const ALL_WARNING_NAME_ARRAY = [
@@ -210,10 +210,10 @@ export const HOLIDAY_REASON_PUBLIC_HOLIDAY = "Public Holiday"
 export const HOLIDAY_REASON_NATIONAL_DAY = "National Day"
 export const HOLIDAY_REASON_GAZETTED_HOLIDAYS = "Gazetted Holidays"
 export const HOLIDAY_TYPE_LIST_WITH_NAME = [
-    {name: HOLIDAY_REASON_EMERGENCY},
-    {name: HOLIDAY_REASON_PUBLIC_HOLIDAY},
-    {name: HOLIDAY_REASON_NATIONAL_DAY},
-    {name: HOLIDAY_REASON_GAZETTED_HOLIDAYS}]
+    { name: HOLIDAY_REASON_EMERGENCY },
+    { name: HOLIDAY_REASON_PUBLIC_HOLIDAY },
+    { name: HOLIDAY_REASON_NATIONAL_DAY },
+    { name: HOLIDAY_REASON_GAZETTED_HOLIDAYS }]
 
 
 export const HOLIDAY_TYPE_LIST = [
@@ -341,7 +341,9 @@ export const MOMENT_MONTHS = 'M'
 export const MOMENT_QUARTERS = 'Q'
 export const MOMENT_YEARS = 'y'
 
+// Would execute only once
 export const EVENT_ONETIME = 'onetime'
+// Would execute repeatedly
 export const EVENT_RECURRING = 'recurring'
 
 export const EVENT_SCHEDULED = 'scheduled'
@@ -378,7 +380,7 @@ export const ALL_RELEASE_STATUS = [
 
 /* Email Notifications Configuration Settings */
 /* Email Settings */
-export const NNXT_SELF_USER_AND_EMAIL_INFO = {"_id": "5b87dea2749236069ce69430", "email": "nnxt@aripratech.com"}
+export const NNXT_SELF_USER_AND_EMAIL_INFO = { "_id": "5b87dea2749236069ce69430", "email": "nnxt@aripratech.com" }
 export const SENDER_EMAIL_ADDRESS = "nnxt@aripratech.com"
 export const NNXT_LOGO_URL = "http://nnxt.aripratech.com/images/logos/nnxt-logo.png"
 export const SERVER_BASE_URL = "http://nnxt.aripratech.com/"
@@ -481,6 +483,14 @@ export const RELEASE_TYPES_WITH_LABELS = [
 export const CLIENT_ARIPRA = 'Aripra'
 
 export const BILLING_STATUS_UNBILLED = 'unbilled' // Billing task is created 
-export const BILLING_STATUS_ENTRY_CREATED = 'entry-created' // Billing task is now part of a timesheet
+export const BILLING_STATUS_BILLING_CREATED = 'billing-created' // Billing task is now part of a timesheet
 export const BILLING_STATUS_BILLED = 'billed' // Timesheet with this entry is sent to client
 export const BILLING_STATUS_PAID = 'paid' // Timesheet where billing task entry is added is marked as paid
+
+export const TASK_PROCESS_STATUS_PENDING = 'pending'
+export const TASK_PROCESS_STATUS_COMPLETED = 'completed'
+
+
+export const TIMESHEET_CREATED = 'created'
+export const TIMESHEET_SENT = 'sent'
+export const TIMESHEET_PAID = 'paid'

@@ -71,12 +71,13 @@ let taskPlanningSchema = mongoose.Schema({
         description: String
     },
     billing: {
+        processStatus: { type: String, enum: [SC.TASK_PROCESS_STATUS_PENDING, SC.TASK_PROCESS_STATUS_COMPLETED], default: SC.TASK_PROCESS_STATUS_PENDING },
         status: {
             type: String,
             enum: [SC.BILLING_STATUS_BILLED, SC.BILLING_STATUS_UNBILLED]
         },
         totalBilledHours: { type: Number, default: 0 }, // Total billed hours added against this task plan so far
-        totalBillingTasks : { type: Number, default: 0 } // Total billing tasks added against this task
+        totalBillingTasks: { type: Number, default: 0 } // Total billing tasks added against this task
     }
 }, {
         usePushEach: true
@@ -1243,10 +1244,12 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     await taskPlan.save()
 
 
+    /*
     sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
         // do nothing
     })
-    
+    */
+
 
     return {
         taskPlan,

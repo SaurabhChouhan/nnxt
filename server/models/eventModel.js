@@ -7,10 +7,10 @@ import logger from '../logger'
 mongoose.Promise = global.Promise
 
 let eventSchema = mongoose.Schema({
-    method: {type: String, required: true}, // Name of event handler
+    method: { type: String, required: true }, // Name of event handler
     data: [{
-        key: {type: String},
-        value: {type: String}
+        key: { type: String },
+        value: { type: String }
     }],
 
     /*
@@ -23,18 +23,19 @@ let eventSchema = mongoose.Schema({
         type: String,
         enum: [SC.EVENT_SCHEDULED, SC.EVENT_RUNNING, SC.EVENT_COMPLETED, SC.EVENT_FAILED]
     }],
-    error: {type: String}, // Any error occurred during last execution
+    error: { type: String }, // Any error occurred during last execution
     // Date of next execution
     execution: {
-        dateString: {type: String}, // date in format specified in format field
+        moveExecutionToFuture: { type: Boolean, default: false }, // should new execution time calculates in such a way that it always remains ahead of now
+        dateString: { type: String }, // date in format specified in format field
         dateInUTC: Date, // Date recorded in UTC
-        minDateString: {type: String}, //
+        minDateString: { type: String }, //
         minDateInUTC: Date, // Minimum date after which this event should execute
-        maxDateString: {type: String}, // date in format specified in format field
+        maxDateString: { type: String }, // date in format specified in format field
         maxDateInUTC: Date, // Maximum date after which this event should execute
-        format: {type: String, default: SC.DATE_TIME_24HOUR_FORMAT},
-        timeZone: {type: String, default: SC.INDIAN_TIMEZONE},
-        increment: {type: Number, default: 0}, // Date incremented by this number (used in recurring event to get next execution date
+        format: { type: String, default: SC.DATE_TIME_24HOUR_FORMAT },
+        timeZone: { type: String, default: SC.INDIAN_TIMEZONE },
+        increment: { type: Number, default: 0 }, // Date incremented by this number (used in recurring event to get next execution date
         // unit to increment (used in recurring event to get next date
         incrementUnit: {
             type: String,
@@ -49,13 +50,23 @@ let eventSchema = mongoose.Schema({
 })
 
 eventSchema.methods.eventExecutionSuccessful = async function () {
-    logger.debug("eventExecutionSuccessful() called for ", {event: this.method})
+    logger.debug("eventExecutionSuccessful() called for ", { event: this.method })
     if (this.eventType == SC.EVENT_RECURRING && this.execution.dateInUTC && this.execution.increment > 0 && this.execution.incrementUnit) {
         // This is a recurring event update its execution time
         let m = new momentTZ(this.execution.dateInUTC).add(this.execution.increment, this.execution.incrementUnit)
+        let m1 = m.clone()
+        m1.subtract(5, 'h').subtract(31, 'm')
+
+        let now = new Date()
+        while (m1.isBefore(now) && this.execution.moveExecutionToFuture) {
+            m.add(this.execution.increment, this.execution.incrementUnit)
+            m1 = m.clone()
+            m1.subtract(5, 'h').subtract(31, 'm')
+        }
         this.execution.dateInUTC = m.toDate()
         this.execution.dateString = U.momentInTZFromUTCMoment(m, this.execution.timeZone).format(this.execution.format)
         this.status = SC.EVENT_SCHEDULED
+        
     } else if (this.eventType == SC.EVENT_ONETIME) {
         // this is a one time event mark status as completed
         this.status = SC.EVENT_COMPLETED
@@ -65,7 +76,7 @@ eventSchema.methods.eventExecutionSuccessful = async function () {
 
 eventSchema.methods.eventNotEligible = async function () {
     // as event is not eligible to run at the moment change its status to scheduled again
-    logger.debug("eventNotEligible() called for ", {event: this.method})
+    logger.debug("eventNotEligible() called for ", { event: this.method })
     this.status == SC.EVENT_SCHEDULED
     await this.save()
 }
@@ -86,7 +97,7 @@ const addEvent = async (eventInput, eventType) => {
     event.status = SC.EVENT_SCHEDULED
     let execution = eventInput.executionMoment
     let executionUTC = U.momentInUTCFromMoment(eventInput.executionMoment)
-    logger.debug("addEvent(): execution moment is ", {executionUTC})
+    logger.debug("addEvent(): execution moment is ", { executionUTC })
     let min = eventInput.minDate ? U.sameMomentInUTC(eventInput.minDate) : undefined
     let max = eventInput.maxDate ? U.sameMomentInUTC(eventInput.maxDate) : undefined
 
@@ -100,7 +111,8 @@ const addEvent = async (eventInput, eventType) => {
         format: eventInput.format,
         timeZone: eventInput.timeZone,
         increment: eventInput.increment,
-        incrementUnit: eventInput.incrementUnit
+        incrementUnit: eventInput.incrementUnit,
+        moveExecutionToFuture: eventInput.moveExecutionToFuture
     }
     event.eventType = eventType
     return await event.save()

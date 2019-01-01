@@ -19,7 +19,7 @@ let releaseSchema = mongoose.Schema({
     devEndDate: Date, // Expected development end date
     clientReleaseDate: Date, // Client release date
     releaseType: { type: String, enum: SC.RELEASE_TYPES },
-    billingRate: { type: Number, default: 0 }, // Billing rate per hours
+    billingRate: { type: Number }, // Billing rate per hours
     status: {
         type: String,
         enum: [SC.STATUS_AWARDED, SC.STATUS_DEV_IN_PROGRESS, SC.STATUS_DEV_COMPLETED, SC.STATUS_ISSUE_FIXING, SC.STATUS_TEST_COMPLETED, SC.STATUS_RELEASED, SC.STATUS_STABLE]
