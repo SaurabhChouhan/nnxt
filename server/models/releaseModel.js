@@ -14,11 +14,11 @@ import _ from 'lodash'
 mongoose.Promise = global.Promise
 
 let releaseSchema = mongoose.Schema({
-    name: { type: String, required: [true, 'Release Version name is required'] },
+    name: {type: String, required: [true, 'Release Version name is required']},
     devStartDate: Date, // Expected development start date
     devEndDate: Date, // Expected development end date
     clientReleaseDate: Date, // Client release date
-    releaseType: { type: String, enum: SC.RELEASE_TYPES },
+    releaseType: {type: String, enum: SC.RELEASE_TYPES},
     billingRate: { type: Number }, // Billing rate per hours
     status: {
         type: String,
@@ -29,38 +29,38 @@ let releaseSchema = mongoose.Schema({
         name: String
     },
     project: {
-        _id: { type: mongoose.Schema.ObjectId, required: true },
-        name: { type: String, required: [true, 'Project name is required'] }
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Project name is required']}
     },
     client: {
-        _id: { type: mongoose.Schema.ObjectId, required: true },
-        name: { type: String, required: [true, 'Client name is required'] }
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Client name is required']}
     },
     module: {
-        _id: { type: mongoose.Schema.ObjectId },
-        name: { type: String }
+        _id: {type: mongoose.Schema.ObjectId},
+        name: {type: String}
     },
     manager: {
-        _id: { type: mongoose.Schema.ObjectId, required: true },
-        firstName: { type: String, required: [true, 'Manager name is required'] },
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        firstName: {type: String, required: [true, 'Manager name is required']},
         lastName: String,
-        email: { type: String, required: [true, 'Manager email name is required'] }
+        email: {type: String, required: [true, 'Manager email name is required']}
     },
     leader: {
-        _id: { type: mongoose.Schema.ObjectId, required: true },
-        firstName: { type: String, required: [true, 'Leader name is required'] },
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        firstName: {type: String, required: [true, 'Leader name is required']},
         lastName: String,
-        email: { type: String, required: [true, 'Leader email name is required'] }
+        email: {type: String, required: [true, 'Leader email name is required']}
     },
     team: [{
-        _id: { type: mongoose.Schema.ObjectId, required: true },
-        name: { type: String, required: [true, 'Team name is required'] },
-        email: { type: String, required: [true, 'Developer email name is required'] }
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Team name is required']},
+        email: {type: String, required: [true, 'Developer email name is required']}
     }],
     nonProjectTeam: [{
-        _id: { type: mongoose.Schema.ObjectId, required: true },
-        name: { type: String, required: [true, 'Team name is required'] },
-        email: { type: String, required: [true, 'Developer email name is required'] }
+        _id: {type: mongoose.Schema.ObjectId, required: true},
+        name: {type: String, required: [true, 'Team name is required']},
+        email: {type: String, required: [true, 'Developer email name is required']}
     }],
     technologies: [{
         _id: mongoose.Schema.ObjectId,
@@ -71,22 +71,22 @@ let releaseSchema = mongoose.Schema({
             type: String,
             enum: [SC.ITERATION_TYPE_ESTIMATED, SC.ITERATION_TYPE_PLANNED, SC.ITERATION_TYPE_UNPLANNED]
         },
-        name: { type: String },
-        expectedBilledHours: { type: Number, default: 0 }, // expected billed hours
-        estimatedHours: { type: Number, default: 0 }, // sum of estimated hours of all release plan
-        plannedHours: { type: Number, default: 0 }, // sum of planned hours of all task plans across this release
-        reportedHours: { type: Number, default: 0 },// sum of reported hours of all task plans across this release
+        name: {type: String},
+        expectedBilledHours: {type: Number, default: 0}, // expected billed hours
+        estimatedHours: {type: Number, default: 0}, // sum of estimated hours of all release plan
+        plannedHours: {type: Number, default: 0}, // sum of planned hours of all task plans across this release
+        reportedHours: {type: Number, default: 0},// sum of reported hours of all task plans across this release
         billedHours: { type: Number, default: 0 }, // sum of billed hours already communicated to client
         unbilledHours: { type: Number, default: 0 }, // sum of billed hours that are still unbilled
         // sum of planned hours of all release plans but maximum planned hours added per release plan would be estimated hours
         // Helps in finding out percentage of planned work
-        plannedHoursEstimatedTasks: { type: Number, default: 0 },
+        plannedHoursEstimatedTasks: {type: Number, default: 0},
         // sum of estimated hours of release plans that are completed
-        estimatedHoursCompletedTasks: { type: Number, default: 0 },
+        estimatedHoursCompletedTasks: {type: Number, default: 0},
         // Sum of planned hours of all the reported task plans
         // Helps in calculating progress
-        plannedHoursReportedTasks: { type: Number, default: 0 },
-        progress: { type: Number, default: 0.0 }, // overall progress of this release in percentage
+        plannedHoursReportedTasks: {type: Number, default: 0},
+        progress: {type: Number, default: 0.0}, // overall progress of this release in percentage
         devStartDate: Date, // Expected development start date
         devEndDate: Date, // Expected development end date
         clientReleaseDate: Date, // Client release date
@@ -99,13 +99,13 @@ let releaseSchema = mongoose.Schema({
             lastName: String
         },
         estimation: {
-            _id: { type: mongoose.Schema.ObjectId }
+            _id: {type: mongoose.Schema.ObjectId}
         },
         stats: [{
-            type: { type: String, enum: [SC.TYPE_REVIEW, SC.TYPE_TESTING, SC.TYPE_MANAGEMENT, SC.TYPE_DEVELOPMENT] },
-            estimatedHours: { type: Number, default: 0 },
-            plannedHours: { type: Number, default: 0 },
-            reportedHours: { type: Number, default: 0 }
+            type: {type: String, enum: [SC.TYPE_REVIEW, SC.TYPE_TESTING, SC.TYPE_MANAGEMENT, SC.TYPE_DEVELOPMENT]},
+            estimatedHours: {type: Number, default: 0},
+            plannedHours: {type: Number, default: 0},
+            reportedHours: {type: Number, default: 0}
         }]
     }],
     settings: {
@@ -115,11 +115,11 @@ let releaseSchema = mongoose.Schema({
         pendingTasksBillingMultiplier: { type: Number, default: 0.75 }
 
     },
-    created: { type: Date, default: Date.now() },
-    updated: { type: Date, default: Date.now() }
+    created: {type: Date, default: Date.now()},
+    updated: {type: Date, default: Date.now()}
 }, {
-        usePushEach: true
-    })
+    usePushEach: true
+})
 
 
 releaseSchema.statics.getAvailableReleases = async (status, user) => {
@@ -130,11 +130,11 @@ releaseSchema.statics.getMyReleases = async (status, user) => {
     let filter = {}
     if (status && status.toLowerCase() !== SC.ALL)
         filter = {
-            $or: [{ 'manager._id': mongoose.Types.ObjectId(user._id) }, { 'leader._id': mongoose.Types.ObjectId(user._id) }],
+            $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}],
             'status': status
         }
     else
-        filter = { $or: [{ 'manager._id': mongoose.Types.ObjectId(user._id) }, { 'leader._id': mongoose.Types.ObjectId(user._id) }] }
+        filter = {$or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}]}
 
     return await ReleaseModel.find(filter)
 }
@@ -168,8 +168,8 @@ releaseSchema.statics.search = async (criteria, user) => {
         if (!U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
             // user would only be able to see releases where he is manager or leader
             filter['$or'] = [
-                { 'manager._id': user._id },
-                { 'leader._id': user._id }
+                {'manager._id': user._id},
+                {'leader._id': user._id}
             ]
 
             if (criteria.leader && user._id.toString() != criteria.leader) {
@@ -195,7 +195,7 @@ releaseSchema.statics.search = async (criteria, user) => {
         if (criteria.showActive) {
             // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
             let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
-            filter['$and'] = [{ 'devStartDate': { $lte: todaysMoment.toDate() } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
+            filter['$and'] = [{'devStartDate': {$lte: todaysMoment.toDate()}}, {'devEndDate': {$gte: todaysMoment.toDate()}}]
         }
 
         if (criteria.status) {
@@ -203,7 +203,7 @@ releaseSchema.statics.search = async (criteria, user) => {
         }
 
 
-        logger.debug("searchRelease() ", { filter })
+        logger.debug("searchRelease() ", {filter})
         return await ReleaseModel.find(filter)
     }
 
@@ -296,7 +296,7 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
         V.validate(releaseData, V.releaseCreateStructTraining)
 
     let release = new MDL.ReleaseModel()
-    logger.debug("createRelease(): ", { releaseData })
+    logger.debug("createRelease(): ", {releaseData})
 
     const manager = await MDL.UserModel.findOne({
         '_id': mongoose.Types.ObjectId(releaseData.manager._id),
@@ -326,7 +326,7 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
 
     if (_.includes([SC.RELEASE_TYPE_INTERNAL, SC.RELEASE_TYPE_JOBS, SC.RELEASE_TYPE_TRAINING], releaseData.releaseType)) {
         // For all these release types client would be aripra
-        client = await MDL.ClientModel.findOne({ name: SC.CLIENT_ARIPRA })
+        client = await MDL.ClientModel.findOne({name: SC.CLIENT_ARIPRA})
         if (!client)
             throw new AppError('Client [' + SC.CLIENT_ARIPRA + '] not found, please add for release of types [' + SC.RELEASE_TYPE_INTERNAL + "," + SC.RELEASE_TYPE_TRAINING + ", " + SC.RELEASE_TYPE_JOBS +
                 ']', EC.DATA_INCONSISTENT)
@@ -347,14 +347,14 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
     } else if (releaseData.releaseType == SC.RELEASE_TYPE_TRAINING) {
         // All releases of type training would go into project aripra training
 
-        project = await MDL.ProjectModel.findOne({ 'name': SC.PROJECT_ARIPRA_TRAINING, 'client._id': client._id }, {
+        project = await MDL.ProjectModel.findOne({'name': SC.PROJECT_ARIPRA_TRAINING, 'client._id': client._id}, {
             name: 1,
             client: 1
         })
         if (!project)
             throw new AppError('Project with name [' + SC.PROJECT_ARIPRA_TRAINING + '] should exists to add releases of release type [' + SC.RELEASE_TYPE_TRAINING + ']', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
     } else if (releaseData.releaseType == SC.RELEASE_TYPE_JOBS) {
-        project = await MDL.ProjectModel.findOne({ 'name': SC.PROJECT_ARIPRA_BIDDING, 'client._id': client._id }, {
+        project = await MDL.ProjectModel.findOne({'name': SC.PROJECT_ARIPRA_BIDDING, 'client._id': client._id}, {
             name: 1,
             client: 1
         })
@@ -373,13 +373,13 @@ releaseSchema.statics.createRelease = async (releaseData, user) => {
     }
 
     if (releaseData.module && releaseData.module._id) {
-        const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(releaseData.module._id), { name: 1 })
+        const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(releaseData.module._id), {name: 1})
         if (!module)
             throw new AppError('Module not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         release.module = module
     }
 
-    const developmentType = await MDL.DevelopmentModel.findById(mongoose.Types.ObjectId(releaseData.developmentType._id), { name: 1 })
+    const developmentType = await MDL.DevelopmentModel.findById(mongoose.Types.ObjectId(releaseData.developmentType._id), {name: 1})
     if (!developmentType)
         throw new AppError('Development type not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -459,7 +459,7 @@ releaseSchema.statics.updateRelease = async (releaseData, user) => {
         throw new AppError('Only Manager of release can update a release', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
     }
 
-    logger.debug("updateRelease(): ", { releaseData })
+    logger.debug("updateRelease(): ", {releaseData})
 
     const manager = await MDL.UserModel.findOne({
         '_id': mongoose.Types.ObjectId(releaseData.manager._id),
@@ -485,7 +485,7 @@ releaseSchema.statics.updateRelease = async (releaseData, user) => {
         throw new AppError('At least one developer should be assigned to a release', EC.INVALID_OPERATION, EC.HTTP_BAD_REQUEST)
     }
 
-    const developmentType = await MDL.DevelopmentModel.findById(mongoose.Types.ObjectId(releaseData.developmentType._id), { name: 1 })
+    const developmentType = await MDL.DevelopmentModel.findById(mongoose.Types.ObjectId(releaseData.developmentType._id), {name: 1})
     if (!developmentType)
         throw new AppError('Development type not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
@@ -516,7 +516,7 @@ releaseSchema.statics.updateRelease = async (releaseData, user) => {
 
         nonProjectIDs.forEach(nonProjectID => {
             if (U.includeAny(nonProjectID, newTeamIDs))
-                release.nonProjectTeam.pull({ _id: nonProjectID })
+                release.nonProjectTeam.pull({_id: nonProjectID})
         })
     }
 
@@ -564,12 +564,12 @@ releaseSchema.statics.createReleaseFromEstimation = async (releaseData, user, es
         throw new AppError('Release already created for this estimation', EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
 
-    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(estimation.project._id), { name: 1 })
+    const project = await MDL.ProjectModel.findById(mongoose.Types.ObjectId(estimation.project._id), {name: 1})
     if (!project)
         throw new AppError('Project not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
 
     if (estimation.module && estimation.module._id) {
-        const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(estimation.module._id), { name: 1 })
+        const module = await MDL.ModuleModel.findById(mongoose.Types.ObjectId(estimation.module._id), {name: 1})
         if (!module)
             throw new AppError('Module not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
         release.module = module
@@ -586,6 +586,13 @@ releaseSchema.statics.createReleaseFromEstimation = async (releaseData, user, es
     release.devStartDate = U.dateInUTC(releaseData.devStartDate)
     release.devEndDate = U.dateInUTC(releaseData.devReleaseDate)
     release.technologies = estimation.technologies
+
+    // Set release type as internal if client is aripra
+    if (estimation.client.name == SC.CLIENT_ARIPRA) {
+        release.releaseType = SC.RELEASE_TYPE_INTERNAL
+    } else {
+        release.releaseType = SC.RELEASE_TYPE_CLIENT
+    }
 
     /*
        We would add three iterations below
@@ -736,24 +743,24 @@ releaseSchema.statics.getFullReleaseDetailsById = async (releaseId, user) => {
 
     if (U.includeAny(SC.ROLE_MANAGER, rolesInRelease)) {
         release = await ReleaseModel.findOne({
-            '_id': mongoose.Types.ObjectId(releaseId),
-            'manager._id': mongoose.Types.ObjectId(user._id)
-        }
+                '_id': mongoose.Types.ObjectId(releaseId),
+                'manager._id': mongoose.Types.ObjectId(user._id)
+            }
         )
     } else if (U.includeAny(SC.ROLE_LEADER, rolesInRelease)) {
         release = await ReleaseModel.findOne({
-            '_id': mongoose.Types.ObjectId(releaseId),
-            'leader._id': mongoose.Types.ObjectId(user._id)
-        }
+                '_id': mongoose.Types.ObjectId(releaseId),
+                'leader._id': mongoose.Types.ObjectId(user._id)
+            }
         )
     } else if (U.includeAny([SC.ROLE_DEVELOPER, SC.ROLE_NON_PROJECT_DEVELOPER], rolesInRelease)) {
         release = await ReleaseModel.findOne({
-            '_id': mongoose.Types.ObjectId(releaseId),
-            "$or": [
-                { 'team._id': mongoose.Types.ObjectId(user._id) },
-                { 'nonProjectTeam._id': mongoose.Types.ObjectId(user._id) }
-            ]
-        }
+                '_id': mongoose.Types.ObjectId(releaseId),
+                "$or": [
+                    {'team._id': mongoose.Types.ObjectId(user._id)},
+                    {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}
+                ]
+            }
         )
     } else if (U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT)) {
         // Top management can see all the details
@@ -781,7 +788,7 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
         "release._id": mongoose.Types.ObjectId(queryData.releaseID)
     }).lean()
 
-    logger.debug("getReleaseDataForDashboard(): ", { employeeReleases })
+    logger.debug("getReleaseDataForDashboard(): ", {employeeReleases})
 
     let result = {
         release
@@ -789,7 +796,7 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
 
     if (employeeReleases && employeeReleases.length) {
         let avg = employeeReleases.reduce((avg, er) => {
-            logger.debug("getReleaseDataForDashboard(): Iterating on ", { er })
+            logger.debug("getReleaseDataForDashboard(): Iterating on ", {er})
             if (er.management.before && er.management.before.plannedCount > 0) {
                 avg.plannedBeforeAvg += U.twoDecimalHours(er.management.before.diffHours / er.management.before.plannedCount)
             }
@@ -809,14 +816,14 @@ releaseSchema.statics.getReleaseDataForDashboard = async (queryData, user) => {
             return avg
 
         }, {
-                plannedBeforeAvg: 0,
-                plannedAfterAvg: 0,
-                reportedAfterAvg: 0,
-                plannedHoursOnLeave: 0,
-                plannedHoursLastMinuteLeave: 0,
-                plannedBeforeCount: 0,
-                plannedAfterCount: 0
-            })
+            plannedBeforeAvg: 0,
+            plannedAfterAvg: 0,
+            reportedAfterAvg: 0,
+            plannedHoursOnLeave: 0,
+            plannedHoursLastMinuteLeave: 0,
+            plannedBeforeCount: 0,
+            plannedAfterCount: 0
+        })
 
         result.mgmtData = avg
 
@@ -840,14 +847,14 @@ releaseSchema.statics.getReleaseDetailsForReporting = async (releaseId, user) =>
     return await ReleaseModel.find({
         $and: [{
             _id: mongoose.Types.ObjectId(releaseId),
-            $or: [{ 'manager._id': mongoose.Types.ObjectId(user._id) }, { 'leader._id': mongoose.Types.ObjectId(user._id) }, { 'team._id': mongoose.Types.ObjectId(user._id) }, { 'nonProjectTeam._id': mongoose.Types.ObjectId(user._id) }]
+            $or: [{'manager._id': mongoose.Types.ObjectId(user._id)}, {'leader._id': mongoose.Types.ObjectId(user._id)}, {'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]
         }]
     }, {
-            name: 1,
-            project: 1,
-            'initial.devStartDate': 1,
-            'initial.devEndDate': 1
-        })
+        name: 1,
+        project: 1,
+        'initial.devStartDate': 1,
+        'initial.devEndDate': 1
+    })
 }
 
 /**
@@ -876,7 +883,7 @@ releaseSchema.statics.getAllReleasesToAddEstimation = async (estimationId, negot
         }
     }, {
         $project: {
-            name: { $concat: ["$project.name", " (", "$name", ")"] }
+            name: {$concat: ["$project.name", " (", "$name", ")"]}
         }
     }])
 }
@@ -884,7 +891,7 @@ releaseSchema.statics.getAllReleasesToAddEstimation = async (estimationId, negot
 
 releaseSchema.statics.getReportingReleasesOfUser = async (user) => {
     return await MDL.ReleaseModel.find(
-        { $or: [{ 'team._id': mongoose.Types.ObjectId(user._id) }, { 'nonProjectTeam._id': mongoose.Types.ObjectId(user._id) }] }, {
+        {$or: [{'team._id': mongoose.Types.ObjectId(user._id)}, {'nonProjectTeam._id': mongoose.Types.ObjectId(user._id)}]}, {
             project: 1,
             name: 1,
             _id: 1
@@ -946,16 +953,16 @@ releaseSchema.statics.getTaskAndProjectDetails = async (taskPlanID, releaseID, u
     })
 
 
-    let estimationDescription = { description: '' }
+    let estimationDescription = {description: ''}
 
     if (releasePlan && releasePlan.estimation && releasePlan.estimation._id) {
         estimationDescription = await MDL.EstimationModel.findOne({
             '_id': mongoose.Types.ObjectId(releasePlan.estimation._id),
             status: SC.STATUS_PROJECT_AWARDED
         }, {
-                description: 1,
-                _id: 0
-            })
+            description: 1,
+            _id: 0
+        })
     }
 
     release = release.toObject()
@@ -1000,15 +1007,15 @@ const fixReleaseStatsIterateReleasePlans = async (releasePlans, release) => {
     for (const rp of releasePlans) {
         // get sum of all planned hours for this release plan
         let taskPlansSummary = await MDL.TaskPlanningModel.aggregate({
-            $match: {
-                "releasePlan._id": rp._id
-            }
-        },
+                $match: {
+                    "releasePlan._id": rp._id
+                }
+            },
             {
                 $group: {
                     _id: null,
-                    plannedHours: { $sum: "$planning.plannedHours" },
-                    reportedHours: { $sum: "$report.reportedHours" }
+                    plannedHours: {$sum: "$planning.plannedHours"},
+                    reportedHours: {$sum: "$report.reportedHours"}
                 }
             })
 
@@ -1043,15 +1050,15 @@ releaseSchema.statics.fixReleaseStats = async (releaseID) => {
     logger.debug("************* RELEASE STATS ANALYSIS ***********")
 
     let taskPlansSummary = await MDL.TaskPlanningModel.aggregate({
-        $match: {
-            "release._id": release._id
-        }
-    },
+            $match: {
+                "release._id": release._id
+            }
+        },
         {
             $group: {
                 _id: null,
-                plannedHours: { $sum: "$planning.plannedHours" },
-                reportedHours: { $sum: "$report.reportedHours" }
+                plannedHours: {$sum: "$planning.plannedHours"},
+                reportedHours: {$sum: "$report.reportedHours"}
             }
         })
 
@@ -1059,27 +1066,27 @@ releaseSchema.statics.fixReleaseStats = async (releaseID) => {
     let reportedHours = taskPlansSummary[0].reportedHours
 
     let sumEstimatedHoursCompleted = await MDL.ReleasePlanModel.aggregate({
-        $match: {
-            "report.finalStatus": SC.STATUS_COMPLETED,
-            "release._id": release._id
-        }
-    },
+            $match: {
+                "report.finalStatus": SC.STATUS_COMPLETED,
+                "release._id": release._id
+            }
+        },
         {
             $group: {
                 _id: null,
-                estimatedHours: { $sum: "$task.estimatedHours" }
+                estimatedHours: {$sum: "$task.estimatedHours"}
             }
         })
 
     let estimatedHoursCompletedTasks = sumEstimatedHoursCompleted[0].estimatedHours
 
-    let releasePlans = await MDL.ReleasePlanModel.find({ "release._id": release._id })
+    let releasePlans = await MDL.ReleasePlanModel.find({"release._id": release._id})
 
     let releasePlanStats = await fixReleaseStatsIterateReleasePlans(releasePlans)
 
     // find out release plans
 
-    logger.debug("fixReleaseStats(): ", { iterations: release.iterations })
+    logger.debug("fixReleaseStats(): ", {iterations: release.iterations})
     logger.debug("fixReleaseStats(): ", {
         plannedHours,
         reportedHours,
@@ -1087,7 +1094,7 @@ releaseSchema.statics.fixReleaseStats = async (releaseID) => {
         plannedHoursEstimatedTasks: releasePlanStats.sumPlannedHoursEstimatedTasks
     })
 
-    return { success: true }
+    return {success: true}
 }
 
 

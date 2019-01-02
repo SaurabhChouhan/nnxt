@@ -1107,7 +1107,7 @@ const sendTaskAssignedNotifications = async (taskPlan, releasePlan, release, emp
 /***
  * Create new task planning  in which logged in user is involved as a manager or leader
  ***/
-taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, schemaRequested) => {
+taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, schemaRequested, mode) => {
     if (schemaRequested)
         return V.generateSchema(V.releaseTaskPlanningStruct)
 
@@ -1246,12 +1246,12 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
     await taskPlan.save()
 
 
-    /*
-    sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
-        // do nothing
-    })
-    */
-
+    if (mode == SC.MODE_PRODUCTION) {
+        // Send emails only when mode is production
+        sendTaskAssignedNotifications(taskPlan, releasePlan, release, selectedEmployee, creator).then(() => {
+            // do nothing
+        })
+    }
 
     return {
         taskPlan,
