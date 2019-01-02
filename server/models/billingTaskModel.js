@@ -81,7 +81,10 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
     billingTask.releasePlan = releasePlan
     billingTask.client = release.client
     billingTask.project = release.project
-    return await billingTask.save()
+    await billingTask.save()
+    logger.debug("Billing task created as ", {billingTask})
+    await MDL.MonthlySummaryCompanyModel.billingTaskCreated(billingTask)
+    return billingTask
 }
 
 const BillingTaskModel = mongoose.model('BillingTask', billingTaskSchema)

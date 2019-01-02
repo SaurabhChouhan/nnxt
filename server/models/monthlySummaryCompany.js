@@ -1,14 +1,14 @@
 import mongoose from 'mongoose'
+import momentTZ from 'moment-timezone'
+import logger from '../logger'
 
 
 mongoose.Promise = global.Promise
 
 let monthlySummaryCompanySchema = mongoose.Schema({
     monthStartDate: { type: Date }, // helps in uniquely identifying month in a summary
-    year: { type: String }, // complete year, helps in creating yearly summary from monthly summary
     unbilledHours: { type: Number, default: 0 }, // Unbilled hours for company in a month
     billedHours: { type: Number, default: 0 }, // Billed hours for company in a month
-    plannedHours: { type: Number, default: 0 }, // Planned hours for company in a month (reported tasks)
     reportedHours: { type: Number, default: 0 }, // Reported hours for company in a month (reported tasks)
     // Unbilled amount - Amount of tasks which are not yet added to timesheet
     unbilledAmount: { type: Number, default: 0 },
@@ -24,6 +24,35 @@ let monthlySummaryCompanySchema = mongoose.Schema({
     })
 
 
+/**
+ * Modify company monthly summary when billing task is added
+ */
+monthlySummaryCompanySchema.statics.billingTaskCreated =  async (billingTask) => {
+    // As billing task is added company monthly summary would be updated to add amounts
+    // From billing task get the start of the month
+    let monthStartDate = momentTZ(billingTask.billingDate).utc().startOf('months')
+    logger.debug("monthlySummaryCompany->billingTaskCreated() ", { monthStartDate })
 
-const MonthlySummaryClientModel = mongoose.model("MonthlySummaryClient", monthlySummaryCompanySchema)
-export default MonthlySummaryClientModel
+    let monthlySummary = await MonthlySummaryCompanyModel.findOne({
+        monthStartDate
+    })
+
+    logger.debug("monthly summary found as ", monthlySummary)
+
+    if (!monthlySummary) {
+        monthlySummary = new MonthlySummaryCompanyModel()
+        monthlySummary.monthStartDate = monthStartDate
+        monthlySummary.unbilledHours = billingTask.billedHours
+        monthlySummary.reportedHours = billingTask.taskPlan.report.reportedHours
+        monthlySummary.unbilledAmount = billingTask.billingAmount
+        await monthlySummary.save()
+    } else {
+        monthlySummary.unbilledHours += billingTask.billedHours
+        monthlySummary.reportedHours += billingTask.taskPlan.report.reportedHours
+        monthlySummary.unbilledAmount += billingTask.billingAmount
+        await monthlySummary.save()
+    }
+}
+
+const MonthlySummaryCompanyModel = mongoose.model("MonthlySummaryCompany", monthlySummaryCompanySchema)
+export default MonthlySummaryCompanyModel
