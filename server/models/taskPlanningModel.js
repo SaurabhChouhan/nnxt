@@ -1150,6 +1150,8 @@ taskPlanningSchema.statics.addTaskPlan = async (taskPlanningInput, creator, sche
         return e._id.toString() === selectedEmployee._id.toString()
     })
 
+    logger.debug("employee reported idx is ", { employeeReportIdx })
+
     if (employeeReportIdx > -1) {
         // check to see if employee has reported this task as completed if 'yes', task cannot be planned against this employee
         let maxReportedMoment = moment(releasePlan.report.employees[employeeReportIdx].maxReportedDate)
@@ -2975,7 +2977,7 @@ const addTaskReportPlannedUpdateTaskPlan = async (taskPlan, releasePlan, release
     return taskPlan
 }
 
-const addTaskReportPlanned = async (reportInput, employee, mode) => {
+const addTaskReportPlanned = async (reportInput, employee, mode, reportedByLeaderManager) => {
     /* Get task plan */
     let taskPlan = await MDL.TaskPlanningModel.findById(reportInput._id)
 
@@ -2999,7 +3001,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
 
     /* See if this is a re-report if yes then check if time for re-reporting is gone */
     let reReport = false
-    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+    if (taskPlan.report && taskPlan.report.reportedOnDate && !reportedByLeaderManager) {
         reReport = true
         // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
         let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
@@ -3014,7 +3016,6 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         //planningMomentInIndia.add(1, 'days')
         if (moment().isBefore(planningMomentInIndia) && mode == SC.MODE_PRODUCTION)
             throw new AppError('Reporting tasks planned in future is not allowed', EC.TIME_OVER, EC.HTTP_BAD_REQUEST)
-
     }
 
     let maxReportedMoment
@@ -3052,7 +3053,6 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
         throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
     }
 
-
     let finalStatusFromCompleteToPending = false;
     let finalStatusStillCompleted = false;
     if (employeeReportIdx != -1) {
@@ -3071,7 +3071,7 @@ const addTaskReportPlanned = async (reportInput, employee, mode) => {
             } else if (taskPlanMoment.isAfter(maxReportedMoment) && releasePlan.report.employees[employeeReportIdx].finalStatus === SC.REPORT_COMPLETED) {
                 throw new AppError('Task was reported as [' + SC.REPORT_COMPLETED + '] in past, task cannot be reported in future once it is ' +
                     'reported as [' + SC.REPORT_COMPLETED + ']')
-            } else if (taskPlanMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
+            } else if (taskPlanMoment.isSame(maxReportedMoment) && (reportInput.status == SC.STATUS_COMPLETED) && releasePlan.report.employees[employeeReportIdx].finalStatus == SC.STATUS_COMPLETED && taskPlan.report.status != SC.STATUS_COMPLETED) {
                 // This means task was reported as complete in another task plan of same date throw error
                 throw new AppError('You have reported this Release Plan as [' + SC.REPORT_COMPLETED + '] in another task, reporting release task as completed in more than one task is not allowed.')
             }
@@ -3331,7 +3331,7 @@ const addTaskReportUnplannedUpdateRelease = async (taskPlan, releasePlan, releas
     return release
 }
 
-const addTaskReportUnplanned = async (reportInput, employee, mode) => {
+const addTaskReportUnplanned = async (reportInput, employee, mode, reportedByLeaderManager) => {
     /**
      * In 'unplanned' task reporting there would not be any corresponding task plan as case with 'planned' tasks,
      * rather it would have only release plan.
@@ -3381,7 +3381,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 
     /* See if this is a re-report if yes then check if time for re-reporting is gone */
     let reReport = false
-    if (taskPlan.report && taskPlan.report.reportedOnDate) {
+    if (taskPlan.report && taskPlan.report.reportedOnDate && !reportedByLeaderManager) {
         reReport = true
         // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
         let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
@@ -3475,14 +3475,14 @@ const addTaskReportUnplanned = async (reportInput, employee, mode) => {
 }
 
 
-taskPlanningSchema.statics.addTaskReport = async (taskReport, employee, mode) => {
-    logger.debug("addTaskReport() mode is " + mode)
+taskPlanningSchema.statics.addTaskReport = async (taskReport, employee, mode, reportedByLeaderManager) => {
+    logger.debug("Received task report as ", { taskReport })
     V.validate(taskReport, V.releaseTaskReportStruct)
 
     if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED) {
-        return await addTaskReportPlanned(taskReport, employee, mode)
+        return await addTaskReportPlanned(taskReport, employee, mode, reportedByLeaderManager)
     } else if (taskReport.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
-        return await addTaskReportUnplanned(taskReport, employee, mode)
+        return await addTaskReportUnplanned(taskReport, employee, mode, reportedByLeaderManager)
     }
 }
 
@@ -3580,6 +3580,74 @@ taskPlanningSchema.statics.reopenTask = async (taskPlanID, user) => {
     }
 }
 
+taskPlanningSchema.statics.markAsComplete = async (taskPlanID, user) => {
+    let taskPlan = await MDL.TaskPlanningModel.findById(taskPlanID)
+
+    if (!taskPlan)
+        throw new AppError('Task not found', EC.NOT_FOUND, EC.HTTP_BAD_REQUEST)
+
+    if (taskPlan.report.status !== SC.STATUS_COMPLETED)
+        throw new AppError('Only task with status [' + SC.STATUS_PENDING + '] can be marked as completed.', EC.CANT_COMPLETE, EC.ACCESS_DENIED)
+
+    /* find release plan associated with this task plan */
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id)
+    if (!releasePlan)
+        throw new AppError('No release plan associated with this task , data corrupted ', EC.UNEXPECTED_ERROR, EC.HTTP_SERVER_ERROR)
+
+    let release = await MDL.ReleaseModel.findById(taskPlan.release._id, { iterations: 1, name: 1, project: 1 })
+
+    if (!release)
+        throw new AppError('No release associated with this task , data corrupted ', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    let userRolesInThisRelease = await MDL.ReleaseModel.getUserRolesInReleaseById(release._id, user)
+
+    if (!U.includeAny([SC.ROLE_LEADER, SC.ROLE_MANAGER], userRolesInThisRelease)) {
+        throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can mark task as completed', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
+    }
+
+    // Find out existing employee report data for this release plan
+    let employeeReportIdx = -1
+    if (releasePlan.report.employees) {
+        employeeReportIdx = releasePlan.report.employees.findIndex(e => {
+            return e._id.toString() === taskPlan.employee._id.toString()
+        })
+    }
+
+    // Find this employee planning index
+    let employeePlanningIdx = releasePlan.planning.employees.findIndex(e => {
+        return e._id.toString() === taskPlan.employee._id.toString()
+    })
+
+    if (employeePlanningIdx == -1) {
+        throw new AppError('Employee index in planning.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    if (employeeReportIdx == -1) {
+        throw new AppError('Employee index in report.employees should have been found for reported task.', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+    }
+
+    let reportedMoment = U.momentInUTC(taskPlan.planningDateString)
+
+    if (releasePlan.planning.employees[employeeReportIdx].finalStatus == SC.STATUS_COMPLETED)
+        throw new AppError('Release task is already marked as [' + SC.STATUS_COMPLETED + '].', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    if (!reportedMoment.isSame(releasePlan.planning.employees[employeeReportIdx].maxReportedDate))
+        throw new AppError('Only tasks that are reported on last day of reporting can be marked as complete', EC.DATA_INCONSISTENT, EC.HTTP_SERVER_ERROR)
+
+    // Call add task report with same arguments it takes when user reports any tasks as complete
+
+    let taskReport = {
+        _id: taskPlanID,
+        reportedHours: taskPlan.reportedHours,
+        status: SC.STATUS_COMPLETED,
+        reportedDate: taskPlan.planningDateString,
+        iterationType: taskPlan.iterationType,
+        reportDescription: taskPlan.report.description + "\n\n" + user.firstName + " has marked this task as completed"
+    }
+
+    let employeeUser = await UserModel.findById(taskPlan.employee._id)
+    return await TaskPlanningModel.addTaskReport(taskReport, employeeUser, SC.MODE_PRODUCTION)
+}
 
 /**
  * add comments from task detail page by developer or manager or leader
