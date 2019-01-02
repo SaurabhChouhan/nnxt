@@ -14,7 +14,7 @@ let taskPlanRouter = new Router({
  * Add task planning  in which logged in user is involved as a manager or leader
  ***/
 taskPlanRouter.post("/", async ctx => {
-    return await MDL.TaskPlanningModel.addTaskPlan(ctx.request.body, ctx.state.user, ctx.schemaRequested)
+    return await MDL.TaskPlanningModel.addTaskPlan(ctx.request.body, ctx.state.user, ctx.schemaRequested, ctx.conf.server.mode)
 })
 
 /***
