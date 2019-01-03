@@ -1,4 +1,7 @@
 import mongoose from 'mongoose'
+import momentTZ from 'moment-timezone'
+import logger from '../logger'
+import { ClientModel, ProjectModel } from '../models'
 
 
 mongoose.Promise = global.Promise
@@ -29,6 +32,42 @@ let monthlySummaryProjectSchema = mongoose.Schema({
 }, {
         usePushEach: true
     })
+
+/**
+ * Modify client monthly summary when billing task is added
+ */
+monthlySummaryProjectSchema.statics.billingTaskCreated = async (billingTask) => {
+    // As billing task is added company monthly summary would be updated to add amounts
+    // From billing task get the start of the month
+    let monthStartDate = momentTZ(billingTask.billingDate).utc().startOf('months')
+    logger.debug("monthlySummaryCompany->billingTaskCreated() ", { monthStartDate })
+
+    let monthlySummary = await MonthlySummaryProjectModel.findOne({
+        monthStartDate,
+        "project._id": billingTask.project._id
+    })
+
+    logger.debug("monthly summary found as ", monthlySummary)
+
+    if (!monthlySummary) {
+        monthlySummary = new MonthlySummaryProjectModel()
+        monthlySummary.monthStartDate = monthStartDate
+        monthlySummary.unbilledHours = billingTask.billedHours
+        monthlySummary.reportedHours = billingTask.taskPlan.report.reportedHours
+        monthlySummary.unbilledAmount = billingTask.billingAmount
+        let client = await ClientModel.findById(billingTask.client._id, { name: 1 })
+        let project = await ProjectModel.findById(billingTask.project._id, { name: 1 })
+        monthlySummary.client = client
+        monthlySummary.project = project
+        await monthlySummary.save()
+    } else {
+        monthlySummary.unbilledHours += billingTask.billedHours
+        monthlySummary.reportedHours += billingTask.taskPlan.report.reportedHours
+        monthlySummary.unbilledAmount += billingTask.billingAmount
+        await monthlySummary.save()
+    }
+}
+
 
 const MonthlySummaryProjectModel = mongoose.model("MonthlySummaryProject", monthlySummaryProjectSchema)
 export default MonthlySummaryProjectModel

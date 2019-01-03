@@ -62,7 +62,7 @@ let billingTaskSchema = mongoose.Schema({
 billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) => {
 
     let release = await MDL.ReleaseModel.findById(taskPlan.release._id, { project: 1, client: 1, name: 1, billingRate: 1 })
-    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, { "task.name": 1 })
+    let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, { "task.name": 1, 'release': 1 })
     logger.debug("createBillingTaskFromReportedTask() ", { release, releasePlan })
 
     if (!release.billingRate)
@@ -82,8 +82,29 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
     billingTask.client = release.client
     billingTask.project = release.project
     await billingTask.save()
-    logger.debug("Billing task created as ", {billingTask})
+    logger.debug("Billing task created as ", { billingTask })
     await MDL.MonthlySummaryCompanyModel.billingTaskCreated(billingTask)
+    await MDL.MonthlySummaryClientModel.billingTaskCreated(billingTask)
+    await MDL.MonthlySummaryEmployeeModel.billingTaskCreated(billingTask)
+    await MDL.MonthlySummaryProjectModel.billingTaskCreated(billingTask)
+    // increment unbilled hours in release plan/release
+
+    let releaseUpdates = {}
+    releaseUpdates['$inc'] = {}
+    releaseUpdates['$inc']['iterations.' + releasePlan.release.iteration.idx + '.unbilledHours'] = billingTask.billedHours
+
+    logger.debug("release updates formed as ", { releaseUpdates })
+
+    await MDL.ReleaseModel.updateOne({
+        '_id': billingTask.release._id
+    }, releaseUpdates)
+
+    await MDL.ReleasePlanModel.updateOne({
+        '_id': billingTask.releasePlan._id
+    }, {
+            $inc: { 'billing.unbilledHours': billingTask.billedHours }
+        })
+
     return billingTask
 }
 

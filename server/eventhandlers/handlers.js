@@ -50,7 +50,7 @@ export const addBillingTasks = async (event, data) => {
     let m = moment()
     // As all task plans that are reported can be changed till 2 hours, so we will select only those tasks whose reported date
     // is 2 hours ago or before that and which have never processed
-    m.subtract(2, 'hours')
+    //m.subtract(2, 'hours')
     // Get all the task plans that are reported 2 hours or before, are part of client releases and have not processed so for by billing task creator event
     let taskPlans = await MDL.TaskPlanningModel.find({ 'report.reportedOnDate': { $lt: m.toDate() }, 'billing.processStatus': SC.TASK_PROCESS_STATUS_PENDING, 'release.releaseType': SC.RELEASE_TYPE_CLIENT })
     logger.debug("addBillingTasks() ", { taskPlans })

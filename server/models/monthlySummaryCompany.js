@@ -25,7 +25,7 @@ let monthlySummaryCompanySchema = mongoose.Schema({
 
 
 /**
- * Modify company monthly summary when billing task is added
+ * Modify client monthly summary when billing task is added
  */
 monthlySummaryCompanySchema.statics.billingTaskCreated =  async (billingTask) => {
     // As billing task is added company monthly summary would be updated to add amounts

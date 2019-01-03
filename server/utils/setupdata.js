@@ -1570,6 +1570,10 @@ const addReleaseTypeToExistingReleases = async () => {
 const addBillingTaskCreationEvent = async () => {
     console.log("SETTING UP BILLING TASK CREATION EVENT ...")
     // Setting up to run every hour
+
+
+    /*
+
     let m = momentTZ.tz(SC.INDIAN_TIMEZONE)
     m.startOf('hours')
     // Added five minutes just to ensure that different events run at different times 
@@ -1592,6 +1596,30 @@ const addBillingTaskCreationEvent = async () => {
             format: SC.DATE_TIME_24HOUR_FORMAT,
             increment: 1,
             incrementUnit: SC.MOMENT_HOURS
+        })
+    }
+    */
+
+    let m = momentTZ.tz(SC.INDIAN_TIMEZONE)
+    m.startOf('minutes')
+    
+    let count = await MDL.EventModel.count({
+        method: 'addBillingTasks'
+    })
+
+    if (count > 0) {
+        console.log("Billing Task event is already there so skipping its creation")
+    } else {
+        await MDL.EventModel.addRecurEvent({
+            method: 'addBillingTasks',
+            executionMoment: m,
+            moveExecutionToFuture: true,
+            minMoment: undefined,
+            maxMoment: undefined,
+            timeZone: SC.INDIAN_TIMEZONE,
+            format: SC.DATE_TIME_24HOUR_FORMAT,
+            increment: 2,
+            incrementUnit: SC.MOMENT_MINUTES
         })
     }
 }

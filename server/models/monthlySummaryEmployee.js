@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import momentTZ from 'moment-timezone'
+import logger from '../logger'
 
 
 mongoose.Promise = global.Promise
@@ -25,6 +27,39 @@ let monthlySummaryEmployeeSchema = mongoose.Schema({
 }, {
         usePushEach: true
     })
+
+/**
+ * Modify client monthly summary when billing task is added
+ */
+monthlySummaryEmployeeSchema.statics.billingTaskCreated =  async (billingTask) => {
+    // As billing task is added company monthly summary would be updated to add amounts
+    // From billing task get the start of the month
+    let monthStartDate = momentTZ(billingTask.billingDate).utc().startOf('months')
+    logger.debug("monthlySummaryCompany->billingTaskCreated() ", { monthStartDate })
+
+    let monthlySummary = await MonthlySummaryEmployeeModel.findOne({
+        monthStartDate,
+        "employee._id": billingTask.billingEmployee._id
+    })
+
+    logger.debug("monthly summary found as ", monthlySummary)
+
+    if (!monthlySummary) {
+        monthlySummary = new MonthlySummaryEmployeeModel()
+        monthlySummary.employee = billingTask.billingEmployee
+        monthlySummary.monthStartDate = monthStartDate
+        monthlySummary.unbilledHours = billingTask.billedHours
+        monthlySummary.reportedHours = billingTask.taskPlan.report.reportedHours
+        monthlySummary.unbilledAmount = billingTask.billingAmount
+        await monthlySummary.save()
+    } else {
+        monthlySummary.unbilledHours += billingTask.billedHours
+        monthlySummary.reportedHours += billingTask.taskPlan.report.reportedHours
+        monthlySummary.unbilledAmount += billingTask.billingAmount
+        await monthlySummary.save()
+    }
+}
+
 
 const MonthlySummaryEmployeeModel = mongoose.model("MonthlySummaryEmployee", monthlySummaryEmployeeSchema)
 export default MonthlySummaryEmployeeModel
