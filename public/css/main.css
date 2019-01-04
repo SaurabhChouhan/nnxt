@@ -2371,3 +2371,89 @@ div.notificationTable table tr[width="100%"] td {
     background-color: #ADADAE;
     height: 32;
 }
+
+.billing-section {
+	border: none;
+	margin-top: 8px;
+	display: inline-block;
+	float: left;
+	width:100%;
+}
+.billing-header {
+	float:left;
+	min-height:10px;
+	background:#303440;
+	width:100%;
+}
+.colmn1 {
+	width:10%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+.colmn2 {
+	width:20%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+.colmn1 h4, .colmn2 h4 {
+	color:#fff;
+}
+.billing-entries {
+	float:left;
+	min-height:10px;
+	background:#FF534F;
+	width:100%;
+}
+.billing-entries h4 {
+	color:#fff;
+}
+.billing-reports {
+	background:#ECECEC;
+	border:1px solid #CEC9CC;
+	float:left;
+	width:100%;
+}
+.br-colmn1 {
+    width: 33.33%;
+    float: left;
+    padding: 5px;
+}
+.br-colmn1 h4 {
+	color:#333945;
+}
+.billing-dateName {
+    float: left;
+    min-height: 20px;
+    width: 30%;
+}
+.billing-desc {
+	float: left;
+    border-left: 1px solid #212531;
+    min-height: 20px;
+    width: 70%;
+}
+.billing-desc .col-md-12 {
+	min-height:50px;
+	padding-left:0;
+}
+.billing-desc textarea {
+	height:35px;
+}
+.billing-desc-content .colmn1 {
+    width: 14.8%;
+	border:0;
+}
+.billing-desc-content .colmn2 {
+    width: 30%;
+	border:0;
+}
+.billing-desc-content .colmn1Last {
+	width:10%;
+	float:left;
+	padding:5px;
+	border:0;
+}

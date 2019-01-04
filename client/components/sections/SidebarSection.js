@@ -31,8 +31,6 @@ const SidebarSection = (props) => {
                                 })
                             }}>Dashboard</Link></li>
                         */}
-
-
                         {
                             (roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1) &&
                             <li><Link to="/app-home/company" onClick={() => {
@@ -43,6 +41,12 @@ const SidebarSection = (props) => {
                                 }))
 
                             }}>Company</Link></li>
+                        }
+                        {
+                            (roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1) &&
+                            <li><Link to="/app-home/billing" onClick={() => {
+                                props.dispatch(A.showComponentHideOthers(COC.BILLING_SECTION))
+                            }}>Billing</Link></li>
                         }
                         {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
@@ -60,7 +64,6 @@ const SidebarSection = (props) => {
                                 props.dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
                             }}>Release</Link></li>
                         }
-
                         {
                             (roles.indexOf(SC.ROLE_MANAGER) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 ||
                                 roles.indexOf(SC.ROLE_DEVELOPER) > -1 || roles.indexOf(SC.ROLE_NON_PROJECT_DEVELOPER) > -1) &&
@@ -82,7 +85,6 @@ const SidebarSection = (props) => {
 
                             }}>Reporting</Link></li>
                         }
-
                         {
                             (roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 || roles.indexOf(SC.ROLE_ESTIMATOR) > -1) &&
                             <li><Link to="/app-home/estimation" onClick={() => {

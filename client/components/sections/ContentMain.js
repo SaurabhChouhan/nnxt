@@ -21,7 +21,8 @@ import {
     DashboardSectionContainer,
     TaskReportDetailPageContainer,
     CompanySectionContainer,
-    NotificationsPageContainer
+    NotificationsPageContainer,
+    BillingSectionContainer
 } from "../../containers"
 import * as COC from '../componentConsts'
 import * as A from '../../actions'
@@ -89,6 +90,15 @@ class ContentMain extends Component {
                             this.props.dispatch(A.hideComponent(COC.DASHBOARD_SECTION))
                         }
                     }/>
+                </ContentSection>
+            }
+        })
+
+        routes.push({
+            url: "/billing",
+            render: (props) => {
+                return <ContentSection>
+                    <BillingSectionContainer name={COC.BILLING_SECTION} show={true} />
                 </ContentSection>
             }
         })

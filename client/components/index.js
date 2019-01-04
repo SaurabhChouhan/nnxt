@@ -135,6 +135,7 @@ export {default as TaskShiftDialog} from './dialogs/TaskShiftDialog'
 export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSchedules'
 export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'
 export {default as ReleasePlanSection} from './sections/ReleasePlanSection'
+export {default as BillingSection} from './sections/BillingSection'
 export {default as TaskPlanDetailPage} from './pages/TaskPlanDetailPage'
 
 

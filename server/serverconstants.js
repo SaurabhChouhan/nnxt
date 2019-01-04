@@ -281,6 +281,9 @@ export const RELEASE_TASK_PLANS_TAB = 'RELEASE_TASK_PLANS_TAB'
 export const RELEASE_REPORT_TAB = 'RELEASE_REPORT_TAB'
 export const RELEASE_PLAN_TAB = 'RELEASE_PLAN_TAB'
 
+export const BILLING_TASK_TAB = 'BILLING_TASK_TAB'
+export const BILLING_TIMESHEET_TAB = 'BILLING_TIMESHEET_TAB'
+
 
 export const Months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 export const MONTHS_WITH_MONTH_NUMBER = [

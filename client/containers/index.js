@@ -126,6 +126,7 @@ export {default as ReleasePlanSectionContainer} from './sections/ReleasePlanSect
 export {default as ReleaseTaskPlanningPageContainer} from './pages/ReleaseTaskPlanningPageContainer'
 export {default as TaskPlanDetailPageContainer} from './pages/TaskPlanDetailPageContainer'
 
+
 //Calendar
 export {default as CalendarTaskPageContainer} from './pages/CalendarTaskPageContainer'
 export {default as CalendarTaskDetailPageContainer} from './pages/CalendarTaskDetailPageContainer'
@@ -151,3 +152,6 @@ export {default as NotificationsPageContainer} from './pages/NotificationsPageCo
 export {default as TaskPlanDateNavBarContainer} from './forms/TaskPlanDateNavBarContainer'
 export {default as TaskReportDateNavBarContainer} from './forms/TaskReportDateNavBarContainer'
 export {default as ReleasePlanDateNavBarContainer} from './forms/ReleasePlanDateNavBarContainer'
+
+// Billing
+export {default as BillingSectionContainer} from './sections/BillingSectionContainer'
