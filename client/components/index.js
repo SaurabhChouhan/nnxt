@@ -135,7 +135,6 @@ export {default as TaskShiftDialog} from './dialogs/TaskShiftDialog'
 export {default as ReleaseDevelopersSchedules} from './pages/ReleaseDevelopersSchedules'
 export {default as ReleaseTaskPlanningPage} from './pages/ReleaseTaskPlanningPage'
 export {default as ReleasePlanSection} from './sections/ReleasePlanSection'
-export {default as BillingSection} from './sections/BillingSection'
 export {default as TaskPlanDetailPage} from './pages/TaskPlanDetailPage'
 
 
@@ -167,3 +166,8 @@ export {default as NotificationsPage} from './pages/NotificationsPage'
 export {default as TaskPlanDateNavBar} from './forms/TaskPlanDateNavBar'
 export {default as TaskReportDateNavBar} from './forms/TaskReportDateNavBar'
 export {default as ReleasePlanDateNavBar} from './forms/ReleasePlanDateNavBar'
+
+// Billing
+export {default as BillingSection} from './sections/BillingSection'
+export {default as BillingTaskCriteriaForm} from './forms/BillingTaskCriteriaForm'
+

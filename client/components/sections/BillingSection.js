@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { BILLING_TASK_TAB, BILLING_TIMESHEET_TAB } from '../../clientconstants'
+import { BillingTaskCriteriaFormContainer } from '../../containers'
 
 class BillingSection extends Component {
     render() {
@@ -29,6 +30,7 @@ class BillingSection extends Component {
                     </ul>
                 </div>
             </div>
+            {selectedTab === BILLING_TASK_TAB && <BillingTaskCriteriaFormContainer />}
 
         </div>
     }

@@ -12,8 +12,7 @@ const clientReducer = (state = initialState, action) => {
     switch (action.type) {
         case AC.ADD_CLIENTS:
             return Object.assign({}, state, {
-                all: action.clients
-                ,
+                all: action.clients,
                 billable: action.clients && action.clients.length ? action.clients.filter(c => c.name !== CLIENT_ARIPRA) : []
             })
 

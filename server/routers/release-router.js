@@ -4,6 +4,7 @@ import * as EC from '../errorcodes'
 import * as SC from '../serverconstants'
 import * as U from '../utils'
 import AppError from '../AppError'
+import mongoose from 'mongoose';
 
 /***
  * Added prefix
@@ -158,6 +159,30 @@ releaseRouter.get('/fix-release-stats/:releaseID', async ctx => {
 
 releaseRouter.get('/release-types', async ctx => {
     return SC.RELEASE_TYPES_WITH_LABELS
+})
+
+releaseRouter.get('/client/:clientID', async ctx => {
+    if (U.hasRole(ctx, SC.ROLE_TOP_MANAGEMENT)) {
+        let client = await MDL.ClientModel.findById(ctx.params.clientID, { name: 1 })
+        let releases = await MDL.ReleaseModel.aggregate([
+            {$match:{"client._id": mongoose.Types.ObjectId(ctx.params.clientID)}},
+            {$project:{
+                name: {$concat:['$project.name', ' (', '$name', ')']}
+            }}
+        ])
+        
+        return {
+            client, releases
+        }
+    } else {
+        return {
+            client: {},
+            releases: {}
+        }
+    }
+
+    return MDL.ReleaseModel.find
+
 })
 
 export default releaseRouter

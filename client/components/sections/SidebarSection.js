@@ -45,6 +45,7 @@ const SidebarSection = (props) => {
                         {
                             (roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1) &&
                             <li><Link to="/app-home/billing" onClick={() => {
+                                props.dispatch(A.getAllClientsFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.BILLING_SECTION))
                             }}>Billing</Link></li>
                         }

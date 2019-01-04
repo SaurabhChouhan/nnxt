@@ -1,5 +1,5 @@
-import {combineReducers} from 'redux'
-import {reducer as formReducer} from 'redux-form'
+import { combineReducers } from 'redux'
+import { reducer as formReducer } from 'redux-form'
 import userReducer from './userReducer'
 import appReducer from './appReducer'
 import permissionReducer from './permissionReducer'
@@ -22,6 +22,7 @@ import developmentTypeReducer from './developmentTypeReducer'
 import moduleReducer from './moduleReducer'
 import emailReducer from './emailReducer'
 import notificationReducer from './notificationReducer'
+import billingReducer from './billingReducer'
 
 
 const reducers = combineReducers({
@@ -47,6 +48,7 @@ const reducers = combineReducers({
     developmentType: developmentTypeReducer,
     module: moduleReducer,
     emailTemplate: emailReducer,
-    notification: notificationReducer
+    notification: notificationReducer,
+    billing: billingReducer
 })
 export default reducers
