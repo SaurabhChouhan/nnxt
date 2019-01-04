@@ -50,7 +50,8 @@ apiRouter.use(async (ctx, next) => {
     RR.releasePlanRouter.routes(),
     RR.databaseChangesRouter.routes(),
     RR.notificationRouter.routes(),
-    RR.migrationRouter.routes()
+    RR.migrationRouter.routes(),
+    RR.billingRouter.routes()
 )
 
 export default apiRouter

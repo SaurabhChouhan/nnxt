@@ -1,16 +1,26 @@
 import React, { Component } from 'react'
 import { Field, reduxForm } from 'redux-form'
-import { renderSelect } from '../forms/fields'
+import { renderDateTimePickerString, renderSelect } from '../forms/fields'
 
 class BillingTaskCriteriaForm extends Component {
+
+    componentDidMount() {
+        this.props.initialize(this.props.criteria)
+    }
+
     render() {
-        let { clients, clientSelected, releases } = this.props
+        let { clients, releases, criteria } = this.props
+        // actions
+        let { clientSelected, fetchiBillingTasks, initialize } = this.props
         return <form>
             <div className="col-md-12">
                 <div className="col-md-2 pad">
-                    <Field name="client._id"
+                    <Field name="clientID"
                         onChange={(event, newValue, oldValue) => {
                             clientSelected(newValue)
+                            fetchiBillingTasks(Object.assign({}, criteria, {
+                                clientID: newValue
+                            }))
                         }}
                         label={'Client:'}
                         component={renderSelect}
@@ -19,14 +29,39 @@ class BillingTaskCriteriaForm extends Component {
                     />
                 </div>
                 <div className="col-md-2">
-                    <Field name="releaseTypes"
+                    <Field name="releaseID"
                         onChange={(event, newValue, oldValue) => {
-
+                            fetchiBillingTasks(Object.assign({}, criteria, {
+                                releaseID: newValue
+                            }))
                         }}
                         component={renderSelect}
                         options={releases}
                         label={'Release:'}
                     />
+                </div>
+                <div className="col-md-2">
+                    <Field name="fromDate"
+                        component={renderDateTimePickerString}
+                        onChange={(event, newValue, oldValue) => {
+                            fetchiBillingTasks(Object.assign({}, criteria, {
+                                fromDate: newValue
+                            }))
+
+                        }}
+                        showTime={false}
+                        label={"From:"} />
+                </div>
+                <div className="col-md-2">
+                    <Field name="toDate"
+                        component={renderDateTimePickerString}
+                        onChange={(event, newValue, oldValue) => {
+                            fetchiBillingTasks(Object.assign({}, criteria, {
+                                toDate: newValue
+                            }))
+                        }}
+                        showTime={false}
+                        label={"To:"} />
                 </div>
             </div>
         </form>

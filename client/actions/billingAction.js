@@ -6,6 +6,11 @@ export const addClientReleases = (client, releases) => ({
     releases
 })
 
+export const addBillingTaskCriteria = (criteria) => ({
+    type: AC.ADD_BILLING_TASK_CRITERIA,
+    criteria
+})
+
 
 export const getReleasesOfClientFromServer = (clientID) => {
     return (dispatch, getState) => {
@@ -16,6 +21,22 @@ export const getReleasesOfClientFromServer = (clientID) => {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }
+        }).then(
+            response => response.json()
+        )
+    }
+}
+
+export const getBillingTasksFromServer = (criteria) => {
+    return (dispatch, getState) => {
+        return fetch('/api/billings/search-billing-tasks', {
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(criteria)
         }).then(
             response => response.json()
         )

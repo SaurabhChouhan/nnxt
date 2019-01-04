@@ -24,6 +24,7 @@ export {default as releasePlanRouter} from './releaseplan-router'
 export {default as databaseChangesRouter} from './databasechanges-router'
 export {default as notificationRouter} from './notification-router'
 export {default as migrationRouter} from './migration-router'
+export {default as billingRouter} from './billing-router'
 
 // Please export all routers above this router
 export {default as apiRouter} from './api-router'

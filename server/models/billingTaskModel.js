@@ -4,7 +4,9 @@ import { BILLING_STATUS_UNBILLED, BILLING_STATUS_BILLED, BILLING_STATUS_PAID, BI
 mongoose.Promise = global.Promise
 import logger from '../logger'
 import AppError from '../AppError';
-import { NO_BILLING_RATE } from '../errorcodes'
+import { NO_BILLING_RATE, ACCESS_DENIED, HTTP_FORBIDDEN } from '../errorcodes'
+import { userHasRole } from '../utils'
+import { ROLE_TOP_MANAGEMENT } from '../serverconstants'
 
 let billingTaskSchema = mongoose.Schema({
     billedDate: Date,
@@ -106,6 +108,14 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
         })
 
     return billingTask
+}
+
+billingTaskSchema.statics.searchBillingTask = (criteria, user) => {
+    if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
+        throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+
+    return []
 }
 
 const BillingTaskModel = mongoose.model('BillingTask', billingTaskSchema)

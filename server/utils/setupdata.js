@@ -21,7 +21,9 @@ export const runSetupInstructions = async () => {
     //await addCodeToExistingProjects()
     //await addReleaseTypeToExistingReleases()
     //await deleteUnusedProjects()
-    await addBillingTaskCreationEvent()
+    //await addBillingTaskCreationEvent()
+    await makeTaskPlansAsPending()
+    await addBillingRateToReleases()
 }
 
 export const addInitialData = async () => {
@@ -1602,7 +1604,7 @@ const addBillingTaskCreationEvent = async () => {
 
     let m = momentTZ.tz(SC.INDIAN_TIMEZONE)
     m.startOf('minutes')
-    
+
     let count = await MDL.EventModel.count({
         method: 'addBillingTasks'
     })
@@ -1624,4 +1626,29 @@ const addBillingTaskCreationEvent = async () => {
     }
 }
 
+const makeTaskPlansAsPending = async () => {
+    let m = moment()
+    m.subtract(10, 'days')
+
+    await MDL.TaskPlanningModel.update({
+        planningDate: { $gt: m.toDate() },
+        'report.reportedOnDate': { $ne: null }
+    }, {
+            $set: { 'billing.processStatus': SC.TASK_PROCESS_STATUS_PENDING }
+
+        }, {
+            multi: true
+        })
+
+}
+
+const addBillingRateToReleases = async () => {
+
+    await MDL.ReleaseModel.update({}, {
+        $set: { 'billingRate': 10 }
+    }, {
+            multi: true
+        })
+
+}
 
