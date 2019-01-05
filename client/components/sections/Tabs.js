@@ -161,7 +161,7 @@ class Tabs extends Component {
                 render: (props) => {
                     return <TabSectionContainer>
                         <LeaveSettingFormContainer name={LEAVE_SETTING_FORM}/>
-                    </TabSectionContainer>
+P                    </TabSectionContainer>
                 }
             })
         }

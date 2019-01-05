@@ -2392,6 +2392,23 @@ div.notificationTable table tr[width="100%"] td {
 	padding:5px;
 	border-right:1px solid #212531;
 }
+
+.colmn15 {
+	width:15%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
+.colmn5 {
+	width:5%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
 .colmn2 {
 	width:20%;
 	float:left;
@@ -2399,7 +2416,7 @@ div.notificationTable table tr[width="100%"] td {
 	padding:5px;
 	border-right:1px solid #212531;
 }
-.colmn1 h4, .colmn2 h4 {
+.colmn1 h4, .colmn2 h4, .colmn5 h4, .colmn15 h4 {
 	color:#fff;
 }
 .billing-entries {
@@ -2417,11 +2434,26 @@ div.notificationTable table tr[width="100%"] td {
 	float:left;
 	width:100%;
 }
+
+.br-colmn2 {
+    width: 16.66%;
+    float: left;
+    padding: 5px;
+}
+
 .br-colmn1 {
     width: 33.33%;
     float: left;
     padding: 5px;
 }
+
+.br-colmn3 {
+    width: 50%;
+    float: left;
+    padding: 5px;
+}
+
+
 .br-colmn1 h4 {
 	color:#333945;
 }

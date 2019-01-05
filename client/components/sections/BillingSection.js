@@ -1,6 +1,85 @@
 import React, { Component } from 'react'
 import { BILLING_TASK_TAB, BILLING_TIMESHEET_TAB } from '../../clientconstants'
 import { BillingTaskCriteriaFormContainer } from '../../containers'
+import { billingTaskList } from '../../components'
+import BillingTaskList from '../lists/billingTaskList';
+
+let billingData = [{
+    estimatedAmount: 300,
+    billingAmount: 100,
+    earning: 180,
+    suggestedBilling: 80,
+    taskPlans: [{
+        planningDate: '2019-01-05',
+        reportedHours: '8.5',
+        employeeName: 'Saurabh',
+        billingTasks: [{
+            billedDate: '2019-01-06',
+            billedHours: '8.5',
+            billingEmployee: {
+                _id: 1,
+                name: 'Saurabh'
+            },
+            timesheetEmployee: {
+                _id: 2,
+                name: 'Mahesh'
+            },
+            description: 'This is the description'
+        }]
+    }, {
+        planningDate: '2019-01-05',
+        reportedHours: '8.5',
+        employeeName: 'Saurabh',
+        billingTasks: [{
+            billedDate: '2019-01-06',
+            billedHours: '8.5',
+            billingEmployee: {
+                _id: 1,
+                name: 'Saurabh'
+            },
+            timesheetEmployee: {
+                _id: 1,
+                name: 'Mahesh'
+            },
+            description: 'This is the description'
+        }, {
+            billedDate: '2019-01-06',
+            billedHours: '8.5',
+            billingEmployee: {
+                _id: 2,
+                name: 'Saurabh'
+            },
+            timesheetEmployee: {
+                _id: 2,
+                name: 'Mahesh'
+            },
+            description: 'This is the description'
+        }]
+    }]
+}, {
+    estimatedAmount: 300,
+    billingAmount: 100,
+    earning: 180,
+    suggestedBilling: 80,
+    taskPlans: [{
+        planningDate: '2019-01-05',
+        reportedHours: '8.5',
+        employeeName: 'Saurabh',
+        billingTasks: [{
+            billedDate: '2019-01-06',
+            billedHours: '8.5',
+            billingEmployee: {
+                _id: 1,
+                name: 'Saurabh'
+            },
+            timesheetEmployee: {
+                _id: 2,
+                name: 'Mahesh'
+            },
+            description: 'This is the description'
+        }]
+    }]
+}]
 
 class BillingSection extends Component {
     render() {
@@ -30,7 +109,7 @@ class BillingSection extends Component {
                     </ul>
                 </div>
             </div>
-            {selectedTab === BILLING_TASK_TAB && <BillingTaskCriteriaFormContainer />}
+            {selectedTab === BILLING_TASK_TAB && [<BillingTaskCriteriaFormContainer />, <BillingTaskList billingData={billingData} />]}
 
         </div>
     }
