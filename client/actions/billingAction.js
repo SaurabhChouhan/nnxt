@@ -11,6 +11,12 @@ export const addBillingTaskCriteria = (criteria) => ({
     criteria
 })
 
+export const addBillingReleasePlans = (release, releasePlans) => ({
+    type: AC.ADD_BILLING_RELEASE_PLANS,
+    releasePlans,
+    release
+})
+
 
 export const getReleasesOfClientFromServer = (clientID) => {
     return (dispatch, getState) => {
@@ -27,7 +33,7 @@ export const getReleasesOfClientFromServer = (clientID) => {
     }
 }
 
-export const getBillingTasksFromServer = (criteria) => {
+export const getBillingReleasePlansFromServer = (criteria) => {
     return (dispatch, getState) => {
         return fetch('/api/billings/search-billing-tasks', {
             method: 'post',

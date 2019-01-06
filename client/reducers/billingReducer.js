@@ -8,6 +8,10 @@ let initialState = {
         releaseID: undefined,
         fromDate: undefined,
         toDate: undefined
+    },
+    billingReleasePlans: [],
+    billingRelease: {
+
     }
 }
 
@@ -21,6 +25,11 @@ const billingReducer = (state = initialState, action) => {
         case AC.ADD_BILLING_TASK_CRITERIA:
             return Object.assign({}, state, {
                 billingTaskCriteria: action.criteria
+            })
+        case AC.ADD_BILLING_RELEASE_PLANS:
+            return Object.assign({}, state, {
+                billingReleasePlans: action.releasePlans,
+                billingRelease: action.release
             })
         default:
             return state

@@ -156,3 +156,4 @@ export {default as ReleasePlanDateNavBarContainer} from './forms/ReleasePlanDate
 // Billing
 export {default as BillingSectionContainer} from './sections/BillingSectionContainer'
 export {default as BillingTaskCriteriaFormContainer} from './forms/BillingTaskCriteriaFormContainer'
+export {default as BillingTaskListContainer} from './lists/BillingTaskListContainer'

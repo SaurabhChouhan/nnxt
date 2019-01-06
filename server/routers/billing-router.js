@@ -8,6 +8,7 @@ let billingRouter = new Router({
 })
 
 billingRouter.post("/search-billing-tasks", async ctx => {
+    V.validate(ctx.request.body, V.billingTaskSearchStruct)
     return await MDL.BillingTaskModel.searchBillingTask(ctx.request.body, ctx.state.user)
 })
 

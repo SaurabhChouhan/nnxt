@@ -9,10 +9,10 @@ let billingTaskFormSubmit = (values) => {
 let BillingTaskForm = (props) => {
     return <div className="col-md-12 billing-desc-content">
         <form onSubmit={props.handleSubmit(billingTaskFormSubmit)}>
-            <div className="colmn1">
+            <div className="btask-form-col-sm">
                 <Field name="billedDate" component={renderDateTimePickerString} label={""} />
             </div>
-            <div className="colmn1">
+            <div className="btask-form-col-sm">
                 <Field name="billedHours"
                     placeholder={"Hours"}
                     component={renderSelect}
@@ -24,28 +24,28 @@ let BillingTaskForm = (props) => {
                     valueField={"name"}
                 />
             </div>
-            <div className="colmn1">
+            <div className="btask-form-col-sm">
                 <Field name="billingEmployee._id" placeholder={"Name of Developer"}
                     component={renderSelect}
-                    options={[{ _id: 1, name: 'Saurabh' }, { _id: 2, name: 'Mahesh' }]}
+                    options={props.projectTeam}
                     onChange={(event, newValue, oldValue) => {
                         //props.change("employee.name", employee.name)
                     }} />
             </div>
-            <div className="colmn1">
+            <div className="btask-form-col-sm">
                 <Field name="timesheetEmployee._id" placeholder={"Name of Developer"}
                     component={renderSelect}
-                    options={[{ _id: 1, name: 'Saurabh' }, { _id: 2, name: 'Mahesh' }]}
+                    options={props.projectTeam}
                     onChange={(event, newValue, oldValue) => {
                         //props.change("employee.name", employee.name)
                     }} />
             </div>
-            <div className="colmn2">
+            <div className="btask-form-col-bg">
                 <Field name="description"
                     component={renderTextArea}
                     type="text" />
             </div>
-            <div className="colmn1Last">
+            <div className="btask-form-col-last">
                 <button type="submit" className="btn customBtn" disabled={props.submitting || props.pristine}>Save</button>
             </div>
         </form>
@@ -74,7 +74,7 @@ let BillingTaskPlan = (props) => {
             </div>
         </div>
         <div class="billing-desc">
-            {taskPlan.billingTasks.map((bt, idx) => <BillingTaskForm key={'billing-task-form-' + idx} form={'billing-task-form-' + props.taskPlanIdx + '-' + idx} initialValues={bt} />)}
+            {taskPlan.billingTasks.map((bt, idx) => <BillingTaskForm key={'billing-task-form-' + idx} form={'billing-task-form-' + props.rpIdx + '-' + props.tpIdx + '-' + idx} initialValues={bt} projectTeam={props.projectTeam} />)}
         </div>
     </div >
 }
@@ -84,23 +84,29 @@ let BillingReleasePlan = (props) => {
     return [<div key='release-plan-heading' className="col-md-12 ">
         <div className="billing-section">
             <div className="billing-entries">
-                <div className="col-md-3">
-                    <h4>Estimated Amount: ${releasePlan.estimatedAmount}</h4>
+                <div className="bil-rp-col40">
+                    <h4>{releasePlan.name}</h4>
                 </div>
-                <div className="col-md-3">
-                    <h4>Billed Amount: ${releasePlan.billingAmount}</h4>
+                <div className="bil-rp-col12">
+                    <h4>Estimated: ${releasePlan.estimatedAmount}</h4>
                 </div>
-                <div className="col-md-3">
-                    <h4>Suggested Earning: ${releasePlan.earning}</h4>
+                <div className="bil-rp-col12">
+                    <h4>Unbilled: ${releasePlan.unbilledAmount}</h4>
                 </div>
-                <div className="col-md-3">
-                    <h4>Suggested Billing: +${releasePlan.suggestedBilling}</h4>
+                <div className="bil-rp-col12">
+                    <h4>Billed: ${releasePlan.billingAmount}</h4>
+                </div>
+                <div className="bil-rp-col12">
+                    <h4>Earned: ${releasePlan.earnedAmount}</h4>
+                </div>
+                <div className="bil-rp-col12">
+                    <h4>Pending: {releasePlan.suggestedAmount >= 0 ? '+$' + releasePlan.suggestedAmount : '-$' + (-releasePlan.suggestedAmount)}</h4>
                 </div>
             </div>
         </div>
     </div>, <div key='release-plan-task-plans' className="col-md-12 ">
         <div className="billing-section">
-            {releasePlan.taskPlans.map((tp, idx) => <BillingTaskPlan key={'billing-task-plan-' + idx} taskPlan={tp} taskPlanIdx={idx} />
+            {releasePlan.taskPlans.map((tp, idx) => <BillingTaskPlan key={'billing-task-plan-' + idx} taskPlan={tp} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
             )}
         </div>
     </div>]
@@ -113,38 +119,38 @@ class BillingTaskList extends Component {
             <div className="col-md-12 ">
                 <div className="billing-section">
                     <div className="billing-header text-center">
-                        <div className="colmn1">
-                            <h4>Date Reported</h4>
+                        <div className="colmn7">
+                            <h4>Reported</h4>
                         </div>
                         <div className="colmn5">
                             <h4>Hours</h4>
                         </div>
-                        <div className="colmn15">
+                        <div className="colmn18">
                             <h4>Developers</h4>
                         </div>
-                        <div className="colmn1">
+                        <div className="colmn105">
                             <h4>Billed Date</h4>
                         </div>
-                        <div className="colmn1">
+                        <div className="colmn105">
                             <h4>Hours Billed</h4>
                         </div>
-                        <div className="colmn1">
+                        <div className="colmn105">
                             <h4>Earned By</h4>
                         </div>
-                        <div className="colmn1">
-                            <h4>For Client</h4>
+                        <div className="colmn105">
+                            <h4>TS Name</h4>
                         </div>
-                        <div className="colmn2">
+                        <div className="colmn21">
                             <h4>Description</h4>
                         </div>
-                        <div className="colmn1">
+                        <div className="colmn7">
                             <h4>Action</h4>
                         </div>
                     </div>
                 </div>
             </div>
             {
-                this.props.billingData.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + idx} releasePlan={rp} />)
+                this.props.billingReleasePlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + idx} releasePlan={rp} rpIdx={idx} projectTeam={this.props.projectTeam} />)
             }
         </div>
     }

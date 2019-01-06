@@ -2385,7 +2385,7 @@ div.notificationTable table tr[width="100%"] td {
 	background:#303440;
 	width:100%;
 }
-.colmn1 {
+.colmn10 {
 	width:10%;
 	float:left;
 	min-height:20px;
@@ -2393,8 +2393,33 @@ div.notificationTable table tr[width="100%"] td {
 	border-right:1px solid #212531;
 }
 
+
 .colmn15 {
 	width:15%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
+.colmn7 {
+	width:7%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
+.colmn18 {
+	width:18%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
+.colmn21 {
+	width:21%;
 	float:left;
 	min-height:20px;
 	padding:5px;
@@ -2409,16 +2434,59 @@ div.notificationTable table tr[width="100%"] td {
 	border-right:1px solid #212531;
 }
 
-.colmn2 {
-	width:20%;
+.colmn105 {
+	width:10.5%;
 	float:left;
 	min-height:20px;
 	padding:5px;
 	border-right:1px solid #212531;
 }
-.colmn1 h4, .colmn2 h4, .colmn5 h4, .colmn15 h4 {
+
+.bil-rp-col40 {
+	width:40%;
+	float:left;
+	min-height:20px;
+    padding:5px;
+}
+
+.bil-rp-col12 {
+	width:12%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+}
+
+
+
+.colmn10 h4, .colmn21 h4, .colmn5 h4, .colmn15 h4, .colmn7 h4, .colmn18 h4, .colmn105 h4 {
 	color:#fff;
 }
+
+.btask-form-col-sm {
+	width:15%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
+.btask-form-col-bg {
+	width:30%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
+.billing-desc-content .btask-form-col-last {
+	width:10%;
+	float:left;
+	padding:5px;
+	border:0;
+}
+
+
+
 .billing-entries {
 	float:left;
 	min-height:10px;
@@ -2426,7 +2494,8 @@ div.notificationTable table tr[width="100%"] td {
 	width:100%;
 }
 .billing-entries h4 {
-	color:#fff;
+    color:#fff;
+    margin: 0px;
 }
 .billing-reports {
 	background:#ECECEC;
@@ -2435,24 +2504,30 @@ div.notificationTable table tr[width="100%"] td {
 	width:100%;
 }
 
+
+.billing-reports .form-group {
+    margin-bottom:0px;
+}
+
+
+
+.br-colmn1 {
+    width: 23.33%;
+    float: left;
+    padding: 5px;
+}
+
 .br-colmn2 {
     width: 16.66%;
     float: left;
     padding: 5px;
 }
 
-.br-colmn1 {
-    width: 33.33%;
-    float: left;
-    padding: 5px;
-}
-
 .br-colmn3 {
-    width: 50%;
+    width: 60.01%;
     float: left;
     padding: 5px;
 }
-
 
 .br-colmn1 h4 {
 	color:#333945;
@@ -2470,7 +2545,8 @@ div.notificationTable table tr[width="100%"] td {
 }
 .billing-desc .col-md-12 {
 	min-height:50px;
-	padding-left:0;
+    padding-left:0;
+    padding-right:0;
 }
 .billing-desc textarea {
 	height:35px;
@@ -2481,11 +2557,5 @@ div.notificationTable table tr[width="100%"] td {
 }
 .billing-desc-content .colmn2 {
     width: 30%;
-	border:0;
-}
-.billing-desc-content .colmn1Last {
-	width:10%;
-	float:left;
-	padding:5px;
 	border:0;
 }

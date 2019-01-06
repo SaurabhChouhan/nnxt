@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import { BILLING_TASK_TAB, BILLING_TIMESHEET_TAB } from '../../clientconstants'
-import { BillingTaskCriteriaFormContainer } from '../../containers'
-import { billingTaskList } from '../../components'
-import BillingTaskList from '../lists/billingTaskList';
+import { BillingTaskCriteriaFormContainer, BillingTaskListContainer } from '../../containers'
 
 let billingData = [{
+
     estimatedAmount: 300,
     billingAmount: 100,
     earning: 180,
@@ -24,7 +23,9 @@ let billingData = [{
                 _id: 2,
                 name: 'Mahesh'
             },
-            description: 'This is the description'
+            description: `Use blueprints that are accurately scaled representations
+                    of the facilities`
+
         }]
     }, {
         planningDate: '2019-01-05',
@@ -109,7 +110,7 @@ class BillingSection extends Component {
                     </ul>
                 </div>
             </div>
-            {selectedTab === BILLING_TASK_TAB && [<BillingTaskCriteriaFormContainer />, <BillingTaskList billingData={billingData} />]}
+            {selectedTab === BILLING_TASK_TAB && [<BillingTaskCriteriaFormContainer />, <BillingTaskListContainer />]}
 
         </div>
     }

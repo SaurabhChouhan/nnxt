@@ -170,4 +170,4 @@ export {default as ReleasePlanDateNavBar} from './forms/ReleasePlanDateNavBar'
 // Billing
 export {default as BillingSection} from './sections/BillingSection'
 export {default as BillingTaskCriteriaForm} from './forms/BillingTaskCriteriaForm'
-export {default as billingTaskList} from './lists/billingTaskList'
+export {default as BillingTaskList} from './lists/billingTaskList'
