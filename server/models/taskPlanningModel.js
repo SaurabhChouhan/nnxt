@@ -2992,14 +2992,18 @@ const addTaskReportPlanned = async (reportInput, employee, mode, reportedByLeade
 
     /* See if this is a re-report if yes then check if time for re-reporting is gone */
     let reReport = false
-    if (taskPlan.report && taskPlan.report.reportedOnDate && !reportedByLeaderManager) {
+    if (taskPlan.report && taskPlan.report.reportedOnDate) {
         reReport = true
         // this means this task was already reported by employee earlier, reporting would only be allowed till 2 hours from previous reported date
-        let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
-        twoHoursFromReportedOnDate.add(2, 'hours')
-        if (twoHoursFromReportedOnDate.isBefore(new Date())) {
-            throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
+        if( !reportedByLeaderManager){
+            // run 2 hour check only if task is marked by leader/manager
+            let twoHoursFromReportedOnDate = new moment(taskPlan.report.reportedOnDate)
+            twoHoursFromReportedOnDate.add(2, 'hours')
+            if (twoHoursFromReportedOnDate.isBefore(new Date())) {
+                throw new AppError('Cannot report after 2 hours from first reporting', EC.TIME_OVER_FOR_RE_REPORTING, EC.HTTP_BAD_REQUEST)
+            }
         }
+        
     } else {
         // Employee cannot report task planned in future
         let planningMomentInIndia = U.momentInTimeZone(taskPlan.planningDateString, SC.INDIAN_TIMEZONE)
