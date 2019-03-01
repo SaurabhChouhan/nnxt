@@ -13,12 +13,6 @@ class ReleasePlanList extends Component {
         this.options = {
             sizePerPageList: [{
                 text: '6', value: 6
-            }, {
-                text: '10', value: 10
-            }, {
-                text: '20', value: 20
-            }, {
-                text: '50', value: 50
             }],
             sizePerPage: 6,  // which size per page you want to locate as default
         }
@@ -218,8 +212,6 @@ class ReleasePlanList extends Component {
         let isManager = loggedInUser && loggedInUser._id && release.manager._id && loggedInUser._id.toString() === release.manager._id.toString() ? true : false
 
 
-        //console.log("releasePlans..........", releasePlans)
-        //console.log("releasePlans..........expandDescriptionTaskReportList", this.props.expandDescriptionTaskReportList)
         return (
             <div>
 
@@ -264,14 +256,13 @@ class ReleasePlanList extends Component {
 
                         </BootstrapTable>
 
-                    </div> : <div key={"releaseplan-table"} className="col-md-12 estimation">
+                    </div> : <div key={"releaseplan-table"} className="col-md-12 estimation" style = {{height: releasePlans.length > 6 ? 40 + 6 * 51.20+'px': 40 + releasePlans.length * 51.20 +'px', marginBottom:'54px'}}>
                         <BootstrapTable options={this.options} data={releasePlans}
                                         multiColumnSearch={true}
                                         search={false}
                                         striped={true}
                                         pagination
-                                        hover={true}
-                                        height={"300px"}>
+                                        hover={true}>
                             <TableHeaderColumn columnTitle isKey dataField='_id'
                                                hidden={true}>ID</TableHeaderColumn>
 
