@@ -535,7 +535,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 
 .estimation {
     border: none;
-    margin-top: 15px;
+    margin-top: 3px;
     display: inline-block;
     float: left;
     width: 100%;

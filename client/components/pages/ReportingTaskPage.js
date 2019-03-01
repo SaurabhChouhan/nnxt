@@ -309,14 +309,15 @@ class ReportingTaskPage extends Component {
                             </div>
                         </div>
                     ) : iterationType == SC.ITERATION_TYPE_UNPLANNED && releases && releases.length ? releases.map((release, idx) =>
-                        <div className="col-md-12 estimation reporting" >
+                        <div className="col-md-12 estimation reporting" style = {{height: release.tasks.length > 4? 83.20 + 4 * 52.80+'px':83.20 + release.tasks.length * 52.80 +'px', marginBottom:'54px'}}>
                             <div key={release._id}>
-                                <BootstrapTable options={this.options}
+                                <BootstrapTable options={this.reportTaskPageOptions}
                                     data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
                                     striped={true}
                                     hover={true}
                                     trClassName={this.rowClassNameFormat.bind(this)}
-                                    cellEdit={cellEditProp}>
+                                    cellEdit={cellEditProp}
+                                    pagination>
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
