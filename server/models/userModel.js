@@ -343,7 +343,9 @@ userSchema.statics.exists = async email => {
 userSchema.statics.deleteUser = async (userID) => {
     if (!userID)
         throw new AppError("Identifier required for delete", EC.IDENTIFIER_MISSING, EC.HTTP_BAD_REQUEST)
-    return await UserModel.findByIdAndRemove(userID).exec()
+    let user = await UserModel.findById(userID)
+    user.isDeleted = true
+    return await user.save()
 }
 
 
