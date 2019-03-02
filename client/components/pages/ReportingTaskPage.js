@@ -1,11 +1,11 @@
-import React, {Component} from 'react'
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
+import React, { Component } from 'react'
+import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table'
 import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
-import {ReportingDateNavBarContainer} from '../../containers'
-import {withRouter} from 'react-router-dom'
-import {NotificationManager} from 'react-notifications'
-import {ReportTaskDescriptionFormDialog} from "..";
+import { ReportingDateNavBarContainer } from '../../containers'
+import { withRouter } from 'react-router-dom'
+import { NotificationManager } from 'react-notifications'
+import { ReportTaskDescriptionFormDialog } from "..";
 import * as COC from "../componentConsts";
 import * as A from "../../actions";
 
@@ -79,15 +79,15 @@ class ReportingTaskPage extends Component {
 
     viewEditButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom" type="button" onClick={() => {
-                console.log('edit')
-            }}>
-                <i className="fa fa-pencil"></i>
-            </button>
+            console.log('edit')
+        }}>
+            <i className="fa fa-pencil"></i>
+        </button>
         )
     }
 
     viewCompleteButton(cell, row) {
-        return <button className=" btn btn-custom " type="button" style={{padding: '0px', border: '0'}} onClick={() => {
+        return <button className=" btn btn-custom " type="button" style={{ padding: '0px', border: '0' }} onClick={() => {
             if (row.reportedHours == null) {
                 NotificationManager.error('Please select worked hours!')
             } else {
@@ -97,12 +97,12 @@ class ReportingTaskPage extends Component {
 
             }
         }}>
-            <img src="/images/completed.png"/>
+            <img src="/images/completed.png" />
         </button>
     }
 
     viewPendingButton(cell, row) {
-        return <button className=" btn btn-custom " type="button" style={{padding: '0px', border: '0'}} onClick={() => {
+        return <button className=" btn btn-custom " type="button" style={{ padding: '0px', border: '0' }} onClick={() => {
             if (row.reportedHours == null) {
                 NotificationManager.error('Please select worked hours!')
             } else {
@@ -112,12 +112,12 @@ class ReportingTaskPage extends Component {
                 this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)
             }
         }}>
-            <img src="/images/pending.png"/>
+            <img src="/images/pending.png" />
         </button>
     }
 
     viewReportButton(cell, row) {
-        return <button className=" btn btn-custom " type="button" style={{padding: '0px', border: '0'}} onClick={() => {
+        return <button className=" btn btn-custom " type="button" style={{ padding: '0px', border: '0' }} onClick={() => {
             if (row.reportedHours == null) {
                 NotificationManager.error('Please select worked hours!')
             } else {
@@ -127,22 +127,22 @@ class ReportingTaskPage extends Component {
                 this.props.reportTask(row, this.props.dateOfReport, this.props.iterationType)
             }
         }}>
-            <img src="/images/report.png"/>
+            <img src="/images/report.png" />
         </button>
     }
 
     viewDetailButton(cell, row, enumObject, rowIndex) {
         return (<button className=" btn btn-custom " type="button" onClick={() => {
-                this.props.taskPlanSelected(row).then(json => {
-                    if (json.success) {
-                        this.props.history.push('/app-home/reporting-task-detail')
-                        this.props.showTaskDetailPage()
-                    }
-                    return json
-                })
-            }}>
-                <i className="fa fa-eye"></i>
-            </button>
+            this.props.taskPlanSelected(row).then(json => {
+                if (json.success) {
+                    this.props.history.push('/app-home/reporting-task-detail')
+                    this.props.showTaskDetailPage()
+                }
+                return json
+            })
+        }}>
+            <i className="fa fa-eye"></i>
+        </button>
         )
     }
 
@@ -170,7 +170,7 @@ class ReportingTaskPage extends Component {
 
     render() {
 
-        const {allReleases, activeReleases, releases, reportedStatus, releaseID, iterationType} = this.props
+        const { allReleases, activeReleases, releases, reportedStatus, releaseID, iterationType } = this.props
         const cellEditProp = {
             mode: 'click',
             blurToSave: true,
@@ -182,7 +182,7 @@ class ReportingTaskPage extends Component {
             <div key="estimation_list" className="clearfix">
 
                 <div className="col-md-12">
-                    <ReportingDateNavBarContainer reportedStatus={reportedStatus} releaseID={releases}/>
+                    <ReportingDateNavBarContainer reportedStatus={reportedStatus} releaseID={releases} />
                 </div>
                 <div className="col-md-12">
                     <div className="col-md-12 releaseOption releaseDetailSearchContent">
@@ -194,9 +194,9 @@ class ReportingTaskPage extends Component {
                                     value={iterationType}
                                     onChange={(type) => this.onIterationTypeChange(type.target.value)}>
                                     <option key={SC.ITERATION_TYPE_PLANNED}
-                                            value={SC.ITERATION_TYPE_PLANNED}>{SC.ITERATION_TYPE_PLANNED}</option>
+                                        value={SC.ITERATION_TYPE_PLANNED}>{SC.ITERATION_TYPE_PLANNED}</option>
                                     <option key={SC.ITERATION_TYPE_UNPLANNED}
-                                            value={SC.ITERATION_TYPE_UNPLANNED}>{SC.ITERATION_TYPE_UNPLANNED}</option>
+                                        value={SC.ITERATION_TYPE_UNPLANNED}>{SC.ITERATION_TYPE_UNPLANNED}</option>
                                 </select>
                             </div>
                         </div>
@@ -231,11 +231,11 @@ class ReportingTaskPage extends Component {
                                     onChange={(status) => this.onReportedStatusChange(status.target.value)}>
                                     <option key={SC.ALL} value={SC.ALL}>All Task Status</option>
                                     <option key={SC.REPORT_UNREPORTED}
-                                            value={SC.REPORT_UNREPORTED}>{SC.REPORT_UNREPORTED}</option>
+                                        value={SC.REPORT_UNREPORTED}>{SC.REPORT_UNREPORTED}</option>
                                     <option key={SC.REPORT_PENDING}
-                                            value={SC.REPORT_PENDING}>{SC.REPORT_PENDING}</option>
+                                        value={SC.REPORT_PENDING}>{SC.REPORT_PENDING}</option>
                                     <option key={SC.REPORT_COMPLETED}
-                                            value={SC.REPORT_COMPLETED}>{SC.REPORT_COMPLETED}</option>
+                                        value={SC.REPORT_COMPLETED}>{SC.REPORT_COMPLETED}</option>
 
 
                                 </select>
@@ -244,116 +244,119 @@ class ReportingTaskPage extends Component {
                     </div>
 
                 </div>
-                <div className="col-md-12 estimation reporting">
-                    {
-                        iterationType == SC.ITERATION_TYPE_PLANNED && releases && releases.length ? releases.map((release, idx) =>
+
+                {
+                    iterationType == SC.ITERATION_TYPE_PLANNED && releases && releases.length ? releases.map((release, idx) =>
+                        <div className="col-md-12 estimation reporting" style = {{height: release.tasks.length > 4? 83.20 + 4 * 52.80+'px':83.20 + release.tasks.length * 52.80 +'px', marginBottom:'54px'}}>
                             <div key={release._id}>
                                 <BootstrapTable options={this.reportTaskPageOptions}
-                                                data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
-                                                striped={true}
-                                                hover={true}
-                                                trClassName={this.rowClassNameFormat.bind(this)}
-                                                cellEdit={cellEditProp}
-                                                height={"100%"}
-                                                pagination>
+                                    data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
+                                    striped={true}
+                                    hover={true}
+                                    trClassName={this.rowClassNameFormat.bind(this)}
+                                    cellEdit={cellEditProp}
+                                    height={"100%"}
+                                    pagination>
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
                                     <TableHeaderColumn row='0' colSpan='7'
-                                                       dataAlign="center">{release.releaseName}</TableHeaderColumn>
+                                        dataAlign="center">{release.releaseName}</TableHeaderColumn>
 
                                     <TableHeaderColumn row='1' editable={false} width="10%" columnTitle={'View Detail'}
-                                                       dataField='detailButton'
-                                                       dataFormat={this.viewDetailButton.bind(this)} dataAlign="center">View
-                                        Detail
+                                        dataField='detailButton'
+                                        dataFormat={this.viewDetailButton.bind(this)} dataAlign="center">View
+                         Detail
                                     </TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="20%" columnTitle dataField="task"
-                                                       dataFormat={this.formatTask}
-                                                       dataSort={true} dataAlign="center">
+                                        dataFormat={this.formatTask}
+                                        dataSort={true} dataAlign="center">
                                         Task Name</TableHeaderColumn>
                                     <TableHeaderColumn row='1' width="12%" columnTitle dataField="planning"
-                                                       dataFormat={this.formatPlannedHours} editable={false}
-                                                       dataAlign="center"
+                                        dataFormat={this.formatPlannedHours} editable={false}
+                                        dataAlign="center"
                                     > planned hours</TableHeaderColumn>
                                     <TableHeaderColumn row='1' width="15%" columnTitle dataField="reportedHours"
-                                                       dataFormat={this.formatReportedHours}
-                                                       editable={{
-                                                           type: 'select',
-                                                           options: {
-                                                               values: ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12']
-                                                           }
-                                                       }}
-                                                       dataAlign="center"
+                                        dataFormat={this.formatReportedHours}
+                                        editable={{
+                                            type: 'select',
+                                            options: {
+                                                values: ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12']
+                                            }
+                                        }}
+                                        dataAlign="center"
                                     >Worked Hours</TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="7%"
-                                                       columnTitle={'Reported Status'}
-                                                       dataField="report"
-                                                       dataFormat={this.formatReportStatus.bind(this)}
-                                                       dataAlign="center">Status
+                                        columnTitle={'Reported Status'}
+                                        dataField="report"
+                                        dataFormat={this.formatReportStatus.bind(this)}
+                                        dataAlign="center">Status
                                     </TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="7%"
-                                                       columnTitle={'Mark as Complete'}
-                                                       dataField="Complete"
-                                                       dataAlign="center"
-                                                       dataFormat={this.viewCompleteButton.bind(this)}>Complete
+                                        columnTitle={'Mark as Complete'}
+                                        dataField="Complete"
+                                        dataAlign="center"
+                                        dataFormat={this.viewCompleteButton.bind(this)}>Complete
                                     </TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="7%"
-                                                       columnTitle={'Mark as Pending'}
-                                                       dataField="Pending"
-                                                       dataAlign="center"
-                                                       dataFormat={this.viewPendingButton.bind(this)}>Pending
+                                        columnTitle={'Mark as Pending'}
+                                        dataField="Pending"
+                                        dataAlign="center"
+                                        dataFormat={this.viewPendingButton.bind(this)}>Pending
                                     </TableHeaderColumn>
                                 </BootstrapTable>
 
                             </div>
-                        ) : iterationType == SC.ITERATION_TYPE_UNPLANNED && releases && releases.length ? releases.map((release, idx) =>
+                        </div>
+                    ) : iterationType == SC.ITERATION_TYPE_UNPLANNED && releases && releases.length ? releases.map((release, idx) =>
+                        <div className="col-md-12 estimation reporting" style = {{height: release.tasks.length > 4? 83.20 + 4 * 52.80+'px':83.20 + release.tasks.length * 52.80 +'px', marginBottom:'54px'}}>
                             <div key={release._id}>
-                                <BootstrapTable options={this.options}
-                                                data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
-                                                striped={true}
-                                                hover={true}
-                                                trClassName={this.rowClassNameFormat.bind(this)}
-                                                cellEdit={cellEditProp}>
+                                <BootstrapTable options={this.reportTaskPageOptions}
+                                    data={release && release.tasks && release.tasks.length > 0 ? release.tasks : []}
+                                    striped={true}
+                                    hover={true}
+                                    trClassName={this.rowClassNameFormat.bind(this)}
+                                    cellEdit={cellEditProp}
+                                    pagination>
 
                                     <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                                     </TableHeaderColumn>
                                     <TableHeaderColumn row='0' colSpan='7'
-                                                       dataAlign="center">{release.releaseName}</TableHeaderColumn>
+                                        dataAlign="center">{release.releaseName}</TableHeaderColumn>
 
                                     <TableHeaderColumn row='1' editable={false} width="20%" columnTitle={'View Detail'}
-                                                       dataField='detailButton'
-                                                       dataFormat={this.viewDetailButton.bind(this)}
-                                                       dataAlign="center"
+                                        dataField='detailButton'
+                                        dataFormat={this.viewDetailButton.bind(this)}
+                                        dataAlign="center"
                                     >View Detail
                                     </TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="40%" columnTitle dataField="task"
-                                                       dataFormat={this.formatTask}
-                                                       dataSort={true} dataAlign="center">
+                                        dataFormat={this.formatTask}
+                                        dataSort={true} dataAlign="center">
                                         Task Name</TableHeaderColumn>
                                     <TableHeaderColumn row='1' width="20%" columnTitle dataField="reportedHours"
-                                                       dataFormat={this.formatReportedHours}
-                                                       editable={{
-                                                           type: 'select',
-                                                           options: {
-                                                               values: ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12']
-                                                           }
-                                                       }}
-                                                       dataAlign="center"
+                                        dataFormat={this.formatReportedHours}
+                                        editable={{
+                                            type: 'select',
+                                            options: {
+                                                values: ['0', '0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12']
+                                            }
+                                        }}
+                                        dataAlign="center"
                                     >Worked Hours</TableHeaderColumn>
                                     <TableHeaderColumn row='1' editable={false} width="20%"
-                                                       columnTitle={'Report Hours'}
-                                                       dataField="Report"
-                                                       dataAlign="center"
-                                                       dataFormat={this.viewReportButton.bind(this)}>Report
+                                        columnTitle={'Report Hours'}
+                                        dataField="Report"
+                                        dataAlign="center"
+                                        dataFormat={this.viewReportButton.bind(this)}>Report
                                     </TableHeaderColumn>
                                 </BootstrapTable>
 
                             </div>
-                        ) : <label> No tasks found for reporting </label>
-                    }
-                </div>
+                        </div>
+                    ) : <label> No tasks found for reporting </label>
+                }
             </div>
-
         )
     }
 }
