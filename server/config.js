@@ -16,7 +16,7 @@ const config = {
         setupData: {
             port: 3000,
             setupData: true,
-            dropDatabase: false
+            dropDatabase: true
         },
         demoData: {
             port: 3001,
