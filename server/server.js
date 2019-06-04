@@ -10,7 +10,7 @@ import confFile from './config'
 import co from 'co'
 import mongoose from 'mongoose'
 import {apiRouter, pageRouter} from "./routers"
-import {runSetupInstructions} from "./utils/setupdata"
+import {performSetup} from "./utils/setupdata"
 import {PROD_ENV} from "./serverconstants"
 import path from 'path'
 import logger from './logger'
@@ -29,12 +29,14 @@ co(async () => {
         connection = await mongoose.connect(conf.mongo.url, {
             "useMongoClient": conf.mongo.useMongoClient
         })
+        await performSetup(conf.server)
         console.log("Connection to database Successful!")
     } catch (error) {
-        console.log("Error connecting to database, please check your configurations...")
+        console.log("Error connecting to database, please check your configurations...", error)
         return
     }
 
+    /*
     if (conf.server.dropDatabase) {
         console.log("DROP DATABASE CONFIGURATION IS ON!!! PLEASE RESET IF DON'T INTEND TO DROP DATABASE IN NEXT SERVER START")
         console.log("DROPPING DATABASE")
@@ -54,10 +56,12 @@ co(async () => {
         }
     }
 
+    
     if (conf.server.setupData) {
         console.log("SETUP DATA CONFIGURATION IS ON! In case you don't want to run setup instructions please set that config to false")
         await runSetupInstructions()
     }
+    */
     let app = new Koa()
 
     locale(app)
