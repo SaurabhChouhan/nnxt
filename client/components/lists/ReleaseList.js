@@ -60,7 +60,13 @@ class ReleaseList extends Component {
         }
         return ''
     }
-
+    formatClient(row) {
+        console.log('formatClient', row)
+        if (row) {
+            return row.name
+        }
+        return ''
+    }
     formatEstimatedHours(column, row) {
         if (row.plannedStats) {
             return row.plannedStats.sumEstimatedHours
@@ -124,7 +130,7 @@ class ReleaseList extends Component {
     }
 
     render() {
-        const {releases, handleSubmit, leaders, managers, initialValues, releaseFilters} = this.props
+        const {releases, handleSubmit, leaders, managers, clients, initialValues, releaseFilters} = this.props
 
         return ([
                 <form key={"release-form"} onSubmit={handleSubmit}>
@@ -177,6 +183,17 @@ class ReleaseList extends Component {
 
                         </div>
 
+                        <div className="release-button-container">
+                            <Field name="client" component={renderSelect} label={"Clients:"} options={clients}
+                                   onChange={(event, newValue) => {
+                                       console.log("get the value of status", newValue)
+                                       this.props.fetchReleases(Object.assign({}, releaseFilters, {
+                                           client: newValue
+                                       }))
+                                   }} noneOptionText='All'/>
+
+                        </div>
+
                         <div className="search-btn-container">
                             <div className={"input checkbox col-md-4"} style={{width: "100%", marginTop: 15}}>
                                 <label>
@@ -215,6 +232,10 @@ class ReleaseList extends Component {
                             <TableHeaderColumn columnTitle dataField='leader'
                                                dataFormat={this.formatLeader.bind(this)} dataAlign={"center"}>
                                 Leader
+                            </TableHeaderColumn>
+                            <TableHeaderColumn columnTitle dataField='client'
+                                               dataFormat={this.formatClient.bind(this)} dataAlign={"center"}>
+                                Client
                             </TableHeaderColumn>
                             <TableHeaderColumn columnTitle dataField='iterations[0]'
                                                dataFormat={this.formatEstimatedHours.bind(this)} dataAlign={"center"}>

@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     showCreateReleaseDialog: () => {
-        dispatch(A.getAllClientsFromServer())
+        // dispatch(A.getAllClientsFromServer())
         dispatch(A.getAllProjectsFromServer())
         dispatch(A.getAllModulesFromServer())
         dispatch(A.getUsersWithRoleCategoryFromServer())
@@ -40,7 +40,8 @@ const mapStateToProps = (state, ownProps) => {
         releases: state.release.all,
         leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
         managers: state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : [],
-        releaseFilters: state.release.releaseFilters
+        releaseFilters: state.release.releaseFilters,
+        clients: state.client && state.client.all ? state.client.all: []
     }
 
     let initialValues = undefined
