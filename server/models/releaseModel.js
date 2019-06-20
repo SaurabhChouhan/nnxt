@@ -196,15 +196,20 @@ releaseSchema.statics.search = async (criteria, user) => {
             filter['client._id'] = criteria.client
         }
         let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
+        console.log("todaysMoment",todaysMoment)
         if(criteria.duration){
+            // let durationMoment = moment(criteria.duration, SC.DATE_FORMAT).tz().format();
+            let durationMoment = momentTZ.tz(momentTZ.tz(moment(criteria.duration, SC.DATE_FORMAT), SC.INDIAN_TIMEZONE), SC.UTC_TIMEZONE)
+            console.log(durationMoment)
             if(criteria.showActive){
-                console.log("showActive=",criteria.showActive,"duration", moment(criteria.duration, 'x'))
-                filter['$and'] = [{ 'devStartDate': { $gte: moment(criteria.duration, 'x') } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
+                console.log("showActive=",criteria.showActive,"duration", durationMoment)
+                console.log(durationMoment)
+                filter['$and'] = [{ 'devStartDate': { $gte: durationMoment } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
                 console.log(filter['$and'])
             }
             else {
-                console.log("showActive=",criteria.showActive,"duration=",moment(criteria.duration, 'x'))
-                filter['devStartDate'] = {$gte: moment(criteria.duration, 'x')}
+                console.log("showActive=",criteria.showActive,"duration=",durationMoment)
+                filter['devStartDate'] = {$gte: durationMoment}
             }
         }
         else{

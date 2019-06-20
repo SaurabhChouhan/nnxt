@@ -6,6 +6,7 @@ import momentTZ from 'moment-timezone'
 import {withRouter} from 'react-router-dom'
 import {Field, formValueSelector, reduxForm} from 'redux-form'
 import {renderSelect,} from '../forms/fields'
+import {DATE_FORMAT} from "../../../server/serverconstants";
 
 class ReleaseList extends Component {
     constructor(props) {
@@ -131,9 +132,11 @@ class ReleaseList extends Component {
 
     render() {
         const {releases, handleSubmit, leaders, managers, clients, initialValues, releaseFilters} = this.props
-        let duration = [{_id: moment().add(-15, 'days').startOf('d'), name: 'last 15 days'},
-                    {_id: moment().add(-1, 'month').startOf('d'), name: 'last 1 month'},
-                    {_id: moment().add(-6, 'month').startOf('d'), name:'last 6 months'}];
+        let duration = [{_id: moment().add(-15, 'days').startOf('d').format(DATE_FORMAT), name: 'last 15 days'},
+                    {_id: moment().add(-1, 'month').startOf('d').format(DATE_FORMAT), name: 'last 1 month'},
+                    {_id: moment().add(-6, 'month').startOf('d').format(DATE_FORMAT), name:'last 6 months'}];
+            console.log(duration)
+        console.log(moment().utcOffset("+05:30").format())
         return ([
                 <form key={"release-form"} onSubmit={handleSubmit}>
                     <div key={"release-search"} className="col-md-12 release-options">
