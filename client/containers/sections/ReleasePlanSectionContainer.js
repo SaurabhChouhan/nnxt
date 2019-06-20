@@ -8,12 +8,12 @@ import {initialize} from 'redux-form'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
         ReleaseProjectGoBack: (release) => {
-            dispatch(A.getReleaseFromServer(release._id)).then(json => {
-                if (json.success) {
+            // dispatch(A.getReleaseFromServer(release._id)).then(json => {
+            //     if (json.success) {
                     dispatch(A.showComponentHideOthers(COC.RELEASE_LIST))
-                }
-            })
-            dispatch(A.getAllReleasesFromServer(SC.ALL))
+            //     }
+            // })
+            // dispatch(A.getAllReleasesFromServer(SC.ALL))
 
         },
         tabSelected: (tab) => dispatch(A.releaseTabSelected(tab)),
