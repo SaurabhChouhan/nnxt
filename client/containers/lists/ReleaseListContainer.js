@@ -3,6 +3,8 @@ import * as A from '../../actions'
 import {ReleaseList} from "../../components"
 import * as COC from '../../components/componentConsts'
 import * as SC from '../../../server/serverconstants'
+import moment from 'moment'
+
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     search: (criteria) => {
@@ -19,7 +21,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     showCreateReleaseDialog: () => {
-        dispatch(A.getAllClientsFromServer())
+        // dispatch(A.getAllClientsFromServer())
         dispatch(A.getAllProjectsFromServer())
         dispatch(A.getAllModulesFromServer())
         dispatch(A.getUsersWithRoleCategoryFromServer())
@@ -40,14 +42,16 @@ const mapStateToProps = (state, ownProps) => {
         releases: state.release.all,
         leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
         managers: state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : [],
-        releaseFilters: state.release.releaseFilters
+        releaseFilters: state.release.releaseFilters,
+        clients: state.client && state.client.all ? state.client.all: []
     }
 
     let initialValues = undefined
     if (!state.release.releaseFilters.updated) {
         initialValues = {
-            showActive: true
+            referenceDate: moment().startOf('d').format(SC.DATE_FORMAT)
         }
+
         if (state.user.loggedIn && (state.user.loggedIn.roleNames.indexOf(SC.ROLE_MANAGER) > -1 || state.user.loggedIn.roleNames.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1)) {
             initialValues.manager = state.user.loggedIn._id
         }

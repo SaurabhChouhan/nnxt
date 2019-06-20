@@ -149,7 +149,7 @@ releaseSchema.statics.getAllReleases = async (status, user) => {
 }
 
 releaseSchema.statics.search = async (criteria, user) => {
-
+    console.log("criteria ", criteria)
     if (!U.userHasRole(user, SC.ROLE_MANAGER) && !U.userHasRole(user, SC.ROLE_LEADER) && !U.userHasRole(user, SC.ROLE_TOP_MANAGEMENT))
         throw new AppError('Only user with role [' + SC.ROLE_MANAGER + ' or ' + SC.ROLE_LEADER + '] can search releases', EC.ACCESS_DENIED, EC.HTTP_FORBIDDEN)
 
@@ -183,18 +183,25 @@ releaseSchema.statics.search = async (criteria, user) => {
             }
         }
 
-        if (criteria.showActive) {
-            // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
-            let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
-            filter['$and'] = [{ 'devStartDate': { $lte: todaysMoment.toDate() } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
-        }
-
         if (criteria.status) {
             filter['status'] = criteria.status
         }
+        if (criteria.client) {
+            filter['client._id'] = criteria.client
+        }
+        let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
+        if (criteria.referenceDate) {
+            let referenceMoment = U.momentInUTC(criteria.referenceDate)
+            // show those releases that are in progress at selected date
+            filter['$and'] = [{ 'devStartDate': { $lte: referenceMoment.toDate() } }, { 'devEndDate': { $gte: referenceMoment.toDate() } }]
+        }
 
-
-        logger.debug("searchRelease() ", { filter })
+        /*
+        else {
+            // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
+            filter['$and'] = [{ 'devStartDate': { $lte: todaysMoment.toDate() } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
+        }
+        */
         return await ReleaseModel.find(filter)
     }
 
