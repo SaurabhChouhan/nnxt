@@ -183,12 +183,6 @@ releaseSchema.statics.search = async (criteria, user) => {
             }
         }
 
-        // if (criteria.showActive) {
-        //     // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
-        //     let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
-        //     filter['$and'] = [{ 'devStartDate': { $lte: todaysMoment.toDate() } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
-        // }
-
         if (criteria.status) {
             filter['status'] = criteria.status
         }
@@ -196,31 +190,18 @@ releaseSchema.statics.search = async (criteria, user) => {
             filter['client._id'] = criteria.client
         }
         let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
-        console.log("todaysMoment", todaysMoment)
-        if (criteria.duration) {
-            // let durationMoment = moment(criteria.duration, SC.DATE_FORMAT).tz().format();
-            let durationMoment = momentTZ.tz(momentTZ.tz(moment(criteria.duration, SC.DATE_FORMAT), SC.INDIAN_TIMEZONE), SC.UTC_TIMEZONE)
-            console.log(durationMoment)
-            if (criteria.showActive) {
-                console.log("showActive=", criteria.showActive, "duration", durationMoment)
-                console.log(durationMoment)
-                filter['$and'] = [{ 'devStartDate': { $gte: durationMoment } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
-                console.log(filter['$and'])
-            }
-            else {
-                console.log("showActive=", criteria.showActive, "duration=", durationMoment)
-                filter['devStartDate'] = { $gte: durationMoment }
-            }
+        if (criteria.referenceDate) {
+            let referenceMoment = U.momentInUTC(criteria.referenceDate)
+            // show those releases that are in progress at selected date
+            filter['$and'] = [{ 'devStartDate': { $lte: referenceMoment.toDate() } }, { 'devEndDate': { $gte: referenceMoment.toDate() } }]
         }
+
+        /*
         else {
-            if (criteria.showActive) {
-                console.log("showActive=", criteria.showActive, "duration=", criteria.duration, 'x')
-                // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
-                filter['$and'] = [{ 'devStartDate': { $lte: todaysMoment.toDate() } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
-            }
+            // only active releases needs to be shown, release that have are in progress on current date (based on their start/end date)
+            filter['$and'] = [{ 'devStartDate': { $lte: todaysMoment.toDate() } }, { 'devEndDate': { $gte: todaysMoment.toDate() } }]
         }
-        logger.debug("searchRelease() ", { filter })
-        console.log("searchRelease()", filter)
+        */
         return await ReleaseModel.find(filter)
     }
 

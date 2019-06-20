@@ -3,6 +3,8 @@ import * as A from '../../actions'
 import {ReleaseList} from "../../components"
 import * as COC from '../../components/componentConsts'
 import * as SC from '../../../server/serverconstants'
+import moment from 'moment'
+
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     search: (criteria) => {
@@ -47,8 +49,9 @@ const mapStateToProps = (state, ownProps) => {
     let initialValues = undefined
     if (!state.release.releaseFilters.updated) {
         initialValues = {
-            showActive: true
+            referenceDate: moment().startOf('d').format(SC.DATE_FORMAT)
         }
+
         if (state.user.loggedIn && (state.user.loggedIn.roleNames.indexOf(SC.ROLE_MANAGER) > -1 || state.user.loggedIn.roleNames.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1)) {
             initialValues.manager = state.user.loggedIn._id
         }
