@@ -131,7 +131,9 @@ class ReleaseList extends Component {
 
     render() {
         const {releases, handleSubmit, leaders, managers, clients, initialValues, releaseFilters} = this.props
-
+        let duration = [{_id: moment().add(-15, 'days').startOf('d'), name: 'last 15 days'},
+                    {_id: moment().add(-1, 'month').startOf('d'), name: 'last 1 month'},
+                    {_id: moment().add(-6, 'month').startOf('d'), name:'last 6 months'}];
         return ([
                 <form key={"release-form"} onSubmit={handleSubmit}>
                     <div key={"release-search"} className="col-md-12 release-options">
@@ -189,6 +191,17 @@ class ReleaseList extends Component {
                                        console.log("get the value of status", newValue)
                                        this.props.fetchReleases(Object.assign({}, releaseFilters, {
                                            client: newValue
+                                       }))
+                                   }} noneOptionText='All'/>
+
+                        </div>
+
+                        <div className="release-button-container">
+                            <Field name="duration" component={renderSelect} label={"Duration:"} options={duration}
+                                   onChange={(event, newValue) => {
+                                       console.log("get the value of status", newValue)
+                                       this.props.fetchReleases(Object.assign({}, releaseFilters, {
+                                           duration: newValue
                                        }))
                                    }} noneOptionText='All'/>
 
