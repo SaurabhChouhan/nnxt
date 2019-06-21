@@ -182,10 +182,7 @@ releaseSchema.statics.search = async (criteria, user) => {
                 filter['manager._id'] = criteria.manager
             }
         }
-
-        if (criteria.status) {
-            filter['status'] = criteria.status
-        }
+        
         if (criteria.client) {
             filter['client._id'] = criteria.client
         }
