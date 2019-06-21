@@ -131,7 +131,7 @@ class ReleaseList extends Component {
     }
 
     render() {
-        const { releases, handleSubmit, leaders, managers, clients, initialValues, releaseFilters } = this.props
+        const { projects, releases, handleSubmit, leaders, managers, clients, initialValues, releaseFilters } = this.props
         let progressTimeOptions = [
             { _id: moment().startOf('d').format(DATE_FORMAT), name: 'Today' },
             { _id: moment().add(-7, 'days').startOf('d').format(DATE_FORMAT), name: '1 Week Ago' },
@@ -141,6 +141,7 @@ class ReleaseList extends Component {
             { _id: moment().add(-6, 'months').startOf('d').format(DATE_FORMAT), name: '6 Months Ago' },
             { _id: '', name: 'Any Time' }
         ];
+        console.log(this.props)
         return ([
             <form key={"release-form"} onSubmit={handleSubmit}>
                 <div key={"release-search"} className="col-md-12 release-options">
@@ -150,23 +151,33 @@ class ReleaseList extends Component {
                         }}>Create Release
                         </button>
 
-                    <div className="release-button-container">
+                    {/*<div className="release-button-container">*/}
 
-                        <Field name="status" component={renderSelect} label={"Status"} options={
-                            SC.ALL_RELEASE_STATUS.map((status, idx) =>
-                                ({
-                                    _id: status,
-                                    name: status
-                                })
-                            )
-                        } onChange={(event, newValue) => {
-                            console.log("get the value of status", newValue)
-                            this.props.fetchReleases(
-                                Object.assign({}, releaseFilters, {
-                                    status: newValue
-                                })
-                            )
-                        }} noneOptionText='All' />
+                        {/*<Field name="status" component={renderSelect} label={"Status"} options={*/}
+                            {/*SC.ALL_RELEASE_STATUS.map((status, idx) =>*/}
+                                {/*({*/}
+                                    {/*_id: status,*/}
+                                    {/*name: status*/}
+                                {/*})*/}
+                            {/*)*/}
+                        {/*} onChange={(event, newValue) => {*/}
+                            {/*console.log("get the value of status", newValue)*/}
+                            {/*this.props.fetchReleases(*/}
+                                {/*Object.assign({}, releaseFilters, {*/}
+                                    {/*status: newValue*/}
+                                {/*})*/}
+                            {/*)*/}
+                        {/*}} noneOptionText='All' />*/}
+
+                    {/*</div>*/}
+                    <div className="release-button-container">
+                        <Field name="project" component={renderSelect} label={"Project:"} options={projects}
+                               onChange={(event, newValue) => {
+                                   console.log("get the value of status", newValue)
+                                   this.props.fetchReleases(Object.assign({}, releaseFilters, {
+                                       project: newValue
+                                   }))
+                               }} noneOptionText='All' />
 
                     </div>
 
