@@ -129,7 +129,17 @@ class ReleaseList extends Component {
 
         this.props.changeReleaseStatus(target.value, this.state.showAllReleases)
     }
-
+    filterType(cell, row) {
+        // just return type for filtering or searching.
+        console.log(cell,"row", row);
+        return cell.firstName + ' ' + cell.lastName;
+    }
+    filterDate(cell, row) {
+        // just return type for filtering or searching.
+        console.log(cell,"row", row);
+        if(cell.length>0)
+        return momentTZ.utc(cell[0].devEndDate).format("DD-MM-YYYY")
+    }
     render() {
         const { projects, releases, handleSubmit, leaders, managers, clients, initialValues, releaseFilters } = this.props
         let progressTimeOptions = [
@@ -249,22 +259,24 @@ class ReleaseList extends Component {
             <div key={"release-table"} className="col-md-12">
                 <div className="estimation release-plan-table">
                     <BootstrapTable options={this.options} data={releases}
-                        multiColumnSearch={true}
-                        search={false}
-                        striped={true}
-                        hover={true}>
-                        <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                                    striped
+                                    hover
+                                    search
+                                    multiColumnSearch>
+                    <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                         </TableHeaderColumn>
                         <TableHeaderColumn width="12%" dataField='project'
                             dataFormat={this.formatProjectName.bind(this)} dataAlign={"center"}>
                             Project
                             </TableHeaderColumn>
                         <TableHeaderColumn columnTitle dataField='manager'
-                            dataFormat={this.formatManager.bind(this)} dataAlign={"center"}>
+                            dataFormat={this.formatManager.bind(this)} dataAlign={"center"}
+                            filterValue={this.filterType.bind(this)}>
                             Manager
                             </TableHeaderColumn>
                         <TableHeaderColumn columnTitle dataField='leader'
-                            dataFormat={this.formatLeader.bind(this)} dataAlign={"center"}>
+                            dataFormat={this.formatLeader.bind(this)} dataAlign={"center"}
+                            filterValue={this.filterType.bind(this)}>
                             Leader
                             </TableHeaderColumn>
                         <TableHeaderColumn columnTitle dataField='client'
@@ -287,8 +299,9 @@ class ReleaseList extends Component {
                             dataFormat={this.formatStartDate.bind(this)} dataAlign={"center"}>
                             Start Date
                             </TableHeaderColumn>
-                        <TableHeaderColumn columnTitle dataField='iterations[0]'
-                            dataFormat={this.formatEndDate.bind(this)} dataAlign={"center"}>
+                        <TableHeaderColumn columnTitle dataField='iterations'
+                            dataFormat={this.formatEndDate.bind(this)} dataAlign={"center"}
+                            filterValue={this.filterDate}>
                             End Date
                             </TableHeaderColumn>
                         <TableHeaderColumn columnTitle dataField='iterations[0]'
