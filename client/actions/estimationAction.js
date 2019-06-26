@@ -1196,3 +1196,18 @@ export const addToReleaseOnServer = (formInput) => {
             })
     }
 }
+export const exportEstimationOnServer= (estimationID)=>{
+    console.log("export estimation")
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/export-estimation/'+estimationID, {
+            method: 'get',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/vnd.openxmlformats',
+                'Content-Type': 'application/json'
+            }
+        }).then(
+            response=> response.json()
+        )
+    }
+}

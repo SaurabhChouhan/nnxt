@@ -175,6 +175,12 @@ estimationRouter.get('/task/:estimationID', async ctx => {
 /**
  * Add a new task to estimation
  */
+
+estimationRouter.get('/export-estimation/:estimationID', async ctx =>{
+    console.log("export-estimation", ctx.params.estimationID)
+    return await MDL.EstimationModel.exportEstimation(ctx.params.estimationID);
+})
+
 estimationRouter.post('/tasks', async ctx => {
     return await MDL.EstimationTaskModel.addTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 
