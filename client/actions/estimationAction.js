@@ -1200,14 +1200,33 @@ export const exportEstimationOnServer= (estimationID)=>{
     console.log("export estimation")
     return (dispatch, getState) => {
         return fetch('/api/estimations/export-estimation/'+estimationID, {
-            method: 'get',
-            credentials: 'include',
-            headers: {
-                'Accept': 'application/vnd.openxmlformats',
-                'Content-Type': 'application/json'
+            method: 'get'
+            // headers: {
+            //     'Content-Type': 'application/json'
+            // }
+        }).then(response=>{
+        // response.text()
+            if((response.status) === 200)
+            {
+            // filename = response.headers.get("content-disposition");
+            // filename = filename.match(res.headers.get('content-disposition').split('filename=')[1])
+             let filename = response.headers.get('content-disposition').split('filename=')[1]
+                console.log(filename)
+            return response.blob();
             }
-        }).then(
-            response=> response.json()
-        )
+            else {
+            return;
+            }
+            // filename: res.headers.get('content-disposition').split('filename=')[1],
+            // blob: await res.blob()
+        }).then(blob => {
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = "estimationSheet.xlsx";
+            document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+            a.click();
+            a.remove();
+            });
     }
 }
