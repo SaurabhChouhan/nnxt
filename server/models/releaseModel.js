@@ -182,12 +182,13 @@ releaseSchema.statics.search = async (criteria, user) => {
                 filter['manager._id'] = criteria.manager
             }
         }
-
-        if (criteria.status) {
-            filter['status'] = criteria.status
-        }
+        
         if (criteria.client) {
             filter['client._id'] = criteria.client
+        }
+        if(criteria.project){
+            console.log("Project", criteria.project)
+            filter['project._id'] = criteria.project
         }
         let todaysMoment = U.momentInUTC(momentTZ.tz(SC.INDIAN_TIMEZONE).format(SC.DATE_FORMAT))
         if (criteria.referenceDate) {

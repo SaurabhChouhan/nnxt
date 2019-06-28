@@ -7,6 +7,7 @@ import {userHasRole} from '../utils'
 import * as V from '../validation'
 import _ from 'lodash'
 import logger from '../logger'
+import Excel from 'exceljs'
 
 mongoose.Promise = global.Promise
 
@@ -1004,10 +1005,58 @@ estimationSchema.statics.hasErrorEstimationByEstimator = async (estimationID, es
     estimation = estimation.toObject()
     estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
     return estimation
-
-
 }
 
+estimationSchema.statics.exportEstimation = async (estimationID, res)=>{
+    let estimations = await EstimationModel.aggregate({
+        $match: {
+            _id: mongoose.Types.ObjectId(estimationID)
+        },
+    }, {
+        $lookup: {
+            from: 'estimationtasks',
+            let: {estimationID: '$_id'},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ['$estimation._id', '$$estimationID']},
+                            {$eq: [{$ifNull: ['$feature._id', true]}, true]}
+                        ]
+                    }
+                }
+            }],
+            as: 'tasks'
+        }
+    }, {
+        $lookup: {
+            from: 'estimationfeatures',
+            let: {estimationID: '$_id'},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ['$estimation._id', '$$estimationID']}
+                        ]
+                    }
+                }
+
+            }, {
+                $lookup: {
+                    from: 'estimationtasks',
+                    localField: '_id',
+                    foreignField: 'feature._id',
+                    as: 'tasks'
+                }
+            }],
+            as: 'features'
+        }
+    }).exec()
+    if (Array.isArray(estimations) && estimations.length > 0) {
+        return estimations[0]
+    }
+
+}
 
 const EstimationModel = mongoose.model('Estimation', estimationSchema)
 export default EstimationModel

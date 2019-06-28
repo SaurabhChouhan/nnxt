@@ -43,7 +43,8 @@ const mapStateToProps = (state, ownProps) => {
         leaders: state.user.userWithRoleCategory && state.user.userWithRoleCategory.leaders ? state.user.userWithRoleCategory.leaders : [],
         managers: state.user.userWithRoleCategory && state.user.userWithRoleCategory.managers ? state.user.userWithRoleCategory.managers : [],
         releaseFilters: state.release.releaseFilters,
-        clients: state.client && state.client.all ? state.client.all: []
+        clients: state.client && state.client.all ? state.client.all: [],
+        projects: state.project &&state.project.all ? state.project.all: []
     }
 
     let initialValues = undefined

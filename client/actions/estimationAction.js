@@ -115,13 +115,13 @@ export const deleteEstimation = (estimationID) => ({
 export const getAllEstimationsFromServer = (projectID, status) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/project/' + projectID + '/status/' + status, {
-                method: 'get',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'get',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -137,14 +137,14 @@ export const getAllEstimationsFromServer = (projectID, status) => {
 export const initiateEstimationOnServer = (estimation) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/initiate', {
-                method: 'post',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(estimation)
-            }
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(estimation)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -161,14 +161,14 @@ export const initiateEstimationOnServer = (estimation) => {
 export const updateEstimationOnServer = (estimation) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/update', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(estimation)
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(estimation)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -185,13 +185,13 @@ export const updateEstimationOnServer = (estimation) => {
 export const deleteEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/delete", {
-                method: 'delete',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'delete',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -208,14 +208,14 @@ export const deleteEstimationOnServer = (estimationID) => {
 export const requestEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/request", {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -232,14 +232,14 @@ export const requestEstimationOnServer = (estimationID) => {
 export const requestReviewOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/review-request", {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -257,14 +257,14 @@ export const requestReviewOnServer = (estimationID) => {
 export const checkHasErrorInEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/hasError", {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -281,14 +281,14 @@ export const checkHasErrorInEstimationOnServer = (estimationID) => {
 export const requestChangeOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/change-request", {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -308,13 +308,13 @@ export const requestChangeOnServer = (estimationID) => {
 export const requestForTaskEditPermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + taskID + '/request-edit', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -335,13 +335,13 @@ export const requestForTaskEditPermissionOnServer = (taskID) => {
 export const requestForFeatureEditPermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/request-edit', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -359,13 +359,13 @@ export const requestForFeatureEditPermissionOnServer = (featureID) => {
 export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/tasks/' + taskID, {
-                method: 'delete',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'delete',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -388,13 +388,13 @@ export const deleteEstimationTaskOnServer = (estimationID, taskID) => {
 export const requestForTaskDeletePermissionOnServer = (taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + taskID + '/request-removal', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -417,14 +417,14 @@ export const requestForTaskDeletePermissionOnServer = (taskID) => {
 export const addTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks', {
-                method: 'post',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(task)
-            }
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(task)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -452,13 +452,13 @@ export const addTaskToEstimationOnServer = (task) => {
 export const addTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/estimation/' + estimationID + '/repository-task/' + taskID, {
-                method: 'post',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -480,13 +480,13 @@ export const addTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) 
 export const copyTaskFromRepositoryToEstimationOnServer = (estimationID, taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/estimation/' + estimationID + '/repository-task-copy/' + taskID, {
-                method: 'post',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -508,13 +508,13 @@ export const copyTaskFromRepositoryToEstimationOnServer = (estimationID, taskID)
 export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/estimation/' + estimationID + '/repository-feature/' + featureID, {
-                method: 'post',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -536,13 +536,13 @@ export const addFeatureFromRepositoryToEstimationOnServer = (estimationID, featu
 export const copyFeatureFromRepositoryToEstimationOnServer = (estimationID, featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/estimation/' + estimationID + '/repository-feature-copy/' + featureID, {
-                method: 'post',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -564,14 +564,14 @@ export const copyFeatureFromRepositoryToEstimationOnServer = (estimationID, feat
 export const updateTaskToEstimationOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(task)
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(task)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -599,14 +599,14 @@ export const updateTaskToEstimationOnServer = (task) => {
 export const addFeatureToEstimationOnServer = (feature) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features', {
-                method: 'post',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(feature)
-            }
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(feature)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -626,14 +626,14 @@ export const addFeatureToEstimationOnServer = (feature) => {
 export const updateFeatureToEstimationOnServer = (feature) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(feature)
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(feature)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -653,13 +653,13 @@ export const updateFeatureToEstimationOnServer = (feature) => {
 export const getEstimationFromServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID, {
-                method: 'get',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'get',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -676,13 +676,13 @@ export const getEstimationFromServer = (estimationID) => {
 export const getOnlyEstimationFromServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/only', {
-                method: 'get',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'get',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -699,13 +699,13 @@ export const getOnlyEstimationFromServer = (estimationID) => {
 export const getFeatureFromServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/feature/' + featureID, {
-                method: 'get',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'get',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -722,13 +722,13 @@ export const getFeatureFromServer = (featureID) => {
 export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + taskID + '/features/' + featureID, {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -748,13 +748,13 @@ export const moveTaskIntoFeatureOnServer = (taskID, featureID) => {
 export const moveTaskOutOfFeatureOnServer = (task) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + task._id + '/move-out-of-feature', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -774,13 +774,13 @@ export const moveTaskOutOfFeatureOnServer = (task) => {
 export const grantEditPermissionOfTaskOnServer = (taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + taskID + '/grant-edit', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -803,13 +803,13 @@ export const grantEditPermissionOfTaskOnServer = (taskID) => {
 export const grantEditPermissionOfFeatureOnServer = (featureId) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureId + '/grant-edit', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -830,13 +830,13 @@ export const grantEditPermissionOfFeatureOnServer = (featureId) => {
 export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/feature/' + featureID, {
-                method: 'delete',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'delete',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -855,13 +855,13 @@ export const deleteFeatureByEstimatorOnServer = (estimationID, featureID) => {
 export const requestForFeatureDeletePermissionOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/request-removal', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -878,13 +878,13 @@ export const requestForFeatureDeletePermissionOnServer = (featureID) => {
 export const approveTaskByNegotiatorOnServer = (taskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/tasks/' + taskID + '/approve', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -921,13 +921,13 @@ export const approveTaskByNegotiatorOnServer = (taskID) => {
 export const approveFeatureByNegotiatorOnServer = (featureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/features/' + featureID + '/approve', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -947,14 +947,14 @@ export const approveFeatureByNegotiatorOnServer = (featureID) => {
 export const approveEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/approve", {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -974,13 +974,13 @@ export const approveEstimationOnServer = (estimationID) => {
 export const canApproveFeatureOnServer = (FeatureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/feature/' + FeatureID + '/can-approve', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -997,14 +997,14 @@ export const canApproveFeatureOnServer = (FeatureID) => {
 export const canApproveEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/can-approve", {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1024,13 +1024,13 @@ export const canApproveEstimationOnServer = (estimationID) => {
 export const canNotApproveFeatureOnServer = (FeatureID, grant) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/feature/' + FeatureID + '/can-not-approve/' + grant + '/is-granted', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1047,14 +1047,14 @@ export const canNotApproveFeatureOnServer = (FeatureID, grant) => {
 export const canNotApproveEstimationOnServer = (estimationID, grant) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + '/can-not-approve/' + grant + '/is-granted', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1071,13 +1071,13 @@ export const canNotApproveEstimationOnServer = (estimationID, grant) => {
 export const reOpenFeatureOnServer = (FeatureID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/feature/' + FeatureID + '/reOpen', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1097,13 +1097,13 @@ export const reOpenFeatureOnServer = (FeatureID) => {
 export const reOpenTaskOnServer = (TaskID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/task/' + TaskID + '/reOpen', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1129,14 +1129,14 @@ export const reOpenTaskOnServer = (TaskID) => {
 export const reopenEstimationOnServer = (estimationID) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/' + estimationID + "/reopen", {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1153,14 +1153,14 @@ export const reopenEstimationOnServer = (estimationID) => {
 export const addCreateReleaseOnServer = (formInput) => {
     return (dispatch, getState) => {
         return fetch('/api/estimations/create-release', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formInput)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1177,14 +1177,14 @@ export const addToReleaseOnServer = (formInput) => {
     formInput.billedHours = parseInt(formInput.billedHours)
     return (dispatch, getState) => {
         return fetch('/api/estimations/add-to-release', {
-                method: 'put',
-                credentials: "include",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formInput)
-            }
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formInput)
+        }
         ).then(
             response => response.json()
         ).then(
@@ -1194,5 +1194,34 @@ export const addToReleaseOnServer = (formInput) => {
                 }
                 return json
             })
+    }
+}
+export const exportEstimationOnServer = (estimationID) => {
+    let excelFile = 'Estimations'
+    console.log("export estimation")
+    return (dispatch, getState) => {
+        return fetch('/api/estimations/export-estimation/' + estimationID, {
+            method: 'get'
+
+        }).then(response => {
+            if ((response.status) === 200) {
+                excelFile = response.headers.get('content-disposition').split('filename=')[1]
+                excelFile = excelFile.replace(/"/g, "");
+                console.log("excel file name is ["+excelFile+"]")
+                return response.blob();
+            }
+            else {
+                return;
+            }
+        }).then(blob => {
+            console.log("blob received as ", blob)
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = excelFile;
+            document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+            a.click();
+            a.remove();
+        });
     }
 }

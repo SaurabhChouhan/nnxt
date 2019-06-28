@@ -349,7 +349,7 @@ export const renderDateTimePickerString = ({
             readOnly={readOnly}
             disabled={disabled}
             onChange={event => onChange(parse(event))}
-            onBlur={event => onBlur(parse(event))}
+            // onBlur={event => onBlur(parse(event))}
             time={showTime}
             calendar={showCalendar}
             value={val}

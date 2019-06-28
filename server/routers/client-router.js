@@ -18,6 +18,10 @@ clientRouter.get('/', async ctx => {
     return await MDL.ClientModel.getAllActive()
 })
 
+clientRouter.get('/active', async ctx =>{
+    return await MDL.ClientModel.getAllActiveClients()
+})
+
 clientRouter.delete("/:id", async ctx => {
     return await MDL.ClientModel.deleteClient(ctx.params.id)
 })

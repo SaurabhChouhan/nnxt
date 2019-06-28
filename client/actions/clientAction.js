@@ -47,6 +47,26 @@ export const getAllClientsFromServer = () => {
             })
     }
 }
+export const getAllActiveClientsFromServer = () => {
+    return (dispatch, getState) => {
+        return fetch('/api/clients/active', {
+                method: 'get',
+                credentials: "include",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        ).then(
+            response => response.json()
+        ).then(
+            json => {
+                if (json.success) {
+                    dispatch(addClients(json.data))
+                }
+            })
+    }
+}
 export const addClientOnServer = (formInput) => {
     return function (dispatch, getState) {
         return fetch('/api/clients',
