@@ -131,14 +131,14 @@ class ReleaseList extends Component {
     }
     filterType(cell, row) {
         // just return type for filtering or searching.
-        console.log(cell,"row", row);
+        console.log(cell, "row", row);
         return cell.firstName + ' ' + cell.lastName;
     }
     filterDate(cell, row) {
         // just return type for filtering or searching.
-        console.log(cell,"row", row);
-        if(cell.length>0)
-        return momentTZ.utc(cell[0].devEndDate).format("DD-MM-YYYY")
+        console.log(cell, "row", row);
+        if (cell.length > 0)
+            return momentTZ.utc(cell[0].devEndDate).format("DD-MM-YYYY")
     }
     render() {
         const { projects, releases, handleSubmit, leaders, managers, clients, initialValues, releaseFilters } = this.props
@@ -163,31 +163,31 @@ class ReleaseList extends Component {
 
                     {/*<div className="release-button-container">*/}
 
-                        {/*<Field name="status" component={renderSelect} label={"Status"} options={*/}
-                            {/*SC.ALL_RELEASE_STATUS.map((status, idx) =>*/}
-                                {/*({*/}
-                                    {/*_id: status,*/}
-                                    {/*name: status*/}
-                                {/*})*/}
-                            {/*)*/}
-                        {/*} onChange={(event, newValue) => {*/}
-                            {/*console.log("get the value of status", newValue)*/}
-                            {/*this.props.fetchReleases(*/}
-                                {/*Object.assign({}, releaseFilters, {*/}
-                                    {/*status: newValue*/}
-                                {/*})*/}
-                            {/*)*/}
-                        {/*}} noneOptionText='All' />*/}
+                    {/*<Field name="status" component={renderSelect} label={"Status"} options={*/}
+                    {/*SC.ALL_RELEASE_STATUS.map((status, idx) =>*/}
+                    {/*({*/}
+                    {/*_id: status,*/}
+                    {/*name: status*/}
+                    {/*})*/}
+                    {/*)*/}
+                    {/*} onChange={(event, newValue) => {*/}
+                    {/*console.log("get the value of status", newValue)*/}
+                    {/*this.props.fetchReleases(*/}
+                    {/*Object.assign({}, releaseFilters, {*/}
+                    {/*status: newValue*/}
+                    {/*})*/}
+                    {/*)*/}
+                    {/*}} noneOptionText='All' />*/}
 
                     {/*</div>*/}
                     <div className="release-button-container">
                         <Field name="project" component={renderSelect} label={"Project:"} options={projects}
-                               onChange={(event, newValue) => {
-                                   console.log("get the value of status", newValue)
-                                   this.props.fetchReleases(Object.assign({}, releaseFilters, {
-                                       project: newValue
-                                   }))
-                               }} noneOptionText='All' />
+                            onChange={(event, newValue) => {
+                                console.log("get the value of status", newValue)
+                                this.props.fetchReleases(Object.assign({}, releaseFilters, {
+                                    project: newValue
+                                }))
+                            }} noneOptionText='All' />
 
                     </div>
 
@@ -235,35 +235,16 @@ class ReleaseList extends Component {
                             }} />
 
                     </div>
-
-
-                    {/*<div className="search-btn-container">
-                            <div className={"input checkbox col-md-4"} style={{width: "100%", marginTop: 15}}>
-                                <label>
-                                    <Field name={"showActive"} component={"input"}
-                                           onChange={(event, newValue) => {
-                                               this.props.fetchReleases(Object.assign({}, releaseFilters, {
-                                                   showActive: newValue
-                                               }))
-                                           }
-                                           }
-                                           type="checkbox"/>
-                                    Show In Progress
-                                </label>
-                            </div>
-                                        </div>*/}
-
                 </div>
-                }
-                </form>,
+            </form>,
             <div key={"release-table"} className="col-md-12">
                 <div className="estimation release-plan-table">
                     <BootstrapTable options={this.options} data={releases}
-                                    striped
-                                    hover
-                                    search
-                                    multiColumnSearch>
-                    <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
+                        striped
+                        hover
+                        search
+                        multiColumnSearch>
+                        <TableHeaderColumn columnTitle isKey dataField='_id' hidden={true}>
                         </TableHeaderColumn>
                         <TableHeaderColumn width="12%" dataField='project'
                             dataFormat={this.formatProjectName.bind(this)} dataAlign={"center"}>

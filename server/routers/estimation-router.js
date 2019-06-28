@@ -1,6 +1,6 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
-import {hasRole, isAuthenticated} from "../utils"
+import { hasRole, isAuthenticated } from "../utils"
 import * as SC from "../serverconstants"
 import * as EC from '../errorcodes'
 import AppError from '../AppError'
@@ -177,52 +177,73 @@ estimationRouter.get('/task/:estimationID', async ctx => {
  * Add a new task to estimation
  */
 
-estimationRouter.get('/export-estimation/:estimationID', async ctx =>{
-    console.log("export-estimation", ctx.params.estimationID)
-
+estimationRouter.get('/export-estimation/:estimationID', async ctx => {
     let estimations = await MDL.EstimationModel.exportEstimation(ctx.params.estimationID, ctx.res);
-    console.log("estimations",estimations)
+    console.log("estimations is ", estimations.project)
     var workbook = new Excel.Workbook();
     workbook.creator = 'Me';
     workbook.lastModifiedBy = 'Her';
     workbook.created = new Date();
     workbook.modified = new Date();
     workbook.lastPrinted = new Date();
-    var worksheet = workbook.addWorksheet('estimationSheet')
-    // worksheet.mergeCells('A1', 'D2');
-    // worksheet.getCell('A1').value = estimations.features[0].estimator.name
-    worksheet.getRow(1).values = ['Name','Description', 'EstimatedHours'];
-    // worksheet.height = 18;
-    // worksheet.getRow(1).font = { name: 'Arial', family: 4, size: 12, underline: false, bold: true };
-    worksheet.columns =[
+
+
+    let excelFileName = estimations.project ? estimations.project.name : ""
+
+
+
+    if (!excelFileName || excelFileName.trim().length == 0) {
+        excelFileName = "Estimations"
+    }
+
+    /*else {
+        excelFileName = excelFileName.replace(/ /g, '_')
+    }*/
+
+    var worksheet = workbook.addWorksheet(excelFileName)
+    worksheet.getRow(1).values = ['Name', 'Description', 'EstimatedHours'];
+    worksheet.columns = [
         { headers: "Name", key: 'name', width: 20 },
         { headers: "Description", key: 'description', width: 35 },
         { headers: "EstimatedHours", key: 'estimatedHours', width: 15 }
     ];
-    // worksheet.addRow({description:estimations[0].features[0].tasks[0].estimator.description})
-    estimations.features.map((feature)=>{
-        feature.tasks.map((task)=>{
+    estimations.features.map((feature) => {
+        feature.tasks.map((task) => {
+            if (typeof (task.estimator.estimatedHours) == "undefined" || task.estimator.estimatedHours == 0) {
+                worksheet.addRow({
+                    description: task.estimator.description,
+                    name: task.estimator.name,
+                    estimatedHours: task.negotiator.estimatedHours
+                })
+            } else {
+                worksheet.addRow({
+                    description: task.estimator.description,
+                    name: task.estimator.name,
+                    estimatedHours: task.estimator.estimatedHours
+                })
+            }
+        })
+    })
+
+    estimations.tasks.map((task) => {
+        if (typeof (task.estimator.estimatedHours) == "undefined" || task.estimator.estimatedHours == 0) {
             worksheet.addRow({
                 description: task.estimator.description,
                 name: task.estimator.name,
                 estimatedHours: task.negotiator.estimatedHours
             })
-        })
+        } else {
+            worksheet.addRow({
+                description: task.estimator.description,
+                name: task.estimator.name,
+                estimatedHours: task.estimator.estimatedHours
+            })
+        }
     })
-    // worksheet.addRow({
-    //     description: estimations.features[0].tasks[0].estimator.description,
-    //     name: estimations.features[0].tasks[0].estimator.name,
-    //     estimatedHours: estimations.estimatedHours,
-    //     suggestedHours: estimations.suggestedHours
-    // })
-    console.log("model", worksheet.model)
-    ctx.response.attachment("estimationSheet.xlsx")
-    // ctx.res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    // ctx.res.setHeader("Content-Disposition", "attachment; filename= " + "estimationSheet.xlsx");
+
+    ctx.response.attachment(excelFileName + ".xlsx")
     ctx.status = 200
-    console.log("model2", workbook.model)
     await workbook.xlsx.write(ctx.res)
-            console.log('File write done........');
     ctx.res.end()
 })
 
