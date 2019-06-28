@@ -7,6 +7,7 @@ import {userHasRole} from '../utils'
 import * as V from '../validation'
 import _ from 'lodash'
 import logger from '../logger'
+import Excel from 'exceljs'
 
 mongoose.Promise = global.Promise
 
@@ -1004,10 +1005,75 @@ estimationSchema.statics.hasErrorEstimationByEstimator = async (estimationID, es
     estimation = estimation.toObject()
     estimation.loggedInUserRole = SC.ROLE_ESTIMATOR
     return estimation
-
-
 }
 
+estimationSchema.statics.exportEstimation = async (estimationID, res)=>{
+    let estimations = await EstimationModel.aggregate({
+        $match: {
+            _id: mongoose.Types.ObjectId(estimationID)
+        },
+    }, {
+        $lookup: {
+            from: 'estimationtasks',
+            let: {estimationID: '$_id'},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ['$estimation._id', '$$estimationID']},
+                            {$eq: [{$ifNull: ['$feature._id', true]}, true]}
+                        ]
+                    }
+                }
+            }],
+            as: 'tasks'
+        }
+    }, {
+        $lookup: {
+            from: 'estimationfeatures',
+            let: {estimationID: '$_id'},
+            pipeline: [{
+                $match: {
+                    $expr: {
+                        $and: [
+                            {$eq: ['$estimation._id', '$$estimationID']}
+                        ]
+                    }
+                }
+
+            }, {
+                $lookup: {
+                    from: 'estimationtasks',
+                    localField: '_id',
+                    foreignField: 'feature._id',
+                    as: 'tasks'
+                }
+            }],
+            as: 'features'
+        }
+    }).exec()
+    if (Array.isArray(estimations) && estimations.length > 0) {
+        // console.log("estimation", estimations[0].features[0].tasks)
+        // var workbook = new Excel.Workbook();
+        // var worksheet = workbook.addWorksheet('estimationSheet')
+        // worksheet.columns =[
+        //     { header: 'description', key: 'features'}
+        // ];
+        // worksheet.addRow(estimations[0].features[0].tasks[0].estimator.description)
+        // console.log("model", worksheet.model)
+        // res.attachment("estimationSheet.xlsx")
+        // res.setContentHeaders('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // res.setContentHeaders("Content-Disposition", "attachment; filename=" + "Report.xlsx");
+        // // console.log("json", JSON.stringify(estimations))
+        // // workbook.model = JSON.stringify(estimations);
+        // // console.log("model2", workbook.model)
+        // workbook.xlsx.write(estimations)
+        // console.log("workbook ",workbook.model)
+        // res.end();
+        return estimations[0]
+    }
+
+}
 
 const EstimationModel = mongoose.model('Estimation', estimationSchema)
 export default EstimationModel

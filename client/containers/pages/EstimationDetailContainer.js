@@ -161,7 +161,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             }
         }))
     },
-
+    exportEstimation: (estimationID) => {
+        console.log(estimationID)
+        dispatch(A.exportEstimationOnServer(estimationID))
+    }
 
 })
 
