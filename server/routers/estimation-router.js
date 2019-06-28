@@ -209,12 +209,36 @@ estimationRouter.get('/export-estimation/:estimationID', async ctx => {
     ];
     estimations.features.map((feature) => {
         feature.tasks.map((task) => {
+            if (typeof (task.estimator.estimatedHours) == "undefined") {
+                worksheet.addRow({
+                    description: task.negotiator.description,
+                    name: task.negotiator.name,
+                    estimatedHours: task.negotiator.estimatedHours
+                })
+            } else {
+                worksheet.addRow({
+                    description: task.estimator.description,
+                    name: task.estimator.name,
+                    estimatedHours: task.estimator.estimatedHours
+                })
+            }
+        })
+    })
+
+    estimations.tasks.map((task) => {
+        if (typeof (task.estimator.estimatedHours) == "undefined") {
+            worksheet.addRow({
+                description: task.negotiator.description,
+                name: task.negotiator.name,
+                estimatedHours: task.negotiator.estimatedHours
+            })
+        } else {
             worksheet.addRow({
                 description: task.estimator.description,
                 name: task.estimator.name,
-                estimatedHours: task.negotiator.estimatedHours
+                estimatedHours: task.estimator.estimatedHours
             })
-        })
+        }
     })
 
     ctx.response.attachment(excelFileName + ".xlsx")
