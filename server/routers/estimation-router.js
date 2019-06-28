@@ -209,10 +209,10 @@ estimationRouter.get('/export-estimation/:estimationID', async ctx => {
     ];
     estimations.features.map((feature) => {
         feature.tasks.map((task) => {
-            if (typeof (task.estimator.estimatedHours) == "undefined") {
+            if (typeof (task.estimator.estimatedHours) == "undefined" || task.estimator.estimatedHours == 0) {
                 worksheet.addRow({
-                    description: task.negotiator.description,
-                    name: task.negotiator.name,
+                    description: task.estimator.description,
+                    name: task.estimator.name,
                     estimatedHours: task.negotiator.estimatedHours
                 })
             } else {
@@ -226,10 +226,10 @@ estimationRouter.get('/export-estimation/:estimationID', async ctx => {
     })
 
     estimations.tasks.map((task) => {
-        if (typeof (task.estimator.estimatedHours) == "undefined") {
+        if (typeof (task.estimator.estimatedHours) == "undefined" || task.estimator.estimatedHours == 0) {
             worksheet.addRow({
-                description: task.negotiator.description,
-                name: task.negotiator.name,
+                description: task.estimator.description,
+                name: task.estimator.name,
                 estimatedHours: task.negotiator.estimatedHours
             })
         } else {
