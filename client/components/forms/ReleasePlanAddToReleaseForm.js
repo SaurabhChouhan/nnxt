@@ -73,6 +73,7 @@ class ReleasePlanAddToReleaseForm extends Component {
                         </div>}
 
                     </div>
+                    { iteration_type === SC.ITERATION_TYPE_PLANNED &&
                     <div className="col-md-12">
                         <div className="col-md-12">
                             <Field name="addDayTask"
@@ -81,9 +82,8 @@ class ReleasePlanAddToReleaseForm extends Component {
                                className="input checkbox planchk "
                                component={renderCheckBox}/>
                         </div>
-                    </div>
-                    {
-                        addDayTask?
+                    </div>}
+                    {addDayTask && iteration_type === SC.ITERATION_TYPE_PLANNED &&
                     <div className="col-md-12">
                         <div className='col-md-4'>
                             <Field name="planningDate"
@@ -119,8 +119,7 @@ class ReleasePlanAddToReleaseForm extends Component {
                                    }}
                                    validate={[required]}/>
                         </div>
-                    </div>:null
-                    }
+                    </div>}
                     <div className="col-md-12">
                         <div className="col-md-12">
                             <Field name="name" component={renderText} label={"Name:"} validate={[required]}/>
