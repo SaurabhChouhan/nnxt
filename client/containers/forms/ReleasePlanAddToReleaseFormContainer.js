@@ -8,7 +8,7 @@ import * as SC from '../../../server/serverconstants'
 import moment from 'moment'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    onSubmit: (values) => {
+    submitForm: (values, filteredData) => {
         console.log("values",values)
 
         let task={
@@ -27,8 +27,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             values.estimatedBilledHours = parseInt(values.estimatedBilledHours)
             dispatch(A.releasePlanPlannedAddToReleaseOnServer(values)).then(json => {
                 if (json.success) {
-                    dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
-                    dispatch(A.getReleaseFromServer(values.release._id))
+                    console.log(json.data)
+                    // dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
+                    dispatch(A.getReleaseFromServer(values.release._id, true))
                     var monthMoment = moment();
                     task.task= json.data.task;
                     task.releasePlan._id = json.data._id;
@@ -43,9 +44,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                                     console.log("newjson", data, task.workCalendarEmployeeIDs)
                                     return data
                                 })
-                                dispatch(A.addTaskPlanningOnServer(task))
+                                dispatch(A.addTaskPlanningOnServer(task)).then(data=>{
+                                    console.log("addTaskPlanningOnServer", data)
+                                    dispatch(A.searchReleasePlansOnServer(filteredData))
+                                })
                             }
                         })
+                    }
+                    else{
+                        console.log("addDayTask = ", values.addDayTask)
+                        dispatch(A.searchReleasePlansOnServer(filteredData))
                     }
                     console.log("task", task)
                     NotificationManager.success("Release Plan Added")
@@ -59,12 +67,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 if (json.success) {
                     NotificationManager.success("Added Unplanned To Release")
                     // hide dialog
+                    dispatch(A.searchReleasePlansOnServer(filteredData))
                     dispatch(A.hideComponent(COC.RELEASE_PLAN_ADD_TO_RELEASE_FORM_DIALOG))
                 }
-                dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
+                // dispatch(A.getReleasePlansFromServer(values.release._id, SC.ALL, SC.ALL))
             })
         }
-
 
     }
 })
@@ -73,6 +81,7 @@ const mapStateToProps = (state, ownProps) => ({
     release: state.release.selectedRelease,
     releasePlans: state.release.releasePlans,
     iterations: SC.ITERATION_TYPE_LIST_WITH_NAME,
+    filteredData: state.release.releasePlanFilters
 })
 
 const ReleasePlanAddToReleaseFormContainer = connect(

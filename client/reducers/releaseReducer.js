@@ -172,6 +172,37 @@ const releaseReducer = (state = initialState, action) => {
                     updated: false
                 }
             })
+        case AC.UPDATE_SELECTED_RELEASE:
+            let release1 = action.release
+            let plannedIterations1 = release1.iterations.filter(i => i.type == SC.ITERATION_TYPE_PLANNED || i.type == SC.ITERATION_TYPE_ESTIMATED)
+            let sm1 = {
+                sumPlannedHours: 0,
+                sumEstimatedHours: 0,
+                sumReportedHours: 0,
+                sumEstimatedHoursCompletedTasks: 0,
+                sumPlannedHoursReportedTasks: 0,
+                sumProgressEstimatedHours: 0,
+                sumPlannedHoursEstimatedTasks: 0,
+                sumExpectedBilledHours: 0
+            }
+
+            plannedIterations1.forEach(p => {
+                sm1.sumPlannedHours += p.plannedHours
+                sm1.sumEstimatedHours += p.estimatedHours
+                sm1.sumReportedHours += p.reportedHours
+                sm1.sumEstimatedHoursCompletedTasks += p.estimatedHoursCompletedTasks
+                sm1.sumPlannedHoursReportedTasks += p.plannedHoursReportedTasks
+                sm1.sumProgressEstimatedHours += p.estimatedHours * p.progress
+                sm1.sumPlannedHoursEstimatedTasks += p.plannedHoursEstimatedTasks
+                sm1.sumExpectedBilledHours += p.expectedBilledHours
+            })
+
+            sm1.progress = sm1.sumEstimatedHours != 0 ? parseFloat((sm1.sumProgressEstimatedHours / sm1.sumEstimatedHours).toFixed(2)) : 0
+            release1.plannedStats = sm1
+            return Object.assign({}, state, {
+                selectedRelease: release1,
+            })
+
         case AC.ADD_RELEASE_PLANS:
             // adding release plan li
             return Object.assign({}, state, {releasePlans: action.releasePlans})

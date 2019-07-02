@@ -19,7 +19,9 @@ class ReleasePlanAddToReleaseForm extends Component {
     constructor(props) {
         super(props);
     }
-
+    handleFormSubmit(data) {
+        this.props.submitForm(data, this.props.filteredData)
+    }
 
     render() {
         const {pristine, submitting, change, reset} = this.props
@@ -31,7 +33,7 @@ class ReleasePlanAddToReleaseForm extends Component {
         let employees =  release.team ;
         console.log("iteration_type", iteration_type)
         console.log('addDayTaskValue', addDayTask)
-        return (<form onSubmit={this.props.handleSubmit}>
+        return (<form onSubmit={this.props.handleSubmit(this.handleFormSubmit.bind(this))}>
                 <div className="row">
 
                     <Field name="estimation._id" component="input" type="hidden"/>

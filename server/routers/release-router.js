@@ -41,6 +41,7 @@ releaseRouter.get("/all/status/:status", async ctx => {
 })
 
 releaseRouter.post('/search', async ctx => {
+    console.log("Inside release router search", ctx.request.body)
     return await MDL.ReleaseModel.search(ctx.request.body, ctx.state.user)
 })
 
