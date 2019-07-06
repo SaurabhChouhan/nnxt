@@ -89,6 +89,7 @@ export const addWorkCalendar = (calendar) => ({
 
 export const getEmployeeWorkCalendarFromServer = (employeeID, releaseTypes, month, year, releaseID) => {
 
+    console.log(employeeID, releaseTypes, month, year, releaseID);
     return function (dispatch, getState) {
 
         let params = {}

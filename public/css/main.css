@@ -1423,8 +1423,15 @@ p.task-description {
     margin-top: 1px;
 }
 
+.planchk {
+    position: relative;
+    display: block;
+    margin-top: 29px;
+    margin-bottom: 10px;
+}
+
 .planchk label {
-    font-size: 20px;
+    font-size: 17px;
     margin-left: 27px;
     margin-top: 2px;
     font-weight: bold;
@@ -2360,4 +2367,11 @@ div.notificationTable table tr[width="100%"] td {
     padding: 5px;
     background-color: #ADADAE;
     height: 32;
+}
+
+@media (min-width: 1000px) {
+    .modal-dialog {
+        width: 800px;
+        margin: 25px auto;
+    }
 }

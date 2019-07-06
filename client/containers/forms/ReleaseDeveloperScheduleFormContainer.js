@@ -6,6 +6,7 @@ import { ALL } from '../../../server/serverconstants'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     getDeveloperSchedules: (employeeID, releaseTypes, month, year, releaseID) => {
+        console.log(employeeID, releaseTypes, month, year, releaseID)
         if (employeeID !== undefined) {
             return dispatch(A.getEmployeeWorkCalendarFromServer(employeeID.toString(), releaseTypes, month, year, releaseID))
         } else if (employeeID == undefined) {
