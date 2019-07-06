@@ -5,7 +5,7 @@ import momentTZ from 'moment-timezone'
 import moment from 'moment'
 import logger from '../logger'
 import * as U from '../utils'
-import {addNNXTTemplates} from "./migrationscripts";
+import { addNNXTTemplates } from "./migrationscripts";
 import prompt from 'prompt-async'
 import mongoose from 'mongoose'
 
@@ -15,9 +15,9 @@ export const performSetup = async (config) => {
         console.log("!!! Attention !!! You have configured to DROP your database... ")
 
         let result = await prompt.get({
-            properties:{
-                drop:{
-                    description:"Type 'yes' to proceed with drop"
+            properties: {
+                drop: {
+                    description: "Type 'yes' to proceed with drop"
                 }
             }
         })
@@ -38,14 +38,14 @@ export const performSetup = async (config) => {
         prompt.start();
         console.log("!!! Attention !!! You have configured to run setup instructions this might overwrite you existing data. Please confirm by typing 'yes' (in lowercase)")
         let result = await prompt.get({
-            properties:{
-                setup:{
-                    description:"Type 'yes' to proceed with setting up data"
+            properties: {
+                setup: {
+                    description: "Type 'yes' to proceed with setting up data"
                 }
             }
         })
 
-        if(result.setup == 'yes'){
+        if (result.setup == 'yes') {
             await runSetupInstructions(config)
         } else {
             //console.log('\n!!! You have cancelled setting up data !!!\n')
@@ -57,22 +57,8 @@ export const performSetup = async (config) => {
 
 
 const runSetupInstructions = async () => {
-    /*
-    await addInitialData() // Sets up roles and permissions
-    //await addNNXTData()
-    //await addSampleData()
-    //await addNNXTTemplates()
-    //await addAripraProjects()
-    
-    
-    await addDevelopmentTypes()
-    await addMoreTechnologies()
-    await addAripraProjects()
-    await addCodeToExistingProjects()
-    await addReleaseTypeToExistingReleases()
-    await deleteUnusedProjects()
-    */
     await createNewDataRemovingOld()
+    //await setupBillingSupport()
 }
 
 const createNewDataRemovingOld = async () => {
@@ -87,6 +73,11 @@ const createNewDataRemovingOld = async () => {
     await addTechnologies()
     await addAripraProjects()
     await addEvents()
+}
+
+const setupBillingSupport = async () => {
+    await makeTaskPlansAsPending()
+    await addBillingTaskCreationEvent()
 }
 
 const addInitialData = async () => {
@@ -146,19 +137,19 @@ const addInitialData = async () => {
         if (!await MDL.RoleModel.exists(SC.ROLE_SUPER_ADMIN)) {
 
             let permissions = []
-            let managePermissions = await MDL.PermissionModel.findOne({name: CC.MANAGE_PERMISSIONS}).lean()
+            let managePermissions = await MDL.PermissionModel.findOne({ name: CC.MANAGE_PERMISSIONS }).lean()
             if (managePermissions) {
                 managePermissions.configurable = false
                 managePermissions.enabled = true
                 permissions.push(managePermissions)
             }
-            let manageRoles = await MDL.PermissionModel.findOne({name: CC.MANAGE_ROLES}).lean()
+            let manageRoles = await MDL.PermissionModel.findOne({ name: CC.MANAGE_ROLES }).lean()
             if (manageRoles) {
                 manageRoles.configurable = false
                 manageRoles.enabled = true
                 permissions.push(manageRoles)
             }
-            let listUsers = await MDL.PermissionModel.findOne({name: CC.LIST_USERS}).lean()
+            let listUsers = await MDL.PermissionModel.findOne({ name: CC.LIST_USERS }).lean()
             if (listUsers) {
                 listUsers.configurable = false
                 listUsers.enabled = true
@@ -172,35 +163,35 @@ const addInitialData = async () => {
 
         if (!await MDL.RoleModel.exists(SC.ROLE_ADMIN)) {
             let permissions = []
-            let listUsers = await MDL.PermissionModel.findOne({name: CC.LIST_USERS}).lean()
+            let listUsers = await MDL.PermissionModel.findOne({ name: CC.LIST_USERS }).lean()
             if (listUsers) {
                 listUsers.configurable = true
                 listUsers.enabled = true
                 permissions.push(listUsers)
             }
 
-            let editRolePermissions = await MDL.PermissionModel.findOne({name: CC.EDIT_ROLE_PERMISSIONS}).lean()
+            let editRolePermissions = await MDL.PermissionModel.findOne({ name: CC.EDIT_ROLE_PERMISSIONS }).lean()
             if (editRolePermissions) {
                 editRolePermissions.configurable = true
                 editRolePermissions.enabled = true
                 permissions.push(editRolePermissions)
             }
 
-            let createUserPermissions = await MDL.PermissionModel.findOne({name: CC.CREATE_USER}).lean()
+            let createUserPermissions = await MDL.PermissionModel.findOne({ name: CC.CREATE_USER }).lean()
             if (createUserPermissions) {
                 createUserPermissions.configurable = true
                 createUserPermissions.enabled = true
                 permissions.push(createUserPermissions)
             }
 
-            let editUserPermissions = await MDL.PermissionModel.findOne({name: CC.EDIT_USER}).lean()
+            let editUserPermissions = await MDL.PermissionModel.findOne({ name: CC.EDIT_USER }).lean()
             if (editUserPermissions) {
                 editUserPermissions.configurable = true
                 editUserPermissions.enabled = true
                 permissions.push(editUserPermissions)
             }
 
-            let deleteUserPermissions = await MDL.PermissionModel.findOne({name: CC.DELETE_USER}).lean()
+            let deleteUserPermissions = await MDL.PermissionModel.findOne({ name: CC.DELETE_USER }).lean()
             if (deleteUserPermissions) {
                 deleteUserPermissions.configurable = true
                 deleteUserPermissions.enabled = true
@@ -241,7 +232,7 @@ const addNNXTData = async () => {
 const addRolesPermissions = async () => {
     console.log("SETTING UP ROLES/PERMISSIONS ...")
 
-    let editProfile = await MDL.PermissionModel.findOne({name: CC.EDIT_PROFILE}).lean()
+    let editProfile = await MDL.PermissionModel.findOne({ name: CC.EDIT_PROFILE }).lean()
     let permissions = []
     if (editProfile) {
         editProfile.configurable = true
@@ -293,14 +284,14 @@ const addRolesPermissions = async () => {
 
 const addNNXTUsers = async () => {
     console.log("SETTING UP USERS ...")
-    let estimatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_ESTIMATOR}).lean()
-    let negotiatorRole = await MDL.RoleModel.findOne({name: SC.ROLE_NEGOTIATOR}).lean()
-    let managerRole = await MDL.RoleModel.findOne({name: SC.ROLE_MANAGER}).lean()
-    let leaderRole = await MDL.RoleModel.findOne({name: SC.ROLE_LEADER}).lean()
-    let developerRole = await MDL.RoleModel.findOne({name: SC.ROLE_DEVELOPER}).lean()
-    let topManagementRoles = await MDL.RoleModel.findOne({name: SC.ROLE_TOP_MANAGEMENT}).lean()
-    let adminRole = await MDL.RoleModel.findOne({name: SC.ROLE_ADMIN}).lean()
-    let superAdminRole = await MDL.RoleModel.findOne({name: SC.ROLE_SUPER_ADMIN}).lean()
+    let estimatorRole = await MDL.RoleModel.findOne({ name: SC.ROLE_ESTIMATOR }).lean()
+    let negotiatorRole = await MDL.RoleModel.findOne({ name: SC.ROLE_NEGOTIATOR }).lean()
+    let managerRole = await MDL.RoleModel.findOne({ name: SC.ROLE_MANAGER }).lean()
+    let leaderRole = await MDL.RoleModel.findOne({ name: SC.ROLE_LEADER }).lean()
+    let developerRole = await MDL.RoleModel.findOne({ name: SC.ROLE_DEVELOPER }).lean()
+    let topManagementRoles = await MDL.RoleModel.findOne({ name: SC.ROLE_TOP_MANAGEMENT }).lean()
+    let adminRole = await MDL.RoleModel.findOne({ name: SC.ROLE_ADMIN }).lean()
+    let superAdminRole = await MDL.RoleModel.findOne({ name: SC.ROLE_SUPER_ADMIN }).lean()
 
 
     // create user
@@ -562,7 +553,7 @@ const addClients = async () => {
 
 const addProjects = async () => {
     console.log("SETTING UP PROJECTS ...")
-    let carl = await MDL.ClientModel.findOne({name: 'Carl'})
+    let carl = await MDL.ClientModel.findOne({ name: 'Carl' })
 
     if (carl) {
         if (!await MDL.ProjectModel.exists('FFL', carl._id)) {
@@ -574,7 +565,7 @@ const addProjects = async () => {
         }
     }
 
-    let randy = await MDL.ClientModel.findOne({name: 'Randy'})
+    let randy = await MDL.ClientModel.findOne({ name: 'Randy' })
 
     if (randy) {
         if (!await MDL.ProjectModel.exists('Careers IRL', randy._id)) {
@@ -594,7 +585,7 @@ const addProjects = async () => {
         }
     }
 
-    let erich = await MDL.ClientModel.findOne({name: 'Erich'})
+    let erich = await MDL.ClientModel.findOne({ name: 'Erich' })
 
     if (erich) {
         if (!await MDL.ProjectModel.exists('Synapse', erich._id)) {
@@ -609,8 +600,8 @@ const addProjects = async () => {
 
 const addModules = async () => {
     console.log("SETTING UP MODULES...")
-    let carl = await MDL.ClientModel.findOne({name: 'Carl'})
-    let project = await MDL.ProjectModel.findOne({name: 'FFL', 'client._id': carl._id})
+    let carl = await MDL.ClientModel.findOne({ name: 'Carl' })
+    let project = await MDL.ProjectModel.findOne({ name: 'FFL', 'client._id': carl._id })
 
     if (project) {
         if (!await MDL.ModuleModel.exists('Android App', project._id)) {
@@ -638,35 +629,35 @@ const addModules = async () => {
 
 const addLeaveTypes = async () => {
     console.log("SETTING UP LEAVE DATA...")
-    let cl = await MDL.LeaveTypeModel.findOne({name: 'Casual leave (CL)'})
+    let cl = await MDL.LeaveTypeModel.findOne({ name: 'Casual leave (CL)' })
     if (!cl) {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Casual leave (CL)',
             description: 'Special Casual Leave not exceeding 30 days may be sanctioned for participation in sport events, cultural activities, and mountaineering expedition in any calendar year.\n' +
-            'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
+                'The period of absence in excess of 30 days should be treated as regular leave of any kind. Govt. employee may be permitted as a special case to combine special casual leave with regular leave.'
         })
     }
-    let les = await MDL.LeaveTypeModel.findOne({name: 'Leave for Emergency Services (LES)'})
+    let les = await MDL.LeaveTypeModel.findOne({ name: 'Leave for Emergency Services (LES)' })
     if (!les) {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Leave for Emergency Services (LES)',
             description: 'Employees who are certified by the Civil Air Patrol as emergency service specialists or certified to fly counter-narcotics missions may be granted leave of absence from their respective duties.  Leave for such service shall not be for more than 15 working days in any state fiscal year.'
         })
     }
-    let sl = await MDL.LeaveTypeModel.findOne({name: 'Sick leave (SL)'})
+    let sl = await MDL.LeaveTypeModel.findOne({ name: 'Sick leave (SL)' })
     if (!sl) {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Sick leave (SL)',
             description: 'Employees who are employed on a full-time basis in positions of a continuing or permanent nature earn sick leave.  Full-time employees receive five hours of sick leave each pay period for each semi-month of service in which they are in pay status for 80 or more hours.'
         })
     }
-    let al = await MDL.LeaveTypeModel.findOne({name: 'Annual Leave (AL)'})
+    let al = await MDL.LeaveTypeModel.findOne({ name: 'Annual Leave (AL)' })
     if (!al) {
         await MDL.LeaveTypeModel.saveLeaveType({
             name: 'Annual Leave (AL)',
             description: 'Employees in full-time positions of a continuing or permanent nature shall be entitled to accumulate annual leave as follows:\n' +
-            '\n' +
-            'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
+                '\n' +
+                'Employees with less than ten years of total state service earn 5 hours of annual leave each pay period with a maximum annual leave balance of 240 hours.'
         })
     }
 }
@@ -893,19 +884,19 @@ const convertToStringID = (obj) => {
 const addSampleData = async () => {
     console.log("SETTING UP RELEASES ...")
 
-    let fflProject = await MDL.ProjectModel.findOne({name: 'FFL'}).lean()
-    let careersIRLProject = await MDL.ProjectModel.findOne({name: 'Careers IRL'}).lean()
-    let nodeTech = await MDL.TechnologyModel.findOne({name: 'Node'}).lean()
+    let fflProject = await MDL.ProjectModel.findOne({ name: 'FFL' }).lean()
+    let careersIRLProject = await MDL.ProjectModel.findOne({ name: 'Careers IRL' }).lean()
+    let nodeTech = await MDL.TechnologyModel.findOne({ name: 'Node' }).lean()
     let nodeWeb = await MDL.DevelopmentModel.findOne({
         name: 'Node Web Development'
     }).lean()
 
-    let saurabh = await MDL.UserModel.findOne({email: 'schouhan@aripratech.com'}).lean()
-    let ratnesh = await MDL.UserModel.findOne({email: 'rjain@aripratech.com'}).lean()
-    let anup = await MDL.UserModel.findOne({email: 'asharma@aripratech.com'}).lean()
-    let murtaza = await MDL.UserModel.findOne({email: 'murtaza.aripra@gmail.com'}).lean()
-    let bhuvan = await MDL.UserModel.findOne({email: 'bparashar@aripratech.com'}).lean()
-    let huzefa = await MDL.UserModel.findOne({email: 'huzefa786r@gmail.com'}).lean()
+    let saurabh = await MDL.UserModel.findOne({ email: 'schouhan@aripratech.com' }).lean()
+    let ratnesh = await MDL.UserModel.findOne({ email: 'rjain@aripratech.com' }).lean()
+    let anup = await MDL.UserModel.findOne({ email: 'asharma@aripratech.com' }).lean()
+    let murtaza = await MDL.UserModel.findOne({ email: 'murtaza.aripra@gmail.com' }).lean()
+    let bhuvan = await MDL.UserModel.findOne({ email: 'bparashar@aripratech.com' }).lean()
+    let huzefa = await MDL.UserModel.findOne({ email: 'huzefa786r@gmail.com' }).lean()
 
     saurabh.name = U.getFullName(saurabh)
     ratnesh.name = U.getFullName(ratnesh)
@@ -1199,7 +1190,7 @@ const addDayTask = async (releasePlan, employee, planningDate, plannedHours, rep
 const addAripraProjects = async () => {
 
     console.log("SETTING UP PROJECTS ...")
-    let aripra = await MDL.ClientModel.findOne({name: SC.CLIENT_ARIPRA})
+    let aripra = await MDL.ClientModel.findOne({ name: SC.CLIENT_ARIPRA })
 
     if (aripra) {
         if (!await MDL.ProjectModel.exists(SC.PROJECT_ARIPRA_TRAINING, aripra._id)) {
@@ -1225,139 +1216,139 @@ const addAripraProjects = async () => {
 
 
 
-const addCodeToExistingProjects = async() => {
+const addCodeToExistingProjects = async () => {
 
     console.log('ADDING CODE TO EXISTING PROJECTS ...')
 
-    let prj = await MDL.ProjectModel.findOne({name:'Iconoland', 'client.name': 'Brian'})
-    if(prj){
+    let prj = await MDL.ProjectModel.findOne({ name: 'Iconoland', 'client.name': 'Brian' })
+    if (prj) {
         prj.code = 'ICONO'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'NNXT', 'client.name': 'Aripra'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'NNXT', 'client.name': 'Aripra' })
+    if (prj) {
         prj.code = 'NNXT'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'dslrBooth', 'client.name': 'Mike'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'dslrBooth', 'client.name': 'Mike' })
+    if (prj) {
         prj.code = 'DSLRBT'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'lumaBooth', 'client.name': 'Mike'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'lumaBooth', 'client.name': 'Mike' })
+    if (prj) {
         prj.code = 'LUMABT'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'WiFiSurvey', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'WiFiSurvey', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'WFSURV'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'Optifi', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'Optifi', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'OPTIF'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'JCI', 'client.name': 'Jawaid'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'JCI', 'client.name': 'Jawaid' })
+    if (prj) {
         prj.code = 'JCI'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'WFS-macOS', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'WFS-macOS', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'WFSMAC'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'BridgeChecker', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'BridgeChecker', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'BRGCHK'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'casebreifsco', 'client.name': 'Dean'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'casebreifsco', 'client.name': 'Dean' })
+    if (prj) {
         prj.code = 'CASBRF'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'Survey Agent Dashboard', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'Survey Agent Dashboard', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'SRVAGN'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'MobiAR', 'client.name': 'Jovan'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'MobiAR', 'client.name': 'Jovan' })
+    if (prj) {
         prj.code = 'MOBAR'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'Management', 'client.name': 'Aripra'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'Management', 'client.name': 'Aripra' })
+    if (prj) {
         prj.code = 'ARPMGM'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'Aripra Website', 'client.name': 'Aripra'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'Aripra Website', 'client.name': 'Aripra' })
+    if (prj) {
         prj.code = 'ARPWS'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'Property Information', 'client.name': 'Larry'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'Property Information', 'client.name': 'Larry' })
+    if (prj) {
         prj.code = 'PRPINF'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'fotoShare-iOS', 'client.name': 'Mike'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'fotoShare-iOS', 'client.name': 'Mike' })
+    if (prj) {
         prj.code = 'FTSIOS'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'Personal Expense Tracker', 'client.name': 'Aripra'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'Personal Expense Tracker', 'client.name': 'Aripra' })
+    if (prj) {
         prj.code = 'EXPTRK'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'Minecraft CE AddOn Maker', 'client.name': 'Hoai Li'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'Minecraft CE AddOn Maker', 'client.name': 'Hoai Li' })
+    if (prj) {
         prj.code = 'MINCRF'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'AA Utility Projects', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'AA Utility Projects', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'AAUTL'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'WiFiPerf-iOS', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'WiFiPerf-iOS', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'WFPIOS'
         await prj.save()
     }
 
-    prj = await MDL.ProjectModel.findOne({name:'WiFiPerf-iOS', 'client.name': 'Zaib'})
-    if(prj){
+    prj = await MDL.ProjectModel.findOne({ name: 'WiFiPerf-iOS', 'client.name': 'Zaib' })
+    if (prj) {
         prj.code = 'WFPIOS'
         await prj.save()
     }
 }
 
 
-const addMoreTechnologies = async() => {
+const addMoreTechnologies = async () => {
     console.log("SETTING UP MORE TECHNOLOGIES ...")
 
     if (!await MDL.TechnologyModel.exists('Python')) {
@@ -1381,35 +1372,35 @@ const addMoreTechnologies = async() => {
 }
 
 const deleteUnusedProjects = async () => {
-    let estimations = await MDL.EstimationModel.find({'client.name': 'Larry'})
+    let estimations = await MDL.EstimationModel.find({ 'client.name': 'Larry' })
 
-    for(const estimation of estimations){
+    for (const estimation of estimations) {
         await estimation.remove()
     }
 
-    let project = await MDL.ProjectModel.findOne({'client.name':'Larry'})
+    let project = await MDL.ProjectModel.findOne({ 'client.name': 'Larry' })
 
-    if(project)
-       await project.remove()
+    if (project)
+        await project.remove()
 
-    let client = await MDL.ClientModel.findOne({'name': 'Larry'})
+    let client = await MDL.ClientModel.findOne({ 'name': 'Larry' })
 
-    if(client)
-       await client.remove()
-
-}
-
-const processReleasesUpdateReleaseType = async(releases) => {
+    if (client)
+        await client.remove()
 
 }
 
-const addReleaseTypeToExistingReleases = async() => { 
-    let clientProjects = await MDL.ProjectModel.find({'client.name': {$ne:SC.CLIENT_ARIPRA}})
+const processReleasesUpdateReleaseType = async (releases) => {
 
-    if(clientProjects){
-        for(const project of clientProjects){
-            let releases = await MDL.ReleaseModel.find({'project._id':project._id})
-            for(const release of releases){
+}
+
+const addReleaseTypeToExistingReleases = async () => {
+    let clientProjects = await MDL.ProjectModel.find({ 'client.name': { $ne: SC.CLIENT_ARIPRA } })
+
+    if (clientProjects) {
+        for (const project of clientProjects) {
+            let releases = await MDL.ReleaseModel.find({ 'project._id': project._id })
+            for (const release of releases) {
                 release.releaseType = SC.RELEASE_TYPE_CLIENT
                 release.client = project.client
                 await release.save()
@@ -1417,8 +1408,8 @@ const addReleaseTypeToExistingReleases = async() => {
         }
     }
 
-    let aripra = await MDL.ClientModel.findOne({name:SC.CLIENT_ARIPRA})
-    
+    let aripra = await MDL.ClientModel.findOne({ name: SC.CLIENT_ARIPRA })
+
     let release = await MDL.ReleaseModel.findById('5b8cd46f7f409364023e0b9f')
     release.releaseType = SC.RELEASE_TYPE_INTERNAL
     release.client = aripra
@@ -1468,13 +1459,13 @@ const addReleaseTypeToExistingReleases = async() => {
     release.releaseType = SC.RELEASE_TYPE_INTERNAL
     release.client = aripra
     await release.save()
-    
+
 }
 
 const updateTaskPlansAddReleaseType = async () => {
-    let releases = await MDL.ReleaseModel.find({name:'ongoing'})
+    let releases = await MDL.ReleaseModel.find({ name: 'ongoing' })
 
-    for(const release of releases){
+    for (const release of releases) {
         await processReleaseToUpdateTaskPlan(release)
     }
 
@@ -1488,35 +1479,6 @@ const processReleaseToUpdateTaskPlan = async () => {
 const addBillingTaskCreationEvent = async () => {
     console.log("SETTING UP BILLING TASK CREATION EVENT ...")
     // Setting up to run every hour
-
-
-    /*
-
-    let m = momentTZ.tz(SC.INDIAN_TIMEZONE)
-    m.startOf('hours')
-    // Added five minutes just to ensure that different events run at different times 
-    m.add(15, 'minutes')
-
-    let count = await MDL.EventModel.count({
-        method: 'addBillingTasks'
-    })
-
-    if (count > 0) {
-        console.log("Billing Task event is already there so skipping its creation")
-    } else {
-        await MDL.EventModel.addRecurEvent({
-            method: 'addBillingTasks',
-            executionMoment: m,
-            moveExecutionToFuture: true,
-            minMoment: undefined,
-            maxMoment: undefined,
-            timeZone: SC.INDIAN_TIMEZONE,
-            format: SC.DATE_TIME_24HOUR_FORMAT,
-            increment: 1,
-            incrementUnit: SC.MOMENT_HOURS
-        })
-    }
-    */
 
     let m = momentTZ.tz(SC.INDIAN_TIMEZONE)
     m.startOf('minutes')
@@ -1543,8 +1505,16 @@ const addBillingTaskCreationEvent = async () => {
 }
 
 const makeTaskPlansAsPending = async () => {
+
     let m = moment()
-    m.subtract(10, 'days')
+    m.subtract(50, 'days')
+
+    let count = await MDL.TaskPlanningModel.count({
+        planningDate: { $gt: m.toDate() },
+        'report.reportedOnDate': { $ne: null }
+    })
+
+    console.log("[" + count + "] documents process status would be marked as pending")
 
     await MDL.TaskPlanningModel.update({
         planningDate: { $gt: m.toDate() },
@@ -1555,6 +1525,8 @@ const makeTaskPlansAsPending = async () => {
         }, {
             multi: true
         })
+
+    console.log("Finished marking process status as pending...")
 
 }
 

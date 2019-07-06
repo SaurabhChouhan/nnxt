@@ -490,6 +490,12 @@ export const BILLING_STATUS_BILLING_CREATED = 'billing-created' // Billing task 
 export const BILLING_STATUS_BILLED = 'billed' // Timesheet with this entry is sent to client
 export const BILLING_STATUS_PAID = 'paid' // Timesheet where billing task entry is added is marked as paid
 
+export const OWNER_TYPE_CLIENT = "client"
+export const OWNER_TYPE_PROJECT = "project"
+export const OWNER_TYPE_RELEASE = "release"
+export const OWNER_TYPE_MODULE = "module"
+export const VALID_OWNER_TYPES = [OWNER_TYPE_CLIENT, OWNER_TYPE_MODULE, OWNER_TYPE_PROJECT, OWNER_TYPE_RELEASE]
+
 export const TASK_PROCESS_STATUS_PENDING = 'pending'
 export const TASK_PROCESS_STATUS_COMPLETED = 'completed'
 

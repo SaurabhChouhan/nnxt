@@ -99,7 +99,7 @@ const SidebarSection = (props) => {
                         }
 
                         {
-                            roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 &&
+                            roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1 &&
                             <li><Link to="/app-home/client" onClick={() => {
                                 props.dispatch(A.getAllClientsFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.CLIENT_LIST))

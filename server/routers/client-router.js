@@ -18,7 +18,7 @@ clientRouter.get('/', async ctx => {
     return await MDL.ClientModel.getAllActive()
 })
 
-clientRouter.get('/active', async ctx =>{
+clientRouter.get('/active', async ctx => {
     return await MDL.ClientModel.getAllActiveClients()
 })
 
@@ -26,7 +26,7 @@ clientRouter.delete("/:id", async ctx => {
     return await MDL.ClientModel.deleteClient(ctx.params.id)
 })
 clientRouter.put('/', async ctx => {
-    return await MDL.ClientModel.editClient(ctx.request.body)
+    return await MDL.ClientModel.editClient(ctx.request.body, ctx.state.user)
 })
 
 

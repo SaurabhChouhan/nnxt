@@ -1,11 +1,11 @@
-import {connect} from 'react-redux'
-import {ClientForm} from "../../components"
+import { connect } from 'react-redux'
+import { ClientForm } from "../../components"
 import * as logger from '../../clientLogger'
 import * as A from "../../actions"
-import {addClientOnServer, editClientOnServer} from "../../actions"
-import {SubmissionError} from "redux-form";
+import { addClientOnServer, editClientOnServer } from "../../actions"
+import { SubmissionError } from "redux-form";
 import * as EC from "../../../server/errorcodes";
-import {NotificationManager} from "react-notifications";
+import { NotificationManager } from "react-notifications";
 import * as COC from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 } else {
                     NotificationManager.error('Client Not Added!')
                     if (json.code == EC.ALREADY_EXISTS)
-                        throw new SubmissionError({name: "Client Already Exists"})
+                        throw new SubmissionError({ name: "Client Already Exists" })
                 }
                 return json
             })
@@ -32,7 +32,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 } else {
                     NotificationManager.error('Client Updated Failed');
                     if (response.code == EC.ALREADY_EXISTS)
-                        throw new SubmissionError({name: "Client Already Exists"})
+                        throw new SubmissionError({ name: response.message })
                 }
                 return json
             })
@@ -40,10 +40,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({})
+const mapStateToProps = (state, ownProps) => ({
+    loggedInUser: state.user.loggedIn
+})
 
 const ClientFormContainer = connect(
-    null,
+    mapStateToProps,
     mapDispatchToProps
 )(ClientForm)
 
