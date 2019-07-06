@@ -28,7 +28,7 @@ const config = {
             setupData: false,
             dropDatabase: false,
             mode: 'production',
-            eventInterval: 1800000
+            eventInterval: 180000
         },
         migration: {
             port: 3000,
