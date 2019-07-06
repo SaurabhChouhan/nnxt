@@ -1,16 +1,15 @@
 /* style css NNXT */
+
 @font-face {
     font-family: 'TwCenMTStd-Light';
-    src: url('../fonts/TwCenMTStd-Light.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd-Light.otf') format('opentype'),
-    url('../fonts/TwCenMTStd-Light.woff') format('woff'), url('../fonts/TwCenMTStd-Light.ttf') format('truetype'), url('../fonts/TwCenMTStd-Light.svg#TwCenMTStd-Light') format('svg');
+    src: url('../fonts/TwCenMTStd-Light.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd-Light.otf') format('opentype'), url('../fonts/TwCenMTStd-Light.woff') format('woff'), url('../fonts/TwCenMTStd-Light.ttf') format('truetype'), url('../fonts/TwCenMTStd-Light.svg#TwCenMTStd-Light') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'TwCenMTStd';
-    src: url('../fonts/TwCenMTStd.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd.otf') format('opentype'),
-    url('../fonts/TwCenMTStd.woff') format('woff'), url('../fonts/TwCenMTStd.ttf') format('truetype'), url('../fonts/TwCenMTStd.svg#TwCenMTStd') format('svg');
+    src: url('../fonts/TwCenMTStd.eot?#iefix') format('embedded-opentype'), url('../fonts/TwCenMTStd.otf') format('opentype'), url('../fonts/TwCenMTStd.woff') format('woff'), url('../fonts/TwCenMTStd.ttf') format('truetype'), url('../fonts/TwCenMTStd.svg#TwCenMTStd') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -22,21 +21,25 @@ body {
 /* scrollbar css */
 
 /* width */
+
 ::-webkit-scrollbar {
     width: 5px;
 }
 
 /* Track */
+
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
 
 /* Handle */
+
 ::-webkit-scrollbar-thumb {
     background: #888;
 }
 
 /* Handle on hover */
+
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
@@ -140,7 +143,6 @@ img {
 .main-footer {
     padding: 5px !important;
     border-top: 1px solid #e5e5e5 !important;
-
 }
 
 .modal-body {
@@ -191,6 +193,28 @@ img {
     border-radius: 0;
 }
 
+.excelBtn, .excelBtn:focus {
+    color: #fff;
+    padding: 1px 12px;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    transition: 0.8s;
+    border-radius: 0;
+    background: darkgreen;
+    border: 2px solid darkgreen;
+    font-size: 20px;
+}
+
+.excelBtn i, .customBtn i {
+    margin: 2px;
+}
+
+.excelBtn:hover {
+    background: #FFFFFF;
+    color: darkgreen;
+    border: 2px solid darkgreen;
+}
+
 button.customBtn, button.customBtn:focus {
     background: #FF534F;
     color: #fff;
@@ -221,7 +245,6 @@ button.filterBtn, button.filterBtn:focus {
     top: 26px;
     position: absolute;
     left: 0;
-
 }
 
 button.filterBtn:hover {
@@ -439,14 +462,12 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
 
 .featuretask {
     color: #6FB9FA;
-
 }
 
 .featuresubtask {
     border: 1px solid #182939;
     margin-top: 10px;
     float: right !important;
-
 }
 
 .feature {
@@ -523,7 +544,6 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     right: 0;
     width: 50%;
     height: 1.3em;
-
 }
 
 .repoSections {
@@ -632,7 +652,6 @@ table th {
 
 .estimationActions {
     padding: 0px 10px 0px 0px;
-
 }
 
 .estimationActions img {
@@ -650,7 +669,6 @@ table th {
 
 .estimateheader i {
     color: #F65A4F;
-
 }
 
 .estimationfileoption {
@@ -823,13 +841,13 @@ span.tag.new {
 }
 
 /* estimation detals pages */
+
 button.taskbtn {
     background-color: #fff;
     color: #F6B841;
     font-size: 19px;
     float: right;
     margin-top: -7px;
-
 }
 
 button.releasePlanTaskbtn {
@@ -899,7 +917,6 @@ td.rejRowColor {
 .loginform label {
     color: #9CA6A8;
     font-weight: normal;
-
 }
 
 .loginform input {
@@ -937,7 +954,6 @@ td.rejRowColor {
     padding: 1em;
     clear: left;
     text-align: center;
-
 }
 
 .loginform footer {
@@ -995,7 +1011,6 @@ td.rejRowColor {
     padding-right: 22px;
     padding-top: 40px;
     font-style: normal;
-
     /*margin: 180px 138px;*/
 }
 
@@ -1006,11 +1021,9 @@ td.rejRowColor {
 
 .textcentered {
     position: absolute;
-
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 36px;
-
 }
 
 .loginsection {
@@ -1216,7 +1229,6 @@ td.rejRowColor {
 
 ::placeholder {
     color: red;
-
 }
 
 .selectedClass {
@@ -1229,7 +1241,6 @@ td.rejRowColor {
 /*Release Section*/
 
 .releaseTeam span {
-
     width: 30px;
     height: 30px;
     float: left;
@@ -1240,7 +1251,6 @@ td.rejRowColor {
 }
 
 .releaseTeamManager span {
-
     width: 30px;
     height: 30px;
     float: left;
@@ -1251,7 +1261,6 @@ td.rejRowColor {
 }
 
 .releaseTeamLeader span {
-
     width: 30px;
     height: 30px;
     float: left;
@@ -1378,13 +1387,12 @@ p.task-description {
 
 .repo-detail-hour {
     margin: 5px 0px 20px 4px;
-
 }
 
 /*release Detail page*/
+
 .releaseClock {
     margin-top: 5px;
-
 }
 
 .releaseClock i {
@@ -1415,8 +1423,15 @@ p.task-description {
     margin-top: 1px;
 }
 
+.planchk {
+    position: relative;
+    display: block;
+    margin-top: 29px;
+    margin-bottom: 10px;
+}
+
 .planchk label {
-    font-size: 20px;
+    font-size: 17px;
     margin-left: 27px;
     margin-top: 2px;
     font-weight: bold;
@@ -1459,7 +1474,6 @@ p.task-description {
 
 .planDateSlct {
     margin-top: 20px;
-
 }
 
 .planDateSlct input {
@@ -1489,7 +1503,6 @@ p.task-description {
     zoom: 2;
     margin-right: 3px;
     margin-top: 19px;
-
 }
 
 .planSchedule {
@@ -1517,7 +1530,6 @@ p.task-description {
 
 .releaseSchedule {
     margin-top: 10px;
-
 }
 
 .releaseDevHeading b {
@@ -1713,7 +1725,6 @@ label {
 }
 
 .col-lg-8 {
-
     width: 0%;
 }
 
@@ -1731,24 +1742,20 @@ label {
 .estimationSearchStatus {
     margin-top: 20px;
     margin-left: 45px;
-
 }
 
 .estimationSearchInitiateBtn {
     margin-left: 36px !important;
-
 }
 
 .releaseSearchStatus {
     position: absolute;
-
 }
 
 .releaseSearchContent {
     float: right;
     margin-right: 296px;
     margin-top: -8px;
-
 }
 
 .releaseDetailSearchFlag {
@@ -1796,7 +1803,6 @@ label {
 }
 
 .suggestionRepo {
-
     margin-left: 48px;
     margin-top: 120px;
     position: absolute;
@@ -1825,7 +1831,6 @@ i.iconClr:hover {
     font-weight: bold;
     text-underline-position: under;
     margin-top: 0px;
-
 }
 
 .negotiatorClr {
@@ -1837,7 +1842,6 @@ i.iconClr:hover {
 }
 
 .div-disable {
-
     cursor: not-allowed;
 }
 
@@ -1874,7 +1878,6 @@ i.iconClr:hover {
 .reportingDatePicker {
     margin-left: 150px;
     margin-top: 5px;
-
 }
 
 .calArrow {
@@ -1917,7 +1920,6 @@ hr {
     position: relative;
     top: -36px;
     z-index: 2;
-
 }
 
 .releaseReadLessLabel {
@@ -1926,7 +1928,6 @@ hr {
     position: relative;
     top: -36px;
     z-index: 2;
-
 }
 
 .releaseReadLessLabelClick {
@@ -1955,8 +1956,10 @@ hr {
 }
 
 .top-label-checkbox input[type=checkbox] {
-    width: 30px; /*Desired width*/
-    height: 30px; /*Desired height*/
+    width: 30px;
+    /*Desired width*/
+    height: 30px;
+    /*Desired height*/
     cursor: pointer;
 }
 
@@ -1989,7 +1992,6 @@ hr {
 
 .leaveRaiseTitle {
     font-size: 18px;
-
 }
 
 .leaveRaiseDetail {
@@ -2158,17 +2160,13 @@ hr {
 }
 
 .modal-body b {
-
     color: red;
     font-size: 23px;
-
 }
 
 .modal-body h4 span {
-
     color: #2fda2f;
     font-size: 23px;
-
 }
 
 .btn-size {
@@ -2193,7 +2191,6 @@ hr {
     margin-top: 29px !important;
     margin-left: 46px !important;
     position: absolute;
-
 }
 
 .react-bs-table .table-bordered > thead > tr:first-child > th {
@@ -2371,7 +2368,6 @@ div.notificationTable table tr[width="100%"] td {
     background-color: #ADADAE;
     height: 32;
 }
-
 .billing-section {
 	border: none;
 	margin-top: 8px;
@@ -2558,4 +2554,11 @@ div.notificationTable table tr[width="100%"] td {
 .billing-desc-content .colmn2 {
     width: 30%;
 	border:0;
+}
+
+@media (min-width: 1000px) {
+    .modal-dialog {
+        width: 800px;
+        margin: 25px auto;
+    }
 }

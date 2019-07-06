@@ -68,6 +68,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     ReleaseTaskGoBack: (release) => {
+        console.log(release)
+        dispatch(A.getReleaseFromServer(release._id, true))
         dispatch(A.showComponentHideOthers(COC.RELEASE_PLAN_SECTION))
     },
     expandDescription: (flag) => dispatch(A.expandDescription(flag)),

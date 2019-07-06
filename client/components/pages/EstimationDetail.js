@@ -335,8 +335,14 @@ class EstimationDetail extends Component {
                 </div>
 
                 <div className=" col-md-12">
-                    <div className="col-md-6"><span className="customBtn">{estimation.status}</span></div>
-                    <div className="col-md-2 col-md-offset-4">
+                    <div className="col-md-10"><span className="customBtn">{estimation.status}</span></div>
+                    <div className="col-md-1">
+                        <button style={{float: 'right'}} type="button" className="btn excelBtn" onClick={
+                            ()=>{this.props.exportEstimation(estimation._id)}
+                        }>
+                            <i className="fa fa-file-excel-o"></i></button>
+                    </div>
+                    <div className="col-md-1">
                         <button style={{float: 'right'}} type="button" className="btn customBtn" onClick={
                             () => {
                                 this.props.refreshEstimation(estimation)

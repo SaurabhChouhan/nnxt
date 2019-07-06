@@ -6,6 +6,7 @@ let releasePlanRouter = new Router({
 })
 
 releasePlanRouter.post("/add-planned-task", async ctx => {
+    console.log("addPlannedTask", ctx.request.body)
     return await MDL.ReleasePlanModel.addPlannedReleasePlan(ctx.request.body, ctx.state.user)
 })
 

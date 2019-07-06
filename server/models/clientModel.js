@@ -22,6 +22,11 @@ clientSchema.statics.getAllActive = async () => {
     return await ClientModel.find({isDeleted: false, isArchived: false})
 }
 
+clientSchema.statics.getAllActiveClients = async () => {
+    return await ClientModel.find({isDeleted: false, isArchived: false, isActive: true})
+}
+
+
 clientSchema.statics.saveClient = async clientInput => {
     if (await ClientModel.exists(clientInput.name)) {
         throw new AppError("Client with name [" + clientInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)

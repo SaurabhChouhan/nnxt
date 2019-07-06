@@ -1,10 +1,11 @@
 import Router from 'koa-router'
 import * as MDL from "../models"
-import {hasRole, isAuthenticated} from "../utils"
+import { hasRole, isAuthenticated } from "../utils"
 import * as SC from "../serverconstants"
 import * as EC from '../errorcodes'
 import AppError from '../AppError'
 import * as V from '../validation'
+import Excel from 'exceljs'
 
 let estimationRouter = new Router({
     prefix: "/estimations"
@@ -175,6 +176,77 @@ estimationRouter.get('/task/:estimationID', async ctx => {
 /**
  * Add a new task to estimation
  */
+
+estimationRouter.get('/export-estimation/:estimationID', async ctx => {
+    let estimations = await MDL.EstimationModel.exportEstimation(ctx.params.estimationID, ctx.res);
+    console.log("estimations is ", estimations.project)
+    var workbook = new Excel.Workbook();
+    workbook.creator = 'Me';
+    workbook.lastModifiedBy = 'Her';
+    workbook.created = new Date();
+    workbook.modified = new Date();
+    workbook.lastPrinted = new Date();
+
+
+    let excelFileName = estimations.project ? estimations.project.name : ""
+
+
+
+    if (!excelFileName || excelFileName.trim().length == 0) {
+        excelFileName = "Estimations"
+    }
+
+    /*else {
+        excelFileName = excelFileName.replace(/ /g, '_')
+    }*/
+
+    var worksheet = workbook.addWorksheet(excelFileName)
+    worksheet.getRow(1).values = ['Name', 'Description', 'EstimatedHours'];
+    worksheet.columns = [
+        { headers: "Name", key: 'name', width: 20 },
+        { headers: "Description", key: 'description', width: 35 },
+        { headers: "EstimatedHours", key: 'estimatedHours', width: 15 }
+    ];
+    estimations.features.map((feature) => {
+        feature.tasks.map((task) => {
+            if (typeof (task.estimator.estimatedHours) == "undefined" || task.estimator.estimatedHours == 0) {
+                worksheet.addRow({
+                    description: task.estimator.description,
+                    name: task.estimator.name,
+                    estimatedHours: task.negotiator.estimatedHours
+                })
+            } else {
+                worksheet.addRow({
+                    description: task.estimator.description,
+                    name: task.estimator.name,
+                    estimatedHours: task.estimator.estimatedHours
+                })
+            }
+        })
+    })
+
+    estimations.tasks.map((task) => {
+        if (typeof (task.estimator.estimatedHours) == "undefined" || task.estimator.estimatedHours == 0) {
+            worksheet.addRow({
+                description: task.estimator.description,
+                name: task.estimator.name,
+                estimatedHours: task.negotiator.estimatedHours
+            })
+        } else {
+            worksheet.addRow({
+                description: task.estimator.description,
+                name: task.estimator.name,
+                estimatedHours: task.estimator.estimatedHours
+            })
+        }
+    })
+
+    ctx.response.attachment(excelFileName + ".xlsx")
+    ctx.status = 200
+    await workbook.xlsx.write(ctx.res)
+    ctx.res.end()
+})
+
 estimationRouter.post('/tasks', async ctx => {
     return await MDL.EstimationTaskModel.addTask(ctx.request.body, ctx.state.user, ctx.schemaRequested)
 

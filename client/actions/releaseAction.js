@@ -115,6 +115,10 @@ export const updateReleaseDates = (release) => ({
     type: AC.UPDATE_RELEASE_DATES,
     release
 })
+export const updateSelectedRelease = (release) => ({
+    type: AC.UPDATE_SELECTED_RELEASE,
+    release
+})
 
 export const selectIteration = (iteration) => ({
     type: AC.ITERATION_SELECTED,
@@ -221,7 +225,7 @@ export const getAllReleasesToAddEstimationFromServer = (estimationID) => {
 }
 
 
-export const getReleaseFromServer = (releaseID) => {
+export const getReleaseFromServer = (releaseID, updateHours) => {
     return (dispatch, getState) => {
         return fetch('/api/releases/release/' + releaseID, {
                 method: 'get',
@@ -235,8 +239,13 @@ export const getReleaseFromServer = (releaseID) => {
             response => response.json()
         ).then(
             json => {
-                if (json.success) {
-                    dispatch(releaseSelected(json.data))
+                if (json.success) {console.log("updateHours", updateHours)
+                    if(updateHours){
+                        dispatch(updateSelectedRelease(json.data))
+                    }
+                    else{
+                        dispatch(releaseSelected(json.data))
+                    }
                 }
                 return json
             })
@@ -860,6 +869,7 @@ export const getSearchTaskPlanResultFromServer = (formInput) => {
 }
 
 export const searchReleasePlansOnServer = (formInput) => {
+    console.log("Inside searchReleasePlansOnServer",formInput);
     return (dispatch, getState) => {
 
         if (!formInput) {

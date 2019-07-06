@@ -9,8 +9,9 @@ export const addNNXTTemplates = async () => {
 
     // Find super admin user as only he can create templates
     let superAdminUser = await MDL.UserModel.findOne({email: 'superadmin@aripratech.com'})
-    logger.debug("addTemplate: ", {superAdminUser: superAdminUser.roles})
+    
     if (superAdminUser) {
+        logger.debug("addTemplate: ", {superAdminUser: superAdminUser.roles})
         // create template only if super admin user is found
         if (!await MDL.TemplateModel.exists(TC.EMAIL_BODY_LEAVE_RAISED)) {
             await MDL.TemplateModel.addTemplate(superAdminUser, {
