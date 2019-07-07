@@ -2,13 +2,9 @@ import React, { Component } from 'react'
 import { Field, reduxForm } from 'redux-form'
 import { renderDateTimePickerString, renderSelect, renderTextArea } from '../forms/fields'
 
-let billingTaskFormSubmit = (values) => {
-    console.log("values ", values)
-}
-
 let BillingTaskForm = (props) => {
     return <div className="col-md-12 billing-desc-content">
-        <form onSubmit={props.handleSubmit(billingTaskFormSubmit)}>
+        <form onSubmit={props.handleSubmit(props.reviewDescription)}>
             <div className="btask-form-col-md">
                 <Field name="billedDate" component={renderDateTimePickerString} label={""} />
             </div>
@@ -73,7 +69,7 @@ let BillingTask = (props) => {
             </div>
         </div>
         <div class="billing-desc">
-            <BillingTaskForm key={'billing-task-form-' + billingTask._id} form={'billing-task-form-' + billingTask._id} initialValues={billingTask} projectTeam={props.projectTeam} />
+            <BillingTaskForm key={'billing-task-form-' + billingTask._id} form={'billing-task-form-' + billingTask._id} initialValues={billingTask} projectTeam={props.projectTeam} reviewDescription={props.reviewDescription} />
         </div>
     </div >
 }
@@ -105,7 +101,7 @@ let BillingReleasePlan = (props) => {
         </div>
     </div>, <div key='release-plan-task-plans' className="col-md-12 ">
         <div className="billing-section">
-            {releasePlan.billingTasks.map((bt, idx) => <BillingTask key={'billing-task-' + bt._id} billingTask={bt} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
+            {releasePlan.billingTasks.map((bt, idx) => <BillingTask key={'billing-task-' + bt._id} billingTask={bt} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} reviewDescription={props.reviewDescription} />
             )}
         </div>
     </div>]
@@ -149,7 +145,7 @@ class BillingTaskList extends Component {
                 </div>
             </div>
             {
-                this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} rpIdx={idx} projectTeam={this.props.projectTeam} />)
+                this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} rpIdx={idx} projectTeam={this.props.projectTeam} reviewDescription={this.props.reviewDescription} />)
             }
         </div>
     }

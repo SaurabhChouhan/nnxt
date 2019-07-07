@@ -53,7 +53,8 @@ import {
     TaskShiftDialog,
     ReportTaskDescriptionFormDialog,
     CreateReleaseDialog,
-    UpdateReleaseDialog
+    UpdateReleaseDialog,
+    BillingTaskDescriptionFormDialog
 
 } from "../index"
 import {Route} from 'react-router-dom'
@@ -99,6 +100,11 @@ class ContentMain extends Component {
             render: (props) => {
                 return <ContentSection>
                     <BillingSectionContainer name={COC.BILLING_SECTION} show={true} />
+                    <BillingTaskDescriptionFormDialog name={COC.BILLING_TASK_DESCRIPTION_DIALOG} show={true} close={
+                        () => {
+                            this.props.dispatch(A.hideComponent(COC.BILLING_TASK_DESCRIPTION_DIALOG))
+                        }
+                    }/>
                 </ContentSection>
             }
         })
