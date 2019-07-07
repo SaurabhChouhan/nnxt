@@ -11,7 +11,7 @@ clientRouter.post('/', async ctx => {
         return V.generateSchema(V.clientAdditionStruct)
 
     V.validate(ctx.request.body, V.clientAdditionStruct)
-    return await MDL.ClientModel.saveClient(ctx.request.body)
+    return await MDL.ClientModel.saveClient(ctx.request.body, ctx.state.user)
 })
 
 clientRouter.get('/', async ctx => {

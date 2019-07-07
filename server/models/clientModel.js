@@ -28,12 +28,31 @@ clientSchema.statics.getAllActiveClients = async () => {
 }
 
 
-clientSchema.statics.saveClient = async clientInput => {
+clientSchema.statics.saveClient = async (clientInput, user) => {
     if (await ClientModel.exists(clientInput.name)) {
         throw new AppError("Client with name [" + clientInput.name + "] already exists", EC.ALREADY_EXISTS, EC.HTTP_BAD_REQUEST)
     }
 
-    return await ClientModel.create(clientInput)
+    let client = await ClientModel.create(clientInput)
+
+    if (clientInput.billingRate) {
+        // create new entry
+        let billingRate = new BillingRateModel()
+        billingRate.billingRate = clientInput.billingRate
+        billingRate.created = {
+            _id: user._id,
+            name: user.firstName,
+            date: new Date()
+        }
+
+        billingRate.owner = {
+            type: OWNER_TYPE_CLIENT,
+            _id: client._id
+        }
+        await billingRate.save()
+    }
+
+    return client
 }
 
 clientSchema.statics.exists = async name => {
@@ -58,12 +77,13 @@ clientSchema.statics.deleteClient = async (id) => {
         'isDeleted': false
     })
 
+    let canHardDelete = true
 
     if (projectCount > 0) {
-        throw new AppError('Cannot remove client, it is associated with projects.', EC.CLIENT_USED_IN_ESTIMATION, EC.HTTP_BAD_REQUEST)
+        canHardDelete = false
     }
 
-    if (client.canHardDelete) {
+    if (canHardDelete) {
         response = await ClientModel.findById(id).remove()
     }
     else {
