@@ -9,7 +9,7 @@ let billingTaskFormSubmit = (values) => {
 let BillingTaskForm = (props) => {
     return <div className="col-md-12 billing-desc-content">
         <form onSubmit={props.handleSubmit(billingTaskFormSubmit)}>
-            <div className="btask-form-col-sm">
+            <div className="btask-form-col-md">
                 <Field name="billedDate" component={renderDateTimePickerString} label={""} />
             </div>
             <div className="btask-form-col-sm">
@@ -24,7 +24,7 @@ let BillingTaskForm = (props) => {
                     valueField={"name"}
                 />
             </div>
-            <div className="btask-form-col-sm">
+            <div className="btask-form-col-md">
                 <Field name="billingEmployee._id" placeholder={"Name of Developer"}
                     component={renderSelect}
                     options={props.projectTeam}
@@ -32,7 +32,7 @@ let BillingTaskForm = (props) => {
                         //props.change("employee.name", employee.name)
                     }} />
             </div>
-            <div className="btask-form-col-sm">
+            <div className="btask-form-col-md">
                 <Field name="timesheetEmployee._id" placeholder={"Name of Developer"}
                     component={renderSelect}
                     options={props.projectTeam}
@@ -45,7 +45,7 @@ let BillingTaskForm = (props) => {
                     component={renderTextArea}
                     type="text" />
             </div>
-            <div className="btask-form-col-last">
+            <div className="btask-form-col-md">
                 <button type="submit" className="btn customBtn" disabled={props.submitting}>Review</button>
             </div>
         </form>

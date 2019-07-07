@@ -1035,6 +1035,7 @@ td.rejRowColor {
     max-height: calc(100vh);
     height: calc(100vh);
     overflow-y: scroll;
+    padding-bottom:30px;
 }
 
 /* Repository section */
@@ -2458,7 +2459,16 @@ div.notificationTable table tr[width="100%"] td {
 	color:#fff;
 }
 
+
 .btask-form-col-sm {
+	width:10%;
+	float:left;
+	min-height:20px;
+	padding:5px;
+	border-right:1px solid #212531;
+}
+
+.btask-form-col-md {
 	width:15%;
 	float:left;
 	min-height:20px;
@@ -2475,13 +2485,11 @@ div.notificationTable table tr[width="100%"] td {
 }
 
 .billing-desc-content .btask-form-col-last {
-	width:10%;
+	width:15%;
 	float:left;
 	padding:5px;
 	border:0;
 }
-
-
 
 .billing-entries {
 	float:left;
@@ -2531,13 +2539,13 @@ div.notificationTable table tr[width="100%"] td {
 .billing-dateName {
     float: left;
     min-height: 20px;
-    width: 30%;
+    width: 25%;
 }
 .billing-desc {
 	float: left;
     border-left: 1px solid #212531;
     min-height: 20px;
-    width: 70%;
+    width: 75%;
 }
 .billing-desc .col-md-12 {
 	min-height:50px;
