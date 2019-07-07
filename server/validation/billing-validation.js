@@ -12,3 +12,9 @@ export const billingTaskBillingClientsStruct = t.struct({
     toDate: t.maybe(validDate)
 })
 
+export const billingTaskBillingReleasesStruct = t.struct({
+    fromDate: t.maybe(validDate),
+    toDate: t.maybe(validDate),
+    clientID: ObjectId
+})
+

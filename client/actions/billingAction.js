@@ -1,10 +1,5 @@
 import * as AC from "./actionConsts"
 
-export const addClientReleases = (client, releases) => ({
-    type: AC.ADD_RELEASES_OF_CLIENT,
-    client,
-    releases
-})
 
 export const addBillingTaskCriteria = (criteria) => ({
     type: AC.ADD_BILLING_TASK_CRITERIA,
@@ -17,15 +12,26 @@ export const addBillingReleasePlans = (release, releasePlans) => ({
     release
 })
 
-export const getReleasesOfClientFromServer = (clientID) => {
+export const addBillingClients = (billingClients) => ({
+    type: AC.ADD_BILLING_CLIENTS,
+    billingClients
+})
+
+export const addBillingReleases = (billingReleases) => ({
+    type: AC.ADD_BILLING_RELEASES,
+    billingReleases
+})
+
+export const getBillingReleasesOfClientFromServer = (criteria) => {
     return (dispatch, getState) => {
-        return fetch('/api/releases/client/' + clientID, {
-            method: 'get',
+        return fetch('/api/billings/billing-releases', {
+            method: 'post',
             credentials: "include",
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify(criteria)
         }).then(
             response => response.json()
         )

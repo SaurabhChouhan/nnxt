@@ -10,20 +10,12 @@ let initialState = {
         toDate: undefined
     },
     billingReleasePlans: [],
-    billingRelease: {
-
-    },
-    clientsWithBilling: [],
-    releasesWithBilling: []
+    billingClients: [],
+    billingReleases: []
 }
 
 const billingReducer = (state = initialState, action) => {
     switch (action.type) {
-        case AC.ADD_RELEASES_OF_CLIENT:
-            return Object.assign({}, state, {
-                selectedClient: action.client,
-                clientReleases: action.releases
-            })
         case AC.ADD_BILLING_TASK_CRITERIA:
             return Object.assign({}, state, {
                 billingTaskCriteria: action.criteria
@@ -33,6 +25,20 @@ const billingReducer = (state = initialState, action) => {
                 billingReleasePlans: action.releasePlans,
                 billingRelease: action.release
             })
+        case AC.ADD_BILLING_CLIENTS: {
+            return Object.assign({}, state, {
+                billingClients: action.billingClients,
+                billingReleases: []
+            })
+        }
+        case AC.ADD_BILLING_RELEASES:
+            return Object.assign({}, state, {
+                billingReleases: action.billingReleases.map(r => {
+                    r.name = r.name + " (" + r.project.name + ")"
+                    return r;
+                })
+            })
+
         default:
             return state
     }

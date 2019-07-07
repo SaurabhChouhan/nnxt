@@ -261,13 +261,6 @@ const processBillingTasks = async (billingTasks, billingRate) => {
 This API would return all the clients that have billing tasks as per criteira and as per logged in user roles
 */
 billingTaskSchema.statics.getBillingClients = async (criteria, user) => {
-
-    /*
-    if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
-        throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
-    }
-    */
-
     let fromMoment = undefined
     let toMoment = undefined
 
@@ -312,10 +305,58 @@ billingTaskSchema.statics.getBillingClients = async (criteria, user) => {
     }
 }
 
+/*
+This API would return all the releases that have billing tasks as per criteira and as per logged in user roles
+*/
 
 
+billingTaskSchema.statics.getBillingReleases = async (criteria, user) => {
 
+    console.log("getBillingReleases called")
 
+    let fromMoment = undefined
+    let toMoment = undefined
+
+    if (criteria.fromDate) {
+        fromMoment = momentInUTC(criteria.fromDate)
+    }
+
+    if (criteria.toDate) {
+        toMoment = momentInUTC(criteria.toDate)
+    }
+
+    let crit = {
+        'client._id': mongoose.Types.ObjectId(criteria.clientID)
+    }
+
+    if (userHasRole(user, ROLE_TOP_MANAGEMENT)) {
+        // User would see all those clients which has billing tasks as per criteria
+        if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
+            crit['$and'] = [{ 'billedDate': { $gte: fromMoment.toDate() } }, { 'billedDate': { $lte: toMoment.toDate() } }]
+        } else if (fromMoment && fromMoment.isValid()) {
+            crit['billedDate'] = { $gte: fromMoment.toDate() }
+        } else if (toMoment && toMoment.isValid()) {
+            crit['billedDate'] = { $lte: toMoment.toDate() }
+        }
+
+        let distinctReleaseIDs = await BillingTaskModel.distinct("release._id", crit)
+        if (!distinctReleaseIDs || !distinctReleaseIDs.length)
+            return []
+
+        return await MDL.ReleaseModel.find({ "_id": { $in: distinctReleaseIDs } }, { name: 1, project: 1 })
+
+    } else {
+        // user would only see those clients which has billing tasks of releases this user is either leader or manager
+        let distinctReleaseIDs = await BillingTaskModel.distinct("release._id", crit)
+        console.log("distinct release IDs is ", distinctReleaseIDs)
+        // Filter release ids that has this user as either manager or leader
+        let userReleaseIDs = await MDL.ReleaseModel.distinct("_id", { "_id": { $in: distinctReleaseIDs }, $or: [{ "manager._id": user._id }, { "leader._id": user._id }] })
+        if (!userReleaseIDs || !userReleaseIDs.length)
+            return []
+
+        return await MDL.ReleaseModel.find({ "_id": { $in: userReleaseIDs } }, { name: 1, project: 1 })
+    }
+}
 
 const BillingTaskModel = mongoose.model('BillingTask', billingTaskSchema)
 export default BillingTaskModel

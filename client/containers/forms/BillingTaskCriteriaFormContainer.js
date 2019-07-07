@@ -1,13 +1,11 @@
 import { connect } from 'react-redux'
 import { BillingTaskCriteriaForm } from "../../components"
-import { getReleasesOfClientFromServer, addClientReleases, addBillingTaskCriteria, getBillingReleasePlansFromServer, addBillingReleasePlans, getBillingClientsFromServer } from '../../actions'
+import { getReleasesOfClientFromServer, addClientReleases, addBillingTaskCriteria, getBillingReleasePlansFromServer, addBillingReleasePlans, getBillingClientsFromServer, addBillingClients, getBillingReleasesOfClientFromServer, addBillingReleases } from '../../actions'
+
+import { change } from 'redux-form'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    clientSelected: (clientID) => {
-        dispatch(getReleasesOfClientFromServer(clientID)).then(json => {
-            dispatch(addClientReleases(json.data.client, json.data.releases))
-        })
-    },
+
     fetchiBillingTasks: (criteria) => {
         dispatch(addBillingTaskCriteria(criteria))
         if (criteria.clientID && criteria.releaseID && criteria.fromDate) {
@@ -20,14 +18,22 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     fetchBillingClients: (criteria) => {
         dispatch(addBillingTaskCriteria(criteria))
         dispatch(getBillingClientsFromServer(criteria)).then(json => {
-            
+            if (json.success) {
+                dispatch(addBillingClients(json.data))
+                dispatch(change('billing-task-criteria', 'clientID', ''))
+            }
+        })
+    },
+    fetchBillingReleases: (criteria) => {
+        dispatch(getBillingReleasesOfClientFromServer(criteria)).then(json => {
+            dispatch(addBillingReleases(json.data))
         })
     }
 })
 
 const mapStateToProps = (state, ownProps) => ({
-    clients: state.client.billable,
-    releases: state.billing.clientReleases,
+    clients: state.billing.billingClients,
+    releases: state.billing.billingReleases,
     client: state.billing.selectedClient,
     criteria: state.billing.billingTaskCriteria
 })

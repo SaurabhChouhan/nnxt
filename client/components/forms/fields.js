@@ -8,42 +8,42 @@ Form Field components
  */
 
 export const renderText = ({
-                               input,
-                               label,
-                               readOnly = false,
-                               disbled = false,
-                               type,
-                               placeholder,
-                               meta: {touched, error, warning}
-                           }) =>
+    input,
+    label,
+    readOnly = false,
+    disbled = false,
+    type,
+    placeholder,
+    meta: { touched, error, warning }
+}) =>
     <div className="form-group">
         <label htmlFor={input.name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-              {error}
-            </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }</label>
         <input {...input} readOnly={readOnly} disabled={disbled} placeholder={placeholder} type={type}
-               className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))}/>
+            className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))} />
     </div>
 
 export const renderCheckBox = ({
-                                   input,
-                                   label,
-                                   readOnly,
-                                   className = "input checkbox",
-                                   meta: {touched, error, warning}
-                               }) =>
+    input,
+    label,
+    readOnly,
+    className = "input checkbox",
+    meta: { touched, error, warning }
+}) =>
     <div className={className}>
         {touched &&
-        ((error &&
-            <span className="validation-error">
-              {error}
-            </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }
         <label>
             <input {...input} readOnly={readOnly} checked={input && input.value ? true : false}
-                   onChange={input.onChange} type="checkbox"/>
+                onChange={input.onChange} type="checkbox" />
             {label}
         </label>
 
@@ -70,39 +70,39 @@ export const renderCheckBox = ({
                 </div>*/
 
 export const renderSelect = ({
-                                 input,
-                                 onChange,
-                                 label,
-                                 options,
-                                 readOnly = false,
-                                 noneOptionText = 'Select ...',
-                                 noneOptionValue = '',
-                                 showNoneOption = true,
-                                 displayField = 'name',
-                                 optionalDisplayField = 'name',
-                                 disabled = false,
-                                 valueField = "_id",
-                                 hoverEnabledMsg,
-                                 hoverDisabledMsg,
-                                 meta: {touched, error, warning}
-                             }) => {
+    input,
+    onChange,
+    label,
+    options,
+    readOnly = false,
+    noneOptionText = 'Select ...',
+    noneOptionValue = '',
+    showNoneOption = true,
+    displayField = 'name',
+    optionalDisplayField = 'name',
+    disabled = false,
+    valueField = "_id",
+    hoverEnabledMsg,
+    hoverDisabledMsg,
+    meta: { touched, error, warning }
+}) => {
 
-    return <div className="form-group" style={{position: "relative"}}>
+    return <div className="form-group" style={{ position: "relative" }}>
         <label htmlFor={input.name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-            {error}
-          </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }</label>
         <select {...input}
-                className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
-                disabled={disabled} readOnly={readOnly}>
+            className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
+            disabled={disabled} readOnly={readOnly}>
             {showNoneOption && <option value={noneOptionValue}>{noneOptionText}</option>}
             {
-                options && options.map(option => {
-                        return <option value={_.get(option, valueField)}
-                                       key={option[valueField]}>{_.get(option, displayField) ? _.get(option, displayField) : _.get(option, optionalDisplayField)}</option>
-                    }
+                options && options.length && options.map(option => {
+                    return <option value={_.get(option, valueField)}
+                        key={option[valueField]}>{_.get(option, displayField) ? _.get(option, displayField) : _.get(option, optionalDisplayField)}</option>
+                }
                 )
             }
         </select>
@@ -112,39 +112,39 @@ export const renderSelect = ({
 }
 
 export const renderSelectForEmailTemplateType = ({
-                                 input,
-                                 onChange,
-                                 label,
-                                 options,
-                                 readOnly = false,
-                                 noneOptionText = 'Select All',
-                                 noneOptionValue = 'undefined',
-                                 showNoneOption = true,
-                                 displayField = 'name',
-                                 optionalDisplayField = 'name',
-                                 disabled = false,
-                                 valueField = "_id",
-                                 hoverEnabledMsg,
-                                 hoverDisabledMsg,
-                                 meta: {touched, error, warning}
-                             }) => {
+    input,
+    onChange,
+    label,
+    options,
+    readOnly = false,
+    noneOptionText = 'Select All',
+    noneOptionValue = 'undefined',
+    showNoneOption = true,
+    displayField = 'name',
+    optionalDisplayField = 'name',
+    disabled = false,
+    valueField = "_id",
+    hoverEnabledMsg,
+    hoverDisabledMsg,
+    meta: { touched, error, warning }
+}) => {
 
-    return <div className="form-group" style={{position: "relative"}}>
+    return <div className="form-group" style={{ position: "relative" }}>
         <label htmlFor={input.name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-            {error}
-          </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }</label>
         <select {...input}
-                className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
-                disabled={disabled} readOnly={readOnly}>
+            className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
+            disabled={disabled} readOnly={readOnly}>
             {showNoneOption && <option value={noneOptionValue}>{noneOptionText}</option>}
             {
                 options && options.map(option => {
-                        return <option value={_.get(option, valueField)}
-                                       key={option[valueField]}>{_.get(option, displayField) ? _.get(option, displayField) : _.get(option, optionalDisplayField)}</option>
-                    }
+                    return <option value={_.get(option, valueField)}
+                        key={option[valueField]}>{_.get(option, displayField) ? _.get(option, displayField) : _.get(option, optionalDisplayField)}</option>
+                }
                 )
             }
         </select>
@@ -155,126 +155,126 @@ export const renderSelectForEmailTemplateType = ({
 
 
 export const renderTextArea = ({
-                                   input,
-                                   label,
-                                   placeholder,
-                                   disabled = false,
-                                   readOnly = false,
-                                   rows,
-                                   hoverEnabledMsg,
-                                   hoverDisabledMsg,
-                                   meta: {touched, error, warning}
-                               }) =>
+    input,
+    label,
+    placeholder,
+    disabled = false,
+    readOnly = false,
+    rows,
+    hoverEnabledMsg,
+    hoverDisabledMsg,
+    meta: { touched, error, warning }
+}) =>
     <div className="form-group">
         <label htmlFor={input.name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-            {error}
-          </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }</label>
         <textarea rows={rows} {...input} placeholder={placeholder} readOnly={readOnly} disabled={disabled}
-                  className={"form-control hoverToolTip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}></textarea>
+            className={"form-control hoverToolTip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}></textarea>
     </div>
 export const renderError = ({
-                                input,
-                                label,
-                                meta: {touched, error, warning}
-                            }) =>
+    input,
+    label,
+    meta: { touched, error, warning }
+}) =>
     <h3><span className="label label-danger">{error}</span></h3>
 
 export const renderLoginField = ({
-                                     input,
-                                     label,
-                                     readOnly,
-                                     type,
-                                     placeholder,
-                                     meta: {touched, error, warning}
-                                 }) =>
+    input,
+    label,
+    readOnly,
+    type,
+    placeholder,
+    meta: { touched, error, warning }
+}) =>
     <div className="col-md-12">
         <label htmlFor={input.name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-              {error}
-            </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }</label>
-        <input {...input} className="form-control" type={type}/>
+        <input {...input} className="form-control" type={type} />
     </div>
 
 export const renderMultiSelect = ({
-                                      input,
-                                      data,
-                                      valueField = "_id",
-                                      disabled = false,
-                                      textField = "name",
-                                      label,
-                                      placeholder,
-                                      defaultValue,
-                                      meta: {touched, error, warning}
-                                  }) => {
-                                      console.log("default value is ", defaultValue)
-                                      console.log("data is ", data)
+    input,
+    data,
+    valueField = "_id",
+    disabled = false,
+    textField = "name",
+    label,
+    placeholder,
+    defaultValue,
+    meta: { touched, error, warning }
+}) => {
+    console.log("default value is ", defaultValue)
+    console.log("data is ", data)
     return <div className="form-group">
         <label htmlFor={input.name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-                {error}
-            </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }</label>
         <Multiselect {...input}
-                     onBlur={() => input.onBlur()}
-                     value={input.value || defaultValue || []} // requires value to be an array
-                     data={data}
-                     disabled={disabled}
-                     valueField={valueField}
-                     label={label}
-                     textField={textField}
-                     placeholder={placeholder}
+            onBlur={() => input.onBlur()}
+            value={input.value || defaultValue || []} // requires value to be an array
+            data={data}
+            disabled={disabled}
+            valueField={valueField}
+            label={label}
+            textField={textField}
+            placeholder={placeholder}
         />
     </div>
-                                  }
+}
 
 export const renderField = ({
-                                input,
-                                label,
-                                readOnly,
-                                type,
-                                placeholder,
-                                meta: {touched, error, warning},
-                                disabled = false
-                            }) =>
+    input,
+    label,
+    readOnly,
+    type,
+    placeholder,
+    meta: { touched, error, warning },
+    disabled = false
+}) =>
     <div className="form-group">
         <label htmlFor={input.name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-              {error}
-            </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
         }</label>
         <input {...input} readOnly={readOnly} disabled={disabled} placeholder={placeholder} type={type}
-               className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))}/>
+            className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))} />
     </div>
 
 export const renderDateTimePickerString = ({
-                                               input: {onChange, value, name, onBlur},
-                                               label,
-                                               readOnly,
-                                               timeZone = 'America/New_York',
-                                               dropUp = false,
-                                               info,
-                                               showTime = false,
-                                               showCalendar = true,
-                                               min,
-                                               max,
-                                               type,
-                                               placeholder,
-                                               disabled = false,
-                                               currentDate,
-                                               meta: {touched, error, warning},
-                                               hoverEnabledMsg,
-                                               hoverDisabledMsg,
-                                               displayFormat = 'DD/MM/YYYY',
-                                               valueFormat = 'YYYY-MM-DD'
+    input: { onChange, value, name, onBlur },
+    label,
+    readOnly,
+    timeZone = 'America/New_York',
+    dropUp = false,
+    info,
+    showTime = false,
+    showCalendar = true,
+    min,
+    max,
+    type,
+    placeholder,
+    disabled = false,
+    currentDate,
+    meta: { touched, error, warning },
+    hoverEnabledMsg,
+    hoverDisabledMsg,
+    displayFormat = 'DD/MM/YYYY',
+    valueFormat = 'YYYY-MM-DD'
 
-                                           }) => {
+}) => {
 
     let val = undefined
 
@@ -293,7 +293,7 @@ export const renderDateTimePickerString = ({
         if (event) {
             if (showCalendar) {
                 if (showTime) {
-                    if (typeof(event) === 'object' && event.target && event.target.value) {
+                    if (typeof (event) === 'object' && event.target && event.target.value) {
                         console.log("renderDateTimePickerString->parse(event.target.value)", event.target.value)
                         let v = moment(event.target.value, displayFormat).format(valueFormat)
                         return v
@@ -303,7 +303,7 @@ export const renderDateTimePickerString = ({
                         return v
                     }
                 } else {
-                    if (typeof(event) === 'object' && event.target && event.target.value) {
+                    if (typeof (event) === 'object' && event.target && event.target.value) {
                         console.log("renderDateTimePickerString->parse(event.target.value)", event.target.value)
                         let v = moment(event.target.value, displayFormat).format(valueFormat)
                         return v
@@ -315,7 +315,7 @@ export const renderDateTimePickerString = ({
                 }
             } else {
                 if (showTime) {
-                    if (typeof(event) === 'object' && event.target && event.target.value) {
+                    if (typeof (event) === 'object' && event.target && event.target.value) {
                         if (event.target.value.length == 7)
                             event.target.value = '0' + event.target.value
                         return event.target.value;
@@ -331,17 +331,17 @@ export const renderDateTimePickerString = ({
         return undefined
     }
 
-    return <div className="form-group" style={{position: "relative"}}>
+    return <div className="form-group" style={{ position: "relative" }}>
         <label htmlFor={name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-            {error}
-          </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
 
         }{(info &&
             <span className="field-info">
-            {info}
-          </span>)}</label>
+                {info}
+            </span>)}</label>
         <DateTimePicker
             className=" hoverTooltip"
             min={min}
@@ -359,38 +359,38 @@ export const renderDateTimePickerString = ({
             onKeyPress={event => event.preventDefault()}
             onKeyDown={event => event.preventDefault()}
         />
-        {hoverEnabledMsg && <span className="enabledMsg" style={{width: 250}}>{hoverEnabledMsg}</span>}
+        {hoverEnabledMsg && <span className="enabledMsg" style={{ width: 250 }}>{hoverEnabledMsg}</span>}
         {hoverDisabledMsg && <span className="disabledMsg">{hoverDisabledMsg}</span>}
 
     </div>
 }
 
 export const renderDateTimePicker = ({
-                                         input: {onChange, value, name, onBlur},
-                                         label,
-                                         readOnly,
-                                         info,
-                                         showTime,
-                                         showCalendar,
-                                         min,
-                                         max,
-                                         type,
-                                         dropUp = false,
-                                         placeholder,
-                                         disabled = false,
-                                         meta: {touched, error, warning}
-                                     }) => {
+    input: { onChange, value, name, onBlur },
+    label,
+    readOnly,
+    info,
+    showTime,
+    showCalendar,
+    min,
+    max,
+    type,
+    dropUp = false,
+    placeholder,
+    disabled = false,
+    meta: { touched, error, warning }
+}) => {
     return <div className="form-group">
         <label htmlFor={name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-            {error}
-          </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
 
         }{(info &&
             <span className="field-info">
-            {info}
-          </span>)}</label>
+                {info}
+            </span>)}</label>
         <DateTimePicker
             min={min}
             max={max}
@@ -409,33 +409,33 @@ export const renderDateTimePicker = ({
 
 
 export const renderDateTimeStringShow = ({
-                                             input: {onChange, value, name},
-                                             label,
-                                             readOnly,
-                                             info,
-                                             showTime,
-                                             showCalendar,
-                                             min,
-                                             max,
-                                             formate = "DD-MM-YYYY",
-                                             type,
-                                             dropUp = false,
-                                             placeholder,
-                                             disabled = false,
-                                             meta: {touched, error, warning}
-                                         }) => {
+    input: { onChange, value, name },
+    label,
+    readOnly,
+    info,
+    showTime,
+    showCalendar,
+    min,
+    max,
+    formate = "DD-MM-YYYY",
+    type,
+    dropUp = false,
+    placeholder,
+    disabled = false,
+    meta: { touched, error, warning }
+}) => {
     // console.log("value", value)
     return <div className="form-group">
         <label htmlFor={name}>{label} {touched &&
-        ((error &&
-            <span className="validation-error">
-            {error}
-          </span>))
+            ((error &&
+                <span className="validation-error">
+                    {error}
+                </span>))
 
         }{(info &&
             <span className="field-info">
-            {info}
-          </span>)}</label>
+                {info}
+            </span>)}</label>
         <label>{moment(value).format(formate)}</label>
     </div>
 }

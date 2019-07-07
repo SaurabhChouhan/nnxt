@@ -11,7 +11,7 @@ class BillingTaskCriteriaForm extends Component {
     render() {
         let { clients, releases, criteria } = this.props
         // actions
-        let { clientSelected, fetchiBillingTasks, fetchBillingClients} = this.props
+        let { fetchBillingReleases, fetchiBillingTasks, fetchBillingClients } = this.props
         return <form>
             <div className="col-md-12">
                 <div className="col-md-2">
@@ -21,6 +21,7 @@ class BillingTaskCriteriaForm extends Component {
                             fetchBillingClients(Object.assign({}, criteria, {
                                 fromDate: newValue
                             }))
+
 
                         }}
                         showTime={false}
@@ -40,8 +41,7 @@ class BillingTaskCriteriaForm extends Component {
                 <div className="col-md-2 pad">
                     <Field name="clientID"
                         onChange={(event, newValue, oldValue) => {
-                            clientSelected(newValue)
-                            fetchiBillingTasks(Object.assign({}, criteria, {
+                            fetchBillingReleases(Object.assign({}, criteria, {
                                 clientID: newValue
                             }))
                         }}
