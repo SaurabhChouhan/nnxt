@@ -1,12 +1,12 @@
 import React from 'react'
-import {Link} from 'react-router-dom'
-import {connect} from 'react-redux'
+import { Link } from 'react-router-dom'
+import { connect } from 'react-redux'
 
 import * as SC from '../../../server/serverconstants'
 import * as A from '../../actions'
 import * as COC from '../componentConsts'
 import * as U from '../../../server/utils'
-import {initialize} from 'redux-form'
+import { initialize } from 'redux-form'
 
 const SidebarSection = (props) => {
     let roles = []
@@ -43,7 +43,7 @@ const SidebarSection = (props) => {
                             }}>Company</Link></li>
                         }
                         {
-                            (roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1) &&
+                            (roles.indexOf(SC.ROLE_TOP_MANAGEMENT) > -1 || roles.indexOf(SC.ROLE_LEADER) > -1 || roles.indexOf(SC.ROLE_MANAGER) > -1) &&
                             <li><Link to="/app-home/billing" onClick={() => {
                                 props.dispatch(A.getAllClientsFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.BILLING_SECTION))

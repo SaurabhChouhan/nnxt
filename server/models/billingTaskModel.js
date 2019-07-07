@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import * as MDL from '../models'
-import { BILLING_STATUS_UNBILLED, BILLING_STATUS_BILLED, BILLING_STATUS_PAID, BILLING_STATUS_BILLING_CREATED, REPORT_PENDING, REPORT_COMPLETED, DATE_AND_DAY_SHOW_FORMAT, DATE_DISPLAY_FORMAT, DATE_FORMAT } from '../serverconstants'
+import { BILLING_STATUS_UNBILLED, BILLING_STATUS_BILLED, BILLING_STATUS_PAID, BILLING_STATUS_BILLING_CREATED, REPORT_PENDING, REPORT_COMPLETED, DATE_AND_DAY_SHOW_FORMAT, DATE_DISPLAY_FORMAT, DATE_FORMAT, OWNER_TYPE_CLIENT } from '../serverconstants'
 mongoose.Promise = global.Promise
 import logger from '../logger'
 import AppError from '../AppError';
@@ -65,14 +65,19 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
     let release = await MDL.ReleaseModel.findById(taskPlan.release._id)
     let releasePlan = await MDL.ReleasePlanModel.findById(taskPlan.releasePlan._id, { "task.name": 1, 'release': 1 })
     logger.debug("createBillingTaskFromReportedTask() ", { release, releasePlan })
+    let client = await MDL.ClientModel.findById(release.client._id)
 
-    if (!release.billingRate)
-        throw new AppError('No billing rate provided for release [' + release.name + "] of project [" + release.project.name + "] for client [" + release.client.name + "]", NO_BILLING_RATE)
+    let billingRate = await MDL.BillingRateModel.findOne({ "owner.type": OWNER_TYPE_CLIENT, "owner._id": client._id })
+    if (!billingRate) {
+        console.log("No billing rate found for client [" + client.name + "]")
+        return;
+    }
 
     let billingTask = new BillingTaskModel()
     billingTask.billedDate = taskPlan.planningDate
     billingTask.billedHours = taskPlan.report.reportedHours
-    billingTask.billingAmount = taskPlan.report.reportedHours * release.billingRate
+    billingTask.billingAmount = taskPlan.report.reportedHours * billingRate.billingRate
+    billingTask.billingRate = billingRate.billingRate
     billingTask.description = taskPlan.report.description
     billingTask.status = BILLING_STATUS_UNBILLED
     billingTask.billingEmployee = taskPlan.employee
@@ -109,6 +114,7 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
     return billingTask
 }
 
+
 billingTaskSchema.statics.searchBillingTask = async (criteria, user) => {
     if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
         throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
@@ -121,6 +127,15 @@ billingTaskSchema.statics.searchBillingTask = async (criteria, user) => {
     }
 
     let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, billingRate: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
+
+
+    // find out billing rate of client of this release
+    let billingRate = await MDL.BillingRateModel.findOne({ "owner.type": OWNER_TYPE_CLIENT, "owner._id": release.client._id })
+
+    if (!billingRate) {
+        console.log("No billing rate found for client [" + client.name + "]")
+        return;
+    }
 
     logger.debug("release found as ", { release })
 
@@ -156,7 +171,7 @@ billingTaskSchema.statics.searchBillingTask = async (criteria, user) => {
     }])
 
     if (billingTasks && billingTasks.length) {
-        let releasePlans = await processBillingTasks(billingTasks, release.billingRate)
+        let releasePlans = await processBillingTasks(billingTasks, billingRate.billingRate)
         return {
             release,
             releasePlans
@@ -241,6 +256,65 @@ const processBillingTasks = async (billingTasks, billingRate) => {
 
     return releasePlans;
 }
+
+/*
+This API would return all the clients that have billing tasks as per criteira and as per logged in user roles
+*/
+billingTaskSchema.statics.getBillingClients = async (criteria, user) => {
+
+    /*
+    if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
+        throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+    */
+
+    let fromMoment = undefined
+    let toMoment = undefined
+
+    if (criteria.fromDate) {
+        fromMoment = momentInUTC(criteria.fromDate)
+    }
+
+    if (criteria.toDate) {
+        toMoment = momentInUTC(criteria.toDate)
+    }
+
+    let crit = {}
+
+    if (userHasRole(user, ROLE_TOP_MANAGEMENT)) {
+        // User would see all those clients which has billing tasks as per criteria
+        if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
+            crit['$and'] = [{ 'billedDate': { $gte: fromMoment.toDate() } }, { 'billedDate': { $lte: toMoment.toDate() } }]
+        } else if (fromMoment && fromMoment.isValid()) {
+            crit['billedDate'] = { $gte: fromMoment.toDate() }
+        } else if (toMoment && toMoment.isValid()) {
+            crit['billedDate'] = { $lte: toMoment.toDate() }
+        }
+
+        let distinctClientIDs = await BillingTaskModel.distinct("client._id", crit)
+        if (!distinctClientIDs || !distinctClientIDs.length)
+            return []
+        console.log("client ids found as ", distinctClientIDs)
+        return await MDL.ClientModel.find({ "_id": { $in: distinctClientIDs } })
+
+    } else {
+        // user would only see those clients which has billing tasks of releases this user is either leader or manager
+        let distinctReleaseIDs = await BillingTaskModel.distinct("release._id", crit)
+        console.log("distinct release IDs is ", distinctReleaseIDs)
+        // Filter release ids that has this user as either manager or leader
+        let userReleaseIDs = await MDL.ReleaseModel.distinct("_id", { "_id": { $in: distinctReleaseIDs }, $or: [{ "manager._id": user._id }, { "leader._id": user._id }] })
+        if (!userReleaseIDs || !userReleaseIDs.length)
+            return []
+        let distinctClientIDs = await MDL.ReleaseModel.distinct("client._id", { "_id": { $in: userReleaseIDs } })
+        if (!distinctClientIDs || !distinctClientIDs.length)
+            return []
+        return await MDL.ClientModel.find({ "_id": { $in: distinctClientIDs } })
+    }
+}
+
+
+
+
 
 
 const BillingTaskModel = mongoose.model('BillingTask', billingTaskSchema)

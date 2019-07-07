@@ -12,5 +12,10 @@ billingRouter.post("/search-billing-tasks", async ctx => {
     return await MDL.BillingTaskModel.searchBillingTask(ctx.request.body, ctx.state.user)
 })
 
+billingRouter.post('/billing-clients', async ctx => {
+    V.validate(ctx.request.body, V.billingTaskBillingClientsStruct)
+    return await MDL.BillingTaskModel.getBillingClients(ctx.request.body, ctx.state.user)
+})
+
 
 export default billingRouter

@@ -1,11 +1,13 @@
-import {
-    ROLE_DEVELOPER, ROLE_ESTIMATOR, ROLE_LEADER, ROLE_MANAGER, ROLE_NEGOTIATOR,
-    ROLE_TOP_MANAGEMENT
-} from "../server/serverconstants";
-
-export const ROLE_ADMIN = 'admin'
-export const ROLE_SUPER_ADMIN = 'super_admin'
-export const ROLE_APP_USER = 'app_user'
+export const ROLE_ADMIN = 'Admin'
+export const ROLE_SUPER_ADMIN = 'Super Admin'
+export const ROLE_APP_USER = 'App User'
+export const ROLE_ESTIMATOR = 'Estimator'
+export const ROLE_NEGOTIATOR = 'Negotiator'
+export const ROLE_MANAGER = 'Manager'
+export const ROLE_LEADER = 'Leader'
+export const ROLE_DEVELOPER = 'Developer'
+export const ROLE_NON_PROJECT_DEVELOPER = 'Non Project Developer'
+export const ROLE_TOP_MANAGEMENT = 'Top Management'
 
 export const DEBUG_LEVEL = 'debug'
 export const INFO_LEVEL = 'info'

@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import { BillingTaskCriteriaForm } from "../../components"
-import { getReleasesOfClientFromServer, addClientReleases, addBillingTaskCriteria, getBillingReleasePlansFromServer, addBillingReleasePlans } from '../../actions'
+import { getReleasesOfClientFromServer, addClientReleases, addBillingTaskCriteria, getBillingReleasePlansFromServer, addBillingReleasePlans, getBillingClientsFromServer } from '../../actions'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     clientSelected: (clientID) => {
@@ -16,6 +16,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                     dispatch(addBillingReleasePlans(json.data.release, json.data.releasePlans))
             })
         }
+    },
+    fetchBillingClients: (criteria) => {
+        dispatch(addBillingTaskCriteria(criteria))
+        dispatch(getBillingClientsFromServer(criteria)).then(json => {
+            
+        })
     }
 })
 

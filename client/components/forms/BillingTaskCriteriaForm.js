@@ -11,9 +11,32 @@ class BillingTaskCriteriaForm extends Component {
     render() {
         let { clients, releases, criteria } = this.props
         // actions
-        let { clientSelected, fetchiBillingTasks, initialize } = this.props
+        let { clientSelected, fetchiBillingTasks, fetchBillingClients} = this.props
         return <form>
             <div className="col-md-12">
+                <div className="col-md-2">
+                    <Field name="fromDate"
+                        component={renderDateTimePickerString}
+                        onChange={(event, newValue, oldValue) => {
+                            fetchBillingClients(Object.assign({}, criteria, {
+                                fromDate: newValue
+                            }))
+
+                        }}
+                        showTime={false}
+                        label={"From:"} />
+                </div>
+                <div className="col-md-2">
+                    <Field name="toDate"
+                        component={renderDateTimePickerString}
+                        onChange={(event, newValue, oldValue) => {
+                            fetchBillingClients(Object.assign({}, criteria, {
+                                toDate: newValue
+                            }))
+                        }}
+                        showTime={false}
+                        label={"To:"} />
+                </div>
                 <div className="col-md-2 pad">
                     <Field name="clientID"
                         onChange={(event, newValue, oldValue) => {
@@ -39,29 +62,6 @@ class BillingTaskCriteriaForm extends Component {
                         options={releases}
                         label={'Release:'}
                     />
-                </div>
-                <div className="col-md-2">
-                    <Field name="fromDate"
-                        component={renderDateTimePickerString}
-                        onChange={(event, newValue, oldValue) => {
-                            fetchiBillingTasks(Object.assign({}, criteria, {
-                                fromDate: newValue
-                            }))
-
-                        }}
-                        showTime={false}
-                        label={"From:"} />
-                </div>
-                <div className="col-md-2">
-                    <Field name="toDate"
-                        component={renderDateTimePickerString}
-                        onChange={(event, newValue, oldValue) => {
-                            fetchiBillingTasks(Object.assign({}, criteria, {
-                                toDate: newValue
-                            }))
-                        }}
-                        showTime={false}
-                        label={"To:"} />
                 </div>
             </div>
         </form>

@@ -12,7 +12,9 @@ let initialState = {
     billingReleasePlans: [],
     billingRelease: {
 
-    }
+    },
+    clientsWithBilling: [],
+    releasesWithBilling: []
 }
 
 const billingReducer = (state = initialState, action) => {

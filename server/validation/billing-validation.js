@@ -6,3 +6,9 @@ export const billingTaskSearchStruct = t.struct({
     releaseID: ObjectId,
     fromDate: validDate
 })
+
+export const billingTaskBillingClientsStruct = t.struct({
+    fromDate: t.maybe(validDate),
+    toDate: t.maybe(validDate)
+})
+
