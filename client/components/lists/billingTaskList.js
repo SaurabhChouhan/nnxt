@@ -73,7 +73,7 @@ let BillingTaskPlan = (props) => {
             </div>
         </div>
         <div class="billing-desc">
-            {taskPlan.billingTasks.map((bt, idx) => <BillingTaskForm key={'billing-task-form-' + idx} form={'billing-task-form-' + props.rpIdx + '-' + props.tpIdx + '-' + idx} initialValues={bt} projectTeam={props.projectTeam} />)}
+            <BillingTaskForm key={'billing-task-form-' + taskPlan.billingTask._id} form={'billing-task-form-' + taskPlan.billingTask._id} initialValues={taskPlan.billingTask} projectTeam={props.projectTeam} />
         </div>
     </div >
 }
@@ -105,7 +105,7 @@ let BillingReleasePlan = (props) => {
         </div>
     </div>, <div key='release-plan-task-plans' className="col-md-12 ">
         <div className="billing-section">
-            {releasePlan.taskPlans.map((tp, idx) => <BillingTaskPlan key={'billing-task-plan-' + tp._id} taskPlan={tp} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
+            {releasePlan.taskPlans.map((tp, idx) => <BillingTaskPlan key={'billing-task-plan-' + idx} taskPlan={tp} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
             )}
         </div>
     </div>]
