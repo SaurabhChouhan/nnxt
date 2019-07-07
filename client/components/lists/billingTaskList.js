@@ -96,7 +96,7 @@ let BillingReleasePlan = (props) => {
                     <h4>Billed: {releasePlan.billingHours} hrs</h4>
                 </div>
                 <div className="bil-rp-col12">
-                    <h4>Earned: ${releasePlan.earnedHours} hrs</h4>
+                    <h4>Earned: {releasePlan.earnedHours} hrs</h4>
                 </div>
                 <div className="bil-rp-col12">
                     <h4>Pending: {releasePlan.suggestedHours >= 0 ? '+' + releasePlan.suggestedHours : '-' + (-releasePlan.suggestedHours)} hrs</h4>

@@ -20,6 +20,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             if (json.success) {
                 dispatch(addBillingClients(json.data))
                 dispatch(change('billing-task-criteria', 'clientID', ''))
+                dispatch(change('billing-task-criteria', 'releaseID', ''))
             }
         })
     },
@@ -27,6 +28,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(addBillingTaskCriteria(criteria))
         dispatch(getBillingReleasesOfClientFromServer(criteria)).then(json => {
             dispatch(addBillingReleases(json.data))
+            dispatch(change('billing-task-criteria', 'releaseID', ''))
         })
     }
 })
