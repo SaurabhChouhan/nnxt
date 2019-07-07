@@ -18,7 +18,7 @@ const mapStateToProps = (state, ownProps) => {
     }
 
     return {
-        billingReleasePlans: state.billing.billingReleasePlans,
+        inReviewBillingPlans: state.billing.inReviewBillingPlans,
         projectTeam
     }
 }

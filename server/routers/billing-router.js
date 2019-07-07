@@ -7,10 +7,6 @@ let billingRouter = new Router({
     prefix: "/billings"
 })
 
-billingRouter.post("/search-billing-tasks", async ctx => {
-    V.validate(ctx.request.body, V.billingTaskSearchStruct)
-    return await MDL.BillingTaskModel.searchBillingTask(ctx.request.body, ctx.state.user)
-})
 
 billingRouter.post('/billing-clients', async ctx => {
     V.validate(ctx.request.body, V.billingTaskBillingClientsStruct)
@@ -21,6 +17,14 @@ billingRouter.post('/billing-releases', async ctx => {
     V.validate(ctx.request.body, V.billingTaskBillingReleasesStruct)
     return await MDL.BillingTaskModel.getBillingReleases(ctx.request.body, ctx.state.user)
 })
+
+billingRouter.post("/inreview-billing-plans", async ctx => {
+    V.validate(ctx.request.body, V.billingTaskSearchStruct)
+    return await MDL.BillingTaskModel.getInReviewBillingPlans(ctx.request.body, ctx.state.user)
+})
+
+
+
 
 
 export default billingRouter

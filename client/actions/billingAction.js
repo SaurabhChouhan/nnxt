@@ -6,8 +6,8 @@ export const addBillingTaskCriteria = (criteria) => ({
     criteria
 })
 
-export const addBillingReleasePlans = (release, releasePlans) => ({
-    type: AC.ADD_BILLING_RELEASE_PLANS,
+export const addInReviewBillingPlans = (release, releasePlans) => ({
+    type: AC.ADD_INREVIEW_BILLING_PLANS,
     releasePlans,
     release
 })
@@ -54,9 +54,9 @@ export const getBillingClientsFromServer = (criteria) => {
     }
 }
 
-export const getBillingReleasePlansFromServer = (criteria) => {
+export const getInReviewBillingPlansFromServer = (criteria) => {
     return (dispatch, getState) => {
-        return fetch('/api/billings/search-billing-tasks', {
+        return fetch('/api/billings/inreview-billing-plans', {
             method: 'post',
             credentials: "include",
             headers: {

@@ -81,11 +81,12 @@ let releasePlanSchema = mongoose.Schema({
         }]
     },
     billing: {
-        billedHours: { type: Number, default: 0 }, // sum of billed hours already communicated to client
         unbilledHours: { type: Number, default: 0 }, // sum of billed hours that are still unbilled
+        billingHours: { type: Number, default: 0 }, // sum of hours added to timesheet (timesheet sent or not sent)
+        billedHours: { type: Number, default: 0 }, // sum of billed hours already communicated to client (timesheet sent)
         unbilledAmount: { type: Number, default: 0 }, // sum of billed hours that are still unbilled
-        billingAmount: { type: Number, default: 0 }, // sum of amount added to timesheet
-        billedAmount: { type: Number, default: 0 }, // sum of amount added to timesheet
+        billingAmount: { type: Number, default: 0 }, // sum of amount added to timesheet (sent or not sent)
+        billedAmount: { type: Number, default: 0 }, // sum of amount added to timesheet and sent to client (timesheet sent)
         paidAmount: { type: Number, default: 0 } // sum of amount added to timesheet
     },
     comments: [{

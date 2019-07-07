@@ -70,7 +70,6 @@ let BillingTaskPlan = (props) => {
             </div>
             <div className="br-colmn3">
                 <h4 className="pull-left">{taskPlan.employeeName}</h4>
-                <button type="button" className="btn customBtn pull-right"><i className="fa fa-plus-circle"></i></button>
             </div>
         </div>
         <div class="billing-desc">
@@ -88,25 +87,25 @@ let BillingReleasePlan = (props) => {
                     <h4>{releasePlan.name}</h4>
                 </div>
                 <div className="bil-rp-col12">
-                    <h4>Estimated: ${releasePlan.estimatedAmount}</h4>
+                    <h4>Estimated: {releasePlan.estimatedHours} hrs</h4>
                 </div>
                 <div className="bil-rp-col12">
-                    <h4>Unbilled: ${releasePlan.unbilledAmount}</h4>
+                    <h4>Unbilled: {releasePlan.unbilledHours} hrs</h4>
                 </div>
                 <div className="bil-rp-col12">
-                    <h4>Billed: ${releasePlan.billingAmount}</h4>
+                    <h4>Billed: {releasePlan.billingHours} hrs</h4>
                 </div>
                 <div className="bil-rp-col12">
-                    <h4>Earned: ${releasePlan.earnedAmount}</h4>
+                    <h4>Earned: ${releasePlan.earnedHours} hrs</h4>
                 </div>
                 <div className="bil-rp-col12">
-                    <h4>Pending: {releasePlan.suggestedAmount >= 0 ? '+$' + releasePlan.suggestedAmount : '-$' + (-releasePlan.suggestedAmount)}</h4>
+                    <h4>Pending: {releasePlan.suggestedHours >= 0 ? '+' + releasePlan.suggestedHours : '-' + (-releasePlan.suggestedHours)} hrs</h4>
                 </div>
             </div>
         </div>
     </div>, <div key='release-plan-task-plans' className="col-md-12 ">
         <div className="billing-section">
-            {releasePlan.taskPlans.map((tp, idx) => <BillingTaskPlan key={'billing-task-plan-' + idx} taskPlan={tp} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
+            {releasePlan.taskPlans.map((tp, idx) => <BillingTaskPlan key={'billing-task-plan-' + tp._id} taskPlan={tp} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
             )}
         </div>
     </div>]
@@ -150,7 +149,7 @@ class BillingTaskList extends Component {
                 </div>
             </div>
             {
-                this.props.billingReleasePlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + idx} releasePlan={rp} rpIdx={idx} projectTeam={this.props.projectTeam} />)
+                this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} rpIdx={idx} projectTeam={this.props.projectTeam} />)
             }
         </div>
     }

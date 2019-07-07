@@ -1,19 +1,18 @@
 import { connect } from 'react-redux'
 import { BillingTaskCriteriaForm } from "../../components"
-import { getReleasesOfClientFromServer, addClientReleases, addBillingTaskCriteria, getBillingReleasePlansFromServer, addBillingReleasePlans, getBillingClientsFromServer, addBillingClients, getBillingReleasesOfClientFromServer, addBillingReleases } from '../../actions'
+import { addBillingTaskCriteria, getInReviewBillingPlansFromServer, addInReviewBillingPlans, getBillingClientsFromServer, addBillingClients, getBillingReleasesOfClientFromServer, addBillingReleases } from '../../actions'
 
 import { change } from 'redux-form'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 
-    fetchiBillingTasks: (criteria) => {
+    getInReviewBillingPlans: (criteria) => {
         dispatch(addBillingTaskCriteria(criteria))
-        if (criteria.clientID && criteria.releaseID && criteria.fromDate) {
-            dispatch(getBillingReleasePlansFromServer(criteria)).then(json => {
-                if (json.success)
-                    dispatch(addBillingReleasePlans(json.data.release, json.data.releasePlans))
-            })
-        }
+        dispatch(getInReviewBillingPlansFromServer(criteria)).then(json => {
+            if (json.success)
+                dispatch(addInReviewBillingPlans(json.data.release, json.data.releasePlans))
+        })
+
     },
     fetchBillingClients: (criteria) => {
         dispatch(addBillingTaskCriteria(criteria))
@@ -25,6 +24,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         })
     },
     fetchBillingReleases: (criteria) => {
+        dispatch(addBillingTaskCriteria(criteria))
         dispatch(getBillingReleasesOfClientFromServer(criteria)).then(json => {
             dispatch(addBillingReleases(json.data))
         })

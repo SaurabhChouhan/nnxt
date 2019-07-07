@@ -114,149 +114,6 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
     return billingTask
 }
 
-
-billingTaskSchema.statics.searchBillingTask = async (criteria, user) => {
-    if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
-        throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
-    }
-
-    console.log('criteria received ', criteria)
-    let crit = {
-        'client._id': mongoose.Types.ObjectId(criteria.clientID),
-        'release._id': mongoose.Types.ObjectId(criteria.releaseID)
-    }
-
-    let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, billingRate: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
-
-
-    // find out billing rate of client of this release
-    let billingRate = await MDL.BillingRateModel.findOne({ "owner.type": OWNER_TYPE_CLIENT, "owner._id": release.client._id })
-
-    if (!billingRate) {
-        console.log("No billing rate found for client [" + client.name + "]")
-        return;
-    }
-
-    logger.debug("release found as ", { release })
-
-    let fromMoment = undefined
-    let toMoment = undefined
-
-    if (criteria.fromDate) {
-        fromMoment = momentInUTC(criteria.fromDate)
-    }
-
-    if (criteria.toDate) {
-        toMoment = momentInUTC(criteria.toDate)
-    }
-
-    if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
-        crit['$and'] = [{ 'billedDate': { $gte: fromMoment.toDate() } }, { 'billedDate': { $lte: toMoment.toDate() } }]
-    } else if (fromMoment && fromMoment.isValid()) {
-        crit['billedDate'] = { $gte: fromMoment.toDate() }
-    } else if (toMoment && toMoment.isValid()) {
-        crit['billedDate'] = { $lte: toMoment.toDate() }
-    }
-
-    let billingTasks = await BillingTaskModel.aggregate([{
-        $match: crit
-    }, {
-        $sort: { 'billedDate': 1 }
-    }, {
-        $project: {
-            "release": 0,
-            "project": 0,
-            "client": 0
-        }
-    }])
-
-    if (billingTasks && billingTasks.length) {
-        let releasePlans = await processBillingTasks(billingTasks, billingRate.billingRate)
-        return {
-            release,
-            releasePlans
-        };
-    } else {
-        return {
-            release,
-            releasePlans: []
-        }
-    }
-}
-
-const processBillingTasks = async (billingTasks, billingRate) => {
-
-    let releasePlans = []
-    for (let billingTask of billingTasks) {
-        logger.debug("Iterating on billing task " + billingTask._id)
-        let idx = releasePlans.findIndex(r => r._id.toString() == billingTask.releasePlan._id.toString())
-        if (idx == -1) {
-            logger.debug("release plan not found in release plans ")
-            let releasePlan = await MDL.ReleasePlanModel.findById(billingTask.releasePlan._id,
-                { 'task.name': 1, 'task.estimatedBilledHours': 1, 'report.progress': 1, 'report.unbilledAmount': 1, 'report.billingAmount': 1 }
-            )
-
-            let estimatedAmount = releasePlan.task.estimatedBilledHours * billingRate
-            let earnedAmount = parseFloat((releasePlan.report.progress * estimatedAmount * 0.01).toFixed(2))
-            let unbilledAmount = releasePlan.report.unbilledAmount ? releasePlan.report.unbilledAmount : 0
-            let billingAmount = releasePlan.report.billingAmount ? releasePlan.report.billingAmount : 0
-            let suggestedAmount = earnedAmount - unbilledAmount - billingAmount
-
-            releasePlans.push({
-                _id: releasePlan._id,
-                name: releasePlan.task.name,
-                estimatedAmount,
-                earnedAmount,
-                unbilledAmount,
-                billingAmount,
-                suggestedAmount,
-
-                taskPlans: [{
-                    _id: billingTask.taskPlan._id,
-                    employeeName: billingTask.taskPlan.employee.name,
-                    planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
-                    reportedHours: billingTask.taskPlan.report.reportedHours,
-                    description: billingTask.taskPlan.report.description,
-                    billingTasks: [Object.assign({}, billingTask, {
-                        taskPlan: undefined,
-                        releasePlan: undefined,
-                        billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
-                    })]
-                }]
-            })
-        } else {
-            // release plan entry is present
-            let releasePlan = releasePlans[idx]
-            logger.debug("release plan found in releaseplans ", { releasePlan })
-
-            // We would have to add this billing task to appropriate task plan inside this release plan
-            let taskPlanIdx = releasePlan.taskPlans.findIndex(tp => tp._id.toString() == billingTask.taskPlan._id.toString())
-            if (taskPlanIdx == -1) {
-                releasePlan.taskPlans.push({
-                    _id: billingTask.taskPlan._id,
-                    employeeName: billingTask.taskPlan.employee.name,
-                    planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
-                    reportedHours: billingTask.taskPlan.report.reportedHours,
-                    description: billingTask.taskPlan.report.description,
-                    billingTasks: [Object.assign({}, billingTask, {
-                        taskPlan: undefined,
-                        releasePlan: undefined,
-                        billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
-                    })]
-                })
-            } else {
-                releasePlan.taskPlans[taskPlanIdx].billingTasks.push(Object.assign({}, billingTask, {
-                    taskPlan: undefined,
-                    releasePlan: undefined,
-                    billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
-                }))
-            }
-        }
-    }
-
-    return releasePlans;
-}
-
 /*
 This API would return all the clients that have billing tasks as per criteira and as per logged in user roles
 */
@@ -357,6 +214,271 @@ billingTaskSchema.statics.getBillingReleases = async (criteria, user) => {
         return await MDL.ReleaseModel.find({ "_id": { $in: userReleaseIDs } }, { name: 1, project: 1 })
     }
 }
+
+billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
+    if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
+        throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+
+    let crit = {
+        'client._id': mongoose.Types.ObjectId(criteria.clientID),
+        'release._id': mongoose.Types.ObjectId(criteria.releaseID)
+    }
+
+    let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
+    let fromMoment = undefined
+    let toMoment = undefined
+    if (criteria.fromDate) {
+        fromMoment = momentInUTC(criteria.fromDate)
+    }
+    if (criteria.toDate) {
+        toMoment = momentInUTC(criteria.toDate)
+    }
+
+    if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
+        crit['$and'] = [{ 'billedDate': { $gte: fromMoment.toDate() } }, { 'billedDate': { $lte: toMoment.toDate() } }]
+    } else if (fromMoment && fromMoment.isValid()) {
+        crit['billedDate'] = { $gte: fromMoment.toDate() }
+    } else if (toMoment && toMoment.isValid()) {
+        crit['billedDate'] = { $lte: toMoment.toDate() }
+    }
+
+    let billingTasks = await BillingTaskModel.aggregate([{
+        $match: crit
+    }, {
+        $sort: { 'billedDate': 1 }
+    }, {
+        $project: {
+            "release": 0,
+            "project": 0,
+            "client": 0
+        }
+    }])
+
+    if (billingTasks && billingTasks.length) {
+        let releasePlans = []
+        for (let billingTask of billingTasks) {
+            logger.debug("Iterating on billing task " + billingTask._id)
+            let idx = releasePlans.findIndex(r => r._id.toString() == billingTask.releasePlan._id.toString())
+            if (idx == -1) {
+                logger.debug("release plan not found in release plans ")
+                let releasePlan = await MDL.ReleasePlanModel.findById(billingTask.releasePlan._id,
+                    { 'task.name': 1, 'task.estimatedBilledHours': 1, 'report.progress': 1, 'report.unbilledAmount': 1, 'report.billingAmount': 1 }
+                )
+
+                let estimatedHours = releasePlan.task.estimatedBilledHours
+                let earnedHours = parseFloat((releasePlan.report.progress * estimatedHours * 0.01).toFixed(2))
+                let unbilledHours = releasePlan.report.unbilledHours ? releasePlan.report.unbilledHours : 0
+                let billingHours = releasePlan.report.billingHours ? releasePlan.report.billingHours : 0
+                let suggestedHours = earnedHours - billingHours - unbilledHours
+
+                releasePlans.push({
+                    _id: releasePlan._id,
+                    name: releasePlan.task.name,
+                    estimatedHours,
+                    earnedHours,
+                    unbilledHours,
+                    billingHours,
+                    suggestedHours,
+
+                    taskPlans: [{
+                        _id: billingTask.taskPlan._id,
+                        employeeName: billingTask.taskPlan.employee.name,
+                        planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
+                        reportedHours: billingTask.taskPlan.report.reportedHours,
+                        description: billingTask.taskPlan.report.description,
+                        billingTasks: [Object.assign({}, billingTask, {
+                            taskPlan: undefined,
+                            releasePlan: undefined,
+                            billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
+                        })]
+                    }]
+                })
+            } else {
+                // release plan entry is present
+                let releasePlan = releasePlans[idx]
+                logger.debug("release plan found in releaseplans ", { releasePlan })
+                // We would have to add this billing task to appropriate task plan inside this release plan
+                let taskPlanIdx = releasePlan.taskPlans.findIndex(tp => tp._id.toString() == billingTask.taskPlan._id.toString())
+                if (taskPlanIdx == -1) {
+                    releasePlan.taskPlans.push({
+                        _id: billingTask.taskPlan._id,
+                        employeeName: billingTask.taskPlan.employee.name,
+                        planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
+                        reportedHours: billingTask.taskPlan.report.reportedHours,
+                        description: billingTask.taskPlan.report.description,
+                        billingTasks: [Object.assign({}, billingTask, {
+                            taskPlan: undefined,
+                            releasePlan: undefined,
+                            billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
+                        })]
+                    })
+                } else {
+                    releasePlan.taskPlans[taskPlanIdx].billingTasks.push(Object.assign({}, billingTask, {
+                        taskPlan: undefined,
+                        releasePlan: undefined,
+                        billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
+                    }))
+                }
+            }
+        }
+        //let releasePlans = await processBillingTasks(billingTasks)
+        return {
+            release,
+            releasePlans
+        };
+    } else {
+        return {
+            release,
+            releasePlans: []
+        }
+    }
+}
+
+/*
+
+billingTaskSchema.statics.searchBillingTask = async (criteria, user) => {
+    if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
+        throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
+    }
+
+    console.log('criteria received ', criteria)
+    let crit = {
+        'client._id': mongoose.Types.ObjectId(criteria.clientID),
+        'release._id': mongoose.Types.ObjectId(criteria.releaseID)
+    }
+
+    let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
+
+    // find out billing rate of client of this release
+    let billingRate = await MDL.BillingRateModel.findOne({ "owner.type": OWNER_TYPE_CLIENT, "owner._id": release.client._id })
+
+    if (!billingRate) {
+        console.log("No billing rate found for client [" + client.name + "]")
+        return;
+    }
+
+    logger.debug("release found as ", { release })
+
+    let fromMoment = undefined
+    let toMoment = undefined
+
+    if (criteria.fromDate) {
+        fromMoment = momentInUTC(criteria.fromDate)
+    }
+
+    if (criteria.toDate) {
+        toMoment = momentInUTC(criteria.toDate)
+    }
+
+    if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
+        crit['$and'] = [{ 'billedDate': { $gte: fromMoment.toDate() } }, { 'billedDate': { $lte: toMoment.toDate() } }]
+    } else if (fromMoment && fromMoment.isValid()) {
+        crit['billedDate'] = { $gte: fromMoment.toDate() }
+    } else if (toMoment && toMoment.isValid()) {
+        crit['billedDate'] = { $lte: toMoment.toDate() }
+    }
+
+    let billingTasks = await BillingTaskModel.aggregate([{
+        $match: crit
+    }, {
+        $sort: { 'billedDate': 1 }
+    }, {
+        $project: {
+            "release": 0,
+            "project": 0,
+            "client": 0
+        }
+    }])
+
+    if (billingTasks && billingTasks.length) {
+        let releasePlans = await processBillingTasks(billingTasks, billingRate.billingRate)
+        return {
+            release,
+            releasePlans
+        };
+    } else {
+        return {
+            release,
+            releasePlans: []
+        }
+    }
+}
+
+const processBillingTasks = async (billingTasks, billingRate) => {
+    let releasePlans = []
+    for (let billingTask of billingTasks) {
+        logger.debug("Iterating on billing task " + billingTask._id)
+        let idx = releasePlans.findIndex(r => r._id.toString() == billingTask.releasePlan._id.toString())
+        if (idx == -1) {
+            logger.debug("release plan not found in release plans ")
+            let releasePlan = await MDL.ReleasePlanModel.findById(billingTask.releasePlan._id,
+                { 'task.name': 1, 'task.estimatedBilledHours': 1, 'report.progress': 1, 'report.unbilledAmount': 1, 'report.billingAmount': 1 }
+            )
+
+            let estimatedAmount = releasePlan.task.estimatedBilledHours * billingRate
+            let earnedAmount = parseFloat((releasePlan.report.progress * estimatedAmount * 0.01).toFixed(2))
+            let unbilledAmount = releasePlan.report.unbilledAmount ? releasePlan.report.unbilledAmount : 0
+            let billingAmount = releasePlan.report.billingAmount ? releasePlan.report.billingAmount : 0
+            let suggestedAmount = earnedAmount - unbilledAmount - billingAmount
+
+            releasePlans.push({
+                _id: releasePlan._id,
+                name: releasePlan.task.name,
+                estimatedAmount,
+                earnedAmount,
+                unbilledAmount,
+                billingAmount,
+                suggestedAmount,
+
+                taskPlans: [{
+                    _id: billingTask.taskPlan._id,
+                    employeeName: billingTask.taskPlan.employee.name,
+                    planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
+                    reportedHours: billingTask.taskPlan.report.reportedHours,
+                    description: billingTask.taskPlan.report.description,
+                    billingTasks: [Object.assign({}, billingTask, {
+                        taskPlan: undefined,
+                        releasePlan: undefined,
+                        billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
+                    })]
+                }]
+            })
+        } else {
+            // release plan entry is present
+            let releasePlan = releasePlans[idx]
+            logger.debug("release plan found in releaseplans ", { releasePlan })
+
+            // We would have to add this billing task to appropriate task plan inside this release plan
+            let taskPlanIdx = releasePlan.taskPlans.findIndex(tp => tp._id.toString() == billingTask.taskPlan._id.toString())
+            if (taskPlanIdx == -1) {
+                releasePlan.taskPlans.push({
+                    _id: billingTask.taskPlan._id,
+                    employeeName: billingTask.taskPlan.employee.name,
+                    planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
+                    reportedHours: billingTask.taskPlan.report.reportedHours,
+                    description: billingTask.taskPlan.report.description,
+                    billingTasks: [Object.assign({}, billingTask, {
+                        taskPlan: undefined,
+                        releasePlan: undefined,
+                        billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
+                    })]
+                })
+            } else {
+                releasePlan.taskPlans[taskPlanIdx].billingTasks.push(Object.assign({}, billingTask, {
+                    taskPlan: undefined,
+                    releasePlan: undefined,
+                    billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
+                }))
+            }
+        }
+    }
+
+    return releasePlans;
+}
+
+*/
+
 
 const BillingTaskModel = mongoose.model('BillingTask', billingTaskSchema)
 export default BillingTaskModel

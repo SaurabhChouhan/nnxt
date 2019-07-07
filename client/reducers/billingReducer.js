@@ -9,7 +9,7 @@ let initialState = {
         fromDate: undefined,
         toDate: undefined
     },
-    billingReleasePlans: [],
+    inReviewBillingPlans: [],
     billingClients: [],
     billingReleases: []
 }
@@ -20,15 +20,16 @@ const billingReducer = (state = initialState, action) => {
             return Object.assign({}, state, {
                 billingTaskCriteria: action.criteria
             })
-        case AC.ADD_BILLING_RELEASE_PLANS:
+        case AC.ADD_INREVIEW_BILLING_PLANS:
             return Object.assign({}, state, {
-                billingReleasePlans: action.releasePlans,
-                billingRelease: action.release
+                inReviewBillingPlans: action.releasePlans,
+                inReviewBillingRelease: action.release
             })
         case AC.ADD_BILLING_CLIENTS: {
             return Object.assign({}, state, {
                 billingClients: action.billingClients,
-                billingReleases: []
+                billingReleases: [],
+                inReviewBillingPlans: []
             })
         }
         case AC.ADD_BILLING_RELEASES:
@@ -36,7 +37,8 @@ const billingReducer = (state = initialState, action) => {
                 billingReleases: action.billingReleases.map(r => {
                     r.name = r.name + " (" + r.project.name + ")"
                     return r;
-                })
+                }),
+                inReviewBillingPlans: []
             })
 
         default:
