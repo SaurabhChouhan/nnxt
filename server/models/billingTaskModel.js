@@ -280,18 +280,17 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
                     unbilledHours,
                     billingHours,
                     suggestedHours,
-
                     taskPlans: [{
                         _id: billingTask.taskPlan._id,
                         employeeName: billingTask.taskPlan.employee.name,
                         planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
                         reportedHours: billingTask.taskPlan.report.reportedHours,
                         description: billingTask.taskPlan.report.description,
-                        billingTasks: [Object.assign({}, billingTask, {
+                        billingTask: Object.assign({}, billingTask, {
                             taskPlan: undefined,
                             releasePlan: undefined,
                             billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
-                        })]
+                        })
                     }]
                 })
             } else {
@@ -307,18 +306,14 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
                         planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
                         reportedHours: billingTask.taskPlan.report.reportedHours,
                         description: billingTask.taskPlan.report.description,
-                        billingTasks: [Object.assign({}, billingTask, {
+                        billingTask: Object.assign({}, billingTask, {
                             taskPlan: undefined,
                             releasePlan: undefined,
                             billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
-                        })]
+                        })
                     })
                 } else {
-                    releasePlan.taskPlans[taskPlanIdx].billingTasks.push(Object.assign({}, billingTask, {
-                        taskPlan: undefined,
-                        releasePlan: undefined,
-                        billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
-                    }))
+                    logger.warn("not possible to have two billing tasks against a same task plan")
                 }
             }
         }
