@@ -10,6 +10,7 @@ let initialState = {
         toDate: undefined
     },
     inReviewBillingPlans: [],
+    inReviewBillingRelease: {},
     billingClients: [],
     billingReleases: []
 }
