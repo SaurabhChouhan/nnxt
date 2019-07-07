@@ -46,7 +46,7 @@ let BillingTaskForm = (props) => {
                     type="text" />
             </div>
             <div className="btask-form-col-last">
-                <button type="submit" className="btn customBtn" disabled={props.submitting || props.pristine}>Save</button>
+                <button type="submit" className="btn customBtn" disabled={props.submitting}>Review</button>
             </div>
         </form>
     </div>
@@ -58,22 +58,22 @@ BillingTaskForm = reduxForm({
 })(BillingTaskForm)
 
 
-let BillingTaskPlan = (props) => {
-    let taskPlan = props.taskPlan
+let BillingTask = (props) => {
+    let billingTask = props.billingTask
     return <div className="billing-reports text-center">
         <div className="billing-dateName">
             <div className="br-colmn1">
-                <h4>{taskPlan.planningDate}</h4>
+                <h4>{billingTask.planningDate}</h4>
             </div>
             <div className="br-colmn2">
-                <h4>{taskPlan.reportedHours}</h4>
+                <h4>{billingTask.taskPlan.report.reportedHours}</h4>
             </div>
             <div className="br-colmn3">
-                <h4 className="pull-left">{taskPlan.employeeName}</h4>
+                <h4 className="pull-left">{billingTask.taskPlan.employee.name}</h4>
             </div>
         </div>
         <div class="billing-desc">
-            <BillingTaskForm key={'billing-task-form-' + taskPlan.billingTask._id} form={'billing-task-form-' + taskPlan.billingTask._id} initialValues={taskPlan.billingTask} projectTeam={props.projectTeam} />
+            <BillingTaskForm key={'billing-task-form-' + billingTask._id} form={'billing-task-form-' + billingTask._id} initialValues={billingTask} projectTeam={props.projectTeam} />
         </div>
     </div >
 }
@@ -105,7 +105,7 @@ let BillingReleasePlan = (props) => {
         </div>
     </div>, <div key='release-plan-task-plans' className="col-md-12 ">
         <div className="billing-section">
-            {releasePlan.taskPlans.map((tp, idx) => <BillingTaskPlan key={'billing-task-plan-' + idx} taskPlan={tp} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
+            {releasePlan.billingTasks.map((bt, idx) => <BillingTask key={'billing-task-' + bt._id} billingTask={bt} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} />
             )}
         </div>
     </div>]

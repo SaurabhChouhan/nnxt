@@ -251,7 +251,10 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         $project: {
             "release": 0,
             "project": 0,
-            "client": 0
+            "client": 0,
+            "billingRate": 0,
+            "billingAmount": 0
+
         }
     }])
 
@@ -280,38 +283,27 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
                     unbilledHours,
                     billingHours,
                     suggestedHours,
-                    taskPlans: [{
-                        _id: billingTask.taskPlan._id,
-                        employeeName: billingTask.taskPlan.employee.name,
-                        planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
-                        reportedHours: billingTask.taskPlan.report.reportedHours,
-                        description: billingTask.taskPlan.report.description,
-                        billingTask: Object.assign({}, billingTask, {
-                            taskPlan: undefined,
+                    billingTasks: [
+                        Object.assign({}, billingTask, {
                             releasePlan: undefined,
-                            billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
+                            billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT),
+                            planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT)
                         })
-                    }]
+                    ]
                 })
             } else {
                 // release plan entry is present
                 let releasePlan = releasePlans[idx]
                 logger.debug("release plan found in releaseplans ", { releasePlan })
                 // We would have to add this billing task to appropriate task plan inside this release plan
-                let taskPlanIdx = releasePlan.taskPlans.findIndex(tp => tp._id.toString() == billingTask.taskPlan._id.toString())
-                if (taskPlanIdx == -1) {
-                    releasePlan.taskPlans.push({
-                        _id: billingTask.taskPlan._id,
-                        employeeName: billingTask.taskPlan.employee.name,
-                        planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT),
-                        reportedHours: billingTask.taskPlan.report.reportedHours,
-                        description: billingTask.taskPlan.report.description,
-                        billingTask: Object.assign({}, billingTask, {
-                            taskPlan: undefined,
-                            releasePlan: undefined,
-                            billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT)
-                        })
-                    })
+                let billingTaskPlanIdx = releasePlan.billingTasks.findIndex(bt => bt._id.toString() == billingTask._id.toString())
+                
+                if (billingTaskPlanIdx == -1) {
+                    releasePlan.billingTasks.push(Object.assign({}, billingTask, {
+                        releasePlan: undefined,
+                        billedDate: momentInUTC(billingTask.billedDate).format(DATE_FORMAT),
+                        planningDate: momentInUTC(billingTask.taskPlan.planningDate).format(DATE_DISPLAY_FORMAT)
+                    }))
                 } else {
                     logger.warn("not possible to have two billing tasks against a same task plan")
                 }
