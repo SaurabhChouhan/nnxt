@@ -97,6 +97,18 @@ clientSchema.statics.isActiveClient = async (id) => {
 
 }
 
+clientSchema.statics.searchClient = async(status)=>{
+    if(status.status){
+        let filter ={};
+        if(status.status==='1'){
+            filter['isActive']= true;
+        }
+        else if(status.status==='2')
+            filter['isActive'] = false;
+
+        return await ClientModel.find(filter);
+    }
+}
 
 const ClientModel = mongoose.model("Client", clientSchema)
 export default ClientModel

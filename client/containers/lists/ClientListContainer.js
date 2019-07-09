@@ -27,7 +27,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         console.log("clientID",clientID)
         dispatch(A.toggleClientIsActive(clientID))
     },
-
+    filterClient: (value) =>{
+        console.log("fetchClient", value)
+        dispatch(A.searchClientOnServer(value))
+    }
 
 })
 
