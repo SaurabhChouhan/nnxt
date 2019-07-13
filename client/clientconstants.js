@@ -47,6 +47,8 @@ export const PROJECT_ARIPRA_BIDDING = 'Aripra Bidding'
 export const BILLING_TASK_TAB = 'BILLING_TASK_TAB'
 export const BILLING_TIMESHEET_TAB = 'BILLING_TIMESHEET_TAB'
 
+export const DATE_DISPLAY_FORMAT = 'DD/MM/YYYY'
+
 export const RELEASE_TYPES = [
     {
         _id: RELEASE_TYPE_CLIENT,

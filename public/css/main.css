@@ -165,7 +165,7 @@ img {
     color: red
 }
 
-.no-gutter > [class*='col-md-9'] {
+.no-gutter>[class*='col-md-9'] {
     padding-right: 0;
     padding-left: 0;
 }
@@ -432,7 +432,7 @@ button.secondaryBtn:hover {
     transition: 0.5s linear;
 }
 
-a:focus + .Expandedlist, a:active + .Expandedlist {
+a:focus+.Expandedlist, a:active+.Expandedlist {
     max-height: 15em;
 }
 
@@ -440,7 +440,7 @@ a:focus + .Expandedlist, a:active + .Expandedlist {
     pointer-events: none;
 }
 
-.sidebarContent li a > i.fa {
+.sidebarContent li a>i.fa {
     margin-right: 7%;
 }
 
@@ -832,7 +832,7 @@ span.tag.new {
     color: #fff;
 }
 
-.estimation .table-bordered > thead > tr > th:nth-child(1) {
+.estimation .table-bordered>thead>tr>th:nth-child(1) {
     border-right: 1px solid #303440 !important;
 }
 
@@ -1035,7 +1035,7 @@ td.rejRowColor {
     max-height: calc(100vh);
     height: calc(100vh);
     overflow-y: scroll;
-    padding-bottom:30px;
+    padding-bottom: 30px;
 }
 
 /* Repository section */
@@ -2194,7 +2194,7 @@ hr {
     position: absolute;
 }
 
-.react-bs-table .table-bordered > thead > tr:first-child > th {
+.react-bs-table .table-bordered>thead>tr:first-child>th {
     text-align: center !important;
 }
 
@@ -2221,7 +2221,7 @@ hr {
     color: #F66E65
 }
 
-.pagination > .active > a, .pagination > .active > a:focus, .pagination > .active > a:hover {
+.pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover {
     z-index: 3;
     color: #ddd;
     cursor: default;
@@ -2229,7 +2229,7 @@ hr {
     border-color: #303440;
 }
 
-.pagination > li > a, .pagination > li > span {
+.pagination>li>a, .pagination>li>span {
     position: relative;
     float: left;
     padding: 6px 12px;
@@ -2268,7 +2268,7 @@ hr {
     margin-top: 10px;
 }
 
-.warningSource span + span:before, .noWarningSource span + span:before {
+.warningSource span+span:before, .noWarningSource span+span:before {
     content: " | ";
 }
 
@@ -2369,151 +2369,149 @@ div.notificationTable table tr[width="100%"] td {
     background-color: #ADADAE;
     height: 32;
 }
+
 .billing-section {
-	border: none;
-	margin-top: 8px;
-	display: inline-block;
-	float: left;
-	width:100%;
-}
-.billing-header {
-	float:left;
-	min-height:10px;
-	background:#303440;
-	width:100%;
-}
-.colmn10 {
-	width:10%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    border: none;
+    margin-top: 8px;
+    display: inline-block;
+    float: left;
+    width: 100%;
 }
 
+.billing-header {
+    float: left;
+    min-height: 10px;
+    background: #303440;
+    width: 100%;
+}
+
+.colmn10 {
+    width: 10%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
+}
 
 .colmn15 {
-	width:15%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 15%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .colmn7 {
-	width:7%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 7%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .colmn18 {
-	width:18%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 18%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .colmn21 {
-	width:21%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 21%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .colmn5 {
-	width:5%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 5%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .colmn105 {
-	width:10.5%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 10.5%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .bil-rp-col40 {
-	width:40%;
-	float:left;
-	min-height:20px;
-    padding:5px;
+    width: 40%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
 }
 
 .bil-rp-col12 {
-	width:12%;
-	float:left;
-	min-height:20px;
-	padding:5px;
+    width: 12%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
 }
-
-
 
 .colmn10 h4, .colmn21 h4, .colmn5 h4, .colmn15 h4, .colmn7 h4, .colmn18 h4, .colmn105 h4 {
-	color:#fff;
+    color: #fff;
 }
 
-
 .btask-form-col-sm {
-	width:10%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 10%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .btask-form-col-md {
-	width:15%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 15%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .btask-form-col-bg {
-	width:30%;
-	float:left;
-	min-height:20px;
-	padding:5px;
-	border-right:1px solid #212531;
+    width: 30%;
+    float: left;
+    min-height: 20px;
+    padding: 5px;
+    border-right: 1px solid #212531;
 }
 
 .billing-desc-content .btask-form-col-last {
-	width:15%;
-	float:left;
-	padding:5px;
-	border:0;
+    width: 15%;
+    float: left;
+    padding: 5px;
+    border: 0;
 }
 
 .billing-entries {
-	float:left;
-	min-height:10px;
-	background:#FF534F;
-	width:100%;
+    float: left;
+    min-height: 10px;
+    background: #FF534F;
+    width: 100%;
 }
+
 .billing-entries h4 {
-    color:#fff;
+    color: #fff;
     margin: 0px;
 }
-.billing-reports {
-	background:#ECECEC;
-	border:1px solid #CEC9CC;
-	float:left;
-	width:100%;
-}
 
+.billing-reports {
+    background: #ECECEC;
+    border: 1px solid #CEC9CC;
+    float: left;
+    width: 100%;
+}
 
 .billing-reports .form-group {
-    margin-bottom:0px;
+    margin-bottom: 0px;
 }
-
-
 
 .br-colmn1 {
     width: 23.33%;
@@ -2534,34 +2532,40 @@ div.notificationTable table tr[width="100%"] td {
 }
 
 .br-colmn1 h4 {
-	color:#333945;
+    color: #333945;
 }
+
 .billing-dateName {
     float: left;
     min-height: 20px;
     width: 25%;
 }
+
 .billing-desc {
-	float: left;
+    float: left;
     border-left: 1px solid #212531;
     min-height: 20px;
     width: 75%;
 }
+
 .billing-desc .col-md-12 {
-	min-height:50px;
-    padding-left:0;
-    padding-right:0;
+    min-height: 50px;
+    padding-left: 0;
+    padding-right: 0;
 }
+
 .billing-desc textarea {
-	height:35px;
+    height: 35px;
 }
+
 .billing-desc-content .colmn1 {
     width: 14.8%;
-	border:0;
+    border: 0;
 }
+
 .billing-desc-content .colmn2 {
     width: 30%;
-	border:0;
+    border: 0;
 }
 
 @media (min-width: 1000px) {
@@ -2569,4 +2573,10 @@ div.notificationTable table tr[width="100%"] td {
         width: 800px;
         margin: 25px auto;
     }
+}
+
+.billing-task-description {
+    float: left;
+    margin-right: 5px;
+    width: calc(100% - 43px);
 }

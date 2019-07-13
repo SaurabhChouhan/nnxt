@@ -7,6 +7,8 @@ import * as COC from "../../components/componentConsts";
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     onSubmit: (reportData) => {
+
+        /*
         console.log("billing task description ", reportData)
 
         dispatch(A.reportTaskToServer(reportData)).then((json) => {
@@ -18,18 +20,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 NotificationManager.error(json.message)
             return json
         })
+        */
     }
 })
 
-const selector = formValueSelector('billing-task-description')
-
-const mapStateToProps = (state, ownProps) => ({
-    taskName: selector(state, 'taskName'),
-    status: selector(state, 'status')
-})
-
 const BillingTaskDescriptionFormContainer = connect(
-    mapStateToProps,
+    null,
     mapDispatchToProps
 )(BillingTaskDescriptionForm)
 

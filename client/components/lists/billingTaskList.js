@@ -39,10 +39,19 @@ let BillingTaskForm = (props) => {
             <div className="btask-form-col-bg">
                 <Field name="description"
                     component={renderTextArea}
+                    className="billing-task-description"
+                    noLabel={true}
+                    readOnly={true}
                     type="text" />
+                <button className=" pull-left btn btn-custom" type="button"
+                    onClick={() => {
+                        props.reviewDescription(props.initialValues)
+                    }}>
+                    <i className="fa fa-pencil"></i>
+                </button>
             </div>
             <div className="btask-form-col-md">
-                <button type="submit" className="btn customBtn" disabled={props.submitting}>Review</button>
+                <button type="submit" className="btn customBtn" disabled={props.submitting}>Save</button>
             </div>
         </form>
     </div>
@@ -101,7 +110,7 @@ let BillingReleasePlan = (props) => {
         </div>
     </div>, <div key='release-plan-task-plans' className="col-md-12 ">
         <div className="billing-section">
-            {releasePlan.billingTasks.map((bt, idx) => <BillingTask key={'billing-task-' + bt._id} billingTask={bt} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} reviewDescription={props.reviewDescription} />
+            {releasePlan.billingTasks.map((bt, idx) => <BillingTask key={'billing-task-' + bt._id} billingTask={Object.assign(bt, { releasePlan: { name: releasePlan.name } })} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} reviewDescription={props.reviewDescription} />
             )}
         </div>
     </div>]

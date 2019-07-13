@@ -155,23 +155,25 @@ export const renderSelectForEmailTemplateType = ({
 
 
 export const renderTextArea = ({
+    className,
     input,
     label,
     placeholder,
     disabled = false,
     readOnly = false,
     rows,
+    noLabel = false,
     hoverEnabledMsg,
     hoverDisabledMsg,
     meta: { touched, error, warning }
 }) =>
-    <div className="form-group">
-        <label htmlFor={input.name}>{label} {touched &&
+    <div className={"form-group " + (className ? className : '')}>
+        {!noLabel && <label htmlFor={input.name}>{label} {touched &&
             ((error &&
                 <span className="validation-error">
                     {error}
                 </span>))
-        }</label>
+        }</label>}
         <textarea rows={rows} {...input} placeholder={placeholder} readOnly={readOnly} disabled={disabled}
             className={"form-control hoverToolTip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}></textarea>
     </div>
