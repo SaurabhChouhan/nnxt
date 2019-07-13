@@ -4,7 +4,7 @@ import { renderDateTimePickerString, renderSelect, renderTextArea } from '../for
 
 let BillingTaskForm = (props) => {
     return <div className="col-md-12 billing-desc-content">
-        <form onSubmit={props.handleSubmit(props.reviewDescription)}>
+        <form onSubmit={props.handleSubmit(props.saveBillingTask)}>
             <div className="btask-form-col-md">
                 <Field name="billedDate" component={renderDateTimePickerString} label={""} />
             </div>
@@ -64,7 +64,8 @@ BillingTaskForm = reduxForm({
 
 
 let BillingTask = (props) => {
-    let billingTask = props.billingTask
+    const { billingTask, reviewDescription, projectTeam, saveBillingTask } = props
+
     return <div className="billing-reports text-center">
         <div className="billing-dateName">
             <div className="br-colmn1">
@@ -78,13 +79,16 @@ let BillingTask = (props) => {
             </div>
         </div>
         <div class="billing-desc">
-            <BillingTaskForm key={'billing-task-form-' + billingTask._id} form={'billing-task-form-' + billingTask._id} initialValues={billingTask} projectTeam={props.projectTeam} reviewDescription={props.reviewDescription} />
+            <BillingTaskForm key={'billing-task-form-' + billingTask._id} form={'billing-task-form-' + billingTask._id} initialValues={billingTask} {...{ reviewDescription, saveBillingTask, projectTeam }} />
         </div>
     </div >
 }
 
 let BillingReleasePlan = (props) => {
     let releasePlan = props.releasePlan
+
+    const { reviewDescription, saveBillingTask, projectTeam } = props
+
     return [<div key='release-plan-heading' className="col-md-12 ">
         <div className="billing-section">
             <div className="billing-entries">
@@ -110,7 +114,7 @@ let BillingReleasePlan = (props) => {
         </div>
     </div>, <div key='release-plan-task-plans' className="col-md-12 ">
         <div className="billing-section">
-            {releasePlan.billingTasks.map((bt, idx) => <BillingTask key={'billing-task-' + bt._id} billingTask={Object.assign(bt, { releasePlan: { name: releasePlan.name } })} tpIdx={idx} rpIdx={props.rpIdx} projectTeam={props.projectTeam} reviewDescription={props.reviewDescription} />
+            {releasePlan.billingTasks.map((bt, idx) => <BillingTask key={'billing-task-' + bt._id} billingTask={Object.assign(bt, { releasePlan: { name: releasePlan.name } })} {...{ reviewDescription, saveBillingTask, projectTeam }} />
             )}
         </div>
     </div>]
@@ -119,42 +123,43 @@ let BillingReleasePlan = (props) => {
 class BillingTaskList extends Component {
 
     render() {
+        const { reviewDescription, saveBillingTask, projectTeam } = this.props
         return <div>
             <div className="col-md-12 ">
                 <div className="billing-section">
                     <div className="billing-header text-center">
-                        <div className="colmn7">
+                        <div className="colmn" style={{width:'5.83%'}}>
                             <h4>Reported</h4>
                         </div>
-                        <div className="colmn5">
+                        <div className="colmn" style={{width:'4.16%'}}>
                             <h4>Hours</h4>
                         </div>
-                        <div className="colmn18">
+                        <div className="colmn" style={{width:'15%'}}>
                             <h4>Developers</h4>
                         </div>
-                        <div className="colmn105">
+                        <div className="colmn" style={{width:'11.25%'}}>
                             <h4>Billed Date</h4>
                         </div>
-                        <div className="colmn105">
+                        <div className="colmn" style={{width:'7.5%'}}>
                             <h4>Hours Billed</h4>
                         </div>
-                        <div className="colmn105">
+                        <div className="colmn" style={{width:'11.25%'}}>
                             <h4>Earned By</h4>
                         </div>
-                        <div className="colmn105">
+                        <div className="colmn" style={{width:'11.25%'}}>
                             <h4>TS Name</h4>
                         </div>
-                        <div className="colmn21">
+                        <div className="colmn" style={{width:'22.5%'}}>
                             <h4>Description</h4>
                         </div>
-                        <div className="colmn7">
+                        <div className="colmn" style={{width:'11.25%'}}>
                             <h4>Action</h4>
                         </div>
                     </div>
                 </div>
             </div>
             {
-                this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} rpIdx={idx} projectTeam={this.props.projectTeam} reviewDescription={this.props.reviewDescription} />)
+                this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} {...{ projectTeam, reviewDescription, saveBillingTask }} />)
             }
         </div>
     }

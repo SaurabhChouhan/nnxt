@@ -13,10 +13,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
             "releasePlanName": data.releasePlan.name,
             "employeeName": data.billingEmployee.name
         }))
-
-        /*
-        dispatch(initialize('billing-task-description', ))
-        */
+    },
+    saveBillingTask: (data) => {
+        console.log("save billing task called ", data)
     }
 })
 

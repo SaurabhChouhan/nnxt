@@ -2385,56 +2385,7 @@ div.notificationTable table tr[width="100%"] td {
     width: 100%;
 }
 
-.colmn10 {
-    width: 10%;
-    float: left;
-    min-height: 20px;
-    padding: 5px;
-    border-right: 1px solid #212531;
-}
-
-.colmn15 {
-    width: 15%;
-    float: left;
-    min-height: 20px;
-    padding: 5px;
-    border-right: 1px solid #212531;
-}
-
-.colmn7 {
-    width: 7%;
-    float: left;
-    min-height: 20px;
-    padding: 5px;
-    border-right: 1px solid #212531;
-}
-
-.colmn18 {
-    width: 18%;
-    float: left;
-    min-height: 20px;
-    padding: 5px;
-    border-right: 1px solid #212531;
-}
-
-.colmn21 {
-    width: 21%;
-    float: left;
-    min-height: 20px;
-    padding: 5px;
-    border-right: 1px solid #212531;
-}
-
-.colmn5 {
-    width: 5%;
-    float: left;
-    min-height: 20px;
-    padding: 5px;
-    border-right: 1px solid #212531;
-}
-
-.colmn105 {
-    width: 10.5%;
+.colmn {
     float: left;
     min-height: 20px;
     padding: 5px;
@@ -2455,7 +2406,7 @@ div.notificationTable table tr[width="100%"] td {
     padding: 5px;
 }
 
-.colmn10 h4, .colmn21 h4, .colmn5 h4, .colmn15 h4, .colmn7 h4, .colmn18 h4, .colmn105 h4 {
+.colmn h4 {
     color: #fff;
 }
 
