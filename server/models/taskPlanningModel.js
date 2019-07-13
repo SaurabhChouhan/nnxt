@@ -3482,8 +3482,7 @@ const addTaskReportUnplanned = async (reportInput, employee, mode, reportedByLea
 taskPlanningSchema.statics.addTaskReport = async (taskReport, employee, mode, reportedByLeaderManager) => {
     logger.debug("Received task report as ", { taskReport })
     V.validate(taskReport, V.releaseTaskReportStruct)
-
-    if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED) {
+    if (taskReport.iterationType == SC.ITERATION_TYPE_PLANNED || taskReport.iterationType == SC.ITERATION_TYPE_ESTIMATED) {
         return await addTaskReportPlanned(taskReport, employee, mode, reportedByLeaderManager)
     } else if (taskReport.iterationType == SC.ITERATION_TYPE_UNPLANNED) {
         return await addTaskReportUnplanned(taskReport, employee, mode, reportedByLeaderManager)
@@ -3646,7 +3645,7 @@ taskPlanningSchema.statics.markAsComplete = async (taskPlanID, user) => {
         status: SC.STATUS_COMPLETED,
         reportedDate: taskPlan.planningDateString,
         iterationType: taskPlan.iterationType,
-        reportDescription: taskPlan.report.description + "\n\n" + user.firstName + " has marked this task as completed"
+        reportDescription: taskPlan.report.description
     }
 
     let employeeUser = await UserModel.findById(taskPlan.employee._id)
