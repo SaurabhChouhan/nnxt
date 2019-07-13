@@ -4,6 +4,8 @@ import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
 import * as CM from "../../clientMsg"
 import ToggleButton from "react-toggle-button";
+import {reduxForm, Field} from 'redux-form'
+import {renderSelect} from "../forms/fields";
 
 class ClientList extends Component {
 
@@ -72,6 +74,10 @@ class ClientList extends Component {
 
 
     render() {
+        let status = [
+            { _id: 1, name: "Active" },
+            { _id: 2, name: "Inactive" }
+        ]
         return (
             <div>{this.state.showClientDeletionDialog &&
             <ConfirmationDialog show={true} onConfirm={this.OkConfirmationForDeletingClient.bind(this)}
@@ -88,6 +94,18 @@ class ClientList extends Component {
                                 <button className="btn customBtn"
                                         onClick={() => this.props.showClientCreationForm()}>Create Client
                                 </button>
+                                <div className="release-button-container">
+                                    <Field name="isActive" component={renderSelect} label={"Status:"}
+                                           options={status}
+                                           showNoneOption={false}
+                                           onChange={(event, newValue) => {
+                                               console.log("get the value of status", newValue)
+                                               this.props.filterClient(Object.assign({}, this.props.client, {
+                                                   status: newValue
+                                               }))
+                                           }}  />
+
+                                </div>
 
                                 <div className="estimation">
 
@@ -121,5 +139,7 @@ class ClientList extends Component {
         )
     }
 }
-
+ClientList = reduxForm({
+    form: "client-list"
+})(ClientList)
 export default withRouter(ClientList)

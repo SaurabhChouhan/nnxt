@@ -67,6 +67,27 @@ export const getAllActiveClientsFromServer = () => {
             })
     }
 }
+export const searchClientOnServer = (status)=>{
+    return function (dispatch, getState) {
+        return fetch('/api/clients/search',{
+            method:"post",
+            credentials: 'include',
+            headers: {
+                "Accept": 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(status)
+        }).then(response=>{
+            console.log("searchClietnOnServer", response)
+            return response.json();
+        }).then(
+            json => {
+                if (json.success) {
+                    dispatch(addClients(json.data))
+                }
+            })
+    }
+}
 export const addClientOnServer = (formInput) => {
     return function (dispatch, getState) {
         return fetch('/api/clients',

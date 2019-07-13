@@ -33,5 +33,9 @@ clientRouter.put('/', async ctx => {
 clientRouter.put('/:id', async ctx => {
     return await MDL.ClientModel.isActiveClient(ctx.params.id)
 })
+clientRouter.post('/search', async ctx =>{
+    console.log("status", ctx.request.body);
+    return await MDL.ClientModel.searchClient((ctx.request.body))
+})
 
 export default clientRouter
