@@ -193,6 +193,20 @@ img {
     border-radius: 0;
 }
 
+.faBtn {
+    background: #FF534F;
+    color: #fff;
+    padding: 6px 6.8px;
+    border: 2px solid #FF534F;
+    transition: 0.8s;
+    border-radius: 0;
+}
+
+.greenBtn {
+    background: #0ca62d;
+    border: 2px solid #0ca62d;
+}
+
 .excelBtn, .excelBtn:focus {
     color: #fff;
     padding: 1px 12px;
@@ -2490,6 +2504,11 @@ div.notificationTable table tr[width="100%"] td {
     float: left;
     min-height: 20px;
     width: 25%;
+    margin-top: 7.9px;
+}
+
+.billing-dateName h4 {
+    margin: 0px;
 }
 
 .billing-desc {
@@ -2500,7 +2519,6 @@ div.notificationTable table tr[width="100%"] td {
 }
 
 .billing-desc .col-md-12 {
-    min-height: 50px;
     padding-left: 0;
     padding-right: 0;
 }

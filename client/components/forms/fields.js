@@ -17,12 +17,12 @@ export const renderText = ({
     meta: { touched, error, warning }
 }) =>
     <div className="form-group">
-        <label htmlFor={input.name}>{label} {touched &&
+        {label && label.length > 0 && <label htmlFor={input.name}>{label} {touched &&
             ((error &&
                 <span className="validation-error">
                     {error}
                 </span>))
-        }</label>
+        }</label>}
         <input {...input} readOnly={readOnly} disabled={disbled} placeholder={placeholder} type={type}
             className={'form-control ' + (touched && ((!error && 'valid-field') || (error && 'invalid-field')))} />
     </div>
@@ -88,12 +88,14 @@ export const renderSelect = ({
 }) => {
 
     return <div className="form-group" style={{ position: "relative" }}>
-        <label htmlFor={input.name}>{label} {touched &&
-            ((error &&
-                <span className="validation-error">
-                    {error}
-                </span>))
-        }</label>
+        {label && label.length > 0 &&
+            <label htmlFor={input.name}>{label} {touched &&
+                ((error &&
+                    <span className="validation-error">
+                        {error}
+                    </span>))
+            }</label>
+        }
         <select {...input}
             className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
             disabled={disabled} readOnly={readOnly}>
@@ -113,7 +115,6 @@ export const renderSelect = ({
 
 export const renderSelectForEmailTemplateType = ({
     input,
-    onChange,
     label,
     options,
     readOnly = false,
@@ -130,12 +131,14 @@ export const renderSelectForEmailTemplateType = ({
 }) => {
 
     return <div className="form-group" style={{ position: "relative" }}>
-        <label htmlFor={input.name}>{label} {touched &&
-            ((error &&
-                <span className="validation-error">
-                    {error}
-                </span>))
-        }</label>
+        {label && label.length > 0 &&
+            <label htmlFor={input.name}>{label} {touched &&
+                ((error &&
+                    <span className="validation-error">
+                        {error}
+                    </span>))
+            }</label>
+        }
         <select {...input}
             className={"form-control hoverTooltip " + (touched && ((!error && "valid-field") || (error && "invalid-field")))}
             disabled={disabled} readOnly={readOnly}>
@@ -163,8 +166,6 @@ export const renderTextArea = ({
     readOnly = false,
     rows,
     noLabel = false,
-    hoverEnabledMsg,
-    hoverDisabledMsg,
     meta: { touched, error, warning }
 }) =>
     <div className={"form-group " + (className ? className : '')}>
@@ -334,7 +335,7 @@ export const renderDateTimePickerString = ({
     }
 
     return <div className="form-group" style={{ position: "relative" }}>
-        <label htmlFor={name}>{label} {touched &&
+        {label && label.length > 0 && <label htmlFor={name}>{label} {touched &&
             ((error &&
                 <span className="validation-error">
                     {error}
@@ -344,6 +345,7 @@ export const renderDateTimePickerString = ({
             <span className="field-info">
                 {info}
             </span>)}</label>
+        }
         <DateTimePicker
             className=" hoverTooltip"
             min={min}

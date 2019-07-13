@@ -43,7 +43,7 @@ let BillingTaskForm = (props) => {
                     noLabel={true}
                     readOnly={true}
                     type="text" />
-                <button className=" pull-left btn btn-custom" type="button"
+                <button className=" pull-left btn faBtn" type="button" style={{ marginTop: '2.4px' }}
                     onClick={() => {
                         props.reviewDescription(props.initialValues)
                     }}>
@@ -51,7 +51,8 @@ let BillingTaskForm = (props) => {
                 </button>
             </div>
             <div className="btask-form-col-md">
-                <button type="submit" className="btn customBtn" disabled={props.submitting}>Save</button>
+                <button type="submit" className="btn faBtn" disabled={props.submitting} style={{ marginTop: '2.4px' }}><i className="fa fa-save"></i></button>
+                <button type="button" className="btn faBtn greenBtn" disabled={props.submitting} style={{ marginLeft: '5px', marginTop: '2.4px' }}><i className="fa fa-check"></i></button>
             </div>
         </form>
     </div>
@@ -128,31 +129,31 @@ class BillingTaskList extends Component {
             <div className="col-md-12 ">
                 <div className="billing-section">
                     <div className="billing-header text-center">
-                        <div className="colmn" style={{width:'5.83%'}}>
+                        <div className="colmn" style={{ width: '5.83%' }}>
                             <h4>Reported</h4>
                         </div>
-                        <div className="colmn" style={{width:'4.16%'}}>
+                        <div className="colmn" style={{ width: '4.16%' }}>
                             <h4>Hours</h4>
                         </div>
-                        <div className="colmn" style={{width:'15%'}}>
+                        <div className="colmn" style={{ width: '15%' }}>
                             <h4>Developers</h4>
                         </div>
-                        <div className="colmn" style={{width:'11.25%'}}>
+                        <div className="colmn" style={{ width: '11.25%' }}>
                             <h4>Billed Date</h4>
                         </div>
-                        <div className="colmn" style={{width:'7.5%'}}>
+                        <div className="colmn" style={{ width: '7.5%' }}>
                             <h4>Hours Billed</h4>
                         </div>
-                        <div className="colmn" style={{width:'11.25%'}}>
+                        <div className="colmn" style={{ width: '11.25%' }}>
                             <h4>Earned By</h4>
                         </div>
-                        <div className="colmn" style={{width:'11.25%'}}>
+                        <div className="colmn" style={{ width: '11.25%' }}>
                             <h4>TS Name</h4>
                         </div>
-                        <div className="colmn" style={{width:'22.5%'}}>
+                        <div className="colmn" style={{ width: '22.5%' }}>
                             <h4>Description</h4>
                         </div>
-                        <div className="colmn" style={{width:'11.25%'}}>
+                        <div className="colmn" style={{ width: '11.25%' }}>
                             <h4>Action</h4>
                         </div>
                     </div>
