@@ -8,7 +8,7 @@ let BillingTaskDescriptionForm = (props) => {
     return <form onSubmit={handleSubmit}>
         <div className="row">
             <div className="col-md-6">
-                <Field name="releasePlan.name"
+                <Field name="releasePlanName"
                     component={renderText}
                     label={"Task Name"} readOnly={true} />
             </div>
@@ -18,7 +18,7 @@ let BillingTaskDescriptionForm = (props) => {
                     label={"Billing Date:"} readOnly={true} />
             </div>
             <div className="col-md-3">
-                <Field name="billingEmployee.name"
+                <Field name="employeeName"
                     component={renderText}
                     label={"Billing Employee:"} readOnly={true} />
             </div>

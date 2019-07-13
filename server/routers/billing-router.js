@@ -23,8 +23,8 @@ billingRouter.post("/inreview-billing-plans", async ctx => {
     return await MDL.BillingTaskModel.getInReviewBillingPlans(ctx.request.body, ctx.state.user)
 })
 
-
-
-
+billingRouter.post("/add-billing-task-description", async ctx => {
+    return await MDL.BillingTaskModel.updateBillingTaskDescription(ctx.request.body, ctx.state.user)
+})
 
 export default billingRouter

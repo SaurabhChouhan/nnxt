@@ -1,4 +1,7 @@
 import * as AC from "./actionConsts"
+import {showComponent} from './'
+import { formValueSelector, initialize } from 'redux-form'
+import { BILLING_TASK_DESCRIPTION_DIALOG } from '../components/componentConsts'
 
 
 export const addBillingTaskCriteria = (criteria) => ({
@@ -64,6 +67,34 @@ export const getInReviewBillingPlansFromServer = (criteria) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(criteria)
+        }).then(
+            response => response.json()
+        )
+    }
+}
+
+export const fetchCurrentDescriptionFromState = (data) => {
+    let selector = formValueSelector('billing-task-form-' + data._id)
+    return (dispatch, getState) => {
+        let state = getState()
+        let description = selector(state, 'description')
+        console.log("found description from state ", description)
+        data.description = description
+        dispatch(initialize('billing-task-description', data))
+        dispatch(showComponent(BILLING_TASK_DESCRIPTION_DIALOG))
+    }
+}
+
+export const addBillingTaskDescriptionOnServer = (billingData) => {
+    return (dispatch, getState) => {
+        return fetch('/api/billings/add-billing-task-description', {
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(billingData)
         }).then(
             response => response.json()
         )
