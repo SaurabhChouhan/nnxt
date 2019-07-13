@@ -100,3 +100,19 @@ export const addBillingTaskDescriptionOnServer = (billingData) => {
         )
     }
 }
+
+export const updateBillingTaskOnServer = (billingData) => {
+    return (dispatch, getState) => {
+        return fetch('/api/billings/billing-task', {
+            method: 'put',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(billingData)
+        }).then(
+            response => response.json()
+        )
+    }
+}

@@ -27,4 +27,8 @@ billingRouter.post("/add-billing-task-description", async ctx => {
     return await MDL.BillingTaskModel.updateBillingTaskDescription(ctx.request.body, ctx.state.user)
 })
 
+billingRouter.put("/billing-task", async ctx => {
+    return await MDL.BillingTaskModel.updateBillingTask(ctx.request.body, ctx.state.user)
+})
+
 export default billingRouter

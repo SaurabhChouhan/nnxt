@@ -1,8 +1,9 @@
 import { connect } from 'react-redux'
 import { BillingTaskList } from '../../components'
-import { showComponent, fetchCurrentDescriptionFromState } from '../../actions'
+import { showComponent, fetchCurrentDescriptionFromState, updateBillingTaskOnServer } from '../../actions'
 import moment from 'moment'
 import { DATE_DISPLAY_FORMAT } from '../../clientconstants'
+import { NotificationManager } from "react-notifications";
 
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -15,7 +16,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         }))
     },
     saveBillingTask: (data) => {
-        console.log("save billing task called ", data)
+        return dispatch(updateBillingTaskOnServer(data)).then((json) => {
+            if (json.success) {
+                NotificationManager.success('Changes saved!')
+            } else
+                NotificationManager.error(json.message)
+            return json
+        })
     }
 })
 

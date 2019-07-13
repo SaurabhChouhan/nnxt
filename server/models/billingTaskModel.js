@@ -343,6 +343,23 @@ billingTaskSchema.statics.updateBillingTaskDescription = async (billingInput, us
     }
 }
 
+billingTaskSchema.statics.updateBillingTask = async (billingInput, user) => {
+    let billingTask = await BillingTaskModel.findById(billingInput._id)
+    // find release of this billing task
+    if (!userHasRole(user, ROLE_TOP_MANAGEMENT)) {
+        // check to see if user is leader or manager of this release
+        let release = await ReleaseModel.findById(billingTask.release._id, { "manager": 1, "leader": 1 })
+        if (user._id.toString() !== release.manager._id.toString() && user._id.toString() !== release.leader._id.toString()) {
+            // as user is not a top management user and is also not manager or leader of this release he cannot change description
+            throw new AppError('Not authorized to change billing task', ACCESS_DENIED, HTTP_FORBIDDEN)
+        }
+    }
+
+    // User is authorized to change description
+    return billingTask
+}
+
+
 /*
 
 billingTaskSchema.statics.searchBillingTask = async (criteria, user) => {
