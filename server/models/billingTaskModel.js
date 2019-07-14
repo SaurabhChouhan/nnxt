@@ -182,7 +182,7 @@ billingTaskSchema.statics.getBillingProjects = async (criteria, user) => {
         if (!userProjectIDs || !userProjectIDs.length)
             return []
 
-        return await MDL.ProjectModel.find({ "_id": { $in: userProjectIDs } }, { name: 1})
+        return await MDL.ProjectModel.find({ "_id": { $in: userProjectIDs } }, { name: 1 })
     }
 }
 
@@ -238,13 +238,11 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
     }
 
     let crit = {}
-
-
     if (criteria.clientID && criteria.clientID.trim().length > 0)
         crit['client._id'] = mongoose.Types.ObjectId(criteria.clientID)
 
-    if (criteria.releaseID && criteria.releaseID.trim().length > 0)
-        crit['release._id'] = mongoose.Types.ObjectId(criteria.releaseID)
+    if (criteria.projectID && criteria.projectID.trim().length > 0)
+        crit['project._id'] = mongoose.Types.ObjectId(criteria.projectID)
 
     let fromMoment = undefined
     let toMoment = undefined
@@ -262,7 +260,6 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         crit['billedDate'] = { $lte: toMoment.toDate() }
     }
 
-    let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
     let billingTasks = await BillingTaskModel.aggregate([{
         $match: crit
     }, {
@@ -278,6 +275,7 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         }
     }])
 
+    //let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
     if (billingTasks && billingTasks.length) {
         let releasePlans = []
         for (let billingTask of billingTasks) {
@@ -331,12 +329,10 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         }
         //let releasePlans = await processBillingTasks(billingTasks)
         return {
-            release,
             releasePlans
         };
     } else {
         return {
-            release,
             releasePlans: []
         }
     }

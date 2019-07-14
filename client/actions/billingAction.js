@@ -1,5 +1,5 @@
 import * as AC from "./actionConsts"
-import {showComponent} from './'
+import { showComponent } from './'
 import { formValueSelector, initialize } from 'redux-form'
 import { BILLING_TASK_DESCRIPTION_DIALOG } from '../components/componentConsts'
 
@@ -18,6 +18,11 @@ export const addInReviewBillingPlans = (release, releasePlans) => ({
 export const addBillingClients = (billingClients) => ({
     type: AC.ADD_BILLING_CLIENTS,
     billingClients
+})
+
+export const addBillingProjects = (billingProjects) => ({
+    type: AC.ADD_BILLING_PROJECTS,
+    billingProjects
 })
 
 export const addBillingReleases = (billingReleases) => ({

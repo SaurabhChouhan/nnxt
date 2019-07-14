@@ -4,7 +4,7 @@ import { ContentMain, Sidebar } from "../sections"
 class AppHome extends Component {
     render() {
         return <div className="container-fluid">
-            {this.props.showLoader && <div class="loader-outer">
+            {this.props.showLoader && <div className="loader-outer">
                 <img src="/images/loader.gif" />
             </div>
             }

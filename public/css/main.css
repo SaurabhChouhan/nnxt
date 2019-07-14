@@ -2558,3 +2558,25 @@ div.notificationTable table tr[width="100%"] td {
     margin-top: -128px;
     z-index: 999999;
 }
+
+.billing-project-container {
+    display: block;
+    float: left;
+    width: 100%;
+}
+
+.billing-project {
+    padding: 6px;
+    background: #299c64;
+    color: white;
+    margin-bottom: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.billing-project:after {
+    content: '\25be';
+    float: right;
+    font-size: 30px;
+    line-height: 30px;
+}

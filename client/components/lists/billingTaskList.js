@@ -121,49 +121,64 @@ let BillingReleasePlan = (props) => {
     </div>]
 }
 
-class BillingTaskList extends Component {
-
-    render() {
-        const { reviewDescription, saveBillingTask, projectTeam } = this.props
-        return <div>
-            <div className="col-md-12 ">
-                <div className="billing-section">
-                    <div className="billing-header text-center">
-                        <div className="colmn" style={{ width: '5.83%' }}>
-                            <h4>Reported</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '4.16%' }}>
-                            <h4>Hours</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '15%' }}>
-                            <h4>Developers</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '11.25%' }}>
-                            <h4>Billed Date</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '7.5%' }}>
-                            <h4>Hours Billed</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '11.25%' }}>
-                            <h4>Earned By</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '11.25%' }}>
-                            <h4>TS Name</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '22.5%' }}>
-                            <h4>Description</h4>
-                        </div>
-                        <div className="colmn" style={{ width: '11.25%' }}>
-                            <h4>Action</h4>
-                        </div>
+const BillingTaskList = (props) => {
+    const { reviewDescription, saveBillingTask, projectTeam } = props
+    return <div>
+        <div className="col-md-12 ">
+            <div className="billing-section">
+                <div className="billing-header text-center">
+                    <div className="colmn" style={{ width: '5.83%' }}>
+                        <h4>Reported</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '4.16%' }}>
+                        <h4>Hours</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '15%' }}>
+                        <h4>Developers</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '11.25%' }}>
+                        <h4>Billed Date</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '7.5%' }}>
+                        <h4>Hours Billed</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '11.25%' }}>
+                        <h4>Earned By</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '11.25%' }}>
+                        <h4>TS Name</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '22.5%' }}>
+                        <h4>Description</h4>
+                    </div>
+                    <div className="colmn" style={{ width: '11.25%' }}>
+                        <h4>Action</h4>
                     </div>
                 </div>
             </div>
-            {
-                this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} {...{ projectTeam, reviewDescription, saveBillingTask }} />)
-            }
         </div>
-    }
+        {
+            this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} {...{ projectTeam, reviewDescription, saveBillingTask }} />)
+        }
+    </div>
 }
 
-export default BillingTaskList
+const BillingProjectsList = (props) => {
+    const { billingProjects } = props
+    return <div className="billing-project-container col-md-12">
+        {
+            billingProjects && billingProjects.length > 0 && billingProjects.map((billingProject, idx) =>
+                <div key={'billing-project-' + idx} className="billing-project" onClick={() => {
+                    props.getInReviewBillingPlans(Object.assign({}, props.criteria, {
+                        projectID: billingProject._id
+                    }))
+                }}>
+                    {billingProject.name}
+                </div>
+            )
+        }
+    </div>
+
+}
+
+export default BillingProjectsList
