@@ -29,6 +29,38 @@ export const clearInReviewBillingPlans = () => ({
     type: AC.CLEAR_INREVIEW_BILLING
 })
 
+export const getBillingClientsFromServer = (criteria) => {
+    return (dispatch, getState) => {
+        return fetch('/api/billings/billing-clients', {
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(criteria)
+        }).then(
+            response => response.json()
+        )
+    }
+}
+
+export const getBillingProjectsFromServer = (criteria) => {
+    return (dispatch, getState) => {
+        return fetch('/api/billings/billing-projects', {
+            method: 'post',
+            credentials: "include",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(criteria)
+        }).then(
+            response => response.json()
+        )
+    }
+}
+
 export const getBillingReleasesOfClientFromServer = (criteria) => {
     return (dispatch, getState) => {
         return fetch('/api/billings/billing-releases', {
@@ -45,21 +77,6 @@ export const getBillingReleasesOfClientFromServer = (criteria) => {
     }
 }
 
-export const getBillingClientsFromServer = (criteria) => {
-    return (dispatch, getState) => {
-        return fetch('/api/billings/billing-clients', {
-            method: 'post',
-            credentials: "include",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(criteria)
-        }).then(
-            response => response.json()
-        )
-    }
-}
 
 export const getInReviewBillingPlansFromServer = (criteria) => {
     return (dispatch, getState) => {

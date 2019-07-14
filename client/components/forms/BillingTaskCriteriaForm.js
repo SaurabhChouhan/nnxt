@@ -14,17 +14,19 @@ class BillingTaskCriteriaForm extends Component {
     render() {
         let { clients, releases, criteria } = this.props
         // actions
-        let { fetchBillingReleases, getInReviewBillingPlans, fetchBillingClients } = this.props
+        let { getInReviewBillingPlans, fetchBillingProjects } = this.props
         return <form>
             <div className="col-md-12">
                 <div className="col-md-2 pad">
                     <Field name="clientID"
                         onChange={(event, newValue, oldValue) => {
+                            /*
                             getInReviewBillingPlans(Object.assign({}, criteria, {
                                 clientID: newValue,
                                 releaseID: undefined
                             }))
-                            fetchBillingReleases(Object.assign({}, criteria, {
+                            */
+                           fetchBillingProjects(Object.assign({}, criteria, {
                                 clientID: newValue,
                                 releaseID: undefined
                             }))

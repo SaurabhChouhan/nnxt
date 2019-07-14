@@ -13,6 +13,11 @@ billingRouter.post('/billing-clients', async ctx => {
     return await MDL.BillingTaskModel.getBillingClients(ctx.request.body, ctx.state.user)
 })
 
+billingRouter.post('/billing-projects', async ctx => {
+    V.validate(ctx.request.body, V.billingTaskBillingProjectStruct)
+    return await MDL.BillingTaskModel.getBillingProjects(ctx.request.body, ctx.state.user)
+})
+
 billingRouter.post('/billing-releases', async ctx => {
     V.validate(ctx.request.body, V.billingTaskBillingReleasesStruct)
     return await MDL.BillingTaskModel.getBillingReleases(ctx.request.body, ctx.state.user)

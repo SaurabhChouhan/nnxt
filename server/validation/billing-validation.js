@@ -19,3 +19,10 @@ export const billingTaskBillingReleasesStruct = t.struct({
     clientID: ObjectId
 })
 
+export const billingTaskBillingProjectStruct = t.struct({
+    fromDate: t.maybe(validDate),
+    toDate: t.maybe(validDate),
+    clientID: ObjectId
+})
+
+
