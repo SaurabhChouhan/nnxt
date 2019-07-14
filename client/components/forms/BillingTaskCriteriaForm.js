@@ -3,6 +3,9 @@ import { Field, reduxForm } from 'redux-form'
 import { renderDateTimePickerString, renderSelect } from '../forms/fields'
 
 class BillingTaskCriteriaForm extends Component {
+    componentWillMount() {
+        this.props.fetchBillingClients(this.props.criteria)
+    }
 
     componentDidMount() {
         this.props.initialize(this.props.criteria)
@@ -14,35 +17,16 @@ class BillingTaskCriteriaForm extends Component {
         let { fetchBillingReleases, getInReviewBillingPlans, fetchBillingClients } = this.props
         return <form>
             <div className="col-md-12">
-                <div className="col-md-2">
-                    <Field name="fromDate"
-                        component={renderDateTimePickerString}
-                        onChange={(event, newValue, oldValue) => {
-                            fetchBillingClients(Object.assign({}, criteria, {
-                                fromDate: newValue
-                            }))
-
-
-                        }}
-                        showTime={false}
-                        label={"From:"} />
-                </div>
-                <div className="col-md-2">
-                    <Field name="toDate"
-                        component={renderDateTimePickerString}
-                        onChange={(event, newValue, oldValue) => {
-                            fetchBillingClients(Object.assign({}, criteria, {
-                                toDate: newValue
-                            }))
-                        }}
-                        showTime={false}
-                        label={"To:"} />
-                </div>
                 <div className="col-md-2 pad">
                     <Field name="clientID"
                         onChange={(event, newValue, oldValue) => {
+                            getInReviewBillingPlans(Object.assign({}, criteria, {
+                                clientID: newValue,
+                                releaseID: undefined
+                            }))
                             fetchBillingReleases(Object.assign({}, criteria, {
-                                clientID: newValue
+                                clientID: newValue,
+                                releaseID: undefined
                             }))
                         }}
                         label={'Client:'}
@@ -63,6 +47,29 @@ class BillingTaskCriteriaForm extends Component {
                         label={'Release:'}
                     />
                 </div>
+                <div className="col-md-2">
+                    <Field name="fromDate"
+                        component={renderDateTimePickerString}
+                        onChange={(event, newValue, oldValue) => {
+                            getInReviewBillingPlans(Object.assign({}, criteria, {
+                                fromDate: newValue
+                            }))
+                        }}
+                        showTime={false}
+                        label={"From:"} />
+                </div>
+                <div className="col-md-2">
+                    <Field name="toDate"
+                        component={renderDateTimePickerString}
+                        onChange={(event, newValue, oldValue) => {
+                            getInReviewBillingPlans(Object.assign({}, criteria, {
+                                toDate: newValue
+                            }))
+                        }}
+                        showTime={false}
+                        label={"To:"} />
+                </div>
+
             </div>
         </form>
     }

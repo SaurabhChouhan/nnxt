@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import Tab from '../tabs/Tab'
-import {Loader} from 'react-loaders'
 import {Route} from 'react-router-dom'
 import * as U from "../../../server/utils";
 
@@ -267,7 +266,7 @@ P                    </TabSectionContainer>
     render() {
         logger.debug(logger.TABS_RENDER, this.props)
         return <div>
-            <Loader type="square-spin" active={this.props.showLoader}/>
+
             <div className="col-md-12 adminTabs">
                 <ul className="nav nav-tabs">
                     {this.tabData && this.tabData.length && this.tabData.map(function (tab, idx) {

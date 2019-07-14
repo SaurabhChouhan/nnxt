@@ -1,22 +1,12 @@
 import { connect } from 'react-redux'
 import { BillingTaskCriteriaForm } from "../../components"
-import { addBillingTaskCriteria, getInReviewBillingPlansFromServer, addInReviewBillingPlans, getBillingClientsFromServer, addBillingClients, getBillingReleasesOfClientFromServer, addBillingReleases } from '../../actions'
+import { addBillingTaskCriteria, getInReviewBillingPlansFromServer, addInReviewBillingPlans, getBillingClientsFromServer, addBillingClients, getBillingReleasesOfClientFromServer, addBillingReleases, showLoader, hideLoader, clearInReviewBillingPlans } from '../../actions'
 
 import { change } from 'redux-form'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-
-    getInReviewBillingPlans: (criteria) => {
-        dispatch(addBillingTaskCriteria(criteria))
-        dispatch(getInReviewBillingPlansFromServer(criteria)).then(json => {
-            if (json.success)
-                dispatch(addInReviewBillingPlans(json.data.release, json.data.releasePlans))
-        })
-
-    },
-    fetchBillingClients: (criteria) => {
-        dispatch(addBillingTaskCriteria(criteria))
-        dispatch(getBillingClientsFromServer(criteria)).then(json => {
+    fetchBillingClients: () => {
+        dispatch(getBillingClientsFromServer()).then(json => {
             if (json.success) {
                 dispatch(addBillingClients(json.data))
                 dispatch(change('billing-task-criteria', 'clientID', ''))
@@ -29,6 +19,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
         dispatch(getBillingReleasesOfClientFromServer(criteria)).then(json => {
             dispatch(addBillingReleases(json.data))
             dispatch(change('billing-task-criteria', 'releaseID', ''))
+        })
+    },
+    getInReviewBillingPlans: (criteria) => {
+        dispatch(addBillingTaskCriteria(criteria))
+        dispatch(showLoader())
+        dispatch(clearInReviewBillingPlans())
+        dispatch(getInReviewBillingPlansFromServer(criteria)).then(json => {
+            if (json.success)
+                dispatch(addInReviewBillingPlans(json.data.release, json.data.releasePlans))
+            dispatch(hideLoader())
         })
     }
 })

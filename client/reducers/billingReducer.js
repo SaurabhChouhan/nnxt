@@ -33,15 +33,17 @@ const billingReducer = (state = initialState, action) => {
                 inReviewBillingPlans: []
             })
         }
+        case AC.CLEAR_INREVIEW_BILLING:
+            return Object.assign({}, state, {
+                inReviewBillingPlans: []
+            })
         case AC.ADD_BILLING_RELEASES:
             return Object.assign({}, state, {
                 billingReleases: action.billingReleases.map(r => {
                     r.name = r.name + " (" + r.project.name + ")"
                     return r;
-                }),
-                inReviewBillingPlans: []
+                })
             })
-
         default:
             return state
     }

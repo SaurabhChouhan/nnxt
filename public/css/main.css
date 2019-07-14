@@ -2549,3 +2549,12 @@ div.notificationTable table tr[width="100%"] td {
     margin-right: 5px;
     width: calc(100% - 43px);
 }
+
+.loader-outer {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    margin-left: -128px;
+    margin-top: -128px;
+    z-index: 999999;
+}

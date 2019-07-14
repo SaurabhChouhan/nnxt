@@ -25,6 +25,10 @@ export const addBillingReleases = (billingReleases) => ({
     billingReleases
 })
 
+export const clearInReviewBillingPlans = () => ({
+    type: AC.CLEAR_INREVIEW_BILLING
+})
+
 export const getBillingReleasesOfClientFromServer = (criteria) => {
     return (dispatch, getState) => {
         return fetch('/api/billings/billing-releases', {

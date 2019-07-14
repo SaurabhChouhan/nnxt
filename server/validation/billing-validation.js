@@ -3,7 +3,7 @@ import t from 'tcomb-validation'
 
 export const billingTaskSearchStruct = t.struct({
     clientID: ObjectId,
-    releaseID: ObjectId,
+    releaseID: t.maybe(ObjectId),
     fromDate: t.maybe(validDate),
     toDate: t.maybe(validDate)
 })

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import * as MDL from '../models'
-import { BILLING_STATUS_UNBILLED, BILLING_STATUS_BILLED, BILLING_STATUS_PAID, BILLING_STATUS_BILLING_CREATED, REPORT_PENDING, REPORT_COMPLETED, DATE_AND_DAY_SHOW_FORMAT, DATE_DISPLAY_FORMAT, DATE_FORMAT, OWNER_TYPE_CLIENT } from '../serverconstants'
+import { BILLING_STATUS_INREVIEW, BILLING_STATUS_APPROVED, BILLING_STATUS_CREATED, BILLING_STATUS_BILLED, BILLING_STATUS_PAID, REPORT_PENDING, REPORT_COMPLETED, DATE_AND_DAY_SHOW_FORMAT, DATE_DISPLAY_FORMAT, DATE_FORMAT, OWNER_TYPE_CLIENT } from '../serverconstants'
 mongoose.Promise = global.Promise
 import logger from '../logger'
 import AppError from '../AppError';
@@ -14,7 +14,7 @@ let billingTaskSchema = mongoose.Schema({
     description: String, // Timesheet description
     billingRate: { type: Number, default: 0 }, // Billing rate this billing task would be charged
     billingAmount: { type: Number, default: 0 }, // billing rate * billed hours
-    status: { type: String, enum: [BILLING_STATUS_UNBILLED, BILLING_STATUS_BILLED, BILLING_STATUS_BILLING_CREATED, BILLING_STATUS_PAID], default: BILLING_STATUS_UNBILLED },
+    status: { type: String, enum: [BILLING_STATUS_INREVIEW, BILLING_STATUS_APPROVED, BILLING_STATUS_CREATED, BILLING_STATUS_BILLED, BILLING_STATUS_PAID], default: BILLING_STATUS_INREVIEW },
     // Developer against which this earning would go against
     billingEmployee: {
         _id: mongoose.Schema.ObjectId,
@@ -79,7 +79,7 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
     billingTask.billingAmount = taskPlan.report.reportedHours * billingRate.billingRate
     billingTask.billingRate = billingRate.billingRate
     billingTask.description = taskPlan.report.description
-    billingTask.status = BILLING_STATUS_UNBILLED
+    billingTask.status = BILLING_STATUS_INREVIEW
     billingTask.billingEmployee = taskPlan.employee
     billingTask.timesheetEmployee = taskPlan.employee
     billingTask.taskPlan = taskPlan
@@ -118,30 +118,8 @@ billingTaskSchema.statics.createBillingTaskFromReportedTask = async (taskPlan) =
 This API would return all the clients that have billing tasks as per criteira and as per logged in user roles
 */
 billingTaskSchema.statics.getBillingClients = async (criteria, user) => {
-    let fromMoment = undefined
-    let toMoment = undefined
-
-    if (criteria.fromDate) {
-        fromMoment = momentInUTC(criteria.fromDate)
-    }
-
-    if (criteria.toDate) {
-        toMoment = momentInUTC(criteria.toDate)
-    }
-
-    let crit = {}
-
     if (userHasRole(user, ROLE_TOP_MANAGEMENT)) {
-        // User would see all those clients which has billing tasks as per criteria
-        if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
-            crit['$and'] = [{ 'billedDate': { $gte: fromMoment.toDate() } }, { 'billedDate': { $lte: toMoment.toDate() } }]
-        } else if (fromMoment && fromMoment.isValid()) {
-            crit['billedDate'] = { $gte: fromMoment.toDate() }
-        } else if (toMoment && toMoment.isValid()) {
-            crit['billedDate'] = { $lte: toMoment.toDate() }
-        }
-
-        let distinctClientIDs = await BillingTaskModel.distinct("client._id", crit)
+        let distinctClientIDs = await BillingTaskModel.distinct("client._id", { "status": { $in: [BILLING_STATUS_INREVIEW, BILLING_STATUS_APPROVED] } })
         if (!distinctClientIDs || !distinctClientIDs.length)
             return []
         console.log("client ids found as ", distinctClientIDs)
@@ -149,10 +127,10 @@ billingTaskSchema.statics.getBillingClients = async (criteria, user) => {
 
     } else {
         // user would only see those clients which has billing tasks of releases this user is either leader or manager
-        let distinctReleaseIDs = await BillingTaskModel.distinct("release._id", crit)
+        let distinctReleaseIDs = await BillingTaskModel.distinct("release._id", { "status": { $in: [BILLING_STATUS_INREVIEW, BILLING_STATUS_APPROVED] } })
         console.log("distinct release IDs is ", distinctReleaseIDs)
         // Filter release ids that has this user as either manager or leader
-        let userReleaseIDs = await MDL.ReleaseModel.distinct("_id", { "_id": { $in: distinctReleaseIDs }, $or: [{ "manager._id": user._id }, { "leader._id": user._id }] })
+        let userReleaseIDs = await MDL.ReleaseModel.distinct("_id", { "_id": { $in: distinctReleaseIDs }, $or: [{ "manager._id": user._id }, { "leader._id": user._id }, { "status": { $in: [BILLING_STATUS_INREVIEW, BILLING_STATUS_APPROVED] } }] })
         if (!userReleaseIDs || !userReleaseIDs.length)
             return []
         let distinctClientIDs = await MDL.ReleaseModel.distinct("client._id", { "_id": { $in: userReleaseIDs } })
@@ -220,12 +198,15 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         throw new AppError('Only user with role [' + ROLE_TOP_MANAGEMENT + '] can search for billing tasks', ACCESS_DENIED, HTTP_FORBIDDEN)
     }
 
-    let crit = {
-        'client._id': mongoose.Types.ObjectId(criteria.clientID),
-        'release._id': mongoose.Types.ObjectId(criteria.releaseID)
-    }
+    let crit = {}
 
-    let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
+
+    if (criteria.clientID && criteria.clientID.trim().length > 0)
+        crit['client._id'] = mongoose.Types.ObjectId(criteria.clientID)
+
+    if (criteria.releaseID && criteria.releaseID.trim().length > 0)
+        crit['release._id'] = mongoose.Types.ObjectId(criteria.releaseID)
+
     let fromMoment = undefined
     let toMoment = undefined
     if (criteria.fromDate) {
@@ -234,7 +215,6 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
     if (criteria.toDate) {
         toMoment = momentInUTC(criteria.toDate)
     }
-
     if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
         crit['$and'] = [{ 'billedDate': { $gte: fromMoment.toDate() } }, { 'billedDate': { $lte: toMoment.toDate() } }]
     } else if (fromMoment && fromMoment.isValid()) {
@@ -243,6 +223,9 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         crit['billedDate'] = { $lte: toMoment.toDate() }
     }
 
+    let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
+
+    
     let billingTasks = await BillingTaskModel.aggregate([{
         $match: crit
     }, {

@@ -485,8 +485,9 @@ export const RELEASE_TYPES_WITH_LABELS = [
 
 export const CLIENT_ARIPRA = 'Aripra'
 
-export const BILLING_STATUS_UNBILLED = 'unbilled' // Billing task is created 
-export const BILLING_STATUS_BILLING_CREATED = 'billing-created' // Billing task is now part of a timesheet
+export const BILLING_STATUS_INREVIEW = 'inreview' // Billing task in review (initial status)
+export const BILLING_STATUS_APPROVED = 'approved' // Billing task is approved by leader/manager, can be added now in timesheet 
+export const BILLING_STATUS_CREATED = 'created' // Billing task is now part of a timesheet
 export const BILLING_STATUS_BILLED = 'billed' // Timesheet with this entry is sent to client
 export const BILLING_STATUS_PAID = 'paid' // Timesheet where billing task entry is added is marked as paid
 

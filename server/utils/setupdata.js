@@ -57,8 +57,8 @@ export const performSetup = async (config) => {
 
 
 const runSetupInstructions = async () => {
-    await createNewDataRemovingOld()
-    //await setupBillingSupport()
+    //await createNewDataRemovingOld()
+    await setupBillingSupport()
 }
 
 const createNewDataRemovingOld = async () => {
