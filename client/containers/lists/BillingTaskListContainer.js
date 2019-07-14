@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import { BillingTaskList } from '../../components'
-import {getInReviewBillingPlansFromServer, addBillingTaskCriteria, addInReviewBillingPlans, hideLoader, clearInReviewBillingPlans, showLoader, fetchCurrentDescriptionFromState, updateBillingTaskOnServer } from '../../actions'
+import { getInReviewBillingPlansFromServer, addBillingTaskCriteria, addInReviewBillingPlans, hideLoader, clearInReviewBillingPlans, showLoader, fetchCurrentDescriptionFromState, updateBillingTaskOnServer } from '../../actions'
 import moment from 'moment'
 import { DATE_DISPLAY_FORMAT } from '../../clientconstants'
 import { NotificationManager } from "react-notifications";
@@ -33,6 +33,13 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 dispatch(addInReviewBillingPlans(json.data.release, json.data.releasePlans))
             dispatch(hideLoader())
         })
+    },
+    projectUnselected: (criteria) => {
+        dispatch(addBillingTaskCriteria(Object.assign({}, criteria, {
+            projectID: undefined,
+            releaseID: undefined
+        })))
+        dispatch(clearInReviewBillingPlans())
     }
 })
 
@@ -50,7 +57,8 @@ const mapStateToProps = (state, ownProps) => {
         inReviewBillingPlans: state.billing.inReviewBillingPlans,
         projectTeam,
         billingProjects: state.billing.billingProjects,
-        criteria: state.billing.billingTaskCriteria
+        criteria: state.billing.billingTaskCriteria,
+        showLoader: state.app.showLoader
     }
 }
 

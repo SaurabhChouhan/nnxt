@@ -144,19 +144,15 @@ billingTaskSchema.statics.getBillingProjects = async (criteria, user) => {
     console.log("getBillingReleases called")
     let fromMoment = undefined
     let toMoment = undefined
-
     if (criteria.fromDate) {
         fromMoment = momentInUTC(criteria.fromDate)
     }
-
     if (criteria.toDate) {
         toMoment = momentInUTC(criteria.toDate)
     }
-
     let crit = {
         'client._id': mongoose.Types.ObjectId(criteria.clientID)
     }
-
     if (userHasRole(user, ROLE_TOP_MANAGEMENT)) {
         // User would see all those clients which has billing tasks as per criteria
         if (fromMoment && toMoment && fromMoment.isValid() && toMoment.isValid()) {
@@ -168,21 +164,55 @@ billingTaskSchema.statics.getBillingProjects = async (criteria, user) => {
         }
 
         let distinctProjectIDs = await BillingTaskModel.distinct("project._id", crit)
+        let distinctReleaseIDs = await BillingTaskModel.distinct("release._id", crit)
         if (!distinctProjectIDs || !distinctProjectIDs.length)
             return []
+        let projects = await MDL.ProjectModel.find({ "_id": { $in: distinctProjectIDs } }, { name: 1 })
+        let result = []
+        if (projects && projects.length) {
+            for (let project of projects) {
+                let releases = await MDL.ReleaseModel.find({ "_id": { $in: distinctReleaseIDs }, "project._id": project._id }, { name: 1 })
+                for (let release of releases) {
+                    result.push({
+                        releaseID: release._id,
+                        projectID: project._id,
+                        projectName: project.name,
+                        releaseName: release.name
+                    })
+                }
+            }
+        }
 
-        return await MDL.ProjectModel.find({ "_id": { $in: distinctProjectIDs } }, { name: 1, project: 1 })
+        return result;
 
     } else {
         // user would only see those clients which has billing tasks of releases this user is either leader or manager
         let distinctProjectIDs = await BillingTaskModel.distinct("project._id", crit)
+        let distinctReleaseIDs = await BillingTaskModel.distinct("release._id", crit)
         console.log("distinct release IDs is ", distinctReleaseIDs)
         // Filter release ids that has this user as either manager or leader
         let userProjectIDs = await MDL.ReleaseModel.distinct("project._id", { "project._id": { $in: distinctProjectIDs }, $or: [{ "manager._id": user._id }, { "leader._id": user._id }] })
+        let userReleaseIDs = await MDL.ReleaseModel.distinct("_id", { "_id": { $in: distinctReleaseIDs }, $or: [{ "manager._id": user._id }, { "leader._id": user._id }] })
         if (!userProjectIDs || !userProjectIDs.length)
             return []
 
-        return await MDL.ProjectModel.find({ "_id": { $in: userProjectIDs } }, { name: 1 })
+        let projects = await MDL.ProjectModel.find({ "_id": { $in: userProjectIDs } }, { name: 1 })
+        let result = []
+        if (projects && projects.length) {
+            for (let project of projects) {
+                let releases = await MDL.ReleaseModel.find({ "_id": { $in: userReleaseIDs }, "project._id": project._id }, { name: 1 })
+                for (let release of releases) {
+                    result.push({
+                        releaseID: release._id,
+                        projectID: project._id,
+                        projectName: project.name,
+                        releaseName: release.name
+                    })
+                }
+            }
+        }
+
+        return result
     }
 }
 
@@ -241,8 +271,8 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
     if (criteria.clientID && criteria.clientID.trim().length > 0)
         crit['client._id'] = mongoose.Types.ObjectId(criteria.clientID)
 
-    if (criteria.projectID && criteria.projectID.trim().length > 0)
-        crit['project._id'] = mongoose.Types.ObjectId(criteria.projectID)
+    if (criteria.releaseID && criteria.releaseID.trim().length > 0)
+        crit['release._id'] = mongoose.Types.ObjectId(criteria.releaseID)
 
     let fromMoment = undefined
     let toMoment = undefined
@@ -275,7 +305,7 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         }
     }])
 
-    //let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
+    let release = await MDL.ReleaseModel.findById(criteria.releaseID, { project: 1, client: 1, name: 1, "iterations.billedAmount": 1, "iterations.unbilledAmount": 1, "team": 1, "nonProjectTeam": 1 })
     if (billingTasks && billingTasks.length) {
         let releasePlans = []
         for (let billingTask of billingTasks) {
@@ -329,11 +359,13 @@ billingTaskSchema.statics.getInReviewBillingPlans = async (criteria, user) => {
         }
         //let releasePlans = await processBillingTasks(billingTasks)
         return {
-            releasePlans
+            releasePlans,
+            release
         };
     } else {
         return {
-            releasePlans: []
+            releasePlans: [],
+            release
         }
     }
 }

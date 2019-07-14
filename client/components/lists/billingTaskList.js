@@ -123,8 +123,8 @@ let BillingReleasePlan = (props) => {
 
 const BillingTaskList = (props) => {
     const { reviewDescription, saveBillingTask, projectTeam } = props
-    return <div>
-        <div className="col-md-12 ">
+    return <div class="billing-section-container">
+        {props.inReviewBillingPlans && props.inReviewBillingPlans.length > 0 && <div className="col-md-12 ">
             <div className="billing-section">
                 <div className="billing-header text-center">
                     <div className="colmn" style={{ width: '5.83%' }}>
@@ -156,9 +156,9 @@ const BillingTaskList = (props) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>}
         {
-            this.props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} {...{ projectTeam, reviewDescription, saveBillingTask }} />)
+            props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} {...{ projectTeam, reviewDescription, saveBillingTask }} />)
         }
     </div>
 }
@@ -168,12 +168,22 @@ const BillingProjectsList = (props) => {
     return <div className="billing-project-container col-md-12">
         {
             billingProjects && billingProjects.length > 0 && billingProjects.map((billingProject, idx) =>
-                <div key={'billing-project-' + idx} className="billing-project" onClick={() => {
-                    props.getInReviewBillingPlans(Object.assign({}, props.criteria, {
-                        projectID: billingProject._id
-                    }))
-                }}>
-                    {billingProject.name}
+                <div key={'billing-project-' + idx} className="billing-project">
+                    <div className={props.criteria.releaseID && billingProject.releaseID.toString() == props.criteria.releaseID.toString() && !props.showLoader ? "accordion-up" : "accordion-down"}
+                        onClick={() => {
+                            if (props.criteria.releaseID && billingProject.releaseID.toString() == props.criteria.releaseID.toString()) {
+                                props.projectUnselected(props.criteria)
+
+                            } else {
+                                props.getInReviewBillingPlans(Object.assign({}, props.criteria, {
+                                    releaseID: billingProject.releaseID
+                                }))
+                            }
+                        }}>
+                        <span>{billingProject.projectName + "(" + billingProject.releaseName + ")"}</span>
+                    </div>
+
+                    {props.criteria.releaseID && billingProject.releaseID.toString() == props.criteria.releaseID.toString() && <BillingTaskList {...props} />}
                 </div>
             )
         }

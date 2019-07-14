@@ -2384,11 +2384,15 @@ div.notificationTable table tr[width="100%"] td {
     height: 32;
 }
 
+.billing-section-container {
+    padding-bottom:10px;
+    float:left;
+}
+
 .billing-section {
     border: none;
     margin-top: 8px;
     display: inline-block;
-    float: left;
     width: 100%;
 }
 
@@ -2438,6 +2442,7 @@ div.notificationTable table tr[width="100%"] td {
     min-height: 20px;
     padding: 5px;
     border-right: 1px solid #212531;
+    font-size: 14px;
 }
 
 .btask-form-col-bg {
@@ -2509,6 +2514,7 @@ div.notificationTable table tr[width="100%"] td {
 
 .billing-dateName h4 {
     margin: 0px;
+    color:black;
 }
 
 .billing-desc {
@@ -2566,17 +2572,29 @@ div.notificationTable table tr[width="100%"] td {
 }
 
 .billing-project {
-    padding: 6px;
-    background: #299c64;
     color: white;
     margin-bottom: 10px;
     font-size: 20px;
     cursor: pointer;
+    float: left;
+    width: 100%;
+    border: 2px solid #b2b2ce;
 }
 
-.billing-project:after {
-    content: '\25be';
+.billing-project .accordion-up, .billing-project .accordion-down {
+    background: #b2b2ce;
+    padding: 6px;
+    width: 100%;
+}
+
+.billing-project .accordion-up:after {
+    content: '\25b3';
     float: right;
-    font-size: 30px;
+    line-height: 30px;
+}
+
+.billing-project .accordion-down:after {
+    content: '\25bc';
+    float: right;
     line-height: 30px;
 }
