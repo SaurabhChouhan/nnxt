@@ -158,7 +158,7 @@ const BillingTaskList = (props) => {
             </div>
         </div>}
         {
-            props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} {...{ projectTeam, reviewDescription, saveBillingTask }} />)
+            props.inReviewBillingPlans.length > 0  ? props.inReviewBillingPlans.map((rp, idx) => <BillingReleasePlan key={'billing-release-plan-' + rp._id} releasePlan={rp} {...{ projectTeam, reviewDescription, saveBillingTask }} />) : !props.showLoader && <span className="not-found-message">No billing tasks found...</span>
         }
     </div>
 }

@@ -1,8 +1,8 @@
 import { connect } from 'react-redux'
 import { BillingTaskCriteriaForm } from "../../components"
 import { addBillingProjects, addBillingTaskCriteria, getInReviewBillingPlansFromServer, addInReviewBillingPlans, getBillingClientsFromServer, addBillingClients, getBillingReleasesOfClientFromServer, addBillingReleases, showLoader, hideLoader, clearInReviewBillingPlans, getBillingProjectsFromServer } from '../../actions'
-
-import { change } from 'redux-form'
+import { change, getFormValues } from 'redux-form'
+import moment from 'moment'
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
     fetchBillingClients: () => {
@@ -16,7 +16,10 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     },
     fetchBillingProjects: (criteria) => {
         dispatch(addBillingTaskCriteria(criteria))
-        dispatch(getBillingProjectsFromServer(criteria)).then(json => {
+        // don't use date criterias to find biling projects
+        dispatch(getBillingProjectsFromServer({
+            clientID: criteria.clientID
+        })).then(json => {
             console.log("fetch billing projects ", json.data)
             if (json.success) {
                 dispatch(addBillingProjects(json.data))
@@ -45,12 +48,27 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     }
 })
 
-const mapStateToProps = (state, ownProps) => ({
-    clients: state.billing.billingClients,
-    releases: state.billing.billingReleases,
-    client: state.billing.selectedClient,
-    criteria: state.billing.billingTaskCriteria
-})
+const mapStateToProps = (state, ownProps) => {
+    let billingCriteriaValues = getFormValues('billing-task-criteria')(state)
+    console.log("billing criteria values ", billingCriteriaValues)
+    let maxStartDate = undefined
+    let minEndDate = undefined
+    if (billingCriteriaValues && billingCriteriaValues.fromDate) {
+        minEndDate = moment(billingCriteriaValues.fromDate).toDate()
+    }
+    if (billingCriteriaValues && billingCriteriaValues.toDate) {
+        maxStartDate = moment(billingCriteriaValues.toDate).toDate()
+    }
+
+    return {
+        maxStartDate,
+        minEndDate,
+        clients: state.billing.billingClients,
+        releases: state.billing.billingReleases,
+        client: state.billing.selectedClient,
+        criteria: state.billing.billingTaskCriteria
+    }
+}
 
 const BillingTaskCriteriaFormContainer = connect(
     mapStateToProps,

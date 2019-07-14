@@ -2385,8 +2385,8 @@ div.notificationTable table tr[width="100%"] td {
 }
 
 .billing-section-container {
-    padding-bottom:10px;
-    float:left;
+    padding-bottom: 10px;
+    float: left;
 }
 
 .billing-section {
@@ -2514,7 +2514,7 @@ div.notificationTable table tr[width="100%"] td {
 
 .billing-dateName h4 {
     margin: 0px;
-    color:black;
+    color: black;
 }
 
 .billing-desc {
@@ -2597,4 +2597,9 @@ div.notificationTable table tr[width="100%"] td {
     content: '\25bc';
     float: right;
     line-height: 30px;
+}
+
+.not-found-message {
+    color: black;
+    padding-left: 15px;
 }

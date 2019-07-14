@@ -47,7 +47,9 @@ class BillingTaskCriteriaForm extends Component {
                             }
                         }}
                         showTime={false}
-                        label={"From:"} />
+                        label={"From:"}
+                        max={this.props.maxStartDate}
+                    />
                 </div>
                 <div className="col-md-2">
                     <Field name="toDate"
@@ -64,6 +66,7 @@ class BillingTaskCriteriaForm extends Component {
                                 }))
                             }
                         }}
+                        min={this.props.minEndDate}
                         showTime={false}
                         label={"To:"} />
                 </div>
