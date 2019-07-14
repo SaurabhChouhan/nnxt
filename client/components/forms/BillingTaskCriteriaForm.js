@@ -14,19 +14,13 @@ class BillingTaskCriteriaForm extends Component {
     render() {
         let { clients, releases, criteria } = this.props
         // actions
-        let { getInReviewBillingPlans, fetchBillingProjects } = this.props
+        let { getInReviewBillingPlans, fetchBillingProjects, addBillingTaskCriteria } = this.props
         return <form>
             <div className="col-md-12">
                 <div className="col-md-2 pad">
                     <Field name="clientID"
                         onChange={(event, newValue, oldValue) => {
-                            /*
-                            getInReviewBillingPlans(Object.assign({}, criteria, {
-                                clientID: newValue,
-                                releaseID: undefined
-                            }))
-                            */
-                           fetchBillingProjects(Object.assign({}, criteria, {
+                            fetchBillingProjects(Object.assign({}, criteria, {
                                 clientID: newValue,
                                 releaseID: undefined
                             }))
@@ -38,24 +32,19 @@ class BillingTaskCriteriaForm extends Component {
                     />
                 </div>
                 <div className="col-md-2">
-                    <Field name="releaseID"
-                        onChange={(event, newValue, oldValue) => {
-                            getInReviewBillingPlans(Object.assign({}, criteria, {
-                                releaseID: newValue
-                            }))
-                        }}
-                        component={renderSelect}
-                        options={releases}
-                        label={'Release:'}
-                    />
-                </div>
-                <div className="col-md-2">
                     <Field name="fromDate"
                         component={renderDateTimePickerString}
                         onChange={(event, newValue, oldValue) => {
-                            getInReviewBillingPlans(Object.assign({}, criteria, {
-                                fromDate: newValue
-                            }))
+                            // Make call to get release plan only when release id is part of criteria which means a release id is open
+                            if (criteria.releaseID) {
+                                getInReviewBillingPlans(Object.assign({}, criteria, {
+                                    fromDate: newValue
+                                }))
+                            } else {
+                                addBillingTaskCriteria(Object.assign({}, criteria, {
+                                    fromDate: newValue
+                                }))
+                            }
                         }}
                         showTime={false}
                         label={"From:"} />
@@ -64,9 +53,16 @@ class BillingTaskCriteriaForm extends Component {
                     <Field name="toDate"
                         component={renderDateTimePickerString}
                         onChange={(event, newValue, oldValue) => {
-                            getInReviewBillingPlans(Object.assign({}, criteria, {
-                                toDate: newValue
-                            }))
+                            // Make call to get release plan only when release id is part of criteria which means a release id is open
+                            if (criteria.releaseID) {
+                                getInReviewBillingPlans(Object.assign({}, criteria, {
+                                    toDate: newValue
+                                }))
+                            } else {
+                                addBillingTaskCriteria(Object.assign({}, criteria, {
+                                    toDate: newValue
+                                }))
+                            }
                         }}
                         showTime={false}
                         label={"To:"} />

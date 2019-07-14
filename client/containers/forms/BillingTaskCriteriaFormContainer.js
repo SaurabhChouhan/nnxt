@@ -39,6 +39,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
                 dispatch(addInReviewBillingPlans(json.data.release, json.data.releasePlans))
             dispatch(hideLoader())
         })
+    },
+    addBillingTaskCriteria: (criteria) => {
+        dispatch(addBillingTaskCriteria(criteria))
     }
 })
 
