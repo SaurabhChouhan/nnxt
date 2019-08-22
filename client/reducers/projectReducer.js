@@ -13,13 +13,25 @@ let projectReducer = (state = initialState, action) => {
         case AC.ADD_FILTERED_PROJECTS:
             return Object.assign({}, state, {filtered: action.projects})
         case AC.ADD_PROJECT:
-            return Object.assign({}, state, {all: [...state.all, action.project]})
+            return Object.assign({}, state, {
+                // all: [...state.all, action.project],
+                filtered: [...state.filtered, action.project]
+            })
         case AC.EDIT_PROJECT:
-            return Object.assign({}, state, {all: state.all.map(item => item._id == action.project._id ? action.project : item)})
+            return Object.assign({}, state, {
+                // all: state.all.map(item => item._id == action.project._id ? action.project : item),
+                filtered: state.filtered.map(item => item._id == action.project._id ? action.project : item)
+            })
         case AC.DELETE_PROJECT:
-            return Object.assign({}, state, {all: state.all.filter(item => item._id !== action.projectID)})
+            return Object.assign({}, state, {
+                // all: state.all.filter(item => item._id !== action.projectID),
+                filtered: state.filtered.filter(item => item._id !== action.projectID)
+            })
         case AC.UPDATE_PROJECT:
-            return Object.assign({}, state, {all: state.all.map(item => item._id == action.project._id ? action.project : item)})
+            return Object.assign({}, state, {
+                // all: state.all.map(item => item._id == action.project._id ? action.project : item),
+                filtered: state.filtered.map(item => item._id == action.project._id ? action.project : item)
+            })
 
         default:
             return state

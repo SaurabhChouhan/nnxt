@@ -4,6 +4,8 @@ import {withRouter} from 'react-router-dom'
 import {ConfirmationDialog} from "../index";
 import * as CM from "../../clientMsg"
 import ToggleButton from 'react-toggle-button'
+import {Field, reduxForm} from 'redux-form'
+import {renderSelect} from "../forms/fields";
 
 class ProjectList extends Component {
 
@@ -85,6 +87,10 @@ class ProjectList extends Component {
     }
 
     render() {
+        let status = [
+            { _id: 1, name: "Active" },
+            { _id: 0, name: "Inactive" }
+        ]
         return (
             <div>{this.state.showProjectDeletionDialog &&
             <ConfirmationDialog show={true} onConfirm={this.OkConfirmationForDeletingProject.bind(this)}
@@ -101,6 +107,20 @@ class ProjectList extends Component {
                                 <button className="btn customBtn"
                                         onClick={() => this.props.showProjectCreationForm()}>Create Project
                                 </button>
+
+                                <div className="release-button-container">
+                                    <Field name="isActive" component={renderSelect} label={"Status:"}
+                                           options={status}
+                                           showNoneOption={false}
+                                           onChange={(event, newValue) => {
+                                               console.log("get the value of status", newValue)
+                                               let status = false
+                                               if(newValue==1)
+                                                   status = true
+                                               this.props.filterProject({isActive: status })
+                                           }}
+                                    />
+                                </div>
 
                                 <div className="estimation">
 
@@ -137,5 +157,7 @@ class ProjectList extends Component {
         )
     }
 }
-
+ProjectList = reduxForm({
+    form: "project-list"
+})(ProjectList)
 export default withRouter(ProjectList)

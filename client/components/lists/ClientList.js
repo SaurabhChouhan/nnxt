@@ -99,10 +99,8 @@ class ClientList extends Component {
                                            options={status}
                                            showNoneOption={false}
                                            onChange={(event, newValue) => {
-                                               console.log("get the value of status", newValue)
-                                               this.props.filterClient(Object.assign({}, this.props.client, {
-                                                   status: newValue
-                                               }))
+                                               console.log("get the value of status", newValue, this.props.client)
+                                               this.props.filterClient({ status: newValue })
                                            }}  />
 
                                 </div>

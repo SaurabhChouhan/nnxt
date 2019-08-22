@@ -25,12 +25,16 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 console.log("projectID",projectID)
         dispatch(A.toggleIsActive(projectID))
     },
+    filterProject: (value) =>{
+        console.log("fetchClient", value)
+        dispatch(A.searchProjectsFromServer(value))
+    }
 })
 
 const mapStateToProps = (state, ownProps) => {
     return {
         loggedInUser: state.user.loggedIn,
-        projects: state.project.all
+        projects: state.project.filtered
     }
 }
 

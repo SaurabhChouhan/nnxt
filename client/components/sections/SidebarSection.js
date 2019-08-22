@@ -112,7 +112,8 @@ const SidebarSection = (props) => {
                             roles.indexOf(SC.ROLE_NEGOTIATOR) > -1 &&
                             <li><Link to="/app-home/projects" onClick={() => {
                                 props.dispatch(A.getAllClientsFromServer())
-                                props.dispatch(A.getAllProjectsFromServer())
+                                props.dispatch(A.searchProjectsFromServer({isActive: true}))
+                                // props.dispatch(A.getAllProjectsFromServer())
                                 props.dispatch(A.showComponentHideOthers(COC.PROJECT_LIST))
                             }}>Projects</Link></li>
                         }
